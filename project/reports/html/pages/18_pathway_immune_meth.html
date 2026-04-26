@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07132b">
+  <title>경로 · 면역 · 메틸레이션 해석 | THCA Multi-Omics Dashboard</title>
+  <meta name="description" content="바이오마커의 생물학적 해석 층: 경로 농축 분석(ORA), TCGA 면역 시그니처 대조, GSE97466 메틸레이션 분류기.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/edu-toggle.css">
+  <style>
+    .pim-hero{position:relative;padding:36px 32px;border-radius:var(--radius-xl);overflow:hidden;border:1px solid rgba(148,163,184,.14);background:linear-gradient(135deg,rgba(6,17,38,.95),rgba(11,26,58,.68) 45%,rgba(17,52,92,.55));margin-bottom:22px}
+    .pim-hero::before{content:'';position:absolute;inset:-40%;z-index:-1;pointer-events:none;background:conic-gradient(from 240deg at 25% 40%,rgba(139,92,246,.24),transparent 30%),radial-gradient(circle at 70% 90%,rgba(94,234,212,.14),transparent 55%);filter:blur(60px);animation:pimDrift 24s linear infinite}
+    @keyframes pimDrift{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .pim-hero h1{font-size:clamp(1.8rem,1.3rem + 1.6vw,2.8rem);line-height:1.05;margin:0 0 6px;color:var(--ink-strong)}
+    .pim-hero .lede{color:var(--slate-300);max-width:760px}
+    .pim-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:20px}
+    .pim-kpi{padding:14px 16px;border-radius:14px;border:1px solid rgba(139,92,246,.3);background:linear-gradient(135deg,rgba(139,92,246,.14),rgba(94,234,212,.06))}
+    .pim-kpi .k{font-size:1.5rem;font-weight:700;color:#e9d5ff;letter-spacing:-.02em;line-height:1}
+    .pim-kpi .l{font-size:.7rem;color:var(--slate-300);margin-top:4px;text-transform:uppercase;letter-spacing:.12em}
+    .pim-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+    .pim-card{padding:16px;border-radius:var(--radius-lg);border:1px solid rgba(148,163,184,.14);background:rgba(11,26,58,.45);backdrop-filter:blur(10px)}
+    .pim-card h3{margin:0 0 6px;font-size:1.12rem;color:var(--ink-strong)}
+    .pim-card .note{font-size:.85rem;color:var(--slate-400);margin-bottom:10px;line-height:1.55}
+    .pim-card .caveat{font-size:.83rem;padding:10px 12px;border-radius:8px;background:rgba(250,204,21,.07);border:1px solid rgba(250,204,21,.2);color:#fde68a;margin-top:10px}
+    .pim-card iframe{width:100%;height:620px;border:0;display:block;border-radius:10px;background:#07132b}
+    .pim-inlinefig{width:100%;min-height:520px;border-radius:10px;overflow:hidden}
+    .pim-footer-cta{padding:16px;border-radius:12px;background:rgba(11,26,58,.45);border:1px solid rgba(148,163,184,.12);margin-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+    .pim-footer-cta .txt{color:var(--slate-300);font-size:.9rem}
+    .pim-footer-cta .btns{display:flex;gap:8px;flex-wrap:wrap}
+    .pim-pillrow{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .pim-pill{padding:3px 10px;border-radius:999px;font-size:.72rem;border:1px solid rgba(94,234,212,.3);color:#bae6fd;background:rgba(6,17,38,.5)}
+    .pim-pill.warn{border-color:rgba(250,204,21,.4);color:#fde68a}
+    .pim-pill.bad{border-color:rgba(251,113,133,.4);color:#fda4af}
+  </style>
+<!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body class="dark">
+  <a class="sr-only" href="#main-content">본문으로 건너뛰기</a>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="../index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar">
+        <a class="nav-link" href="../index.html" role="menuitem">홈</a><a class="nav-link" href="01_overview.html" role="menuitem">개요</a><a class="nav-link" href="02_datasets.html" role="menuitem">데이터셋</a><a class="nav-link" href="03_sample_master.html" role="menuitem">샘플</a><a class="nav-link" href="04_gene_panels.html" role="menuitem">패널</a><a class="nav-link" href="05_eda.html" role="menuitem">EDA</a><a class="nav-link" href="06_scores.html" role="menuitem">점수</a><a class="nav-link" href="07_ml_baseline.html" role="menuitem">ML</a><a class="nav-link" href="08_panel_comparison.html" role="menuitem">패널 비교</a><a class="nav-link" href="09_shap.html" role="menuitem">SHAP</a><a class="nav-link" href="10_gene_explorer.html" role="menuitem">유전자</a><a class="nav-link" href="11_cohort_compare.html" role="menuitem">코호트</a><a class="nav-link" href="12_business.html" role="menuitem">비즈니스</a><a class="nav-link" href="13_reports.html" role="menuitem">리포트</a><a class="nav-link" href="14_caveats.html" role="menuitem">주의점</a><a class="nav-link" href="15_drug_discovery.html" role="menuitem">드럭</a><a class="nav-link" href="16_quantum.html" role="menuitem">양자</a><a class="nav-link" href="17_biomarker_insights.html" role="menuitem">마커</a><a class="nav-link active" href="18_pathway_immune_meth.html" role="menuitem">해석</a><a class="nav-link" href="20a_meta_power.html" role="menuitem">통계</a><a class="nav-link" href="21a_survival.html" role="menuitem">생존</a><a class="nav-link" href="19a_cmap_network.html" role="menuitem">약물리버스</a><a class="nav-link" href="view_investor.html" role="menuitem">투자자</a><a class="nav-link" href="view_researcher.html" role="menuitem">연구자</a><a class="nav-link" href="99_glossary.html" role="menuitem">용어</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <main class="content" id="main-content" style="grid-column:1 / -1">
+
+      <section class="pim-hero" aria-labelledby="pim-hero-title">
+        <div class="subtle mono">18 / INTERPRETATION — PATHWAY · IMMUNE · METHYLATION</div>
+        <h1 id="pim-hero-title">경로 · 면역 · 메틸레이션 해석</h1>
+        <p class="lede">바이오마커 리스트에서 한 층 더 들어가, (1) 어떤 <em>생물학적 경로</em>가 BRAF-like와 RAS-like를 가르는지, (2) 어떤 <em>면역 세포 활성</em>이 달라지는지, (3) <em>DNA 메틸레이션</em>만으로도 tumor vs normal을 구분할 수 있는지 검증합니다. 소표본 · proxy label 한계는 각 섹션에 명시했습니다.</p>
+        <div class="pim-kpi-row" role="list">
+          <div class="pim-kpi" role="listitem"><div class="k">단백분해효소</div><div class="l">가장 강한 경로 (q=5.12e-09)</div></div>
+          <div class="pim-kpi" role="listitem"><div class="k">조절 T세포</div><div class="l">최대 BRAF↔RAS 면역 대조 (p=5.56e-23)</div></div>
+          <div class="pim-kpi" role="listitem"><div class="k">0.979</div><div class="l">메틸레이션 AUC · n=141 (95% CI 0.95-1.00)</div></div>
+          <div class="pim-kpi" role="listitem"><div class="k">18</div><div class="l">유의 경로 (q&lt;0.05, fold&gt;1.5)</div></div>
+        </div>
+      </section>
+
+      <details class="edu-toggle" open style="margin-bottom:18px;border-radius:12px;border:1px solid rgba(148,163,184,.18);background:rgba(11,26,58,.35);overflow:hidden">
+        <summary style="cursor:pointer;padding:10px 14px;font-size:.9rem;color:#5eead4;list-style:none">💡 이 페이지 읽는 법</summary>
+        <div style="padding:4px 16px 14px;border-top:1px dashed rgba(148,163,184,.18);color:var(--ink);font-size:.9rem;line-height:1.6">
+          <p>이 페이지는 <strong>바이오마커 리스트를 기능적으로 해석</strong>하는 3개 층입니다.</p>
+          <ul>
+            <li><strong>경로 농축 (Pathway ORA)</strong> — BRAF-up / RAS-up 유전자 집합이 16개 선별 경로와 유의하게 overlap하는지 하이퍼지오메트릭 검정으로 확인. dot 크기=fold enrichment, 색=-log10(q).</li>
+            <li><strong>면역 시그니처</strong> — 면역 세포별 마커 유전자 z-score 평균을 샘플 점수로 사용 (ssGSEA-유사). BRAF_like vs RAS_like 분포를 violin + Mann-Whitney U로 비교.</li>
+            <li><strong>메틸레이션 분류기</strong> — GSE97466 (n=141) 상위 변동 프로브 5,000개에서 tumor vs normal 5-fold CV + 800-iter bootstrap AUC CI. 이 데이터셋은 <em>molecular subtype 라벨이 없어</em> histology-proxy(종양/정상)를 사용합니다.</li>
+          </ul>
+          <p class="subtle small">소표본 · 면역 deconvolution이 아닌 marker-gene proxy · 외부 메틸레이션 platform 차이 — 각 섹션 caveat 참조.</p>
+        </div>
+      </details>
+
+      <div class="pim-grid">
+
+        <section class="pim-card" id="pathway" data-explain-id="18_pathway_immune_meth-pathway">
+          <h3>① 경로 농축 (Pathway enrichment · ORA)</h3>
+          <div class="note">
+            <strong>방법:</strong> 하이퍼지오메트릭 검정 + BH 보정. Universe = TCGA DE 스캔에 포함된 51711 유전자. BRAF-up = log2FC&gt;0 &amp; FDR&lt;0.05 (10622개), RAS-up = log2FC&lt;0 &amp; FDR&lt;0.05 (9824개), Novel = 검증된 신규 마커 (2773개).  경로 세트는 MSigDB Hallmark(해당 subset 손코딩) + 갑상선 분화/탈분화 문헌 기반.
+          </div>
+          <div class="pim-pillrow">
+            <span class="pim-pill">BRAF-like: 단백분해효소 · 염증 · BRS-up · BRAF-like</span>
+            <span class="pim-pill">RAS-like: TDS core · BRS-up · RAS-like · 갑상선 분화</span>
+          </div>
+          <div class="pim-inlinefig" style="margin-top:12px">
+            <iframe src="../figs_interactive/pathway_dotplot.html" loading="lazy" title="Pathway dotplot"></iframe>
+          </div>
+          <div class="pim-inlinefig" style="margin-top:12px">
+            <iframe src="../figs_interactive/pathway_barplot_top15.html" loading="lazy" title="Top-15 pathways"></iframe>
+          </div>
+          <div class="caveat">
+            <strong>해석 한 줄:</strong> BRAF-like에서는 MAPK 출력 + 면역 exhaustion 신호가 강화되고, RAS-like는 TDS + thyroid lineage 분화가 유지됩니다.  노트: 경로 세트는 손선택 subset이며, full MSigDB C2/C5는 아닙니다. Fold enrichment는 universe 선택(51,711개 DE-tested 유전자)에 의존합니다.
+          </div>
+        </section>
+
+        <section class="pim-card" id="immune" data-explain-id="18_pathway_immune_meth-immune">
+          <h3>② 면역 세포 시그니처 (Immune cell signatures)</h3>
+          <div class="note">
+            <strong>방법:</strong> 각 시그니처의 마커 유전자 log2 발현을 샘플 축으로 z-score한 뒤 평균(ssGSEA-유사, <em>reference matrix 기반 CIBERSORT/xCell가 아님</em>).  TCGA-THCA 572개 샘플 (BRAF_like 442, RAS_like 119). 각 시그니처별 Mann-Whitney U + Cliff's delta.
+          </div>
+          <div class="pim-pillrow">
+            <span class="pim-pill">조절 T세포: BRAF↑ (δ=+0.59, p=5.6e-23)</span><span class="pim-pill">IFN-γ 반응: BRAF↑ (δ=+0.53, p=1.3e-18)</span><span class="pim-pill">대식세포 M1: BRAF↑ (δ=+0.50, p=9.9e-17)</span>
+          </div>
+          <div class="pim-inlinefig" style="margin-top:12px">
+            <iframe src="../figs_interactive/immune_signature_violin.html" loading="lazy" title="Immune signature violins"></iframe>
+          </div>
+          <div class="caveat">
+            <strong>정직한 한계:</strong> 이것은 <em>marker gene 평균 proxy</em>입니다. 실제 면역 세포 분율을 reference matrix로 decompose하는 CIBERSORT/xCell과는 다르며, 종양 부정수 유전자가 면역 마커와 co-express할 경우 bias가 발생할 수 있습니다. 신호가 약한 시그니처(n_markers &lt; 5)는 결과가 더 불안정합니다.
+          </div>
+        </section>
+
+        <section class="pim-card" id="methylation" data-explain-id="18_pathway_immune_meth-methylation">
+          <h3>③ 메틸레이션 분류기 (GSE97466 validation)</h3>
+          <div class="note">
+            <strong>방법:</strong> GSE97466 상위 변동 프로브 5,000개 β-value → stratified 5-fold CV (LogReg + RandomForest) → 800-iter bootstrap AUC 95% CI.  라벨 = tumor vs normal (이 데이터셋에는 BRAF/RAS mutation label이 없어 <em>histology proxy</em>를 사용).
+          </div>
+          <div class="pim-pillrow">
+            <span class="pim-pill">n = 141 (74 tumor, 67 normal)</span>
+            <span class="pim-pill">LogReg AUC = 0.979  (95% CI 0.95-1.00)</span>
+            <span class="pim-pill">RF AUC = 0.967  (95% CI 0.94-0.99)</span>
+          </div>
+          <div class="pim-inlinefig" style="margin-top:12px">
+            <iframe src="../figs_interactive/methylation_roc.html" loading="lazy" title="Methylation ROC"></iframe>
+          </div>
+          <div class="pim-inlinefig" style="margin-top:12px">
+            <iframe src="../figs_interactive/methylation_top_probes.html" loading="lazy" title="Methylation top probes"></iframe>
+          </div>
+          <div class="caveat">
+            <strong>정직한 한계:</strong> (1) n=141은 여전히 작고 특히 tumor 아형 비율이 고르지 않음 (cPTC가 다수). (2) 라벨이 <em>tumor vs normal histology proxy</em>이기 때문에 BRAF vs RAS 같은 분자 이분법은 <strong>이 섹션에서 평가하지 않음</strong>. (3) 450K (GPL13534) 플랫폼은 TCGA-THCA의 Illumina 플랫폼과 normalization/probes 구성이 다르며, 교차 적용 시 batch 효과가 크다. (4) mRNA(TCGA)와 methylation(GSE97466)은 <strong>서로 다른 환자 집단</strong>으로 직접 환자-수준 비교는 불가; 여기서는 standalone 외부 유효성 시험으로만 해석.
+          </div>
+        </section>
+
+        <section class="pim-card" id="sources" data-explain-id="18_pathway_immune_meth-sources">
+          <h3>참고 · 경로 세트 출처</h3>
+          <div class="note">
+            <p>경로 세트는 인터넷 fetch 없이 이 파일 안에 손코딩되어 있으며, 다음 출처의 subset입니다:</p>
+            <ul>
+              <li><strong>MSigDB Hallmark</strong> (Liberzon et al., <em>Cell Syst</em> 2015; PMID 26771021) — Hallmark_MAPK, Hallmark_PI3K_AKT_MTOR, Hallmark_EMT, Hallmark_Apoptosis, Hallmark_Inflammatory_Response.</li>
+              <li><strong>Thyroid differentiation score (TDS)</strong> — TCGA PTC (Cell 2014, PMID 25417114).  TDS 16-gene core + BRS-up/down surrogate.</li>
+              <li><strong>Dedifferentiation & aggressive signatures</strong> — Landa et al. <em>J Clin Invest</em> 2016 (PMID 27240834), Xing <em>Endocr Rev</em> 2013.</li>
+              <li><strong>Immune checkpoint / exhaustion</strong> — Thorsson et al. <em>Immunity</em> 2018 (PMID 29628290); Tirosh et al. <em>Science</em> 2016 (PMID 27124452).</li>
+            </ul>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="pim-footer-cta">
+        <div class="txt">이 페이지의 분석은 <strong>바이오마커 인사이트</strong>의 gene 리스트를 기능적으로 해석하고, <strong>드럭 디스커버리</strong>의 target prioritization 근거가 됩니다.</div>
+        <div class="btns">
+          <a class="btn sm" href="17_biomarker_insights.html">바이오마커 인사이트</a>
+          <a class="btn sm" href="15_drug_discovery.html">드럭 디스커버리</a>
+          <a class="btn sm ghost" href="14_caveats.html">주의점 &amp; 한계</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    if(typeof toggleTheme === 'undefined'){
+      window.toggleTheme = function(){
+        var isLight = document.documentElement.classList.toggle('light');
+        try{ localStorage.setItem('thyroid-theme', isLight ? 'light' : 'dark'); }catch(e){}
+      };
+    }
+  </script>
+<!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+# THCA Multi-Omics Dashboard — single-service compose
+# Bring up:  docker compose up -d
+# Tear down: docker compose down
+#
+# Data volumes are user-supplied: drop GEO .tar/GTEx/TCGA files into ./project/data_raw/
+# and re-run the pipeline to regenerate ./project/data_processed/.
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: thca-dashboard:latest
+    container_name: thca-dashboard
+    ports:
+      - "8012:8012"
+    environment:
+      PORT: "8012"
+      BIND: "0.0.0.0"
+    volumes:
+      - ./project/data_raw:/app/project/data_raw:ro
+      - ./project/data_processed:/app/project/data_processed
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8012/reports/html/index.html').status==200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

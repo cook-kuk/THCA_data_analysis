@@ -1,0 +1,560 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#000000">
+  <title>THYRAI — Generative AI for thyroid cancer</title>
+  <meta name="description" content="THYRAI — computational biomarker-to-compound triage for thyroid cancer. Research dashboard only.">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/brand.css">
+  
+<!-- explain-bubble-assets -->
+<link rel="stylesheet" href="assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body class="thyrai">
+<!-- status-banner-start -->
+<div style="background:linear-gradient(135deg,#0f172a 0%,#7c2d12 100%);color:#fff;padding:14px 20px;margin:0;font-family:-apple-system,sans-serif;font-size:14px;line-height:1.55">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <span style="background:#c0392b;color:#fff;font-weight:700;padding:2px 8px;border-radius:3px;font-size:11px;letter-spacing:0.04em">CURRENT · v5.2 SELF-AUDIT</span>
+    <span style="flex:1;min-width:280px"><b>v5.2 (2026-04-25):</b> v5.1 "THCA-specific batch_entanglement (DIAL=0.494)" headline은 ComBat을 LODO split 전에 full pooled X에 fit한 데이터 누수 아티팩트. <b>per-fold ComBat에서 THCA DIAL = 0.000 / true_biology</b> (ΔDIAL = −0.494, all 5 classifiers). Paper는 methodological framing으로 재작성 — DIAL이 누수를 detect한 것이 honest finding.</span>
+    <a href="../v5/bioinformatics_submission/" style="background:#58a6ff;color:#000;font-weight:700;padding:4px 10px;border-radius:4px;text-decoration:none;white-space:nowrap">📄 Paper →</a>
+    <a href="pages/39_v5p1_real_data.html" style="color:#fff;text-decoration:underline;white-space:nowrap">자세히 →</a>
+  </div>
+</div>
+<!-- status-banner-end -->
+
+
+
+<nav class="topnav" aria-label="Primary">
+  <div class="topnav__inner">
+    <a class="topnav__brand" href="index.html" aria-label="THYRAI home">
+      <img src="assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+    </a>
+    <ul class="topnav__links">
+      <li><a class="topnav__link" href="pages/00_all_sections.html" style="color:#F5A623;font-weight:600">📑 전체 메뉴</a></li>
+      <li><a class="topnav__link" href="pages/pipeline.html">Pipeline</a></li>
+      <li><a class="topnav__link" href="pages/39_v5p1_real_data.html" style="color:#F5A623">v5.1 Audit</a></li>
+      <li><a class="topnav__link" href="pages/papers_archive.html" style="color:#58a6ff">📄 Papers</a></li>
+      <li><a class="topnav__link" href="pages/view_investor.html" style="color:#14b8a6">💼 Investor</a></li>
+      <li><a class="topnav__link" href="pages/v11_novel_pathways.html" style="color:#7ccfcd">Novel Pathways</a></li>
+      <li><a class="topnav__link" href="pages/research_timeline.html">Timeline</a></li>
+      <li><a class="topnav__link" href="pages/research_reasoning.html" style="color:#6AB04C">Reasoning</a></li>
+      <li><a class="topnav__link" href="pages/v12_biological_evidence.html" style="color:#6AB04C">v12 Biology</a></li>
+      <li><a class="topnav__link" href="pages/v13_drug_discovery.html" style="color:#F5A623">v13 Drug Discovery</a></li>
+      <li><a class="topnav__link" href="pages/reading_guide.html">📖 Guide</a></li>
+      <li><a class="topnav__link" href="pages/platform_chem_showcase.html">Chem Showcase</a></li>
+      <li class="topnav__item"><a class="topnav__link" href="pages/v4a_archive_index.html">Archive</a>
+        <ul class="topnav__menu" role="menu">
+          <li><span class="topnav__menu-label">Platforms</span></li>
+          <li><a href="pages/platform_omega.html">OMEGA-THCA</a></li>
+          <li><a href="pages/platform_chem.html">CHEM-THCA</a></li>
+          <li><a href="pages/platform_panel.html">PANEL-THCA</a></li>
+          <li><a href="pages/platform_clinic.html">CLINIC-THCA</a></li>
+          <li><span class="topnav__menu-label" style="margin-top:8px">v4 / v3 / v2</span></li>
+          <li><a href="pages/research_timeline.html">Full Timeline (v2 → v5.1)</a></li>
+          <li><a href="pages/research_reasoning.html">Reasoning story (first-person)</a></li>
+          <li><a href="pages/33_v4_synthesis.html">v4 Synthesis</a></li>
+          <li><a href="pages/32_honest_audit.html">v4 Honest Audit</a></li>
+          <li><a href="pages/19_honesty_audit.html">v3 Honesty Audit</a></li>
+          <li><a href="index_v2_legacy.html">v2 Legacy index</a></li>
+          <li><span class="topnav__menu-label" style="margin-top:8px">Research detail</span></li>
+          <li><a href="pages/01_overview.html">01 · Overview</a></li>
+          <li><a href="pages/15_drug_discovery.html">15 · Drug discovery</a></li>
+          <li><a href="pages/17_biomarker_insights.html">17 · Biomarkers</a></li>
+          <li><a href="pages/23_bethesda_sim.html">23 · Bethesda sim</a></li>
+          <li><a href="pages/99_glossary.html">99 · Glossary</a></li>
+          <li><a href="pages/publications.html">Publications</a></li>
+        </ul>
+      </li>
+      <li><a class="topnav__link" href="pages/team.html">Team</a></li>
+      <li><a class="topnav__link" href="mailto:kukshomr@gmail.com?subject=THYRAI%20contact">Contact</a></li>
+    </ul>
+    <a class="topnav__cta" href="mailto:kukshomr@gmail.com?subject=THYRAI%20access%20request">Request Access</a>
+    <button class="topnav__hamburger" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span></button>
+  </div>
+</nav>
+
+
+<section aria-label="v5.2 latest hero" style="padding:40px 0 0">
+  <div class="container">
+<div style="background: linear-gradient(135deg, #0a0e1a 0%, #1a1f35 100%);
+            padding: 60px 40px; border-radius: 12px; margin-bottom: 40px;
+            border-left: 4px solid #c0392b;">
+  <p style="color: #c0392b; font-size: 0.9em; letter-spacing: 2px;
+            margin: 0 0 12px 0;">LATEST — v5.2 SELF-AUDIT (2026-04-25)</p>
+  <h1 style="color: #fff; font-size: 2.2em; margin: 0 0 20px 0;">
+    DIAL caught its own data leak — v5.1 retracted, paper reframed.
+  </h1>
+  <p style="color: #b8c5d6; font-size: 1.1em; line-height: 1.6;">
+    v5.1 reported THCA DIAL up to 0.494 ("4/5 batch_entangled") — that was an
+    artefact of fitting ComBat on the full pooled X <em>before</em> the LODO split.
+    With per-fold ComBat (v5.2 protocol), THCA returns
+    <b style="color:#6AB04C">DIAL = 0.000 / true_biology</b> across <b>all 5 classifiers</b>
+    (ΔDIAL = −0.494). The corrected protocol is what the paper now reports;
+    DIAL itself is reframed as a <em>leakage detector</em> that fired exactly as designed.
+  </p>
+  <div style="display: flex; gap: 24px; margin-top: 32px; flex-wrap: wrap;">
+    <div><span style="color: #6AB04C; font-size: 2em; font-weight: bold;">0/5</span>
+         <div style="color: #8a97aa; font-size: 0.9em;">THCA flipped (v5.2 corrected)</div></div>
+    <div><span style="color: #c0392b; font-size: 2em; font-weight: bold;">−0.494</span>
+         <div style="color: #8a97aa; font-size: 0.9em;">ΔDIAL after fix (LogReg_l2)</div></div>
+    <div><span style="color: #F5A623; font-size: 2em; font-weight: bold;">20/20</span>
+         <div style="color: #8a97aa; font-size: 0.9em;">Other cancers unchanged</div></div>
+    <div><span style="color: #58a6ff; font-size: 2em; font-weight: bold;">0.995</span>
+         <div style="color: #8a97aa; font-size: 0.9em;">THCA AUC<sub>post</sub> (v5.2)</div></div>
+  </div>
+  <div style="margin-top: 32px;">
+    <a href="/reports/html/pages/papers_viewer.html"
+       style="background: #c0392b; color: #fff; padding: 12px 24px;
+              border-radius: 6px; text-decoration: none; font-weight: 600;">
+      📄 v5.2 self-audit paper →
+    </a>
+    <a href="/reports/html/pages/v9_interactive_dial.html"
+       style="margin-left: 12px; background: #F5A623; color: #0a0e1a;
+              padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+      v9 live · v5.1 vs v5.2 toggle →
+    </a>
+    <a href="/reports/html/pages/research_timeline.html"
+       style="margin-left: 12px; background: transparent; color: #F5A623;
+              padding: 12px 24px; border: 1px solid #F5A623;
+              border-radius: 6px; text-decoration: none; font-weight: 600;">
+      Timeline (v2 → v5.2) →
+    </a>
+    <a href="/reports/html/pages/research_reasoning.html"
+       style="margin-left: 12px; background: #6AB04C; color: #0a0e14;
+              padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+      Read the reasoning story →
+    </a>
+    <a href="/reports/html/pages/v12_biological_evidence.html"
+       style="margin-left: 12px; background: transparent; color: #6AB04C;
+              padding: 12px 24px; border: 1px solid #6AB04C;
+              border-radius: 6px; text-decoration: none; font-weight: 600;">
+      v12 biological evidence →
+    </a>
+    <a href="/reports/html/pages/view_investor.html"
+       style="margin-left: 12px; background: #14b8a6; color: #0a0e14;
+              padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600;">
+      💼 Investor view →
+    </a>
+  </div>
+</div>
+  </div>
+</section>
+
+<!-- landing timeline strip -->
+<section aria-label="Research timeline strip" style="padding:12px 0 36px">
+  <div class="container">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px">
+      <div>
+        <span class="eyebrow" style="color:#F5A623;letter-spacing:0.18em;font-family:'JetBrains Mono',monospace;font-size:12px">RESEARCH TIMELINE</span>
+        <h2 style="font-weight:300;margin:6px 0 0;font-size:28px;letter-spacing:-0.015em">한 줄로 보는 버전 히스토리.</h2>
+      </div>
+      <a href="/reports/html/pages/research_timeline.html" style="color:#F5A623;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.14em;text-transform:uppercase">Open full timeline →</a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;position:relative" id="tl-strip">
+      <style>
+        #tl-strip a.tl-strip__card {
+          display:block;padding:18px 16px 16px;background:rgba(20,22,28,0.75);
+          border:1px solid var(--border);border-left:3px solid transparent;border-radius:5px;
+          color:var(--text-secondary);text-decoration:none;
+          transition:transform 150ms ease, border-color 150ms ease, background 150ms ease;
+          min-height: 170px;
+        }
+        #tl-strip a.tl-strip__card:hover { transform:translateY(-2px); background:rgba(245,166,35,0.04); }
+        #tl-strip a.tl-strip__card--baseline { border-left-color:#8a97aa; }
+        #tl-strip a.tl-strip__card--audit { border-left-color:#F5A623; }
+        #tl-strip a.tl-strip__card--retracted { border-left-color:#c24c4c; background:rgba(194,76,76,0.04); }
+        #tl-strip a.tl-strip__card--current { border-left-color:#6AB04C; background:rgba(106,176,76,0.06); }
+        #tl-strip .tl-strip__ver { font-family:'JetBrains Mono',monospace;font-size:13px;letter-spacing:0.12em;color:#EAEAEA;font-weight:600 }
+        #tl-strip .tl-strip__date { font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted);margin-top:4px }
+        #tl-strip .tl-strip__lead { margin:12px 0 10px;color:#EAEAEA;font-size:14px;line-height:1.4;font-weight:500 }
+        #tl-strip .tl-strip__sub { font-size:12.5px;color:var(--text-secondary);line-height:1.5 }
+        #tl-strip .tl-strip__tag { font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.12em;padding:2px 7px;border-radius:2px;display:inline-block;margin-top:8px }
+        #tl-strip .tag-baseline { background:rgba(138,151,170,0.15);color:#8a97aa }
+        #tl-strip .tag-audit { background:rgba(245,166,35,0.15);color:#F5A623 }
+        #tl-strip .tag-retracted { background:rgba(194,76,76,0.15);color:#c24c4c;font-weight:600 }
+        #tl-strip .tag-current { background:rgba(106,176,76,0.15);color:#6AB04C;font-weight:600 }
+        @media (max-width: 960px) { #tl-strip { grid-template-columns:repeat(2,1fr) } }
+        @media (max-width: 560px) { #tl-strip { grid-template-columns:1fr } }
+      </style>
+      <a class="tl-strip__card tl-strip__card--baseline" href="/reports/html/pages/research_timeline.html#v2">
+        <div class="tl-strip__ver">v2</div>
+        <div class="tl-strip__date">2026 · initial</div>
+        <div class="tl-strip__lead">baseline 파이프라인 공개</div>
+        <div class="tl-strip__sub">1,509 샘플 · 2,773 biomarker · 8 target · 15 compound. TCGA internal AUC 1.00.</div>
+        <span class="tl-strip__tag tag-baseline">BASELINE</span>
+      </a>
+      <a class="tl-strip__card tl-strip__card--audit" href="/reports/html/pages/research_timeline.html#v3">
+        <div class="tl-strip__ver">v3</div>
+        <div class="tl-strip__date">2026-04 · early</div>
+        <div class="tl-strip__lead">honest audit — D1 = 1.00 공개</div>
+        <div class="tl-strip__sub">Permutation p &lt; 0.001 · LODO 0.870 · bACC 0.500 붕괴로 분포 shift 증거.</div>
+        <span class="tl-strip__tag tag-audit">AUDIT</span>
+      </a>
+      <a class="tl-strip__card tl-strip__card--audit" href="/reports/html/pages/research_timeline.html#v4">
+        <div class="tl-strip__ver">v4</div>
+        <div class="tl-strip__date">2026-04 · mid</div>
+        <div class="tl-strip__lead">Linear ComBat = UNRECOVERABLE</div>
+        <div class="tl-strip__sub">ident 1.000→0.487 · LODO 0.997→0.011 · Bethesda 18 operating points · 6/6 audit PASS.</div>
+        <span class="tl-strip__tag tag-audit">AUDIT</span>
+      </a>
+      <a class="tl-strip__card tl-strip__card--retracted" href="/reports/html/pages/research_timeline.html#v5">
+        <div class="tl-strip__ver">v5</div>
+        <div class="tl-strip__date">2026-04 · late</div>
+        <div class="tl-strip__lead">cross-cancer 주장 — <u>철회</u></div>
+        <div class="tl-strip__sub">StratifiedKFold + semi-synthetic 누수로 pre-AUC inflate. v5.1로 교체.</div>
+        <span class="tl-strip__tag tag-retracted">RETRACTED</span>
+      </a>
+      <a class="tl-strip__card tl-strip__card--current" href="/reports/html/pages/research_timeline.html#v51">
+        <div class="tl-strip__ver">v5.1</div>
+        <div class="tl-strip__date">2026-04-24 · current</div>
+        <div class="tl-strip__lead">THCA-specific label-flip 확인</div>
+        <div class="tl-strip__sub">LODO + real data. 4/5 THCA flipped, 20/20 others null. DIAL max 0.494.</div>
+        <span class="tl-strip__tag tag-current">CURRENT</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section class="hero">
+  <div class="container hero__inner">
+    <span class="eyebrow">Generative AI for thyroid cancer · 전체 연구 개요</span>
+    <h1>공공 멀티오믹스 2,773개 바이오마커 → 8 타깃 → 15 화합물.</h1>
+    <p class="hero__lede"><b>데이터:</b> TCGA-THCA(Illumina RNA-seq) + 외부 GEO 코호트 5종(GSE27155 GPL570, GSE33630·GSE29265 pooled, GSE126698 RNA-seq, GSE76039 dediff) 총 <b>1,509 샘플 · 51,711 유전자</b>. mRNA 발현, Illumina 450k methylation, CIBERSORT 면역 deconvolution을 한 평면으로 통합.</p>
+    <p class="hero__lede"><b>목적:</b> 단일 코호트 overfitting을 제거하고 <b>BRAF-like vs RAS-like 분자 아형</b>을 구분하는 재현성 있는 바이오마커를 찾아, 바이오마커 → druggable target → ChEMBL/CMap 화합물 → Bethesda III/IV indeterminate triage 시뮬레이션까지 이어지는 end-to-end 컴퓨테이셔널 파이프라인을 공개 재현 가능한 형태로 구축.</p>
+    <p class="hero__lede"><b>분석:</b> ① Welch t-test + BH-FDR로 discovery ② 외부 코호트별 방향·유의성 replication(p&lt;0.05, log2FC sign 일치) ③ |Cohen's d|&gt;0.5 · median log2&gt;1 · 최소 2 코호트 presence 필터 ④ 54-gene LogReg 패널 학습 + elastic-net · isotonic recalibration ⑤ Permutation null 10,000회 · LODO · dataset-identifiability AUC로 batch leakage 상한 측정 ⑥ ChEMBL target 매핑 · CMap L1000 reversal score · PubMed anchoring.</p>
+    <p class="hero__lede"><b>결과:</b> <b>2,773개 replicated biomarker</b>(novel-validated filter 통과), <b>8 druggable target</b> (TACSTD2, TMPRSS4, PLEKHA6, CYP1B1, LDLR, GABRB2, B3GNT3, PTPRE), <b>15 compound</b>, 27 literature record. 54-gene 패널 — TCGA 내부 5-fold AUC <b>1.000</b>, 외부 GSE27155 isotonic-보정 AUC 0.929, LODO 평균 AUC 0.870. Permutation p = 0.001.</p>
+    <p class="hero__lede"><b>의미:</b> 공공 데이터만으로 thyroid cancer에 대한 decision-support triage + first-in-class drug-discovery hypothesis를 <b>reproducibly</b> 생성할 수 있음을 보여줌. 동시에 dataset-identifiability AUC = 1.00이라는 batch leakage 위험도 수치로 공개(honest audit). <b>본 대시보드는 연구용 프로토타입이며, 임상 진단 장치가 아님.</b></p>
+    <div class="hero__ctas">
+      <a class="btn-primary" href="pages/pipeline.html">자세히 →</a>
+      <a class="btn-primary" href="pages/v9_interactive_dial.html" style="background: #F5A623; color: #0a0a0b; margin-left: 10px;">Explore interactively →</a>
+      <a class="btn-primary" href="pages/papers_archive.html" style="background: transparent; color: #58a6ff; border: 1px solid #58a6ff; margin-left: 10px;">📄 Read the papers →</a>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="stats-h" style="padding-top:8px">
+  <div class="container">
+    <div class="key-stats">
+      <div class="key-stats__item"><div class="key-stats__value">1,509</div><div class="key-stats__label">Samples · 5 cohorts</div></div>
+      <div class="key-stats__item"><div class="key-stats__value">2,773</div><div class="key-stats__label">Replicated biomarkers</div></div>
+      <div class="key-stats__item"><div class="key-stats__value">8</div><div class="key-stats__label">Druggable targets</div></div>
+      <div class="key-stats__item"><div class="key-stats__value">15</div><div class="key-stats__label">Compounds</div></div>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="feature-map-h" style="padding:28px 0 8px">
+  <div class="container">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px">
+      <div>
+        <span class="section-label">기능 안내</span>
+        <h2 id="feature-map-h" style="margin:6px 0 0">이 사이트에서 무엇을 할 수 있나.</h2>
+      </div>
+      <button type="button" class="btn-ghost" onclick="window.ThyraiSiteMap && window.ThyraiSiteMap.init && document.querySelector('.topnav__map') && document.querySelector('.topnav__map').click()">전체 페이지 맵 열기</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px" id="feature-grid">
+      <article style="padding:20px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-radius:14px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;color:#F5A623;text-transform:uppercase">Data & QC</div>
+        <h3 style="margin:10px 0 8px">데이터셋·샘플 검증</h3>
+        <p style="margin:0 0 14px">공개 코호트별 플랫폼, 샘플 수, 품질 등급, sample-level confidence를 직접 확인할 수 있습니다.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><a href="pages/02_datasets.html">Datasets</a><a href="pages/03_sample_master.html">Sample Master</a><a href="pages/14_caveats.html">Caveats</a></div>
+      </article>
+      <article style="padding:20px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-radius:14px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;color:#F5A623;text-transform:uppercase">Exploration</div>
+        <h3 style="margin:10px 0 8px">구조·분포·점수 탐색</h3>
+        <p style="margin:0 0 14px">PCA·UMAP·tSNE, TDS/BRS/dediff score, panel coverage와 cohort 차이를 인터랙티브하게 읽을 수 있습니다.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><a href="pages/05_eda.html">EDA</a><a href="pages/06_scores.html">Scores</a><a href="pages/04_gene_panels.html">Gene Panels</a></div>
+      </article>
+      <article style="padding:20px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-radius:14px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;color:#F5A623;text-transform:uppercase">Modeling</div>
+        <h3 style="margin:10px 0 8px">모델 성능과 해석</h3>
+        <p style="margin:0 0 14px">ROC, PR, calibration, SHAP, panel-size trade-off를 한 화면에서 보고 모델 해석까지 연결할 수 있습니다.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><a href="pages/07_ml_baseline.html">ML Baseline</a><a href="pages/08_panel_comparison.html">Panel Comparison</a><a href="pages/09_shap.html">SHAP</a></div>
+      </article>
+      <article style="padding:20px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-radius:14px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;color:#F5A623;text-transform:uppercase">Gene & Biology</div>
+        <h3 style="margin:10px 0 8px">유전자·경로·생물학 근거</h3>
+        <p style="margin:0 0 14px">유전자별 발현 탐색, novel pathway, literature evidence, biomarker rationale을 연결해서 읽을 수 있습니다.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><a href="pages/10_gene_explorer.html">Gene Explorer</a><a href="pages/v11_novel_pathways.html">v11 Pathways</a><a href="pages/v12_biological_evidence.html">v12 Biology</a></div>
+      </article>
+      <article style="padding:20px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-radius:14px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;color:#F5A623;text-transform:uppercase">Therapeutics</div>
+        <h3 style="margin:10px 0 8px">타깃·화합물·리포지셔닝</h3>
+        <p style="margin:0 0 14px">바이오마커에서 druggable target과 compound shortlist까지 이어지는 치료 후보 발굴 흐름을 볼 수 있습니다.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><a href="pages/platform_chem_showcase.html">Chem Showcase</a><a href="pages/15_drug_discovery.html">Drug Discovery</a><a href="pages/v7_drug_repurposing.html">v7 Repurposing</a></div>
+      </article>
+      <article style="padding:20px;border:1px solid var(--border);background:rgba(255,255,255,0.02);border-radius:14px">
+        <div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.14em;color:#F5A623;text-transform:uppercase">Audit & Story</div>
+        <h3 style="margin:10px 0 8px">감사 로그와 연구 스토리</h3>
+        <p style="margin:0 0 14px">왜 어떤 주장을 철회했고 무엇이 남았는지, 버전별 reasoning과 honesty audit를 그대로 추적할 수 있습니다.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><a href="pages/research_timeline.html">Timeline</a><a href="pages/research_reasoning.html">Reasoning</a><a href="pages/32_honest_audit.html">Audit</a></div>
+      </article>
+    </div>
+    <p style="margin-top:14px;color:var(--text-muted);font-size:13px">팁: 우하단 <b>전체 페이지 맵</b> 또는 상단 <b>전체 메뉴맵</b> 버튼으로 모든 페이지를 검색할 수 있습니다. 단축키는 <code>Ctrl/Cmd + Shift + M</code> 입니다.</p>
+  </div>
+</section>
+
+<section aria-label="Data sources" style="padding:24px 0;border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08);margin-top:40px">
+  <div class="container">
+    <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;color:var(--text-muted);font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;text-transform:uppercase">
+      <span>Data sources</span>
+      <span style="color:var(--text-secondary)">TCGA · GEO · ChEMBL · PubMed · CMap · STRING</span>
+    </div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="platform-h">
+  <div class="container">
+    <span class="section-label">Platform</span>
+    <h2 id="platform-h" data-explain-id="index-platform-h">4개의 컴퓨테이셔널 레이어 — 하나의 갑상선암 연구 프로그램.</h2>
+    <p style="color:var(--text-secondary);max-width:70ch;margin-top:12px;font-size:16px;line-height:1.6">각 레이어는 <b>어떤 데이터로 · 어떤 목적으로 · 어떤 분석을 했고 · 결과가 무엇이고 · 어떤 의미가 있는지</b> 아래에 풀어서 적혀 있습니다. 각 카드 하단의 <code>자세히 →</code> 버튼은 해당 레이어의 전용 리포트 페이지로 연결됩니다.</p>
+    <div class="platform-grid" style="margin-top:32px;grid-template-columns:1fr;gap:24px">
+
+      <div class="platform-tile" style="display:block">
+        <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <span class="section-label">Platform · 1/4</span>
+          <span class="platform-tile__codename">OMEGA-THCA</span>
+          <span style="color:var(--text-muted);font-family:var(--font-mono);font-size:12px">Discovery · Multi-omics</span>
+        </div>
+        <div style="margin-top:18px;color:var(--text-secondary);font-size:15px;line-height:1.65;max-width:none">
+          <p><b>데이터.</b> TCGA-THCA Illumina RNA-seq (BRAF-like n=392, RAS-like n=111) + 외부 GEO 4종: <b>GSE27155</b>(GPL570 microarray, n=41), <b>GSE126698</b>(RNA-seq, PTC P* / FTC F* / ATC A* / normal N*), <b>GSE33630 + GSE29265</b>(pooled GPL570), <b>GSE76039</b>(dedifferentiated). 총 <b>1,509 샘플 · 51,711 gene</b>. 병행: Illumina 450k methylation(GSE97466 within-cohort tumor vs normal AUC 0.986), CIBERSORT 면역 deconvolution.</p>
+          <p><b>목적.</b> 단일 코호트 overfitting을 제거하고, BRAF-like vs RAS-like 분자 아형을 구분하는 <b>cross-cohort replicated biomarker</b>만 통과시킴. 모든 marker는 외부 코호트에서 fold-change 방향과 유의성이 동시에 일치해야 함.</p>
+          <p><b>분석.</b> ① Welch t-test + BH-FDR (TCGA discovery, log2FC = mean(BRAF) − mean(RAS)). ② 외부 코호트별 replication: 동일 검정 재실행, 동일 방향 + p&lt;0.05이면 replicate=1. ③ 필터: FDR&lt;0.05, |Cohen's d|&gt;0.5, median TCGA log2&gt;1, ≥2 코호트 presence, replication_rate≥1. ④ <b>Dataset identifiability AUC</b>(OvR macro, 6 코호트 식별) = <b>1.000</b> → 플랫폼만으로 100% 식별 가능, batch leakage 상한을 수치로 노출. ⑤ LODO 평균 AUC = 0.870. ⑥ Top-|Cohen's d| 10/30개 제거 ablation: AUC 0.992 → 0.984 → 0.895 (signal이 소수 유전자에 집중되지 않음 확인).</p>
+          <p><b>결과.</b> <b>2,773개 novel-validated biomarker</b>. 148/221 known marker 중 <b>70개 replicate</b>. Replicated known: SERPINA1(d=+2.38, 2/2), KCNN4(+2.37, 2/2), DCSTAMP(+2.24, 2/2), KRT19(+2.07, 2/2 · Clinical IHC), LGALS3(+2.04, 2/2), MET(+1.92, 2/2), TIMP1(+1.83, 2/2). Top novel: <b>TACSTD2</b>(d=+2.52, 2/2), <b>TMPRSS4</b>(+2.09, 2/2), <b>PLEKHA6</b>(+2.22, 2/2), CYP1B1(+2.22), LDLR(+2.02), GABRB2(+2.24), B3GNT3(+2.02), PTPRE(+2.26).</p>
+          <p><b>의미.</b> 방향 일치 replication filter 덕분에 상위 marker들은 TCGA-only artefact가 아님. 동시에 D1=1.00이 batch leakage 위험을 솔직히 드러내므로, "perfect AUC"는 plat­form signal을 일부 학습한 결과일 수 있음 — honest framing의 근거. 이 2,773 리스트가 CHEM/PANEL/CLINIC 모든 하위 레이어의 feature pool.</p>
+        </div>
+        <div style="margin-top:20px"><a class="btn-ghost" href="pages/platform_omega.html">자세히 →</a></div>
+      </div>
+
+      <div class="platform-tile" style="display:block">
+        <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <span class="section-label">Platform · 2/4</span>
+          <span class="platform-tile__codename">CHEM-THCA</span>
+          <span style="color:var(--text-muted);font-family:var(--font-mono);font-size:12px">Target → Compound triage</span>
+        </div>
+        <div style="margin-top:18px;color:var(--text-secondary);font-size:15px;line-height:1.65;max-width:none">
+          <p><b>데이터.</b> OMEGA-THCA에서 선정된 <b>top-8 druggable target</b>. 외부 소스: <b>ChEMBL</b> bioactivity DB (pChEMBL ≥ 5 필터), <b>PubMed</b>(thyroid-specific paper 수), <b>CMap L1000</b> perturbagen reversal signature, <b>STRING</b> PPI 네트워크.</p>
+          <p><b>목적.</b> 바이오마커를 "drug-discoverable target"으로 변환 — 각 target에 대해 시작점(hit list)을 만들고, MoA 명확성 · 문헌 anchoring · 역-발현 compound까지 하나의 triage view로 정리. 임상·전임상 효능 주장은 하지 않음.</p>
+          <p><b>분석.</b> ① Gene → ChEMBL target ID 매핑(예: CYP1B1 → CHEMBL4878, LDLR → CHEMBL3311, GABRB2 → CHEMBL1920). ② pChEMBL ≥5 화합물을 affinity 내림차순으로 수집. ③ CMap L1000에서 expression reversal top-K perturbagen 스코어 overlay. ④ STRING PPI로 target neighborhood 시각화(QUBO 기반 novel-target 서브네트워크 포함). ⑤ target별 "novel / emerging / validated" 분류.</p>
+          <p><b>결과.</b> <b>8 target · 15 compound · 27 literature record</b>. CYP1B1 = validated (10 compound, best pChEMBL <b>8.75</b> = CHEMBL3132932, thyroid PubMed 5). LDLR = emerging (4 compound, best 6.22 = CHEMBL115992). GABRB2 = emerging (1 compound: <b>CANNABIDIOL</b>, 6.89). TACSTD2 / TMPRSS4 / PLEKHA6 / B3GNT3 / PTPRE = <b>novel (0 known compound)</b> → first-in-class.</p>
+          <p><b>의미.</b> 5개 novel target은 기존 chemical matter가 없어 <b>fragment screening · DNA-encoded library campaign</b>의 합리적 출발점. Validated / emerging 3개는 기존 compound repurposing 후보. 전체는 <b>computational hit list</b> — 전임상·임상 주장이 아니며, <b>in vitro/in vivo 확인이 전제</b>.</p>
+        </div>
+        <div style="margin-top:20px"><a class="btn-ghost" href="pages/platform_chem_showcase.html">자세히 →</a></div>
+      </div>
+
+      <div class="platform-tile" style="display:block">
+        <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <span class="section-label">Platform · 3/4</span>
+          <span class="platform-tile__codename">PANEL-THCA</span>
+          <span style="color:var(--text-muted);font-family:var(--font-mono);font-size:12px">54-gene classifier benchmark</span>
+        </div>
+        <div style="margin-top:18px;color:var(--text-secondary);font-size:15px;line-height:1.65;max-width:none">
+          <p><b>데이터.</b> OMEGA의 2,773 biomarker feature pool. 학습: TCGA-THCA 5-fold CV. 외부 평가: GSE27155(n=41), GSE126698, pooled GPL570(GSE33630+GSE29265), GSE76039. Benchmark 대상: 112-gene reference panel.</p>
+          <p><b>목적.</b> "더 작은 패널(54-gene)이 같은 AUC를 유지할 수 있는가" 벤치마크. 또한 패널이 batch signal이 아닌 bio signal을 학습하는지 <b>ablation + permutation으로 정량 검증</b>.</p>
+          <p><b>분석.</b> ① Feature 선택: univariate Cohen's d · k sweep(2,4,…,16,…) → best <b>k=16</b>, TCGA 5-fold AUC <b>0.932</b>. 최종 54-gene 패널은 elastic-net LogReg. ② 외부 코호트별 <b>isotonic recalibration</b>(TCGA score에 fit, 외부에 apply). ③ Permutation null 10,000회 → observed AUC 0.923, empirical <b>p = 0.001</b>. ④ <b>MAPK-output ablation</b>(DUSP4/5/6, SPRY1/2/4, ETV4/5, FOSL1, PHLDA1 제거) → AUC 0.923 → 0.924 (MAPK signal 제거해도 robust). ⑤ TierA67_clean top-k 제거 sensitivity: k=0 AUC 0.992, k=10 0.984, k=30 0.895.</p>
+          <p><b>결과.</b> TCGA 내부 5-fold AUC <b>1.000</b>. 외부: GSE27155 pre-isotonic AUC 1.000(post-isotonic bACC 0.500 → 분포 shift로 score bucket 붕괴), GSE27155 train_tcga_plus_others AUC <b>0.883</b> · PR-AUC 0.951 · bACC 0.815. GSE126698 train_tcga_only AUC 0.694, train_tcga_plus_others AUC 0.778 · NPV@Se≥0.95 = 1.000. LODO 평균 <b>0.870</b>. 3-class(BRAF/RAS/NBNR) macro OvR AUC 0.937(LogReg) / 0.938(GBM).</p>
+          <p><b>의미.</b> 54-gene 패널은 TCGA 내부에서 perfect, 외부 isotonic 보정 후 일부 코호트에서 bACC가 0.5로 붕괴하는 것은 <b>score 분포 shift</b>의 정직한 증거. D1=1.00과 함께 읽으면 "완벽한 transfer"가 아님을 명시. 그래도 pre-calibration AUC · LODO 0.87 · permutation p 0.001 · MAPK ablation robustness는 signal이 실제로 존재함을 보여줌 — <b>retrospective decision-support prototype</b>, 진단 기기 아님.</p>
+        </div>
+        <div style="margin-top:20px"><a class="btn-ghost" href="pages/platform_panel.html">자세히 →</a></div>
+      </div>
+
+      <div class="platform-tile" style="display:block">
+        <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <span class="section-label">Platform · 4/4</span>
+          <span class="platform-tile__codename">CLINIC-THCA</span>
+          <span style="color:var(--text-muted);font-family:var(--font-mono);font-size:12px">Bethesda III/IV 시뮬레이션</span>
+        </div>
+        <div style="margin-top:18px;color:var(--text-secondary);font-size:15px;line-height:1.65;max-width:none">
+          <p><b>데이터.</b> PANEL-THCA의 54-gene LogReg 계수 + 공공 prior에서 Bethesda III/IV indeterminate cytology의 malignancy 유병률 10% · 15% · 20% · 25% · 30% · (비교) 기준. 각 유병률마다 <b>20,000명 가상 환자</b> 시뮬레이션.</p>
+          <p><b>목적.</b> 만약 이 패널이 실제 indeterminate 진단 슬롯에 들어간다면 어떤 threshold에서 어떤 Sens/Spec/NPV/수술 감소 trade-off이 가능한지 — <b>컴퓨테이셔널 triage simulation</b>. 임상 가이드가 아니며 Afirma · ThyGenX 같은 상용 패널 대비 reference point로 제공.</p>
+          <p><b>분석.</b> Prevalence × threshold grid sweep. 총 <b>18 operating point</b>. 각 점에서 Sens / Spec / NPV / surgery-reduction vs treat-all · KRW cost-utility (단, 수가 일반화 불가 명시). Brier score · ECE로 calibration 품질 병행 측정.</p>
+          <p><b>결과.</b>
+            &nbsp;10% 유병률 · th 0.26 → <b>Sens 99.1% · Spec 41.1% · NPV 99.8% · 수술 37% ↓</b>;
+            &nbsp;15% → Sens 98.7% · Spec 40.6% · NPV 99.5% · 35% ↓;
+            &nbsp;20% → Sens 99.5% · Spec 40.8% · NPV 99.7% · 33% ↓;
+            &nbsp;25% → Sens 99.2% · Spec 39.7% · NPV 99.3% · 30% ↓;
+            &nbsp;30% → Sens 99.2% · Spec 41.5% · NPV 99.1% · 29% ↓.
+          </p>
+          <p><b>의미.</b> 낮은 유병률에서도 NPV가 99%대를 유지하며 수술 29~37%를 이론적으로 감소시킬 수 있음 — "ruling out"용 computational triage로서의 의미. 다만 모든 값은 <b>외부 코호트 isotonic 보정 이후의 simulation</b>이며, D1=1.00(batch leakage 상한) 조건에서의 수치이므로 임상 성능으로 해석할 수 없음. v4 감사에서 KRW cost-utility는 <b>generalizable 하지 않음</b>으로 명시 플래그됨.</p>
+        </div>
+        <div style="margin-top:20px"><a class="btn-ghost" href="pages/platform_clinic.html">자세히 →</a></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="section section--tight" aria-labelledby="pipeline-preview-h">
+  <div class="container">
+    <span class="eyebrow">Pipeline preview</span>
+    <h2 id="pipeline-preview-h" data-explain-id="index-pipeline-preview-h">8 타깃 × 15 화합물 파이프라인.</h2>
+    <div class="mini-pipeline" aria-hidden="true"><div class="mini-pipeline__cell mini-pipeline__cell--filled-1"></div>
+<div class="mini-pipeline__cell mini-pipeline__cell--filled-2"></div>
+<div class="mini-pipeline__cell "></div>
+<div class="mini-pipeline__cell "></div>
+<div class="mini-pipeline__cell "></div>
+<div class="mini-pipeline__cell "></div></div>
+    <div style="color:var(--text-secondary);font-size:15px;line-height:1.65;max-width:80ch;margin:20px 0">
+      <p><b>데이터 · 목적.</b> OMEGA-THCA의 2,773 replicated biomarker 중 novelty score 상위 8개 target을 ChEMBL / PubMed / CMap에 연결한 <b>"biomarker → compound" 파이프라인 뷰</b>. 목적은 각 target이 <u>greenfield novel</u> / <u>emerging</u> / <u>validated</u> 중 어디에 속하는지, 그리고 시작 가능한 chemical matter가 있는지를 한 판에 보여주는 것.</p>
+      <p><b>분석.</b> target별로 (1) ChEMBL compound 수 · best pChEMBL, (2) thyroid-specific PubMed paper 수 · top PMID, (3) CMap reversal top perturbagen, (4) STRING PPI 이웃 유전자를 추출. classification은 compound 유무 + literature anchoring에 따라 결정.</p>
+      <p><b>결과 (target × compound).</b></p>
+      <ul style="margin:8px 0 0 18px">
+        <li><b>TACSTD2</b> — novel_target · ChEMBL3856163(Tumor-associated calcium signal transducer 2) · compounds=0 · thyroid PubMed 4(top PMID 41413112). d=+2.52, replicated 2/2.</li>
+        <li><b>TMPRSS4</b> — novel_target · ChEMBL2331048(Transmembrane protease serine 4) · compounds=0 · thyroid PubMed 5(top PMID 41656803). d=+2.09, replicated 2/2.</li>
+        <li><b>PLEKHA6</b> — novel_target · ChEMBL 매핑 없음 · thyroid PubMed 0. d=+2.22, replicated 2/2.</li>
+        <li><b>CYP1B1</b> — validated_target · ChEMBL4878 · <b>10 compound</b> · best pChEMBL <b>8.75</b> = CHEMBL3132932 · thyroid PubMed 5.</li>
+        <li><b>LDLR</b> — emerging_target · ChEMBL3311 · 4 compound · best 6.22 = CHEMBL115992 · thyroid PubMed 5.</li>
+        <li><b>GABRB2</b> — emerging_target · ChEMBL1920 · 1 compound = <b>CANNABIDIOL</b> (6.89) · thyroid PubMed 5.</li>
+        <li><b>B3GNT3</b> — novel_target · ChEMBL3325305(β-1,3-N-acetylglucosaminyltransferase 3) · compounds=0 · thyroid PubMed 0.</li>
+        <li><b>PTPRE</b> — novel_target · ChEMBL4850(Receptor-type tyrosine-protein phosphatase ε) · compounds=0 · thyroid PubMed 3.</li>
+      </ul>
+      <p style="margin-top:14px"><b>의미.</b> Novel 5종(TACSTD2 · TMPRSS4 · PLEKHA6 · B3GNT3 · PTPRE)은 compound가 0이므로 <b>first-in-class chemistry 캠페인</b>(fragment screening / DEL)의 합리적 출발점. CYP1B1 · LDLR · GABRB2는 기존 compound 재활용 가능성. 단, 모든 수치는 <b>computational triage</b>이며 compound activity는 이질적 public assay 출처 — thyroid-specific 효능은 in vitro/in vivo 확인 전 주장 불가.</p>
+    </div>
+    <a class="btn-ghost" href="pages/pipeline.html">자세히 →</a>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="updates-h">
+  <div class="container">
+    <span class="eyebrow">Latest updates</span>
+    <h2 id="updates-h" data-explain-id="index-updates-h">최근 연구 업데이트 — 데이터 · 목적 · 분석 · 결과 · 의미.</h2>
+    <div class="updates-grid" style="margin-top:32px;grid-template-columns:1fr;gap:24px">
+
+      <div class="update-card" style="display:block;padding:28px">
+        <div class="update-card__date">2026-04-24</div>
+        <div class="update-card__title" style="font-size:22px">External Validation v3</div>
+        <div style="color:var(--text-secondary);font-size:15px;line-height:1.65;margin-top:12px">
+          <p><b>데이터.</b> Train = TCGA-THCA Illumina RNA-seq. 외부 test-bed = <b>PRJEB11591</b>(Yoo et al. 2016, primary — 처리된 count 획득 실패로 <u>proxy 대체</u>), 보조 = GSE27155(GPL570), GSE33630, GSE29265(pooling), GSE126698(RNA-seq), GSE76039(dediff).</p>
+          <p><b>목적.</b> v2 단계의 "TCGA-internal AUC = 1.00"이 <b>외부 코호트에서도 일반화되는가</b>를 permutation-calibrated로 검증하고, 동시에 dataset-identifiability AUC로 batch leakage 상한을 측정.</p>
+          <p><b>분석.</b> elastic-net LogReg(feature set = TierA67_clean_no_MAPK) 학습 → 외부에 isotonic recalibration 적용 → permutation null 10,000회 → LODO 2-holdout. D1(dataset identifiability macro-AUC) 병행 측정.</p>
+          <p><b>결과.</b> Best 외부 AUC = <b>1.000</b>(95% CI 1.000–1.000) on GSE27155(n=41), permutation p &lt; 0.001, null 평균 AUC 0.469. <b>D1 = 1.000</b> — 플랫폼만으로 코호트 100% 식별. Post-isotonic bACC = <b>0.500</b>(모든 외부 score가 단일 bucket으로 붕괴 = 분포 shift 증거). LODO 평균 <b>0.870</b>.</p>
+          <p><b>의미.</b> 외부 AUC 1.00은 <b>임상 generalization의 증거가 아님</b> — D1=1.00 & bACC 붕괴는 apparent AUC의 일부가 platform/batch에서 기인함을 시사. 올바른 framing은 <b>"retrospective computational triage / decision-support prototype"</b>. 본 결과는 honest audit(page 19)과 함께 공개되어 reviewer가 leakage 한계를 직접 확인 가능.</p>
+        </div>
+        <div style="margin-top:18px"><a class="btn-ghost" href="/reports/external_validation_v3.md">자세히 →</a></div>
+      </div>
+
+      <div class="update-card" style="display:block;padding:28px">
+        <div class="update-card__date">2026-04-24</div>
+        <div class="update-card__title" style="font-size:22px">BRS71 Recovery v3</div>
+        <div style="color:var(--text-secondary);font-size:15px;line-height:1.65;margin-top:12px">
+          <p><b>데이터.</b> BRS71 = TCGA-THCA 2014 Cell 논문의 BRAF vs RAS 71-gene signature. 원본은 PLOS/Cell supplementary table Excel. Authoritative 파일 접근 실패로 figure-legend hard-coded fallback 사용. Proxy 리스트(71 genes)와 hardcoded_cell2014_legend 리스트(<b>72 genes</b>) 대조.</p>
+          <p><b>목적.</b> pipeline이 "known BRS signature"로 사용하던 proxy가 원본과 얼마나 일치하는지 확인. 불일치 시 biomarker discovery의 known filter가 잘못 설정된 셈이므로 replacement 필요.</p>
+          <p><b>분석.</b> Set-intersection(|original ∩ proxy|) 및 방향성 concordance 검증.</p>
+          <p><b>결과.</b> 원본 72 · proxy 71 중 <b>overlap = 1 gene (1.4%)</b>. original-only 71, proxy-only 70. Direction concordance는 <u>signed logFC per cohort 미확보로 deferred</u>. 결정: <b>proxy를 replace</b>(v3 본 분석에는 원본 리스트 사용, ablation 용도로만 proxy 유지).</p>
+          <p><b>의미.</b> v1/v2에서 "known BRS71"로 분류되던 유전자 대부분이 실제 원본 BRS71이 아니었다는 뜻 — 즉 <b>novel 후보들 중 상당수는 원본 BRS71 안에 이미 포함</b>되어 있었을 수 있음. v3에서 원본 리스트로 재주석하면 novel-validated 카테고리 재분류가 발생하므로, 투명성을 위해 별도 리포트로 공개.</p>
+        </div>
+        <div style="margin-top:18px"><a class="btn-ghost" href="/reports/brs71_recovery_v3.md">자세히 →</a></div>
+      </div>
+
+      <div class="update-card" style="display:block;padding:28px">
+        <div class="update-card__date">2026-04-24</div>
+        <div class="update-card__title" style="font-size:22px">Next Steps v3 — 우선순위 로드맵</div>
+        <div style="color:var(--text-secondary);font-size:15px;line-height:1.65;margin-top:12px">
+          <p><b>데이터 · 목적.</b> v3 감사 이후 "지금 당장 가능한 것" vs "추가 raw data 필요" vs "방법론 업그레이드" vs "거버넌스"로 분류한 next-step 로드맵. 목적은 external generalization 갭을 줄이는 구체적 액션.</p>
+          <p><b>P0 (즉시 · 디스크 데이터만으로 가능).</b> ① k=2 간격 dense grid로 QUBO-neal panel-k 곡선 재실행 → plateau 추정 smoothing. ② 외부 AUC 전부에 <b>bootstrap 95% CI</b> 추가(현재는 TCGA CV에만 존재). ③ GSE27155 "unknown" 라벨 ~29/99 재검증 → partial-label semi-supervised.</p>
+          <p><b>P1 (추가 raw data 필요).</b> ① TCGA-THCA Illumina 450k beta 가져오기 → GSE97466와 inter-cohort methylation LODO. ② STAR-Fusion / Arriba callset(TCGA + GSE213647) → Step 7 Task A. ③ GISTIC2 focal/arm-level SCNA(TCGA) → Step 7 Task B.</p>
+          <p><b>P2 (방법론 업그레이드).</b> ① Isotonic을 <b>CORAL / subsampled DANN</b>으로 교체 ablation. ② QUBO on leakage-clean pool로 "MAPK-free" 소형 패널 도출, cross-platform 제약 포함. ③ Survival을 ATA risk tier로 층화(TDS 3분위 대신).</p>
+          <p><b>P3 (제품/거버넌스).</b> ① Honest audit을 <b>supplementary note</b>로 단독 공개. ② per-prediction uncertainty 필드(Platt + isotonic disagreement) 추가. ③ Datasheet-for-datasets 카드(coverage · platform · labelling provenance · bias) 각 코호트별.</p>
+          <p><b>의미.</b> 현재 파이프라인의 가장 큰 약점은 <b>외부 일반화 검증의 부재(D1=1.00)</b>이며, P1-P2가 그 해결 경로. P0는 reviewer가 즉시 요구할 항목들. P3는 본 대시보드를 "정직한 연구 산출물"로 유지하기 위한 운영 정책.</p>
+        </div>
+        <div style="margin-top:18px"><a class="btn-ghost" href="/reports/next_steps_v3.md">자세히 →</a></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- v5-dial-mention-start -->
+<section class="section section--tight" aria-labelledby="v5-dial-h">
+  <div class="container">
+    <span class="eyebrow" style="color:#F5A623">v5.1 · REVISED · LODO</span>
+    <h2 id="v5-dial-h" style="font-weight:300; letter-spacing:-0.015em;max-width:40ch" data-explain-id="index-v5-dial-h">v5.1 THCA-Specific Audit — BRAF/RAS batch entanglement 확인, 타 암종은 null.</h2>
+    <div style="max-width:80ch; color:var(--text-secondary); font-size:15px; line-height:1.65; margin-top:14px">
+      <p><b>데이터.</b> TCGA + GEO 멀티코호트 실데이터 — <b>THCA · SKCM · LGG · LUAD · COAD</b> × <b>5 classifier</b>(LogReg_l2 · LogReg_elasticnet · RandomForest · GradientBoosting · XGBoost). variance-top-3000 유전자 풀, 반합성 없음.</p>
+      <p><b>목적.</b> 기존 v5(StratifiedKFold + semi-synthetic) 파이프라인은 코호트 leak으로 pre-AUC가 inflate되어 <b>철회</b>. LODO 재실행으로 batch-subtype entanglement의 실제 일반성을 재평가.</p>
+      <p><b>분석.</b> leave-one-dataset-out 평가, 학습 cohort에 ComBat fit → held-out cohort에 적용 → DIAL = max(a, 1−a) − 0.5 when AUC_post &lt; 0.5 else 0. LODO 하에서는 ident_post gate 없이 <b>DIAL &gt; 0.3</b> 단독 기준.</p>
+      <p><b>결과.</b> 25 조합 중 <b>4개 batch_entangled — 모두 THCA</b>(LogReg_l2 DIAL 0.494, LogReg_elasticnet 0.492, RandomForest 0.323, GradientBoosting 0.334). 타 20개 조합 중 <b>0 flip</b>. true_biology 13(LGG 5, LUAD 3, COAD 5), no_signal 6, ambiguous 2.</p>
+      <p><b>의미.</b> v5의 "cross-cancer generalization" 서사는 철회. 실제 현상은 <b>THCA BRAF-vs-RAS에 특이적인 label-flip</b> — 공유되는 class skew(TCGA 293:58, GSE27155 28:13)와 linear한 MAPK 축이 ComBat의 cohort-mean subtraction과 공선성을 이루는 <b>3개 조건의 동시 충족</b>이 원인으로 가설화. <b>특이성 증거이지 일반화 실패가 아님.</b> <span style="color:#F5A623"><b>유형원 교수(분당서울대) 협력 전향적 검증 진행 중.</b></span></p>
+    </div>
+    <p style="margin-top:18px;">
+      <a class="btn-ghost" href="pages/v4a_dial_cross_cancer.html">자세히 →</a>
+    </p>
+  </div>
+</section>
+<!-- v5-dial-mention-end -->
+
+<!-- v4a-archive-link-start -->
+<section class="section" aria-label="research archive">
+  <div class="container">
+    <span class="eyebrow">Research Archive</span>
+    <h2 style="font-weight:300;letter-spacing:-0.02em;max-width:30ch" data-explain-id="index-auto-the-v2-research-re-rendered">v2 연구 9개 트랙, 다크 아카이브로 재렌더링.</h2>
+    <div style="color:rgba(255,255,255,0.82);max-width:78ch;font-size:15px;line-height:1.65;margin-top:16px">
+      <p><b>데이터.</b> v2 분석 전체 산출물(노트북 · 스크립트 · 표 · figure · 리포트). TCGA-THCA + 외부 GEO 5코호트, 51,711 gene, 1,509 sample을 공통 feature space로 통합한 연구 아카이브.</p>
+      <p><b>목적.</b> v2 원본을 훼손하지 않으면서, <b>reviewer가 한 번에 탐색</b>할 수 있는 다크 디자인 인덱스 제공. v4 honest audit 이후의 재검토 흔적과 DIAL probe 방법론도 함께 수록.</p>
+      <p><b>9 트랙 구성.</b> ① <b>ML performance</b>(5-fold CV · 외부 LODO · permutation null) ② <b>Biomarkers</b>(2,773 novel-validated + 70 known replicated) ③ <b>Drug discovery</b>(ChEMBL·CMap·STRING, 8 target · 15 compound) ④ <b>Pathway / immune / methylation</b>(CIBERSORT · GSE97466 methyl AUC 0.986) ⑤ <b>Panels</b>(54-gene vs 112-gene benchmark) ⑥ <b>Data integration</b>(TCGA + 5 GEO 코호트 · sample_master 라벨 provenance) ⑦ <b>Quantum / QUBO</b>(neal annealer로 panel-k 선택) ⑧ <b>Limitations</b>(D1=1.00 · bACC 붕괴 · PRJEB11591 unobtainable) ⑨ <b>v5.1 THCA-Specific Audit</b> <span class="badge badge-revised" style="background:#F5A623;color:#000;padding:2px 6px;border-radius:3px;font-size:0.75em">REVISED</span>. v2 legacy index는 원본 그대로 보존.</p>
+      <p><b>결과.</b> 페이지 33 v4 synthesis + 페이지 38 v5 synthesis에서 아카이브 전체의 결론 확인 가능. DIAL 감사는 TCGA-THCA + SKCM + LGG + LUAD + COAD에 걸쳐 적용됨.</p>
+      <p><b>의미.</b> 본 아카이브는 연구의 <b>출발점(v2) · 감사(v3/v4) · 방법론 확장(v5)</b>을 선형적으로 보여주는 기록이며, reviewer나 협업자가 "어떤 주장이 언제부터 어떻게 정직하게 업데이트되었는지"를 검증하는 reference. 새 결론은 언제나 하위 페이지에, 과거 결론은 archive 페이지에.</p>
+    </div>
+    <div style="margin-top:28px">
+      <a class="btn-ghost" href="pages/v4a_archive_index.html">자세히 →</a>
+    </div>
+  </div>
+</section>
+<!-- v4a-archive-link-end -->
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__col site-footer__brand">
+        <img src="assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+        <p>Research dashboard for computational thyroid-cancer triage. Computational triage only. Not medical advice.</p>
+      </div>
+      <div class="site-footer__col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="pages/platform_omega.html">OMEGA-THCA</a></li>
+          <li><a href="pages/platform_chem.html">CHEM-THCA</a></li>
+          <li><a href="pages/platform_chem_showcase.html">Therapeutic Chemistry</a></li>
+          <li><a href="pages/platform_panel.html">PANEL-THCA</a></li>
+          <li><a href="pages/platform_clinic.html">CLINIC-THCA</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Research</h4>
+        <ul>
+          <li><a href="pages/pipeline.html">Pipeline</a></li>
+          <li><a href="pages/publications.html">Publications</a></li>
+          <li><a href="pages/press.html">Press</a></li>
+          <li><a href="pages/99_glossary.html">Glossary</a></li>
+          <li><a href="index_v2_legacy.html">v2 Research mode</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:kukshomr@gmail.com">kukshomr@gmail.com</a></li>
+          <li><a href="pages/team.html">Team</a></li>
+          <li><a href="mailto:kukshomr@gmail.com?subject=THYRAI%20licensing">Licensing</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer__meta">
+      <span>&copy; 2026 THYRAI Research</span>
+      <span class="site-footer__disclaimer">Visual system inspired by modern biotech platform conventions. Not affiliated with any drug-discovery AI company.</span>
+    </div>
+  </div>
+</footer>
+<script src="assets/js/brand.js" defer></script>
+
+<!-- v5 historical archive note: v5 cross-cancer narrative has been superseded by v5.1 (see v5.1 section above). Historical v5 pages remain in Research Archive. -->
+<!-- explain-bubble-assets -->
+<script src="assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

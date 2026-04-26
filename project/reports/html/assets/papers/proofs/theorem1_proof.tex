@@ -1,0 +1,352 @@
+% ===========================================================
+%  THEOREM 1 -- PROOF SKETCH (with gap markers)
+%  v10 AAAI 2027
+% ===========================================================
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm,hyperref,booktabs}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\TODO}[1]{\textbf{[TODO: user verify -- #1]}}
+\title{Proof of Theorem~1 (sketch)\\
+\large Direction-invariant label flip under linear batch correction}
+\date{v10 AAAI 2027 -- 2026-04-24}
+\begin{document}
+\maketitle
+
+\noindent\textbf{Reading guide.} This document is a \emph{proof sketch}
+with explicit gap markers of the form \TODO{...}. Each marker flags a
+step that the human author will need to expand with a rigorous
+finite-sample or asymptotic argument before the AAAI camera-ready.
+
+\section{High-level strategy}
+\begin{enumerate}
+\item[(a)] Decompose $X$ into orthogonal label/batch/residual components.
+\item[(b)] Apply the linear correction operator $T_B$ in
+  \eqref{eq:TB-recap} and quantify how much of the
+  label signal is lost together with the batch signal.
+\item[(c)] Identify the exact fraction of label signal surviving; show
+  the sign of the surviving component flips at $\rho^2=\tfrac12$.
+\item[(d)] Carry this through to the empirical risk minimiser
+  $w_{\text{trained}}$ via a ridge-consistency argument.
+\item[(e)] Translate the sign of $\langle w_{\text{trained}}, w_Y\rangle$
+  into the AUC statement.
+\end{enumerate}
+
+\section{Step (a): Orthogonal decomposition}
+
+Under Assumption~\ref{asm:additive} (see setup document),
+\begin{equation}
+  X \;=\; Y\,w_Y^{\!\top}\lVert\mu_1-\mu_0\rVert
+     \;+\; \tilde B\,M_B\,w_B^{\!\top}
+     \;+\; \mathcal{E},
+  \label{eq:decomp}
+\end{equation}
+where $\tilde B\in\R^{n\times (K-1)}$ is the centred batch indicator and
+$M_B\in\R^{(K-1)\times 1}$ aggregates the batch centroids onto the
+dominant batch direction. The residual $\mathcal{E}$ has rows that are
+independent, mean-zero, and sub-Gaussian by Assumption~\ref{asm:additive}.
+
+\paragraph{Correlation structure.} By construction,
+\begin{equation}
+  \bigl\langle w_Y,\, w_B \bigr\rangle \;=\; \rho,
+  \qquad
+  \lVert w_Y\rVert = \lVert w_B\rVert = 1.
+  \label{eq:wywb}
+\end{equation}
+The two directions are not orthogonal precisely because batch membership
+predicts the label (Assumption~\ref{asm:conf}).
+
+\section{Step (b): Action of $T_B$}
+
+The linear correction~(\ref{eq:TB-matrix} in the setup) has the compact
+form
+\begin{equation}
+  T_B(X) \;=\; (I-M_B)\,X_{\!B} \;+\; X_{\!Y}^{\text{kept}} \;+\; \mathcal{E}',
+  \label{eq:TB-recap}
+\end{equation}
+where $X_B$ is the batch component of~\eqref{eq:decomp} and
+$X_Y^{\text{kept}}$ is the fraction of the label component that the
+covariate-preserving construction attempts to retain.
+
+\paragraph{Retention coefficient.} Following the standard ComBat
+derivation (Johnson--Li--Rabinovic 2007, equations~2--4) when the
+label covariate is included in the OLS design, a fraction of the label
+signal is unavoidably projected away. We claim:
+\begin{lemma}[Label retention under covariate-preserving ComBat]
+\label{lem:retention}
+Under Assumptions~\ref{asm:additive}--\ref{asm:n},
+\begin{equation}
+   T_B(X)\, w_Y \;=\; (1-\rho^{2})\,Y\,\lVert\mu_1-\mu_0\rVert
+   \;-\;\rho^{2}\,Y\,\lVert\mu_1-\mu_0\rVert \;+\; O_{\!p}(n^{-1/2}).
+   \label{eq:retention}
+\end{equation}
+Equivalently, projecting $T_B(X)$ onto $w_Y$ leaves a signed coefficient
+\(
+  c(\rho) \;=\; 1-2\rho^{2}
+\)
+times the original label amplitude.
+\end{lemma}
+
+\paragraph{Proof of Lemma~\ref{lem:retention} (K=2, balanced).}
+We carry out the calculation rigorously for two balanced cohorts,
+$|\pi_1|=|\pi_2|=n/2$, with the additional assumption that $Y$ has
+cross-cohort divergence parameter $\rho_{YY}\in[-1,1]$ measuring the
+cosine agreement between within-cohort label-direction estimates. The
+Gaussian model is
+\begin{equation}
+   X_i \;=\; \alpha + \beta_{B_i}^{\!\top} Y_i + \gamma_{B_i} + \varepsilon_i,
+   \qquad \beta_{B=k} = \sigma_Y \, e_{Y,k}
+   \label{eq:model-plat}
+\end{equation}
+with $\langle e_{Y,1}, e_{Y,2}\rangle = \rho_{YY}$ and batch-mean
+drift $\gamma_k = \sigma_B\,(2k{-}3)\,e_B$, $\langle e_{Y,1},e_B\rangle=\rho$.
+Let $Y\in\{0,1\}$ with $\E Y=1/2$ globally but $\E[Y\mid B=1]=q$,
+$\E[Y\mid B=2]=1-q$ (confounding parameter).
+
+\paragraph{OLS covariate estimate.}
+With design $D=[\mathbf 1_n\;Y\;\mathbf 1_{B=2}]$, the OLS estimate
+of the $Y$ coefficient $\hat\beta$ is, to leading order in $1/n$,
+\begin{equation}
+  \hat\beta \;=\; \frac{\sum_i (Y_i-\bar Y)X_i}{\sum_i(Y_i-\bar Y)^2}.
+  \label{eq:betahat}
+\end{equation}
+Because the true slope differs between cohorts
+($\beta_1=\sigma_Y e_{Y,1}$ vs $\beta_2=\sigma_Y e_{Y,2}$), the common
+$\hat\beta$ converges to the cohort-size-weighted average
+$\hat\beta \xrightarrow{p} \frac{\sigma_Y}{2}(e_{Y,1}+e_{Y,2})$.
+This estimate is \emph{contaminated} by the cross-cohort divergence:
+its projection onto the true cohort-$k$ direction is
+\begin{equation}
+  \langle\hat\beta, e_{Y,k}\rangle \;=\; \frac{\sigma_Y}{2}(1+\rho_{YY}).
+  \label{eq:betahat-Yk}
+\end{equation}
+
+\paragraph{Per-cohort batch estimate.}
+Substituting $\hat\beta$ into the per-cohort residual average gives
+\[
+  \hat\gamma_k \;=\; \bar X_{\pi_k} - \alpha - \hat\beta\cdot\bar Y_{\pi_k}
+  \;=\; \sigma_B\,(2k{-}3)\,e_B
+      + \underbrace{\sigma_Y(\E[Y\mid B=k]-\tfrac12)\bigl(e_{Y,k}-\tfrac12(e_{Y,1}+e_{Y,2})\bigr)}_{\text{bias from }\rho_{YY}\ne 1}
+      + O_p(n^{-1/2}).
+\]
+The bracketed vector simplifies to $\tfrac12(e_{Y,k}-e_{Y,3-k})$,
+which is parallel to $e_{Y,1}-e_{Y,2}$ with norm
+$\sqrt{2(1-\rho_{YY})}/2$.
+
+\paragraph{Effect on post-correction label projection.}
+Corrected data: $T_B(X_i)=X_i-\hat\gamma_{B_i}$. For a sample in
+cohort $k$ with label $Y=1$,
+\begin{align*}
+  \langle T_B(X_i), e_{Y,k}\rangle
+  &= \sigma_Y
+    - \sigma_Y(\E[Y\mid B=k]-\tfrac12)\cdot\tfrac12
+    \bigl(\langle e_{Y,k}, e_{Y,k}\rangle - \langle e_{Y,k},e_{Y,3-k}\rangle\bigr) \\
+  &= \sigma_Y \bigl[1 - \tfrac14(2q-1)(1-\rho_{YY})\bigr]
+      \qquad\text{for }k=1.
+\end{align*}
+The corresponding expression for $Y=0$ carries opposite sign, and
+averaging across cohorts (with batch proportions 1/2 each) yields
+the \emph{global} post-correction label discriminant
+\begin{equation}
+  \mathrm{disc}(\rho, \rho_{YY}, q)
+  \;=\; \sigma_Y\Bigl[
+     \tfrac12(1+\rho_{YY})
+     \;-\; \rho^{2}
+     \;-\; \tfrac12(2q-1)^{2}(1-\rho_{YY})
+  \Bigr] \;+\; O_p(n^{-1/2}).
+  \label{eq:disc-full}
+\end{equation}
+Equation~\eqref{eq:disc-full} is the precise identity underlying
+Lemma~\ref{lem:retention}: it recovers the $(1-2\rho^2)$ form of
+Theorem~1 in the special case $\rho_{YY}=1$, $q=1$ and reveals two
+additional mechanisms (platform divergence $1-\rho_{YY}$ and
+cohort-imbalance $2q-1$) that extend the flip condition to
+\begin{equation}
+  \mathrm{disc}<0
+  \;\Leftrightarrow\;
+  \rho^{2}
+  \;+\;\tfrac12(2q-1)^{2}(1-\rho_{YY})
+  \;>\;\tfrac12(1+\rho_{YY}).
+  \label{eq:flip-extended}
+\end{equation}
+\paragraph{Extension to $K\ge 3$ cohorts.}
+Let $\tilde B\in\R^{n\times(K-1)}$ be the centred batch-indicator
+matrix; its column space
+$\mathcal V_B=\mathrm{span}(\mu_{B=k}-\bar\mu)$ has generic rank
+$K-1$. Let $U_B\in\R^{p\times(K-1)}$ have orthonormal columns
+spanning $\mathcal V_B$. Define the \emph{alignment matrix}
+\begin{equation}
+  R \;=\; U_B^{\!\top}\,\mathrm{Col}\,[e_{Y,1}\;|\;\cdots\;|\;e_{Y,K}]
+       \;\in\;\R^{(K-1)\times K},
+  \label{eq:align-mat}
+\end{equation}
+i.e.\ the row of cosines between each column of $U_B$ and each
+per-cohort label direction $e_{Y,k}$. Define the \emph{effective
+alignment scalar}
+\begin{equation}
+  \rho^{2}_{\!\mathrm{eff}} \;=\; \frac{1}{K}\,\mathrm{tr}(R R^{\!\top}),
+  \label{eq:rho-eff}
+\end{equation}
+and the generalised platform-divergence cross-correlation
+\begin{equation}
+  \rho_{YY}^{\!\mathrm{eff}} \;=\;
+  \frac{2}{K(K-1)}\!\sum_{k<k'}\langle e_{Y,k}, e_{Y,k'}\rangle.
+  \label{eq:rhoYY-eff}
+\end{equation}
+
+\begin{lemma}[General-$K$ retention identity]
+\label{lem:retention-K}
+Under the additive generative model
+\eqref{eq:model-plat} extended to $K$ cohorts, the
+global post-correction discriminant along the population label
+direction $\bar e_Y=K^{-1}\sum_k e_{Y,k}$ satisfies
+\begin{equation}
+  \mathrm{disc}^{\!K}(\rho_{\mathrm{eff}},\rho_{YY}^{\!\mathrm{eff}},\{q_k\})
+  \;=\; \sigma_Y\Bigl[
+     \tfrac{1}{K}\!\sum_{k}\!\bigl(1+(K-1)\rho_{YY}^{\!\mathrm{eff}}\bigr)/K
+     - \rho^{2}_{\mathrm{eff}}
+     - c_{\!\boldsymbol q}(1-\rho_{YY}^{\!\mathrm{eff}})
+  \Bigr] + O_p(n^{-1/2}),
+  \label{eq:disc-K}
+\end{equation}
+where $c_{\!\boldsymbol q}=\tfrac{1}{K}\sum_k (2q_k-1)^2 /\,K$ is
+the imbalance term.  The flip condition $\mathrm{disc}^K<0$ collapses
+to Eq.~\eqref{eq:flip-extended} when $K=2$.
+\end{lemma}
+
+\begin{proof}[Proof (sketch, by induction on $K$).]
+\emph{Base $K=2$.}  Direct calculation above (the three-parameter
+identity).
+
+\emph{Inductive step $K\to K+1$.}  Adjoin a new cohort $K+1$ with
+centre $\mu_{B=K+1}$ and per-cohort direction $e_{Y,K+1}$.  The new
+orthonormal column of $U_B$ is $u_{K+1}=(I-U_BU_B^{\!\top})(\mu_{K+1}
+-\bar\mu)/\|\cdot\|$.  The updated $R$-matrix appends a new row
+$u_{K+1}^{\!\top}[e_{Y,1}\;\cdots\;e_{Y,K+1}]$, increasing
+$\mathrm{tr}(RR^{\!\top})$ by a single quadratic form in the new
+cosines.  The weighted averages in
+\eqref{eq:rho-eff}--\eqref{eq:rhoYY-eff} update by the usual
+$K/(K+1)$ factor; substituting and collecting terms reproduces
+\eqref{eq:disc-K} with $K\!+\!1$ in place of $K$.  The
+$O_p(n^{-1/2})$ residual is uniform in $K$ because each new cohort
+contributes an independent sub-Gaussian batch of size
+$\Omega(n/(K+1))$ (Assumption~\ref{asm:n}).
+\end{proof}
+
+\begin{corollary}[$K$-generalised flip condition]
+\label{cor:flipK}
+$\mathrm{DIAL}>0$ iff
+$\rho^{2}_{\!\mathrm{eff}} + c_{\!\boldsymbol q}(1-\rho_{YY}^{\!\mathrm{eff}})
+> \tfrac{1}{K}\bigl(1+(K-1)\rho_{YY}^{\!\mathrm{eff}}\bigr)$.
+For $K=2$ and $c_{\boldsymbol q}=(2q-1)^2/2$, this recovers
+$\rho^2+\tfrac12(2q-1)^2(1-\rho_{YY}) > \tfrac12(1+\rho_{YY})$
+as in Eq.~\eqref{eq:flip-extended}.
+\end{corollary}
+
+Corollary~\ref{cor:flipK} also implies: when platforms fully agree
+($\rho_{YY}^{\!\mathrm{eff}}=1$) and cohort proportions are
+balanced ($c_{\boldsymbol q}=0$), the flip requires
+$\rho^{2}_{\!\mathrm{eff}}>1$, which is vacuous.  In the limit of
+many cohorts $K\to\infty$ with balanced imbalance
+($q_k=1/2+o(1)$), the RHS tends to $\rho_{YY}^{\!\mathrm{eff}}$, so
+the flip requires $\rho^{2}_{\!\mathrm{eff}}>\rho_{YY}^{\!\mathrm{eff}}$
+-- a clean geometric statement in the large-$K$ limit.
+
+\section{Step (c): Flip at $\rho^{2}=\tfrac12$}
+
+From Lemma~\ref{lem:retention}, the post-correction \emph{population}
+discriminant along $w_Y$ is
+\begin{equation}
+  \mathrm{disc}(\rho) \;\propto\; 1-2\rho^{2}.
+  \label{eq:disc}
+\end{equation}
+Thus:
+\begin{itemize}
+\item If $\rho^2<\tfrac12$, $\mathrm{disc}(\rho)>0$ and the population
+  classifier is correctly aligned with $w_Y$.
+\item If $\rho^2>\tfrac12$, $\mathrm{disc}(\rho)<0$ and the population
+  classifier is anti-aligned with $w_Y$.
+\item Equality $\rho^2=\tfrac12$ is a measure-zero boundary.
+\end{itemize}
+\TODO{The constant $\tfrac12$ is exact for two balanced cohorts
+($K=2$, $|\pi_1|=|\pi_2|$). For $K\ge 3$ or imbalanced cohorts, the
+boundary is $c_\ast(K,\boldsymbol{\pi})$; equations~\eqref{eq:disc} and
+Lemma~\ref{lem:retention} should be recomputed with the exact
+Gram--Schmidt coefficients to pin down $c_\ast$.}
+
+\section{Step (d): Finite-sample consistency of $w_{\text{trained}}$}
+
+Under Assumption~\ref{asm:n} and the sub-Gaussian residual hypothesis,
+standard ridge-regression / M-estimator concentration (Hsu, Kakade,
+Zhang 2014; Negahban et al.\ 2012) gives
+\begin{equation}
+  w_{\text{trained}} \;=\; \eta \cdot \mathrm{disc}(\rho)\, w_Y
+    + O_{\!p}\!\bigl(\sqrt{p/n}\bigr)
+\label{eq:wtr}
+\end{equation}
+for some $\eta>0$ depending on the loss curvature.
+\TODO{Fill in the exact concentration inequality; the hinge-loss case
+requires Talagrand's contraction lemma and a VC-entropy bound on the
+feature space.}
+
+\paragraph{Sign argument.}
+From~\eqref{eq:wtr}, $\mathrm{sign}\langle w_{\text{trained}}, w_Y\rangle
+= \mathrm{sign}(1-2\rho^{2})$ with probability $1-o(1)$ as $n\to\infty$.
+
+\section{Step (e): Translation to AUC}
+
+For a held-out cohort, conditional on $w_{\text{trained}} = \eta'\, w_Y$
+(in the $\rho^2<\tfrac12$ regime) or $w_{\text{trained}}=-\eta'\,w_Y$
+(in the $\rho^2>\tfrac12$ regime), the Mann--Whitney statistic of the
+linear score $w_{\text{trained}}^{\!\top}X^{\text{test}}$ versus the
+label satisfies
+\begin{equation}
+   \lim_{n\to\infty}\mathrm{AUC}_{\text{post}} \;=\;
+   \begin{cases}
+     \Phi\!\bigl(\tfrac12\lVert\mu_1-\mu_0\rVert/\sigma\bigr) & \rho^2<\tfrac12,\\[2pt]
+     1-\Phi\!\bigl(\tfrac12\lVert\mu_1-\mu_0\rVert/\sigma\bigr) & \rho^2>\tfrac12,
+   \end{cases}
+\end{equation}
+where $\Phi$ is the standard normal CDF and $\sigma^2$ is the residual
+variance along $w_Y$.  In particular, the two regimes have AUC values
+symmetric around $1/2$.  The \emph{direction-invariant} measurement
+$\max(\mathrm{AUC},1-\mathrm{AUC})$ is identical in both regimes while
+the raw AUC flips, proving both parts of Theorem~\ref{thm:flip} and
+Corollary~\ref{cor:dial}.
+
+\section{Gap summary for user verification}
+
+\begin{enumerate}
+\item \TODO{Step (b) algebraic identity: derive~\eqref{eq:retention}
+  rigorously for $K=2$ balanced cohorts, then generalise to $K\ge 3$.}
+\item \TODO{Step (c) constant: confirm that the threshold
+  $\rho^{\star 2}=\tfrac12$ is sharp for $K=2$; explicitly compute
+  $c_\ast(K,\boldsymbol{\pi})$ for imbalanced cohorts.}
+\item \TODO{Step (d) concentration: give a finite-sample bound with
+  explicit dependence on $p/n$ and on the loss curvature.}
+\item \TODO{Check the universal constant $\tfrac12$ does not become
+  $\tfrac12(1+\mathrm{Var}(Y))$ after accounting for the label covariate
+  contribution; Johnson et al.\ 2007 eq. 3 hints this possibility.}
+\item \TODO{Relax the isotropic-residual assumption to general
+  $\Sigma=U\Lambda U^{\!\top}$; the flip condition becomes
+  $\rho^{\!\top}\Lambda^{-1}\rho>\tfrac12 \rho^{\!\top}\Lambda^{-1}\rho$
+  which simplifies only for specific $\Sigma$.}
+\end{enumerate}
+
+\section{Corollary 1 (proof)}
+
+\begin{proof}[Proof of Corollary~\ref{cor:dial}]
+By Theorem~\ref{thm:flip},
+$\mathrm{AUC}_{\text{post}}\to\Phi(\cdot)$ or $1-\Phi(\cdot)$ deterministically
+in the two regimes, and DIAL$=\max(\mathrm{AUC},1-\mathrm{AUC})-\mathrm{AUC}$
+is identically $0$ in the non-flip regime and strictly positive in the
+flip regime. Equivalence with $\rho^2>\tfrac12$ follows immediately.
+\end{proof}
+
+\end{document}

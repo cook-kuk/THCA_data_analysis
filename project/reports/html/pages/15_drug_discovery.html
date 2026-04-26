@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>드럭 디스커버리 | THYROID DASH</title>
+  <meta name="description" content="Biomarker-to-Drug: 신규 바이오마커로부터 타겟·화합물·문헌 파이프라인을 탐색하는 Insilico-style 대시보드.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <script src="../assets/vendor/plotly/plotly-2.35.2.min.js" data-fallback="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script src="https://unpkg.com/smiles-drawer@1.2.0/dist/smiles-drawer.min.js" crossorigin="anonymous"></script>
+  <style>
+    :root{
+      --accent-teal:#14b8a6;
+      --accent-cyan:#06b6d4;
+      --accent-glow:rgba(20,184,166,.35);
+    }
+    .dd-hero{
+      position:relative;padding:40px 40px 34px;border-radius:var(--radius-xl);
+      overflow:hidden;isolation:isolate;border:1px solid var(--line);
+      background:linear-gradient(135deg,rgba(6,17,38,.96),rgba(11,26,58,.72) 40%,rgba(19,42,85,.6));
+    }
+    .dd-hero::before{
+      content:'';position:absolute;inset:-40%;z-index:-1;pointer-events:none;
+      background:
+        conic-gradient(from 200deg at 25% 40%,rgba(20,184,166,.32),transparent 30%),
+        conic-gradient(from 40deg at 80% 60%,rgba(6,182,212,.24),transparent 32%),
+        radial-gradient(circle at 70% 90%,rgba(94,234,212,.16),transparent 55%);
+      filter:blur(70px);animation:auroraDrift 22s linear infinite;
+    }
+    @keyframes auroraDrift{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.05)}100%{transform:rotate(360deg) scale(1)}}
+    .dd-hero h1{font-size:clamp(2rem,1.4rem + 2vw,3.2rem);line-height:1.02;margin:0 0 8px}
+    .dd-hero .sub{color:var(--slate-300);max-width:720px;margin-top:4px}
+    .kpi-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:24px}
+    .kpi-chip{
+      position:relative;padding:14px 20px;border-radius:999px;min-width:170px;
+      background:linear-gradient(135deg,rgba(20,184,166,.14),rgba(6,182,212,.08));
+      border:1px solid rgba(45,212,191,.35);
+      box-shadow:0 0 30px rgba(20,184,166,.12), inset 0 1px 0 rgba(255,255,255,.07);
+    }
+    .kpi-chip .k{font-size:1.6rem;font-weight:700;color:#e2fff9;letter-spacing:-.02em;line-height:1}
+    .kpi-chip .l{font-size:.72rem;color:var(--slate-300);margin-top:4px;text-transform:uppercase;letter-spacing:.14em}
+    .kpi-chip .dot{
+      position:absolute;top:14px;right:18px;width:8px;height:8px;border-radius:50%;
+      background:var(--accent-teal);box-shadow:0 0 12px var(--accent-teal);
+      animation:pulseDot 2s ease-in-out infinite;
+    }
+    @keyframes pulseDot{0%,100%{opacity:.6;transform:scale(.85)}50%{opacity:1;transform:scale(1.25)}}
+
+    /* pipeline svg */
+    .pipeline-wrap{margin-top:28px;position:relative}
+    .pipeline-wrap svg{width:100%;height:120px;display:block}
+    .pipeline-stage text{font:600 11.5px/1 Inter,system-ui,sans-serif;fill:#e2e8f0;letter-spacing:.04em;text-transform:uppercase}
+    .pipeline-stage .num{fill:var(--slate-400);font-weight:500}
+    .pipeline-node{fill:rgba(20,184,166,.18);stroke:rgba(94,234,212,.65);stroke-width:1.3}
+    .pipeline-line{stroke:rgba(94,234,212,.35);stroke-width:2;stroke-dasharray:5 7}
+    .pipeline-dot{fill:var(--accent-cyan);filter:drop-shadow(0 0 4px var(--accent-cyan))}
+
+    /* layout */
+    .dd-grid3{display:grid;grid-template-columns:300px minmax(0,1fr) 320px;gap:18px;margin-top:24px}
+    @media (max-width: 1100px){.dd-grid3{grid-template-columns:1fr}}
+    .dd-panel{padding:18px;border-radius:var(--radius-lg);border:1px solid var(--line);background:var(--card);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur)}
+    .dd-panel h3{margin:0 0 10px;font-size:.95rem;color:#e7fff8;letter-spacing:.02em}
+    .dd-panel .sect-num{font-size:.68rem;color:var(--slate-400);letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:4px}
+
+    .chip-row{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+    .filter-chip{
+      padding:6px 11px;border-radius:999px;font-size:.72rem;font-weight:500;
+      border:1px solid var(--line);background:rgba(148,163,184,.07);color:var(--ink);
+      cursor:pointer;transition:all .15s ease;
+    }
+    .filter-chip:hover{border-color:rgba(94,234,212,.5);color:#e2fff9}
+    .filter-chip.active{background:linear-gradient(135deg,rgba(20,184,166,.28),rgba(6,182,212,.18));border-color:rgba(94,234,212,.6);color:#e2fff9;box-shadow:0 0 14px rgba(20,184,166,.25)}
+
+    .search-input{
+      width:100%;padding:8px 12px;border-radius:10px;font-size:.85rem;
+      border:1px solid var(--line);background:rgba(7,19,43,.6);color:var(--ink);
+      font-family:inherit;outline:none;transition:border-color .15s;
+    }
+    .search-input:focus{border-color:rgba(94,234,212,.65);box-shadow:0 0 0 2px rgba(20,184,166,.12)}
+
+    .target-list{display:flex;flex-direction:column;gap:7px;max-height:560px;overflow-y:auto;padding-right:4px;margin-top:10px}
+    .target-list::-webkit-scrollbar{width:5px}
+    .target-list::-webkit-scrollbar-thumb{background:rgba(94,234,212,.3);border-radius:4px}
+    .target-item{
+      padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:rgba(7,19,43,.5);cursor:pointer;
+      transition:all .18s var(--ease);
+    }
+    .target-item:hover{border-color:rgba(94,234,212,.5);transform:translateX(2px)}
+    .target-item.active{border-color:rgba(94,234,212,.7);background:linear-gradient(135deg,rgba(20,184,166,.18),rgba(6,182,212,.08));box-shadow:0 0 18px rgba(20,184,166,.22)}
+    .target-item .g{font-weight:700;font-size:1rem;color:#e7fff8;letter-spacing:.01em}
+    .target-item .m{font-size:.72rem;color:var(--slate-400);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .tag{
+      font-size:.62rem;padding:2px 7px;border-radius:6px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;
+    }
+    .tag.novel{background:rgba(244,63,94,.14);color:#fecdd3;border:1px solid rgba(244,63,94,.4)}
+    .tag.validated{background:rgba(16,185,129,.14);color:#bbf7d0;border:1px solid rgba(16,185,129,.45)}
+    .tag.emerging{background:rgba(245,158,11,.14);color:#fde68a;border:1px solid rgba(245,158,11,.45)}
+    .tag.novel_target{background:rgba(139,92,246,.16);color:#ddd6fe;border:1px solid rgba(139,92,246,.45)}
+
+    /* middle panel */
+    .target-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+    .target-head .gene-title{font-size:1.8rem;font-weight:700;color:#fff;letter-spacing:-.02em;line-height:1}
+    .metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+    @media (max-width:720px){.metric-grid{grid-template-columns:repeat(2,1fr)}}
+    .metric{padding:11px;border-radius:10px;border:1px solid var(--line);background:rgba(7,19,43,.55)}
+    .metric .v{font-weight:700;font-size:1.25rem;color:#e7fff8;letter-spacing:-.02em}
+    .metric .l{font-size:.66rem;color:var(--slate-400);margin-top:2px;text-transform:uppercase;letter-spacing:.12em}
+
+    .cmp-list{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .cmp-row{
+      display:grid;grid-template-columns:160px minmax(0,1fr) 80px auto;gap:10px;align-items:center;
+      padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:rgba(7,19,43,.45);
+    }
+    @media (max-width:720px){.cmp-row{grid-template-columns:1fr;gap:6px}}
+    .cmp-row .cid{font-family:ui-monospace,monospace;font-size:.78rem;color:#5eead4}
+    .cmp-row .nm{font-size:.83rem;color:#e7fff8;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .cmp-row .nm small{color:var(--slate-400);font-weight:400;display:block;font-size:.7rem}
+    .cmp-bar{
+      position:relative;height:16px;border-radius:8px;background:rgba(148,163,184,.12);overflow:hidden;
+    }
+    .cmp-bar .fill{
+      height:100%;background:linear-gradient(90deg,var(--accent-teal),var(--accent-cyan));
+      box-shadow:0 0 10px rgba(20,184,166,.5);border-radius:8px;
+    }
+    .cmp-bar .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:#052;mix-blend-mode:screen}
+    .copy-btn{padding:5px 9px;border-radius:8px;font-size:.7rem;border:1px solid var(--line);background:rgba(6,182,212,.12);color:#bae6fd;cursor:pointer;transition:all .15s}
+    .copy-btn:hover{background:rgba(6,182,212,.25);border-color:rgba(94,234,212,.5)}
+
+    /* right panel: molecule viewer */
+    .mol-wrap{
+      margin-top:8px;border-radius:14px;padding:12px;background:rgba(255,255,255,.03);
+      border:1px dashed rgba(94,234,212,.32);min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    }
+    #mol-canvas{width:100%;max-width:280px;height:240px}
+    .mol-meta{font-size:.72rem;color:var(--slate-400);margin-top:8px;word-break:break-all;font-family:ui-monospace,monospace}
+
+    /* lit */
+    .lit-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:14px}
+    .lit-card{padding:14px;border-radius:12px;border:1px solid var(--line);background:rgba(7,19,43,.5);display:flex;flex-direction:column;gap:6px;transition:all .2s var(--ease)}
+    .lit-card:hover{transform:translateY(-2px);border-color:rgba(94,234,212,.45);box-shadow:0 10px 24px rgba(3,8,20,.4)}
+    .lit-card .yr{font-size:.7rem;color:#5eead4;font-weight:600;letter-spacing:.1em}
+    .lit-card .ti{font-size:.85rem;line-height:1.35;color:#e7fff8;font-weight:500}
+    .lit-card .ev{font-size:.76rem;color:var(--slate-400);line-height:1.5}
+    .lit-card .pm-link{font-size:.7rem;color:#bae6fd;align-self:flex-start;padding:4px 9px;border-radius:8px;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);margin-top:auto}
+    .lit-card .pm-link:hover{background:rgba(6,182,212,.25)}
+
+    /* sankey/network */
+    #network-svg{width:100%;height:360px;display:block;border-radius:14px;background:radial-gradient(ellipse at center,rgba(20,184,166,.04),transparent 70%)}
+    .network-node{fill:rgba(20,184,166,.25);stroke:rgba(94,234,212,.75);stroke-width:1.5;cursor:pointer}
+    .network-node.cmpd{fill:rgba(6,182,212,.2);stroke:rgba(103,232,249,.7)}
+    .network-link{stroke:rgba(94,234,212,.28);fill:none;stroke-width:1.2}
+    .network-label{font:600 10.5px Inter,system-ui,sans-serif;fill:#e7fff8;pointer-events:none}
+    .network-label.tiny{font-weight:500;font-size:9px;fill:var(--slate-300)}
+
+    /* table */
+    .cmp-table{width:100%;border-collapse:separate;border-spacing:0;margin-top:12px;font-size:.82rem}
+    .cmp-table th,.cmp-table td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line)}
+    .cmp-table th{font-size:.7rem;color:var(--slate-400);text-transform:uppercase;letter-spacing:.1em;cursor:pointer;user-select:none}
+    .cmp-table th:hover{color:#5eead4}
+    .cmp-table td.num{font-family:ui-monospace,monospace;text-align:right}
+    .cmp-table tr:hover td{background:rgba(20,184,166,.05)}
+
+    /* reveal anim */
+    .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+    .reveal.in{opacity:1;transform:translateY(0)}
+
+    .section{margin-top:28px}
+    .section h2{font-size:1.2rem;margin-bottom:6px;color:#e7fff8;letter-spacing:-.01em}
+    .section .lbl{font-size:.7rem;color:var(--slate-400);letter-spacing:.18em;text-transform:uppercase;display:block;margin-bottom:6px}
+
+    .disclaimer{
+      margin-top:32px;padding:16px;border-radius:14px;
+      border:1px dashed rgba(245,158,11,.35);background:rgba(245,158,11,.04);font-size:.78rem;color:#fde68a
+    }
+    .empty-state{padding:22px;text-align:center;color:var(--slate-400);font-size:.85rem}
+    .loading-shimmer{
+      background:linear-gradient(90deg,rgba(148,163,184,.05) 0%,rgba(148,163,184,.15) 50%,rgba(148,163,184,.05) 100%);
+      background-size:200% 100%;animation:shimmer 1.4s linear infinite;border-radius:8px;
+    }
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  </style>
+<!-- edu-css --><link rel="stylesheet" href="../assets/css/edu-toggle.css">
+
+  <!-- ux:tour-css --><link rel="stylesheet" href="../assets/css/tour.css">
+  <!-- ux:print-css --><link rel="stylesheet" media="print" href="../assets/css/print.css"><!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body class="dark">
+  <div class="topnav glass">
+    <div class="topnav-inner">
+      <div class="brand"><span class="brand-dot"></span><span>THYROID DASH</span></div>
+      <div class="nav-links"><a class="nav-link" href="research_timeline.html" style="color:#F5A623;border-color:#F5A623">📊 Timeline</a><a class="nav-link" href="research_reasoning.html" style="color:#6AB04C;border-color:#6AB04C">🧠 Reasoning</a><a class="nav-link" href="v12_biological_evidence.html" style="color:#6AB04C;border-color:#6AB04C">🧬 v12 Biology</a><a class="nav-link" href="v4a_dial_cross_cancer.html" style="color:#F5A623;border-color:#F5A623">🔬 v5.1 Audit</a>
+        <a class="nav-link" href="../index.html">홈</a>
+        <a class="nav-link" href="01_overview.html">개요</a>
+        <a class="nav-link" href="02_datasets.html">데이터셋</a>
+        <a class="nav-link" href="07_ml_baseline.html">ML</a>
+        <a class="nav-link" href="10_gene_explorer.html">유전자</a>
+        <a class="nav-link" href="12_business.html">비즈니스</a>
+        <a class="nav-link active" href="15_drug_discovery.html">드럭</a>
+        <a class="nav-link" href="17_biomarker_insights.html">마커</a><a class="nav-link" href="18_pathway_immune_meth.html">해석</a><a class="nav-link" href="20a_meta_power.html">통계</a><a class="" href="21a_survival.html">생존</a><a class="nav-link" href="21a_survival.html">생존</a><a class="" href="19a_cmap_network.html">약물리버스</a><a class="nav-link" href="19a_cmap_network.html">약물리버스</a>
+      <!-- edu-glossary-nav --><a class="nav-link" href="view_investor.html" role="menuitem">투자자</a><a class="nav-link" href="view_researcher.html" role="menuitem">연구자</a><a class="nav-link" href="99_glossary.html" role="menuitem">용어</a></div>
+      <div class="nav-links">
+        <button class="btn" onclick="document.body.classList.toggle('light')">다크/라이트</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="layout" style="grid-template-columns:minmax(0,1fr)">
+    <main class="content">
+
+      <!-- HERO -->
+      <section class="dd-hero reveal" id="hero" data-explain-id="15_drug_discovery-hero">
+        <span style="font-size:.72rem;color:var(--slate-400);letter-spacing:.2em;text-transform:uppercase">15 / DRUG DISCOVERY</span>
+        <h1>Biomarker-to-Drug Pipeline</h1>
+        <p class="sub">신규 바이오마커 상위 8개에서 출발해 PubMed 문헌, ChEMBL/PubChem 화합물, RCSB 구조 가능성까지 한 번에 연결합니다. 본 페이지는 in-silico 타겟 트리아지 레이어입니다.</p>
+        <div class="kpi-row" id="kpi-row">
+          <div class="kpi-chip"><span class="dot"></span><div class="k" id="kpi-novel">—</div><div class="l">Novel 타겟</div></div>
+          <div class="kpi-chip"><span class="dot"></span><div class="k" id="kpi-validated">—</div><div class="l">Validated</div></div>
+          <div class="kpi-chip"><span class="dot"></span><div class="k" id="kpi-emerging">—</div><div class="l">Emerging</div></div>
+          <div class="kpi-chip"><span class="dot"></span><div class="k" id="kpi-compounds">—</div><div class="l">후보 화합물</div></div>
+        </div>
+
+        <!-- pipeline svg -->
+        <div class="pipeline-wrap">
+          <svg viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="pipeGrad" x1="0" x2="1">
+                <stop offset="0%" stop-color="#14b8a6" stop-opacity=".7"/>
+                <stop offset="100%" stop-color="#06b6d4" stop-opacity=".7"/>
+              </linearGradient>
+            </defs>
+            <line class="pipeline-line" x1="90" y1="60" x2="1110" y2="60"/>
+            <g class="pipeline-stage">
+              <circle class="pipeline-node" cx="90" cy="60" r="24"/>
+              <text x="90" y="95" text-anchor="middle">Biomarker</text>
+              <text class="num" x="90" y="35" text-anchor="middle">01</text>
+            </g>
+            <g class="pipeline-stage">
+              <circle class="pipeline-node" cx="345" cy="60" r="24"/>
+              <text x="345" y="95" text-anchor="middle">Target validation</text>
+              <text class="num" x="345" y="35" text-anchor="middle">02</text>
+            </g>
+            <g class="pipeline-stage">
+              <circle class="pipeline-node" cx="600" cy="60" r="24"/>
+              <text x="600" y="95" text-anchor="middle">Hit discovery</text>
+              <text class="num" x="600" y="35" text-anchor="middle">03</text>
+            </g>
+            <g class="pipeline-stage">
+              <circle class="pipeline-node" cx="855" cy="60" r="24"/>
+              <text x="855" y="95" text-anchor="middle">Lead optimisation</text>
+              <text class="num" x="855" y="35" text-anchor="middle">04</text>
+            </g>
+            <g class="pipeline-stage">
+              <circle class="pipeline-node" cx="1110" cy="60" r="24"/>
+              <text x="1110" y="95" text-anchor="middle">Preclinical</text>
+              <text class="num" x="1110" y="35" text-anchor="middle">05</text>
+            </g>
+            <!-- pulsing dots -->
+            <circle class="pipeline-dot" r="4">
+              <animateMotion dur="6s" repeatCount="indefinite" path="M90,60 L1110,60"/>
+              <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.95;1" dur="6s" repeatCount="indefinite"/>
+            </circle>
+            <circle class="pipeline-dot" r="3">
+              <animateMotion dur="6s" begin="2s" repeatCount="indefinite" path="M90,60 L1110,60"/>
+              <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.95;1" dur="6s" begin="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle class="pipeline-dot" r="3">
+              <animateMotion dur="6s" begin="4s" repeatCount="indefinite" path="M90,60 L1110,60"/>
+              <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.05;0.95;1" dur="6s" begin="4s" repeatCount="indefinite"/>
+            </circle>
+          </svg>
+        </div>
+      </section>
+
+      <!-- GRID 3 PANELS -->
+      <div class="dd-grid3 reveal" id="row1">
+        <!-- LEFT: target list -->
+        <aside class="dd-panel">
+          <span class="sect-num">01 · 타겟 후보</span>
+          <h3>Filter &amp; sort</h3>
+          <input class="search-input" id="target-search" placeholder="Gene symbol 검색…" autocomplete="off">
+          <div class="chip-row" id="class-filter">
+            <button class="filter-chip active" data-filter="all">전체</button>
+            <button class="filter-chip" data-filter="novel_target">Novel</button>
+            <button class="filter-chip" data-filter="emerging_target">Emerging</button>
+            <button class="filter-chip" data-filter="validated_target">Validated</button>
+          </div>
+          <div class="chip-row" id="repl-filter">
+            <button class="filter-chip active" data-repl="any">복제: 무관</button>
+            <button class="filter-chip" data-repl="both">둘 다</button>
+            <button class="filter-chip" data-repl="one">1개 이상</button>
+          </div>
+          <div class="target-list" id="target-list"></div>
+        </aside>
+
+        <!-- CENTER: selected target detail -->
+        <section class="dd-panel">
+          <span class="sect-num">02 · 선택 타겟</span>
+          <div class="target-head">
+            <div>
+              <div class="gene-title" id="sel-gene">—</div>
+              <div class="subtle" id="sel-sub" style="margin-top:3px;font-size:.78rem">타겟을 선택하세요</div>
+            </div>
+            <div id="sel-tags"></div>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><div class="v" id="m-cmp">—</div><div class="l">compounds</div></div>
+            <div class="metric"><div class="v" id="m-pchembl">—</div><div class="l">best pChEMBL</div></div>
+            <div class="metric"><div class="v" id="m-papers">—</div><div class="l">thyroid papers</div></div>
+            <div class="metric"><div class="v" id="m-novelty">—</div><div class="l">novelty score</div></div>
+          </div>
+          <h3 style="margin-top:18px">Top 10 compounds</h3>
+          <div id="cmp-list" class="cmp-list"></div>
+          <h3 style="margin-top:18px">Literature</h3>
+          <div id="lit-inner" class="lit-strip"></div>
+        </section>
+
+        <!-- RIGHT: molecule viewer -->
+        <aside class="dd-panel">
+          <span class="sect-num">03 · 2D structure</span>
+          <h3 id="mol-title">Select a compound</h3>
+          <div class="mol-wrap">
+            <canvas id="mol-canvas"></canvas>
+            <div id="mol-placeholder" class="empty-state">
+              화합물을 클릭하면 SMILES로부터 2D 구조가 렌더링됩니다.
+            </div>
+          </div>
+          <div class="mol-meta" id="mol-meta"></div>
+          <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+            <button class="copy-btn" id="copy-smiles-btn" disabled>Copy SMILES</button>
+            <a class="copy-btn" id="chembl-link" href="#" target="_blank" rel="noopener" style="display:none">ChEMBL ↗</a>
+          </div>
+        </aside>
+      </div>
+
+      <!-- NETWORK -->
+      <section class="dd-panel section reveal" id="row-network" data-explain-id="15_drug_discovery-row-network">
+        <span class="lbl">04 · Target-compound network</span>
+        <h2 data-explain-id="15_drug_discovery-auto-타겟-화합물-관계망">타겟 ↔ 화합물 관계망</h2>
+<details class="edu-toggle" data-edu-id="row-network"><!-- edu:row-network --><summary>네트워크 그래프 해석</summary><div class="edu-body"><h3>Target ↔ Compound 관계망 읽기</h3><h4>노드 색</h4>
+<ul><li>teal(청록) 큰 원 = 표적 유전자.</li><li>cyan(하늘) 원 = 대표 화합물.</li></ul>
+<h4>엣지(연결)</h4>
+<ul><li>두 노드를 잇는 선은 ChEMBL에 등록된 <strong>bioactivity 근거</strong>를 의미.</li><li>원 크기는 pChEMBL에 비례. 큰 원일수록 강한 활성.</li></ul>
+<h4>읽는 팁</h4>
+<ul><li>한 화합물이 여러 표적에 연결되면 <code>polypharmacology</code> 후보이며, 부작용 위험도 함께 봐야 합니다.</li></ul></div></details>
+        <p class="subtle" style="font-size:.82rem">왼쪽 타겟 노드(teal)와 오른쪽 대표 화합물 노드(cyan) 사이의 연결은 ChEMBL bioactivity 근거를 나타냅니다. 원 크기는 pChEMBL 크기에 비례합니다.</p>
+        <svg id="network-svg" viewBox="0 0 1000 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+      </section>
+
+      <!-- TABLE -->
+      <section class="dd-panel section reveal" id="row-table" data-explain-id="15_drug_discovery-row-table">
+        <span class="lbl">05 · All compounds (top 30 by pChEMBL)</span>
+        <h2 data-explain-id="15_drug_discovery-auto-후보-화합물-전체-테이블">후보 화합물 전체 테이블</h2>
+<details class="edu-toggle" data-edu-id="row-table"><!-- edu:row-table --><summary>테이블 컬럼 의미</summary><div class="edu-body"><h3>후보 화합물 전체 표</h3><h4>컬럼</h4>
+<ul><li><code>ChEMBL ID</code>: ChEMBL 데이터베이스의 고유 식별자.</li><li><code>pChEMBL</code>: 활성값 로그 스케일. 7 이상이 일반적 기대선.</li><li><code>targets</code>: 이 화합물이 붙는 표적 수(많으면 다중성).</li><li><code>phase</code>: 최고 임상 단계(0=preclinical, 4=approved).</li></ul>
+<h4>정렬</h4>
+<ul><li>컬럼 헤더를 클릭하면 정렬. <code>pChEMBL</code> 내림차순으로 보면 강력한 후보부터 나타납니다.</li></ul></div></details>
+        <table class="cmp-table" id="cmp-table">
+          <thead>
+            <tr>
+              <th data-sort="target">Target</th>
+              <th data-sort="chembl_id">ChEMBL ID</th>
+              <th data-sort="name">Name</th>
+              <th data-sort="pchembl" class="num">pChEMBL ↓</th>
+              <th data-sort="moa">MoA</th>
+              <th>Links</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <!-- LIT STRIP -->
+      <section class="dd-panel section reveal" id="row-lit" data-explain-id="15_drug_discovery-row-lit">
+        <span class="lbl">06 · Literature strip (PubMed, 2018+)</span>
+        <h2 data-explain-id="15_drug_discovery-auto-문헌-근거-스트립">문헌 근거 스트립</h2>
+<details class="edu-toggle" data-edu-id="row-lit"><!-- edu:row-lit --><summary>PubMed 카드 읽는 법</summary><div class="edu-body"><h3>문헌 근거 스트립</h3><h4>각 카드</h4>
+<ul><li>연도, 제목, 근거 문장, PMID 링크.</li></ul>
+<h4>체크포인트</h4>
+<ul><li>최근 5년 논문 비중 → 주제 활성도.</li><li>제목에 표적 + 갑상선 키워드 동시 포함 → 관련성 높음.</li><li>리뷰와 원저 논문의 비율 → 원저가 적으면 실증이 아직 부족.</li></ul></div></details>
+        <div id="lit-all" class="lit-strip"></div>
+      </section>
+
+      <!-- DISCLAIMER -->
+      <div class="disclaimer reveal">
+        ⚠ 본 페이지는 공개 데이터베이스(ChEMBL, PubChem, PubMed, RCSB PDB)를 기계적으로 조합한 <strong>전산 타겟 트리아지</strong>입니다.
+        임상/의학적 권고가 아니며, 어떤 화합물의 thyroid cancer 적응증 효능도 보장하지 않습니다. 실제 개발 판단은 in-vitro/in-vivo 검증 및 법적/IP 검토 후에만 이루어져야 합니다.
+      </div>
+
+    </main>
+  </div>
+
+<script>
+/* ---------- BOOT ---------- */
+const PAYLOAD_URL = "../assets/data/drug_discovery_payload.json";
+let DATA = null;
+let selectedGene = null;
+let selectedCompound = null;
+let classFilter = "all";
+let replFilter = "any";
+let searchQuery = "";
+let tableSort = {key:"pchembl", dir:-1};
+
+fetch(PAYLOAD_URL, {cache:"no-cache"}).then(r=>r.json()).then(p=>{
+  DATA = p;
+  renderKPI();
+  renderTargetList();
+  if (DATA.targets && DATA.targets.length){
+    selectTarget(DATA.targets[0].gene);
+  }
+  renderTable();
+  renderAllLit();
+  renderNetwork();
+}).catch(err=>{
+  console.error("payload load failed", err);
+  document.getElementById("kpi-row").innerHTML = '<div class="empty-state">payload 로드 실패 — 파이프라인이 아직 실행 중일 수 있습니다. 새로고침 해주세요.</div>';
+});
+
+/* ---------- KPI ---------- */
+function renderKPI(){
+  const k = DATA.kpi || {};
+  document.getElementById("kpi-novel").textContent = k.novel ?? DATA.n_targets ?? "—";
+  document.getElementById("kpi-validated").textContent = k.validated ?? 0;
+  document.getElementById("kpi-emerging").textContent = k.emerging ?? 0;
+  document.getElementById("kpi-compounds").textContent = k.compounds ?? DATA.n_compounds_total ?? 0;
+}
+
+/* ---------- TARGET LIST ---------- */
+function renderTargetList(){
+  const container = document.getElementById("target-list");
+  const filtered = (DATA.targets || []).filter(t=>{
+    if (classFilter !== "all" && t.classification !== classFilter) return false;
+    if (replFilter === "both"){
+      if (!truthy(t.replicated_27155) || !truthy(t.replicated_126698)) return false;
+    } else if (replFilter === "one"){
+      if (!truthy(t.replicated_27155) && !truthy(t.replicated_126698)) return false;
+    }
+    if (searchQuery && !t.gene.toUpperCase().includes(searchQuery.toUpperCase())) return false;
+    return true;
+  });
+  container.innerHTML = filtered.length ? filtered.map(t=>{
+    const clsTag = t.classification==="validated_target"?"validated":
+                   t.classification==="emerging_target"?"emerging":"novel_target";
+    return `
+      <div class="target-item ${selectedGene===t.gene?'active':''}" data-gene="${esc(t.gene)}">
+        <div class="g">${esc(t.gene)}</div>
+        <div class="m">
+          <span class="tag ${clsTag}">${t.classification.replace('_target','')}</span>
+          ${t.is_novel?'<span class="tag novel">novel</span>':''}
+          <span>N=${t.n_compounds} · pCh ${t.best_pchembl ?? '—'}</span>
+        </div>
+      </div>`;
+  }).join("") : '<div class="empty-state">필터 조건에 맞는 타겟이 없습니다.</div>';
+  container.querySelectorAll(".target-item").forEach(el=>{
+    el.onclick = ()=>selectTarget(el.dataset.gene);
+  });
+}
+
+function truthy(v){
+  if (v === true) return true;
+  if (v === undefined || v === null) return false;
+  const s = String(v).toLowerCase();
+  return s === "true" || s === "1" || s === "yes";
+}
+
+/* ---------- SELECT TARGET ---------- */
+function selectTarget(gene){
+  selectedGene = gene;
+  const t = (DATA.targets || []).find(x=>x.gene === gene);
+  if (!t) return;
+  document.getElementById("sel-gene").textContent = t.gene;
+  document.getElementById("sel-sub").textContent =
+    `${t.chembl_pref_name || 'ChEMBL target n/a'} · log2FC ${t.log2FC || '—'}`;
+  const tagsEl = document.getElementById("sel-tags");
+  const clsTag = t.classification === "validated_target" ? "validated"
+             : t.classification === "emerging_target" ? "emerging" : "novel_target";
+  tagsEl.innerHTML = `<span class="tag ${clsTag}">${t.classification.replace('_target','')}</span>
+                      ${t.is_novel?'<span class="tag novel">novel</span>':''}`;
+  document.getElementById("m-cmp").textContent = t.n_compounds;
+  document.getElementById("m-pchembl").textContent = t.best_pchembl ?? '—';
+  document.getElementById("m-papers").textContent = t.disease_focus_score ?? 0;
+  document.getElementById("m-novelty").textContent = (t.novelty_score ?? 0).toFixed(2);
+
+  // compounds
+  const cmpEl = document.getElementById("cmp-list");
+  const maxP = Math.max(10, ...(t.compounds || []).map(c=>c.pchembl||0));
+  cmpEl.innerHTML = (t.compounds || []).length ? t.compounds.map(c=>{
+    const pct = c.pchembl ? Math.min(100, (c.pchembl/maxP)*100) : 0;
+    const safeSmiles = (c.smiles || "").replace(/"/g,"&quot;");
+    return `
+      <div class="cmp-row" data-chembl="${esc(c.chembl_id)}">
+        <span class="cid">${esc(c.chembl_id)}</span>
+        <div class="nm">${esc(c.name || c.chembl_id)}<small>${esc(c.moa || '')}</small></div>
+        <div class="cmp-bar" title="pChEMBL ${c.pchembl ?? '—'}">
+          <div class="fill" style="width:${pct}%"></div>
+          <div class="num">${c.pchembl ?? '—'}</div>
+        </div>
+        <button class="copy-btn" data-smiles="${safeSmiles}" data-name="${esc(c.name || c.chembl_id)}">View</button>
+      </div>`;
+  }).join("") : '<div class="empty-state">이 타겟은 알려진 활성 화합물이 없습니다 — <strong>novel-target first-in-class opportunity</strong>로 플래그되었습니다.</div>';
+
+  cmpEl.querySelectorAll(".cmp-row").forEach(row=>{
+    const btn = row.querySelector(".copy-btn");
+    row.onclick = (e)=>{
+      const smiles = btn.dataset.smiles;
+      const name = btn.dataset.name;
+      showCompound(row.dataset.chembl, name, smiles);
+    };
+  });
+
+  // auto-select first
+  if (t.compounds && t.compounds.length){
+    showCompound(t.compounds[0].chembl_id, t.compounds[0].name, t.compounds[0].smiles || "");
+  } else {
+    clearMol();
+  }
+
+  // literature
+  const litEl = document.getElementById("lit-inner");
+  litEl.innerHTML = (t.literature || []).length ? t.literature.map(a=>`
+    <div class="lit-card">
+      <div class="yr">${esc(a.year || '')}</div>
+      <div class="ti">${esc(a.title || 'Untitled')}</div>
+      <div class="ev">${esc(a.evidence || '')}</div>
+      <a class="pm-link" href="https://pubmed.ncbi.nlm.nih.gov/${esc(a.pmid)}/" target="_blank" rel="noopener">Open PubMed ↗</a>
+    </div>
+  `).join("") : '<div class="empty-state">최근 thyroid-cancer 문헌이 부족합니다 (2018+).</div>';
+
+  // active highlight on left
+  document.querySelectorAll(".target-item").forEach(el=>{
+    el.classList.toggle("active", el.dataset.gene === gene);
+  });
+}
+
+/* ---------- MOL VIEWER ---------- */
+let smilesDrawer = null;
+function ensureDrawer(){
+  if (!smilesDrawer && window.SmilesDrawer){
+    smilesDrawer = new SmilesDrawer.Drawer({
+      width:280, height:240,
+      bondThickness:1.1,
+      atomVisualization:'default',
+      themes:{
+        dark:{ C:'#e7fff8', O:'#f87171', N:'#60a5fa', F:'#4ade80',
+               CL:'#facc15', BR:'#fb923c', S:'#fbbf24', P:'#a78bfa',
+               BACKGROUND:'transparent'}
+      },
+    });
+  }
+  return smilesDrawer;
+}
+function clearMol(){
+  document.getElementById("mol-title").textContent = "Select a compound";
+  document.getElementById("mol-canvas").style.display = "none";
+  document.getElementById("mol-placeholder").style.display = "block";
+  document.getElementById("mol-meta").textContent = "";
+  const btn = document.getElementById("copy-smiles-btn");
+  btn.disabled = true; btn.textContent = "Copy SMILES";
+  document.getElementById("chembl-link").style.display = "none";
+}
+function showCompound(chemblId, name, smiles){
+  selectedCompound = {chemblId, name, smiles};
+  document.getElementById("mol-title").textContent = name || chemblId;
+  const meta = document.getElementById("mol-meta");
+  meta.textContent = smiles || "(SMILES unavailable)";
+  const link = document.getElementById("chembl-link");
+  link.href = `https://www.ebi.ac.uk/chembl/compound_report_card/${chemblId}/`;
+  link.style.display = "inline-flex";
+  const btn = document.getElementById("copy-smiles-btn");
+  btn.disabled = !smiles;
+  btn.textContent = smiles ? "Copy SMILES" : "No SMILES";
+
+  const canvas = document.getElementById("mol-canvas");
+  const ph = document.getElementById("mol-placeholder");
+  if (smiles && window.SmilesDrawer){
+    canvas.style.display = "block"; ph.style.display = "none";
+    try {
+      SmilesDrawer.parse(smiles, function(tree){
+        ensureDrawer().draw(tree, canvas, 'dark', false);
+      }, function(err){
+        console.warn("SMILES parse fail", err);
+        canvas.style.display = "none"; ph.style.display = "block";
+        ph.textContent = "SMILES 파싱 실패: " + smiles;
+      });
+    } catch(e){
+      canvas.style.display = "none"; ph.style.display = "block";
+      ph.textContent = "Drawer init 실패";
+    }
+  } else {
+    canvas.style.display = "none"; ph.style.display = "block";
+    ph.textContent = smiles ? "SMILES drawer 로드 대기…" : "이 화합물은 SMILES가 제공되지 않습니다.";
+  }
+}
+
+document.getElementById("copy-smiles-btn").onclick = async function(){
+  if (!selectedCompound || !selectedCompound.smiles) return;
+  try {
+    await navigator.clipboard.writeText(selectedCompound.smiles);
+    this.textContent = "Copied ✓";
+    setTimeout(()=>{this.textContent = "Copy SMILES"}, 1600);
+  } catch(e){
+    this.textContent = "복사 실패";
+  }
+};
+
+/* ---------- TABLE ---------- */
+function renderTable(){
+  const tbody = document.querySelector("#cmp-table tbody");
+  const rows = [];
+  (DATA.targets || []).forEach(t=>{
+    (t.compounds || []).forEach(c=>{
+      rows.push({target:t.gene, ...c});
+    });
+  });
+  rows.sort((a,b)=>{
+    const av = a[tableSort.key], bv = b[tableSort.key];
+    if (av == null) return 1;
+    if (bv == null) return -1;
+    if (typeof av === "number" && typeof bv === "number") return (av - bv) * tableSort.dir;
+    return String(av).localeCompare(String(bv)) * tableSort.dir;
+  });
+  tbody.innerHTML = rows.slice(0,30).map(r=>`
+    <tr>
+      <td><strong style="color:#5eead4">${esc(r.target)}</strong></td>
+      <td><span class="cid" style="font-family:ui-monospace,monospace;font-size:.78rem">${esc(r.chembl_id)}</span></td>
+      <td>${esc(r.name || r.chembl_id)}</td>
+      <td class="num">${r.pchembl ?? '—'}</td>
+      <td style="font-size:.76rem;color:var(--slate-300)">${esc(r.moa || '')}</td>
+      <td>
+        <a class="copy-btn" href="https://www.ebi.ac.uk/chembl/compound_report_card/${esc(r.chembl_id)}/" target="_blank" rel="noopener">ChEMBL ↗</a>
+      </td>
+    </tr>`).join("");
+}
+document.querySelectorAll("#cmp-table th[data-sort]").forEach(th=>{
+  th.onclick = ()=>{
+    const k = th.dataset.sort;
+    if (tableSort.key === k) tableSort.dir *= -1;
+    else { tableSort.key = k; tableSort.dir = (k === "pchembl" ? -1 : 1); }
+    renderTable();
+  };
+});
+
+/* ---------- LIT STRIP ---------- */
+function renderAllLit(){
+  const el = document.getElementById("lit-all");
+  const lits = [];
+  (DATA.targets || []).forEach(t=>{
+    (t.literature || []).forEach(a=>lits.push({target:t.gene, ...a}));
+  });
+  lits.sort((a,b)=>(parseInt(b.year||'0')) - (parseInt(a.year||'0')));
+  el.innerHTML = lits.slice(0,18).map(a=>`
+    <div class="lit-card">
+      <div class="yr">${esc(a.year || '')} · <span style="color:var(--slate-400)">${esc(a.target)}</span></div>
+      <div class="ti">${esc(a.title || 'Untitled')}</div>
+      <div class="ev">${esc(a.evidence || '')}</div>
+      <a class="pm-link" href="https://pubmed.ncbi.nlm.nih.gov/${esc(a.pmid)}/" target="_blank" rel="noopener">PubMed ${esc(a.pmid)} ↗</a>
+    </div>`).join("") || '<div class="empty-state">문헌 데이터 없음.</div>';
+}
+
+/* ---------- NETWORK SVG ---------- */
+function renderNetwork(){
+  const svg = document.getElementById("network-svg");
+  const targets = (DATA.targets || []).filter(t => (t.compounds || []).length);
+  if (!targets.length){
+    svg.innerHTML = '<text x="500" y="180" text-anchor="middle" fill="#64748b" font-size="13">No compound data available yet.</text>';
+    return;
+  }
+  const W = 1000, H = 360;
+  const lx = 120, rx = 880;
+  const nT = targets.length;
+  const rows = [];
+  targets.forEach((t,i)=>{
+    const y = (H*(i+1))/(nT+1);
+    rows.push({type:"target", gene:t.gene, x:lx, y, r:10 + Math.min(14, (t.n_compounds||1)*1.2)});
+  });
+  // collect top compounds per target (max 3 per target to keep viz clean)
+  const cmps = [];
+  targets.forEach((t,i)=>{
+    const top3 = (t.compounds||[]).slice(0,3);
+    top3.forEach((c,j)=>{
+      cmps.push({type:"cmp", gene:t.gene, name:c.name, chembl:c.chembl_id,
+                 pchembl:c.pchembl || 0, ti:i, tj:j});
+    });
+  });
+  const nC = cmps.length;
+  cmps.forEach((c,k)=>{
+    c.x = rx; c.y = (H*(k+1))/(nC+1);
+    c.r = 4 + Math.max(0, ((c.pchembl||6)-5))*2.4;
+  });
+  // build links
+  const links = cmps.map(c=>{
+    const src = rows.find(r=>r.gene===c.gene);
+    return `<path class="network-link" d="M${src.x+src.r},${src.y} C${(src.x+c.x)/2},${src.y} ${(src.x+c.x)/2},${c.y} ${c.x-c.r},${c.y}"/>`;
+  }).join("");
+  const tnodes = rows.map(r=>`
+    <g>
+      <circle class="network-node" cx="${r.x}" cy="${r.y}" r="${r.r}" data-gene="${esc(r.gene)}"/>
+      <text class="network-label" x="${r.x-r.r-8}" y="${r.y+4}" text-anchor="end">${esc(r.gene)}</text>
+    </g>`).join("");
+  const cnodes = cmps.map(c=>`
+    <g>
+      <circle class="network-node cmpd" cx="${c.x}" cy="${c.y}" r="${c.r}"/>
+      <text class="network-label tiny" x="${c.x+c.r+6}" y="${c.y+3}" text-anchor="start">${esc((c.name||c.chembl).slice(0,22))}</text>
+    </g>`).join("");
+  svg.innerHTML = links + tnodes + cnodes;
+  svg.querySelectorAll(".network-node[data-gene]").forEach(n=>{
+    n.style.cursor = "pointer";
+    n.addEventListener("click", ()=> selectTarget(n.dataset.gene));
+  });
+}
+
+/* ---------- filters/search ---------- */
+document.getElementById("target-search").addEventListener("input", e=>{
+  searchQuery = e.target.value;
+  renderTargetList();
+});
+document.querySelectorAll("#class-filter .filter-chip").forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll("#class-filter .filter-chip").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    classFilter = b.dataset.filter;
+    renderTargetList();
+  };
+});
+document.querySelectorAll("#repl-filter .filter-chip").forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll("#repl-filter .filter-chip").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    replFilter = b.dataset.repl;
+    renderTargetList();
+  };
+});
+
+/* ---------- utils ---------- */
+function esc(s){ return (s==null?'':String(s)).replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(ent=>{
+    if (ent.isIntersecting){
+      ent.target.classList.add("in");
+      io.unobserve(ent.target);
+    }
+  });
+}, {rootMargin:"0px 0px -60px 0px", threshold:.05});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+</script>
+
+  <!-- ux:table-export --><script src="../assets/js/table-export.js" defer></script>
+  <!-- ux:tour-js --><script src="../assets/js/tour.js" defer></script>
+  <!-- ux:print-js --><script src="../assets/js/print-button.js" defer></script><!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

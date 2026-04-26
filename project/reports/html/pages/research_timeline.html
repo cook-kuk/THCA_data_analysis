@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Research Timeline · v2 → v5.1 — THYRAI</title>
+  <meta name="description" content="THYRAI 연구 타임라인. v2(baseline) → v3(honest audit) → v4(UNRECOVERABLE) → v5(retracted) → v5.1(THCA-specific). 각 버전의 데이터·목적·분석·결과·의미 전체 설명.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/brand.css">
+  <link rel="stylesheet" href="../assets/css/explain-bubble.css">
+  <style>
+    .tl-hero {
+      min-height: 44vh;
+      padding: 112px 0 48px;
+      border-bottom: 1px solid var(--border);
+      background:
+        radial-gradient(ellipse at 80% 15%, rgba(245,166,35,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 15% 85%, rgba(106,176,76,0.08) 0%, transparent 60%);
+    }
+    .tl-hero .eyebrow { color: #F5A623; letter-spacing: 0.18em; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+    .tl-hero h1 {
+      font-size: clamp(30px, 4vw, 48px);
+      font-weight: 300; letter-spacing: -0.02em; line-height: 1.1;
+      margin: 18px 0 14px;
+    }
+    .tl-hero .lede { color: var(--text-secondary); font-size: 17px; line-height: 1.6; max-width: 80ch; margin-top: 14px; }
+
+    /* Matrix table */
+    .tl-matrix-wrap { overflow-x: auto; margin: 28px 0; border: 1px solid var(--border); border-radius: 6px; background: rgba(20,22,28,0.75); }
+    .tl-matrix { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: 13px; min-width: 900px; }
+    .tl-matrix thead th {
+      text-align: left; padding: 14px 14px; color: var(--text-muted);
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      border-bottom: 1px solid var(--border); font-weight: 500;
+    }
+    .tl-matrix tbody td { padding: 14px 14px; vertical-align: top; border-bottom: 1px solid rgba(255,255,255,0.06); color: var(--text-secondary); line-height: 1.5; }
+    .tl-matrix tbody tr:last-child td { border-bottom: 0; }
+    .tl-matrix tbody tr { cursor: pointer; transition: background 120ms ease; }
+    .tl-matrix tbody tr:hover { background: rgba(245,166,35,0.05); }
+    .tl-matrix tbody tr.is-current { background: rgba(245,166,35,0.08); border-left: 3px solid #F5A623; }
+    .tl-matrix .ver-cell { color: #EAEAEA; font-weight: 600; font-size: 14px; white-space: nowrap; }
+    .tl-matrix .verdict-current { color: #6AB04C; font-weight: 600; }
+    .tl-matrix .verdict-retracted { color: #c24c4c; font-weight: 600; }
+    .tl-matrix .verdict-audit { color: #F5A623; font-weight: 600; }
+
+    /* Tab switcher */
+    .tl-tabs {
+      display: flex; flex-wrap: wrap; gap: 8px; margin: 36px 0 0;
+      padding: 6px; background: rgba(20,22,28,0.6); border: 1px solid var(--border); border-radius: 8px;
+    }
+    .tl-tab {
+      flex: 1; min-width: 140px;
+      padding: 14px 16px; border: 1px solid transparent; border-radius: 5px;
+      background: transparent; color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+      transition: background 150ms ease, color 150ms ease, border-color 150ms ease;
+      text-align: left; line-height: 1.35;
+    }
+    .tl-tab small { display: block; margin-top: 4px; font-size: 10px; letter-spacing: 0.1em; opacity: 0.7; font-weight: 400; }
+    .tl-tab:hover { color: #EAEAEA; background: rgba(255,255,255,0.03); }
+    .tl-tab.is-active { background: rgba(245,166,35,0.08); border-color: #F5A623; color: #F5A623; }
+    .tl-tab.is-retracted small { color: #c24c4c; }
+    .tl-tab.is-current small { color: #6AB04C; }
+
+    .tl-panel { display: none; margin-top: 28px; }
+    .tl-panel.is-active { display: block; animation: tl-fade 220ms ease; }
+    @keyframes tl-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .tl-card {
+      background: rgba(20,22,28,0.75);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 30px 32px; margin: 20px 0;
+    }
+    .tl-card h2 { margin: 0 0 14px; font-size: 22px; font-weight: 500; color: #EAEAEA; letter-spacing: -0.01em; }
+    .tl-card .eyebrow { color: #F5A623; font-size: 11px; letter-spacing: 0.18em; font-family: 'JetBrains Mono', monospace; }
+    .tl-card .ver-tag {
+      display:inline-block; background:#F5A623; color:#0a0e1a; font-family:'JetBrains Mono',monospace;
+      font-size:11px; font-weight:700; letter-spacing:0.12em; padding:3px 9px; border-radius:3px; margin-right:10px;
+    }
+    .tl-card .ver-tag.retracted { background:#c24c4c; color:#fff; }
+    .tl-card .ver-tag.current { background:#6AB04C; color:#0a0e1a; }
+    .tl-card p, .tl-card li { color: var(--text-secondary); font-size: 15px; line-height: 1.68; }
+    .tl-card ul, .tl-card ol { margin: 8px 0 8px 20px; }
+    .tl-card .label {
+      display:inline-block; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em;
+      text-transform:uppercase; color:#F5A623; margin-right:6px;
+    }
+    .tl-card blockquote {
+      margin: 14px 0 0 0; padding: 14px 18px;
+      background: rgba(245,166,35,0.05); border-left: 3px solid #F5A623;
+      color: #EAEAEA; font-size: 14px; line-height: 1.6;
+    }
+    .tl-card.retracted blockquote { background: rgba(194,76,76,0.05); border-left-color: #c24c4c; }
+    .tl-card.current blockquote { background: rgba(106,176,76,0.05); border-left-color: #6AB04C; }
+
+    .tl-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin: 20px 0 10px; }
+    .tl-metric { padding: 14px 16px; background: rgba(10,12,16,0.7); border: 1px solid var(--border); border-radius: 4px; }
+    .tl-metric__v { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 500; color: #F5A623; line-height: 1; }
+    .tl-metric__l { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); margin-top: 8px; }
+    .tl-panel.is-retracted .tl-metric__v { color: #c24c4c; }
+    .tl-panel.is-current .tl-metric__v { color: #6AB04C; }
+
+    .tl-src details {
+      background: rgba(20,22,28,0.5); border: 1px solid var(--border); border-radius: 4px;
+      margin-top: 16px; padding: 0 18px;
+    }
+    .tl-src summary {
+      cursor: pointer; padding: 12px 0; color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    }
+    .tl-src details[open] summary { border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .tl-src ul { margin: 0 0 12px 20px; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-secondary); }
+    .tl-src code { color: #F5A623; background: rgba(245,166,35,0.08); padding: 1px 5px; border-radius: 2px; }
+
+    .tl-caveat {
+      background: rgba(194,76,76,0.06);
+      border-left: 3px solid #c24c4c;
+      padding: 20px 24px; margin: 40px 0 24px;
+      font-size: 14px; line-height: 1.6; color: #c9d1d9; border-radius: 4px;
+    }
+    .tl-caveat h4 {
+      margin: 0 0 8px; color: #c24c4c; font-size: 12px; letter-spacing: 0.12em;
+      text-transform: uppercase; font-weight: 500;
+    }
+    .tl-expand-all {
+      display: inline-block; background: transparent; border: 1px solid var(--border);
+      color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 11px;
+      letter-spacing: 0.14em; text-transform: uppercase; padding: 8px 14px; border-radius: 4px;
+      cursor: pointer; margin: 12px 0; transition: color 150ms ease, border-color 150ms ease;
+    }
+    .tl-expand-all:hover { color: #F5A623; border-color: #F5A623; }
+  </style>
+</head>
+<body class="thyrai">
+
+<nav class="topnav" aria-label="Primary">
+  <div class="topnav__inner">
+    <a class="topnav__brand" href="../index.html" aria-label="THYRAI home">
+      <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+    </a>
+    <ul class="topnav__links">
+      <li><a class="topnav__link" href="pipeline.html">Pipeline</a></li>
+      <li><a class="topnav__link" href="v4a_dial_cross_cancer.html" style="color:#F5A623">v5.1 THCA-Specific Audit</a></li>
+      <li><a class="topnav__link" aria-current="page" href="research_timeline.html">Timeline</a></li>
+      <li><a class="topnav__link" href="research_reasoning.html" style="color:#6AB04C">Reasoning</a></li>
+      <li><a class="topnav__link" href="v12_biological_evidence.html" style="color:#6AB04C">v12 Biology</a></li>
+      <li><a class="topnav__link" href="platform_chem_showcase.html">Chem Showcase</a></li>
+      <li class="topnav__item"><a class="topnav__link" href="v4a_archive_index.html">Archive</a>
+        <ul class="topnav__menu" role="menu">
+          <li><a href="platform_omega.html">OMEGA-THCA</a></li>
+          <li><a href="platform_chem.html">CHEM-THCA</a></li>
+          <li><a href="platform_panel.html">PANEL-THCA</a></li>
+          <li><a href="platform_clinic.html">CLINIC-THCA</a></li>
+          <li><a href="33_v4_synthesis.html">v4 Synthesis</a></li>
+          <li><a href="32_honest_audit.html">v4 Honest Audit</a></li>
+          <li><a href="19_honesty_audit.html">v3 Honesty Audit</a></li>
+          <li><a href="../index_v2_legacy.html">v2 Legacy index</a></li>
+          <li><a href="99_glossary.html">99 · Glossary</a></li>
+        </ul>
+      </li>
+      <li><a class="topnav__link" href="team.html">Team</a></li>
+      <li><a class="topnav__link" href="mailto:kukshomr@gmail.com?subject=THYRAI%20contact">Contact</a></li>
+    </ul>
+    <a class="topnav__cta" href="mailto:kukshomr@gmail.com?subject=THYRAI%20access%20request">Request Access</a>
+    <button class="topnav__hamburger" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span></button>
+  </div>
+</nav>
+
+<div style="background:linear-gradient(90deg,rgba(192,57,43,0.18),rgba(192,57,43,0.04));border-left:3px solid #c0392b;padding:10px 18px;margin:0;font-family:'JetBrains Mono','SF Mono',monospace;font-size:12px;letter-spacing:0.04em;color:#e06c5b;line-height:1.55"><b style="color:#c0392b">⚠ v5.2 SELF-AUDIT (2026-04-25):</b> Any &ldquo;THCA DIAL = 0.494 / batch_entangled / 4-of-5 classifiers&rdquo; claim on this page comes from the v5.1 protocol (ComBat fit on pooled $X$ before LODO split = data leak). Per-fold ComBat returns DIAL = 0.000 for every THCA classifier (&Delta;DIAL = &minus;0.494). <a href="papers_viewer.html" style="color:#F5A623;text-decoration:underline;font-weight:600">v5.2 self-audit paper &rarr;</a> &middot; <a href="v9_interactive_dial.html" style="color:#F5A623;text-decoration:underline;font-weight:600">v9 live toggle &rarr;</a></div>
+<!-- v9b · reasoning-view banner -->
+<div style="background:linear-gradient(135deg,#0f172a 0%,#14532d 100%);color:#fff;padding:14px 20px;margin:0;font-family:-apple-system,sans-serif;font-size:14px;line-height:1.55">
+  <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <span style="background:#6AB04C;color:#0a0e14;font-weight:700;padding:2px 8px;border-radius:3px;font-size:11px;letter-spacing:0.04em">NEW · v9b</span>
+    <span style="flex:1;min-width:280px">Reasoning view 공개 — "왜 각 버전이 다음 버전을 만들었는지"를 1인칭으로 풀어서 스크롤 스토리로 읽으세요.</span>
+    <a href="research_reasoning.html" style="color:#fff;text-decoration:underline;white-space:nowrap">Read the reasoning story →</a>
+  </div>
+</div>
+
+<section class="tl-hero">
+  <div class="container">
+    <span class="eyebrow">RESEARCH TIMELINE · v2 → v5.1</span>
+    <h1 data-explain-id="timeline-hero">한 장으로 보는 THYRAI 연구 여정.</h1>
+    <p class="lede">
+      v2(baseline) → v3(honest audit) → v4(UNRECOVERABLE) → v5(<b style="color:#c24c4c">RETRACTED</b>) → v5.1(<b style="color:#6AB04C">CURRENT</b>).
+      각 버전의 <b>데이터 · 목적 · 분석 · 결과 · 의미</b>를 전부 이 페이지에 실었습니다.
+      아래 매트릭스 표에서 버전 행을 클릭하거나 상단 탭을 눌러 원하는 버전으로 이동하세요.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <!-- MATRIX TABLE -->
+    <div class="tl-card">
+      <span class="eyebrow">AT-A-GLANCE MATRIX</span>
+      <h2 data-explain-id="timeline-matrix">버전 × (데이터 · 방법 · 핵심 결과 · 판정).</h2>
+      <p style="color:var(--text-muted);font-size:13px;margin:0 0 14px">행을 클릭하면 해당 버전 상세로 스크롤됩니다. 노랑 = 감사(audit) · 빨강 = 철회(retracted) · 초록 = 현재(current).</p>
+      <div class="tl-matrix-wrap">
+        <table class="tl-matrix">
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>Date</th>
+              <th>Data</th>
+              <th>Method</th>
+              <th>Key result</th>
+              <th>Verdict</th>
+              <th>Superseded by</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-jump="v2">
+              <td class="ver-cell">v2<br><span style="color:var(--text-muted);font-size:11px;font-weight:400">baseline</span></td>
+              <td>2026 initial</td>
+              <td>TCGA-THCA + GEO 5 · 1,509 samples · 51,711 genes · mRNA + 450k methyl + CIBERSORT</td>
+              <td>Welch t-test + BH-FDR · 54-gene LogReg elastic-net · TDS16 / TierA67 / variance-top50 feature sets</td>
+              <td>2,773 replicated biomarkers · 8 targets · 15 compounds · TCGA internal AUC 1.00 · external 0.89–0.97</td>
+              <td>baseline established</td>
+              <td>v3 (audit)</td>
+            </tr>
+            <tr data-jump="v3">
+              <td class="ver-cell">v3<br><span style="color:var(--text-muted);font-size:11px;font-weight:400">honest audit</span></td>
+              <td>2026-04 early</td>
+              <td>Same cohorts + dataset-identifiability measurement (D1)</td>
+              <td>Permutation null 10,000× · LODO · isotonic recalibration · BRS71 recovery · honesty checklist</td>
+              <td>Best external AUC 1.000 on GSE27155 <b>but</b> post-isotonic bACC = 0.500 · LODO 0.870 · <b>D1 macro-AUC = 1.000</b> · permutation p &lt; 0.001</td>
+              <td class="verdict-audit">batch leakage upper bound revealed</td>
+              <td>v4 (rescue attempt)</td>
+            </tr>
+            <tr data-jump="v4">
+              <td class="ver-cell">v4<br><span style="color:var(--text-muted);font-size:11px;font-weight:400">quad-track</span></td>
+              <td>2026-04 mid</td>
+              <td>Same + Bethesda sim (6 prev × 20,000 patients) · PRJEB11591 retry · ComBat harmonization</td>
+              <td>Track A ComBat · Track B DCA · Track C alt-URL retry · Track D 6-check audit</td>
+              <td>Track A <b>UNRECOVERABLE</b> (pre-ident 1.000 → 0.487, LODO 0.997 → 0.011) · Track B 18 operating points · Track C PARTIAL · Track D 6/6 PASS</td>
+              <td class="verdict-audit">batch rescue declared unrecoverable (linear ComBat)</td>
+              <td>v5 (methods paper)</td>
+            </tr>
+            <tr data-jump="v5">
+              <td class="ver-cell">v5<br><span class="verdict-retracted" style="font-size:11px;font-weight:400">RETRACTED</span></td>
+              <td>2026-04 late</td>
+              <td>TCGA 5 cancers (THCA/SKCM/LGG/LUAD/COAD) × 5 classifier · StratifiedKFold + semi-synthetic</td>
+              <td>6 batch correction ablation (z-score, ComBat, BBKNN, Harmony…) + DANN adversarial λ-sweep + cross-cancer 6-check + robust target shortlist</td>
+              <td>Claimed zscore RESCUED (post-ident 0.137, LODO 0.997) · DANN best λ=0.1 bio CV 0.929 · 1/4 cancer replicate = "cancer-specific"</td>
+              <td class="verdict-retracted">RETRACTED — StratifiedKFold leaks cohort ID across folds</td>
+              <td>v5.1 (LODO + real data)</td>
+            </tr>
+            <tr data-jump="v51">
+              <td class="ver-cell">v5.1<br><span class="verdict-current" style="font-size:11px;font-weight:400">CURRENT</span></td>
+              <td>2026-04-24</td>
+              <td>TCGA + GEO 5 cancers × 5 classifier · variance-top-3000 · <b>REAL only, no semi-synthetic</b> · 9,179–20,964 shared genes</td>
+              <td><b>LODO</b> (leave-one-dataset-out) · ComBat fit on train cohorts only · DIAL = max(a, 1−a) − 0.5 when AUC_post &lt; 0.5 else 0 · rule: DIAL &gt; 0.3</td>
+              <td><b>4/25 flip = ALL THCA</b> (LogReg_l2 DIAL 0.494, LogReg_elasticnet 0.492, RandomForest 0.323, GradientBoosting 0.334) · 20/20 non-THCA null · true_biology 13 · no_signal 6 · ambiguous 2</td>
+              <td class="verdict-current">THCA-specific label-flip confirmed · specificity evidence for DIAL</td>
+              <td>future external validation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tl-tabs" role="tablist" id="tl-tabs">
+      <button class="tl-tab" role="tab" data-tab="v2">v2<small>baseline</small></button>
+      <button class="tl-tab" role="tab" data-tab="v3">v3<small>honest audit</small></button>
+      <button class="tl-tab" role="tab" data-tab="v4">v4<small>UNRECOVERABLE</small></button>
+      <button class="tl-tab is-retracted" role="tab" data-tab="v5">v5<small>RETRACTED</small></button>
+      <button class="tl-tab is-current is-active" role="tab" data-tab="v51" aria-selected="true">v5.1<small>CURRENT</small></button>
+    </div>
+
+    <div style="margin-top:12px">
+      <button class="tl-expand-all" id="tl-show-all">Show all versions ↓</button>
+      <button class="tl-expand-all" id="tl-show-one">Tab mode (one at a time)</button>
+    </div>
+
+    <!-- v2 PANEL -->
+    <div class="tl-panel" data-panel="v2" id="v2">
+      <div class="tl-card">
+        <span class="eyebrow">v2 · BASELINE</span>
+        <h2 data-explain-id="timeline-v2"><span class="ver-tag">v2</span>54-gene LogReg 패널 · 8 target · 15 compound 파이프라인 출발점.</h2>
+        <div class="tl-metrics">
+          <div class="tl-metric"><div class="tl-metric__v">1,509</div><div class="tl-metric__l">Samples · 6 cohorts</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">2,773</div><div class="tl-metric__l">Replicated biomarkers</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">8</div><div class="tl-metric__l">Druggable targets</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">15</div><div class="tl-metric__l">Compounds</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">1.00</div><div class="tl-metric__l">TCGA internal 5-fold AUC</div></div>
+        </div>
+
+        <p><span class="label">데이터.</span>TCGA-THCA(Illumina RNA-seq) + 외부 GEO 5종 — <b>GSE27155</b>(GPL570 microarray, n=66 annotated), <b>GSE126698</b>(RNA-seq), pooled <b>GSE33630 + GSE29265</b>(GPL570), <b>GSE76039</b>(dediff), <b>GSE213647</b>(보조). 총 <b>1,509 샘플 · 51,711 유전자</b>. mRNA 발현 + Illumina 450k methylation(GSE97466 tumor-vs-normal AUC 0.986 내부) + CIBERSORT 면역 deconvolution을 한 평면으로 통합.</p>
+
+        <p><span class="label">목적.</span>단일 코호트(TCGA) overfitting을 제거하고 <b>BRAF-like(BRAF V600E) vs RAS-like(KRAS/HRAS/NRAS mutant)</b> 분자 아형을 구분하는 재현성 있는 바이오마커를 찾음. 이후 druggable target 선정 → ChEMBL/CMap 화합물 매핑 → Bethesda III/IV indeterminate triage 시뮬레이션까지 이어지는 end-to-end 파이프라인을 공개 재현 가능한 형태로 처음 구축.</p>
+
+        <p><span class="label">분석.</span>
+          ① Welch t-test + BH-FDR discovery (log2FC = mean(BRAF) − mean(RAS)).
+          ② 외부 코호트별 replication: fold-change sign 일치 + p &lt; 0.05.
+          ③ 필터: FDR &lt; 0.05, |Cohen's d| &gt; 0.5, median TCGA log2 &gt; 1, ≥2 코호트 presence, replication_rate ≥ 1.
+          ④ Feature set 3종 — <b>TDS16</b>(16-gene thyroid differentiation), <b>TierA67</b>(67-gene composite), <b>variance-top50</b>. 최종 패널: <b>54-gene LogReg elastic-net</b>.
+          ⑤ 분류기 sweep: LogReg_l2, LogReg_elasticnet, LinearSVC, RandomForest, GradientBoosting, XGBoost.
+          ⑥ ChEMBL target 매핑 + CMap L1000 reversal + PubMed anchoring으로 target → compound shortlist.
+        </p>
+
+        <p><span class="label">결과.</span>
+          <b>2,773 replicated biomarker</b>. Top novel: TACSTD2(d=+2.52), TMPRSS4(+2.09), PLEKHA6(+2.22), CYP1B1(+2.22), LDLR(+2.02), GABRB2(+2.24), B3GNT3(+2.02), PTPRE(+2.26). Top known replicated: SERPINA1, KCNN4, DCSTAMP, KRT19, LGALS3, MET, TIMP1.
+          54-gene 패널 — TCGA 5-fold AUC <b>1.000</b>(95% CI 1.000–1.000), PR-AUC 1.000, balanced accuracy 1.000.
+          External GSE126698 TierA67 RandomForest AUC 1.000; GSE27155 variance_top50 LogReg_elasticnet AUC 0.980.
+          8 druggable target · 15 compound · 27 literature record.
+        </p>
+
+        <p><span class="label">의미.</span>공공 데이터만으로 thyroid cancer에 대한 <b>decision-support triage + first-in-class drug-discovery hypothesis</b>를 reproducibly 생성할 수 있음을 처음 보임. 단, 이 시점의 "external AUC 0.89–0.97"은 <b>batch 효과 상한을 측정하기 전</b>이라 숫자 그대로 "외부 일반화 성공"으로 읽으면 안 됨 — v3가 이 부분을 감사함.</p>
+
+        <blockquote>
+          <b>판정 (baseline established).</b> v2는 공개·재현 가능한 THYRAI 파이프라인의 출발점이며, 모든 후속 버전의 비교 기준(baseline)으로 보존.
+        </blockquote>
+
+        <div class="tl-src">
+          <details>
+            <summary>v2 source files & archive</summary>
+            <ul>
+              <li><code>reports/analysis_summary.md</code></li>
+              <li><code>reports/analysis_summary_v2.md</code></li>
+              <li><code>reports/ml_report_v2.md</code></li>
+              <li><code>reports/biomarker_analysis.md</code></li>
+              <li><code>reports/biomarker_to_drug_report.md</code></li>
+              <li><code>reports/html/index_v2_legacy.html</code> — v2 레거시 대시보드 (원형 보존)</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- v3 PANEL -->
+    <div class="tl-panel" data-panel="v3" id="v3">
+      <div class="tl-card">
+        <span class="eyebrow">v3 · HONEST AUDIT</span>
+        <h2 data-explain-id="timeline-v3"><span class="ver-tag">v3</span>External AUC 1.00은 "일반화 증거"가 아니다 — D1 = 1.00 공개.</h2>
+        <div class="tl-metrics">
+          <div class="tl-metric"><div class="tl-metric__v">1.000</div><div class="tl-metric__l">D1 identifiability macro-AUC</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">0.870</div><div class="tl-metric__l">LODO mean AUC</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">0.500</div><div class="tl-metric__l">Post-isotonic bACC (collapse)</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">&lt; 0.001</div><div class="tl-metric__l">Permutation p</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">10,000×</div><div class="tl-metric__l">Permutation null iterations</div></div>
+        </div>
+
+        <p><span class="label">데이터.</span>v2와 동일한 코호트(TCGA-THCA train + GSE27155, GSE126698, pooled GPL570(GSE33630+GSE29265), GSE76039 외부) + <b>dataset-identifiability 측정용 코호트 라벨</b>을 명시적으로 추가. PRJEB11591(Yoo et al. 2016)을 primary external로 시도했으나 처리된 count 획득 실패 → proxy로 대체(투명하게 기록).</p>
+
+        <p><span class="label">목적.</span>v2에서 보고된 "TCGA-internal AUC = 1.00"이 실제로 <b>외부 코호트에서도 일반화되는가</b>를 permutation-calibrated로 검증. 동시에 "외부 AUC 숫자 중 얼마가 platform/batch에서 기인하는가"의 <b>상한</b>을 측정 — honest-audit framing 확립.</p>
+
+        <p><span class="label">분석.</span>
+          ① elastic-net LogReg(TierA67_clean_no_MAPK feature set) 학습.
+          ② 외부 코호트에 <b>isotonic recalibration</b> 적용(TCGA score에 fit, 외부에 apply).
+          ③ <b>Permutation null 10,000회</b> — 라벨 셔플링으로 null AUC 분포 생성.
+          ④ <b>LODO</b>(Leave-One-Dataset-Out) 평가 — 외부 2개 홀드아웃.
+          ⑤ <b>Dataset identifiability macro-AUC (D1)</b> — One-vs-Rest LogReg로 코호트 자체를 예측 — 1.00이면 platform/batch만으로 코호트 100% 식별 가능.
+          ⑥ <b>BRS71 Recovery</b> — proxy 71-gene과 Cell 2014 원본(72 gene) 겹침 = 1 gene(1.4%) → proxy replace 결정.
+          ⑦ <b>Honesty checklist</b>(6-check) 초안.
+        </p>
+
+        <p><span class="label">결과.</span>
+          Best external AUC = <b>1.000</b>(95% CI 1.000–1.000) on GSE27155(n=41), permutation null 평균 0.469, <b>p &lt; 0.001</b>.
+          <b>D1 macro-AUC = 1.000</b> → 플랫폼만으로 코호트 완벽 식별.
+          Post-isotonic <b>bACC = 0.500</b> — 모든 외부 score가 단일 bucket으로 붕괴 = 분포 shift의 직접 증거.
+          <b>LODO 평균 AUC 0.870</b> — 외부 일반화는 존재하지만 내부 AUC 대비 드롭 명백.
+          BRS71 recovery: proxy 대체.
+        </p>
+
+        <p><span class="label">의미.</span>
+          <b>"외부 AUC 1.00은 임상 일반화의 증거가 아니다."</b>
+          D1=1.00과 bACC 붕괴는 apparent external AUC의 일부가 platform/batch에서 기인함을 직접 시사. 올바른 framing은 "<b>retrospective computational triage / decision-support prototype</b>"이며, 모든 외부 AUC는 <b>상한으로 읽어야</b> 함.
+          이 감사가 v4 ComBat rescue 시도의 동기.
+        </p>
+
+        <blockquote>
+          <b>판정 (batch leakage upper bound revealed).</b> 외부 일반화 주장이 배치 누수 상한으로 묶여 있음을 수치로 공개.
+        </blockquote>
+
+        <div class="tl-src">
+          <details>
+            <summary>v3 source files & archive</summary>
+            <ul>
+              <li><code>reports/analysis_summary_v3.md</code></li>
+              <li><code>reports/external_validation_v3.md</code></li>
+              <li><code>reports/brs71_recovery_v3.md</code></li>
+              <li><code>reports/next_steps_v3.md</code></li>
+              <li><code>reports/paper_outline_v3.md</code></li>
+              <li><code>pages/19_honesty_audit.html</code> — v3 honesty audit 페이지</li>
+              <li><code>results/ml/v3_ext_calibration.tsv</code> · <code>v3_ext_validation_results.tsv</code></li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- v4 PANEL -->
+    <div class="tl-panel" data-panel="v4" id="v4">
+      <div class="tl-card">
+        <span class="eyebrow">v4 · QUADRUPLE-TRACK SPRINT</span>
+        <h2 data-explain-id="timeline-v4"><span class="ver-tag">v4</span>Linear ComBat rescue <b>UNRECOVERABLE</b>; Bethesda 시뮬레이션 공개.</h2>
+        <div class="tl-metrics">
+          <div class="tl-metric"><div class="tl-metric__v">1.000 → 0.487</div><div class="tl-metric__l">Pre → post identifiability AUC</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">0.997 → 0.011</div><div class="tl-metric__l">Pre → post LODO AUC</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">18</div><div class="tl-metric__l">Bethesda operating points</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">120,000</div><div class="tl-metric__l">Simulated patients (6 × 20k)</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">6 / 6</div><div class="tl-metric__l">Honest audit checks PASS</div></div>
+        </div>
+
+        <p><span class="label">데이터.</span>
+          v3과 동일한 6개 코호트(TCGA-THCA n~570, GSE213647 ~620, GSE126698 ~22, GSE27155 ~70, GSE33630 ~105, GSE76039 ~37). gene-symbol intersection → log2 → row-mean imputation → drop-constant 파이프라인.
+          Bethesda는 <b>6개 유병률(5/10/15/20/30/40%)</b> × <b>20,000명 가상 환자</b> = 120,000 시뮬레이션. Cost frame: KRW single-payer(lobectomy 3.5M · follow-up 0.25M · genomic panel 0.3M · missed-cancer penalty 30M KRW — <b>다른 수가 체계로 일반화 불가</b>).
+        </p>
+
+        <p><span class="label">목적.</span>v3이 드러낸 D1=1.00 배치 누수를 <b>실제로 복구 가능한가</b>를 네 트랙으로 동시 공격 — (A) 배치 보정, (B) 임상 의사결정 시뮬레이션, (C) 외부 코호트 재시도, (D) 감사 체크리스트.</p>
+
+        <p><span class="label">분석.</span>
+          <b>Track A · ComBat rescue.</b> subtype-preserving mod matrix(normal / indolent / aggressive)로 pycombat 적용. Identifiability = variance-top-3000 유전자에 one-vs-rest macro LogReg 3-fold CV. External = LODO tumor-vs-normal LogReg.
+          <b>Track B · Bethesda decision.</b> Beta-distributed model score → 6 유병률 × 3 operating points(Se≥0.95 rule-out / balanced / Sp≥0.95 rule-in) × 20k 환자 = 18 operating point 매트릭스 + 전체 DCA.
+          <b>Track C · PRJEB11591 retry.</b> PLOS supplementary 8개 alt URL 시도(s021/s022/s023, europepmc, ENA, ArrayExpress biostudies, GEO).
+          <b>Track D · Honest audit.</b> 6-check 체크리스트(C1 D1 report · C2 LODO · C3 3 operating points DCA · C4 KRW 일반화 불가 표기 · C5 decision-support 용어 한정 · C6 외부 코호트 접근 실패 투명 보고).
+        </p>
+
+        <p><span class="label">결과.</span>
+          <b>Track A.</b> pre-ComBat ident AUC 1.000 → post 0.487, pre-LODO AUC 0.997 → post 0.011. <b>Verdict: UNRECOVERABLE.</b> 선형 ComBat은 배치를 지우면서 subtype axis까지 같이 지움 = biology가 함께 mean-shift 됨.
+          <b>Track B.</b> 18 operating points. 예: prev=10% · Se≥0.95 rule-out → Se 0.956 · Sp 0.794 · PPV 0.340 · <b>NPV 0.994</b>. prev=20% · balanced → Se 0.875 · Sp 0.908 · PPV 0.704 · NPV 0.967. Low-prevalence rule-out 모드에서 NPV 97–99%대 유지하며 수술 감소 가능성 제시.
+          <b>Track C.</b> PRJEB11591 status = <b>PARTIAL_DOWNLOAD</b>. 대안 코호트(GSE33630 ATC arm, GSE82208 FTC arm, GSE76039 ATC+PDTC, GSE29265 PTC) 문서화.
+          <b>Track D.</b> 6/6 PASS.
+        </p>
+
+        <p><span class="label">의미.</span>
+          선형 배치 보정으로 D1=1.00을 구제할 수 없음을 실증. 이 지점이 v5 방법론 sprint(비선형 보정 · DANN adversarial)의 동기. Bethesda 시뮬레이션은 <b>KRW single-payer framing 명시</b>로 정직성을 유지하며, 수술 감소 잠재력을 computational triage로서 보고.
+        </p>
+
+        <blockquote>
+          <b>판정 (batch rescue unrecoverable under linear ComBat).</b> 감사 6/6 PASS · 언어 policy "decision-support prototype" 한정 · 진단 기기 아님.
+        </blockquote>
+
+        <div class="tl-src">
+          <details>
+            <summary>v4 source files & archive</summary>
+            <ul>
+              <li><code>reports/v4_synthesis.md</code></li>
+              <li><code>reports/v4_honest_audit.md</code></li>
+              <li><code>reports/v4_combat_rescue.md</code></li>
+              <li><code>reports/v4_bethesda_clinical.md</code></li>
+              <li><code>reports/v4_prjeb11591_status.md</code></li>
+              <li><code>reports/v4_minipaper_skeleton.tex</code></li>
+              <li><code>pages/33_v4_synthesis.html</code> · <code>pages/32_honest_audit.html</code></li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- v5 PANEL (retracted) -->
+    <div class="tl-panel is-retracted" data-panel="v5" id="v5">
+      <div class="tl-card retracted">
+        <span class="eyebrow" style="color:#c24c4c">v5 · RETRACTED (superseded by v5.1)</span>
+        <h2 data-explain-id="timeline-v5"><span class="ver-tag retracted">v5 RETRACTED</span>"Cross-cancer generalization" 주장 · StratifiedKFold 누수로 철회.</h2>
+        <div class="tl-metrics">
+          <div class="tl-metric"><div class="tl-metric__v">6</div><div class="tl-metric__l">Batch correction methods tested</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">5</div><div class="tl-metric__l">Cancer types (claim)</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">0.929</div><div class="tl-metric__l">DANN bio CV AUC (claim)</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">1 / 4</div><div class="tl-metric__l">Cancer replicate (claim)</div></div>
+          <div class="tl-metric"><div class="tl-metric__v" style="color:#c24c4c">RETRACTED</div><div class="tl-metric__l">Final status</div></div>
+        </div>
+
+        <p><span class="label">데이터.</span>TCGA <b>5개 암종</b>(THCA · SKCM · LGG · LUAD · COAD) × <b>5 classifier</b> family(LogReg_l2 · LogReg_elasticnet · RandomForest · GradientBoosting · XGBoost). StratifiedKFold를 pooled cross-cohort 매트릭스에 적용 + <b>semi-synthetic augmentations</b>(thin cohort 보강).</p>
+
+        <p><span class="label">목적 (당시).</span>v4의 UNRECOVERABLE 결론을 세 가지 방법론 기여로 업그레이드 — (1) 비선형 batch correction ablation(zscore · ComBat · BBKNN · Harmony 등 6종), (2) <b>DANN</b>(Gradient Reversal Layer) adversarial de-confounding novel method, (3) cross-cancer 6-check 일반화, (4) batch-robust target shortlist 유도. Bioinformatics methods paper venue 타깃.</p>
+
+        <p><span class="label">분석 (당시).</span>
+          ① StratifiedKFold(pooled matrix) CV.
+          ② 6 batch correction × 5 classifier × 5 cancer 매트릭스.
+          ③ DANN λ sweep {0, 0.1, 0.3, 1.0, 3.0}.
+          ④ cross-cancer 6-check replication rule.
+          ⑤ SHAP-stable top-10 gene + batch-robust shortlist.
+        </p>
+
+        <p><span class="label">결과 (당시 주장).</span>
+          zscore RESCUED — post-ident AUC 0.137, LODO AUC 0.997, bio-preservation 0.945.
+          DANN best λ=0.1 — bio CV AUC 0.929, ident AUC 1.0. SHAP top-10: TACSTD2, CST6, DIO1, COL1A1, DDX3Y, IL1RL1.
+          Cross-cancer: 1/4 replicate → verdict "cancer-specific".
+          Top-20 batch-robust target + 5 zero-literature novel + 5 known. Top 3 novel: CST6, DIO1, PDLIM4.
+        </p>
+
+        <p><span class="label">철회 사유.</span>
+          <b>StratifiedKFold over pooled matrix가 fold 간 코호트 ID 누수를 유발</b> — pre-ComBat AUC가 cohort-specific expression offset을 subtype proxy로 학습하면서 inflate, post-ComBat AUC가 불균형하게 deflate. "flip" 일부가 artifact. 추가로 <b>semi-synthetic augmentation</b>이 실제 biology와 생성 과정을 conflate.
+          올바른 regime은 <b>LODO</b>(train on n-1 cohorts, ComBat fit on training only) — v5.1에서 재실행.
+        </p>
+
+        <p><span class="label">철회된 주장 vs v5.1에서 유지되는 주장.</span></p>
+        <ul>
+          <li><b>Cross-cancer generalization of batch entanglement</b> — v5 "cross-cancer general label-flip" → v5.1 <b>Retracted. THCA-specific only.</b> 4/25 pairs flip, all in THCA.</li>
+          <li><b>Best correction method (zscore + DANN rescue)</b> — v5 "RESCUED" → v5.1 <b>Retracted.</b> StratifiedKFold 누수로 inflate된 값.</li>
+          <li><b>DIAL as diagnostic probe</b> — v5 generic → v5.1 <b>Still valid.</b> THCA에서 정확히 fire, 다른 암에서 정확히 silent.</li>
+          <li><b>Semi-synthetic augmentation</b> — v5 사용 → v5.1 <b>Retracted.</b> Real data only.</li>
+          <li><b>THCA BRAF/RAS flip magnitude</b> — v5 DIAL ~0.31(StratifiedKFold) → v5.1 <b>Revised.</b> DIAL 0.494(LODO, real data), 더 깔끔한 complete-flip.</li>
+        </ul>
+
+        <blockquote>
+          <b>판정 (RETRACTED — superseded by v5.1).</b> 파일은 auditability 위해 <code>results/v5_broken/</code>에 보존, citation 금지.
+        </blockquote>
+
+        <div class="tl-src">
+          <details>
+            <summary>v5 retracted files (auditability only)</summary>
+            <ul>
+              <li><code>reports/v5_synthesis.md</code> — retracted</li>
+              <li><code>reports/v5_cross_cancer_generalization.md</code> — retracted</li>
+              <li><code>reports/v5_adversarial_method_card.md</code> — retracted</li>
+              <li><code>reports/v5_robust_targets.md</code> — retracted</li>
+              <li><code>reports/v5_upgraded_paper_outline.md</code> — retracted</li>
+              <li><code>results/v5_broken/v5_dial_all_cancers.tsv</code> — retracted</li>
+              <li><code>reports/v5/v5_dial_paper.tex</code> · <code>v5_dial_theory.tex</code> — retracted draft</li>
+            </ul>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <!-- v5.1 PANEL (current) -->
+    <div class="tl-panel is-current is-active" data-panel="v51" id="v51">
+      <div class="tl-card current">
+        <span class="eyebrow" style="color:#6AB04C">v5.1 · CURRENT · LODO · REAL DATA</span>
+        <h2 data-explain-id="timeline-v51"><span class="ver-tag current">v5.1 CURRENT</span>THCA BRAF/RAS label-flip confirmed — 다른 4개 암종은 null.</h2>
+        <div class="tl-metrics">
+          <div class="tl-metric"><div class="tl-metric__v">4 / 5</div><div class="tl-metric__l">THCA classifiers flipped</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">20 / 20</div><div class="tl-metric__l">Non-THCA classifiers null</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">0.494</div><div class="tl-metric__l">Max DIAL (theoretical 0.5)</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">25</div><div class="tl-metric__l">Classifier × cancer combos</div></div>
+          <div class="tl-metric"><div class="tl-metric__v">9,179–20,964</div><div class="tl-metric__l">Shared-gene range</div></div>
+        </div>
+
+        <p><span class="label">데이터.</span>
+          TCGA + GEO <b>실 데이터만</b> — THCA(n=392: TCGA-THCA + GSE27155 · 321 BRAF : 71 RAS), SKCM(n=212: TCGA-SKCM + GSE22153), LGG(n=142: TCGA-LGG TSS 4-split · 116:26), LUAD(n=236: TCGA-LUAD + GSE31210 · 91:145), COAD(n=372: TCGA-COAD + GSE39582 · 76:296). shared-gene intersection 9,179(SKCM) ~ 20,964(LGG), variance-top-3000 gene pool per cancer. <b>Semi-synthetic 제거</b>.
+        </p>
+
+        <p><span class="label">목적.</span>v5의 StratifiedKFold + semi-synthetic pipeline이 cohort leakage로 pre-AUC를 inflate했음을 인정하고, <b>LODO + real data</b>로 재실행하여 batch-subtype entanglement의 실제 일반성을 재평가. 가설: 만약 일반 현상이면 여러 암종에서 flip이 반복되고, 특이 현상이면 THCA에만 국한될 것.</p>
+
+        <p><span class="label">분석.</span>
+          ① <b>LODO</b>(leave-one-dataset-out) — n-1 코호트로 학습, 1 코호트 홀드아웃.
+          ② ComBat fit은 <b>train 코호트에서만</b> → held-out에 apply(평가 단계).
+          ③ <b>DIAL</b>(Direction-Invariant AUC Leakage) = max(a, 1−a) − 0.5 when AUC_post &lt; 0.5 else 0. 방향이 뒤집혀도 magnitude를 잡는 diagnostic probe.
+          ④ LODO 하에서는 ident gate 제거(held-out cohort가 ident target이므로 정의상 무의미) → rule: <b>DIAL &gt; 0.3 → batch_entangled</b>, DIAL ≤ 0.1 AND auc_post &gt; 0.7 → true_biology, DIAL ≤ 0.1 AND auc_post &lt; 0.6 → no_signal, 나머지 ambiguous.
+          ⑤ 5 cancer × 5 classifier(LogReg_l2 / LogReg_elasticnet / RandomForest / GradientBoosting / XGBoost) = 25 조합.
+        </p>
+
+        <p><span class="label">결과.</span>
+          <b>25 조합 중 4개만 batch_entangled — 모두 THCA.</b> LogReg_l2 DIAL <b>0.494</b> (AUC_pre 0.994 → post 0.006), LogReg_elasticnet DIAL 0.492 (0.994 → 0.008), RandomForest DIAL 0.323 (0.996 → 0.177), GradientBoosting DIAL 0.334 (0.750 → 0.166). XGBoost만 non-flip (0.781 → 0.487) — tree-ensemble 비선형성이 ComBat의 선형 projection을 깬 것으로 해석.
+          <b>다른 4개 암종 20개 조합 = 0 flip.</b> LGG 5/5 true_biology · COAD 5/5 true_biology · LUAD true_biology + no_signal mix · SKCM ambiguous + no_signal. 즉 DIAL은 "모든 암종에서 false alarm을 내는 탐색기"가 아님.
+        </p>
+
+        <p><span class="label">왜 THCA만 그런가 (3 조건 동시 충족 가설).</span></p>
+        <ol>
+          <li><b>Strong label-cohort correlation.</b> TCGA-THCA 293 BRAF : 58 RAS, GSE27155 28 : 13 — 두 코호트가 같은 majority skew · 같은 minority class 공유. subtype-preserving ComBat이 subtype 축과 cohort-mean을 구별 못함.</li>
+          <li><b>BRAF-vs-RAS biology projects onto low-rank linear axis.</b> PTC의 MAPK-on vs MAPK-off 구분이 3,000-gene variance pool에서 단일 variance component로 잡힘 → ComBat이 빼는 cohort-mean 방향과 일치.</li>
+          <li><b>Classifier fits residual batch signal.</b> biology가 mean-shift으로 지워진 뒤, 선형 분류기(LogReg_l2/elasticnet)가 남은 batch 방향을 latch → 방향이 뒤집힘.</li>
+        </ol>
+        <p>다른 암종은 이 3조건 중 최소 하나를 위반. LGG는 4 TSS split이라 cohort-mean이 IDH 축과 정렬 안 됨(5/5 true_biology). SKCM은 pre-ComBat AUC가 이미 0.49–0.70으로 낮아 뒤집을 방향 자체가 없음. COAD는 극단적 class 불균형(76:296)이지만 subtype 축이 cohort와 정렬 안 됨. LUAD도 flip 영역 미도달.</p>
+
+        <p><span class="label">의미.</span>
+          <b>DIAL은 specificity evidence를 가짐</b> — THCA에서 정확히 fire하고 다른 암종에서 silent. false-positive detector가 아니고, method generalization failure도 아니다.
+          동시에 THCA 자체의 BRAF-vs-RAS 분류는 <b>선형 ComBat 조합에서 신뢰할 수 없음</b>을 실증. 비선형 보정 · cohort-free feature pool · 또는 블라인드 외부 코호트가 필요.
+          프로토타입의 deployment framing은 유지: <b>retrospective computational triage</b>, 진단 기기 아님.
+          <b style="color:#F5A623">향후 외부 검증 코호트 평가가 필요합니다.</b>
+        </p>
+
+        <blockquote>
+          <b>판정 (CURRENT · THCA-specific specificity evidence).</b> DIAL probe는 일반화되며, label-flip regime은 THCA에 특이적. Prospective cohort validation pending.
+        </blockquote>
+
+        <div class="tl-src">
+          <details>
+            <summary>v5.1 source files & artifacts</summary>
+            <ul>
+              <li><code>reports/v5/v5p1_change_log.md</code> — this version's diff vs v5</li>
+              <li><code>reports/v5/v5p1_paper.tex</code> — draft</li>
+              <li><code>results/v5/v5p1_table1_summary.tsv</code> — 5-cancer summary</li>
+              <li><code>results/v5/v5p1_dial_all_cancers.tsv</code> · <code>v5p1_dial_THCA.tsv</code> · <code>v5p1_dial_{SKCM,LGG,LUAD,COAD}.tsv</code></li>
+              <li><code>results/v5/v5p1_harmonization.tsv</code> · <code>v5p1_linearity_gap.tsv</code></li>
+              <li><code>pages/v4a_dial_cross_cancer.html</code> — full v5.1 audit page (heatmap + supplementary figures)</li>
+              <li><code>figs_interactive/v5/v5p1_fig1_interpretation_heatmap.html</code> (key figure)</li>
+              <li><code>figs_interactive/v5/v5p1_fig2_auc_pre_vs_post.html</code></li>
+              <li><code>figs_interactive/v5/v5p1_fig3_thca_label_flip.html</code></li>
+              <li><code>figs_interactive/v5/v5p1_fig4_specificity_evidence.html</code></li>
+              <li><code>figs_interactive/v5/v5p1_fig5_cohort_label_imbalance.html</code></li>
+            </ul>
+          </details>
+        </div>
+
+        <div style="margin-top:16px">
+          <a class="btn-ghost" href="v4a_dial_cross_cancer.html" style="border:1px solid #6AB04C;color:#6AB04C;padding:10px 18px;border-radius:4px;text-decoration:none;display:inline-block">View v5.1 full audit page →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-caveat">
+      <h4>Caveat — scope of all versions</h4>
+      THYRAI v2 ~ v5.1은 전부 <b>retrospective computational triage / decision-support prototype</b>. 공공 코호트 후향적 분석이며, 어떠한 버전도 임상 진단 기기가 아니고 의학적 조언이 아님. v5.1의 "THCA-specific label-flip"은 computational finding이며, 추가적인 외부 코호트 검증 없이는 임상적 일반화를 주장할 수 없습니다. DIAL이 fire한 쌍은 선형 ComBat 단독으로 신뢰할 수 없음 — 비선형 보정 · cohort-free feature pool · 또는 블라인드 외부 코호트 필요.
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__col site-footer__brand">
+        <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+        <p>Research dashboard for computational thyroid-cancer triage. Computational triage only. Not medical advice.</p>
+      </div>
+      <div class="site-footer__col">
+        <h4>Timeline jump</h4>
+        <ul>
+          <li><a href="#v2">v2 · baseline</a></li>
+          <li><a href="#v3">v3 · honest audit</a></li>
+          <li><a href="#v4">v4 · UNRECOVERABLE</a></li>
+          <li><a href="#v5">v5 · RETRACTED</a></li>
+          <li><a href="#v51">v5.1 · CURRENT</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Related</h4>
+        <ul>
+          <li><a href="v4a_dial_cross_cancer.html">v5.1 full audit</a></li>
+          <li><a href="33_v4_synthesis.html">v4 synthesis</a></li>
+          <li><a href="19_honesty_audit.html">v3 honesty audit</a></li>
+          <li><a href="../index_v2_legacy.html">v2 legacy dashboard</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:kukshomr@gmail.com">kukshomr@gmail.com</a></li>
+          <li><a href="team.html">Team</a></li>
+          <li><a href="../index.html">Back to dashboard</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer__meta">
+      <span>&copy; 2026 THYRAI Research · timeline v5.1</span>
+      <span class="site-footer__disclaimer">Computational triage only. Not medical advice.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var tabs = document.querySelectorAll('.tl-tab');
+  var panels = document.querySelectorAll('.tl-panel');
+  var showAllBtn = document.getElementById('tl-show-all');
+  var showOneBtn = document.getElementById('tl-show-one');
+  var allMode = false;
+
+  function activate(id){
+    if (allMode) return; // in all-mode, tabs are decorative
+    tabs.forEach(function(t){
+      var on = t.getAttribute('data-tab') === id;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    panels.forEach(function(p){
+      p.classList.toggle('is-active', p.getAttribute('data-panel') === id);
+    });
+  }
+
+  tabs.forEach(function(t){
+    t.addEventListener('click', function(){
+      if (allMode) {
+        setOneMode();
+      }
+      activate(t.getAttribute('data-tab'));
+    });
+  });
+
+  // Matrix row click jumps to panel
+  document.querySelectorAll('.tl-matrix tbody tr[data-jump]').forEach(function(row){
+    row.addEventListener('click', function(){
+      var id = row.getAttribute('data-jump');
+      if (allMode) {
+        // just scroll to section
+      } else {
+        activate(id);
+      }
+      var panel = document.getElementById(id);
+      if (panel) panel.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  // Anchor links (#v2 etc.) — activate tab on load and on hashchange
+  function activateFromHash(){
+    var h = (location.hash || '').replace('#','');
+    if (['v2','v3','v4','v5','v51'].indexOf(h) >= 0) {
+      if (allMode) setOneMode();
+      activate(h);
+    }
+  }
+  window.addEventListener('hashchange', activateFromHash);
+
+  function setAllMode(){
+    allMode = true;
+    panels.forEach(function(p){ p.classList.add('is-active'); });
+    showAllBtn.style.display = 'none';
+    showOneBtn.style.display = 'inline-block';
+    // mark all tabs as active visual
+    tabs.forEach(function(t){ t.classList.add('is-active'); });
+  }
+  function setOneMode(){
+    allMode = false;
+    showAllBtn.style.display = 'inline-block';
+    showOneBtn.style.display = 'none';
+    // revert to v51 default (or hash)
+    var h = (location.hash || '#v51').replace('#','');
+    if (['v2','v3','v4','v5','v51'].indexOf(h) < 0) h = 'v51';
+    activate(h);
+  }
+
+  showAllBtn.addEventListener('click', setAllMode);
+  showOneBtn.addEventListener('click', setOneMode);
+
+  // initial button state
+  showAllBtn.style.display = 'inline-block';
+  showOneBtn.style.display = 'none';
+
+  // Initial — from hash if present, else v51
+  activateFromHash();
+})();
+</script>
+
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

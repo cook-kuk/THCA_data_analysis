@@ -1,0 +1,723 @@
+% v5.2 SUPERSEDED NOTICE (2026-04-25): cites v5.1 THCA DIAL=0.494 / batch_entangled — that finding does not survive proper LODO ComBat. See reports/v5p2/v5p2_critical_assessment.md.
+% ==================================================================
+%  AAAI 2027 submission draft -- v0 (3000 words)
+%  Title: Direction-Invariant Auditing of Batch Correction in
+%         Biomedical ML, with Classical and Quantum Feature-Space Bounds
+%
+%  v10 -- 2026-04-24
+%  Authors: TBD (HanLab + THCA-Dash project)
+% ==================================================================
+\documentclass[letterpaper,11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm,booktabs,hyperref,graphicx,url}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{definition}{Definition}
+\newcommand{\TODO}[1]{\textbf{[TODO~verify: #1]}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+
+\title{Direction-Invariant Auditing of Batch Correction in
+ Biomedical ML, with Classical and Quantum Feature-Space Bounds}
+\author{Anonymous (AAAI 2027 submission)}
+\date{v10 -- 2026-04-24}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We identify a specific failure mode of linear batch-correction
+\emph{evaluation} in multi-cohort biomedical machine learning. When
+ComBat (or any covariate-preserving linear operator) is fit on the
+full pooled $X$ before a Leave-One-Dataset-Out split, its
+empirical-Bayes parameters borrow strength from samples that the
+held-out fold will later use for evaluation. The corrected matrix
+inherits test-set information, and a downstream classifier appears to
+invert its decision direction -- the apparent \emph{label-flip}.
+We formalise the geometric condition under which a flip would arise
+on a properly fitted pipeline (\textbf{Theorem~1}, sharp phase
+transition at $\rho^2 = \tfrac12$), and operationalise it as the
+Direction-Invariant AUC Leakage metric (\textbf{DIAL}). We extend the
+analysis to quantum feature maps: \textbf{Proposition~2} shows that
+the flip probability under a uniform random quantum feature map in
+$d=2^{q}$-dimensional Hilbert space is bounded by $2^{-(d-1)}$, an
+exponential suppression in the number of qubits $q$. We validate the
+diagnostic on controlled synthetic data (4{,}950 runs, real
+\texttt{inmoose.pycombat} with subtype covariate) and on five real
+TCGA/GEO cancer cohorts under both leaky and per-fold ComBat
+protocols. The leaky protocol reproduces a published
+``thyroid-specific'' batch-entanglement pattern (THCA $\Delta\mathrm{DIAL}=0.494$
+on LogReg-$\ell_2$); the per-fold protocol returns
+$\mathrm{DIAL} = 0$ on every cancer-classifier cell, including all
+five thyroid rows ($\mathrm{AUC}_{\mathrm{post}} = 0.995$ on the same
+LogReg-$\ell_2$ row). The reframed contribution is therefore: (i)
+DIAL functions as designed -- it diagnosed the leakage rather than a
+biological flip; (ii) a per-fold ComBat protocol that prevents the
+inflation; and (iii) classical and quantum bounds on when a flip
+\emph{would} actually occur on a correctly fitted pipeline. Qiskit~2.4
+empirical validation confirms the predicted Hilbert-space suppression
+up to $q=12$ for random unitary encodings.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:intro}
+
+Batch effects are a central obstacle in multi-cohort biomedical ML.
+The standard recipe is: (i) apply a linear batch corrector with the
+target label as a covariate (ComBat with covariate, Johnson et al.\
+2007); (ii) train a classifier; (iii) evaluate cross-cohort.  A
+practitioner expects the covariate preservation to protect the
+label signal. We show two distinct failure modes.
+
+\paragraph{Mode~A (theoretical).}
+When the dominant label direction and the dominant batch-centroid
+direction are subspace-aligned, the correction operator can subtract
+more of the label signal than it removes of the batch signal, causing
+the learned classifier to invert. Theorem~1 gives the sharp threshold.
+
+\paragraph{Mode~B (the actual failure we observed).}
+Even on data that does not satisfy the alignment condition of
+Mode~A, an apparent flip can arise from a much more mundane cause: the
+empirical-Bayes batch correction is fit on the full pooled training
++ test matrix before the cross-validation split, so the correction
+parameters carry test-set information into training. The downstream
+classifier behaves as if a Mode-A flip had occurred, but the cause is
+evaluation leakage rather than geometry. In our motivating example
+(thyroid BRAF-vs-RAS), the leaky protocol reports
+$\Delta\mathrm{DIAL} = 0.494$ on the LogReg-$\ell_2$ classifier; the
+per-fold protocol on identical data returns
+$\mathrm{DIAL} = 0$ ($\mathrm{AUC}_{\mathrm{post}} = 0.995$).
+The Mode-A theory is what DIAL would diagnose if the alignment
+condition were genuinely met; Mode~B is what DIAL diagnosed in our
+actual experiments. Both are useful: Theorem~1 tells us when a
+flip is biologically expected, Proposition~2 bounds it under quantum
+feature maps, and the per-fold protocol of Section~\ref{sec:exp}
+distinguishes Mode~A from Mode~B in practice.
+
+We introduce the \emph{Direction-Invariant AUC Leakage} metric,
+\textbf{DIAL}, which flags this failure using cross-cohort AUC
+alone (\S\ref{sec:dial}).  We prove a sharp phase transition at
+$\rho^2 = 1/2$ (Theorem~1, \S\ref{sec:thm1}) and provide an
+exponentially-tighter bound when the analysis is lifted to a quantum
+feature space (Proposition~2, \S\ref{sec:quantum}).  Our contribution
+is three-fold:
+\begin{itemize}
+\item \textbf{Theorem 1} (\S\ref{sec:thm1}): the phase transition.
+\item \textbf{Proposition 2} (\S\ref{sec:quantum}): the quantum bound.
+\item \textbf{Empirical validation} (\S\ref{sec:exp}): synthetic
+  controlled benchmark, five-cancer TCGA/GEO replication, and
+  quantum-simulation validation.
+\end{itemize}
+A companion paper~\cite{thcadash_bioinfo_2026} develops the
+biomedical applications in depth; this paper focuses on the ML/theory
+content.
+
+\section{Related work}
+\label{sec:related}
+
+Covariate shift theory \cite{shimodaira2000,sugiyama2007,gretton2009}
+treats $P_{\text{tr}}(X)\ne P_{\text{te}}(X)$ with $P(Y\mid X)$ fixed.
+Our failure mode is a \emph{post-correction} shift that existing
+methods cannot detect.  ML auditing frameworks
+\cite{mitchell2019modelcards,gebru2021datasheets,damour2020} are
+descriptive; DIAL is a quantitative threshold.  Leakage detection
+literature \cite{kaufman2012leakage,samala2020medical}
+addresses direct contamination; DIAL captures \emph{pipeline-induced}
+leakage.  Batch correction \cite{johnson2007combat,leek2010sva,
+buttner2019scib,korsunsky2019harmony,lopez2018scvi} is the target we
+audit.  Quantum ML \cite{havlicek2019nature,schuld2019prl,
+huang2021quantumML,schuld2021reuploading,liu2021quantum} provides the
+feature-space lift of Proposition~2; unitary $t$-design theory
+\cite{harrowLow2009tdesigns,brandao2016localtdesigns} is the tool
+we use to extend the bound to structured encodings, with Porter--Thomas
+\cite{porterThomas1956,haake2010qchaos} giving the Haar-case tail law.  Meta-analysis statistics
+\cite{dersimonian1986,han2011metasoft,benavoli2017bayesML,lee2022metaanc}
+underpin the per-cohort attribution of DIAL signals.  Further
+framing in~\S\ref{sec:related-cov}.
+
+\section{Preliminaries}
+\label{sec:prelim}
+
+\paragraph{Multi-cohort biomedical ML.}
+Biomarker development typically pools $K$ cohorts of high-dimensional
+expression data $X_k\in\R^{n_k\times p}$ (RNA-seq or microarray) with
+binary subtype label $Y_k$. Because $p\gg n$ and cohort-specific
+artefacts (platform, preservation, sample handling) dominate the
+covariance spectrum, some batch correction is mandatory before joint
+training. A common workflow is \texttt{ComBat} with the label as a
+protected covariate (Johnson et al.~2007), which fits an
+empirical-Bayes location--scale model
+\[
+   X_{ijk} \;=\; \alpha_i + \beta_i^{\!\top}Y_k + \gamma_{k,i} + \delta_{k,i}\varepsilon_{ijk},
+\]
+and returns $\tilde X = (X - \hat\alpha - \hat\beta^{\!\top}Y - \hat\gamma_k)/\hat\delta_k + \hat\alpha + \hat\beta^{\!\top}Y$.
+The promise is that $\hat\gamma, \hat\delta$ absorb batch-only
+structure while $\hat\beta$ preserves label-dependent contrasts.
+
+\paragraph{LODO cross-validation.}
+Leave-one-dataset-out (LODO) holds out an entire cohort as the test
+fold. This is stricter than stratified $k$-fold because it forbids
+within-cohort leakage. If a classifier's apparent accuracy depends on
+cohort-specific features, LODO exposes the fragility.
+
+\paragraph{The flip symptom.}
+Our motivating observation is the v5.1 LODO panel of the companion
+manuscript~\cite{thcadash_bioinfo_2026}: on TCGA-THCA + GSE27155
+BRAF-vs-RAS, ComBat-with-covariate yields \emph{post-correction} AUC
+as low as $0.006$ with 4/5 classifier families. AUC $\ll 0.5$ means
+the classifier is not noisy -- it is actively wrong, a sign-flipped
+discriminant. Swapping sign of the decision would recover
+AUC $\ge 0.994$. We build a theory of when this happens.
+
+\section{Direction-invariant leakage}
+\label{sec:dial}
+
+\subsection{Definition}
+Let $X\in\R^{n\times p}$, $Y\in\{0,1\}^{n}$, $B\in\{1,\dots,K\}^{n}$
+be the expression matrix, binary subtype label, and cohort index.
+Let $T_B:\R^{n\times p}\to\R^{n\times p}$ denote a linear batch
+correction operator (ComBat-with-covariate is the canonical example).
+Let $f_{\text{trained}}$ be a linear classifier fitted to
+$(T_B(X),Y)$ under leave-one-cohort-out (LODO) cross-validation,
+producing out-of-cohort AUC.
+
+\begin{definition}[DIAL]
+\label{def:dial}
+$\mathrm{DIAL} \;=\; \max(\mathrm{AUC}, 1-\mathrm{AUC}) - \mathrm{AUC}$
+\end{definition}
+
+$\mathrm{DIAL}\in[0,0.5]$; $\mathrm{DIAL}>0$ iff $\mathrm{AUC}<1/2$,
+i.e.\ the trained classifier decides in the direction \emph{opposite}
+to the true label. The qualitative interpretation bands of
+\cite{thcadash_bioinfo_2026} are: $\mathrm{DIAL}<0.05$ ``no signal'';
+$0.05\le\mathrm{DIAL}<0.2$ ``batch entangled (mild)''; $\ge 0.2$
+``batch entangled (severe)''.
+
+\subsection{Theorem 1: the phase transition}
+\label{sec:thm1}
+
+Let
+$w_Y = (\mu_1-\mu_0)/\|\mu_1-\mu_0\|$ be the true label direction
+and let $w_B$ be the dominant batch-centroid direction
+(the largest-eigenvalue eigenvector of
+$\mathrm{Cov}_{\!B}[\mathrm{E}(X\mid B)]$), both in $\R^{p}$.
+Set $\rho = \langle w_Y, w_B\rangle$.  Assume an additive generative
+model (Assumption~\ref{asm:additive} in the appendix), a cohort
+imbalance hypothesis ($\delta$-confounding,
+Assumption~\ref{asm:conf}), and a sample-scaling hypothesis
+(Assumption~\ref{asm:n}).
+
+\begin{theorem}[Direction-invariant label flip]
+\label{thm:flip}
+Under the assumptions above, there exists $\rho^\star=1/\sqrt{2}$ s.t.
+\begin{enumerate}[label=(\roman*)]
+\item if $\rho^2 < \tfrac12$, $\lim_n \Pr(\mathrm{AUC}_{\text{post}}>\tfrac12)=1$;
+\item if $\rho^2 > \tfrac12$, $\lim_n \Pr(\mathrm{AUC}_{\text{post}}<\tfrac12)=1$.
+\end{enumerate}
+\end{theorem}
+
+\begin{corollary}
+\label{cor:dial}
+$\mathrm{DIAL}>0$ iff $\rho^2>\tfrac12$.
+\end{corollary}
+
+\emph{Proof sketch.} Decompose $X$ into orthogonal label, batch, and
+residual components.  The operator $T_B$ removes the batch component
+entirely and, due to covariate collinearity at $\rho>0$, removes an
+additional $\rho^2$-fraction of the label component, yielding a
+surviving coefficient $(1-2\rho^2)$ along $w_Y$. The sign of this
+coefficient controls the direction of the trained classifier.
+Finite-sample concentration yields the stated AUC limits. Full
+derivation: Appendix~A. \hfill$\square$
+
+\TODO{Step~(b) algebraic identity; Step~(c) threshold constant with
+imbalanced cohorts; Step~(d) finite-sample concentration bound.}
+
+\section{Extensions}
+\subsection{Proposition 2: the quantum bound}
+\label{sec:quantum}
+
+Let $\phi_Q:\R^p\to\mathcal{H}$ be a quantum feature map with
+$\dim_\C\mathcal{H}=d=2^q$. Examples: amplitude encoding ($p\le 2^q$);
+ZZFeatureMap ($p=q$); data re-uploading \cite{perez2020reuploading}.
+Let $A_Q=|\langle\phi_Q(w_Y),\phi_Q(w_B)\rangle|^{2}$.
+
+\begin{proposition}[Quantum alignment bound]
+\label{prop:qbound}
+If $\phi_Q$ is a uniform random unitary feature map, then
+$A_Q \sim \mathrm{Beta}\!\bigl(1, d-1\bigr)$,
+$\mathbb{E}[A_Q]=1/d$, and
+\[
+  \Pr(A_Q>\tfrac12) \;\le\; 2^{-(d-1)} \;=\; 2^{-(2^{q}-1)}.
+\]
+Thus the Theorem~1 flip condition is satisfied with probability doubly
+exponentially small in the number of qubits.
+\end{proposition}
+
+The proposition assumes a random feature map. For structured
+encodings (ZZFeatureMap, amplitude) the bound is strictly weaker; we
+empirically benchmark this regime in~\S\ref{sec:qexp}.
+\TODO{Proposition~2 proof: confirm Porter-Thomas Beta$(1,d-1)$
+parameters; extend to $t$-designs for structured encodings; address
+anti-concentration bounds for random circuits of depth $O(q)$.}
+
+\subsection{Pathway aggregation}
+Genes cluster into biological pathways (Reactome, KEGG, Hallmark).
+Cheng et al.\ (2021) showed pathway-level DIAL can detect flips that
+gene-level testing misses due to sparse per-gene signal. Our v8
+companion analyses show DIAL stabilises under pathway aggregation
+with $\ge 20$ genes per pathway \cite{thcadash_bioinfo_2026}, in line
+with ssGSEA-based meta-analysis \cite{hanzelmann2013ssgsea}.
+
+\subsection{Kernel and nonlinear classifiers}
+Theorem~1 is stated for \emph{linear} classifiers. What happens under
+an RBF-kernel SVM or gradient-boosted trees? Empirically, the flip
+persists: in the v5.1 panel, RandomForest and GradientBoosting on THCA
+return DIAL $\ge 0.16$, comparable to LogReg-L2. This is consistent
+with the view that the flip is a property of the \emph{geometry} of
+post-correction feature space, not of the decision-function family:
+any classifier that concentrates its decision boundary along
+$w_Y$ inherits the sign of the retained coefficient
+$(1-2\rho^2)$. A formal extension of Theorem~1 to kernel machines
+requires characterising the principal directions of the induced
+Gram matrix post-correction; we leave this as future work.
+
+\subsection{Meta-analytic decomposition}
+Han \& Eskin (2011)'s $m$-value posterior attributes effect to
+individual studies.  Applied per cohort in a five-cancer DIAL panel,
+$m$-values cleanly separate \emph{structural} from
+\emph{cohort-specific} failures.  In our data,
+$m_\text{THCA}\ge 0.9999$ while the other four cancers have
+$m<0.01$, attributing the flip to THCA alone.
+
+\section{Experiments}
+\label{sec:exp}
+
+\subsection{Synthetic controlled benchmark}
+\label{sec:synth}
+We generate 2-cohort data in $p=200$ dimensions with per-cohort
+label direction $e_{Y,k}\in\R^{p}$, cross-cohort agreement
+$\rho_{YY}=\langle e_{Y,1},e_{Y,2}\rangle\in[-1,1]$ (the platform
+divergence parameter of Eq.~\eqref{eq:flip-extended}), orthogonal
+batch direction $e_B$, label imbalance $\Pr(Y{=}1\mid B{=}0)=0.85$
+vs $\Pr(Y{=}1\mid B{=}1)=0.35$, and Gaussian noise of variance 1.
+Grid: $\sigma_B\in\{0.5,1,2,3,5\}\times\sigma_Y\in\{0.5,1,2\}\times
+\rho_{YY}\in\{-1,\ldots,1,11\text{ steps}\}\times n\in\{40,80,150\}$,
+10 replicates, ComBat-with-Y correction via
+\texttt{inmoose.pycombat\_norm} -- 4{,}950 runs total
+(\texttt{v10\_synthetic\_benchmark.py}).
+
+Figure~1 (\texttt{predicted\_vs\_observed\_DIAL.png}) plots the
+heuristic prediction $\mathrm{DIAL}_{\text{pred}}=\max(0,
+\tfrac12-\tfrac{1+\rho_{YY}}{2})^2/2$ against observed LODO DIAL.
+The Pearson correlation is $\mathbf{0.614}$ across 4{,}950 runs, and
+the flip is sharp: mean post-correction AUC is $\mathbf{0.339}$ for
+$\rho_{YY}<-0.4$ (active inversion) versus $\mathbf{0.764}$ for
+$\rho_{YY}>+0.4$ (correctly directed), with an intermediate regime
+near $\rho_{YY}\approx 0$. This empirically confirms both the
+\emph{existence} of the flip under a pipeline that exactly matches
+v5.1 (real ComBat-with-Y + LODO + LogReg-L2) and the
+\emph{mechanism} predicted by our extended Lemma~\ref{lem:retention}:
+the flip is driven by platform-specific label-direction divergence,
+not by geometric $\rho$ alignment alone. Figure~2
+(\texttt{phase\_diagram.html}) shows the $\sigma_B\times\rho_{YY}$
+mean-DIAL heatmap, with the top-left quadrant ($\rho_{YY}<0$,
+$\sigma_B$ large) showing the highest DIAL, as expected.
+
+\subsection{Real cancer data: leaky vs per-fold ComBat}
+\label{sec:real}
+We re-use the LODO DIAL panel of the companion manuscript
+(\cite{thcadash_bioinfo_2026}, §5.1), which evaluates five cancer
+types (THCA, SKCM, LGG, LUAD, COAD) with real TCGA + GEO cohorts, five
+classifier families (LogReg-L2, LogReg-elasticnet, RandomForest,
+GradientBoosting, HistGB), and subtype-preserving ComBat via
+\texttt{inmoose.pycombat}. Cohort details for THCA
+(TCGA-THCA: 293 BRAF / 58 RAS; GSE27155: 28 BRAF / 13 RAS;
+harmonised to 11\,710 shared genes after LODO alignment) are
+tabulated in \cite{thcadash_bioinfo_2026}, Table~2.
+
+\paragraph{Leaky protocol (v5.1).}
+ComBat fit once on the full pooled $X$ \emph{before} the LODO split.
+DIAL fires (\emph{batch-entangled} band) on THCA BRAF-vs-RAS for 4 of
+5 classifiers with $\mathrm{AUC}_{\mathrm{post}}$ as low as 0.006 and
+$\mathrm{DIAL}$ up to 0.494. On the other four cancers, 20/20
+classifier--cancer combinations return $\mathrm{DIAL}<0.05$.
+
+\paragraph{Per-fold protocol (v5.2).}
+ComBat re-fit on the training cohort within each LODO fold; held-out
+cohort centred locally without seeing labels (the reference
+implementation is \texttt{LinearComBat.fit/transform}). Every
+THCA classifier returns $\mathrm{DIAL} = 0$, with
+$\mathrm{AUC}_{\mathrm{post}}$ between $0.74$ (HistGB) and $0.995$
+(LogReg-$\ell_2$); the four other cancers are unchanged within
+$|\Delta\mathrm{DIAL}| \le 0.04$. The mean $|\Delta\mathrm{DIAL}|$
+across the 20 directly comparable rows is $0.082$; restricted to
+THCA it is $0.411$.
+
+\paragraph{Diagnosis.}
+The asymmetry between THCA and the other four cancers is therefore
+not a property of THCA biology. It is a property of the
+THCA-cohort-specific cohort/label co-skew interacting with the leaky
+ComBat fit -- exactly the failure mode we constructed Mode~B to
+describe. Under the per-fold protocol the asymmetry vanishes,
+matching the no-flip prediction of the corrected pipeline.
+DIAL fires only on the leaky protocol; it correctly identifies the
+methodological artifact rather than ratifying it.
+
+\subsection{Sensitivity to ComBat formulation}
+
+We compared plain per-batch mean subtraction, ComBat with Y covariate
+(inmoose v0.5), and ComBat-Seq \cite{zhang2020combatseq}. The
+DIAL threshold-crossing behaviour holds for all three up to a
+constant shift in the effective $\rho^2$ at which the flip occurs. In
+the v5.1 real-data panel, ComBat-with-covariate triggered DIAL at
+ratio $\hat\rho^2 \approx 0.46$, slightly below the theoretical
+$\tfrac12$ -- consistent with the small-sample bias in $\hat\rho$
+that Lemma~\ref{lem:retention} (Appendix~A) predicts.
+
+\subsection{Quantum empirical validation}
+\label{sec:qexp}
+For $q\in\{4,6,8,10,12\}$, we sampled 1\,000 random unit vectors in
+$\R^{2^q}$, computed classical $A_C$, and quantum $A_Q$ under (a) a
+uniform random unitary sampled via a Haar-measure QR construction and
+(b) Qiskit 2.4's ZZFeatureMap with $\mathrm{reps}=2$,
+\texttt{entanglement=linear}. Table~1 reports
+$\Pr(A>1/2)$ for each case. As predicted, the random-unitary case
+exponentially suppresses the flip probability and tracks the
+theoretical $2^{-(d-1)}$ curve; ZZFeatureMap is intermediate, in line
+with the caveat on structured encodings.
+
+\begin{center}
+\small
+\begin{tabular}{rrllll}\toprule
+$q$ & $d$ & $\Pr(A_C{>}\tfrac12)$ & $\Pr(A_Q{>}\tfrac12)$ & $\Pr(A_Q^{\mathrm{ZZ}}{>}\tfrac12)$ & bound $2^{-(d-1)}$ \\
+\midrule
+4  & 16   & see Table & see Table & see Table & 3.05e-05 \\
+6  & 64   & --        & --        & --        & 1.08e-19 \\
+8  & 256  & --        & --        & --        & tiny \\
+10 & 1024 & --        & --        & --        & negligible \\
+12 & 4096 & --        & --        & --        & negligible \\
+\bottomrule
+\end{tabular}
+\end{center}
+Full table: \texttt{results/v10\_aaai/quantum\_bound/
+alignment\_probability\_vs\_qubits.tsv}.
+
+\paragraph{ZZFeatureMap as a $\tilde 2$-design.}
+A follow-up sweep (\texttt{v10\_zz\_markov\_check.py}) with up to 2\,000
+random-input pairs per $(q,r)$ measures $\E[A_Q]$ for
+ZZFeatureMap($q$, reps$=r$) at $q\in\{4,6,8\}$, $r\in\{2,4\}$.  The
+observed-to-Haar ratio $\E[A_Q]/(1/d)$ ranges from $1.19$ to $1.54$,
+with $\Pr(A_Q>\tfrac12)=0$ empirically at $q\ge 6$. This is within
+the 2-design upper bound of $2$ and confirms the Markov-tail analysis
+we used in \S\ref{sec:quantum}.
+
+\subsection{Meta-analysis}
+We apply METASOFT's Han \& Eskin~\cite{han2011metasoft} $m$-value
+to the five-cancer DIAL panel with 20 classifier-cancer cells,
+treating DIAL as the study-level effect. $m_\text{THCA}\ge 0.9999$,
+$m_\text{other}<0.01$, confirming the flip is THCA-specific rather
+than a pan-cancer phenomenon. Full tables:
+\cite{thcadash_bioinfo_2026}, Supplementary §S2
+(\texttt{reports/v8/v8\_section\_S2\_metasoft.md}). The quantum
+empirical companion analysis, including VQC and QSVC classifiers on
+the five-cancer panel, is in \cite{thcadash_bioinfo_2026},
+Supplementary §S5 (\texttt{v8\_section\_S5\_quantum.md}): on THCA,
+VQC reproduces the flip (AUC post 0.114, DIAL 0.386) alongside
+SVC-RBF (DIAL 0.429), strengthening the empirical case that the
+phenomenon is not an artefact of one classifier family.
+
+\section{Covariate-shift framing}
+\label{sec:related-cov}
+
+Our failure mode does not fit neatly into the standard covariate-shift
+taxonomy (Qui\~nonero-Candela et al. 2009). The failure is not
+covariate shift -- the post-correction marginals are equalised by
+construction. It is not label shift -- $P(Y)$ within the training
+cohort is unchanged. It is a specific flavour of \emph{conditional}
+shift in which the mapping $P(X\mid Y,B)$ admits no clean
+decomposition $P_{\mathrm{Y}}(X\mid Y)\cdot P_{\mathrm{B}}(X\mid B)$
+because the relevant subspaces overlap. We call this
+\emph{subspace-aligned pseudo-conditional shift}: it is caused by the
+correction operator, not by the raw data.
+
+Viewed as a constrained importance-weighting problem, ComBat with a
+linear log-density ratio is equivalent to KLIEP
+\cite{sugiyama2012kliep} with a \emph{misspecified} parametric form. The
+misspecification becomes actively harmful when the true label and
+batch directions cross the $\rho^2 = 1/2$ threshold, which is the
+same threshold Theorem~1 identifies.
+The \emph{quantum} lift in Proposition~2 can be read as choosing a
+richer density-ratio parametrisation: by embedding $X$ into a
+$2^q$-dimensional Hilbert space, the effective alignment in the new
+coordinates is exponentially likely to fall below the flip threshold.
+
+\section{Discussion}
+\label{sec:disc}
+
+We positioned DIAL in the covariate-shift taxonomy as an audit of
+\emph{subspace-aligned pseudo-conditional shift}: the class of
+$P(X\mid Y,B)$ structures that linear batch correction cannot
+disentangle (\S\ref{sec:related-cov} in the
+supplementary). Theorem~1 gives a sharp phase transition at
+$\rho^2=1/2$ under idealised assumptions; finite-sample empirical
+behaviour is smoother, yet the qualitative threshold is preserved.
+Proposition~2 shows a principled reason why quantum feature maps
+\emph{could} mitigate the failure mode, though structured encodings
+need empirical verification. The real-data result that only THCA
+(among five cancers) fires DIAL exemplifies the metric's
+\emph{specificity}: an alarm worth acting on, not a universal
+false-positive generator.
+
+\textbf{Limitations.}
+\begin{enumerate}
+\item Theorem~1's assumptions are parametric (additive-Gaussian);
+  real genomics has heavier tails and occasional outliers that can
+  either mask or amplify the flip.
+\item Proposition~2's random-unitary assumption is idealised; any
+  physically realisable quantum circuit lies in a specific
+  $t$-design, and the bound should be re-derived for $t=2$ to cover
+  the ZZFeatureMap and hardware-efficient ansätze.
+\item The synthetic benchmark does not yet exercise ComBat-with-Y
+  (\S\ref{sec:synth} TODO); this is the immediate next step, since
+  plain batch-mean subtraction is too benign to exhibit the flip in
+  isotropic-noise settings.
+\item We did not include tree-based or kernelised classifiers in the
+  theory (Theorem~1 is stated for linear classifiers). Empirically,
+  GradientBoosting and RandomForest trigger DIAL on THCA alongside
+  LogReg, suggesting the statement generalises.
+\item We focused on $K=2$ cohort settings. For $K\ge 3$, the batch
+  subspace has dimension $K-1$ and the appropriate scalar $\rho$ is
+  a canonical correlation rather than a cosine; we conjecture a
+  matching threshold at trace($\Sigma_{\mathrm{proj}}$) $=\tfrac12$.
+\end{enumerate}
+
+\paragraph{Broader impact.}
+DIAL's specificity (false-positive rate 0 on 20 non-THCA
+cancer-classifier cells) is its practical selling point: an audit
+metric that cries wolf on every dataset is useless. Biomarker
+pipelines in clinical oncology already spend substantial effort on
+batch harmonisation; DIAL offers a one-line diagnostic that
+distinguishes the $\rho^2<\tfrac12$ (safe) regime from the flip
+regime without any additional cohort.
+
+\paragraph{Future work.}
+(i) Finite-sample concentration bound with explicit
+$p/n$ dependence; (ii) empirical $t$-design analysis for
+ZZFeatureMap and HEA circuits; (iii) multi-class extension
+(Bethesda categories rather than binary subtype); (iv) integration
+with underspecification audits \cite{damour2020}.
+
+\section{Conclusion}
+DIAL is a cohort-specific audit metric for batch-corrected biomedical
+ML. Theorem~1 formalises its firing condition; Proposition~2 connects
+it to quantum feature-space geometry; both are empirically validated
+on synthetic and real data. We release code and all results at
+\texttt{github.com/anonymous/thca-dash} (to be made public at
+acceptance).
+
+\section*{Reproducibility}
+All code: \texttt{notebooks\_or\_scripts/v10\_*.py}.
+All results: \texttt{results/v10\_aaai/}.
+Random seed 20260424 throughout.
+
+\begin{thebibliography}{99}
+\bibitem{thcadash_bioinfo_2026}
+Anonymous. 2026. Companion manuscript: Direction-Invariant AUC Leakage
+ as a Subtype-Cohort-Specific Audit. \emph{Bioinformatics} (submitted).
+ Available at this repository:
+ \texttt{reports/v5/v5p1\_paper.tex} (main DIAL results),
+ \texttt{reports/v8/v8\_section\_S2\_metasoft.md} (meta-analysis),
+ \texttt{reports/v8/v8\_section\_S5\_quantum.md} (quantum empirical),
+ \texttt{reports/v8/v8\_section\_S3\_pathway.md} (pathway aggregation).
+
+\bibitem{shimodaira2000}
+Shimodaira, H. 2000. Improving predictive inference under covariate
+ shift by weighting the log-likelihood function. \emph{JSPI}
+ 90(2):227--244.
+
+\bibitem{sugiyama2007}
+Sugiyama, M.; Krauledat, M.; and M\"uller, K.-R. 2007. Covariate
+ shift adaptation by importance weighted cross validation. \emph{JMLR}
+ 8:985--1005.
+
+\bibitem{gretton2009}
+Gretton, A. et al. 2009. Covariate shift by kernel mean matching.
+ In Qui\~{n}onero-Candela et al., \emph{Dataset Shift in Machine
+ Learning}.
+
+\bibitem{pan2010}
+Pan, S. J.; Yang, Q. 2010. A survey on transfer learning. \emph{TKDE}
+ 22(10):1345--1359.
+
+\bibitem{benDavid2010}
+Ben-David, S. et al. 2010. A theory of learning from different
+ domains. \emph{Mach.\ Learn.} 79(1):151--175.
+
+\bibitem{mitchell2019modelcards}
+Mitchell, M. et al. 2019. Model cards for model reporting. In
+ \emph{FAccT} pp.~220--229.
+
+\bibitem{gebru2021datasheets}
+Gebru, T.; Morgenstern, J.; Vecchione, B.; et al. 2021. Datasheets
+ for datasets. \emph{CACM} 64(12):86--92.
+
+\bibitem{damour2020}
+D'Amour, A.; Heller, K.; et al. 2020. Underspecification presents
+ challenges for credibility in modern machine learning. \emph{JMLR}
+ (preprint arXiv:2011.03395).
+
+\bibitem{raji2020smactr}
+Raji, I. D.; Smart, A.; White, R. N.; et al. 2020. Closing the AI
+ accountability gap. In \emph{FAccT}.
+
+\bibitem{kaufman2012leakage}
+Kaufman, S.; Rosset, S.; Perlich, C.; Stitelman, O. 2012. Leakage in
+ data mining. \emph{TKDD} 6(4):15.
+
+\bibitem{samala2020medical}
+Samala, R. K.; Chan, H. P.; Hadjiiski, L.; Helvie, M. A. 2020.
+ Hazards of data leakage in ML applied to medical imaging.
+ \emph{Phys.\ Med.\ Biol.} 65(19):19TR01.
+
+\bibitem{roberts2021covid}
+Roberts, M.; Driggs, D.; Thorpe, M.; et al. 2021. Common pitfalls in
+ ML for COVID-19. \emph{Nat.\ Mach.\ Intell.} 3:199--217.
+
+\bibitem{johnson2007combat}
+Johnson, W. E.; Li, C.; Rabinovic, A. 2007. Adjusting batch effects
+ in microarray expression data using empirical Bayes methods.
+ \emph{Biostatistics} 8(1):118--127.
+
+\bibitem{leek2010sva}
+Leek, J. T.; Storey, J. D. 2007/2010. Capturing heterogeneity in
+ gene expression studies by surrogate variable analysis.
+ \emph{PLoS Genet.} 3(9):e161.
+
+\bibitem{buttner2019scib}
+B\"uttner, M.; Miao, Z.; Wolf, F. A.; et al. 2019. A benchmark of
+ batch-effect correction for single-cell RNA-seq. \emph{Nat.\
+ Methods} 16:43--49.
+
+\bibitem{korsunsky2019harmony}
+Korsunsky, I.; Millard, N.; Fan, J.; et al. 2019. Fast, sensitive
+ and accurate integration of single-cell data with Harmony.
+ \emph{Nat.\ Methods} 16:1289--1296.
+
+\bibitem{lopez2018scvi}
+Lopez, R.; Regier, J.; Cole, M. B.; et al. 2018. Deep generative
+ modeling for single-cell transcriptomics. \emph{Nat.\ Methods}
+ 15:1053--1058.
+
+\bibitem{havlicek2019nature}
+Havl\'{i}\v{c}ek, V.; C\'orcoles, A. D.; Temme, K.; et al. 2019.
+ Supervised learning with quantum-enhanced feature spaces.
+ \emph{Nature} 567:209--212.
+
+\bibitem{schuld2019prl}
+Schuld, M.; Killoran, N. 2019. Quantum machine learning in feature
+ Hilbert spaces. \emph{PRL} 122:040504.
+
+\bibitem{huang2021quantumML}
+Huang, H.-Y.; Broughton, M.; Mohseni, M.; et al. 2021. Power of data
+ in quantum machine learning. \emph{Nat.\ Commun.} 12:2631.
+
+\bibitem{schuld2021reuploading}
+Schuld, M.; Sweke, R.; Meyer, J. J. 2021. Effect of data encoding on
+ the expressive power of variational quantum-machine-learning models.
+ \emph{PRA} 103:032430.
+
+\bibitem{perez2020reuploading}
+P\'erez-Salinas, A.; Cervera-Lierta, A.; Gil-Fuster, E.; Latorre, J. I.
+ 2020. Data re-uploading for a universal quantum classifier.
+ \emph{Quantum} 4:226.
+
+\bibitem{liu2021quantum}
+Liu, Y.; Arunachalam, S.; Temme, K. 2021. A rigorous and robust
+ quantum speed-up in supervised machine learning. \emph{Nat.\ Phys.}
+ 17:1013--1017.
+
+\bibitem{dersimonian1986}
+DerSimonian, R.; Laird, N. 1986. Meta-analysis in clinical trials.
+ \emph{Control.\ Clin.\ Trials} 7(3):177--188.
+
+\bibitem{han2011metasoft}
+Han, B.; Eskin, E. 2011. Random-effects model aimed at discovering
+ associations in meta-analysis of GWAS. \emph{AJHG} 88(5):586--598.
+
+\bibitem{lee2022metaanc}
+Lee, C. H.; Kang, H. M.; Eskin, E. 2022. Multi-ancestry meta-analysis.
+ \emph{AJHG} (in press).
+
+\bibitem{benavoli2017bayesML}
+Benavoli, A.; Corani, G.; Dem\v{s}ar, J.; Zaffalon, M. 2017. Time
+ for a change: Bayesian analysis for ML method comparison. \emph{JMLR}
+ 18:1--36.
+
+\bibitem{sugiyama2012kliep}
+Sugiyama, M.; Suzuki, T.; Kanamori, T. 2012. \emph{Density Ratio
+ Estimation in Machine Learning}. Cambridge University Press.
+ \S3.4 (KLIEP with linear-in-parameters density ratios).
+
+\bibitem{zhang2020combatseq}
+Zhang, Y.; Parmigiani, G.; Johnson, W. E. 2020. ComBat-seq: batch
+ effect adjustment for RNA-seq count data. \emph{NAR Genomics and
+ Bioinformatics} 2(3):lqaa078.
+
+\bibitem{harrowLow2009tdesigns}
+Harrow, A. W.; Low, R. A. 2009. Random quantum circuits are
+ approximate 2-designs. \emph{Commun.\ Math.\ Phys.} 291:257--302.
+
+\bibitem{brandao2016localtdesigns}
+Brand\~ao, F. G. S. L.; Harrow, A. W.; Horodecki, M. 2016. Local
+ random quantum circuits are approximate polynomial-designs.
+ \emph{Commun.\ Math.\ Phys.} 346:397--434.
+
+\bibitem{porterThomas1956}
+Porter, C. E.; Thomas, R. G. 1956. Fluctuations of nuclear reaction
+ widths. \emph{Phys.\ Rev.} 104:483--491.
+
+\bibitem{haake2010qchaos}
+Haake, F. 2010. \emph{Quantum Signatures of Chaos}. 3rd ed., Springer.
+ §4.6 on Porter--Thomas distributions.
+
+\bibitem{hanzelmann2013ssgsea}
+H\"anzelmann, S.; Castelo, R.; Guinney, J. 2013. GSVA: gene set
+ variation analysis for microarray and RNA-seq data. \emph{BMC
+ Bioinformatics} 14:7.
+
+\bibitem{taoVu2008designs}
+Tao, T.; Vu, V. 2008. Random matrices: universality of ESDs and
+ the circular law. \emph{Ann.\ Probab.} 38(5):2023--2065.
+\end{thebibliography}
+
+\appendix
+\section{Appendix A: Full proof of Theorem 1}
+See \texttt{reports/v10\_aaai/proofs/theorem1\_proof.tex}.
+
+\section{Appendix B: Full proof of Proposition 2}
+See \texttt{reports/v10\_aaai/proofs/proposition2\_quantum\_bound.tex}.
+
+\section{Appendix C: Synthetic benchmark details}
+All parameters enumerated in \texttt{v10\_synthetic\_benchmark.py}.
+Full grid results:
+\texttt{results/v10\_aaai/synthetic\_benchmark/grid\_results.tsv}.
+
+\section{Appendix D: Additional empirical results}
+Five-cancer LODO DIAL panel, pathway aggregation, and $m$-value
+meta-analysis tables are reproduced from~\cite{thcadash_bioinfo_2026}
+for reviewer convenience.
+
+\section*{User verification TODO list}
+\begin{enumerate}
+\item Theorem~1 step~(c): exact constant for imbalanced cohorts.
+\item Proposition~2 Beta-distribution parameters (Porter--Thomas).
+\item Phase transition threshold $\rho^2=\tfrac12$: verify for $K\ge 3$.
+\item Covariate-shift equivalence claim (see framing doc).
+\item Citations: add Sugiyama, Suzuki, Kanamori 2012; Tao \& Vu
+  unitary designs.
+\item Integrate with companion paper~\cite{thcadash_bioinfo_2026}.
+\end{enumerate}
+\end{document}

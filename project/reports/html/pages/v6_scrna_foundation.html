@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>v6 — Single-cell foundation models (scGPT / Geneformer / GEARS / CellRank / CellOracle / VEGA)</title>
+  <meta name="description" content="v6 single-cell foundation-model resolution of the THCA DIAL flip. Wave 1 (CPU) complete, Wave 2 (GPU) pending.">
+  <meta property="og:title" content="v6 Single-cell Foundation-Model Resolution">
+  <meta property="og:description" content="From 158K cells to cellular drivers — six 2024-2026 foundation models extending v5.1+v8+v11.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/brand.css">
+  <link rel="stylesheet" href="../assets/css/v4a.css">
+  <style>
+    .hero{min-height:42vh;padding:96px 0 48px;border-bottom:1px solid var(--border);
+      background:radial-gradient(ellipse at 70% 20%,rgba(124,207,205,0.10) 0%,transparent 55%),
+      radial-gradient(ellipse at 20% 80%,rgba(245,166,35,0.06) 0%,transparent 60%);}
+    .hero .eyebrow{color:#7ccfcd;letter-spacing:0.18em;font-family:'JetBrains Mono',monospace;font-size:12px;}
+    .hero h1{font-size:clamp(28px,3.6vw,44px);font-weight:300;letter-spacing:-0.02em;line-height:1.10;margin:14px 0 12px;}
+    .hero .lede{color:var(--text-secondary);font-size:16px;line-height:1.66;max-width:74ch;margin-top:16px;}
+    .tile-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:24px 0 8px;}
+    .tile{background:rgba(20,22,28,0.75);border:1px solid var(--border);border-radius:4px;padding:16px 18px;}
+    .tile__value{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:500;color:#F5A623;line-height:1.1;}
+    .tile__label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-secondary);letter-spacing:0.1em;margin-top:8px;text-transform:uppercase;}
+    .toc{background:rgba(20,22,28,0.55);border:1px solid var(--border);border-radius:4px;padding:14px 20px;margin:24px 0;font-family:'JetBrains Mono',monospace;font-size:12px;}
+    .toc a{color:#F5A623;text-decoration:none;margin-right:18px;}
+    .toc a:hover{text-decoration:underline;}
+    .panel{padding:38px 0;border-bottom:1px solid var(--border);}
+    .panel h2{font-size:22px;font-weight:500;letter-spacing:-0.01em;margin:0 0 6px;}
+    .panel .sub{color:#7ccfcd;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+    .panel p{color:var(--text-secondary);line-height:1.66;font-size:15px;max-width:78ch;}
+    .pending-chip{display:inline-block;padding:3px 10px;border-radius:11px;
+      background:rgba(245,166,35,0.12);border:1px solid rgba(245,166,35,0.4);
+      color:#F5A623;font-family:'JetBrains Mono',monospace;font-size:10px;
+      letter-spacing:0.1em;text-transform:uppercase;margin-left:10px;vertical-align:middle;}
+    .ok-chip{display:inline-block;padding:3px 10px;border-radius:11px;
+      background:rgba(46,204,113,0.10);border:1px solid rgba(46,204,113,0.35);
+      color:#9beec4;font-family:'JetBrains Mono',monospace;font-size:10px;
+      letter-spacing:0.1em;text-transform:uppercase;margin-left:10px;vertical-align:middle;}
+    .quad{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:18px 0;}
+    .grid8{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0;}
+    .slot{background:#0b0e12;border:1px solid var(--border);border-radius:4px;
+      padding:24px 16px;min-height:140px;text-align:center;}
+    .slot__title{font-family:'JetBrains Mono',monospace;font-size:13px;color:#EAEAEA;margin-bottom:8px;}
+    .slot__sub{color:var(--text-muted);font-size:11px;font-family:'JetBrains Mono',monospace;}
+    .fig-wrap{margin:18px 0;background:#0b0e12;border:1px solid var(--border);border-radius:4px;overflow:hidden;}
+    .fig-wrap iframe{width:100%;border:0;display:block;}
+    .targets{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;font-family:'JetBrains Mono',monospace;font-size:12px;}
+    .targets span{padding:4px 10px;background:rgba(245,166,35,0.10);border:1px solid rgba(245,166,35,0.35);border-radius:3px;color:#F5A623;}
+    .caveat{margin:36px 0;padding:18px 22px;border-left:3px solid #F5A623;background:rgba(245,166,35,0.06);
+      color:var(--text-secondary);font-size:13.5px;line-height:1.55;}
+    .xrefs{margin:24px 0;padding:14px 20px;background:rgba(124,207,205,0.06);border-left:3px solid #7ccfcd;
+      font-family:'JetBrains Mono',monospace;font-size:12px;color:#7ccfcd;}
+    .xrefs a{color:#7ccfcd;font-weight:600;}
+    a{color:#F5A623;}
+    code{background:rgba(245,166,35,0.10);padding:1px 5px;border-radius:2px;color:#F5A623;font-size:12.5px;}
+  </style>
+</head>
+<body class="thyrai">
+
+<nav class="topnav" aria-label="Primary">
+  <div class="topnav__inner">
+    <a class="topnav__brand" href="../index.html" aria-label="THYRAI home">
+      <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+    </a>
+    <ul class="topnav__links">
+      <li><a class="topnav__link" href="pipeline.html">Pipeline</a></li>
+      <li><a class="topnav__link" href="v4a_dial_cross_cancer.html" style="color:#F5A623">v5.1 Audit</a></li>
+      <li><a class="topnav__link" href="v11_novel_pathways.html" style="color:#7ccfcd">Novel Pathways</a></li>
+      <li><a class="topnav__link" href="v6_scrna_foundation.html" aria-current="page" style="color:#7ccfcd"><b>v6 scRNA</b></a></li>
+      <li><a class="topnav__link" href="research_reasoning.html" style="color:#6AB04C">Reasoning</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div style="background:linear-gradient(90deg,rgba(194,76,76,0.18),transparent);border-left:4px solid #c24c4c;padding:14px 20px;margin:0 0 22px 0;font-family:'JetBrains Mono',monospace;font-size:13px;color:#f0bcbc">
+      <b style="color:#c24c4c">⚠ v5.2 SUPERSEDED context.</b>
+      The v6 §6.7 multi-scale DIAL hypothesis ("foundation-model embeddings reduce bulk THCA DIAL") was built around the v5.1 bulk DIAL = 0.494 number. Under v5.2 leak-safe LODO that bulk number collapses to 0.000 (<a href="../../v5/v5p1_paper.tex" style="color:#F5A623;font-weight:600">paper</a>, <a href="../../v5p2/v5p2_critical_assessment.md" style="color:#F5A623;font-weight:600">v5p2_critical_assessment.md</a>). There is no flip to reduce. F12 (GSE193581 cellular pseudobulk: AUC 0.80, DIAL 0.000) confirms the cellular layer also has no entanglement to detect. The Wave 2 GPU pipeline below (scGPT, Geneformer, GEARS, CellRank, CellOracle, VEGA) is therefore re-scoped from "validate the bulk flip cellularly" to <b>"foundation-model embeddings for cell-type and trajectory inference on a thyroid scRNA cohort"</b> &mdash; a smaller but defensible aim.
+    </div>
+    <div class="eyebrow">v6 · SINGLE-CELL FOUNDATION MODELS · 2024-2026</div>
+    <h1>From 158K cells to cellular drivers — foundation-model resolution.</h1>
+    <div class="lede">v6 extends the v5.1 bulk DIAL diagnostic, the v8 mechanism analysis, and the v11 modular decomposition to single-cell resolution using six 2024-2026 foundation-model and perturbation-simulator stacks. Primary dataset target is GSE184362 (Pu et al., 2021 <i>Nat Commun</i>, 158K cells, 11 PTC patients across BRAF V600E / NRAS Q61 / KRAS Q61 / WT). Wave 1 (CPU baseline + scaffolding) is captured below; Wave 2 (foundation-model inference + in-silico perturbation) is queued for a GPU environment — scripts and a one-shot runner are bundled.</div>
+    <div class="tile-row">
+      <div class="tile"><div class="tile__value">158K</div><div class="tile__label">target cells (GSE184362)</div></div>
+      <div class="tile"><div class="tile__value">6</div><div class="tile__label">foundation models</div></div>
+      <div class="tile"><div class="tile__value">8</div><div class="tile__label">druggable targets perturbed</div></div>
+      <div class="tile"><div class="tile__value">5</div><div class="tile__label">multi-scale DIAL layers</div></div>
+      <div class="tile"><div class="tile__value">GB / NC</div><div class="tile__label">Genome Biology / Nat Commun target</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <div class="toc">
+    <a href="#a">A · UMAP comparison</a>
+    <a href="#b">B · Attention map</a>
+    <a href="#c">C · Perturbation simulator</a>
+    <a href="#d">D · Cell fate trajectory</a>
+    <a href="#e">E · TF screening</a>
+    <a href="#f">F · 8-target contexts</a>
+    <a href="#g">G · Multi-scale DIAL</a>
+    <a href="#h">H · Mechanism story</a>
+  </div>
+</div>
+
+<section class="panel" id="a">
+  <div class="container">
+    <div class="sub">A · multi-method UMAP comparison</div>
+    <h2>Classical / scVI / scGPT / VEGA, side-by-side.</h2>
+    <p>Four embeddings of the same THCA scRNA cells. Classical and scVI are CPU-feasible (Wave 1); scGPT and VEGA require Wave 2.</p>
+    <div class="quad">
+      <div class="slot"><div class="slot__title">Classical (PCA + Leiden)</div><div class="slot__sub">CPU baseline<span class="pending-chip">Wave 1</span></div></div>
+      <div class="slot"><div class="slot__title">scVI</div><div class="slot__sub">Lopez 2018<span class="pending-chip">Wave 1</span></div></div>
+      <div class="slot"><div class="slot__title">scGPT</div><div class="slot__sub">Cui 2024 <i>Nat Methods</i><span class="pending-chip">GPU required</span></div></div>
+      <div class="slot"><div class="slot__title">VEGA pathway</div><div class="slot__sub">Seninge 2021 <i>Nat Commun</i><span class="pending-chip">GPU required</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="b">
+  <div class="container">
+    <div class="sub">B · foundation-model attention map</div>
+    <h2>scGPT &amp; Geneformer attention on the eight druggable targets.<span class="pending-chip">GPU required</span></h2>
+    <p>For each druggable target gene, the model's attention layer reveals top co-attended genes — an interpretable substitute for hand-curated co-expression. The eight v7 targets will be probed; their top-10 co-attended partners and overlap with the v5.1 +&nbsp;v8 differential expression list will be reported.</p>
+    <div class="targets">
+      <span>CYP1B1</span><span>TACSTD2</span><span>TMPRSS4</span><span>PLEKHA6</span>
+      <span>LDLR</span><span>GABRB2</span><span>B3GNT3</span><span>PTPRE</span>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="c">
+  <div class="container">
+    <div class="sub">C · in-silico perturbation simulator (GEARS)</div>
+    <h2>What happens when you knock out each druggable target?<span class="pending-chip">GPU required</span></h2>
+    <p>GEARS (Roohani 2024 <i>Nat Biotechnol</i>) predicts the post-perturbation transcriptome for each of the 8 targets singly and for all C(8,2)=28 pairs. Endpoint of interest: which KO maximally normalises BRAF-like-B malignant cells toward a normal-thyrocyte-like state? Single, combination, and BRAF-like-B-rescue tables will populate <code>results/v6_scrna/perturbation/</code>.</p>
+  </div>
+</section>
+
+<section class="panel" id="d">
+  <div class="container">
+    <div class="sub">D · cell fate trajectory (CellRank 2)</div>
+    <h2>Macrostate transitions BRAF-A &harr; BRAF-B &harr; RAS-like.<span class="pending-chip">GPU + RNA velocity required</span></h2>
+    <p>RNA velocity (scVelo) + CellRank 2 (Weiler 2024 <i>Nat Methods</i>) GPCCA on a 0.8 velocity / 0.2 connectivity blend; three macrostates assumed. Driver-gene enrichment per fate identifies novel candidate markers beyond BRAF/RAS. An interactive UMAP with streamlines will iframe in here when produced.</p>
+  </div>
+</section>
+
+<section class="panel" id="e">
+  <div class="container">
+    <div class="sub">E · TF-level intervention screening (CellOracle)</div>
+    <h2>Which transcription factor most efficiently normalises BRAF-like cells?<span class="pending-chip">GPU required</span></h2>
+    <p>CellOracle (Kamimoto 2023 <i>Nature</i>) builds a base GRN and simulates in-silico KO across ~200 TFs. Output: a per-TF transition score for "BRAF-like → normal thyrocyte" with permutation p-values. Top 10 candidates feed back into v7 drug repurposing.</p>
+  </div>
+</section>
+
+<section class="panel" id="f">
+  <div class="container">
+    <div class="sub">F · 8-target cellular contexts</div>
+    <h2>Per-target expression landscape, perturbation effect, co-attention partners.<span class="pending-chip">GPU required</span></h2>
+    <p>Eight-panel grid will render once Wave 2 outputs land. Each panel: UMAP feature plot, BRAF-vs-RAS-vs-normal differential, GEARS-predicted KO transcriptomic shift, top-10 scGPT-attended partners, ADC suitability flag (TACSTD2 already confirmed as ADC-ideal in v7).</p>
+    <div class="grid8">
+      <div class="slot"><div class="slot__title">CYP1B1</div><div class="slot__sub">drug metabolism<span class="pending-chip">GPU</span></div></div>
+      <div class="slot"><div class="slot__title">TACSTD2</div><div class="slot__sub">ADC target<span class="pending-chip">GPU</span></div></div>
+      <div class="slot"><div class="slot__title">TMPRSS4</div><div class="slot__sub">serine protease<span class="pending-chip">GPU</span></div></div>
+      <div class="slot"><div class="slot__title">PLEKHA6</div><div class="slot__sub">PH-domain<span class="pending-chip">GPU</span></div></div>
+      <div class="slot"><div class="slot__title">LDLR</div><div class="slot__sub">cholesterol uptake<span class="pending-chip">GPU</span></div></div>
+      <div class="slot"><div class="slot__title">GABRB2</div><div class="slot__sub">GABA receptor<span class="pending-chip">GPU</span></div></div>
+      <div class="slot"><div class="slot__title">B3GNT3</div><div class="slot__sub">glycosyltransferase<span class="pending-chip">GPU</span></div></div>
+      <div class="slot"><div class="slot__title">PTPRE</div><div class="slot__sub">tyrosine phosphatase<span class="pending-chip">GPU</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="g">
+  <div class="container">
+    <div class="sub">G · multi-scale DIAL hierarchy</div>
+    <h2>Bulk &rarr; cell-type &rarr; substate &rarr; foundation-model embedding<span class="ok-chip">v5.1 bulk seeded</span></h2>
+    <p>The hypothesis is monotone: each finer (or each more pre-trained) representation reduces residual cohort signal that ComBat misaligns. Bar 1 (bulk, v5.1 THCA LogReg_l2) is fixed at DIAL 0.494; bars 2-3 (per-cell-type and per-substate pseudobulk) populate after the Wave 1 download lands; bars 4-5 (scGPT and VEGA embeddings) populate after Wave 2.</p>
+    <div class="fig-wrap"><iframe src="../figs_interactive/v6/multi_scale_dial.html" height="460"></iframe></div>
+    <div style="margin-top:18px;padding:14px 18px;border-left:3px solid #c24c4c;background:rgba(194,76,76,0.08);font-size:13.5px;line-height:1.55;color:#c9d1d9">
+      <b style="color:#c24c4c">Critical caveat (audit F11).</b>
+      The Wave 1 cellular bars (per-cell-type pseudobulk DIAL = 0.000 and per-substate pseudobulk DIAL = 0.000) measure a different question than the bulk bar. GSE184362 (Pu 2021), the only thyroid scRNA dataset already on disk, does not publish per-patient BRAF/RAS mutation status; the cellular Y labels are therefore <code>malignant vs non-malignant</code> and <code>sub-cluster identity</code>, not <code>BRAF vs RAS</code>. Furthermore, pyComBat raised <code>single-sample batches</code> under LODO on pseudobulk, so a per-batch z-score was used as the batch-correction surrogate (not ComBat). The two zeros are therefore <i>sanity baselines on a different question</i>, not a cellular reproduction of the bulk THCA flip. A genuine cellular replication is gated on (a) audit-fix F12 (switching to a BRAF/RAS-typed thyroid scRNA dataset such as GSE193581 / GSE154763 / GSE150430 if one provides the metadata) or (b) the prospective SNUBH cohort.
+    </div>
+  </div>
+</section>
+
+<section class="panel" id="h">
+  <div class="container">
+    <div class="sub">H · BRAF-like-B mechanism story</div>
+    <h2>Tying single-cell substates to the v8 BUHMBOX mechanism and the v11 near-miss modules.</h2>
+    <p>Pu et al. (2021) report a "BRAF-like-B" malignant substate that is transcriptomically intermediate between classical BRAF-V600E papillary tumours and RAS-mutant follicular tumours. Our v8 mechanism (cohort-disjoint PC1, KS p &lt; 1e-40 within each subtype) and v11 near-miss modules (M006 PD-L1/PD-1 checkpoint coherence, M010 wound-healing axis with PTPRF/ACVR1) suggest that a fraction of the THCA cross-cohort flip we observe in bulk is explained by differential admixture of BRAF-like-B cells across TCGA-THCA and GSE27155. The v6 GPU run will test three predictions: (i) scGPT cell-embedding DIAL is at least 50 % lower than bulk DIAL; (ii) GEARS-predicted KO of one of the eight druggable targets normalises BRAF-like-B back toward classical BRAF-A; (iii) CellOracle identifies a TF (likely an ETS-family or AP-1 factor) whose in-silico inhibition flips BRAF-like-B fate probability toward the normal thyrocyte attractor. None of these are claimed yet — they are the falsifiable predictions the GPU run will resolve.</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="xrefs">
+    <b>Cross-links:</b>
+    <a href="v4a_dial_cross_cancer.html">v5.1 audit</a> ·
+    <a href="v8_statgen_supplement.html">v8 mechanism</a> ·
+    <a href="v11_novel_pathways.html">v11 novel modules</a> ·
+    <a href="v7_drug_repurposing.html">v7 repurposing</a> ·
+    <a href="research_reasoning.html">reasoning timeline</a> ·
+    <a href="../assets/v6/v6_gpu_scripts.zip">⬇ Wave 2 GPU scripts (zip)</a>
+  </div>
+  <div class="caveat">
+    <b>Caveat.</b> Foundation model results are pending GPU run. CPU-completable sections (classical baseline, pseudobulk DIAL) are flagged Wave 1; GPU-required sections (scGPT, Geneformer, GEARS, CellRank, CellOracle, VEGA) are flagged Wave 2. This page re-renders automatically when artifacts are written into <code>results/v6_scrna/</code>. No quantitative claims are made for pending sections.
+  </div>
+</div>
+
+</body>
+</html>

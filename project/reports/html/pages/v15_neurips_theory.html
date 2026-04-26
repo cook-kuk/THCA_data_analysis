@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>v15 NeurIPS — Unified Shift Theory</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #0b1220;
+    --bg-soft: #111a2e;
+    --bg-card: rgba(17,26,46,0.72);
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --amber: #f59e0b;
+    --teal: #34d399;
+    --rose: #f43f5e;
+    --blue: #60a5fa;
+    --violet: #a78bfa;
+    --border: rgba(255,255,255,0.08);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: radial-gradient(circle at 25% 0%, #112038, var(--bg) 70%);
+    color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    line-height: 1.5;
+  }
+  header { padding: 48px 32px 24px 32px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, rgba(245,158,11,0.05), transparent); }
+  h1 { font-size: 32px; margin: 0 0 6px; color: var(--amber); letter-spacing: -0.5px; }
+  h1 small { display: block; color: var(--muted); font-size: 14px; font-weight: 400; margin-top: 4px; }
+  h2 { font-size: 22px; margin: 0 0 8px; color: var(--teal); }
+  .subtitle { color: var(--muted); margin: 0 0 18px; max-width: 880px; }
+  .pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; margin-right: 6px; }
+  .pill-amber { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.4); }
+  .pill-teal { background: rgba(52,211,153,0.15); color: var(--teal); border: 1px solid rgba(52,211,153,0.4); }
+  .pill-rose { background: rgba(244,63,94,0.12); color: var(--rose); border: 1px solid rgba(244,63,94,0.4); }
+  main { padding: 32px; max-width: 1280px; margin: 0 auto; }
+  .grid { display: grid; gap: 24px; }
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+  .card iframe { width: 100%; border: 0; background: var(--bg); border-radius: 10px; }
+  .meta { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .nav { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+  .nav a { color: var(--blue); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; }
+  .nav a:hover { color: var(--amber); border-color: var(--amber); }
+  table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+  th, td { padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+  th { color: var(--amber); font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .leak-banner {
+    margin: 0 0 18px; padding: 12px 18px;
+    border-left: 3px solid var(--rose);
+    background: rgba(244,63,94,0.06);
+    border-radius: 6px; font-size: 13px;
+  }
+  .leak-banner strong { color: var(--rose); }
+  .footer { margin: 40px 0 16px; color: var(--muted); font-size: 12px; text-align: center; }
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width: 980px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+  .theory-tree { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 12px; }
+  .theory-node { padding: 12px; border-radius: 8px; background: rgba(96,165,250,0.06); border: 1px solid rgba(96,165,250,0.2); }
+  .theory-node h4 { margin: 0 0 4px; color: var(--blue); font-size: 14px; }
+  .theory-node p { margin: 0; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Unified Shift Theory: from bioinformatics to ML theory
+    <small>v15 NeurIPS 2026 / ICML 2027 chapter — Seungho Cook · 2026-04-25</small>
+  </h1>
+  <p class="subtitle">
+    DIAL (<em>Direction-Invariant AUC Leakage</em>) is a single-number post-hoc diagnostic that fires only when a linear batch correction
+    leaves residual class-conditional shift inside the label subspace. Theorem 2 shows DIAL is independent (up to finite-sample noise)
+    of pure covariate, pure label, and orthogonal-conditional shifts. This page summarises the theoretical and empirical artefacts of v15.
+  </p>
+  <div>
+    <span class="pill pill-amber">theory + calibration</span>
+    <span class="pill pill-teal">synthetic empirics</span>
+    <span class="pill pill-rose">v5.2 LODO leak retraction</span>
+  </div>
+  <div class="leak-banner">
+    <strong>v5.2 audit (2026-04-25)</strong> — the v5.1 THCA real-data flip motivation
+    was retracted under proper LODO ComBat fit-on-train-only. v15 is therefore a
+    <em>theoretical &amp; calibration</em> paper; all empirics here are synthetic.
+    Theorem 2 explains the leak mechanism itself (pooled-fit ComBat on class-imbalanced
+    cohorts produces a subspace-aligned conditional shift).
+  </div>
+  <div class="nav">
+    <a href="#theorem">A · Theorem 2 numerical</a>
+    <a href="#stress">B · Stress phase diagram</a>
+    <a href="#tta">C · TTA benchmark</a>
+    <a href="#scaling">D · Foundation scaling</a>
+    <a href="#cross">E · Cross-domain</a>
+    <a href="#tree">F · Theory tree</a>
+  </div>
+</header>
+
+<main>
+<div class="grid">
+
+  <section class="card" id="theorem">
+    <h2>A. Theorem 2 numerical validation</h2>
+    <p class="meta">Six shift regimes × seven magnitudes × 15 reps. Linear regression DIAL ~ KL components: <strong style="color:var(--amber)">R²=0.94</strong>. Parallel coefficient dominates (β=0.0493) vs covariate (0.0015), label (0.0150), perpendicular (0.0009).</p>
+    <iframe src="../figs_interactive/v15/theorem2_decomposition.html" height="640"></iframe>
+    <p class="meta">Source: results/v15_neurips/theory_validation/theorem2_numerical.tsv</p>
+  </section>
+
+  <section class="card" id="stress">
+    <h2>B. Synthetic stress test (4 × 5 × 5 × 20 = 2000 runs)</h2>
+    <p class="meta">DIAL fires only on subspace-aligned + concept regimes; ROC discriminates these from covariate + label shifts at <strong style="color:var(--amber)">AUC=0.78</strong>.</p>
+    <iframe src="../figs_interactive/v15/stress_test_phase_diagram.html" height="560"></iframe>
+  </section>
+
+  <section class="card" id="tta">
+    <h2>C. Test-time adaptation benchmark</h2>
+    <p class="meta">Ten methods, 5 seeds, on the THCA-style synthetic flip. Best method: DANN-lite. <strong style="color:var(--rose)">Honest finding</strong> — no method fully recovers source-level AUC.</p>
+    <iframe src="../figs_interactive/v15/tta_benchmark.html" height="560"></iframe>
+    <table>
+      <tr><th>method</th><th>class</th><th class="num">AUC_target</th><th class="num">DIAL</th></tr>
+      <tr><td>DANN-lite</td><td>adversarial</td><td class="num">0.392</td><td class="num">0.108</td></tr>
+      <tr><td>TENT</td><td>TTA</td><td class="num">0.363</td><td class="num">0.137</td></tr>
+      <tr><td>SHOT-lite</td><td>TTA</td><td class="num">0.363</td><td class="num">0.137</td></tr>
+      <tr><td>foundation-TTA proxy</td><td>foundation</td><td class="num">0.332</td><td class="num">0.168</td></tr>
+      <tr><td>naive ComBat</td><td>classical</td><td class="num">0.326</td><td class="num">0.174</td></tr>
+      <tr><td>CORAL</td><td>classical</td><td class="num">0.312</td><td class="num">0.188</td></tr>
+      <tr><td>BN-stats</td><td>TTA</td><td class="num">0.310</td><td class="num">0.190</td></tr>
+    </table>
+  </section>
+
+  <section class="card" id="scaling">
+    <h2>D. Foundation-model scaling (negative result)</h2>
+    <p class="meta">Encoder parameter count from 2K → 5.4M. <strong style="color:var(--rose)">No monotonic relationship</strong> between scale and DIAL — larger encoders preserve label-aligned shift.</p>
+    <iframe src="../figs_interactive/v15/scaling_plot.html" height="580"></iframe>
+  </section>
+
+  <section class="card" id="cross">
+    <h2>E. Cross-domain reproducibility (4/4 domains)</h2>
+    <p class="meta">Same flip mechanism, four domain shapes (vision-PACS, NLP-Amazon, biology-THCA, clinical-MIMIC). Naive ComBat does not fix any of them.</p>
+    <iframe src="../figs_interactive/v15/cross_domain_heatmap.html" height="480"></iframe>
+  </section>
+
+  <section class="card" id="tree">
+    <h2>F. Theory tree — connections to existing frameworks</h2>
+    <p class="meta">Six adjacent theoretical traditions; each links to <code>v15_theoretical_connections.md</code>.</p>
+    <div class="theory-tree">
+      <div class="theory-node">
+        <h4>Covariate shift (Shimodaira, KLIEP)</h4>
+        <p>KLIEP cannot fix DIAL &gt; 0; re-weighting acts on p(x), not p(x|y).</p>
+      </div>
+      <div class="theory-node">
+        <h4>H-divergence (Ben-David 2010)</h4>
+        <p>DIAL is a computable surrogate under linear T and Gaussian conditionals. <strong style="color:var(--rose)">TODO Seungho</strong>: tightness.</p>
+      </div>
+      <div class="theory-node">
+        <h4>Information bottleneck (Tishby)</h4>
+        <p>DIAL &gt; 0 ⇔ correction destroyed Δᶜᵒⁿᵈ_∥ bits of Y while preserving B⊥.</p>
+      </div>
+      <div class="theory-node">
+        <h4>IRM (Arjovsky 2019)</h4>
+        <p>DIAL is the post-hoc auditable form of IRM's invariance gap.</p>
+      </div>
+      <div class="theory-node">
+        <h4>Wasserstein OT (Courty 2017)</h4>
+        <p>10⁴× cheaper than JDOT with the same asymptotic target.</p>
+      </div>
+      <div class="theory-node">
+        <h4>Leakage (Kaufman 2012, v5.2 audit)</h4>
+        <p>Pooled-fit ComBat on class-imbalanced cohorts induces Δᶜᵒⁿᵈ_∥ &gt; 0; DIAL detects it. v5.2 LODO fixes it.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+<p class="footer">Author: Seungho Cook · v15 NeurIPS chapter draft v0 · 2026-04-25 · paper_draft/v15_neurips_paper_v0.tex</p>
+</main>
+</body>
+</html>

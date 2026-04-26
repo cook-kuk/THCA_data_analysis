@@ -1,0 +1,178 @@
+% ===========================================================
+%  THEOREM 2 -- FORMAL SETUP
+%  v15 NeurIPS 2026 / ICML 2027 paper
+%  Author: Seungho Cook
+% ===========================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm,hyperref,booktabs}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\TODO}[1]{\textbf{\textcolor{red}{[TODO: Seungho verify -- #1]}}}
+\usepackage{xcolor}
+\title{Theorem~2 Setup: Unified Shift Decomposition under Linear Correction\\
+\large v15 NeurIPS/ICML chapter, 2026-04-25}
+\author{Seungho Cook}
+\begin{document}
+\maketitle
+
+\section{Joint Distributions and Correction Operator}
+
+\subsection{Measurable spaces}
+
+Let $\mathcal{X}\subseteq\R^{p}$ be a feature space,
+$\mathcal{Y}=\{0,1\}$ a binary label space (the multi-class extension is
+deferred to Appendix~D), and $\mathcal{B}=\{1,\dots,K\}$ a finite set of
+\emph{batch/domain identifiers}. A sample is a triple
+$(X,Y,B)\in\mathcal{X}\times\mathcal{Y}\times\mathcal{B}$.
+
+\subsection{Source and target distributions}
+
+We consider two probability measures on
+$\mathcal{X}\times\mathcal{Y}\times\mathcal{B}$:
+\[
+  p_s(x,y,b) \;=\; p_s(x\mid y,b)\,p_s(y\mid b)\,p_s(b),
+  \qquad
+  p_t(x,y,b) \;=\; p_t(x\mid y,b)\,p_t(y\mid b)\,p_t(b).
+\]
+The marginals
+$p_s(x)=\sum_{y,b}p_s(x,y,b)$ and $p_t(x)$ are the \emph{observable
+covariate distributions}; $p_s(y),p_t(y)$ are the \emph{label
+distributions}; and $p_s(x\mid y), p_t(x\mid y)$ are the
+\emph{class-conditional distributions}, obtained by marginalising out
+$B$.
+
+\subsection{Correction operator}
+
+\begin{definition}[Linear correction operator]
+\label{def:linear-correction}
+A \emph{linear correction operator} is a batch-wise affine map
+\[
+  T: \mathcal{X}\times\mathcal{B} \to \mathcal{X},
+  \qquad
+  T(x,b) \;=\; A_b\,x + c_b,
+\]
+where $A_b\in\R^{p\times p}$ is non-singular and $c_b\in\R^{p}$ for
+each batch $b\in\mathcal{B}$. The image under $T$ of a random variable
+$(X,B)$ is denoted $\tilde X = T(X,B)$.
+\end{definition}
+
+\paragraph{Examples.}
+\begin{itemize}
+\item \textbf{ComBat (Johnson \emph{et al.}\ 2007).} With
+  $A_b = \mathrm{diag}(1/\sqrt{\gamma_b})$ and
+  $c_b = -\mu_b/\sqrt{\gamma_b}$, one recovers location-and-scale
+  ComBat (empirical Bayes priors yield slightly shrunken estimates; the
+  result remains affine per batch).
+\item \textbf{CORAL (Sun \emph{et al.}\ 2016).} A single global
+  whitening matrix applied to the target, $T(x,b)=A x+c$, independent
+  of $b$.
+\item \textbf{Mean centring.} $A_b=I$, $c_b=-\mu_b$.
+\item \textbf{Subspace projection.} $T(x,b)=(I-P_{\mathcal{B}})(x-\mu_b)$
+  where $P_{\mathcal{B}}$ projects onto a batch subspace
+  $\mathcal{B}\subset\R^{p}$; this is the Leek--Storey SVA (2007) linear
+  surrogate-variable approach.
+\end{itemize}
+
+\subsection{Label and batch directions}
+
+Let $w_Y\in\R^{p}$ solve the population Fisher discriminant between
+classes under $p_s$:
+\[
+  w_Y \;=\; \Sigma_s^{-1}\bigl(\mu_{s,1}-\mu_{s,0}\bigr),
+  \qquad
+  \mu_{s,y}=\E_{p_s}[X\mid Y=y],\;
+  \Sigma_s=\mathrm{Cov}_{p_s}(X).
+\]
+Let $w_B\in\R^{p}$ be the top right-singular vector of the
+batch-centroid matrix $M=[\mu_{s,b}-\bar\mu_s]_{b\in\mathcal{B}}$, so
+$w_B$ is the \emph{dominant batch direction}.
+
+\subsection{Alignment angle}
+
+Define the (population) \emph{alignment coefficient}
+\[
+  \alpha \;=\; \frac{\langle w_Y, w_B\rangle^{2}}
+                    {\|w_Y\|^{2}\,\|w_B\|^{2}} \;\in\;[0,1].
+\]
+The event $\alpha>\tfrac12$ is Theorem~1's flip condition (v10 chapter
+and AAAI preprint); under $\alpha=0$ the label and batch axes are
+orthogonal and classical ComBat is consistent.
+
+\section{DIAL Metric (recap)}
+
+\begin{definition}[DIAL]
+\label{def:dial}
+Let $\mathrm{AUC}(\tilde X,Y)$ denote cross-validated AUC for a fixed
+classifier family $\mathcal{F}$ trained on $\tilde X$ to predict $Y$,
+and let $\mathrm{AUC}^{\flip}=\max(\mathrm{AUC},1-\mathrm{AUC})$. The
+\emph{direction-invariant AUC leakage} is
+\[
+  \mathrm{DIAL}(\tilde X,Y) \;=\; \bigl(\mathrm{AUC}^{\flip}
+  (\tilde X,Y)-\tfrac12\bigr)\,\mathbf{1}\!\left[\mathrm{AUC}
+  (\tilde X,Y)<\tfrac12\right].
+\]
+\end{definition}
+
+Equivalently, DIAL is strictly positive iff the classifier trained on
+corrected features achieves AUC $<\tfrac12$, i.e.\ the posterior
+direction has \emph{flipped} relative to the true label (``leakage
+through the label axis'').
+
+\section{Three shift components}
+
+Given $p_s,p_t$ and a correction $T$, we define three Kullback--Leibler
+shift components on the corrected variable $\tilde X=T(X,B)$:
+\begin{align}
+  \Delta_{\text{cov}} &:= \KL\!\bigl(p_s(\tilde x)\,\|\,p_t(\tilde x)\bigr),
+    \label{eq:cov}\\[2pt]
+  \Delta_{\text{lab}} &:= \KL\!\bigl(p_s(y)\,\|\,p_t(y)\bigr),
+    \label{eq:lab}\\[2pt]
+  \Delta_{\text{cond}} &:= \E_{y\sim p_s}\bigl[\KL\!\bigl(
+      p_s(\tilde x\mid y)\,\|\,p_t(\tilde x\mid y)\bigr)\bigr].
+    \label{eq:cond}
+\end{align}
+
+\paragraph{Ben-David / Quionero-Candela taxonomy.}
+\[
+  \text{Shift type} \;=\;
+    \begin{cases}
+      \text{covariate}   & \Delta_{\text{cov}}>0,\; \Delta_{\text{lab}}=\Delta_{\text{cond}}=0,\\
+      \text{label (prior)}     & \Delta_{\text{lab}}>0,\; \Delta_{\text{cond}}=0,\\
+      \text{concept}     & p_s(y\mid \tilde x)\neq p_t(y\mid \tilde x),\\
+      \text{conditional} & \Delta_{\text{cond}}>0 \text{ (subspace-aligned: ours).}
+    \end{cases}
+\]
+The ``subspace-aligned conditional'' case is the one not covered by
+Shimodaira's classical covariate-shift theory or by pure label shift,
+and is the topic of Theorem~2 below.
+
+\section{What Theorem 2 will establish}
+
+The chapter's main theoretical claim, stated formally in
+\texttt{theorem2\_proof.tex}, is:
+\begin{itemize}
+\item DIAL$(\tilde X,Y)>0$ is governed by the component of
+  $\Delta_{\text{cond}}$ that lies \emph{parallel} to the span of the
+  label direction $w_Y$ after correction;
+\item when correction $T$ acts primarily \emph{inside}
+  $\mathrm{span}(w_Y)$, the flip of Theorem~1 is exactly the event
+  ``DIAL $>$ 0'';
+\item DIAL therefore \emph{unifies} the three Ben-David types into a
+  single decomposition and fires \emph{only} on type-(d), the
+  subspace-aligned conditional shift.
+\end{itemize}
+
+\paragraph{Honest scope.}
+\TODO{This setup assumes (i) Gaussian class-conditionals for the
+cleanest KL chain rule, (ii) shared support of $p_s$ and $p_t$, (iii)
+linearity of $T$. Non-linear $T$ (e.g.\ deep mean-teacher) and
+heavy-tailed conditionals are deferred to Appendix~D (future work).}
+
+\end{document}

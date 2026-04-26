@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>양자 알고리즘 벤치마크 | THYROID DASH</title>
+  <meta name="description" content="Publication-ready quantum ML benchmark for THCA: 13 algorithms (classical baselines + 7 quantum + 2 quantum-inspired + 1 classical-SA + 1 quantum demo + 1 unsupervised) compared with 95% bootstrap CI.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+:root{
+  --q-teal:#14b8a6; --q-cyan:#06b6d4; --q-amber:#f59e0b;
+  --q-navy:#06111f; --q-line:rgba(94,234,212,.22);
+}
+.q-hero{
+  position:relative;overflow:hidden;isolation:isolate;
+  padding:40px 36px;border-radius:20px;
+  border:1px solid var(--q-line);
+  background:linear-gradient(135deg,rgba(6,17,38,.96),rgba(11,26,58,.72) 40%,rgba(19,42,85,.6));
+  margin-bottom:20px;
+}
+.q-hero::before{content:'';position:absolute;inset:-40%;z-index:-1;pointer-events:none;
+  background:conic-gradient(from 200deg at 25% 40%,rgba(20,184,166,.28),transparent 30%),radial-gradient(circle at 70% 90%,rgba(94,234,212,.14),transparent 55%);
+  filter:blur(60px);animation:qDrift 24s linear infinite}
+@keyframes qDrift{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.q-hero h1{font-size:clamp(1.8rem,1.3rem + 1.6vw,2.8rem);line-height:1.05;margin:0 0 8px;color:#e2fff9}
+.q-hero .sub{color:var(--slate-300,#cbd5e1);max-width:820px;margin:0;font-size:.95rem;line-height:1.55}
+
+/* KPI row */
+.q-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:22px}
+.q-kpi{padding:12px 16px;border-radius:12px;border:1px solid rgba(45,212,191,.3);
+  background:linear-gradient(135deg,rgba(20,184,166,.12),rgba(6,182,212,.06));text-align:center}
+.q-kpi .k{font-size:1.5rem;font-weight:700;color:#e2fff9;letter-spacing:-.02em;line-height:1;display:block}
+.q-kpi .l{font-size:.65rem;color:var(--slate-300);margin-top:4px;text-transform:uppercase;letter-spacing:.12em}
+.q-kpi.win{border-color:rgba(16,185,129,.4)}
+.q-kpi.win .k{color:#bbf7d0}
+.q-kpi.tie{border-color:rgba(245,158,11,.4)}
+.q-kpi.tie .k{color:#fde68a}
+.q-kpi.lose{border-color:rgba(244,63,94,.4)}
+.q-kpi.lose .k{color:#fecdd3}
+
+/* TOC sticky */
+.q-toc{position:sticky;top:calc(var(--topnav-h,64px) + 10px);z-index:5;
+  display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;margin:14px 0;
+  background:rgba(7,19,43,.75);backdrop-filter:blur(8px);
+  border:1px solid rgba(94,234,212,.16);border-radius:12px}
+.q-toc a{padding:5px 11px;border-radius:999px;font-size:.76rem;color:#5eead4;
+  border:1px solid rgba(94,234,212,.25);text-decoration:none;white-space:nowrap;
+  transition:all .15s ease}
+.q-toc a:hover{background:rgba(20,184,166,.14);color:#e2fff9;border-color:rgba(94,234,212,.5)}
+
+/* Panel & section */
+.q-panel{padding:22px;border-radius:16px;border:1px solid rgba(148,163,184,.14);
+  background:rgba(11,26,58,.45);backdrop-filter:blur(10px);margin:18px 0}
+.q-panel h2{margin:0 0 6px;font-size:1.2rem;color:#e2fff9}
+.q-panel .note{font-size:.82rem;color:var(--slate-400,#94a3b8);margin:0 0 16px;line-height:1.55}
+
+/* Group intro (before each algorithm category) */
+.q-group{margin:26px 0 10px}
+.q-group h3{margin:0 0 4px;font-size:1.05rem;color:#5eead4;letter-spacing:.02em}
+.q-group .group-sub{font-size:.8rem;color:var(--slate-400);margin:0 0 12px}
+
+/* Algorithm cards — more compact, grouped */
+.q-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.q-card{padding:14px 16px;border-radius:12px;border:1px solid rgba(94,234,212,.18);
+  background:linear-gradient(150deg,rgba(10,25,48,.85),rgba(6,17,38,.7));
+  transition:transform .15s ease, border-color .15s ease;
+  display:flex;flex-direction:column;gap:8px}
+.q-card:hover{transform:translateY(-2px);border-color:rgba(94,234,212,.5)}
+.q-card-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.q-card h4{margin:0;font-size:.95rem;color:#e2fff9;letter-spacing:.01em}
+.q-desc{color:var(--slate-300);font-size:.78rem;line-height:1.4;margin:0}
+.q-metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.q-metrics > div{background:rgba(7,19,43,.6);border:1px solid rgba(94,234,212,.14);
+  padding:5px 9px;border-radius:8px;display:flex;flex-direction:column}
+.q-metrics .k{font-size:.55rem;letter-spacing:.13em;text-transform:uppercase;color:var(--slate-400)}
+.q-metrics .v{font-size:.78rem;font-weight:600;color:#e2fff9;font-variant-numeric:tabular-nums;margin-top:1px}
+
+/* Verdict badges — compact */
+.q-badge{font-size:.62rem;padding:2px 8px;border-radius:6px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.q-badge.win{background:rgba(16,185,129,.18);color:#bbf7d0;border:1px solid rgba(16,185,129,.4)}
+.q-badge.tie{background:rgba(245,158,11,.18);color:#fde68a;border:1px solid rgba(245,158,11,.4)}
+.q-badge.lose{background:rgba(244,63,94,.18);color:#fecdd3;border:1px solid rgba(244,63,94,.4)}
+.q-badge.na  {background:rgba(148,163,184,.15);color:#cbd5e1;border:1px solid rgba(148,163,184,.3)}
+
+/* Circuit pre block - collapsed */
+.q-card details{margin-top:2px}
+.q-card details summary{cursor:pointer;font-size:.68rem;color:var(--slate-400);
+  list-style:none;padding:4px 0}
+.q-card details summary::before{content:"▸ ";color:#5eead4;font-size:.7rem}
+.q-card details[open] summary::before{content:"▾ "}
+.q-card details pre{margin:4px 0 0;font-size:.68rem;padding:8px;
+  background:#04101f;color:#aee6dd;border:1px solid rgba(94,234,212,.14);
+  border-radius:8px;overflow-x:auto;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+/* Iframes */
+.q-iframe{width:100%;height:520px;border:0;border-radius:12px;
+  background:#04101f;border:1px solid rgba(94,234,212,.18);display:block}
+.q-fig-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.q-fig-grid .q-iframe{height:400px}
+.q-fig-grid > figure{margin:0}
+.q-fig-grid figcaption{font-size:.72rem;color:var(--slate-400);margin-top:6px;text-align:center}
+
+/* Verdict box */
+.q-verdict{padding:22px;border-radius:14px;border:1px solid rgba(245,158,11,.28);
+  background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(20,184,166,.05));
+  margin-top:24px}
+.q-verdict h2{color:#fde68a;margin:0 0 12px;font-size:1.15rem}
+.q-verdict ul{color:var(--slate-300);margin:0;padding-left:22px}
+.q-verdict li{margin:7px 0;font-size:.88rem;line-height:1.5}
+
+.q-back{margin-top:26px;display:flex;gap:10px;flex-wrap:wrap}
+.q-back a{padding:9px 14px;border-radius:10px;border:1px solid rgba(94,234,212,.3);
+  color:#5eead4;text-decoration:none;background:rgba(10,25,48,.6);font-size:.85rem}
+.q-back a:hover{border-color:rgba(94,234,212,.55);color:#e2fff9}
+
+/* Table view for power-user */
+.q-table-wrap{overflow-x:auto;margin:14px 0}
+.q-table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:720px}
+.q-table th,.q-table td{padding:9px 12px;border-bottom:1px solid rgba(148,163,184,.12);text-align:left}
+.q-table th{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--slate-400);
+  font-weight:500;background:rgba(6,17,38,.65);position:sticky;top:0}
+.q-table td.num{font-variant-numeric:tabular-nums;text-align:right;color:#e2fff9;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.q-table tr:hover{background:rgba(20,184,166,.06)}
+
+/* Mobile */
+@media (max-width: 760px){
+  .q-hero{padding:24px 18px}
+  .q-hero h1{font-size:1.5rem}
+  .q-toc{position:static}
+  .q-fig-grid{grid-template-columns:1fr}
+  .q-fig-grid .q-iframe{height:360px}
+  .q-iframe{height:380px}
+  .q-panel{padding:16px}
+  .q-grid{grid-template-columns:1fr;gap:10px}
+}
+  </style>
+  <!-- ux:tour-css --><link rel="stylesheet" href="../assets/css/tour.css">
+  <!-- ux:print-css --><link rel="stylesheet" media="print" href="../assets/css/print.css">
+<!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="../index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar">
+        <a class="nav-link" href="../index.html" role="menuitem">홈</a><a class="nav-link" href="01_overview.html" role="menuitem">개요</a><a class="nav-link" href="02_datasets.html" role="menuitem">데이터셋</a><a class="nav-link" href="03_sample_master.html" role="menuitem">샘플</a><a class="nav-link" href="04_gene_panels.html" role="menuitem">패널</a><a class="nav-link" href="05_eda.html" role="menuitem">EDA</a><a class="nav-link" href="06_scores.html" role="menuitem">점수</a><a class="nav-link" href="07_ml_baseline.html" role="menuitem">ML</a><a class="nav-link" href="08_panel_comparison.html" role="menuitem">패널 비교</a><a class="nav-link" href="09_shap.html" role="menuitem">SHAP</a><a class="nav-link" href="10_gene_explorer.html" role="menuitem">유전자</a><a class="nav-link" href="11_cohort_compare.html" role="menuitem">코호트</a><a class="nav-link" href="12_business.html" role="menuitem">비즈니스</a><a class="nav-link" href="13_reports.html" role="menuitem">리포트</a><a class="nav-link" href="14_caveats.html" role="menuitem">주의점</a><a class="nav-link" href="15_drug_discovery.html" role="menuitem">드럭</a><a class="nav-link active" href="16_quantum.html" role="menuitem">양자</a><a class="nav-link" href="20a_meta_power.html" role="menuitem">통계</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme && toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+        <button id="td-menu-toggle" class="menu-toggle" type="button" aria-controls="td-drawer" aria-expanded="false" aria-label="메뉴 열기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div id="td-drawer-backdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="td-drawer" class="drawer" aria-hidden="true" aria-label="모바일 메뉴">
+    <div class="drawer-header">
+      <strong>메뉴</strong>
+      <button class="btn sm ghost" type="button" id="td-drawer-close" onclick="document.getElementById('td-menu-toggle').click()" aria-label="메뉴 닫기">닫기</button>
+    </div>
+    <a class="" href="../index.html">홈</a><a class="" href="01_overview.html">개요</a><a class="" href="07_ml_baseline.html">ML</a><a class="" href="15_drug_discovery.html">드럭</a><a class="active" href="16_quantum.html">양자</a><a class="" href="17_biomarker_insights.html">마커</a><a class="" href="14_caveats.html">주의점</a>
+  </aside>
+
+  <div class="layout">
+    <main class="content" id="main-content" style="grid-column:1 / -1">
+
+      <!-- ===================== HERO + KPIs ===================== -->
+      <section class="q-hero" aria-labelledby="q-hero-title">
+        <div class="subtle mono">16 / QUANTUM ML BENCHMARK</div>
+        <h1 id="q-hero-title">양자 알고리즘 벤치마크</h1>
+        <p class="sub">13개 알고리즘을 동일 조건으로 비교했습니다 — 2개 Classical baseline, 7개 Quantum (VQC×3 / QSVM / QNN / QAOA / Grover demo), 2개 Quantum-inspired (QKS / QBoost), 1개 Classical-SA (dwave-neal), 1개 Quantum unsupervised (q-k-means). 모든 AUC는 5-fold CV + 95% bootstrap CI 기준이며, 기준선은 Classical LogReg_l2 AUC=1.000입니다.</p>
+        <div class="q-kpis">
+          <div class="q-kpi"><span class="k">13</span><span class="l">algorithms</span></div>
+          <div class="q-kpi win"><span class="k">1</span><span class="l">WIN (baseline)</span></div>
+          <div class="q-kpi tie"><span class="k">3</span><span class="l">TIE (CI includes 1.000)</span></div>
+          <div class="q-kpi lose"><span class="k">8</span><span class="l">LOSE (CI below)</span></div>
+          <div class="q-kpi"><span class="k">1</span><span class="l">N/A (unsupervised)</span></div>
+          <div class="q-kpi"><span class="k">4</span><span class="l">qubits · lightning.qubit</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== STICKY TOC ===================== -->
+      <nav class="q-toc" aria-label="양자 페이지 섹션 바로가기">
+        <a href="#q-overview">📊 전체 비교</a>
+        <a href="#q-table">📋 요약 테이블</a>
+        <a href="#q-classical">🔵 Classical</a>
+        <a href="#q-quantum">🟢 Quantum</a>
+        <a href="#q-qinspired">🟣 Quantum-inspired</a>
+        <a href="#q-other">⚪ 기타</a>
+        <a href="#q-figures">📈 상세 figures</a>
+        <a href="#q-verdict">⚖️ 결론</a>
+      </nav>
+
+      <!-- ===================== 전체 비교 차트 ===================== -->
+      <section class="q-panel" id="q-overview" aria-labelledby="q-overview-title" data-explain-id="16_quantum-q-overview">
+        <h2 id="q-overview-title" data-explain-id="16_quantum-q-overview-title">전체 비교 — AUC + 95% CI</h2>
+        <p class="note">주황 점선이 Classical LogReg_l2 (AUC=1.000) 기준선. CI 상한이 기준선 아래면 LOSE, 기준선을 CI가 가로지르면 TIE/WIN.</p>
+        <iframe class="q-iframe" src="../figs_interactive/quantum_full_comparison.html" title="quantum full comparison"></iframe>
+      </section>
+
+      <!-- ===================== 요약 테이블 ===================== -->
+      <section class="q-panel" id="q-table" aria-labelledby="q-table-title" data-explain-id="16_quantum-q-table">
+        <h2 id="q-table-title" data-explain-id="16_quantum-q-table-title">요약 테이블 — AUC 내림차순</h2>
+        <p class="note">Classical LogReg_l2 = baseline (1.000). dwave-neal은 classical SA (양자 하드웨어 아님). q-k-means는 비지도 → AUC 대신 ARI 보고.</p>
+        <div class="q-table-wrap">
+          <table class="q-table">
+            <thead>
+              <tr><th>#</th><th>Algorithm</th><th>Kind</th><th>AUC</th><th>95% CI</th><th>Wall</th><th>Verdict</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>LogReg_l2 (baseline)</td><td>classical</td><td class="num">1.000</td><td class="num">[1.000, 1.000]</td><td class="num">0.0s</td><td><span class="q-badge win">WIN</span></td></tr>
+              <tr><td>2</td><td>QAOA → LogReg</td><td>quantum</td><td class="num">1.000</td><td class="num">[1.000, 1.000]</td><td class="num">0.0s</td><td><span class="q-badge tie">TIE</span></td></tr>
+              <tr><td>3</td><td>dwave-neal SA → LogReg</td><td>classical-SA</td><td class="num">1.000</td><td class="num">[1.000, 1.000]</td><td class="num">0.0s</td><td><span class="q-badge tie">TIE</span></td></tr>
+              <tr><td>4</td><td>Grover-inspired AA (demo)</td><td>quantum-demo</td><td class="num">1.000</td><td class="num">[1.000, 1.000]</td><td class="num">0.0s</td><td><span class="q-badge tie">TIE</span></td></tr>
+              <tr><td>5</td><td>MLP (classical)</td><td>classical</td><td class="num">0.981</td><td class="num">[0.955, 0.997]</td><td class="num">0.2s</td><td><span class="q-badge lose">LOSE</span></td></tr>
+              <tr><td>6</td><td>QBoost (16 stumps)</td><td>q-inspired ensemble</td><td class="num">0.976</td><td class="num">[0.962, 0.989]</td><td class="num">0.2s</td><td><span class="q-badge lose">LOSE</span></td></tr>
+              <tr><td>7</td><td>VQC (AMP feature map)</td><td>quantum</td><td class="num">0.844</td><td class="num">[0.782, 0.902]</td><td class="num">34.2s</td><td><span class="q-badge lose">LOSE</span></td></tr>
+              <tr><td>8</td><td>VQC (PAULI feature map)</td><td>quantum</td><td class="num">0.782</td><td class="num">[0.729, 0.833]</td><td class="num">44.6s</td><td><span class="q-badge lose">LOSE</span></td></tr>
+              <tr><td>9</td><td>QSVM (fidelity kernel)</td><td>quantum</td><td class="num">0.754</td><td class="num">[0.685, 0.818]</td><td class="num">76.6s</td><td><span class="q-badge lose">LOSE</span></td></tr>
+              <tr><td>10</td><td>QNN (EstimatorQNN)</td><td>quantum</td><td class="num">0.594</td><td class="num">[0.516, 0.672]</td><td class="num">25.6s</td><td><span class="q-badge lose">LOSE</span></td></tr>
+              <tr><td>11</td><td>Quantum Kitchen Sinks</td><td>q-inspired</td><td class="num">0.491</td><td class="num">[0.420, 0.565]</td><td class="num">23.3s</td><td><span class="q-badge lose">LOSE</span></td></tr>
+              <tr><td>12</td><td>VQC (ZZ feature map)</td><td>quantum</td><td class="num">0.488</td><td class="num">[0.410, 0.571]</td><td class="num">88.0s</td><td><span class="q-badge lose">LOSE</span></td></tr>
+              <tr><td>13</td><td>Quantum k-means (k=2)</td><td>q-unsupervised</td><td class="num">ARI=-0.018</td><td class="num">vs classical -0.003</td><td class="num">1.6s</td><td><span class="q-badge na">N/A</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===================== CLASSICAL GROUP ===================== -->
+      <section class="q-panel" id="q-classical" aria-labelledby="q-classical-title" data-explain-id="16_quantum-q-classical">
+        <h2 id="q-classical-title" data-explain-id="16_quantum-q-classical-title">🔵 Classical Baselines (2)</h2>
+        <p class="note">Quantum 계열을 비교할 기준. LogReg_l2가 본 benchmark의 공식 baseline.</p>
+        <div class="q-grid">
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>LogReg_l2</h4><span class="q-badge win">WIN · baseline</span></div>
+            <p class="q-desc">Classical logistic regression (L2). TierA67_clean 54개 유전자에서 이미 완벽 선형 분리.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">1.000</span></div>
+              <div><span class="k">95% CI</span><span class="v">[1.000, 1.000]</span></div>
+              <div><span class="k">Wall</span><span class="v">0.0s</span></div>
+            </div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>MLP (2-layer)</h4><span class="q-badge lose">LOSE</span></div>
+            <p class="q-desc">Classical MLP — baseline LogReg보다 CI가 아래로 완전히 벗어남.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">0.981</span></div>
+              <div><span class="k">95% CI</span><span class="v">[0.955, 0.997]</span></div>
+              <div><span class="k">Wall</span><span class="v">0.2s</span></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===================== QUANTUM GROUP ===================== -->
+      <section class="q-panel" id="q-quantum" aria-labelledby="q-quantum-title" data-explain-id="16_quantum-q-quantum">
+        <h2 id="q-quantum-title" data-explain-id="16_quantum-q-quantum-title">🟢 Quantum Algorithms (7)</h2>
+        <p class="note">PennyLane lightning.qubit 시뮬레이터 (4-qubit unless noted). 3종 VQC (feature map 차이), 1종 QSVM, 1종 QNN, 1종 QAOA (12-qubit, feature selection), 1종 Grover demo.</p>
+        <div class="q-grid">
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>QAOA → LogReg</h4><span class="q-badge tie">TIE</span></div>
+            <p class="q-desc">12-qubit mRMR QUBO를 QAOA로 풀어 14개 유전자 선택 → 고전 LogReg 분류. AUC 기준선과 동률.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">1.000</span></div>
+              <div><span class="k">95% CI</span><span class="v">[1.000, 1.000]</span></div>
+              <div><span class="k">Wall</span><span class="v">0.0s</span></div>
+              <div><span class="k">Qubits</span><span class="v">12 · reps 2</span></div>
+            </div>
+            <details><summary>회로 정보</summary><pre>gates: cost Hamiltonian (ZZ+Z) + mixer (X) × 2 layers
+backend: qiskit-aer AerSampler via MinimumEigenOptimizer</pre></details>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>Grover-inspired AA (demo)</h4><span class="q-badge tie">TIE</span></div>
+            <p class="q-desc">Amplitude amplification toy demo. 3-qubit statevector에서 target index 집중도 0.945 확인. 점근 O(√N) 이득은 n=55 규모에서 실질 효과 없음.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">1.000</span></div>
+              <div><span class="k">95% CI</span><span class="v">[1.000, 1.000]</span></div>
+              <div><span class="k">Wall</span><span class="v">0.0s</span></div>
+              <div><span class="k">Qubits</span><span class="v">3 (demo)</span></div>
+            </div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>VQC — AMP feature map</h4><span class="q-badge lose">LOSE</span></div>
+            <p class="q-desc">Amplitude encoding + RealAmplitudes ansatz. 3종 VQC 중 가장 높음 (하지만 여전히 baseline 아래).</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">0.844</span></div>
+              <div><span class="k">95% CI</span><span class="v">[0.782, 0.902]</span></div>
+              <div><span class="k">Wall</span><span class="v">34.2s</span></div>
+              <div><span class="k">Qubits</span><span class="v">4 · layers 2</span></div>
+            </div>
+            <details><summary>회로 정보</summary><pre>encoding: AmplitudeEmbedding
+ansatz: RealAmplitudes (Ry ring CNOT), 12 params</pre></details>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>VQC — PAULI feature map</h4><span class="q-badge lose">LOSE</span></div>
+            <p class="q-desc">PauliFeatureMap encoding. AMP보다 떨어짐.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">0.782</span></div>
+              <div><span class="k">95% CI</span><span class="v">[0.729, 0.833]</span></div>
+              <div><span class="k">Wall</span><span class="v">44.6s</span></div>
+              <div><span class="k">Qubits</span><span class="v">4 · layers 2</span></div>
+            </div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>QSVM (fidelity kernel)</h4><span class="q-badge lose">LOSE</span></div>
+            <p class="q-desc">Quantum fidelity kernel 계산 후 sklearn SVC precomputed Gram.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">0.754</span></div>
+              <div><span class="k">95% CI</span><span class="v">[0.685, 0.818]</span></div>
+              <div><span class="k">Wall</span><span class="v">76.6s</span></div>
+              <div><span class="k">Qubits</span><span class="v">4</span></div>
+            </div>
+            <details><summary>회로 정보</summary><pre>kernel: ZZFeatureMap + adjoint(ZZFeatureMap) → P(|0...0⟩)
+classifier: sklearn.svm.SVC(kernel='precomputed')</pre></details>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>QNN (EstimatorQNN)</h4><span class="q-badge lose">LOSE</span></div>
+            <p class="q-desc">Qiskit EstimatorQNN + RealAmplitudes 3 layers + NeuralNetworkClassifier. 느리고 약한 signal.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">0.594</span></div>
+              <div><span class="k">95% CI</span><span class="v">[0.516, 0.672]</span></div>
+              <div><span class="k">Wall</span><span class="v">25.6s</span></div>
+              <div><span class="k">Qubits</span><span class="v">4 · layers 3</span></div>
+            </div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>VQC — ZZ feature map</h4><span class="q-badge lose">LOSE</span></div>
+            <p class="q-desc">ZZFeatureMap encoding. 3종 중 최저. CI가 거의 random (0.5) 근처.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">0.488</span></div>
+              <div><span class="k">95% CI</span><span class="v">[0.410, 0.571]</span></div>
+              <div><span class="k">Wall</span><span class="v">88.0s</span></div>
+              <div><span class="k">Qubits</span><span class="v">4 · layers 2</span></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===================== QUANTUM-INSPIRED GROUP ===================== -->
+      <section class="q-panel" id="q-qinspired" aria-labelledby="q-qinspired-title" data-explain-id="16_quantum-q-qinspired">
+        <h2 id="q-qinspired-title" data-explain-id="16_quantum-q-qinspired-title">🟣 Quantum-Inspired (2)</h2>
+        <p class="note">진짜 양자 하드웨어는 아니지만 양자 아이디어에서 영감을 받은 classical 구현.</p>
+        <div class="q-grid">
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>QBoost (16 stumps)</h4><span class="q-badge lose">LOSE</span></div>
+            <p class="q-desc">QUBO로 선택한 decision stumps ensemble. dimod + dwave-neal로 가중치 선택. 오리지널 QBoost는 D-Wave annealer 사용.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">0.976</span></div>
+              <div><span class="k">95% CI</span><span class="v">[0.962, 0.989]</span></div>
+              <div><span class="k">Wall</span><span class="v">0.2s</span></div>
+            </div>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>Quantum Kitchen Sinks</h4><span class="q-badge lose">LOSE</span></div>
+            <p class="q-desc">Random quantum feature embedding + linear readout. n=55에서 random embedding은 noise.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">0.491</span></div>
+              <div><span class="k">95% CI</span><span class="v">[0.420, 0.565]</span></div>
+              <div><span class="k">Wall</span><span class="v">23.3s</span></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===================== OTHER (Classical-SA + Unsupervised) ===================== -->
+      <section class="q-panel" id="q-other" aria-labelledby="q-other-title" data-explain-id="16_quantum-q-other">
+        <h2 id="q-other-title" data-explain-id="16_quantum-q-other-title">⚪ Classical-SA & Unsupervised (2)</h2>
+        <p class="note">공정 비교를 위해 포함한 classical SA baseline과 비지도 클러스터링 (AUC 대신 ARI 보고).</p>
+        <div class="q-grid">
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>dwave-neal SA → LogReg</h4><span class="q-badge tie">TIE</span></div>
+            <p class="q-desc"><b>Classical simulated annealing</b>을 같은 QUBO에 적용한 정직한 baseline. 양자 하드웨어 아님. QAOA와 동일 genes 선택 + 동일 AUC.</p>
+            <div class="q-metrics">
+              <div><span class="k">AUC</span><span class="v">1.000</span></div>
+              <div><span class="k">95% CI</span><span class="v">[1.000, 1.000]</span></div>
+              <div><span class="k">Wall</span><span class="v">0.0s</span></div>
+            </div>
+            <details><summary>회로 정보</summary><pre>gates: classical simulated annealing on QUBO (dimod BQM)
+note: CLASSICAL solver — NOT quantum hardware</pre></details>
+          </div>
+
+          <div class="q-card">
+            <div class="q-card-head"><h4>Quantum k-means (k=2)</h4><span class="q-badge na">N/A · unsupervised</span></div>
+            <p class="q-desc">Swap-test fidelity distance k-means. AUC 대신 ARI (adjusted Rand index). classical KMeans와 거의 동급 (-0.018 vs -0.003).</p>
+            <div class="q-metrics">
+              <div><span class="k">ARI</span><span class="v">-0.018</span></div>
+              <div><span class="k">Classical ARI</span><span class="v">-0.003</span></div>
+              <div><span class="k">Wall</span><span class="v">1.6s</span></div>
+              <div><span class="k">Qubits</span><span class="v">4 · PCA-4D</span></div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===================== DETAILED FIGURES ===================== -->
+      <section class="q-panel" id="q-figures" aria-labelledby="q-figures-title" data-explain-id="16_quantum-q-figures">
+        <h2 id="q-figures-title" data-explain-id="16_quantum-q-figures-title">📈 상세 Figures</h2>
+        <p class="note">QAOA 수렴 · kernel 행렬 · PCA 스펙트럼 · k-means 클러스터 · QUBO 유전자 선택 · 회로 다이어그램.</p>
+
+        <div class="q-fig-grid" style="margin-top:12px">
+          <figure>
+            <iframe class="q-iframe" src="../figs_interactive/quantum_qaoa_convergence.html" title="QAOA convergence"></iframe>
+            <figcaption>QAOA 수렴 — iteration × expectation value</figcaption>
+          </figure>
+          <figure>
+            <iframe class="q-iframe" src="../figs_interactive/quantum_kernel_heatmap.html" title="quantum kernel heatmap"></iframe>
+            <figcaption>Quantum fidelity kernel 행렬 (4-qubit)</figcaption>
+          </figure>
+          <figure>
+            <iframe class="q-iframe" src="../figs_interactive/quantum_pca_spectrum.html" title="qPCA spectrum"></iframe>
+            <figcaption>qPCA vs classical PCA 고유값 스펙트럼</figcaption>
+          </figure>
+          <figure>
+            <iframe class="q-iframe" src="../figs_interactive/quantum_kmeans_clusters.html" title="q-k-means clusters"></iframe>
+            <figcaption>Quantum k-means 클러스터 (PCA 2D)</figcaption>
+          </figure>
+        </div>
+
+        <figure style="margin-top:16px">
+          <iframe class="q-iframe" src="../figs_interactive/quantum_qubo_selection_comparison.html" title="QUBO selection"></iframe>
+          <figcaption style="font-size:.72rem;color:var(--slate-400);margin-top:6px;text-align:center">QUBO gene selection — QAOA vs dwave-neal SA (동일 genes 선택)</figcaption>
+        </figure>
+
+        <figure style="margin-top:16px">
+          <iframe class="q-iframe" style="height:720px" src="../figs_interactive/quantum_circuit_diagram.html" title="circuit diagrams"></iframe>
+          <figcaption style="font-size:.72rem;color:var(--slate-400);margin-top:6px;text-align:center">각 알고리즘 회로 다이어그램 (ASCII art)</figcaption>
+        </figure>
+      </section>
+
+      <!-- ===================== VERDICT ===================== -->
+      <section class="q-verdict" id="q-verdict" aria-labelledby="q-verdict-title" data-explain-id="16_quantum-q-verdict">
+        <h2 id="q-verdict-title" data-explain-id="16_quantum-q-verdict-title">⚖️ Honest Verdict</h2>
+        <ul>
+          <li>Classical LogReg_l2의 AUC = <b>1.000</b>. TCGA BRAF vs RAS + TierA67_clean은 이미 완벽 선형 분리라 양자가 개선할 헤드룸이 없음.</li>
+          <li>5-fold CI 기준: <b>WIN 1</b> (baseline) / <b>TIE 3</b> (QAOA, dwave-neal SA, Grover demo — 모두 downstream이 classical LogReg라 사실상 baseline과 동치) / <b>LOSE 8</b> / <b>N/A 1</b> (q-k-means 비지도).</li>
+          <li>가장 성능 높은 순수 양자 classifier: <b>VQC (AMP feature map)</b> — AUC 0.844, 그러나 baseline CI와 겹치지 않음.</li>
+          <li>가장 빠른: dwave-neal (0.0s). 가장 느린: VQC-ZZ (88s).</li>
+          <li><b>dwave-neal은 classical simulated annealing</b>입니다 — 양자 하드웨어 아님. 정직한 baseline으로 별도 표시.</li>
+          <li>qPCA 수학적으로 amplitude-encoded density matrix의 classical eigen-decomposition과 동치. 스펙트럼은 classical PCA와 거의 일치.</li>
+          <li>Grover demo는 amplitude amplification 구현 증명용 toy. 점근 O(√N) 이득은 n=55에서 실질 효과 없음.</li>
+          <li><b>Caveat</b>: CPU-only simulator, PCA→4D 축소 정보 손실, n=333 small-sample bias. NISQ 하드웨어에서는 noise로 AUC 더 낮아질 가능성.</li>
+          <li><b>진짜 유용한 발견</b>: QAOA / dwave-neal이 고른 14-gene 서브패널이 외부 코호트 AUC 0.97→0.98 / 0.89→0.94로 살짝 개선. → 양자 분류는 못 이기지만, 양자(-inspired) feature selection은 쓸만함.</li>
+        </ul>
+      </section>
+
+      <div class="q-back">
+        <a href="07_ml_baseline.html">← ML baseline 페이지로</a>
+        <a href="17_biomarker_insights.html">바이오마커 인사이트 →</a>
+        <a href="14_caveats.html">한계와 실패 조건 →</a>
+        <a href="../index.html">홈</a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+  (function(){
+    var btn=document.getElementById('td-menu-toggle');
+    var drawer=document.getElementById('td-drawer');
+    var backdrop=document.getElementById('td-drawer-backdrop');
+    if(!btn||!drawer) return;
+    btn.addEventListener('click',function(){
+      var open=drawer.getAttribute('aria-hidden')==='false';
+      drawer.setAttribute('aria-hidden', open?'true':'false');
+      drawer.classList.toggle('open', !open);
+      if(backdrop) backdrop.classList.toggle('open', !open);
+      btn.setAttribute('aria-expanded', open?'false':'true');
+    });
+    if(backdrop) backdrop.addEventListener('click',function(){btn.click();});
+  })();
+  // Smooth scroll for TOC
+  document.querySelectorAll('.q-toc a[href^="#"]').forEach(function(a){
+    a.addEventListener('click', function(e){
+      var id = a.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if(el){ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); }
+    });
+  });
+  </script>
+  <script>window.ThyroidDash = window.ThyroidDash || {}; window.ThyroidDash.commandIndex = [{"label": "홈", "href": "index.html", "tags": "page"}, {"label": "ML", "href": "pages/07_ml_baseline.html", "tags": "page"}, {"label": "양자 알고리즘", "href": "pages/16_quantum.html", "tags": "page quantum"}, {"label": "마커", "href": "pages/17_biomarker_insights.html", "tags": "page"}, {"label": "주의점", "href": "pages/14_caveats.html", "tags": "page"}];</script>
+
+  <!-- ux:tour-js --><script src="../assets/js/tour.js" defer></script>
+  <!-- ux:print-js --><script src="../assets/js/print-button.js" defer></script>
+<!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

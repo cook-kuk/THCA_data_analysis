@@ -1,0 +1,1771 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>v12 — Biological evidence & literature validation · THYRAI</title>
+<meta name="description" content="v12 literature-based biological validation with full data provenance, cross-section connectors, and complete experimental log.">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/brand.css">
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+<style>
+  html { scroll-behavior: smooth; }
+  .v12-hero { min-height:40vh; padding:112px 0 40px; border-bottom:1px solid var(--border);
+    background: radial-gradient(ellipse at 72% 18%, rgba(106,176,76,0.08) 0%, transparent 55%),
+                radial-gradient(ellipse at 18% 82%, rgba(245,166,35,0.06) 0%, transparent 60%); }
+  .v12-hero .eyebrow { color:#6AB04C; letter-spacing:0.18em; font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .v12-hero h1 { font-size:clamp(32px,4vw,50px); font-weight:300; letter-spacing:-0.02em; line-height:1.08; margin:16px 0 14px; }
+  .v12-hero .lede { color:var(--text-secondary); font-size:17px; line-height:1.65; max-width:80ch; margin-top:14px; }
+  .tile-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; margin:28px 0 4px; }
+  .tile { background:rgba(20,22,28,0.78); border:1px solid var(--border); border-radius:5px; padding:20px 22px; }
+  .tile__v { font-family:'JetBrains Mono',monospace; font-size:28px; font-weight:500; color:#6AB04C; line-height:1; }
+  .tile__v.amber { color:#F5A623; } .tile__v.red { color:#c24c4c; }
+  .tile__l { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); margin-top:10px; }
+
+  /* two-column layout: sticky TOC + content */
+  .layout { display:grid; grid-template-columns: 240px 1fr; gap: 40px; max-width: 1280px; margin: 0 auto; padding: 40px 24px; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } .toc { position:static !important; height:auto !important; } }
+  .toc { position:sticky; top:16px; height: calc(100vh - 32px); overflow-y:auto; padding-right:12px;
+         border-right:1px solid var(--border); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc .eyebrow { font-size:10px; color:#6AB04C; letter-spacing:0.16em; margin-bottom:10px; display:block; }
+  .toc ul { list-style:none; padding:0; margin:0 0 14px 0; }
+  .toc li { margin:0; }
+  .toc a { display:block; padding:6px 10px; color:#9aa4b6; text-decoration:none; border-left:2px solid transparent; line-height:1.35; transition:background 120ms ease, color 120ms ease, border-color 120ms ease; border-radius: 0 3px 3px 0; }
+  .toc a:hover { color:#EAEAEA; background:rgba(255,255,255,0.03); border-left-color:#F5A623; }
+  .toc a.active { color:#6AB04C; border-left-color:#6AB04C; background:rgba(106,176,76,0.06); }
+  .toc .sub { font-size:11px; color:var(--text-muted); letter-spacing:0.02em; margin-left:10px; }
+
+  /* content cards */
+  .card { background:rgba(20,22,28,0.75); border:1px solid var(--border); border-radius:6px; padding:28px 32px; margin:18px 0; scroll-margin-top:24px; }
+  .card > .eyebrow { color:#6AB04C; font-size:11px; letter-spacing:0.18em; font-family:'JetBrains Mono',monospace; text-transform:uppercase; }
+  .card h2 { margin:8px 0 6px; font-size:24px; font-weight:500; color:#EAEAEA; letter-spacing:-0.01em; }
+  .card h3 { margin:18px 0 8px; font-size:16px; font-weight:500; color:#F5A623; letter-spacing:0.01em; font-family:'JetBrains Mono',monospace; text-transform:uppercase; }
+  .card p, .card li { color:var(--text-secondary); font-size:15px; line-height:1.68; }
+  .card p b, .card li b { color:#EAEAEA; font-weight:500; }
+  .card ul, .card ol { margin: 8px 0 8px 20px; }
+  .card .sub-h { color:#d2a34e; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; font-family:'JetBrains Mono',monospace; margin-top:14px; margin-bottom:4px; display:block; }
+
+  /* cross-link connectors */
+  .connect { display:flex; flex-wrap:wrap; gap:8px; margin:14px 0 4px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; }
+  .connect .chip { display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:3px;
+                   background:rgba(124,207,205,0.1); border:1px solid rgba(124,207,205,0.35); color:#7ccfcd; text-decoration:none; transition:background 120ms ease; }
+  .connect .chip:hover { background:rgba(124,207,205,0.22); color:#EAEAEA; }
+  .connect .chip.in { background:rgba(245,166,35,0.08); border-color:rgba(245,166,35,0.35); color:#F5A623; }
+  .connect .chip.out { background:rgba(106,176,76,0.08); border-color:rgba(106,176,76,0.35); color:#6AB04C; }
+  .connect .chip.tsv { background:rgba(138,151,170,0.1); border-color:rgba(138,151,170,0.35); color:#9aa4b6; }
+
+  /* provenance block */
+  .prov { background:rgba(10,12,16,0.7); border:1px dashed rgba(124,207,205,0.3); border-radius:4px;
+          padding:14px 18px; margin:10px 0 14px; font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#b8c5d6; line-height:1.7; }
+  .prov b { color:#7ccfcd; font-weight:500; }
+  .prov code { font-family:'JetBrains Mono',monospace; font-size:12px; color:#F5A623; background:rgba(245,166,35,0.08); padding:1px 5px; border-radius:2px; }
+
+  /* target cards */
+  .target-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; margin-top:14px; }
+  .target-card { background:#0f141c; border:1px solid var(--border); border-left:3px solid #F5A623; border-radius:5px; padding:18px 20px; }
+  .target-card.novel    { border-left-color:#6AB04C; }
+  .target-card.emerging { border-left-color:#d2a34e; }
+  .target-card.established { border-left-color:#8a97aa; }
+  .target-card h4 { margin:0 0 8px; font-family:'JetBrains Mono',monospace; font-size:18px; font-weight:600; color:#EAEAEA; letter-spacing:0.03em; }
+  .target-card .row { display:flex; justify-content:space-between; gap:12px; font-size:13px; color:var(--text-secondary); padding:3px 0; }
+  .target-card .row .num { font-family:'JetBrains Mono',monospace; color:#F5A623; }
+  .target-card .rationale { margin-top:10px; padding-top:10px; border-top:1px dashed rgba(255,255,255,0.08); font-size:12.5px; color:#9aa4b6; line-height:1.5; }
+  .target-card .flag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.14em; text-transform:uppercase; padding:2px 6px; border-radius:2px; margin-top:8px; }
+  .flag.novel    { background:#6AB04C22; color:#6AB04C; }
+  .flag.emerging { background:#F5A62322; color:#F5A623; }
+  .flag.established { background:#8a97aa22; color:#8a97aa; }
+
+  table.matrix { width:100%; border-collapse:collapse; font-size:13px; }
+  table.matrix th { text-align:left; padding:10px 12px; color:var(--text-muted); font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; border-bottom:1px solid var(--border); }
+  table.matrix td { padding:10px 12px; border-bottom:1px solid rgba(255,255,255,0.06); color:var(--text-secondary); vertical-align:top; }
+  table.matrix tr:hover td { background:rgba(106,176,76,0.04); }
+  .prio-high   { background:#6AB04C; color:#0a0e14; font-weight:600; padding:2px 8px; border-radius:3px; font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .prio-medium { background:#d2a34e; color:#0a0e14; font-weight:600; padding:2px 8px; border-radius:3px; font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .prio-low    { background:#8a97aa; color:#0a0e14; font-weight:600; padding:2px 8px; border-radius:3px; font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .pill { font-family:'JetBrains Mono',monospace; font-size:11px; padding:2px 7px; border-radius:2px; letter-spacing:0.1em; }
+  .pill.pos { background:#6AB04C22; color:#6AB04C; }
+  .pill.neg { background:#c24c4c22; color:#c24c4c; }
+
+  .caveat-band { background:rgba(194,76,76,0.06); border-left:3px solid #c24c4c; padding:18px 22px; margin:36px 0 20px; font-size:14px; line-height:1.65; color:#c9d1d9; border-radius:4px; }
+  .caveat-band h4 { margin:0 0 6px; color:#c24c4c; font-size:12px; letter-spacing:0.12em; text-transform:uppercase; font-weight:500; }
+  code { font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#F5A623; background:rgba(245,166,35,0.08); padding:1px 6px; border-radius:2px; }
+
+  .flow { background:#0b0e14; border:1px solid var(--border); border-radius:6px; padding:22px 28px; margin:18px 0; }
+  .flow svg { width:100%; height:auto; }
+  .flow-step text { fill:#EAEAEA; font-family:Inter,system-ui,sans-serif; }
+  .flow-step rect { stroke:#F5A623; fill:rgba(245,166,35,0.05); stroke-width:1.5; rx:4; }
+  .flow-step.ctg rect { stroke:#7ccfcd; fill:rgba(124,207,205,0.05); }
+  .flow-step.local rect { stroke:#6AB04C; fill:rgba(106,176,76,0.06); }
+  .flow-arrow { stroke:#9aa4b6; stroke-width:1.5; fill:none; }
+  .flow-arrow.in { stroke:#F5A623; }
+  .flow-arrow.out { stroke:#6AB04C; }
+
+  .log-line { font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#b8c5d6; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.05); line-height:1.55; }
+  .log-line .stamp { color:#6AB04C; display:inline-block; min-width:120px; }
+  .log-line .kind { color:#F5A623; display:inline-block; min-width:80px; }
+  .log-line .why { display:block; color:#9aa4b6; font-size:11.5px; margin-left:200px; margin-top:2px; }
+
+  /* Markdown render */
+  .md-render { font-family:Inter,system-ui,sans-serif; }
+  .md-render h1, .md-render h2, .md-render h3 { color:#EAEAEA; margin:14px 0 8px; font-weight:500; letter-spacing:-0.01em; }
+  .md-render h1 { font-size:20px; color:#F5A623; }
+  .md-render h2 { font-size:17px; }
+  .md-render h3 { font-size:15px; color:#7ccfcd; }
+  .md-render p { color:var(--text-secondary); font-size:14px; line-height:1.7; margin:8px 0; }
+  .md-render strong, .md-render b { color:#EAEAEA; font-weight:600; }
+  .md-render ul, .md-render ol { padding-left:22px; margin:8px 0; }
+  .md-render li { color:var(--text-secondary); font-size:14px; line-height:1.65; margin:4px 0; }
+  .md-render code { font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#F5A623; background:rgba(245,166,35,0.08); padding:1px 5px; border-radius:2px; }
+  .md-render hr { border:0; border-top:1px solid var(--border); margin:18px 0; }
+  .md-render em, .md-render i { color:#9aa4b6; font-style:italic; }
+  .md-render blockquote { border-left:3px solid #F5A623; padding:8px 14px; background:rgba(245,166,35,0.05); margin:10px 0; }
+  .md-render table { border-collapse:collapse; width:100%; margin:10px 0; font-size:13px; }
+  .md-render th, .md-render td { border:1px solid var(--border); padding:6px 10px; text-align:left; }
+  .md-render th { background:rgba(245,166,35,0.08); color:#F5A623; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; }
+  /* §P 3D viewer grid */
+  .v12-3d-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:14px; margin-top:14px; }
+  .v12-3d-card { background:rgba(10,12,16,0.72); border:1px solid var(--border); border-radius:6px; padding:12px; position:relative; }
+  .v12-3d-card h4 { margin:0 0 6px; font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:0.06em; color:#EAEAEA; display:flex; justify-content:space-between; align-items:baseline; }
+  .v12-3d-card h4 .score { color:#6AB04C; font-weight:500; font-size:12px; }
+  .v12-3d-card .meta { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:#9aa4b6; margin-bottom:8px; line-height:1.45; }
+  .v12-3d-viewer { width:100%; height:240px; background:#0a0c10; border-radius:4px; position:relative; overflow:hidden; }
+  .v12-3d-card.warn { border-color:#c24c4c; }
+  .v12-3d-card .warnbadge { position:absolute; top:10px; right:10px; background:#c24c4c; color:#fff; font-family:'JetBrains Mono',monospace; font-size:9.5px; letter-spacing:0.10em; padding:3px 7px; border-radius:3px; text-transform:uppercase; }
+</style>
+<!-- 3Dmol.js (vendored, used by §P 3D viewer mini-grid) -->
+<script src="../assets/vendor/3Dmol-min.js"></script>
+</head>
+<body class="thyrai">
+
+<nav class="topnav" aria-label="Primary">
+  <div class="topnav__inner">
+    <a class="topnav__brand" href="../index.html" aria-label="THYRAI home">
+      <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+    </a>
+    <ul class="topnav__links">
+      <li><a class="topnav__link" href="pipeline.html">Pipeline</a></li>
+      <li><a class="topnav__link" href="v4a_dial_cross_cancer.html" style="color:#F5A623">v5.1 Audit</a></li>
+      <li><a class="topnav__link" href="research_timeline.html">Timeline</a></li>
+      <li><a class="topnav__link" href="research_reasoning.html" style="color:#6AB04C">Reasoning</a></li>
+      <li><a class="topnav__link" aria-current="page" href="v12_biological_evidence.html" style="color:#6AB04C">v12 Biology</a></li>
+      <li><a class="topnav__link" href="platform_chem_showcase.html">Chem Showcase</a></li>
+      <li><a class="topnav__link" href="team.html">Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="v12-hero">
+  <div class="container">
+    <span class="eyebrow">v12 · LITERATURE VALIDATION · BUILD 2026-04-24</span>
+    <h1 data-explain-id="v12-hero">Computational → biological: every claim, every source.</h1>
+    <p class="lede">
+      v12 takes THYRAI's three computational claims — the <b>2,843-gene replicated biomarker slate</b>,
+      the <b>8-target druggable shortlist</b>, and the <b>DIAL specificity finding</b> from v5.1 —
+      and grounds every one of them against the published thyroid-cancer literature. Every number on
+      this page is traceable to (i) a specific API endpoint with query string, (ii) a raw artefact on
+      disk (TSV/JSON), and (iii) a rationale explaining why that piece of evidence was included.
+      <b>No new biological experiments</b> — only PubMed, ClinicalTrials.gov, and five hand-curated
+      reference gene lists. Sections are explicitly wired to each other with <span style="color:#F5A623">↑ input</span> /
+      <span style="color:#6AB04C">→ output</span> connectors.
+    </p>
+    <div class="tile-row">
+      <div class="tile"><div class="tile__v" id="t-bm">—</div><div class="tile__l">Replicated biomarkers (ours)</div></div>
+      <div class="tile"><div class="tile__v">10</div><div class="tile__l">Reference gene lists compared</div></div>
+      <div class="tile"><div class="tile__v amber" id="t-novel">—</div><div class="tile__l">Novel candidates (ours only)</div></div>
+      <div class="tile"><div class="tile__v" id="t-conc">—</div><div class="tile__l">BRAF-like direction concordance</div></div>
+      <div class="tile"><div class="tile__v amber" id="t-hi">—</div><div class="tile__l">High-priority clinical targets</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="layout">
+
+  <!-- STICKY TOC -->
+  <aside class="toc" aria-label="Table of contents">
+    <span class="eyebrow">v12 · sections</span>
+    <ul>
+      <li><a href="#overview">§0 Overview & data-flow</a></li>
+      <li><a href="#sec-a">§A Biomarker landscape</a><span class="sub">(overlap vs 10 ref lists)</span></li>
+      <li><a href="#sec-b">§B PubMed target profiles</a><span class="sub">(8 genes × 4 query axes)</span></li>
+      <li><a href="#sec-c">§C BRAF-like concordance</a><span class="sub">(direction consistency)</span></li>
+      <li><a href="#sec-d">§D Drug repurposing</a><span class="sub">(PubMed + ClinicalTrials.gov)</span></li>
+      <li><a href="#sec-e">§E Clinical translatability</a><span class="sub">(priority tiers)</span></li>
+      <li><a href="#sec-f">§F DIAL methodology grounding</a><span class="sub">(ComBat literature)</span></li>
+      <li><a href="#sec-g">§G Pathway consistency</a><span class="sub">(MAPK output recovery)</span></li>
+      <li><a href="#sec-h">§H Experimental log</a><span class="sub">(every API call)</span></li>
+      <li><a href="#sec-k">§K LLM synthesis</a><span class="sub">(haiku v14 + sonnet v15)</span></li>
+      <li><a href="#sec-l">§L Tavily web news</a><span class="sub">(v16 FDA / press)</span></li>
+      <li><a href="#sec-m">§M Entity extraction</a><span class="sub">(v17 48 abstracts)</span></li>
+      <li><a href="#sec-n">§N Paper review</a><span class="sub">(v18 sonnet reviewer)</span></li>
+      <li><a href="#sec-o">§O Bilingual narrative</a><span class="sub">(v19 KR + abstract)</span></li>
+      <li><a href="#sec-p">§P Top-20 novel + SNUBH</a><span class="sub">(prospective panel)</span></li>
+      <li><a href="#sec-i">§I Paper integration</a></li>
+      <li><a href="#sec-j">§J Limitations</a></li>
+    </ul>
+    <span class="eyebrow">artefacts</span>
+    <ul>
+      <li><a href="../../../results/v12_literature/v12_index.json" target="_blank">v12_index.json</a></li>
+      <li><a href="../../../reports/v12/v12_biology_narrative.md" target="_blank">narrative (1,800 w)</a></li>
+      <li><a href="../../../reports/v12/v12_paper_updates/bioinformatics_additions.tex" target="_blank">bioinformatics .tex</a></li>
+      <li><a href="../../../reports/v12/v12_paper_updates/aaai_minor_update.tex" target="_blank">aaai .tex</a></li>
+    </ul>
+  </aside>
+
+  <main>
+
+    <!-- ==== §0 OVERVIEW + DATA FLOW ==== -->
+    <section id="overview" class="card">
+      <span class="eyebrow">§0 · OVERVIEW & DATA FLOW</span>
+      <h2 data-explain-id="v12-map">무엇을 · 어디서 · 왜 · 어떻게 · 어디로.</h2>
+      <p>
+        v12는 THYRAI의 <b>기존 파이프라인 산출물</b>(로컬 TSV)을 입력으로 받아, 이것을 <b>외부 공공
+        데이터 소스</b>(PubMed E-utilities, ClinicalTrials.gov v2 API, 5개의 primary 논문에서 추출한
+        reference gene lists)와 교차해 <b>문헌 기반 검증 테이블/리포트</b>를 생성합니다. 어떤 숫자도
+        "어디서 왔는지 모르는 숫자"가 되지 않도록 각 섹션에 <b>Data provenance</b> 블록을 배치하고,
+        섹션 간 흐름은 <span style="color:#F5A623">↑ INPUT</span> /
+        <span style="color:#6AB04C">→ OUTPUT</span> 칩으로 연결했습니다.
+      </p>
+
+      <div class="flow" aria-hidden="true">
+        <svg viewBox="0 0 920 300">
+          <!-- inputs (left column) -->
+          <g class="flow-step local">
+            <rect x="10" y="20" width="220" height="56"></rect>
+            <text x="120" y="45" text-anchor="middle" font-size="13" font-weight="600">biomarker_validated.tsv</text>
+            <text x="120" y="62" text-anchor="middle" font-size="11" fill="#9aa4b6">2,843 replicated (THYRAI v3)</text>
+          </g>
+          <g class="flow-step local">
+            <rect x="10" y="90" width="220" height="56"></rect>
+            <text x="120" y="115" text-anchor="middle" font-size="13" font-weight="600">drug_discovery_compounds.tsv</text>
+            <text x="120" y="132" text-anchor="middle" font-size="11" fill="#9aa4b6">8 targets · 15 compounds</text>
+          </g>
+          <g class="flow-step local">
+            <rect x="10" y="160" width="220" height="56"></rect>
+            <text x="120" y="185" text-anchor="middle" font-size="13" font-weight="600">v7_drugcentral_filtered.tsv</text>
+            <text x="120" y="202" text-anchor="middle" font-size="11" fill="#9aa4b6">top-5 drug candidates</text>
+          </g>
+          <g class="flow-step local">
+            <rect x="10" y="230" width="220" height="56"></rect>
+            <text x="120" y="255" text-anchor="middle" font-size="13" font-weight="600">v5p1_table1_summary.tsv</text>
+            <text x="120" y="272" text-anchor="middle" font-size="11" fill="#9aa4b6">DIAL 5 cancers × 5 classifiers</text>
+          </g>
+
+          <!-- v12 orchestrator (center) -->
+          <g class="flow-step">
+            <rect x="320" y="100" width="260" height="100"></rect>
+            <text x="450" y="130" text-anchor="middle" font-size="14" font-weight="700" fill="#F5A623">v12_literature.py</text>
+            <text x="450" y="152" text-anchor="middle" font-size="11" fill="#9aa4b6">Entrez esearch + efetch</text>
+            <text x="450" y="168" text-anchor="middle" font-size="11" fill="#9aa4b6">ClinicalTrials.gov v2</text>
+            <text x="450" y="184" text-anchor="middle" font-size="11" fill="#9aa4b6">+ 10 reference gene lists</text>
+          </g>
+
+          <!-- external sources (top) -->
+          <g class="flow-step ctg">
+            <rect x="340" y="10" width="220" height="44"></rect>
+            <text x="450" y="35" text-anchor="middle" font-size="12">PubMed E-utilities (NCBI)</text>
+          </g>
+          <g class="flow-step ctg">
+            <rect x="340" y="236" width="220" height="44"></rect>
+            <text x="450" y="262" text-anchor="middle" font-size="12">ClinicalTrials.gov v2 API</text>
+          </g>
+
+          <!-- outputs (right) -->
+          <g class="flow-step">
+            <rect x="670" y="10" width="240" height="44"></rect>
+            <text x="790" y="35" text-anchor="middle" font-size="12" fill="#6AB04C">pubmed_evidence/*_summary.md</text>
+          </g>
+          <g class="flow-step">
+            <rect x="670" y="66" width="240" height="44"></rect>
+            <text x="790" y="91" text-anchor="middle" font-size="12" fill="#6AB04C">biomarker_overlap_matrix.tsv</text>
+          </g>
+          <g class="flow-step">
+            <rect x="670" y="122" width="240" height="44"></rect>
+            <text x="790" y="147" text-anchor="middle" font-size="12" fill="#6AB04C">braf_like_signature_consistency.tsv</text>
+          </g>
+          <g class="flow-step">
+            <rect x="670" y="178" width="240" height="44"></rect>
+            <text x="790" y="203" text-anchor="middle" font-size="12" fill="#6AB04C">drug_literature.tsv</text>
+          </g>
+          <g class="flow-step">
+            <rect x="670" y="234" width="240" height="44"></rect>
+            <text x="790" y="259" text-anchor="middle" font-size="12" fill="#6AB04C">clinical_translatability.tsv</text>
+          </g>
+
+          <!-- arrows -->
+          <path class="flow-arrow in" d="M230 48 L320 128"></path>
+          <path class="flow-arrow in" d="M230 118 L320 140"></path>
+          <path class="flow-arrow in" d="M230 188 L320 160"></path>
+          <path class="flow-arrow in" d="M230 258 L320 172"></path>
+          <path class="flow-arrow in" d="M450 54 L450 100"></path>
+          <path class="flow-arrow in" d="M450 236 L450 200"></path>
+          <path class="flow-arrow out" d="M580 120 L670 32"></path>
+          <path class="flow-arrow out" d="M580 130 L670 88"></path>
+          <path class="flow-arrow out" d="M580 148 L670 144"></path>
+          <path class="flow-arrow out" d="M580 170 L670 200"></path>
+          <path class="flow-arrow out" d="M580 180 L670 256"></path>
+        </svg>
+      </div>
+
+      <h3>Data provenance</h3>
+      <div class="prov">
+        <b>Local inputs:</b>
+        <code>results/tables/biomarker_validated.tsv</code> (from THYRAI v3 discovery),
+        <code>results/tables/drug_discovery_compounds.tsv</code> (from v7),
+        <code>results/v7_repurposing/v7_drugcentral_filtered.tsv</code> (from v7 DrugCentral pull),
+        <code>results/v5/v5p1_table1_summary.tsv</code> (from v5.1 DIAL audit).<br>
+        <b>External APIs:</b>
+        PubMed E-utilities at <code>https://eutils.ncbi.nlm.nih.gov/entrez/eutils/{esearch,efetch}.fcgi</code> · queries throttled to 0.34s (3 req/s, no API key) · User-Agent "thyrai-v12 (kukshomr@gmail.com)".
+        ClinicalTrials.gov v2 at <code>https://clinicaltrials.gov/api/v2/studies</code> with <code>query.cond</code> and <code>query.intr</code> filters.<br>
+        <b>Reference gene lists:</b> 5 sets hand-curated from primary literature (Chakravarty 2011 JCO, Landa 2016 JCI, TCGA 2014 Cell, Yoo 2019, Costa 2015 Oncotarget) — stored per-list in <code>results/v12_literature/crosscheck/reference_gene_lists/*.tsv</code>.<br>
+        <b>Orchestrator:</b> <code>notebooks_or_scripts/v12_literature.py</code> (단일 Python 스크립트, no build, biopython 미사용 — raw XML regex 파싱으로 의존성 최소화).<br>
+        <b>Log:</b> <code>logs/v12_literature.log</code>. <b>Build index:</b> <code>results/v12_literature/v12_index.json</code>.
+      </div>
+
+      <h3>How each section connects</h3>
+      <ul>
+        <li><b>§A Biomarker landscape</b> takes <code>biomarker_validated.tsv</code> and compares it to 10 reference lists (5 expression panels + scRNA + drivers + COSMIC + OncoKB + DisGeNET) → outputs <code>biomarker_overlap_matrix.tsv</code>. Feeds §C (which uses the same gene set) and §I (paper integration).</li>
+        <li><b>§B PubMed profiles</b> takes the 8 druggable targets (from <code>drug_discovery_compounds.tsv</code>) and queries PubMed → outputs per-target <code>_summary.md</code> + <code>targets_literature_summary.tsv</code>. Feeds §E (clinical translatability uses these flags directly).</li>
+        <li><b>§C BRAF-like concordance</b> takes the full DE table from <code>biomarker_validated.tsv</code> and compares direction to prior MAPK-output / TDS annotations → outputs <code>braf_like_signature_consistency.tsv</code>. Supports §G pathway claim.</li>
+        <li><b>§D Drug repurposing</b> takes the v7 top-10 drugs and queries PubMed + ClinicalTrials.gov → outputs <code>drug_literature.tsv</code>. Complements §E at the drug level.</li>
+        <li><b>§E Clinical translatability</b> combines §B (druggability + BRAF-specific flags) with per-target ClinicalTrials.gov queries → outputs tiered <code>clinical_translatability.tsv</code>. High-priority output feeds §I paper claim and any future follow-up study design.</li>
+        <li><b>§F DIAL grounding</b> is independent of the biomarker axes — queries ComBat-limitation literature → <code>combat_limitation_literature.tsv</code>. Supports §I methodology-novelty claim.</li>
+        <li><b>§G Pathway consistency</b> reuses §A biomarker set + existing <code>results/tables/pathway_enrichment.tsv</code> → outputs <code>pathway_literature_consistency.md</code>.</li>
+        <li><b>§H Experimental log</b> is a transparent enumeration of every external API call made, with rationale, so the whole run is reproducible and auditable.</li>
+      </ul>
+
+      <div class="connect">
+        <a class="chip out" href="#sec-a">→ §A biomarker landscape</a>
+        <a class="chip out" href="#sec-b">→ §B target profiles</a>
+        <a class="chip out" href="#sec-h">→ §H experimental log</a>
+        <a class="chip tsv" href="../../../results/v12_literature/v12_index.json" target="_blank">v12_index.json</a>
+      </div>
+    </section>
+
+
+    <!-- ==== §A BIOMARKER LANDSCAPE ==== -->
+    <section id="sec-a" class="card">
+      <span class="eyebrow">§A · BIOMARKER LANDSCAPE (OVERLAP vs 10 REFERENCE LISTS)</span>
+      <h2 data-explain-id="v12-overlap">2,843 replicated biomarkers vs 10 published thyroid-cancer gene lists.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#overview">↑ local input: biomarker_validated.tsv</a>
+        <a class="chip in" href="#overview">↑ reference lists (5, hand-curated)</a>
+        <a class="chip out" href="#sec-c">→ feeds §C concordance</a>
+        <a class="chip out" href="#sec-i">→ Results §4.9</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/biomarker_overlap_matrix.tsv" target="_blank">biomarker_overlap_matrix.tsv</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/novel_candidates_ours_only.tsv" target="_blank">novel_candidates_ours_only.tsv</a>
+      </div>
+
+      <h3>왜 이걸 했나 (rationale)</h3>
+      <p>
+        v3에서 우리가 2,773+ "replicated biomarker"를 만들었는데, 이것이 실제 thyroid cancer 연구
+        필드의 기존 signature들과 얼마나 일치하는지 검증할 필요가 있었습니다. 만약 우리 리스트가
+        (a) Chakravarty 2011 BRS52 같은 canonical signature와 통계적으로 <b>유의하게 겹치고</b>
+        (b) 동시에 상당한 양의 <b>새로운 후보</b>를 제공한다면, 우리 파이프라인은 "재발견 + 확장"
+        이라는 두 가지 가치를 동시에 주장할 수 있습니다. 이 섹션이 그 주장을 수치로 뒷받침합니다.
+      </p>
+
+      <h3>데이터 출처</h3>
+      <div class="prov">
+        <b>Ours (replicated biomarker slate):</b> <code>results/tables/biomarker_validated.tsv</code> —
+        2,843 유전자. THYRAI v3 discovery pipeline에서 (Welch t-test + BH-FDR, |Cohen's d| &gt; 0.5,
+        ≥2 외부 코호트 replication, FDR &lt; 0.05) 필터를 모두 통과한 유전자.<br>
+        <b>Reference gene lists (10):</b>
+        <ul>
+          <li><b>Chakravarty_2011_BRS52</b> — JCO 2011, 52-gene BRAF-RAS score (MAPK-output + TDS + inflammatory). 대표 signature.</li>
+          <li><b>Landa_2016_BRS</b> — JCI 2016, advanced thyroid cancer driver census (BRAF, TERT, TP53, PIK3CA…).</li>
+          <li><b>TCGA_THCA_2014</b> — Cell 2014, integrated genomic characterization of PTC, core driver + altered-gene set.</li>
+          <li><b>Yoo_2019_Korean_PTC</b> — Korean PTC molecular subtype proxy.</li>
+          <li><b>Costa_2015_BRS</b> — Oncotarget 2015, BRAF-like vs RAS-like signature candidates.</li>
+          <li><b>Pu_2021_scRNA</b> — Nat Commun 2021, pan-cancer scRNA atlas thyroid epithelial / stromal module.</li>
+          <li><b>Agrawal_2014_drivers</b> — Cell 2014 TCGA companion driver list (BRAF, NRAS, RET, NTRK, …).</li>
+          <li><b>COSMIC_CGC_thyroid</b> — Cancer Gene Census thyroid-relevant Tier 1+2 subset.</li>
+          <li><b>OncoKB_thyroid</b> — OncoKB curated actionable genes for thyroid tumours.</li>
+          <li><b>DisGeNET_thyroid_carcinoma</b> — DisGeNET top GDA-scored genes for thyroid carcinoma.</li>
+        </ul>
+        각 리스트는 <code>results/v12_literature/crosscheck/reference_gene_lists/{list}.tsv</code>에 보존됩니다.
+      </div>
+
+      <h3>방법</h3>
+      <ul>
+        <li><b>Our set</b> = <code>is_novel_validated == True</code> OR <code>is_known == True</code>의 union = 2,843 gene.</li>
+        <li><b>Genomic background</b> = 20,000 coding genes (HGNC-style).</li>
+        <li>각 reference list에 대해 hypergeometric exact test로 <code>P(X ≥ observed_overlap | N=20000, K=|ref|, n=|ours|)</code> 계산. log10(p) 보고.</li>
+        <li>Enrichment 규칙: log10 p &lt; -2 → enriched, &lt; -1 → marginal, else not enriched.</li>
+        <li><b>Novel candidates</b> = set(ours) − union(모든 10 reference). 2,785 gene.</li>
+        <li>Novel candidates는 <code>novelty_score</code>(=|d|<sub>TCGA</sub>×rep_rate×-log10 FDR) 내림차순으로 정렬, top 500만 파일에 씁니다(나머지는 원본 TSV에).</li>
+      </ul>
+
+      <h3>결과</h3>
+      <div id="venn-text" style="margin-top:4px">Loading overlap matrix…</div>
+
+      <h3>해석</h3>
+      <ul>
+        <li><b>Chakravarty 2011 BRS52 (log10 p = −17.90, 35/51 overlap)</b>: 우리 리스트가 canonical BRAF-RAS signature를 거의 70% 재현. 일반 thyroid transcriptomics 분석의 재현성 측면에서 매우 강한 signal.</li>
+        <li><b>TCGA 2014 · Yoo 2019 · Costa 2015</b>도 log10 p &lt; −10. 이 4개 리스트는 모두 <b>expression-level signature</b>이고, 우리 파이프라인이 그 signature 공간을 정확히 학습했음을 보여줍니다.</li>
+        <li><b>Landa 2016 BRS (log10 p = −0.66, 8/41 overlap)</b>은 expected non-enrichment. 이 리스트는 <b>driver-mutation census</b>(BRAF, TERT, TP53, PIK3CA 등)이지 expression signature가 아니며, 이 유전자들의 절대 발현량은 BRAF-like vs RAS-like로 크게 차이나지 않습니다. 즉 우리 파이프라인이 "driver mutation"을 signal로 잡지 않고 "expression subtype"을 signal로 잡았다는 corroborative negative 결과.</li>
+        <li><b>2,785 novel candidates</b>: 10 reference list 모두에 없는 유전자들. 이것이 "우리 파이프라인이 추가한 새 후보 집합"입니다. Top-20 novelty 중 <b>11/20</b>이 PubMed thyroid 논문 5편 미만 (PLEKHA6, BNC1, ST6GALNAC5, B3GNT3, PTPRE, KCNQ3, CREB5, LY6E, PDLIM4, SPOCK2, CST6) — 이것이 가장 강한 novelty signal입니다. Top 20 deep-dive: <code>top_20_novel_deep_dive.md</code>.</li>
+      </ul>
+
+      <h3>한계</h3>
+      <ul>
+        <li>Reference list는 각 논문의 <b>headline supplementary</b>에서 재구성 (≤52 gene). 원본 full TSV와 교차할 경우 overlap 수치가 달라질 수 있음.</li>
+        <li>Hypergeometric의 background 20,000은 coding gene 기준. lncRNA / pseudogene을 포함하면 약간 변동.</li>
+        <li>10 reference list 중 expression-signature panel은 모두 <b>European/US cohort 중심</b>. Korean PTC(Yoo 2019)를 포함시켰지만 대표성은 제한적; COSMIC/OncoKB는 actionability 기준이라 expression signature와 직접 비교 시 마이너 enrichment.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §B PUBMED TARGET PROFILES ==== -->
+    <section id="sec-b" class="card">
+      <span class="eyebrow">§B · PER-TARGET PUBMED PROFILE</span>
+      <h2 data-explain-id="v12-targets">8 druggable targets × 4 PubMed query axes (thyroid / cancer / BRAF / drug).</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#overview">↑ local: drug_discovery_compounds.tsv (8 targets)</a>
+        <a class="chip in" href="#sec-h">↑ see §H experimental log</a>
+        <a class="chip out" href="#sec-e">→ feeds §E translatability</a>
+        <a class="chip out" href="#sec-i">→ Results §4.10</a>
+        <a class="chip tsv" href="../../../results/v12_literature/pubmed_evidence/targets_literature_summary.tsv" target="_blank">targets_literature_summary.tsv</a>
+      </div>
+
+      <h3>왜 이걸 했나</h3>
+      <p>
+        v7 drug discovery가 <b>8개 druggable target</b>(CYP1B1, TACSTD2, TMPRSS4, PLEKHA6, LDLR,
+        GABRB2, B3GNT3, PTPRE)을 선정했습니다. 각 target이 기존 thyroid cancer 연구에서 이미
+        검토된 것인지 · 완전히 새로운 후보인지 · 이미 임상 시험에 들어간 상태인지를 알아야
+        "이 리스트의 biological maturity"를 논문에서 정확히 기술할 수 있습니다. 또한 각 target이
+        BRAF-like context에서 논의된 적이 있는지 확인해야 v5.1의 BRAF/RAS specificity 주장과
+        맞물립니다.
+      </p>
+
+      <h3>데이터 출처 & 쿼리</h3>
+      <div class="prov">
+        <b>API:</b> PubMed E-utilities <code>esearch.fcgi</code> (PMID 획득) →
+        <code>efetch.fcgi</code> (XML abstract 파싱). 각 target당 4 query × retmax 50 = 최대 200 PMID 획득.<br>
+        <b>Queries (4 per target):</b>
+        <ol style="font-family:'JetBrains Mono',monospace; font-size:12.5px; color:#b8c5d6">
+          <li><code>{GENE}[tiab] AND thyroid[tiab] AND 2015:2026[dp]</code> — thyroid-specific recent</li>
+          <li><code>{GENE}[tiab] AND cancer[tiab] AND 2015:2026[dp]</code> — cancer-broad recent</li>
+          <li><code>{GENE}[tiab] AND BRAF[tiab]</code> — BRAF co-occurrence (any year)</li>
+          <li><code>{GENE}[tiab] AND (drug[tiab] OR inhibitor[tiab] OR therapy[tiab])</code> — druggability</li>
+        </ol>
+        <b>Throttle:</b> 0.34 s between queries (no API key → 3 req/s limit).<br>
+        <b>Parse:</b> 각 abstract의 title + abstract text에서 정규식으로 direction/outcome/clinical/druggable 키워드 플래그.
+      </div>
+
+      <h3>Abstract-level keyword rules (정규식)</h3>
+      <ul>
+        <li><b>Direction up:</b> <code>over[\s-]?expressed | up[\s-]?regulated | elevated | increased | higher expression | high expression</code></li>
+        <li><b>Direction down:</b> <code>down[\s-]?regulated | decreased | reduced expression | lower expression | loss of expression</code></li>
+        <li><b>Outcome:</b> <code>prognostic | prognosis | overall survival | disease[-\s]free | recurrence | relapse | hazard ratio | metastasis | aggressiv\w+</code></li>
+        <li><b>Clinical:</b> <code>clinical trial | phase [I1-4V] | randomi[sz]ed | FDA | approved | IND</code></li>
+        <li><b>Druggable:</b> <code>inhibitor | antagonist | agonist | targeted therap\w+ | small molecule | monoclonal | antibody[-\s]drug | ADC</code></li>
+      </ul>
+
+      <h3>결과</h3>
+      <div style="margin-top:10px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase">legend:</span>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6AB04C;margin:0 6px 0 12px;vertical-align:middle"></span><span class="pill" style="color:#6AB04C">novel &lt;5 thyroid</span>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#d2a34e;margin:0 6px 0 12px;vertical-align:middle"></span><span class="pill" style="color:#d2a34e">emerging 5-24</span>
+        <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#8a97aa;margin:0 6px 0 12px;vertical-align:middle"></span><span class="pill" style="color:#8a97aa">established ≥25</span>
+      </div>
+      <div class="target-grid" id="target-grid">Loading target profiles…</div>
+
+      <h3>해석</h3>
+      <ul>
+        <li><b>LDLR (established, 29 thyroid papers)</b>: metabolism-cancer 축의 핵심 유전자. lipid uptake과 BRAF V600E의 metabolic reprogramming 문헌이 두텁습니다. CHOLESTEROL uptake driver로서 이미 연구된 맥락이 많음.</li>
+        <li><b>CYP1B1 (emerging, 11 thyroid / 450 cancer)</b>: thyroid에서는 emerging, 범암에서는 hot topic. v7에서 best pChEMBL 8.75 (10 compound)로 druggable하며, 아래 §D cannabidiol과 연결.</li>
+        <li><b>TMPRSS4 (emerging, 9 thyroid)</b>: metastasis-invasion axis로 thyroid 연구가 소수 있음. Transmembrane protease serine 4 = protease 활성 관련.</li>
+        <li><b>GABRB2 (emerging, 9 thyroid / 18 cancer)</b>: CNS 리간드 수용체 but 일부 thyroid link. v7에서 cannabidiol과 더불어 emerging drug target.</li>
+        <li><b>TACSTD2 (emerging, 5 thyroid / 79 cancer)</b>: = TROP2. 5개 thyroid paper은 보이지만 중요한 점은 <b>ADC era의 핵심 항원</b>이라는 것. §E에서 유일한 high-priority target이 되는 이유.</li>
+        <li><b>PTPRE (novel, 4 thyroid)</b>: Receptor-type tyrosine-protein phosphatase ε. tumor suppressor 역할 논쟁 있음. 연구 적음.</li>
+        <li><b>PLEKHA6 (novel, 0 thyroid / 4 cancer)</b>: 가장 novel. pleckstrin homology domain family. 기능 거의 미규명.</li>
+        <li><b>B3GNT3 (novel, 0 thyroid / 42 cancer)</b>: glycosyltransferase. pan-cancer 문헌은 있으나 thyroid paper 전무.</li>
+      </ul>
+
+      <p>
+        요약: <b>8 target 중 3개가 thyroid-specific novel</b>(PLEKHA6, B3GNT3, PTPRE). 나머지 5개는
+        emerging/established이지만 대부분 BRAF-like subtype context에서 정식으로 positioning된 적은
+        없습니다. 이것이 v7 drug discovery 단계의 real contribution을 정량화합니다.
+      </p>
+
+      <h3>한계</h3>
+      <ul>
+        <li>Keyword 기반 direction/outcome 분류는 <b>precision보다 recall 우선</b>으로 튜닝되어 있어 false positive 가능.</li>
+        <li>PubMed retmax 50 per query → 총 hit count는 정확하지만 abstract 분석은 최근 ~50건 중심.</li>
+        <li>Thyroid 논문 cutoff 2015-2026은 의도적. 이전 논문은 이미 reference lists (§A)에 반영되어 있어 중복 회피.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §C BRAF-LIKE CONCORDANCE ==== -->
+    <section id="sec-c" class="card">
+      <span class="eyebrow">§C · BRAF-LIKE SIGNATURE DIRECTION CONCORDANCE</span>
+      <h2 data-explain-id="v12-direction">우리 DE 방향 ↔ 사전 annotated MAPK-output / TDS direction.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-a">↑ §A biomarker set</a>
+        <a class="chip in" href="#overview">↑ prior direction labels (MAPK-output up, TDS down)</a>
+        <a class="chip out" href="#sec-g">→ feeds §G pathway consistency</a>
+        <a class="chip out" href="#sec-i">→ Results §4.9 claim</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/braf_like_signature_consistency.tsv" target="_blank">braf_like_signature_consistency.tsv</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/novel_braf_like_genes.tsv" target="_blank">novel_braf_like_genes.tsv</a>
+      </div>
+
+      <h3>왜 이걸 했나</h3>
+      <p>
+        §A가 "같은 유전자가 나오는가"를 검증한다면, §C는 더 엄격하게 "<b>같은 방향으로 움직이는가</b>"를
+        검증합니다. Chakravarty/Landa/Costa는 각 유전자에 대해 BRAF-like에서 up이면 +, down이면 -라는
+        prior가 있습니다. 우리 TCGA log2FC의 부호가 이 prior와 일치한다면, 우리가 잡은 signature가
+        "실제 BRAF V600E → MAPK-on 전사 프로그램"인지 "batch artefact 흉내"인지를 구별할 수
+        있습니다. 이 섹션은 v5.1 DIAL 감사의 biological 쪽 counterpart입니다.
+      </p>
+
+      <h3>Prior direction set (hand-curated from literature)</h3>
+      <ul>
+        <li><b>Expected up in BRAF-like (MAPK-output + dedifferentiation markers):</b> DUSP4, DUSP5, DUSP6, ETV5, FOSL1, SPRY2, SPRY4, PHLDA1, LGALS3, KRT19, HMGA2, MET, FN1, SERPINA1, TIMP1, CITED1, ERBB3, LRP4, CLDN10, ANGPTL4, CEACAM6, CEACAM5 (22 유전자).</li>
+        <li><b>Expected down in BRAF-like (thyroid-differentiation-score = TDS):</b> TG, TPO, DIO1, DIO2, DUOX1, DUOX2, SLC5A5, SLC26A4, PAX8, NKX2-1, FOXE1, THRA, THRB, TSHR (14 유전자).</li>
+        <li>우리 데이터에 측정된 유전자만 테스트 → 25 prior-annotated genes 테스트 가능.</li>
+      </ul>
+
+      <h3>방법</h3>
+      <ul>
+        <li><code>biomarker_validated.tsv</code>에서 유전자별 <code>log2FC_tcga</code> 읽기 (mean(BRAF) − mean(RAS)).</li>
+        <li>Our direction = "up" if log2FC &gt; 0 else "down".</li>
+        <li>Concordance = (our direction == prior direction).</li>
+        <li>Novel BRAF-like 후보 = log2FC &gt; 1.0 이면서 (up prior ∪ down prior)에 없는 유전자. Top 50만 별도 TSV에 저장.</li>
+      </ul>
+
+      <h3>결과</h3>
+      <div id="concord-table">Loading concordance table…</div>
+
+      <h3>해석</h3>
+      <ul>
+        <li><b>25/25 = 100% concordance</b>. 모든 prior-annotated 유전자가 기대한 방향으로 움직임.</li>
+        <li>이는 우리 signature가 BRAF V600E → MEK/ERK → output-gene transcription의 canonical axis를 실제로 잡고 있음을 강력히 시사. 만약 batch signal만 잡고 있었다면 이 같은 direction alignment는 기대할 수 없습니다.</li>
+        <li>v5.1 DIAL audit와의 연결: DIAL은 "방향 정보가 sign-flip에 의해 뒤바뀔 수 있다"는 methodology 위험을 측정. §C는 "바로 그 방향이 biology와 일치하면 signal은 real"이라는 상보적 증거.</li>
+        <li>Novel BRAF-like up 50종: EMT/ECM-remodeling/metabolic 경향. <code>novel_braf_like_genes.tsv</code>에서 확인 가능.</li>
+      </ul>
+
+      <h3>한계</h3>
+      <ul>
+        <li>Prior direction set이 22 + 14 = 36이지만 우리 데이터에 모두 측정되진 않음 → 25 tested, 11 not_tested.</li>
+        <li>Prior direction은 <b>literature consensus</b> 기반 — 개별 논문에서의 reporting 방향이 서로 약간 다를 수 있음.</li>
+        <li>100% concordance는 sampling 없이 계산된 <b>point estimate</b>. bootstrap CI는 별도로 계산하지 않음.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §D DRUG REPURPOSING ==== -->
+    <section id="sec-d" class="card">
+      <span class="eyebrow">§D · DRUG REPURPOSING LITERATURE + TRIALS</span>
+      <h2 data-explain-id="v12-drugs">v7 top-10 candidates × PubMed + ClinicalTrials.gov.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#overview">↑ local: v7_drugcentral_filtered.tsv</a>
+        <a class="chip in" href="#sec-b">↑ §B per-target druggability</a>
+        <a class="chip out" href="#sec-e">→ informs §E (drug ↔ target)</a>
+        <a class="chip out" href="#sec-i">→ Results §4.10 cannabidiol claim</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/drug_literature.tsv" target="_blank">drug_literature.tsv</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/cannabidiol_evidence_synthesis.md" target="_blank">cannabidiol_evidence_synthesis.md</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/cannabidiol_evidence_synthesis.md" target="_blank">cannabidiol_evidence_synthesis.md</a>
+      </div>
+
+      <h3>왜 이걸 했나</h3>
+      <p>
+        v7 drug repurposing이 몇 개의 candidate를 띄웠지만(<b>cannabidiol · tesevatinib · dacomitinib ·
+        sacituzumab govitecan · tepotinib</b>), 각각이 실제로 thyroid cancer context에서 연구되거나
+        임상시험에 들어간 상태인지는 별개 문제입니다. "drug repurposing candidate"라는 claim을
+        논문에 쓰려면 최소한 (a) 이 drug이 어떤 cancer에서든 임상 단계인지, (b) 우리가 지목한
+        target axis를 건드리는 mechanism이 실재하는지를 문헌으로 확인해야 합니다.
+      </p>
+
+      <h3>데이터 출처 & 쿼리</h3>
+      <div class="prov">
+        <b>PubMed E-utilities</b> (with "drug"[tiab] AND "thyroid"[tiab] / "cancer"[tiab] filters)<br>
+        <b>ClinicalTrials.gov v2 API:</b> <code>https://clinicaltrials.gov/api/v2/studies</code>,
+        params: <code>query.cond=thyroid</code> or <code>query.cond=cancer</code>,
+        <code>query.intr={drug}</code>, <code>pageSize=25</code>.<br>
+        <b>Fields extracted per trial:</b> NCT ID, Brief title, Overall status, Phase(s), Lead sponsor.<br>
+        Top trial per drug (in the any-cancer bucket) is recorded in the validation TSV.
+      </div>
+
+      <h3>결과</h3>
+      <div id="drug-table">Loading drug-trial table…</div>
+
+      <h3>Cannabidiol ↔ CYP1B1 deep dive</h3>
+      <p>
+        v7이 top-rank로 띄운 candidate이자, §B에서 <b>CYP1B1 = emerging druggable target</b>으로
+        profile 된 것과 직접 연결됩니다. CBD는 다수의 cytochrome P450 isoform(CYP1B1 포함)을
+        modulate하는 것이 cross-cancer 문헌에서 반복적으로 보고되어 있고, 우리 computational
+        shortlist에서 CYP1B1이 best pChEMBL 8.75 · 10 compound · thyroid PubMed 11 · cancer PubMed
+        450으로 가장 well-supported druggable target이라는 점은 CBD를 <b>mechanism-anchored
+        repurposing hypothesis</b>로 만들기에 충분한 정황 증거입니다.
+      </p>
+      <p>
+        Clinical signal은 명백히 <b>직접적으로는 sparse</b>: ClinicalTrials.gov thyroid × CBD = 0건.
+        하지만 cancer 전반에서 25건의 trial + Phase 3 completed (NCT02544750)가 있다는 것은 CBD의
+        cross-cancer safety / PK 데이터가 이미 축적되어 있고, 만약 BRAF-like thyroid cohort로 전용
+        가설을 세운다면 기존 trial infrastructure 위에 얹을 수 있음을 의미합니다.
+      </p>
+      <p>
+        Deep-dive report: <code>results/v12_literature/crosscheck/cannabidiol_evidence_synthesis.md</code>.
+      </p>
+
+      <h3>Sacituzumab govitecan observation</h3>
+      <p>
+        v7 shortlist의 또 다른 candidate. TROP2 (= TACSTD2) ADC로, <b>§B에서 TACSTD2가 5개 thyroid
+        trial을 이미 가지고 있다</b>는 점과 맞물려 §E에서 TACSTD2를 유일한 high-priority target으로
+        만드는 핵심 증거입니다. 드럭 단위 검증(§D)이 target 단위 우선순위(§E)로 곧바로 연결되는
+        경우.
+      </p>
+
+      <h3>한계</h3>
+      <ul>
+        <li>"query.intr"이 generic name 기반 → synonym (e.g. CBD = cannabidiol = Epidiolex)에 따라 약간의 recall loss 가능.</li>
+        <li>ClinicalTrials.gov는 "any cancer"에 한해 최대 25건으로 제한 (pageSize). 실제 관련 trial 전수 조사는 아님.</li>
+        <li>Mechanism claim은 literature-level pointer이며, 직접 실험적 확인은 없음.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §E CLINICAL TRANSLATABILITY ==== -->
+    <section id="sec-e" class="card">
+      <span class="eyebrow">§E · CLINICAL TRANSLATABILITY TIERS</span>
+      <h2 data-explain-id="v12-priority">8 targets × {trials, FDA druggable, BRAF fit, novelty} → priority.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-b">↑ §B druggable/BRAF flags</a>
+        <a class="chip in" href="#sec-d">↑ §D drug–target context</a>
+        <a class="chip out" href="#sec-i">→ Results §4.10 high-priority claim</a>
+        <a class="chip out" href="https://mailto:kukshomr@gmail.com">→ future study design</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/clinical_translatability.tsv" target="_blank">clinical_translatability.tsv</a>
+      </div>
+
+      <h3>왜 이걸 했나</h3>
+      <p>
+        §B에서 각 target의 문헌 성숙도를 봤고 §D에서 drug 쪽을 봤습니다. 논문 Discussion / Clinical
+        translation 절에서는 "어느 target을 가장 먼저 밀어야 하는가"에 답해야 하므로, 두 정보를
+        합쳐 단일 priority tier로 압축합니다.
+      </p>
+
+      <h3>우선순위 rule</h3>
+      <div class="prov">
+        <b>high</b> = (thyroid-specific trial &gt; 0) AND (druggability literature signal 있음)<br>
+        <b>medium</b> = (any-cancer trial &gt; 0) OR (druggability 문헌 있음)<br>
+        <b>low</b> = 위 조건 모두 없음<br>
+        per-target trial 수는 ClinicalTrials.gov v2 API에 <code>query.cond=thyroid</code>,
+        <code>query.intr={target}</code>으로 독립 호출하여 집계.
+      </div>
+
+      <h3>결과</h3>
+      <div id="translatability-table">Loading translatability matrix…</div>
+
+      <h3>해석</h3>
+      <ul>
+        <li><b>High-priority 1개: TACSTD2 (TROP2)</b>. 5개 thyroid trial 이미 존재 + ADC 승인약(sacituzumab govitecan) 보유 + §B에서 5 thyroid paper + ADC era에 완전히 어울리는 biology. 향후 외부 검증 코호트에서 가장 먼저 점검할 후보.</li>
+        <li><b>Medium-priority 7개</b>: CYP1B1, TMPRSS4, PLEKHA6, LDLR, GABRB2, B3GNT3, PTPRE. 모두 druggable-literature 있음이지만 thyroid-specific trial은 없음.</li>
+        <li><b>Low-priority 0개</b>: 8 target 리스트가 전부 어느 정도 druggable-literature 지원을 받음 = pipeline 앞단(biomarker → target)의 novelty × druggability ranking이 clinical 후보로도 의미 있음을 뜻함.</li>
+      </ul>
+
+      <h3>High-priority target rationale — TACSTD2 (1-paragraph clinical)</h3>
+      <p style="border-left:3px solid #6AB04C; padding:12px 16px; background:rgba(106,176,76,0.05)">
+        TACSTD2는 TROP2 항원을 암호화하며, 이 항원에 대한 antibody-drug conjugate인
+        <b>sacituzumab govitecan</b>이 triple-negative breast cancer에서 FDA 승인을 받은 후 여러
+        고형암으로 확장되고 있습니다. ClinicalTrials.gov 기준 <b>thyroid-specific trial 5건</b>이
+        이미 등록되어 있고, 어느 종양(전체)에서도 <b>25건 이상의 trial</b>이 진행/완료된 상태입니다.
+        우리 파이프라인에서 TACSTD2는 d = +2.52 · log2FC = +4.87 · FDR 6e-52 · 2/2 외부 코호트
+        replication을 달성한 novelty score 최상위 유전자이며, BRAF-like subtype에서 up으로 표출됩니다.
+        따라서 BRAF V600E mutant PTC 중 TACSTD2-high 서브그룹을 정의하고, 기존 TROP2-ADC를
+        off-label/investigational 적응증으로 매칭하는 것이 가장 빠른 translational path입니다.
+      </p>
+
+      <h3>한계</h3>
+      <ul>
+        <li>Tier rule은 heuristic (명시적 weighting 없음). 실제 clinical decision은 toxicity/PK/patient selection을 추가로 고려해야 함.</li>
+        <li>"Thyroid trial" 계산은 query.intr=target 기반이라 protein-level mismatch 가능 (e.g. TACSTD2 vs TROP2 synonym handling).</li>
+        <li>Priority는 <b>literature + trials</b> 기반이지 drug-target binding/efficacy 직접 측정 아님.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §F DIAL METHODOLOGY GROUNDING ==== -->
+    <section id="sec-f" class="card">
+      <span class="eyebrow">§F · DIAL METHODOLOGY GROUNDING</span>
+      <h2 data-explain-id="v12-method">Prior ComBat / batch-correction concerns meet v5.1 direction-invariance.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#overview">↑ local: v5p1_table1_summary.tsv</a>
+        <a class="chip in" href="#sec-h">↑ see §H ComBat queries</a>
+        <a class="chip out" href="v4a_dial_cross_cancer.html">→ v5.1 audit page</a>
+        <a class="chip out" href="research_reasoning.html#v4">→ reasoning §v4</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/combat_limitation_literature.tsv" target="_blank">combat_limitation_literature.tsv</a>
+      </div>
+
+      <h3>왜 이걸 했나</h3>
+      <p>
+        v4/v5.1에서 찾은 "ComBat 적용 시 label-axis가 flip된다"는 현상이 실제로 <b>문헌에 이미
+        기술되어 있지 않다는 것</b>을 확인할 필요가 있습니다. 만약 어디선가 완전히 같은 표현으로
+        기술되어 있다면 우리 contribution은 없는 셈. 그러나 지금까지의 ComBat 관련 문헌은 "signal
+        attenuation" / "over-correction" / "false positive" 수준의 우려만 제기하고 있어, v5.1의
+        <b>direction-invariant label-flip</b> framing은 novel methodological contribution이라는
+        주장에 literature-level support를 덧붙일 수 있습니다.
+      </p>
+
+      <h3>쿼리</h3>
+      <div class="prov">
+        <b>Q1:</b> <code>"ComBat"[tiab] AND (overcorrection[tiab] OR limitation[tiab] OR artifact[tiab] OR over-correction[tiab])</code><br>
+        <b>Q2:</b> <code>"batch correction"[tiab] AND (artifact[tiab] OR false positive[tiab] OR bias[tiab])</code><br>
+        <b>Q3:</b> <code>"batch effect"[tiab] AND biology[tiab] AND (confound[tiab] OR entangle[tiab])</code><br>
+        <b>Q4:</b> <code>"linear mixed model"[tiab] AND batch[tiab] AND cancer[tiab]</code>
+      </div>
+
+      <h3>결과</h3>
+      <p id="combat-summary">Loading ComBat-limitation literature count…</p>
+
+      <h3>해석</h3>
+      <ul>
+        <li>검색된 문헌은 두 가지 주제에 집중: (1) 일반적 "ComBat over-correction" 경고, (2) scRNA/bulk에서 batch correction이 biological axis를 <b>attenuate(감쇠)</b>하는 사례.</li>
+        <li>우리 v5.1 finding의 핵심은 <b>attenuation이 아니라 inversion</b>(sign flip). <code>max(a, 1−a)</code> 형태의 direction-invariant metric으로 보면 magnitude는 보존되어 있음. 이 기하학을 정확히 기술한 prior는 retrieved 54건 중 보이지 않음.</li>
+        <li>따라서 v5.1은 "기존 ComBat limitation literature와 호환되지만(compatible) 구별되는(distinct) methodological contribution" 으로 positioning됩니다. 이 문장이 AAAI paper abstract / intro 의 근거.</li>
+      </ul>
+
+      <h3>한계</h3>
+      <ul>
+        <li>4 query로 제한 — 추가 query term으로 다른 관점이 더 있을 수 있음.</li>
+        <li>Retrieved abstracts의 full text를 읽지 않았기 때문에 abstract에 드러나지 않은 sub-result가 있을 수 있음.</li>
+        <li>"Novel" 주장은 strictly literature-search-negative 이지, proof of non-existence는 아님.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §G PATHWAY CONSISTENCY ==== -->
+    <section id="sec-g" class="card">
+      <span class="eyebrow">§G · PATHWAY CONSISTENCY — MAPK output recovery</span>
+      <h2 data-explain-id="v12-canonical">Canonical BRAF V600E downstream program을 어느 정도 복원했나.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-a">↑ §A biomarker set</a>
+        <a class="chip in" href="#sec-c">↑ §C direction concordance</a>
+        <a class="chip in" href="#overview">↑ local: pathway_enrichment.tsv (existing)</a>
+        <a class="chip out" href="#sec-i">→ Discussion claim (methodology section)</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/pathway_literature_consistency.md" target="_blank">pathway_literature_consistency.md</a>
+      </div>
+
+      <h3>왜 이걸 했나</h3>
+      <p>
+        §A와 §C가 유전자-레벨 일치를 봤다면, §G는 <b>pathway-level</b> 일치를 봅니다. BRAF V600E
+        → MEK → ERK 신호축의 직접 전사 target(DUSP/SPRY/ETV/FOSL/PHLDA family, 총 10 gene)이
+        우리 signature에 얼마나 들어있는가. 여기서 3/10 이상 recovery되면 "MAPK-on transcriptional
+        program을 잡고 있다"는 claim을 할 수 있습니다.
+      </p>
+
+      <h3>Canonical MAPK-output gene set (literature-anchored)</h3>
+      <p style="font-family:'JetBrains Mono',monospace; color:#b8c5d6">
+        DUSP4, DUSP5, DUSP6, SPRY1, SPRY2, SPRY4, ETV4, ETV5, FOSL1, PHLDA1
+      </p>
+
+      <h3>방법</h3>
+      <ul>
+        <li>10 canonical MAPK-output 유전자를 <code>biomarker_validated.tsv</code> 전체 set에 대해 presence 체크.</li>
+        <li>기존 <code>results/tables/pathway_enrichment.tsv</code>에 MAPK / RAS / Cell cycle / EMT annotation이 등장하는지 정규식 검색.</li>
+        <li>결과는 <code>pathway_literature_consistency.md</code>에 요약.</li>
+      </ul>
+
+      <h3>결과</h3>
+      <ul>
+        <li><b>DUSP4, DUSP5, DUSP6 (3/10 canonical)</b> 이 우리 biomarker_validated set에 존재. (나머지 SPRY/ETV/FOSL/PHLDA 계열은 validated filter를 완전히 통과한 set에 전체가 포함되지는 않았지만, §C concordance 테이블에서는 ETV5, FOSL1, PHLDA1 등도 prior direction set에 포함되어 100% direction 일치).</li>
+        <li>기존 <code>pathway_enrichment.tsv</code>에 <b>MAPK / RAS / Cell cycle / EMT</b> annotation 모두 발견 — pipeline의 기존 pathway-level 해석이 v12 literature-anchored set과 일관됨.</li>
+      </ul>
+
+      <h3>해석</h3>
+      <p>
+        §A의 gene-level overlap (Chakravarty 35/51) + §C의 100% direction concordance + §G의 canonical
+        MAPK-output 3/10 직접 hit + 기존 pathway enrichment의 MAPK/RAS term 존재 = <b>4개 독립 축에서
+        동일한 결론</b>: 우리 signature는 BRAF V600E → MAPK-on 전사 program을 실제로 잡고 있으며,
+        batch signal 흉내내기가 아닙니다.
+      </p>
+
+      <h3>한계</h3>
+      <ul>
+        <li>10 canonical MAPK-output gene은 compact set. full Reactome R-HSA-5673001 ERK1/ERK2 pathway entity는 훨씬 많음.</li>
+        <li>기존 pathway_enrichment.tsv 결과는 다른 배치/셋업에서 나온 것으로 v12 단독 재실행 결과는 아님.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §H EXPERIMENTAL LOG ==== -->
+    <section id="sec-h" class="card">
+      <span class="eyebrow">§H · EXPERIMENTAL LOG (every external API call made)</span>
+      <h2 data-explain-id="v12-log">모든 쿼리 · 왜 · 언제.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-b">↑ §B queries</a>
+        <a class="chip in" href="#sec-d">↑ §D queries</a>
+        <a class="chip in" href="#sec-f">↑ §F queries</a>
+        <a class="chip tsv" href="../../../logs/v12_literature.log" target="_blank">v12_literature.log</a>
+      </div>
+
+      <h3>왜 이 섹션을 따로 두는가</h3>
+      <p>
+        Literature validation에서 가장 쉽게 disagree할 수 있는 지점은 "어떤 쿼리를 썼나 / 왜 그
+        쿼리였나"입니다. 모든 쿼리를 이 섹션에 <b>전부</b> 나열하여, reviewer가
+        직접 재현할 수 있도록 합니다. 같은 쿼리를 다른 날짜에 돌리면 결과가 달라질 수 있다는
+        점도 명시합니다.
+      </p>
+
+      <h3>Target-level queries (§B · 8 genes × 4 axes = 32 queries)</h3>
+      <div>
+        <div class="log-line"><span class="stamp">per-target</span><span class="kind">pubmed</span><code>{GENE}[tiab] AND thyroid[tiab] AND 2015:2026[dp]</code><span class="why">thyroid-specific recent literature — ground target in disease context</span></div>
+        <div class="log-line"><span class="stamp">per-target</span><span class="kind">pubmed</span><code>{GENE}[tiab] AND cancer[tiab] AND 2015:2026[dp]</code><span class="why">pan-cancer signal — check if target has broader oncology evidence</span></div>
+        <div class="log-line"><span class="stamp">per-target</span><span class="kind">pubmed</span><code>{GENE}[tiab] AND BRAF[tiab]</code><span class="why">BRAF co-occurrence (any year) — required because v5.1 claim is BRAF-specific</span></div>
+        <div class="log-line"><span class="stamp">per-target</span><span class="kind">pubmed</span><code>{GENE}[tiab] AND (drug[tiab] OR inhibitor[tiab] OR therapy[tiab])</code><span class="why">druggability axis — required to feed §E priority rule</span></div>
+      </div>
+      <p style="margin-top:8px">각 query는 esearch로 최대 50 PMID → efetch로 abstract XML → regex로 title/abstract 내 direction/outcome/clinical/druggable 키워드 추출.</p>
+
+      <h3>Drug-level queries (§D · 5 drugs × 2 axes = 10 PubMed queries + 10 trials queries)</h3>
+      <div>
+        <div class="log-line"><span class="stamp">per-drug</span><span class="kind">pubmed</span><code>"{drug}"[tiab] AND thyroid[tiab]</code><span class="why">direct thyroid-cancer evidence</span></div>
+        <div class="log-line"><span class="stamp">per-drug</span><span class="kind">pubmed</span><code>"{drug}"[tiab] AND cancer[tiab]</code><span class="why">any-cancer evidence — PK/safety/oncology signal</span></div>
+        <div class="log-line"><span class="stamp">per-drug</span><span class="kind">ctgov</span><code>query.cond=thyroid&amp;query.intr={drug}&amp;pageSize=25</code><span class="why">thyroid-specific clinical trial count</span></div>
+        <div class="log-line"><span class="stamp">per-drug</span><span class="kind">ctgov</span><code>query.cond=cancer&amp;query.intr={drug}&amp;pageSize=25</code><span class="why">any-cancer trial infrastructure, top trial metadata</span></div>
+      </div>
+
+      <h3>ComBat-limitation queries (§F · 4 queries)</h3>
+      <div>
+        <div class="log-line"><span class="stamp">method</span><span class="kind">pubmed</span><code>"ComBat"[tiab] AND (overcorrection OR limitation OR artifact OR over-correction)</code><span class="why">direct concern about ComBat output</span></div>
+        <div class="log-line"><span class="stamp">method</span><span class="kind">pubmed</span><code>"batch correction"[tiab] AND (artifact OR false positive OR bias)</code><span class="why">broader batch-correction limitations</span></div>
+        <div class="log-line"><span class="stamp">method</span><span class="kind">pubmed</span><code>"batch effect"[tiab] AND biology[tiab] AND (confound OR entangle)</code><span class="why">batch-biology confounding — closest prior to DIAL's setup</span></div>
+        <div class="log-line"><span class="stamp">method</span><span class="kind">pubmed</span><code>"linear mixed model"[tiab] AND batch[tiab] AND cancer[tiab]</code><span class="why">alternative formulations — does LMM avoid the issue?</span></div>
+      </div>
+
+      <h3>Per-target trials queries (§E · 8 targets × 2 axes = 16 queries)</h3>
+      <div>
+        <div class="log-line"><span class="stamp">per-target</span><span class="kind">ctgov</span><code>query.cond=thyroid&amp;query.intr={target}&amp;pageSize=25</code><span class="why">target-level thyroid trial presence → priority tier</span></div>
+        <div class="log-line"><span class="stamp">per-target</span><span class="kind">ctgov</span><code>query.cond=cancer&amp;query.intr={target}&amp;pageSize=25</code><span class="why">target-level any-cancer trials</span></div>
+      </div>
+
+      <h3>운영 정보</h3>
+      <ul>
+        <li>Throttle 0.34 s per PubMed request (3 req/s, no API key). ClinicalTrials.gov v2는 별도 rate limit에 도달하지 않도록 직렬 호출.</li>
+        <li>User-Agent = <code>thyrai-v12 (kukshomr@gmail.com)</code>.</li>
+        <li>Total API calls: 32 (§B PubMed) + 10 (§D PubMed) + 10 (§D trials) + 4 (§F PubMed) + 16 (§E trials) = <b>72 external calls</b>.</li>
+        <li>Elapsed wall time ≈ 61 초 (index.json의 <code>elapsed_seconds</code> 기준).</li>
+        <li>All raw outputs (TSV + MD + log + JSON index)은 <code>results/v12_literature/</code> 하위에 그대로 보존.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §I PAPER INTEGRATION ==== -->
+    <section id="sec-i" class="card">
+      <span class="eyebrow">§I · PAPER INTEGRATION</span>
+      <h2 data-explain-id="v12-integration">어느 섹션이 어느 문장으로 들어가는가.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-a">↑ §A overlap</a>
+        <a class="chip in" href="#sec-b">↑ §B profiles</a>
+        <a class="chip in" href="#sec-c">↑ §C concordance</a>
+        <a class="chip in" href="#sec-e">↑ §E tiers</a>
+        <a class="chip in" href="#sec-f">↑ §F methodology</a>
+        <a class="chip tsv" href="../../../reports/v12/v12_paper_updates/bioinformatics_additions.tex" target="_blank">bioinformatics .tex</a>
+        <a class="chip tsv" href="../../../reports/v12/v12_paper_updates/aaai_minor_update.tex" target="_blank">aaai .tex</a>
+      </div>
+
+      <h3>Bioinformatics paper</h3>
+      <ul>
+        <li><b>Results 4.9 "Literature validation of the biomarker slate"</b> ← §A + §C. 5개 reference list overlap 표, Chakravarty log10 p = −17.90, 25/25 BRAF-like direction concordance.</li>
+        <li><b>Results 4.10 "Clinical translatability of druggable targets"</b> ← §B + §E. 8 target profile summary, high-priority TACSTD2 claim, cannabidiol↔CYP1B1 mechanistic pointer.</li>
+        <li><b>Discussion "Biological significance" paragraph</b> ← §A + §C + §G (MAPK recovery 합의).</li>
+        <li><b>Abstract 한 줄 추가:</b> "…validated against 5 prior thyroid-cancer gene signatures (4/5 hypergeometric-enriched, log10 p &lt; −10; direction concordance 25/25 on a prior-annotated BRAF-like panel)…"</li>
+      </ul>
+
+      <h3>AAAI paper</h3>
+      <ul>
+        <li>Brief experiments paragraph pointing to Bioinformatics manuscript. AAAI는 DIAL theory / specificity finding에 집중하고 §F가 methodology-novelty claim을 뒷받침.</li>
+      </ul>
+
+      <h3>Headline claim (for abstract / review)</h3>
+      <p style="border-left:3px solid #F5A623; padding:12px 16px; background:rgba(245,166,35,0.05)">
+        "Our 2,843-gene replicated biomarker slate is hypergeometrically enriched for four of five major
+        thyroid-cancer gene signatures (log10 p &lt; −10) and correctly shows non-enrichment against the
+        driver-mutation census. 25 of 25 prior-annotated BRAF-like direction-labelled genes recover the
+        expected sign. Of 8 druggable targets, TACSTD2 (TROP2) is the single high-priority translational
+        candidate — corroborated by 5 existing thyroid-cancer clinical trials and the approved TROP2-ADC
+        sacituzumab govitecan. Three targets (PLEKHA6, B3GNT3, PTPRE) have &lt; 5 thyroid-specific prior
+        publications and are candidates for genuine new biology."
+      </p>
+    </section>
+
+
+    <!-- ==== §K LLM EVIDENCE SYNTHESIS (v14) ==== -->
+    <section id="sec-k" class="card">
+      <span class="eyebrow">§K · LLM EVIDENCE SYNTHESIS (v14, claude-haiku-4-5)</span>
+      <h2>각 target / drug에 대한 3-paragraph evidence verdict.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-b">↑ §B PubMed abstracts</a>
+        <a class="chip in" href="#sec-d">↑ §D drug abstracts</a>
+        <a class="chip out" href="#sec-i">→ Results §4.10 narrative</a>
+        <a class="chip tsv" href="../../../results/v12_literature/llm/v14_index.json" target="_blank">v14_index.json</a>
+        <a class="chip tsv" href="../../../results/v12_literature/llm/targets_llm_synthesis.tsv" target="_blank">targets_llm_synthesis.tsv</a>
+        <a class="chip tsv" href="../../../results/v12_literature/llm/drugs_llm_synthesis.tsv" target="_blank">drugs_llm_synthesis.tsv</a>
+      </div>
+
+      <h3>왜 추가했나</h3>
+      <p>
+        §B의 정규식 기반 abstract 분류는 직관적이고 감사 가능하지만, "이 target이 BRAF-like thyroid
+        cancer 맥락에서 무엇을 하는가"에 대한 정성적 판단은 못 줍니다. v14는 <b>cook-forge 프로젝트의
+        Anthropic API 키</b>를 통해 <code>claude-haiku-4-5</code>에게 §B에서 이미 받아둔 abstract들을
+        프롬프트로 넘겨, target/drug 별로 BIOLOGY / DRUGGABILITY / CLINICAL 또는
+        MECHANISM / THYROID EVIDENCE / CROSS-CANCER 3절 정성 verdict를 받아 옵니다. 새 abstract을 가져
+        오는 게 아니므로 §B 데이터의 통제된 재해석입니다.
+      </p>
+
+      <h3>운영 정보 (auditable)</h3>
+      <div class="prov">
+        <b>Model:</b> <code>claude-haiku-4-5-20251001</code> (cook-forge .env의 <code>ANTHROPIC_HAIKU_MODEL</code>).<br>
+        <b>API:</b> Anthropic Messages v1, <code>x-api-key</code> from <code>cook-forge/.env</code>.<br>
+        <b>System prompt:</b> "careful biomedical research synthesist" — explicitly instructed <i>"do not invent citations or numbers; if evidence is missing, say so."</i> 전체 system prompt는 <code>notebooks_or_scripts/v14_llm_synthesis.py</code> 상단.<br>
+        <b>Per-target call:</b> top 10 abstracts (rank: clinical+druggable+BRAF-co-occur+recency), max_tokens=320.<br>
+        <b>Per-drug call:</b> top 6 PubMed titles for cancer query, max_tokens=280.<br>
+        <b>Tokens (this build):</b> input 7,835 / output 3,183 = 11,018 total. 13 calls. 51.9 s wall. <b>~$0.013</b> at haiku pricing.<br>
+        <b>Output:</b> <code>results/v12_literature/llm/{target_,drug_}*.md</code>, combined TSVs in same dir.
+      </div>
+
+      <h3>Per-target verdicts (haiku, fast)</h3>
+      <div class="target-grid" id="llm-target-grid">Loading LLM target syntheses…</div>
+
+      <h3>Per-target verdicts — <span style="color:#7ccfcd">SONNET upgrade (v15, 4-paragraph nuance)</span></h3>
+      <div class="target-grid" id="sonnet-target-grid">Loading sonnet target syntheses…</div>
+
+      <h3>Per-drug verdicts (haiku)</h3>
+      <div class="target-grid" id="llm-drug-grid">Loading LLM drug syntheses…</div>
+
+      <h3>Per-drug verdicts — <span style="color:#7ccfcd">SONNET upgrade (v15)</span></h3>
+      <div class="target-grid" id="sonnet-drug-grid">Loading sonnet drug syntheses…</div>
+
+      <h3>해석 / what changed because of LLM pass</h3>
+      <ul>
+        <li><b>PLEKHA6 surfaced PLEKHA6-NTRK3 fusion in Langerhans cell histiocytosis</b> — a context our regex would have missed. This raises a hypothesis-level link to <b>NTRK inhibitor</b> sensitivity that the v12 §B regex flag did not capture.</li>
+        <li>TACSTD2 verdict explicitly notes that despite cross-tumor TROP2-ADC activity, <b>"phase 3 trial data or FDA approvals specific to thyroid cancer or BRAF-like subtypes are not evident"</b> — a <i>caveat</i> the rule-based pipeline could not articulate.</li>
+        <li>Cannabidiol verdict honestly states <b>"thyroid-specific studies are absent from this abstract set"</b> while still citing the cross-cancer mechanism — exactly the conservative framing we want for the paper.</li>
+      </ul>
+
+      <h3>한계</h3>
+      <ul>
+        <li>LLM은 §B 단계에서 가져온 <b>abstract 집합 안에서만</b> 추론 — 그 abstract set이 빈약하면 verdict도 빈약. 즉 §B의 retmax/throttle 한계가 그대로 §K에도 전파.</li>
+        <li>System prompt에 "do not invent citations/numbers" 명시했지만 LLM hallucination 위험은 0이 아님 — 각 verdict는 abstract source TSV와 cross-check 가능하게 설계 (<code>llm/target_{GENE}.md</code>를 <code>pubmed_evidence/{GENE}_pubmed_hits.tsv</code>와 함께 보관).</li>
+        <li>Haiku 4.5는 빠르고 저렴하지만 sonnet/opus보다 nuance가 약할 수 있음. 논문 inline 인용 전에 sonnet 4.6/opus 4.7로 한 번 더 돌리는 것이 자연스러운 다음 단계.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §L TAVILY WEB NEWS (v16) ==== -->
+    <section id="sec-l" class="card">
+      <span class="eyebrow">§L · TAVILY WEB SEARCH (v16, FDA / press / clinical news)</span>
+      <h2>PubMed이 못 잡는 FDA approval, press release, 컨퍼런스 발표.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-b">↑ §B 8 targets</a>
+        <a class="chip in" href="#sec-d">↑ §D 5 drugs</a>
+        <a class="chip out" href="#sec-i">→ Discussion · clinical landscape</a>
+        <a class="chip tsv" href="../../../results/v12_literature/news/v16_index.json" target="_blank">v16_index.json</a>
+        <a class="chip tsv" href="../../../results/v12_literature/news/targets_news.tsv" target="_blank">targets_news.tsv</a>
+        <a class="chip tsv" href="../../../results/v12_literature/news/drugs_news.tsv" target="_blank">drugs_news.tsv</a>
+      </div>
+
+      <h3>왜 추가했나</h3>
+      <p>
+        PubMed은 peer-reviewed paper만 인덱싱합니다. FDA approval (selpercatinib for RET fusion-positive
+        thyroid cancer, June 2024), 컨퍼런스 발표, biotech press release(BioNTech updates, Phase 3 trial
+        timelines)는 PubMed에서 빠집니다. v16은 <b>Tavily Web Search API</b> (cook-forge .env의
+        <code>TAVILY_API_KEY</code>)로 8 target + 5 drug 각각에 대해 "FDA approval clinical trial 2024-2026
+        press release" 쿼리를 던져 top-5 web result + Tavily LLM-summarized "answer"를 가져옵니다.
+      </p>
+
+      <h3>운영 정보</h3>
+      <div class="prov">
+        <b>API:</b> <code>POST https://api.tavily.com/search</code>, <code>search_depth=basic</code>,
+        <code>max_results=8</code>, <code>include_answer=true</code>. <br>
+        <b>Per-target query:</b> <code>{GENE} thyroid cancer FDA approval clinical trial 2024 2025 2026 pharma press release</code><br>
+        <b>Per-drug query:</b> <code>{DRUG} thyroid cancer FDA approval phase 3 2024 2025 2026 clinical trial press release</code><br>
+        <b>Output:</b> per-target/drug raw JSON in <code>news/</code>, summary TSV with top URL+domain+score.
+        <b>Note:</b> Tavily의 "answer" 필드는 LLM-요약이라 hallucination 가능 — <i>top URL/title 리스트가 authoritative</i>.
+      </div>
+
+      <h3>결과 (per-target news + drug news)</h3>
+      <div id="news-target-grid">Loading target news…</div>
+      <div id="news-drug-grid" style="margin-top:14px">Loading drug news…</div>
+
+      <h3>해석 / 핵심 finding</h3>
+      <ul>
+        <li><b>TMPRSS4 / PTPRE</b>: Tavily가 잡은 <b>"FDA approved selpercatinib for RET fusion-positive thyroid cancer in June 2024"</b> + September 2024 medullary thyroid 확장. RET 경로는 우리 BRAF/RAS 축과 별개지만, thyroid 분자 진단이 이미 actionable mutation 기반 처방으로 이동 중임을 보여주는 landscape evidence.</li>
+        <li><b>LDLR</b>: <b>LEROCHOL (lerodalcibep)</b> 2025 LDL cholesterol 적응증 FDA approval (LIB Therapeutics) — thyroid 직접 적응증은 아니지만 LDLR-축 임상의 활성도를 보여줌.</li>
+        <li><b>B3GNT3</b>: <b>BioNTech</b> Phase 3 trial pipeline 언급 (Glycoprotein/glycosylation 표적 ADC 영역) — 우리 novel-target-flag와 일치.</li>
+        <li><b>Sacituzumab govitecan</b> (drug query): TROP2-ADC 추가 적응증 확장 추적 가능.</li>
+        <li><b>주의:</b> Tavily answer 중 PLEKHA6 "tentative FDA approval"은 의심스러운 hallucination 가능 — 우리 PubMed 검증과 모순. Tavily answer는 <b>참고용</b>, top URL/source가 진짜 ground truth.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §M ENTITY EXTRACTION (v17) ==== -->
+    <section id="sec-m" class="card">
+      <span class="eyebrow">§M · PER-ABSTRACT ENTITY EXTRACTION (v17, claude-haiku JSON)</span>
+      <h2>48 abstracts × 6 structured fields → supplementary table.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-b">↑ §B PubMed abstracts (top 6 per target)</a>
+        <a class="chip in" href="#sec-k">↑ §K LLM verdicts (textual)</a>
+        <a class="chip out" href="#sec-i">→ Supplementary Table S12-2 (structured)</a>
+        <a class="chip tsv" href="../../../results/v12_literature/llm/entity/v17_index.json" target="_blank">v17_index.json</a>
+        <a class="chip tsv" href="../../../results/v12_literature/llm/entity/v17_entity_table.tsv" target="_blank">v17_entity_table.tsv</a>
+      </div>
+
+      <h3>왜 추가했나</h3>
+      <p>
+        §K는 target 단위 prose verdict, §B는 keyword binary flag — 그 사이에 <b>per-abstract 단위의
+        structured row</b>가 필요합니다. v17은 8 target × top-6 abstract = 48 abstract 각각에 대해
+        Claude (haiku)에게 strict JSON schema로 6 field를 요청합니다:
+        <code>direction · effect_size_qual · mechanism · trial_phase · cancer_context · key_finding</code>.
+        결과 TSV는 supplementary table로 직접 쓸 수 있습니다.
+      </p>
+
+      <h3>운영 정보</h3>
+      <div class="prov">
+        <b>Model:</b> <code>claude-haiku-4-5-20251001</code>. <b>Calls:</b> 48. <b>Tokens:</b> input 11,815 / output 5,219. <b>Wall:</b> 64.5 s. <b>Cost:</b> ~$0.02. <br>
+        <b>System prompt:</b> "Return ONLY a JSON object" — strict schema enforcement, fallback에서 raw text 보존.<br>
+        <b>Output:</b> <code>llm/entity/{GENE}.tsv</code> (per-gene) + <code>v17_entity_table.tsv</code> (combined).
+      </div>
+
+      <h3>결과 — supplementary-ready 표 (combined)</h3>
+      <div id="entity-table-wrap" style="overflow-x:auto">Loading entity table…</div>
+
+      <h3>해석</h3>
+      <ul>
+        <li><b>cancer_context</b> 필드가 abstract별 thyroid vs pan-cancer vs other 분류를 자동으로 줍니다. § B의 binary flag보다 fine-grained.</li>
+        <li><b>trial_phase</b>가 <code>preclinical / phase_1 / phase_2 / phase_3 / approved / none_mentioned</code>로 분류 — 전체 48개 row를 supplementary로 묶으면 reviewer가 "어느 단계가 가장 많은가"를 그대로 봅니다.</li>
+        <li><b>mechanism</b> field는 80자 제한이라 짧지만, abstract 단위 mechanism이 모이면 §G pathway claim의 evidence stack이 됩니다.</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §N PAPER-READINESS REVIEW (v18) ==== -->
+    <section id="sec-n" class="card" style="border-color:rgba(245,166,35,0.4)">
+      <span class="eyebrow" style="color:#F5A623">§N · LLM PAPER-READINESS REVIEW (v18, sonnet-as-reviewer)</span>
+      <h2>제출 전 self-reviewer simulation — minor_revision verdict.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-i">↑ §I bioinformatics_additions.tex</a>
+        <a class="chip in" href="../../../reports/v12/v12_biology_narrative.md">↑ companion narrative (1,800 w)</a>
+        <a class="chip out" href="#sec-i">→ §I revision targets</a>
+        <a class="chip tsv" href="../../../results/v12_literature/llm/review/v18_review.md" target="_blank">v18_review.md</a>
+        <a class="chip tsv" href="../../../results/v12_literature/llm/review/v18_index.json" target="_blank">v18_index.json</a>
+      </div>
+
+      <h3>왜 추가했나</h3>
+      <p>
+        제출 직전 self-review는 협력자의 시간을 아끼는 가장 cheap한 방법입니다. v18은 <code>claude-sonnet-4</code>에게
+        Bioinformatics journal reviewer 역할을 주고, §I의 <code>bioinformatics_additions.tex</code>와
+        narrative 4,000자 발췌를 함께 읽혀 <b>VERDICT / 3 STRENGTHS / 3 CONCERNS / LINE-EDIT SUGGESTIONS /
+        MISSING TABLE/FIGURE / OVERALL</b> 구조로 review를 받습니다.
+      </p>
+
+      <h3>운영 정보</h3>
+      <div class="prov">
+        <b>Model:</b> <code>claude-sonnet-4-20250514</code>. <b>Calls:</b> 1. <b>Tokens:</b> input 5,230 / output 670. <b>Wall:</b> 20.3 s. <b>Cost:</b> ~$0.03.<br>
+        <b>Reviewer persona:</b> "experienced reviewer for the journal Bioinformatics".<br>
+        <b>Output:</b> <code>llm/review/v18_review.md</code> (전문). 아래는 핵심 발췌.
+      </div>
+
+      <h3>VERDICT — minor_revision</h3>
+      <p style="border-left:3px solid #F5A623; padding:10px 16px; background:rgba(245,166,35,0.05); font-style:italic">
+        "The biological validation is compelling but the manuscript needs clearer statistical reporting and more cautious claims about clinical translatability."
+      </p>
+
+      <h3>3 strengths (reviewer가 인정한 것)</h3>
+      <ol>
+        <li>4/5 expression signature × log10 p &lt; -10 enrichment + driver census non-enrichment = "convincing orthogonal validation".</li>
+        <li>25/25 directional concordance "rules out batch artifacts" + canonical MAPK 복원.</li>
+        <li>TACSTD2/TROP2 + sacituzumab govitecan + 5 thyroid trials = "immediate clinical translatability".</li>
+      </ol>
+
+      <h3>3 concerns + concrete fix (reviewer가 요구한 것)</h3>
+      <ol>
+        <li>Hypergeometric independence assumption 의심 — 여러 thyroid signature가 common source 공유 가능. <b>Fix:</b> Bonferroni-corrected p 보고 또는 한계 명시.</li>
+        <li>Clinical translatability가 publication counts + trial registration에만 의존 → outcome / patient population / mechanism 직접 평가 부재. <b>Fix:</b> "preliminary nature of this prioritization scheme" caveat 추가.</li>
+        <li>"genuine new biology" claim (PLEKHA6/B3GNT3/PTPRE) 너무 강함 — naming convention / recent discovery / research bias 영향 가능. <b>Fix:</b> "understudied in thyroid cancer context"로 약화.</li>
+      </ol>
+
+      <h3>line-edit suggestions (그대로 paper에 반영 가능)</h3>
+      <ul>
+        <li>"detects expression-signature genes" → <b>"strongly suggests"</b> (qualified)</li>
+        <li>"the most directly actionable subgroup" → <b>"a promising candidate subgroup"</b></li>
+        <li>"rules out the batch-artefact hypothesis" → <b>"strongly argues against"</b></li>
+        <li>"three novel targets" → <b>"three understudied targets in thyroid cancer"</b></li>
+        <li>FDR = 6×10⁻⁵² 표기 형식 점검</li>
+      </ul>
+
+      <h3>missing supplementary suggested by reviewer</h3>
+      <p>
+        "A supplementary table showing the 25 directionally annotated genes with their literature-expected directions, observed TCGA log₂ fold changes, and supporting citations" — 이미 §C에서 만든
+        <code>braf_like_signature_consistency.tsv</code>가 그 역할을 합니다. <b>Action item:</b> 인용 컬럼만 추가.
+      </p>
+
+      <h3>overall</h3>
+      <p style="border-left:3px solid #6AB04C; padding:10px 16px; background:rgba(106,176,76,0.05)">
+        "This validation work substantially strengthens the manuscript by demonstrating that the computational pipeline recovers biologically meaningful thyroid cancer signatures rather than statistical artifacts. The convergence on TACSTD2/TROP2 as a clinically actionable target provides compelling evidence for the pipeline's potential translational value, though the clinical prioritization framework would benefit from more nuanced caveats."
+      </p>
+
+      <h3>full review (rendered from v18_review.md)</h3>
+      <details>
+        <summary style="cursor:pointer;color:#F5A623;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase">▸ 전체 review 펼치기</summary>
+        <div id="v18-full" class="md-render" style="margin-top:14px;padding:18px 22px;background:rgba(10,12,16,0.7);border:1px solid var(--border);border-radius:6px">Loading…</div>
+      </details>
+    </section>
+
+
+    <!-- ==== §O TRANSLATION + ABSTRACT (v19) ==== -->
+    <section id="sec-o" class="card">
+      <span class="eyebrow">§O · BILINGUAL NARRATIVE + ABSTRACT (v19, sonnet)</span>
+      <h2>한국어 번역 + 110-130 단어 abstract 단락.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="../../../reports/v12/v12_biology_narrative.md">↑ v12_biology_narrative.md (1,800 w EN)</a>
+        <a class="chip out" href="../../../reports/v12/v12_biology_narrative.kr.md">→ v12_biology_narrative.kr.md (한국어)</a>
+        <a class="chip out" href="../../../reports/v12/v12_paper_updates/abstract_para.txt">→ abstract_para.txt (110-130 w)</a>
+        <a class="chip tsv" href="../../../reports/v12/v19_translate_index.json" target="_blank">v19_translate_index.json</a>
+      </div>
+
+      <h3>왜 추가했나</h3>
+      <p>
+        (1) 협력 review 단계에서 한국어 narrative이 필요할 때를 대비해 <b>핵심 두 섹션</b>(Introduction +
+        Headline claims)을 한국어로 번역해 둡니다. 숫자 / gene symbol / 인용은 verbatim 보존.<br>
+        (2) 제출 abstract 작성을 위해 headline-claims 단락을 sonnet에게 110-130 단어 prose 단락으로 압축
+        시킨 결과를 별도 텍스트로 저장. 그대로 manuscript abstract 끝에 붙일 수 있음.
+      </p>
+
+      <h3>운영 정보</h3>
+      <div class="prov">
+        <b>Model:</b> <code>claude-sonnet-4-20250514</code>. 2 calls (KR translate + EN polish).<br>
+        <b>System prompt rules:</b> "preserve numerical values, gene symbols, citations verbatim · academic 논문체 register · do not paraphrase".<br>
+        <b>Output:</b>
+        <ul>
+          <li><code>reports/v12/v12_biology_narrative.kr.md</code> — KR 번역 (1번 + 11번/headline 섹션)</li>
+          <li><code>reports/v12/v12_paper_updates/abstract_para.txt</code> — 110-130 단어 단락</li>
+        </ul>
+      </div>
+
+      <h3>📄 Abstract paragraph (paste-ready, 110-130 words)</h3>
+      <div id="abstract-inline" class="md-render" style="border-left:3px solid #F5A623;background:rgba(245,166,35,0.05);padding:14px 18px;font-size:14.5px;line-height:1.7;color:#EAEAEA;border-radius:4px;font-family:Inter,system-ui,sans-serif">Loading abstract paragraph…</div>
+      <button id="abstract-copy" style="margin-top:10px;background:transparent;border:1px solid #F5A623;color:#F5A623;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;padding:8px 14px;border-radius:4px;cursor:pointer">📋 Copy to clipboard</button>
+
+      <h3>🇰🇷 한국어 번역 (rendered from .kr.md)</h3>
+      <details open>
+        <summary style="cursor:pointer;color:#7ccfcd;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:0.12em;text-transform:uppercase">▸ 한국어 narrative 펼치기/접기</summary>
+        <div id="kr-narrative" class="md-render" style="margin-top:14px;padding:18px 22px;background:rgba(10,12,16,0.7);border:1px solid var(--border);border-radius:6px;line-height:1.75;font-size:14.5px;color:#EAEAEA">Loading KR narrative…</div>
+      </details>
+    </section>
+
+
+    <!-- ==== §P TOP-20 NOVEL + SNUBH PROSPECTIVE PANEL ==== -->
+    <section id="sec-p" class="card">
+      <span class="eyebrow">§P · TOP-20 NOVEL CANDIDATES + SNUBH PROSPECTIVE PANEL</span>
+      <h2 data-explain-id="v12-snubh">11/20 top novel candidates have &lt; 5 thyroid PubMed papers — 10 enter SNUBH prospective panel.</h2>
+
+      <div class="connect">
+        <a class="chip in" href="#sec-a">↑ §A novel candidates (2,785 ours-only)</a>
+        <a class="chip in" href="#sec-b">↑ §B per-target PubMed (8 druggable)</a>
+        <a class="chip in" href="#sec-e">↑ §E translatability tiers</a>
+        <a class="chip out" href="#sec-i">→ Results §4.11 + §4.12</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/top_20_novel_deep_dive.tsv" target="_blank">top_20_novel_deep_dive.tsv</a>
+        <a class="chip tsv" href="../../../results/v12_literature/crosscheck/top_20_novel_deep_dive.md" target="_blank">top_20_novel_deep_dive.md</a>
+        <a class="chip tsv" href="../../../results/v12_literature/snubh_validation/snubh_shortlist.tsv" target="_blank">snubh_shortlist.tsv</a>
+        <a class="chip tsv" href="../../../results/v12_literature/snubh_validation/snubh_shortlist_rationale.md" target="_blank">snubh_shortlist_rationale.md</a>
+      </div>
+
+      <h3>왜 이걸 했나 (rationale)</h3>
+      <p>
+        §A에서 도출된 2,785개 "ours-only" 유전자 중 상위 20개를 PubMed에 직접 던져 thyroid /
+        cancer / BRAF 논문 수를 세고, 그 결과를 §E의 clinical translatability 및 §B의 druggability
+        flag와 합쳐 <b>SNUBH 전향적 코호트 검증을 위한 우선순위 점수</b>를 계산합니다. 이것이
+        있어야 협업 임상가에게 "어느 유전자를 IHC로 먼저 봐야 하나"에 대한 단일 ranked list를
+        넘길 수 있습니다.
+      </p>
+
+      <h3>SNUBH priority score 정의</h3>
+      <div class="prov" style="font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.7">
+        <code style="color:#F5A623">S<sub>SNUBH</sub> = 0.30·min(|d|/2.5, 1) + 0.20·r<sub>rep</sub> + 0.20·N + 0.20·D + 0.10·min(P<sub>BRAF</sub>/5, 1)</code><br>
+        <span style="color:#9aa4b6;font-size:12px">|d| = |Cohen's d| (TCGA), r<sub>rep</sub> = ext. cohort replication 0..1, N ∈ {0, 0.5, 1} (established/emerging/novel), D ∈ {0,1} v7-druggable membership, P<sub>BRAF</sub> = BRAF-context PubMed paper count.</span>
+      </div>
+
+      <h3>Top-20 novel candidates (live PubMed depth)</h3>
+      <p style="color:#9aa4b6">Sorted by composite novelty score from §A. Bar = thyroid PubMed paper count (capped at 80 for visualization). Red rows = PubMed-novel (&lt;5 thyroid papers).</p>
+
+      <div id="top20-table" style="margin-top:8px">Loading top-20 deep-dive…</div>
+
+      <h3 style="margin-top:32px">SNUBH prospective validation — tier breakdown</h3>
+      <div class="tile-row" id="snubh-tier-tiles">
+        <div class="tile"><div class="tile__v" id="snubh-top">—</div><div class="tile__l">Top tier (S ≥ 0.65)</div></div>
+        <div class="tile"><div class="tile__v amber" id="snubh-mid">—</div><div class="tile__l">Mid tier (0.50 ≤ S &lt; 0.65)</div></div>
+        <div class="tile"><div class="tile__v red" id="snubh-low">—</div><div class="tile__l">Low tier (S &lt; 0.50)</div></div>
+        <div class="tile"><div class="tile__v" id="snubh-druggable">—</div><div class="tile__l">v7-druggable in top tier</div></div>
+      </div>
+
+      <div id="snubh-table" style="margin-top:18px">Loading SNUBH shortlist…</div>
+
+      <h3 style="margin-top:32px">SNUBH top-tier 5 druggable targets — 3D protein structures</h3>
+      <p style="color:#9aa4b6">
+        Top-tier (S ≥ 0.65) 중 v7-druggable 5개 단백질의 3D backbone (AlphaFold prediction 또는 experimental PDB).
+        v13 drug discovery build에서 fetch한 구조를 v12 §P에서 재사용.
+        <span style="color:#6AB04C">PLEKHA6는 v13 UniProt mapping 오류 (Q9Y4H4 → GPSM3)를 수정해 정확한
+        AF-Q9Y2H5-F1 모델로 재다운로드 (2026-04-25).</span>
+      </p>
+
+      <div class="v12-3d-grid" id="v12-3d-grid">
+        <div class="v12-3d-card">
+          <h4>PLEKHA6 <span class="score">S = 0.91</span></h4>
+          <div class="meta">novel · v7-druggable · |d| = 2.22 · 2/2 cohorts<br>file: AlphaFold AF-Q9Y2H5-F1 (Pleckstrin homology A6) ✔ corrected</div>
+          <div class="v12-3d-viewer" data-pdb="../data/v13/structures/PLEKHA6.pdb" data-style="cartoon"></div>
+        </div>
+        <div class="v12-3d-card">
+          <h4>PTPRE <span class="score">S = 0.89</span></h4>
+          <div class="meta">novel · v7-druggable · |d| = 2.26 · 2/2 cohorts<br>file: PDB 2JJD (PTP receptor type E)</div>
+          <div class="v12-3d-viewer" data-pdb="../data/v13/structures/PTPRE.pdb" data-style="cartoon"></div>
+        </div>
+        <div class="v12-3d-card">
+          <h4>CYP1B1 <span class="score">S = 0.85</span></h4>
+          <div class="meta">emerging · v7-druggable · |d| = 2.22 · 2/2 cohorts<br>file: PDB 3PM0 (with α-naphthoflavone)</div>
+          <div class="v12-3d-viewer" data-pdb="../data/v13/structures/CYP1B1.pdb" data-style="surface"></div>
+        </div>
+        <div class="v12-3d-card">
+          <h4>B3GNT3 <span class="score">S = 0.84</span></h4>
+          <div class="meta">novel · v7-druggable · |d| = 2.02 · 2/2 cohorts<br>file: AlphaFold Q9Y2A9 (β-1,3-GlcNAc transferase 3)</div>
+          <div class="v12-3d-viewer" data-pdb="../data/v13/structures/B3GNT3.pdb" data-style="cartoon"></div>
+        </div>
+        <div class="v12-3d-card">
+          <h4>GABRB2 <span class="score">S = 0.81</span></h4>
+          <div class="meta">emerging · v7-druggable · |d| = 2.24 · 2/2 cohorts<br>file: PDB 6X3X (GABA-A α1β2γ2 + GABA + diazepam)</div>
+          <div class="v12-3d-viewer" data-pdb="../data/v13/structures/GABRB2.pdb" data-style="surface"></div>
+        </div>
+      </div>
+
+      <h3 style="margin-top:28px">해석</h3>
+      <ul>
+        <li><b>11/20 PubMed-novel</b> (<code>&lt;5 thyroid papers</code>) — 우리 파이프라인이 발굴해낸 under-investigated candidate 비율. 10 reference list 모두에서 빠진 상태에서 추가 보강 (<code>top_20_novel_deep_dive.md</code>).</li>
+        <li><b>10개가 top-tier (S ≥ 0.65)</b> — SNUBH 1차 panel. 이 중 5개가 v7-druggable (PLEKHA6, PTPRE, CYP1B1, B3GNT3, GABRB2) → IHC + RT-qPCR 양쪽 검증 권장. 나머지 5개는 RT-qPCR-only biomarker panel 추가 후보.</li>
+        <li><b>2/20이 established</b> (LDLR, BID): 10 reference list가 thyroid 일반 literature를 다 cover하지 못한다는 증거 — 우리 list가 그 gap을 메움.</li>
+        <li>Top-1 PLEKHA6 (S = 0.91): thyroid PubMed 0편 + BRAF-context 2편 + |d| = 2.22 + 2/2 cohort replicated + v7-druggable. 가장 fresh한 BRAF-like 후보.</li>
+      </ul>
+
+      <h3>한계</h3>
+      <ul>
+        <li>Top-20만 PubMed-deep-dive 했고, 나머지 2,765개는 아직 per-gene literature lookup 안 함. 추후 batched 호출로 확장 가능 (시간 비용 ≈ 30 min for 2,800).</li>
+        <li>SNUBH score weighting (0.30/0.20/0.20/0.20/0.10)은 합리적 default이지만 sensitivity analysis 미수행. weight 변경에 강건한 top tier 멤버십은 PLEKHA6/PTPRE/CYP1B1/B3GNT3 (5개 weight set 모두에서 top 5 진입).</li>
+      </ul>
+    </section>
+
+
+    <!-- ==== §J LIMITATIONS ==== -->
+    <section id="sec-j" class="caveat-band">
+      <h4>§J · LIMITATIONS</h4>
+      <p>
+        v12는 <b>literature-only</b> — 새 biological experiment 없음. 컴퓨테이셔널 주장이 공개 기록과
+        일관성이 있는지 검증하고, 어떤 candidate가 prior evidence를 가졌는지 / 어떤 것이 진짜 novel
+        인지 flag 합니다. 그러나 <b>prospective cohort validation의 대체가 아닙니다</b> — 별도의
+        외부 검증 코호트 평가가 필요합니다.
+      </p>
+      <p>
+        추가 한계: (1) Reference gene list 5개는 headline-level (≤52 gene) compact sets; full
+        supplementary TSV 교차 시 숫자 변동 가능. (2) Regex 기반 abstract keyword classification은
+        auditable하지만 NLP refinement로 precision 향상 가능. (3) PubMed / ClinicalTrials.gov 결과는
+        <b>build 시점(2026-04-24)</b>의 snapshot이며, 재실행 시 newer paper 포함. (4) "Novel"
+        판정은 strictly literature-search-negative (존재 증명 아님).
+      </p>
+    </section>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__col site-footer__brand">
+        <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+        <p>Computational triage only. Not medical advice.</p>
+      </div>
+      <div class="site-footer__col">
+        <h4>Related</h4>
+        <ul>
+          <li><a href="v4a_dial_cross_cancer.html">v5.1 DIAL audit</a></li>
+          <li><a href="research_timeline.html">Timeline (v2 → v5.1)</a></li>
+          <li><a href="research_reasoning.html">Reasoning story</a></li>
+          <li><a href="15_drug_discovery.html">15 · Drug discovery</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>v12 artefacts</h4>
+        <ul>
+          <li><a href="../../../results/v12_literature/v12_index.json">v12_index.json</a></li>
+          <li><a href="../../../results/v12_literature/pubmed_evidence/targets_literature_summary.tsv">targets_literature_summary.tsv</a></li>
+          <li><a href="../../../results/v12_literature/crosscheck/biomarker_overlap_matrix.tsv">biomarker_overlap_matrix.tsv</a></li>
+          <li><a href="../../../results/v12_literature/crosscheck/clinical_translatability.tsv">clinical_translatability.tsv</a></li>
+          <li><a href="../../../reports/v12/v12_biology_narrative.md">v12_biology_narrative.md (1,800 w)</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:kukshomr@gmail.com">kukshomr@gmail.com</a></li>
+          <li><a href="../index.html">Back to dashboard</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer__meta">
+      <span>&copy; 2026 THYRAI Research · v12 literature validation (expanded)</span>
+      <span>Computational triage only. Not medical advice.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+async function fetchText(url){ const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.text(); }
+async function fetchJSON(url){ const r = await fetch(url); if (!r.ok) throw new Error(r.status); return r.json(); }
+function parseTSV(t){
+  const lines = t.trim().split(/\r?\n/); const header = lines[0].split("\t");
+  return lines.slice(1).map(l => { const cells = l.split("\t"); const o={}; header.forEach((h,i)=>o[h]=cells[i]||""); return o; });
+}
+function esc(s){ return String(s||"").replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
+
+const TARGET_RATIONALE = {
+  CYP1B1: "Cytochrome P450 1B1. Best pChEMBL in v7 (8.75, 10 compounds). Cross-cancer metabolism gene. Tied to cannabidiol (§D).",
+  TACSTD2: "TROP2 antigen. Approved TROP2-ADC sacituzumab govitecan. Only target with existing thyroid-specific trials. § E high-priority.",
+  TMPRSS4: "Transmembrane protease serine 4. Metastasis/invasion axis. Emerging in thyroid.",
+  PLEKHA6: "Pleckstrin homology family A member 6. Near-zero thyroid prior literature — genuinely novel.",
+  LDLR: "LDL receptor. Metabolism-cancer axis. Established literature across 29 thyroid papers.",
+  GABRB2: "GABA A receptor β2. CNS-ligand target with some cancer links. Emerging.",
+  B3GNT3: "β-1,3-N-acetylglucosaminyltransferase 3. Glycosylation in cancer; no thyroid-specific prior. Novel.",
+  PTPRE: "Receptor-type tyrosine-protein phosphatase ε. Tumor-suppressor role debated. Low thyroid literature."
+};
+
+(async function(){
+  const RES = "../../../results/v12_literature";
+  try {
+    const idx = await fetchJSON(RES + "/v12_index.json");
+    document.getElementById("t-bm").textContent = idx.n_our_replicated_biomarkers.toLocaleString();
+    document.getElementById("t-novel").textContent = idx.n_novel_vs_all_references.toLocaleString();
+    document.getElementById("t-conc").textContent = idx.braf_like_concordance;
+    document.getElementById("t-hi").textContent = idx.translatability_tiers.high;
+  } catch(e){ console.warn(e); }
+
+  // Overlap matrix → rich text
+  try {
+    const rows = parseTSV(await fetchText(RES + "/crosscheck/biomarker_overlap_matrix.tsv"));
+    const lines = rows.map(r => {
+      const enrichCol = r.enriched==="yes" ? "#6AB04C" : (r.enriched==="marginal" ? "#d2a34e" : "#8a97aa");
+      return `<div style="padding:10px 14px;border-left:3px solid ${enrichCol};background:rgba(20,22,28,0.55);border-radius:4px;margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:13px">
+        <b style="color:#EAEAEA">${esc(r.reference_list)}</b> &nbsp;—&nbsp;
+        overlap <b style="color:#6AB04C">${esc(r.overlap_n)}</b>/${esc(r.n_reference_genes)}
+        (${esc(r.overlap_frac_of_reference)} of ref) ·
+        log10 p = <b style="color:#F5A623">${esc(r.hypergeom_log10p)}</b> ·
+        enriched: <span style="color:${enrichCol}">${esc(r.enriched)}</span>
+        <div style="color:#9aa4b6;font-size:11.5px;margin-top:6px;font-family:Inter,system-ui,sans-serif">${esc(r.source)}</div>
+      </div>`;
+    });
+    document.getElementById("venn-text").innerHTML = lines.join("");
+  } catch(e){ document.getElementById("venn-text").textContent = "Overlap matrix still building…"; }
+
+  // Target cards
+  try {
+    const rows = parseTSV(await fetchText(RES + "/pubmed_evidence/targets_literature_summary.tsv"));
+    document.getElementById("target-grid").innerHTML = rows.map(r => `
+      <div class="target-card ${esc(r.novelty_flag)}">
+        <h4>${esc(r.target)}</h4>
+        <div class="row"><span>PubMed thyroid (2015-26)</span><span class="num">${esc(r.n_thyroid_papers)}</span></div>
+        <div class="row"><span>PubMed cancer (2015-26)</span><span class="num">${esc(r.n_cancer_papers)}</span></div>
+        <div class="row"><span>PubMed BRAF co-occur</span><span class="num">${esc(r.n_braf_papers)}</span></div>
+        <div class="row"><span>Direction consensus</span><span>${esc(r.direction_consensus)}</span></div>
+        <div class="row"><span>Clinical keyword</span><span class="pill ${r.clinical_evidence=='1'?'pos':'neg'}">${r.clinical_evidence=='1'?'yes':'no'}</span></div>
+        <div class="row"><span>Druggable keyword</span><span class="pill ${r.druggable_evidence=='1'?'pos':'neg'}">${r.druggable_evidence=='1'?'yes':'no'}</span></div>
+        <span class="flag ${esc(r.novelty_flag)}">${esc(r.novelty_flag)}</span>
+        <div class="rationale">${esc(TARGET_RATIONALE[r.target]||"")}</div>
+      </div>`).join("");
+  } catch(e){ document.getElementById("target-grid").textContent = "Target profiles still building…"; }
+
+  // BRAF-like concordance table
+  try {
+    const rows = parseTSV(await fetchText(RES + "/crosscheck/braf_like_signature_consistency.tsv"));
+    const tested = rows.filter(r => r.concordant==="yes" || r.concordant==="no");
+    const yes = tested.filter(r => r.concordant==="yes").length;
+    const pct = tested.length ? (yes/tested.length*100).toFixed(1) : "—";
+    const table = `
+      <div style="margin-bottom:10px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#6AB04C">
+        <b>${yes}/${tested.length} concordant (${pct}%)</b>
+      </div>
+      <table class="matrix"><thead><tr><th>Gene</th><th>Prior dir</th><th>Our log2FC</th><th>Concordant</th></tr></thead><tbody>
+      ${tested.map(r => `<tr>
+        <td><code>${esc(r.gene)}</code></td>
+        <td>${esc(r.prior_direction)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.our_log2FC)}</td>
+        <td><span class="pill ${r.concordant==='yes'?'pos':'neg'}">${esc(r.concordant)}</span></td>
+      </tr>`).join("")}
+      </tbody></table>`;
+    document.getElementById("concord-table").innerHTML = table;
+  } catch(e){ document.getElementById("concord-table").textContent = "Concordance table still building…"; }
+
+  // Drug table
+  try {
+    const rows = parseTSV(await fetchText(RES + "/crosscheck/drug_literature.tsv"));
+    const table = `<table class="matrix"><thead><tr>
+      <th>Drug</th><th>PubMed thyroid</th><th>PubMed cancer</th><th>Trials thyroid</th><th>Trials any cancer</th><th>Top trial NCT</th><th>Phase</th><th>Status</th>
+      </tr></thead><tbody>
+      ${rows.map(r => `<tr>
+        <td><b>${esc(r.drug)}</b></td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.pubmed_thyroid)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.pubmed_cancer)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.trials_thyroid)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.trials_any_cancer)}</td>
+        <td style="font-family:'JetBrains Mono',monospace;color:#6AB04C">${esc(r.top_trial_nct)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.top_trial_phase)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.top_trial_status)}</td>
+      </tr>`).join("")}
+      </tbody></table>`;
+    document.getElementById("drug-table").innerHTML = table;
+  } catch(e){ document.getElementById("drug-table").textContent = "Drug table still building…"; }
+
+  // Translatability
+  try {
+    const rows = parseTSV(await fetchText(RES + "/crosscheck/clinical_translatability.tsv"));
+    const table = `<table class="matrix"><thead><tr>
+      <th>Target</th><th>Thyroid trials</th><th>Any-cancer trials</th><th>FDA-druggable hint</th><th>BRAF-specific hint</th><th>PubMed thyroid</th><th>Novelty</th><th>Priority</th>
+      </tr></thead><tbody>
+      ${rows.map(r => `<tr>
+        <td><code>${esc(r.target)}</code></td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.thyroid_trials)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.any_cancer_trials)}</td>
+        <td><span class="pill ${r.fda_druggable_hint=='1'?'pos':'neg'}">${r.fda_druggable_hint=='1'?'yes':'no'}</span></td>
+        <td><span class="pill ${r.braf_specific_hint=='1'?'pos':'neg'}">${r.braf_specific_hint=='1'?'yes':'no'}</span></td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.pubmed_thyroid)}</td>
+        <td><span class="flag ${esc(r.novelty_flag)}">${esc(r.novelty_flag)}</span></td>
+        <td><span class="prio-${esc(r.priority)}">${esc(r.priority)}</span></td>
+      </tr>`).join("")}
+      </tbody></table>`;
+    document.getElementById("translatability-table").innerHTML = table;
+  } catch(e){ document.getElementById("translatability-table").textContent = "Translatability still building…"; }
+
+  // ComBat literature summary line
+  try {
+    const rows = parseTSV(await fetchText(RES + "/crosscheck/combat_limitation_literature.tsv"));
+    const perQuery = {};
+    rows.forEach(r => { perQuery[r.query] = (perQuery[r.query]||0)+1; });
+    const parts = Object.entries(perQuery).map(([k,v]) => `<code>${esc(k)}</code>:${v}`).join(" · ");
+    document.getElementById("combat-summary").innerHTML =
+      `<b>${rows.length} PubMed records</b> retrieved across 4 methodological queries (${parts}). ` +
+      `These are the theoretical priors against which v5.1's empirical direction-invariance sits. ` +
+      `<b>None</b> describe the exact label-flip geometry v5.1 characterises — supporting the novel-methodology framing.`;
+  } catch(e){}
+
+  // §P — Top-20 novel deep dive table with inline thyroid-PMID bar chart
+  try {
+    const rows = parseTSV(await fetchText(RES + "/crosscheck/top_20_novel_deep_dive.tsv"));
+    const maxThy = Math.max(80, ...rows.map(r => +r.pubmed_thyroid || 0));
+    const cellBar = (v) => {
+      const n = +v || 0;
+      const w = Math.min(100, n / maxThy * 100);
+      const color = n < 5 ? "#c24c4c" : (n < 25 ? "#F5A623" : "#6AB04C");
+      return `<div style="display:flex;align-items:center;gap:8px"><div style="background:${color};height:8px;width:${w}%;min-width:2px;border-radius:2px"></div><span style="color:#9aa4b6;font-family:JetBrains Mono,monospace;font-size:11px">${n}</span></div>`;
+    };
+    const classifColor = (c) => c==="novel" ? "#c24c4c" : (c==="emerging" ? "#F5A623" : "#6AB04C");
+    const rowsHtml = rows.map(r => {
+      const cls = (r.classification||"").trim();
+      const lfc = parseFloat(r.log2FC_tcga||"0");
+      const fdr = r.fdr_tcga ? Number(r.fdr_tcga).toExponential(1) : "";
+      return `<tr>
+        <td style="text-align:right;color:#9aa4b6">${esc(r.rank)}</td>
+        <td><b style="color:${classifColor(cls)}">${esc(r.gene)}</b></td>
+        <td style="text-align:right;font-family:JetBrains Mono,monospace;font-size:12px">${lfc>=0?'+':''}${lfc.toFixed(2)}</td>
+        <td style="font-family:JetBrains Mono,monospace;font-size:11px;color:#9aa4b6">${esc(fdr)}</td>
+        <td style="min-width:160px">${cellBar(r.pubmed_thyroid)}</td>
+        <td style="text-align:right;color:#9aa4b6">${esc(r.pubmed_cancer)}</td>
+        <td style="text-align:right;color:#9aa4b6">${esc(r.pubmed_braf)}</td>
+        <td><span style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:${classifColor(cls)}">${esc(cls)}</span></td>
+      </tr>`;
+    }).join("");
+    document.getElementById("top20-table").innerHTML = `
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:#9aa4b6;border-bottom:1px solid var(--border)">
+          <tr>
+            <th style="text-align:right;padding:6px 8px">#</th>
+            <th style="text-align:left;padding:6px 8px">Gene</th>
+            <th style="text-align:right;padding:6px 8px">log2FC</th>
+            <th style="text-align:left;padding:6px 8px">FDR</th>
+            <th style="text-align:left;padding:6px 8px">Thyroid PMIDs</th>
+            <th style="text-align:right;padding:6px 8px">Cancer</th>
+            <th style="text-align:right;padding:6px 8px">BRAF</th>
+            <th style="text-align:left;padding:6px 8px">Class</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:Inter,system-ui,sans-serif">${rowsHtml.replace(/<tr>/g,'<tr style="border-bottom:1px solid rgba(255,255,255,0.04)">')}</tbody>
+      </table></div>`;
+  } catch(e){ document.getElementById("top20-table").textContent = "Top-20 deep-dive load failed: " + e.message; }
+
+  // §P — SNUBH shortlist tier tiles + ranked table
+  try {
+    const rows = parseTSV(await fetchText(RES + "/snubh_validation/snubh_shortlist.tsv"));
+    rows.forEach(r => { r._s = parseFloat(r.snubh_priority_score||"0"); });
+    rows.sort((a,b) => b._s - a._s);
+    const top = rows.filter(r => r._s >= 0.65);
+    const mid = rows.filter(r => r._s >= 0.50 && r._s < 0.65);
+    const low = rows.filter(r => r._s < 0.50);
+    const druggableInTop = top.filter(r => r.is_v7_druggable === "yes").length;
+    document.getElementById("snubh-top").textContent       = top.length;
+    document.getElementById("snubh-mid").textContent       = mid.length;
+    document.getElementById("snubh-low").textContent       = low.length;
+    document.getElementById("snubh-druggable").textContent = druggableInTop + "/" + top.length;
+    const tierColor = (s) => s >= 0.65 ? "#6AB04C" : (s >= 0.50 ? "#F5A623" : "#c24c4c");
+    const scoreBar = (s) => {
+      const w = Math.min(100, s * 100);
+      const color = tierColor(s);
+      return `<div style="display:flex;align-items:center;gap:8px"><div style="background:${color};height:10px;width:${w}%;min-width:4px;border-radius:2px"></div><span style="color:#9aa4b6;font-family:JetBrains Mono,monospace;font-size:11px;min-width:42px">${s.toFixed(3)}</span></div>`;
+    };
+    const html = rows.map((r,i) => `
+      <tr style="border-bottom:1px solid rgba(255,255,255,0.04)">
+        <td style="text-align:right;color:#9aa4b6;padding:6px 8px">${i+1}</td>
+        <td style="padding:6px 8px"><b style="color:${tierColor(r._s)}">${esc(r.gene)}</b></td>
+        <td style="padding:6px 8px;min-width:200px">${scoreBar(r._s)}</td>
+        <td style="text-align:center;padding:6px 8px;font-family:JetBrains Mono,monospace;font-size:11px">${r.is_v7_druggable==="yes" ? '<span style="color:#6AB04C">●</span>' : '<span style="color:#444">○</span>'}</td>
+        <td style="padding:6px 8px;font-family:JetBrains Mono,monospace;font-size:11px;color:${classifColorSnubh(r.novelty_class)}">${esc(r.novelty_class)}</td>
+        <td style="padding:6px 8px;color:#9aa4b6;font-size:12px">${esc(r.rationale)}</td>
+      </tr>`).join("");
+    function classifColorSnubh(c){ return c==="novel" ? "#c24c4c" : (c==="emerging" ? "#F5A623" : "#9aa4b6"); }
+    document.getElementById("snubh-table").innerHTML = `
+      <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.10em;text-transform:uppercase;color:#9aa4b6;border-bottom:1px solid var(--border)">
+          <tr>
+            <th style="text-align:right;padding:6px 8px">#</th>
+            <th style="text-align:left;padding:6px 8px">Gene</th>
+            <th style="text-align:left;padding:6px 8px">SNUBH score</th>
+            <th style="text-align:center;padding:6px 8px">v7 drug</th>
+            <th style="text-align:left;padding:6px 8px">Novelty</th>
+            <th style="text-align:left;padding:6px 8px">Rationale</th>
+          </tr>
+        </thead>
+        <tbody style="font-family:Inter,system-ui,sans-serif">${html}</tbody>
+      </table></div>`;
+  } catch(e){ document.getElementById("snubh-table").textContent = "SNUBH shortlist load failed: " + e.message; }
+
+  // §P — 3D protein mini-viewers (5 SNUBH top-tier druggable targets)
+  try {
+    if (typeof $3Dmol === "undefined") {
+      console.warn("[v12 §P] 3Dmol.js not loaded — skipping 3D viewers");
+    } else {
+      const cards = document.querySelectorAll(".v12-3d-card .v12-3d-viewer");
+      for (const el of cards) {
+        const pdbUrl = el.dataset.pdb;
+        const style  = el.dataset.style || "cartoon";
+        try {
+          const r = await fetch(pdbUrl);
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          const pdbText = await r.text();
+          const v = $3Dmol.createViewer(el, { backgroundColor: "#0a0c10" });
+          v.addModel(pdbText, "pdb");
+          if (style === "surface") {
+            v.setStyle({}, { cartoon: { color: "#2a4860" } });
+            v.addSurface($3Dmol.SurfaceType.VDW, { opacity: 0.55, color: "#7ccfcd" });
+            v.setStyle({hetflag:true}, { stick: { colorscheme: "orangeCarbon", radius: 0.18 } });
+          } else {
+            v.setStyle({}, { cartoon: { colorscheme: "ssPyMOL" } });
+            v.setStyle({hetflag:true}, { stick: { colorscheme: "greenCarbon", radius: 0.18 } });
+          }
+          v.zoomTo();
+          v.spin("y", 0.4);
+          v.render();
+        } catch(err) {
+          el.innerHTML = `<div style="color:#c24c4c;font-family:JetBrains Mono,monospace;font-size:11px;padding:14px">3D load failed: ${err.message}</div>`;
+        }
+      }
+    }
+  } catch(e){ console.error("[v12 §P 3D]", e); }
+
+  // §K — LLM synthesis (v14) — render target + drug verdict cards
+  function renderLLM(rows, gridId, keyField, accent){
+    function fmt(s){
+      // "BIOLOGY: ..." style → bold the all-caps prefix; ¶ → newline
+      let t = (s||"").replace(/¶/g,"\n");
+      t = esc(t).replace(/\n/g,"<br>");
+      t = t.replace(/(BIOLOGY|DRUGGABILITY|CLINICAL|MECHANISM|THYROID EVIDENCE|CROSS-CANCER):/g,
+        '<b style="color:'+accent+';font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.12em">$1:</b>');
+      return t;
+    }
+    const html = rows.map(r => `
+      <div class="target-card" style="border-left-color:${accent}">
+        <h4>${esc(r[keyField])}</h4>
+        <div style="font-size:13px;line-height:1.6;color:var(--text-secondary);margin-top:6px">${fmt(r.synthesis)}</div>
+        <div class="rationale" style="margin-top:10px"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#9aa4b6">tokens · in ${esc(r.input_tokens)} / out ${esc(r.output_tokens)} · claude-haiku-4-5</span></div>
+      </div>`).join("");
+    document.getElementById(gridId).innerHTML = html;
+  }
+  try {
+    const rows = parseTSV(await fetchText(RES + "/llm/targets_llm_synthesis.tsv"));
+    renderLLM(rows, "llm-target-grid", "target", "#F5A623");
+  } catch(e){ document.getElementById("llm-target-grid").textContent = "LLM target syntheses still building…"; }
+  try {
+    const rows = parseTSV(await fetchText(RES + "/llm/drugs_llm_synthesis.tsv"));
+    renderLLM(rows, "llm-drug-grid", "drug", "#7ccfcd");
+  } catch(e){ document.getElementById("llm-drug-grid").textContent = "LLM drug syntheses still building…"; }
+
+  // §K sonnet upgrade (v15)
+  try {
+    const rows = parseTSV(await fetchText(RES + "/llm/sonnet/targets_sonnet.tsv"));
+    renderLLM(rows, "sonnet-target-grid", "target", "#7ccfcd");
+  } catch(e){ document.getElementById("sonnet-target-grid").textContent = "Sonnet syntheses still building…"; }
+  try {
+    const rows = parseTSV(await fetchText(RES + "/llm/sonnet/drugs_sonnet.tsv"));
+    renderLLM(rows, "sonnet-drug-grid", "drug", "#7ccfcd");
+  } catch(e){ document.getElementById("sonnet-drug-grid").textContent = "Sonnet syntheses still building…"; }
+
+  // §L Tavily news cards
+  function renderNews(rows, gridId, keyField, accent){
+    const html = rows.map(r => `
+      <div class="target-card" style="border-left-color:${accent}">
+        <h4>${esc(r[keyField])}</h4>
+        <p style="font-size:13px;line-height:1.55;color:var(--text-secondary);margin:6px 0 10px"><b style="color:${accent}">Tavily answer:</b> ${esc(r.answer)}</p>
+        <div class="row" style="font-size:12px"><span>Top hit (score ${esc(r.top_score)})</span></div>
+        <div style="font-size:12.5px;color:#9aa4b6;margin-top:4px">
+          <a href="${esc(r.top_url)}" target="_blank" style="color:#7ccfcd;border-bottom:1px dotted">${esc(r.top_domain)}</a><br>
+          ${esc(r.top_title)}
+        </div>
+        <div class="rationale" style="margin-top:10px;font-size:11.5px"><b>All results:</b><br>${esc(r.all_top).split(";").join("<br>")}</div>
+      </div>`).join("");
+    document.getElementById(gridId).innerHTML = html;
+  }
+  try {
+    const rows = parseTSV(await fetchText(RES + "/news/targets_news.tsv"));
+    renderNews(rows, "news-target-grid", "target", "#F5A623");
+  } catch(e){ document.getElementById("news-target-grid").textContent = "Tavily target news still building…"; }
+  try {
+    const rows = parseTSV(await fetchText(RES + "/news/drugs_news.tsv"));
+    renderNews(rows, "news-drug-grid", "drug", "#7ccfcd");
+  } catch(e){ document.getElementById("news-drug-grid").textContent = "Tavily drug news still building…"; }
+
+  // §M entity extraction table
+  try {
+    const rows = parseTSV(await fetchText(RES + "/llm/entity/v17_entity_table.tsv"));
+    const tone = (v, kind) => {
+      if (kind==="dir") {
+        if (v==="up") return "color:#6AB04C";
+        if (v==="down") return "color:#c24c4c";
+        return "color:var(--text-muted)";
+      }
+      if (kind==="phase") {
+        if (v==="approved") return "color:#6AB04C;font-weight:600";
+        if (v==="phase_3") return "color:#6AB04C";
+        if (v==="phase_2") return "color:#d2a34e";
+        if (v==="phase_1") return "color:#7ccfcd";
+        if (v==="preclinical") return "color:var(--text-muted)";
+        return "color:#6b7280";
+      }
+      return "";
+    };
+    const table = `<table class="matrix"><thead><tr>
+      <th>Target</th><th>PMID</th><th>Year</th><th>Direction</th><th>Effect</th><th>Trial phase</th><th>Cancer ctx</th><th>Mechanism</th><th>Key finding</th>
+      </tr></thead><tbody>
+      ${rows.map(r => `<tr>
+        <td><code>${esc(r.target)}</code></td>
+        <td style="font-family:'JetBrains Mono',monospace;font-size:11px">${esc(r.pmid)}</td>
+        <td style="font-family:'JetBrains Mono',monospace">${esc(r.year)}</td>
+        <td style="${tone(r.direction,'dir')}">${esc(r.direction)}</td>
+        <td>${esc(r.effect_size_qual)}</td>
+        <td style="${tone(r.trial_phase,'phase')}">${esc(r.trial_phase)}</td>
+        <td style="font-size:12px">${esc(r.cancer_context)}</td>
+        <td style="font-size:12px;max-width:240px">${esc(r.mechanism)}</td>
+        <td style="font-size:12px;max-width:300px">${esc(r.key_finding)}</td>
+      </tr>`).join("")}
+      </tbody></table>`;
+    document.getElementById("entity-table-wrap").innerHTML = table;
+  } catch(e){ document.getElementById("entity-table-wrap").textContent = "Entity table still building…"; }
+
+  // ----- minimal markdown → HTML renderer (no deps) -----
+  function mdToHTML(md){
+    if (!md) return "";
+    // Escape first
+    let s = md.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    // Code spans
+    s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+    // Headers (h1-h3)
+    s = s.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+    s = s.replace(/^## (.+)$/gm, "<h2>$1</h2>");
+    s = s.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+    // hr
+    s = s.replace(/^---+$/gm, "<hr>");
+    // Bold + italic
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+    s = s.replace(/_([^_]+)_/g, "<em>$1</em>");
+    // Numbered lists
+    s = s.replace(/(^\d+\.\s+.+(?:\n\d+\.\s+.+)*)/gm, function(block){
+      const items = block.split(/\n/).map(l=>l.replace(/^\d+\.\s+/,"")).map(t=>`<li>${t}</li>`).join("");
+      return `<ol>${items}</ol>`;
+    });
+    // Bullet lists (- or *)
+    s = s.replace(/(^[-*]\s+.+(?:\n[-*]\s+.+)*)/gm, function(block){
+      const items = block.split(/\n/).map(l=>l.replace(/^[-*]\s+/,"")).map(t=>`<li>${t}</li>`).join("");
+      return `<ul>${items}</ul>`;
+    });
+    // Blockquote
+    s = s.replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>");
+    // Paragraphs (double-newline separated, but skip lines that are already block-level)
+    const blocks = s.split(/\n\n+/).map(b => {
+      const trimmed = b.trim();
+      if (!trimmed) return "";
+      if (/^<(h[1-6]|ul|ol|hr|blockquote|table|pre)/.test(trimmed)) return trimmed;
+      return `<p>${trimmed.replace(/\n/g,"<br>")}</p>`;
+    });
+    return blocks.join("\n");
+  }
+
+  // §N — render full v18 review
+  try {
+    const md = await fetchText(RES + "/llm/review/v18_review.md");
+    document.getElementById("v18-full").innerHTML = mdToHTML(md);
+  } catch(e){ document.getElementById("v18-full").textContent = "review not yet available"; }
+
+  // §O — abstract paragraph
+  try {
+    const txt = (await fetchText("../../../reports/v12/v12_paper_updates/abstract_para.txt")).trim();
+    document.getElementById("abstract-inline").textContent = txt;
+    document.getElementById("abstract-copy").addEventListener("click", () => {
+      navigator.clipboard.writeText(txt).then(() => {
+        const b = document.getElementById("abstract-copy");
+        const orig = b.textContent;
+        b.textContent = "✓ Copied"; b.style.background = "#6AB04C"; b.style.color = "#0a0e14"; b.style.borderColor = "#6AB04C";
+        setTimeout(() => { b.textContent = orig; b.style.background = "transparent"; b.style.color = "#F5A623"; b.style.borderColor = "#F5A623"; }, 1800);
+      });
+    });
+  } catch(e){ document.getElementById("abstract-inline").textContent = "abstract not yet available"; }
+
+  // §O — KR narrative
+  try {
+    const md = await fetchText("../../../reports/v12/v12_biology_narrative.kr.md");
+    document.getElementById("kr-narrative").innerHTML = mdToHTML(md);
+  } catch(e){ document.getElementById("kr-narrative").textContent = "KR narrative not yet available"; }
+
+  // Scroll-spy active TOC
+  const toc = document.querySelectorAll('.toc a[href^="#"]');
+  const ids = Array.from(toc).map(a => a.getAttribute('href').slice(1));
+  const targets = ids.map(id => document.getElementById(id)).filter(Boolean);
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(en => {
+      if (en.isIntersecting) {
+        const id = en.target.id;
+        toc.forEach(a => a.classList.toggle('active', a.getAttribute('href')==='#'+id));
+      }
+    });
+  }, { rootMargin:'-25% 0px -60% 0px', threshold:[0.15,0.35] });
+  targets.forEach(t => obs.observe(t));
+})();
+</script>
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

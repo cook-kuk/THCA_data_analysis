@@ -1,0 +1,1213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>v13 — Integrated Drug Discovery Pipeline · THYRAI</title>
+<meta name="description" content="In-silico multi-modality drug discovery pipeline for BRAF-like thyroid cancer: 8 targets × 10 modalities, 2443 FDA drugs screened, TROP2 ADC repurposing.">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/brand.css">
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+<script src="../assets/vendor/plotly.min.js"></script>
+<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+<style>
+  html { scroll-behavior: smooth; }
+  .v13-hero {
+    min-height:44vh; padding:112px 0 44px;
+    border-bottom:1px solid var(--border);
+    background: radial-gradient(ellipse at 75% 20%, rgba(245,166,35,0.08) 0%, transparent 55%),
+                radial-gradient(ellipse at 20% 80%, rgba(106,176,76,0.07) 0%, transparent 60%),
+                radial-gradient(ellipse at 55% 55%, rgba(124,207,205,0.05) 0%, transparent 65%);
+  }
+  .v13-hero .eyebrow { color:#F5A623; letter-spacing:0.18em; font-family:'JetBrains Mono',monospace; font-size:11px; }
+  .v13-hero h1 { font-size:clamp(30px,4vw,50px); font-weight:300; letter-spacing:-0.02em; line-height:1.08; margin:16px 0 14px; }
+  .v13-hero .lede { color:var(--text-secondary); font-size:17px; line-height:1.65; max-width:84ch; margin-top:14px; }
+
+  .tile-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin:28px 0 4px; }
+  .tile { background:rgba(20,22,28,0.78); border:1px solid var(--border); border-radius:5px; padding:18px 20px; }
+  .tile__v { font-family:'JetBrains Mono',monospace; font-size:26px; font-weight:500; color:#7ccfcd; line-height:1; }
+  .tile__v.amber { color:#F5A623; } .tile__v.green { color:#6AB04C; } .tile__v.red { color:#c24c4c; }
+  .tile__l { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-muted); margin-top:10px; }
+
+  .plot-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:18px; margin-top:18px; }
+  .plot-card { background:rgba(20,22,28,0.78); border:1px solid var(--border); border-radius:6px; padding:14px 14px 10px; }
+  .plot-card h3 { margin:0 0 6px; font-size:16px; font-weight:500; color:#fff; }
+  .plot-card p { margin:0 0 10px; color:var(--text-secondary); font-size:13px; line-height:1.55; }
+  .plot { width:100%; height:360px; }
+  .plot-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .plot-actions button, .plot-actions a {
+    background:#161a20; color:var(--text-secondary); border:1px solid var(--border); padding:6px 10px;
+    font-family:'JetBrains Mono',monospace; font-size:11px; cursor:pointer; border-radius:3px; letter-spacing:0.08em; text-decoration:none;
+  }
+  .plot-actions button:hover, .plot-actions a:hover { border-color:#F5A623; color:#F5A623; }
+  .target-group { margin-top:18px; border:1px solid var(--border); border-radius:6px; overflow:hidden; background:rgba(20,22,28,0.62); }
+  .target-group summary {
+    cursor:pointer; list-style:none; padding:14px 16px; font-family:'JetBrains Mono',monospace;
+    color:#F8FAFC; display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .target-group summary::-webkit-details-marker { display:none; }
+  .target-group .target-group-body { padding:0 16px 16px; }
+  .method-list, .ref-list { margin:0; padding-left:18px; color:var(--text-secondary); line-height:1.7; }
+  .ref-list a { color:#7ccfcd; text-decoration:none; }
+  .ref-list a:hover { color:#F5A623; }
+
+  .layout { display:grid; grid-template-columns: 240px 1fr; gap: 40px; max-width: 1280px; margin: 0 auto; padding: 40px 24px; }
+  @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } .toc { position:static !important; height:auto !important; } }
+  .toc { position:sticky; top:16px; height: calc(100vh - 32px); overflow-y:auto; padding-right:12px;
+         border-right:1px solid var(--border); font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .toc .eyebrow { display:block; margin-bottom:10px; color:#7ccfcd; letter-spacing:0.12em; font-size:10px; }
+  .toc ul { list-style:none; padding:0; margin:0; }
+  .toc li { margin:6px 0; }
+  .toc a { color:var(--text-secondary); text-decoration:none; }
+  .toc a:hover { color:#F5A623; }
+
+  .sec { margin-bottom:60px; }
+  .sec h2 { font-size:28px; font-weight:400; letter-spacing:-0.01em; margin:0 0 6px; }
+  .sec h2 .eyebrow { display:block; color:#6AB04C; letter-spacing:0.18em; font-family:'JetBrains Mono',monospace; font-size:11px; margin-bottom:8px; }
+  .sec p.lede { color:var(--text-secondary); font-size:15px; line-height:1.65; max-width:80ch; margin:4px 0 22px; }
+
+  /* Modality heatmap */
+  .heatmap { overflow-x:auto; margin:18px 0; border:1px solid var(--border); border-radius:5px; background:#0f1114; }
+  .heatmap table { border-collapse:collapse; min-width:100%; font-family:'JetBrains Mono',monospace; font-size:12px; }
+  .heatmap th, .heatmap td { padding:9px 10px; border-bottom:1px solid rgba(255,255,255,0.05); text-align:center; }
+  .heatmap th { background:#161a20; color:var(--text-muted); font-weight:500; letter-spacing:0.1em; text-transform:uppercase; font-size:10px; position:sticky; top:0; }
+  .heatmap th:first-child, .heatmap td:first-child { text-align:left; color:#F5A623; font-weight:600; background:#0f1114; position:sticky; left:0; }
+  .heatmap td.cell { cursor:pointer; }
+  .heatmap td.c0 { color:#444; }
+  .heatmap td.c1 { background:rgba(124,207,205,0.10); color:#7ccfcd; }
+  .heatmap td.c2 { background:rgba(124,207,205,0.22); color:#a9e4e3; }
+  .heatmap td.c3 { background:rgba(245,166,35,0.32); color:#fff2d4; font-weight:600; }
+  .heatmap td.c4 { background:rgba(106,176,76,0.45); color:#f2ffdc; font-weight:700; }
+  .legend { display:flex; gap:12px; margin-top:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); flex-wrap:wrap; }
+  .legend .sw { display:inline-block; width:16px; height:12px; vertical-align:middle; margin-right:6px; border:1px solid rgba(255,255,255,0.15); }
+
+  /* Structure viewer */
+  .struc-grid { display:grid; grid-template-columns: 1fr 1fr; gap:20px; }
+  @media (max-width: 900px) { .struc-grid { grid-template-columns: 1fr; } }
+  .struc-ctrl { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0; }
+  .struc-ctrl button { background:#161a20; color:var(--text-secondary); border:1px solid var(--border); padding:6px 12px;
+    font-family:'JetBrains Mono',monospace; font-size:11px; cursor:pointer; border-radius:3px; letter-spacing:0.08em; }
+  .struc-ctrl button.active { background:#F5A623; color:#000; border-color:#F5A623; }
+  .struc-ctrl button:hover { border-color:#F5A623; }
+  #viewer { width:100%; height:420px; background:#0a0c10; border:1px solid var(--border); border-radius:5px; position:relative; }
+  .meta-box { font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.7; color:var(--text-secondary); background:#0f1114; border:1px solid var(--border); padding:14px 16px; border-radius:5px; }
+  .meta-box b { color:#7ccfcd; }
+  .meta-box .row { display:flex; justify-content:space-between; border-bottom:1px dashed rgba(255,255,255,0.04); padding:3px 0; }
+  .meta-box .row:last-child { border-bottom:none; }
+
+  /* Scatter */
+  .scatter-wrap { position:relative; }
+  #scatter { width:100%; height:520px; background:#0a0c10; border:1px solid var(--border); border-radius:5px; }
+  .scatter-tip { position:absolute; pointer-events:none; background:#161a20; border:1px solid #F5A623;
+    color:#fff; font-family:'JetBrains Mono',monospace; font-size:11px; padding:8px 10px; border-radius:3px; display:none; }
+  #trop2-timeline { width:100%; height:360px; background:#0a0c10; border:1px solid var(--border); border-radius:5px; margin-top:18px; }
+
+  /* Cards */
+  .card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+  .card { background:rgba(20,22,28,0.78); border:1px solid var(--border); border-radius:5px; padding:16px 18px; }
+  .card .target { font-family:'JetBrains Mono',monospace; color:#F5A623; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; }
+  .card .drug { font-size:20px; margin:8px 0 4px; font-weight:500; color:#fff; }
+  .card .tier { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px; padding:2px 8px; border-radius:12px; letter-spacing:0.08em; }
+  .tier-A { background:#6AB04C; color:#000; }
+  .tier-B { background:#7ccfcd; color:#000; }
+  .tier-C { background:#F5A623; color:#000; }
+  .tier-D { background:#666; color:#fff; }
+  .kv { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); margin-top:10px; display:grid; grid-template-columns:auto 1fr; gap:3px 12px; }
+  .kv b { color:var(--text-secondary); font-weight:500; }
+  .kv .v { text-align:right; color:#7ccfcd; }
+
+  /* TROP2 spotlight */
+  .trop2-spotlight {
+    background: linear-gradient(135deg, rgba(245,166,35,0.08) 0%, rgba(194,76,76,0.07) 100%);
+    border:1px solid rgba(245,166,35,0.35); border-radius:6px; padding:28px 30px; margin:20px 0;
+  }
+  .trop2-spotlight h3 { margin:0 0 8px; font-size:22px; font-weight:400; color:#F5A623; }
+  .trop2-spotlight .tag { display:inline-block; background:#F5A623; color:#000; font-size:10px;
+    font-family:'JetBrains Mono',monospace; padding:3px 10px; letter-spacing:0.12em; border-radius:2px; }
+  .trop2-trial-list { margin:14px 0 0; padding:0; list-style:none; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.9; }
+  .trop2-trial-list li { border-left:2px solid #F5A623; padding-left:12px; margin:6px 0; }
+  .trop2-trial-list a { color:#7ccfcd; text-decoration:none; }
+  .trop2-trial-list a:hover { color:#F5A623; }
+
+  /* Novel modality opps */
+  .opps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; }
+  .opp-card { background:#0f1114; border:1px dashed rgba(124,207,205,0.3); border-radius:5px; padding:16px 18px; }
+  .opp-card .type { font-family:'JetBrains Mono',monospace; font-size:11px; color:#7ccfcd; letter-spacing:0.14em; text-transform:uppercase; }
+  .opp-card .gene { font-size:16px; font-weight:500; margin:8px 0 4px; color:#fff; }
+  .opp-card .desc { font-size:13px; line-height:1.55; color:var(--text-secondary); }
+
+  /* Tables */
+  .datatable { width:100%; border-collapse:collapse; font-family:'JetBrains Mono',monospace; font-size:12px; margin-top:14px; }
+  .datatable th { background:#161a20; color:var(--text-muted); padding:9px 10px; text-align:left;
+    font-weight:500; letter-spacing:0.1em; text-transform:uppercase; font-size:10px; border-bottom:1px solid var(--border); }
+  .datatable td { padding:7px 10px; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--text-secondary); }
+  .datatable tr:hover td { background:rgba(245,166,35,0.05); color:#fff; }
+  .datatable td.num { text-align:right; color:#7ccfcd; }
+
+  .filter-row { display:flex; gap:10px; align-items:center; margin:14px 0 6px; flex-wrap:wrap; }
+  .filter-row input, .filter-row select {
+    background:#0f1114; color:var(--text-secondary); border:1px solid var(--border); padding:6px 10px;
+    font-family:'JetBrains Mono',monospace; font-size:12px; border-radius:3px;
+  }
+  .filter-row input:focus, .filter-row select:focus { border-color:#F5A623; outline:none; }
+
+  details.detail-slot { background:#0f1114; border:1px solid var(--border); border-radius:5px; padding:10px 14px; margin:8px 0; }
+  details.detail-slot summary { cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:12px; color:#7ccfcd; letter-spacing:0.08em; }
+  details.detail-slot pre { font-size:11px; color:var(--text-muted); white-space:pre-wrap; }
+
+  .muted { color:var(--text-muted); font-family:'JetBrains Mono',monospace; font-size:11px; }
+  #tierA-summary, #trop2-literature-trend, #structure-comparison, #novel-priority-map { width:100%; height:340px; background:#0a0c10; border:1px solid var(--border); border-radius:5px; margin-top:18px; }
+  .bio-schematic {
+    margin-top:18px; padding:18px; border:1px solid rgba(245,166,35,0.25); border-radius:6px;
+    background:linear-gradient(135deg, rgba(245,166,35,0.06), rgba(124,207,205,0.05));
+  }
+  .bio-schematic svg { width:100%; height:auto; display:block; }
+</style>
+</head>
+<body class="thyrai">
+
+<nav class="topnav" aria-label="Primary">
+  <div class="topnav__inner">
+    <a class="topnav__brand" href="../index.html" aria-label="THYRAI home">
+      <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+    </a>
+    <ul class="topnav__links">
+      <li><a class="topnav__link" href="pipeline.html">Pipeline</a></li>
+      <li><a class="topnav__link" href="v4a_dial_cross_cancer.html" style="color:#F5A623">v5.1 Audit</a></li>
+      <li><a class="topnav__link" href="research_timeline.html">Timeline</a></li>
+      <li><a class="topnav__link" href="research_reasoning.html" style="color:#6AB04C">Reasoning</a></li>
+      <li><a class="topnav__link" href="v11_novel_pathways.html" style="color:#7ccfcd">Novel Pathways</a></li>
+      <li><a class="topnav__link" href="v12_biological_evidence.html" style="color:#6AB04C">v12 Biology</a></li>
+      <li><a class="topnav__link" aria-current="page" href="v13_drug_discovery.html" style="color:#F5A623">v13 Drug Discovery</a></li>
+      <li><a class="topnav__link" href="v7_drug_repurposing.html">v7 Repurposing</a></li>
+      <li><a class="topnav__link" href="team.html">Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="v13-hero">
+  <div class="container">
+    <span class="eyebrow">v13 · INTEGRATED DRUG DISCOVERY · BUILD 2026-04-25</span>
+    <h1>From transcriptomic signature to multi-modality therapeutic landscape.</h1>
+    <p class="lede">
+      v13 extends the v7 repurposing atlas into a complete in-silico drug-discovery pipeline over
+      the <b>eight BRAF-like druggable targets</b> identified in v5.1 / v11 / v12. For every target
+      we (i) acquire a 3D structure (PDB or AlphaFold2), (ii) detect candidate ligand pockets and
+      score druggability, (iii) run a 2,443-compound FDA-library virtual screen, (iv) evaluate
+      <b>ten therapeutic modalities</b> — small molecule, mAb, ADC, bispecific, siRNA, PROTAC,
+      CAR-T, radioligand, mRNA, ASO — and (v) filter hits by ADMET red-flags. The strongest
+      finding is an ADC repurposing rationale for TACSTD2 (TROP2) in BRAF-like thyroid cancer,
+      anchored to two active Ph2 trials.
+    </p>
+    <div class="tile-row">
+      <div class="tile"><div class="tile__v amber" id="t-targets">8</div><div class="tile__l">Targets profiled</div></div>
+      <div class="tile"><div class="tile__v" id="t-compounds">2,443</div><div class="tile__l">FDA drugs screened</div></div>
+      <div class="tile"><div class="tile__v" id="t-modalities">10</div><div class="tile__l">Modalities evaluated</div></div>
+      <div class="tile"><div class="tile__v green" id="t-tierA">59</div><div class="tile__l">Tier-A candidates</div></div>
+      <div class="tile"><div class="tile__v amber" id="t-trop2">2</div><div class="tile__l">Active thyroid ADC trials</div></div>
+      <div class="tile"><div class="tile__v" id="t-pdb">5</div><div class="tile__l">Crystal structures</div></div>
+      <div class="tile"><div class="tile__v" id="t-af2">3</div><div class="tile__l">AlphaFold2 fallbacks</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="layout">
+
+  <aside class="toc" aria-label="Table of contents">
+    <span class="eyebrow">v13 · sections</span>
+    <ul>
+      <li><a href="#matrix">§A Modality matrix</a></li>
+      <li><a href="#structures">§B 3D structures</a></li>
+      <li><a href="#screen">§C Virtual screen</a></li>
+      <li><a href="#trop2">§D TROP2 ADC spotlight</a></li>
+      <li><a href="#candidates">§E Priority candidates</a></li>
+      <li><a href="#novel">§F Novel modality opps</a></li>
+      <li><a href="#provenance">§G Provenance / data</a></li>
+    </ul>
+  </aside>
+
+  <main>
+
+  <section id="summary-plots" class="sec">
+    <h2><span class="eyebrow">§0 · executive figures</span>Paper-style summary figures</h2>
+    <p class="lede">
+      Before drilling into structures and single-target details, these three figures summarise the
+      full v13 output: candidate tier distribution across targets, modality evidence intensity, and
+      pocket/druggability profile from the structure layer.
+    </p>
+    <div class="plot-grid">
+      <div class="plot-card">
+        <h3>Tier distribution across targets</h3>
+        <p>Stacked bar of A/B/C/D candidates per target from the 400-row prioritization table.</p>
+        <div id="fig-tier-distribution" class="plot"></div>
+        <div class="plot-actions">
+          <button type="button" onclick="downloadPlot('fig-tier-distribution','v13_tier_distribution','png')">PNG</button>
+          <button type="button" onclick="downloadPlot('fig-tier-distribution','v13_tier_distribution','svg')">SVG</button>
+          <a href="../data/v13/tables/ranked_candidates.tsv" target="_blank" rel="noopener">TSV</a>
+        </div>
+      </div>
+      <div class="plot-card">
+        <h3>Modality evidence heatmap</h3>
+        <p>Approved-to-hypothesis evidence scores across the full 8 × 10 modality landscape.</p>
+        <div id="fig-modality-heatmap" class="plot"></div>
+        <div class="plot-actions">
+          <button type="button" onclick="downloadPlot('fig-modality-heatmap','v13_modality_heatmap','png')">PNG</button>
+          <button type="button" onclick="downloadPlot('fig-modality-heatmap','v13_modality_heatmap','svg')">SVG</button>
+          <a href="../data/v13/tables/target_modality_matrix.tsv" target="_blank" rel="noopener">TSV</a>
+        </div>
+      </div>
+      <div class="plot-card">
+        <h3>Pocket druggability profile</h3>
+        <p>Best-pocket PLB score per target with modality-fit annotation from the structure layer.</p>
+        <div id="fig-pocket-profile" class="plot"></div>
+        <div class="plot-actions">
+          <button type="button" onclick="downloadPlot('fig-pocket-profile','v13_pocket_profile','png')">PNG</button>
+          <button type="button" onclick="downloadPlot('fig-pocket-profile','v13_pocket_profile','svg')">SVG</button>
+          <a href="../data/v13/tables/druggability_tiers.tsv" target="_blank" rel="noopener">TSV</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- A. Modality matrix -->
+  <section id="matrix" class="sec">
+    <h2><span class="eyebrow">§A · modality matrix</span>8 targets × 10 modalities</h2>
+    <p class="lede">
+      For each (target, modality) pair we classify the best evidence class into approved, clinical,
+      preclinical, hypothesis, or none, and cite a representative agent where one exists. Click any
+      non-empty cell for the rationale.
+    </p>
+    <div class="heatmap">
+      <table id="mtx"><thead></thead><tbody></tbody></table>
+    </div>
+    <div class="legend">
+      <span><span class="sw" style="background:rgba(106,176,76,0.45)"></span>approved</span>
+      <span><span class="sw" style="background:rgba(245,166,35,0.32)"></span>clinical</span>
+      <span><span class="sw" style="background:rgba(124,207,205,0.22)"></span>preclinical</span>
+      <span><span class="sw" style="background:rgba(124,207,205,0.10)"></span>hypothesis</span>
+      <span><span class="sw" style="background:#0f1114"></span>none</span>
+    </div>
+    <details class="detail-slot" id="mtx-detail"><summary>click cell for rationale ↑</summary><pre id="mtx-detail-text">(no cell selected)</pre></details>
+  </section>
+
+  <!-- B. Structure viewer -->
+  <section id="structures" class="sec">
+    <h2><span class="eyebrow">§B · 3D structures</span>Interactive structure viewer with top pocket</h2>
+    <p class="lede">
+      Cartoon rendering from PDB (crystal/cryo-EM) or AlphaFold2 where no experimental model exists.
+      Orange spheres = centre of the top-scoring druggable pocket from our alpha-sphere-lite pocket
+      finder. Use controls to switch style or toggle pocket overlay. Note that for very large
+      multi-chain crystals we render chain A only.
+    </p>
+    <div class="struc-grid">
+      <div>
+        <div class="struc-ctrl" id="struc-targets"></div>
+        <div id="viewer"></div>
+        <div class="struc-ctrl" style="margin-top:8px">
+          <button id="style-cartoon" class="active">cartoon</button>
+          <button id="style-surface">surface</button>
+          <button id="style-stick">stick (ligand)</button>
+          <button id="pocket-toggle" class="active">pocket ON</button>
+        </div>
+      </div>
+      <div>
+        <div class="meta-box" id="struc-meta">loading…</div>
+      </div>
+    </div>
+    <div id="structure-comparison"></div>
+    <div class="plot-actions">
+      <button type="button" onclick="downloadPlot('structure-comparison','v13_structure_comparison','png')">PNG</button>
+      <button type="button" onclick="downloadPlot('structure-comparison','v13_structure_comparison','svg')">SVG</button>
+      <a href="../data/v13/tables/druggability_tiers.tsv" target="_blank" rel="noopener">TSV</a>
+    </div>
+  </section>
+
+  <!-- C. Screen scatter -->
+  <section id="screen" class="sec">
+    <h2><span class="eyebrow">§C · virtual screen</span>2,443 FDA drugs scored across 8 targets</h2>
+    <p class="lede">
+      Similarity-based screen (Morgan/ECFP4 Tanimoto to literature-anchored reference binders) with
+      RDKit ADMET post-processing. Each dot is a (drug, target) hit; x = max Tanimoto to target's
+      references, y = composite ADMET favourability. Hover a dot for drug metadata. Tier-A colour
+      indicates FDA-approved + no red flag. Filter by target or drug name.
+    </p>
+    <div class="filter-row">
+      <label class="muted">target:</label>
+      <select id="f-target"><option value="">(all)</option></select>
+      <label class="muted">search:</label>
+      <input id="f-search" placeholder="drug name / chembl id" />
+      <label class="muted">tier:</label>
+      <select id="f-tier">
+        <option value="">(all)</option>
+        <option value="A">A only</option>
+        <option value="A,B">A+B</option>
+      </select>
+      <span id="f-count" class="muted"></span>
+    </div>
+    <div class="scatter-wrap">
+      <div id="scatter"></div>
+    </div>
+    <div class="plot-actions">
+      <button type="button" onclick="downloadPlot('scatter','v13_virtual_screen','png')">PNG</button>
+      <button type="button" onclick="downloadPlot('scatter','v13_virtual_screen','svg')">SVG</button>
+      <a href="../data/v13/tables/ranked_candidates.tsv" target="_blank" rel="noopener">TSV</a>
+    </div>
+    <table class="datatable" id="screen-tbl"><thead><tr>
+      <th>target</th><th>drug</th><th>chembl</th><th>phase</th>
+      <th class="num">score</th><th class="num">Tanimoto</th><th class="num">ADMET</th>
+      <th class="num">PubMed</th><th>tier</th>
+    </tr></thead><tbody></tbody></table>
+  </section>
+
+  <!-- D. TROP2 spotlight -->
+  <section id="trop2" class="sec">
+    <h2><span class="eyebrow">§D · spotlight</span>TROP2 ADC — immediate repurposing opportunity</h2>
+    <div class="trop2-spotlight">
+      <span class="tag">🔥 FLAGSHIP FINDING</span>
+      <h3>Sacituzumab govitecan & sacituzumab tirumotecan in BRAF-like PTC</h3>
+      <p style="color:var(--text-secondary); line-height:1.7; font-size:15px;">
+        Our v13 signature ranks TACSTD2 (TROP2) among the top BRAF-like-up-regulated targets.
+        Two dedicated phase-2 thyroid trials are already recruiting or poised to open, treating
+        unselected TROP2-positive thyroid cancer. Layering the v13 BRAF-like classifier plus
+        TACSTD2 expression as a correlative biomarker could (a) enrich for responders and (b)
+        spin a separate short-form clinical-translation paper.
+      </p>
+      <div id="trop2-timeline"></div>
+      <div class="plot-actions">
+        <button type="button" onclick="downloadPlot('trop2-timeline','v13_trop2_trials','png')">PNG</button>
+        <button type="button" onclick="downloadPlot('trop2-timeline','v13_trop2_trials','svg')">SVG</button>
+        <a href="../data/v13/tables/trop2_trials.tsv" target="_blank" rel="noopener">TSV</a>
+      </div>
+      <div id="trop2-literature-trend"></div>
+      <div class="plot-actions">
+        <button type="button" onclick="downloadPlot('trop2-literature-trend','v13_trop2_literature_trend','png')">PNG</button>
+        <button type="button" onclick="downloadPlot('trop2-literature-trend','v13_trop2_literature_trend','svg')">SVG</button>
+        <a href="../data/v13/tables/trop2_literature.tsv" target="_blank" rel="noopener">TSV</a>
+      </div>
+      <div class="bio-schematic">
+        <svg viewBox="0 0 980 220" role="img" aria-label="BRAF-like TACSTD2 enrichment schematic">
+          <defs>
+            <linearGradient id="g1" x1="0" x2="1">
+              <stop offset="0%" stop-color="#F5A623"/>
+              <stop offset="100%" stop-color="#7ccfcd"/>
+            </linearGradient>
+          </defs>
+          <rect x="10" y="32" width="180" height="120" rx="16" fill="#111827" stroke="#334155"/>
+          <text x="100" y="72" text-anchor="middle" fill="#F8FAFC" font-size="20" font-family="Inter, sans-serif">BRAF-like THCA</text>
+          <text x="100" y="104" text-anchor="middle" fill="#CBD5E1" font-size="14" font-family="Inter, sans-serif">classifier-positive subset</text>
+          <text x="100" y="128" text-anchor="middle" fill="#F5A623" font-size="15" font-family="JetBrains Mono, monospace">enrichment gate 1</text>
+          <rect x="240" y="32" width="220" height="120" rx="16" fill="#111827" stroke="#334155"/>
+          <text x="350" y="72" text-anchor="middle" fill="#F8FAFC" font-size="20" font-family="Inter, sans-serif">TACSTD2 high</text>
+          <text x="350" y="104" text-anchor="middle" fill="#CBD5E1" font-size="14" font-family="Inter, sans-serif">surface antigen confirmation</text>
+          <text x="350" y="128" text-anchor="middle" fill="#7ccfcd" font-size="15" font-family="JetBrains Mono, monospace">enrichment gate 2</text>
+          <rect x="520" y="32" width="210" height="120" rx="16" fill="#111827" stroke="#334155"/>
+          <text x="625" y="72" text-anchor="middle" fill="#F8FAFC" font-size="20" font-family="Inter, sans-serif">ADC eligible cohort</text>
+          <text x="625" y="104" text-anchor="middle" fill="#CBD5E1" font-size="14" font-family="Inter, sans-serif">sacituzumab / tirumotecan</text>
+          <text x="625" y="128" text-anchor="middle" fill="#6AB04C" font-size="15" font-family="JetBrains Mono, monospace">trial enrichment proposal</text>
+          <rect x="780" y="32" width="190" height="120" rx="16" fill="#111827" stroke="#334155"/>
+          <text x="875" y="72" text-anchor="middle" fill="#F8FAFC" font-size="20" font-family="Inter, sans-serif">Correlative readout</text>
+          <text x="875" y="104" text-anchor="middle" fill="#CBD5E1" font-size="14" font-family="Inter, sans-serif">response, RAI-R, survival</text>
+          <text x="875" y="128" text-anchor="middle" fill="#F5A623" font-size="15" font-family="JetBrains Mono, monospace">JCO-PO angle</text>
+          <path d="M190 92H240" stroke="url(#g1)" stroke-width="6" marker-end="url(#arrow)"/>
+          <path d="M460 92H520" stroke="url(#g1)" stroke-width="6" marker-end="url(#arrow)"/>
+          <path d="M730 92H780" stroke="url(#g1)" stroke-width="6" marker-end="url(#arrow)"/>
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="#F5A623"/>
+            </marker>
+          </defs>
+        </svg>
+      </div>
+      <ul class="trop2-trial-list" id="trop2-trials"></ul>
+      <p class="muted" style="margin-top:14px">Full write-up: <a style="color:#F5A623" href="../../results/v13_drug_discovery/modalities/trop2_adc_deep_dive.md">trop2_adc_deep_dive.md</a> · <a style="color:#7ccfcd" href="../../v16/v16_xenograft_design.md">v16_xenograft_design.md</a> · 60 PubMed records · 194 trials indexed · PMID list at data/v13/tables/trop2_literature.tsv</p>
+    </div>
+  </section>
+
+  <!-- E. Priority candidates -->
+  <section id="candidates" class="sec">
+    <h2><span class="eyebrow">§E · priority candidates</span>Tier-A 'go now' shortlist</h2>
+    <p class="lede">
+      Composite score ≥ 0.70, FDA-approved (max_phase = 4), no PAINS / hepatotox / hERG red flag.
+      Score weighting: 0.25 binding + 0.20 ADMET + 0.15 clinical maturity + 0.15 off-patent
+      + 0.10 thyroid PubMed + 0.10 modality fit + 0.05 repurposing preference.
+    </p>
+    <div id="tierA-summary"></div>
+    <div class="plot-actions">
+      <button type="button" onclick="downloadPlot('tierA-summary','v13_tierA_summary','png')">PNG</button>
+      <button type="button" onclick="downloadPlot('tierA-summary','v13_tierA_summary','svg')">SVG</button>
+      <a href="../data/v13/tables/ranked_candidates.tsv" target="_blank" rel="noopener">TSV</a>
+    </div>
+    <div class="card-grid" id="tierA-cards"></div>
+    <div id="tierA-groups"></div>
+    <p class="muted" style="margin-top:18px">Full ranked list: <a style="color:#F5A623" href="../data/v13/tables/ranked_candidates.tsv">ranked_candidates.tsv</a> · Per-target top 10: <a style="color:#F5A623" href="../data/v13/tables/per_target_top10.tsv">per_target_top10.tsv</a></p>
+  </section>
+
+  <!-- F. Novel modality opportunities -->
+  <section id="novel" class="sec">
+    <h2><span class="eyebrow">§F · tier-2 opportunities</span>Novel modality hypotheses</h2>
+    <p class="lede">
+      Targets where no approved or clinical small molecule exists today, but where emerging
+      modalities provide a credible handle. Tier-2 work (v15 preview) will generate novel
+      chemistry via REINVENT4 transfer-learning from known binders.
+    </p>
+    <div class="opps-grid">
+      <div class="opp-card">
+        <span class="type">PROTAC candidate</span>
+        <div class="gene">PLEKHA6</div>
+        <div class="desc">PH-domain scaffold; best in-silico hits (thalidomide / lenalidomide / pomalidomide) all carry CRBN-warhead chemistry. Logical starting point for a bespoke PLEKHA6 degrader.</div>
+      </div>
+      <div class="opp-card">
+        <span class="type">PROTAC / siRNA</span>
+        <div class="gene">PTPRE</div>
+        <div class="desc">Receptor PTP with shallow pocket (PLB 0.39 → low). PTP-family degraders (cf. SHP2) are a growing field; siRNA preclinical data available in breast/lymphoma.</div>
+      </div>
+      <div class="opp-card">
+        <span class="type">siRNA / ASO</span>
+        <div class="gene">B3GNT3</div>
+        <div class="desc">Golgi glycosyltransferase. Knockdown rescues anti-PD-1 in Cell 2018. Structural pocket (PLB 0.58) borderline; mRNA-level modulation is the practical handle.</div>
+      </div>
+      <div class="opp-card">
+        <span class="type">ADC + radioligand</span>
+        <div class="gene">TACSTD2 (TROP2)</div>
+        <div class="desc">Already in the clinic for breast / urothelial / lung. Active thyroid Ph2 (NCT06235216, NCT07521670). Also: [68Ga]Ga-NOTA-T4 ImmunoPET imaging (preclinical).</div>
+      </div>
+      <div class="opp-card">
+        <span class="type">siRNA / mAb</span>
+        <div class="gene">TMPRSS4</div>
+        <div class="desc">No approved selective small molecule. Nafamostat cross-reactivity is limited; anti-TMPRSS4 mAb (Kim 2020) provides proof-of-concept handle for surface targeting.</div>
+      </div>
+      <div class="opp-card">
+        <span class="type">siRNA / mRNA replacement</span>
+        <div class="gene">LDLR</div>
+        <div class="desc">Inclisiran (PCSK9 siRNA) already approved for indirect LDLR upregulation. LDLR mRNA replacement under investigation by Moderna for homozygous FH — relevance to THCA metabolic phenotype to explore.</div>
+      </div>
+    </div>
+    <div id="novel-priority-map"></div>
+    <div class="plot-actions">
+      <button type="button" onclick="downloadPlot('novel-priority-map','v13_novel_priority_map','png')">PNG</button>
+      <button type="button" onclick="downloadPlot('novel-priority-map','v13_novel_priority_map','svg')">SVG</button>
+      <a href="../data/v13/tables/target_modality_matrix.tsv" target="_blank" rel="noopener">TSV</a>
+    </div>
+  </section>
+
+  <!-- G. Provenance -->
+  <section id="provenance" class="sec">
+    <h2><span class="eyebrow">§G · provenance</span>Data / reproducibility</h2>
+    <div class="datatable" style="overflow-x:auto">
+      <table class="datatable">
+        <thead><tr><th>artefact</th><th>source</th><th>rows</th><th>path</th></tr></thead>
+        <tbody>
+          <tr><td>Structures</td><td>RCSB PDB + AlphaFold DB v6</td><td>8 PDB files</td><td><code>data/v13/structures/*.pdb</code></td></tr>
+          <tr><td>Structure sources</td><td>curated + RCSB/AF API</td><td>8</td><td><code>data/v13/tables/structure_sources.tsv</code></td></tr>
+          <tr><td>Pockets</td><td>alpha-sphere-lite (scipy KD-tree)</td><td>22</td><td><code>data/v13/pocket_detail.json</code></td></tr>
+          <tr><td>Druggability tiers</td><td>PLB proxy + biology fit</td><td>8</td><td><code>data/v13/tables/druggability_tiers.tsv</code></td></tr>
+          <tr><td>FDA library</td><td>ChEMBL molecule.json (max_phase=4)</td><td>2,443</td><td><code>docking/fda_library.tsv</code></td></tr>
+          <tr><td>Modality matrix</td><td>curated biology + CT.gov v2</td><td>80 cells</td><td><code>data/v13/target_modality_matrix.json</code></td></tr>
+          <tr><td>CT.gov hits</td><td>clinicaltrials.gov API v2</td><td>67</td><td><code>data/v13/tables/ct_gov_hits.tsv</code></td></tr>
+          <tr><td>TROP2 literature</td><td>NCBI E-utilities</td><td>60</td><td><code>data/v13/tables/trop2_literature.tsv</code></td></tr>
+          <tr><td>TROP2 trials</td><td>clinicaltrials.gov v2</td><td>194</td><td><code>data/v13/tables/trop2_trials.tsv</code></td></tr>
+          <tr><td>Ranked candidates</td><td>composite score over 400 hits</td><td>400</td><td><code>data/v13/tables/ranked_candidates.tsv</code></td></tr>
+          <tr><td>Analysis summary</td><td>this work</td><td>—</td><td><code>reports/v13/v13_analysis_summary.md</code></td></tr>
+          <tr><td>Executive brief</td><td>this work</td><td>—</td><td><code>reports/v13/v13_executive_brief.md</code></td></tr>
+          <tr><td>Paper section</td><td>this work</td><td>—</td><td><code>reports/v13/v13_paper_section.md</code></td></tr>
+          <tr><td>TROP2 standalone draft</td><td>this work</td><td>—</td><td><code>reports/v13/v13_trop2_standalone_draft.md</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin-top:14px">
+      Runtime pipeline: <code>notebooks_or_scripts/v13_0{1..7}_*.py</code> — chained, idempotent, ~30 min end-to-end on 1 CPU.
+      No GPU, no external docking engine. Docking fallback is similarity-based (stated limitation);
+      Tier-2 / v14 will add GNINA / AutoDock Vina + REINVENT4 novel-molecule generation.
+    </p>
+  </section>
+
+  <section id="methods" class="sec">
+    <h2><span class="eyebrow">§H · methods</span>Methods at a glance</h2>
+    <p class="lede">
+      This page is a synthesis layer over the v13 scripted pipeline, not a hand-written narrative only.
+      The items below state exactly which computational shortcuts were used and where caution is required.
+    </p>
+    <ol class="method-list">
+      <li>Structure acquisition used RCSB PDB first and AlphaFold DB fallback second; 5 targets used experimental structures and 3 used AF2.</li>
+      <li>Pocketing used the in-repo alpha-sphere-lite heuristic with HETATM ligand-site rescue, not P2Rank or GNINA.</li>
+      <li>Virtual screening used Morgan/ECFP4 Tanimoto similarity against curated reference binders because full docking was not executed in this run.</li>
+      <li>ADMET used the implemented RDKit proxy model and rule-based alerts because `admet-ai` was not available in the active environment.</li>
+      <li>Composite prioritization combined binding, ADMET, maturity, off-patent status, thyroid PubMed support, modality fit, and repurposing preference.</li>
+      <li>TROP2 thyroid-trial evidence came from ClinicalTrials.gov v2; literature counts came from NCBI E-utilities.</li>
+    </ol>
+  </section>
+
+  <section id="references" class="sec">
+    <h2><span class="eyebrow">§I · references</span>Key references and data sources</h2>
+    <ul class="ref-list">
+      <li><a href="https://www.rcsb.org/" target="_blank" rel="noopener">RCSB Protein Data Bank</a> — experimental structures for CYP1B1, LDLR, TACSTD2, GABRB2, PTPRE.</li>
+      <li><a href="https://alphafold.ebi.ac.uk/" target="_blank" rel="noopener">AlphaFold Protein Structure Database</a> — fallback full-chain models for TMPRSS4, PLEKHA6, B3GNT3.</li>
+      <li><a href="https://clinicaltrials.gov/" target="_blank" rel="noopener">ClinicalTrials.gov v2 API</a> — modality/trial evidence and TROP2 ADC trial retrieval.</li>
+      <li><a href="https://www.ncbi.nlm.nih.gov/pmc/tools/developers/" target="_blank" rel="noopener">NCBI E-utilities</a> — TROP2 literature retrieval and PubMed count support.</li>
+      <li><a href="https://www.ebi.ac.uk/chembl/" target="_blank" rel="noopener">ChEMBL</a> — FDA-approved small-molecule library cache (`max_phase = 4`).</li>
+      <li><a href="../../reports/v13/v13_analysis_summary.md">v13 analysis summary</a> and <a href="../../reports/v13/v13_executive_brief.md">v13 executive brief</a>.</li>
+      <li><a href="v13_executive_brief.html">HTML one-page executive brief</a> for collaborator-facing sharing.</li>
+      <li><a href="../../results/v13_drug_discovery/modalities/trop2_adc_deep_dive.md">TROP2 ADC deep dive</a> — project-specific long-form synthesis.</li>
+      <li><a href="../../reports/v13/v13_paper_section.md">v13 paper section draft</a> and <a href="../../reports/v13/v13_trop2_standalone_draft.md">standalone TROP2 draft</a>.</li>
+    </ul>
+  </section>
+
+  </main>
+</div>
+
+<script>
+const TARGETS = ["CYP1B1","LDLR","TACSTD2","TMPRSS4","GABRB2","PLEKHA6","PTPRE","B3GNT3"];
+const MODALITIES = ["SM","mAb","ADC","bispecific","siRNA","PROTAC","CAR_T","radioligand","mRNA","ASO"];
+const REP_DISPLAY = {
+  SM:"small molecule", mAb:"mAb", ADC:"ADC", bispecific:"bispecific",
+  siRNA:"siRNA", PROTAC:"PROTAC", CAR_T:"CAR-T", radioligand:"radioligand",
+  mRNA:"mRNA", ASO:"ASO"
+};
+
+function tsvToObjects(text) {
+  const lines = text.split("\n").filter(Boolean);
+  if (!lines.length) return [];
+  const hdr = lines[0].split("\t");
+  return lines.slice(1).map(l => {
+    const v = l.split("\t");
+    const row = {};
+    hdr.forEach((h, i) => row[h] = v[i] ?? "");
+    return row;
+  });
+}
+
+const PLOTLY_LAYOUT = {
+  paper_bgcolor: "#0f1114",
+  plot_bgcolor: "#0f1114",
+  font: {color: "#cbd5e1", family: "JetBrains Mono, Inter, sans-serif", size: 12},
+  margin: {l: 56, r: 20, t: 20, b: 56},
+};
+
+function downloadPlot(id, name, format) {
+  const el = document.getElementById(id);
+  if (!el || !window.Plotly) return;
+  Plotly.downloadImage(el, {format, filename: name, scale: 2});
+}
+
+async function loadExecutivePlots() {
+  const [rankText, modText, pocketText] = await Promise.all([
+    fetch("../data/v13/tables/ranked_candidates.tsv").then(r => r.text()).catch(() => ""),
+    fetch("../data/v13/tables/target_modality_matrix.tsv").then(r => r.text()).catch(() => ""),
+    fetch("../data/v13/tables/druggability_tiers.tsv").then(r => r.text()).catch(() => "")
+  ]);
+  renderTierDistribution(tsvToObjects(rankText));
+  renderModalityHeatmap(tsvToObjects(modText));
+  renderPocketProfile(tsvToObjects(pocketText));
+}
+
+function renderTierDistribution(rows) {
+  if (!rows.length || !window.Plotly) return;
+  const tiers = ["A", "B", "C", "D"];
+  const colors = {A:"#6AB04C", B:"#7ccfcd", C:"#F5A623", D:"#666"};
+  const traces = tiers.map(tier => ({
+    type: "bar",
+    name: tier,
+    x: TARGETS,
+    y: TARGETS.map(g => rows.filter(r => r.target === g && r.tier === tier).length),
+    marker: {color: colors[tier]},
+  }));
+  Plotly.newPlot("fig-tier-distribution", traces, {
+    ...PLOTLY_LAYOUT,
+    barmode: "stack",
+    legend: {orientation:"h", y:1.16, x:0},
+    yaxis: {title: "Candidate count", gridcolor: "rgba(255,255,255,0.08)"},
+    xaxis: {tickangle: -20},
+  }, {responsive:true, displaylogo:false});
+}
+
+function renderModalityHeatmap(rows) {
+  if (!rows.length || !window.Plotly) return;
+  const scoreMap = {approved:4, clinical:3, preclinical:2, hypothesis:1, none:0};
+  const modalities = ["SM","mAb","ADC","bispecific","siRNA","PROTAC","CAR_T","radioligand","mRNA","ASO"];
+  const z = TARGETS.map(g =>
+    modalities.map(m => {
+      const hit = rows.find(r => r.gene === g && r.modality === m);
+      return scoreMap[(hit && hit.evidence_class) || "none"];
+    })
+  );
+  const text = TARGETS.map(g =>
+    modalities.map(m => {
+      const hit = rows.find(r => r.gene === g && r.modality === m);
+      return hit ? `${g} × ${m}<br>${hit.evidence_class}<br>agents=${hit.agent_count}` : `${g} × ${m}`;
+    })
+  );
+  Plotly.newPlot("fig-modality-heatmap", [{
+    type: "heatmap",
+    x: modalities,
+    y: TARGETS,
+    z,
+    text,
+    hoverinfo: "text",
+    colorscale: [
+      [0.00, "#111827"],
+      [0.25, "#164e63"],
+      [0.50, "#0f766e"],
+      [0.75, "#b45309"],
+      [1.00, "#65a30d"]
+    ],
+    zmin: 0,
+    zmax: 4,
+    colorbar: {title: "Evidence"},
+  }], {
+    ...PLOTLY_LAYOUT,
+    margin: {l: 90, r: 20, t: 20, b: 70},
+    xaxis: {tickangle: -25},
+  }, {responsive:true, displaylogo:false});
+}
+
+function renderPocketProfile(rows) {
+  if (!rows.length || !window.Plotly) return;
+  const colorMap = {High:"#6AB04C", Medium:"#F5A623", Low:"#c24c4c"};
+  Plotly.newPlot("fig-pocket-profile", [{
+    type: "bar",
+    x: rows.map(r => r.gene),
+    y: rows.map(r => +r.best_plb),
+    marker: {color: rows.map(r => colorMap[r.druggability_tier] || "#7ccfcd")},
+    text: rows.map(r => `${r.druggability_tier}<br>${r.preferred_modalities}`),
+    hovertemplate: "<b>%{x}</b><br>PLB=%{y:.3f}<br>%{text}<extra></extra>",
+  }], {
+    ...PLOTLY_LAYOUT,
+    yaxis: {title: "Best pocket PLB", gridcolor: "rgba(255,255,255,0.08)", range:[0,1]},
+    xaxis: {tickangle: -20},
+    shapes: [
+      {type:"line", xref:"paper", x0:0, x1:1, y0:0.7, y1:0.7, line:{color:"#6AB04C", dash:"dot"}},
+      {type:"line", xref:"paper", x0:0, x1:1, y0:0.4, y1:0.4, line:{color:"#F5A623", dash:"dot"}},
+    ],
+    annotations: [
+      {xref:"paper", yref:"y", x:1.01, y:0.7, text:"high", showarrow:false, font:{color:"#6AB04C", size:11}},
+      {xref:"paper", yref:"y", x:1.01, y:0.4, text:"medium", showarrow:false, font:{color:"#F5A623", size:11}},
+    ]
+  }, {responsive:true, displaylogo:false});
+}
+
+// --- load matrix ---
+async function loadMatrix() {
+  const r = await fetch("../data/v13/target_modality_matrix.json");
+  if (!r.ok) return;
+  const mtx = await r.json();
+  const thead = document.querySelector("#mtx thead");
+  const tbody = document.querySelector("#mtx tbody");
+  thead.innerHTML = "<tr><th>target</th>" + MODALITIES.map(m=>`<th>${REP_DISPLAY[m]}</th>`).join("") + "</tr>";
+  tbody.innerHTML = TARGETS.map(g => {
+    const cells = MODALITIES.map(m => {
+      const cell = mtx[g]?.[m] || {score:0, evidence:"none", rationale:"", count:0, agent:""};
+      const content = cell.score === 0 ? "·" : `<b>${cell.evidence[0].toUpperCase()}</b>${cell.count?` ${cell.count}`:""}`;
+      return `<td class="cell c${cell.score}" data-gene="${g}" data-mod="${m}">${content}</td>`;
+    }).join("");
+    return `<tr><td>${g}</td>${cells}</tr>`;
+  }).join("");
+  document.querySelectorAll(".cell").forEach(td => td.addEventListener("click", () => {
+    const g = td.dataset.gene, m = td.dataset.mod;
+    const c = mtx[g][m];
+    const label = REP_DISPLAY[m];
+    const agent = c.agent ? ` (representative: ${c.agent})` : "";
+    document.getElementById("mtx-detail-text").textContent =
+      `${g} × ${label}  —  ${c.evidence}${c.count?` · ${c.count} agents`:""}${agent}\n\n${c.rationale || "no rationale recorded"}`;
+    document.getElementById("mtx-detail").open = true;
+  }));
+}
+
+// --- structure viewer ---
+let viewer = null;
+let curTarget = "CYP1B1";
+let curStyle = "cartoon";
+let pocketOn = true;
+let pocketDetail = {};
+let strucMeta = {};
+
+async function loadStructureData() {
+  const [pd, st] = await Promise.all([
+    fetch("../data/v13/pocket_detail.json").then(r=>r.json()).catch(()=>({})),
+    fetch("../data/v13/tables/structure_sources.tsv").then(r=>r.text()).catch(()=>"")
+  ]);
+  pocketDetail = pd;
+  // parse structure_sources.tsv
+  const lines = st.split("\n").filter(Boolean);
+  const hdr = lines[0].split("\t");
+  strucMeta = {};
+  for (const line of lines.slice(1)) {
+    const v = line.split("\t");
+    const row = {}; hdr.forEach((h,i) => row[h] = v[i] || "");
+    strucMeta[row.gene] = row;
+  }
+  // build buttons
+  const wrap = document.getElementById("struc-targets");
+  wrap.innerHTML = TARGETS.map(g => `<button data-g="${g}">${g}</button>`).join("");
+  wrap.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    curTarget = b.dataset.g;
+    wrap.querySelectorAll("button").forEach(x => x.classList.toggle("active", x.dataset.g === curTarget));
+    renderStructure();
+  }));
+  wrap.querySelector(`[data-g="${curTarget}"]`).classList.add("active");
+  // style buttons
+  document.getElementById("style-cartoon").addEventListener("click", () => { curStyle="cartoon"; styleButtons(); renderStructure(); });
+  document.getElementById("style-surface").addEventListener("click", () => { curStyle="surface"; styleButtons(); renderStructure(); });
+  document.getElementById("style-stick").addEventListener("click", () => { curStyle="stick"; styleButtons(); renderStructure(); });
+  document.getElementById("pocket-toggle").addEventListener("click", (e) => {
+    pocketOn = !pocketOn;
+    e.target.classList.toggle("active", pocketOn);
+    e.target.textContent = pocketOn ? "pocket ON" : "pocket OFF";
+    renderStructure();
+  });
+  renderStructure();
+  renderStructureComparison();
+}
+
+function styleButtons() {
+  ["cartoon","surface","stick"].forEach(s => {
+    document.getElementById("style-"+s).classList.toggle("active", curStyle === s);
+  });
+}
+
+function renderStructureComparison() {
+  if (!window.Plotly) return;
+  const rows = TARGETS.map(g => {
+    const m = strucMeta[g] || {};
+    const p = (pocketDetail[g] && pocketDetail[g].pockets && pocketDetail[g].pockets[0]) || {};
+    return {
+      gene: g,
+      residues: +(m.residues || 0),
+      b: +(m.bfactor_mean || 0),
+      plb: +(p.plb || 0),
+      lining: +(p.lining_residues || 0),
+      source: (m.source || "").startsWith("AF2:") ? 0.6 : 1.0
+    };
+  });
+  Plotly.react("structure-comparison", [{
+    type: "heatmap",
+    x: ["residues", "mean_confidence", "top_PLB", "lining_residues", "experimental_weight"],
+    y: rows.map(r => r.gene),
+    z: rows.map(r => [r.residues/3500, Math.min(1, r.b/100), r.plb, Math.min(1, r.lining/25), r.source]),
+    text: rows.map(r => [
+      `${r.gene}<br>residues=${r.residues}`,
+      `${r.gene}<br>mean confidence=${r.b}`,
+      `${r.gene}<br>top PLB=${r.plb}`,
+      `${r.gene}<br>lining residues=${r.lining}`,
+      `${r.gene}<br>${r.source === 1 ? 'PDB/cryo-EM' : 'AF2 fallback'}`
+    ]),
+    hoverinfo: "text",
+    colorscale: [[0,"#111827"],[0.5,"#0f766e"],[1,"#F5A623"]],
+    zmin: 0, zmax: 1
+  }], {
+    ...PLOTLY_LAYOUT,
+    margin: {l: 90, r: 20, t: 20, b: 90},
+    xaxis: {tickangle:-25},
+  }, {responsive:true, displaylogo:false});
+}
+
+async function renderStructure() {
+  const el = document.getElementById("viewer");
+  el.innerHTML = "";
+  if (!viewer) {
+    viewer = $3Dmol.createViewer(el, { backgroundColor: "#0a0c10" });
+  } else {
+    viewer.clear();
+  }
+  const pdbUrl = `../data/v13/structures/${curTarget}.pdb`;
+  try {
+    const r = await fetch(pdbUrl);
+    const pdbText = await r.text();
+    viewer.addModel(pdbText, "pdb");
+
+    if (curStyle === "cartoon") {
+      viewer.setStyle({}, { cartoon: { colorscheme: "ssPyMOL" } });
+      viewer.setStyle({hetflag:true}, { stick: { colorscheme: "greenCarbon", radius:0.15 } });
+    } else if (curStyle === "surface") {
+      viewer.setStyle({}, { cartoon: { color: "#2a4860" } });
+      viewer.addSurface($3Dmol.SurfaceType.VDW, { opacity: 0.65, color: "#7ccfcd" });
+      viewer.setStyle({hetflag:true}, { stick: { colorscheme: "orangeCarbon" } });
+    } else {
+      viewer.setStyle({}, { cartoon: { color: "#3a3a3a" } });
+      viewer.setStyle({hetflag:true}, { stick: { colorscheme: "orangeCarbon", radius: 0.25 } });
+    }
+
+    if (pocketOn) {
+      const pk = pocketDetail[curTarget]?.pockets || [];
+      if (pk.length) {
+        const c = pk[0].center;
+        viewer.addSphere({ center: { x: c[0], y: c[1], z: c[2] }, radius: 3.5,
+                           color: "#F5A623", opacity: 0.6 });
+        for (let i=1; i<Math.min(3, pk.length); i++) {
+          const cc = pk[i].center;
+          viewer.addSphere({ center: { x: cc[0], y: cc[1], z: cc[2] }, radius: 2.0,
+                             color: "#7ccfcd", opacity: 0.4 });
+        }
+      }
+    }
+    viewer.zoomTo();
+    viewer.render();
+
+    // Update metadata box
+    const m = strucMeta[curTarget] || {};
+    const pk = pocketDetail[curTarget]?.pockets || [];
+    const topPk = pk[0] || {};
+    const html = [
+      `<div class="row"><span>Gene</span><b>${curTarget}</b></div>`,
+      `<div class="row"><span>UniProt</span><b>${m.uniprot || '-'}</b></div>`,
+      `<div class="row"><span>Source</span><b>${m.source || '-'}</b></div>`,
+      `<div class="row"><span>Residues</span><b>${m.residues || '-'}</b></div>`,
+      `<div class="row"><span>Mean pLDDT / B-factor</span><b>${m.bfactor_mean || '-'}</b></div>`,
+      `<div class="row"><span>Top pocket PLB</span><b>${topPk.plb ?? '-'}</b></div>`,
+      `<div class="row"><span>Top pocket lining residues</span><b>${topPk.lining_residues ?? '-'}</b></div>`,
+      `<div class="row"><span>Hydrophobic fraction</span><b>${topPk.hydrophobic_frac ?? '-'}</b></div>`,
+      `<div class="row"><span>Aromatic fraction</span><b>${topPk.aromatic_frac ?? '-'}</b></div>`,
+      topPk.ligand_hetcode ? `<div class="row"><span>Bound ligand (HET)</span><b>${topPk.ligand_hetcode}</b></div>` : "",
+      (topPk.residue_list || []).length ? `<div class="row" style="display:block; padding-top:10px"><span>Top 10 pocket residues</span><br><b style="color:#F5A623; font-size:11px">${(topPk.residue_list || []).slice(0,10).join(", ")}</b></div>` : "",
+    ].join("");
+    document.getElementById("struc-meta").innerHTML = html;
+  } catch (e) {
+    el.innerHTML = `<div style="padding:20px; color:#c24c4c">Failed to load ${curTarget}.pdb: ${e.message}</div>`;
+  }
+}
+
+// --- scatter + table for screen ---
+let screenRows = [];
+
+async function loadScreen() {
+  const r = await fetch("../data/v13/tables/ranked_candidates.tsv");
+  const t = await r.text();
+  const lines = t.split("\n").filter(Boolean);
+  const hdr = lines[0].split("\t");
+  screenRows = lines.slice(1).map(l => {
+    const v = l.split("\t");
+    const row = {};
+    hdr.forEach((h,i) => row[h] = v[i]);
+    return row;
+  });
+  // populate target filter
+  const sel = document.getElementById("f-target");
+  TARGETS.forEach(t => {
+    const o = document.createElement("option"); o.value = t; o.textContent = t; sel.appendChild(o);
+  });
+  ["f-target","f-search","f-tier"].forEach(id => document.getElementById(id).addEventListener("input", renderScreen));
+  renderScreen();
+}
+
+function renderScreen() {
+  const tgt = document.getElementById("f-target").value;
+  const q = document.getElementById("f-search").value.toLowerCase().trim();
+  const tier = document.getElementById("f-tier").value;
+  let rows = screenRows;
+  if (tgt) rows = rows.filter(r => r.target === tgt);
+  if (q) rows = rows.filter(r => (r.name || "").toLowerCase().includes(q) || (r.chembl_id || "").toLowerCase().includes(q));
+  if (tier) {
+    const tiers = tier.split(",");
+    rows = rows.filter(r => tiers.includes(r.tier));
+  }
+  document.getElementById("f-count").textContent = `${rows.length} rows`;
+
+  // table — top 30
+  const tbody = document.querySelector("#screen-tbl tbody");
+  tbody.innerHTML = rows.slice(0, 30).map(r => `
+    <tr>
+      <td style="color:#F5A623">${r.target}</td>
+      <td>${r.name || ""}</td>
+      <td>${r.chembl_id || ""}</td>
+      <td class="num">${r.max_phase || ""}</td>
+      <td class="num">${(+r.composite_score).toFixed(3)}</td>
+      <td class="num">${(+r.max_sim_to_ref).toFixed(3)}</td>
+      <td class="num">${(+r.admet_favorability).toFixed(3)}</td>
+      <td class="num">${r.thyroid_pubmed || 0}</td>
+      <td><span class="tier tier-${r.tier}">${r.tier}</span></td>
+    </tr>
+  `).join("");
+  renderScatter(rows);
+}
+
+function renderScatter(rows) {
+  if (!window.Plotly) return;
+  const tierOrder = ["A","B","C","D"];
+  const colors = { A:"#6AB04C", B:"#7ccfcd", C:"#F5A623", D:"#666" };
+  const traces = tierOrder.map(tier => {
+    const pts = rows.filter(r => r.tier === tier);
+    return {
+      type: "scattergl",
+      mode: "markers",
+      name: `Tier ${tier}`,
+      x: pts.map(r => +r.max_sim_to_ref),
+      y: pts.map(r => +r.admet_favorability),
+      text: pts.map(r => `${r.target} · ${r.name}`),
+      customdata: pts.map(r => [r.chembl_id, r.composite_score, r.thyroid_pubmed, r.max_phase]),
+      marker: {
+        color: colors[tier],
+        size: pts.map(r => 8 + Math.min(18, Math.log1p(+r.thyroid_pubmed || 0) * 2.5)),
+        opacity: 0.74,
+        line: {width: 0}
+      },
+      hovertemplate:
+        "<b>%{text}</b><br>" +
+        "Tanimoto=%{x:.3f}<br>" +
+        "ADMET=%{y:.3f}<br>" +
+        "ChEMBL=%{customdata[0]}<br>" +
+        "Composite=%{customdata[1]}<br>" +
+        "Thyroid PubMed=%{customdata[2]}<br>" +
+        "Phase=%{customdata[3]}<extra></extra>"
+    };
+  }).filter(t => t.x.length);
+  Plotly.react("scatter", traces, {
+    ...PLOTLY_LAYOUT,
+    height: 520,
+    legend: {orientation:"h", y:1.12, x:0},
+    xaxis: {title: "Max Tanimoto to reference binder", range:[0,1], gridcolor:"rgba(255,255,255,0.08)"},
+    yaxis: {title: "ADMET favourability", range:[0,1], gridcolor:"rgba(255,255,255,0.08)"},
+  }, {responsive:true, displaylogo:false});
+}
+
+// --- Tier A cards ---
+async function loadTierA() {
+  const r = await fetch("../data/v13/tables/ranked_candidates.tsv");
+  const t = await r.text();
+  const lines = t.split("\n").filter(Boolean);
+  const hdr = lines[0].split("\t");
+  const rows = lines.slice(1).map(l => {
+    const v = l.split("\t");
+    const row = {}; hdr.forEach((h,i) => row[h] = v[i]); return row;
+  });
+  const tierA = rows.filter(r => r.tier === "A").slice(0, 24);
+  const grid = document.getElementById("tierA-cards");
+  grid.innerHTML = tierA.map(r => `
+    <div class="card">
+      <div class="target">${r.target}</div>
+      <div class="drug">${r.name || "(unnamed)"}</div>
+      <span class="tier tier-A">TIER A</span>
+      <div class="kv">
+        <b>ChEMBL</b><span class="v">${r.chembl_id || "-"}</span>
+        <b>Composite</b><span class="v">${(+r.composite_score).toFixed(3)}</span>
+        <b>Tanimoto</b><span class="v">${(+r.max_sim_to_ref).toFixed(3)}</span>
+        <b>ADMET</b><span class="v">${(+r.admet_favorability).toFixed(3)}</span>
+        <b>Thyroid PubMed</b><span class="v">${r.thyroid_pubmed || 0}</span>
+        <b>First approval</b><span class="v">${r.first_approval && r.first_approval!=="nan" ? r.first_approval : "-"}</span>
+        <b>Oral</b><span class="v">${r.oral==="1.0"?"yes":r.oral==="0.0"?"no":"-"}</span>
+      </div>
+    </div>
+  `).join("");
+  document.getElementById("t-tierA").textContent = rows.filter(r=>r.tier==="A").length;
+  renderTierASummary(rows);
+  renderTierAGroups(rows);
+}
+
+// --- TROP2 trials ---
+async function loadTrop2() {
+  const r = await fetch("../data/v13/tables/trop2_trials.tsv");
+  const t = await r.text();
+  const lines = t.split("\n").filter(Boolean);
+  const hdr = lines[0].split("\t");
+  const rows = lines.slice(1).map(l => {
+    const v = l.split("\t");
+    const row = {}; hdr.forEach((h,i) => row[h] = v[i]); return row;
+  });
+  const thy = rows.filter(r => r.thyroid_relevant === "True");
+  document.getElementById("t-trop2").textContent = thy.length;
+  document.getElementById("trop2-trials").innerHTML = thy.slice(0, 8).map(t => `
+    <li><a href="https://clinicaltrials.gov/study/${t.nct}" target="_blank" rel="noopener"><b>${t.nct}</b></a>
+       — ${t.title} <span class="muted">(${t.phase || "NA"} · ${t.status} · start ${t.start || "-"})</span>
+       <br><span class="muted">Sponsor: ${t.sponsor || "-"}</span>
+    </li>
+  `).join("");
+  renderTrop2Timeline(rows, thy);
+  loadTrop2LiteratureTrend();
+}
+
+async function loadTrop2LiteratureTrend() {
+  const r = await fetch("../data/v13/tables/trop2_literature.tsv");
+  const t = await r.text();
+  const rows = tsvToObjects(t).filter(r => r.year);
+  const byYear = {};
+  rows.forEach(r => { byYear[r.year] = (byYear[r.year] || 0) + 1; });
+  const years = Object.keys(byYear).sort();
+  Plotly.react("trop2-literature-trend", [{
+    type: "scatter",
+    mode: "lines+markers",
+    x: years,
+    y: years.map(y => byYear[y]),
+    line: {color:"#F5A623", width:3},
+    marker: {color:"#7ccfcd", size:9},
+    hovertemplate: "Year %{x}<br>Records %{y}<extra></extra>"
+  }], {
+    ...PLOTLY_LAYOUT,
+    height: 340,
+    xaxis: {title: "Publication year", gridcolor:"rgba(255,255,255,0.08)"},
+    yaxis: {title: "PubMed records", gridcolor:"rgba(255,255,255,0.08)"},
+    annotations: years.includes("2025") ? [{
+      x: "2025", y: byYear["2025"], text: "recent surge", showarrow: true, arrowcolor:"#F5A623",
+      font: {color:"#F5A623", size:11}, ax: 35, ay: -30
+    }] : []
+  }, {responsive:true, displaylogo:false});
+}
+
+function renderTierASummary(rows) {
+  if (!window.Plotly) return;
+  const tierA = rows.filter(r => r.tier === "A");
+  const groups = TARGETS.map(g => {
+    const hits = tierA.filter(r => r.target === g);
+    const meanScore = hits.length ? hits.reduce((a, r) => a + (+r.composite_score || 0), 0) / hits.length : 0;
+    const meanPubmed = hits.length ? hits.reduce((a, r) => a + (+r.thyroid_pubmed || 0), 0) / hits.length : 0;
+    return {target:g, n:hits.length, meanScore, meanPubmed};
+  }).filter(x => x.n > 0);
+  Plotly.react("tierA-summary", [{
+    type: "scatter",
+    mode: "markers+text",
+    x: groups.map(g => g.meanScore),
+    y: groups.map(g => g.meanPubmed),
+    text: groups.map(g => g.target),
+    textposition: "top center",
+    marker: {
+      size: groups.map(g => 14 + g.n * 2.2),
+      color: groups.map(g => g.n),
+      colorscale: [[0,"#7ccfcd"],[1,"#6AB04C"]],
+      showscale: true,
+      colorbar: {title:"Tier A count"},
+      line: {color:"rgba(255,255,255,0.2)", width:1}
+    },
+    customdata: groups.map(g => [g.n]),
+    hovertemplate: "<b>%{text}</b><br>Mean composite=%{x:.3f}<br>Mean thyroid PubMed=%{y:.1f}<br>Tier A count=%{customdata[0]}<extra></extra>"
+  }], {
+    ...PLOTLY_LAYOUT,
+    height: 340,
+    xaxis: {title: "Mean Tier A composite score", gridcolor:"rgba(255,255,255,0.08)", range:[0.68,1.0]},
+    yaxis: {title: "Mean thyroid PubMed support", gridcolor:"rgba(255,255,255,0.08)"},
+  }, {responsive:true, displaylogo:false});
+}
+
+function renderTierAGroups(rows) {
+  const wrap = document.getElementById("tierA-groups");
+  if (!wrap) return;
+  const tierA = rows.filter(r => r.tier === "A");
+  const groups = TARGETS
+    .map(g => ({ target: g, rows: tierA.filter(r => r.target === g) }))
+    .filter(g => g.rows.length);
+  wrap.innerHTML = groups.map((g, idx) => `
+    <details class="target-group" ${idx < 2 ? "open" : ""}>
+      <summary>
+        <span>${g.target}</span>
+        <span>${g.rows.length} Tier A candidates</span>
+      </summary>
+      <div class="target-group-body">
+        <div class="card-grid">
+          ${g.rows.slice(0, 8).map(r => `
+            <div class="card">
+              <div class="target">${r.target}</div>
+              <div class="drug">${r.name || "(unnamed)"}</div>
+              <span class="tier tier-A">TIER A</span>
+              <div class="kv">
+                <b>Composite</b><span class="v">${(+r.composite_score).toFixed(3)}</span>
+                <b>Tanimoto</b><span class="v">${(+r.max_sim_to_ref).toFixed(3)}</span>
+                <b>ADMET</b><span class="v">${(+r.admet_favorability).toFixed(3)}</span>
+                <b>PubMed</b><span class="v">${r.thyroid_pubmed || 0}</span>
+                <b>Approval</b><span class="v">${r.first_approval && r.first_approval !== "nan" ? r.first_approval : "-"}</span>
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    </details>
+  `).join("");
+}
+
+async function loadNovelPriorityMap() {
+  const r = await fetch("../data/v13/tables/target_modality_matrix.tsv");
+  const t = await r.text();
+  const rows = tsvToObjects(t);
+  const focus = rows.filter(r => ["PROTAC","siRNA","ADC","CAR_T","radioligand","ASO","mRNA"].includes(r.modality));
+  const scoreMap = {approved:4, clinical:3, preclinical:2, hypothesis:1, none:0};
+  const grouped = [];
+  const keys = [...new Set(focus.map(r => `${r.gene}__${r.modality}`))];
+  keys.forEach(k => {
+    const [gene, modality] = k.split("__");
+    const hit = focus.find(r => r.gene === gene && r.modality === modality);
+    const score = scoreMap[(hit && hit.evidence_class) || "none"];
+    if (score > 0) grouped.push({
+      gene, modality, score,
+      count: +(hit.agent_count || 0),
+      rationale: hit.rationale || ""
+    });
+  });
+  Plotly.react("novel-priority-map", [{
+    type: "scatter",
+    mode: "markers+text",
+    x: grouped.map(g => g.modality),
+    y: grouped.map(g => g.gene),
+    text: grouped.map(g => g.score >= 3 ? g.gene : ""),
+    textposition: "middle center",
+    marker: {
+      size: grouped.map(g => 12 + g.count * 1.6 + g.score * 3),
+      color: grouped.map(g => g.score),
+      colorscale: [[0,"#334155"],[0.33,"#7ccfcd"],[0.66,"#F5A623"],[1,"#6AB04C"]],
+      cmin: 1, cmax: 4, showscale: true, colorbar: {title:"Evidence"}
+    },
+    hovertemplate: "<b>%{y}</b><br>%{x}<br>evidence score=%{marker.color}<br>%{marker.size:.1f}px bubble<extra></extra>"
+  }], {
+    ...PLOTLY_LAYOUT,
+    height: 340,
+    xaxis: {title:"Emerging modality", tickangle:-20},
+    yaxis: {title:"Target", automargin:true},
+  }, {responsive:true, displaylogo:false});
+}
+
+function phaseRank(phase) {
+  const p = (phase || "").toUpperCase();
+  if (p.includes("PHASE3")) return 3;
+  if (p.includes("PHASE2")) return 2;
+  if (p.includes("PHASE1")) return 1;
+  return 0;
+}
+
+function renderTrop2Timeline(rows, thy) {
+  if (!window.Plotly) return;
+  const focus = rows
+    .filter(r => /sacituzumab|tirumotecan|datopotamab|skb264|bnt323|trop2/i.test(r.agent_query || ""))
+    .sort((a,b) => ((a.start || "").localeCompare(b.start || "")));
+  const y = focus.map(r => `${r.nct}<br>${(r.agent_query || "").replace(/\s+/g, " ")}`);
+  Plotly.react("trop2-timeline", [{
+    type: "scatter",
+    mode: "markers+text",
+    x: focus.map(r => r.start || "2026-01-01"),
+    y,
+    text: focus.map(r => r.thyroid_relevant === "True" ? "thyroid" : ""),
+    textposition: "middle right",
+    marker: {
+      size: focus.map(r => r.thyroid_relevant === "True" ? 16 : 9),
+      color: focus.map(r => r.thyroid_relevant === "True" ? "#F5A623" : (phaseRank(r.phase) >= 2 ? "#7ccfcd" : "#6b7280")),
+      symbol: focus.map(r => r.thyroid_relevant === "True" ? "diamond" : "circle")
+    },
+    customdata: focus.map(r => [r.title, r.phase, r.status, r.sponsor]),
+    hovertemplate:
+      "<b>%{y}</b><br>%{customdata[0]}<br>" +
+      "Start=%{x}<br>Phase=%{customdata[1]}<br>Status=%{customdata[2]}<br>Sponsor=%{customdata[3]}<extra></extra>"
+  }], {
+    ...PLOTLY_LAYOUT,
+    height: 360,
+    xaxis: {title: "Trial start date", gridcolor:"rgba(255,255,255,0.08)"},
+    yaxis: {automargin:true},
+    margin: {l: 150, r: 20, t: 20, b: 56},
+    annotations: thy.slice(0,2).map((r, i) => ({
+      x: r.start || "2026-01-01",
+      y: `${r.nct}<br>${(r.agent_query || "").replace(/\s+/g, " ")}`,
+      text: i === 0 ? "thyroid trial" : "thyroid trial 2",
+      showarrow: true,
+      arrowcolor: "#F5A623",
+      font: {color:"#F5A623", size:11},
+      ax: 40,
+      ay: -25
+    }))
+  }, {responsive:true, displaylogo:false});
+}
+
+// init all
+loadExecutivePlots();
+loadMatrix();
+loadStructureData();
+loadScreen();
+loadTierA();
+loadTrop2();
+loadNovelPriorityMap();
+</script>
+
+</body>
+</html>

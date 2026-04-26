@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07132b">
+  <title>점수 시각화 | THCA Multi-Omics Dashboard</title>
+  <meta name="description" content="TDS / BRS proxy / dedifferentiation proxy를 subtype 별로 비교합니다.">
+  <meta property="og:title" content="점수 시각화 | THCA Multi-Omics Dashboard">
+  <meta property="og:description" content="TDS / BRS proxy / dedifferentiation proxy를 subtype 별로 비교합니다.">
+  <meta property="og:image" content="../assets/img/og_card.png">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <script src="../assets/vendor/tailwind.min.js" defer></script>
+  <script>
+    (function(){ try{ if(localStorage.getItem('thyroid-theme')==='light') document.documentElement.classList.add('light-pending'); }catch(e){} })();
+    window.addEventListener('error', function(e){
+      if(e.target && e.target.tagName==='SCRIPT' && e.target.dataset.fallback){ var s=document.createElement('script'); s.src=e.target.dataset.fallback; document.head.appendChild(s); }
+    }, true);
+  </script>
+<!-- edu-css --><link rel="stylesheet" href="../assets/css/edu-toggle.css">
+
+  <!-- ux:tour-css --><link rel="stylesheet" href="../assets/css/tour.css"><!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body class="dark">
+  <a class="sr-only" href="#main-content">본문으로 건너뛰기</a>
+  <div id="command-palette" class="palette" role="dialog" aria-modal="true" aria-label="명령 팔레트">
+    <div class="palette-card glass">
+      <div class="subtle mono">Cmd+K / Ctrl+K</div>
+      <input id="palette-input" type="text" placeholder="페이지, 섹션, 조직학 검색" aria-label="검색" autocomplete="off" spellcheck="false">
+      <div id="palette-results" class="palette-results"></div>
+    </div>
+  </div>
+  <div id="figure-modal" class="figure-modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="figure-modal-title">
+    <div class="figure-modal-backdrop" data-figure-close="1" aria-hidden="true"></div>
+    <div class="figure-modal-card glass">
+      <div class="figure-modal-header">
+        <strong id="figure-modal-title">인터랙티브 Figure</strong>
+        <div class="figure-modal-actions">
+          <a id="figure-modal-open" class="btn sm" href="#" target="_blank" rel="noopener" aria-label="새 탭으로 열기">새 탭</a>
+          <a id="figure-modal-png" class="btn sm" href="#" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+          <a id="figure-modal-tsv" class="btn sm" href="#" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+          <button id="figure-modal-copy" class="btn sm" type="button" aria-label="링크 복사">링크 복사</button>
+          <button id="figure-modal-fullscreen" class="btn sm" type="button" aria-label="전체화면">전체화면</button>
+          <button class="btn sm" type="button" data-figure-close="1" aria-label="닫기">닫기</button>
+        </div>
+      </div>
+      <iframe id="figure-modal-frame" class="figure-modal-frame" title="interactive figure"></iframe>
+    </div>
+  </div>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="../index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar">
+        <a class="nav-link" href="../index.html" role="menuitem">홈</a><a class="nav-link" href="01_overview.html" role="menuitem">개요</a><a class="nav-link" href="02_datasets.html" role="menuitem">데이터셋</a><a class="nav-link" href="03_sample_master.html" role="menuitem">샘플</a><a class="nav-link" href="04_gene_panels.html" role="menuitem">패널</a><a class="nav-link" href="05_eda.html" role="menuitem">EDA</a><a class="nav-link active" href="06_scores.html" role="menuitem">점수</a><a class="nav-link" href="07_ml_baseline.html" role="menuitem">ML</a><a class="nav-link" href="08_panel_comparison.html" role="menuitem">패널 비교</a><a class="nav-link" href="09_shap.html" role="menuitem">SHAP</a><a class="nav-link" href="10_gene_explorer.html" role="menuitem">유전자</a><a class="nav-link" href="11_cohort_compare.html" role="menuitem">코호트</a><a class="nav-link" href="12_business.html" role="menuitem">비즈니스</a><a class="nav-link" href="13_reports.html" role="menuitem">리포트</a><a class="nav-link" href="14_caveats.html" role="menuitem">주의점</a><a class="nav-link" href="15_drug_discovery.html" role="menuitem">드럭</a><a class="nav-link" href="16_quantum.html" role="menuitem">양자</a><a class="nav-link" href="17_biomarker_insights.html" role="menuitem">마커</a><a class="nav-link" href="18_pathway_immune_meth.html" role="menuitem">해석</a><a class="nav-link" href="20a_meta_power.html" role="menuitem">통계</a><a class="nav-link" href="21a_survival.html" role="menuitem">생존</a><a class="nav-link" href="19a_cmap_network.html" role="menuitem">약물리버스</a>
+      <!-- edu-glossary-nav --><a class="nav-link" href="view_investor.html" role="menuitem">투자자</a><a class="nav-link" href="view_researcher.html" role="menuitem">연구자</a><a class="nav-link" href="99_glossary.html" role="menuitem">용어</a></div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+        <button class="btn sm ghost" type="button" data-copy-link="1" aria-label="현재 뷰 링크 복사">링크 복사 <span class="kbd">⌘K</span></button>
+        <button id="td-menu-toggle" class="menu-toggle" type="button" aria-controls="td-drawer" aria-expanded="false" aria-label="메뉴 열기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div id="td-drawer-backdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="td-drawer" class="drawer" aria-hidden="true" aria-label="모바일 메뉴">
+    <div class="drawer-header">
+      <strong>메뉴</strong>
+      <button class="btn sm ghost" type="button" id="td-drawer-close" onclick="document.getElementById('td-menu-toggle').click()" aria-label="메뉴 닫기">닫기</button>
+    </div>
+    <a class="" href="../index.html">홈</a><a class="" href="01_overview.html">개요</a><a class="" href="02_datasets.html">데이터셋</a><a class="" href="03_sample_master.html">샘플</a><a class="" href="04_gene_panels.html">패널</a><a class="" href="05_eda.html">EDA</a><a class="active" href="06_scores.html">점수</a><a class="" href="07_ml_baseline.html">ML</a><a class="" href="08_panel_comparison.html">패널 비교</a><a class="" href="09_shap.html">SHAP</a><a class="" href="10_gene_explorer.html">유전자</a><a class="" href="11_cohort_compare.html">코호트</a><a class="" href="12_business.html">비즈니스</a><a class="" href="13_reports.html">리포트</a><a class="" href="14_caveats.html">주의점</a><a class="" href="15_drug_discovery.html">드럭</a><a class="" href="16_quantum.html">양자</a><a class="" href="17_biomarker_insights.html">마커</a><a class="" href="18_pathway_immune_meth.html">해석</a><a class="" href="20a_meta_power.html">통계</a><a class="" href="21a_survival.html">생존</a><a class="" href="19a_cmap_network.html">약물리버스</a>
+  <a class="" href="view_investor.html">투자자</a><a class="" href="view_researcher.html">연구자</a><a class="" href="99_glossary.html">용어</a></aside>
+  <div class="layout">
+    <aside class="sidebar glass" aria-label="섹션 목차">
+      <h3>Section TOC</h3>
+      <a href="#scores-intro">점수 해석 프레임</a><a href="#scores-a">분포</a><a href="#scores-b">2D / Radar</a><a href="#scores-linkout">Embedding 연동 보기</a>
+    </aside>
+    <main class="content" id="main-content">
+      
+<section class="hero" data-aos="fade-up" aria-labelledby="page-hero-title">
+  <div class="hero-aurora" aria-hidden="true"></div>
+  <div class="hero-noise" aria-hidden="true"></div>
+  <div class="subtle mono">06 / SCORES</div>
+  <h1 id="page-hero-title">점수 시각화 | THCA Multi-Omics Dashboard</h1>
+  <p class="lede">TDS / BRS proxy / dedifferentiation proxy를 subtype 별로 비교합니다.</p>
+  <div class="chips" role="list"><span class="chip" role="listitem">Violin</span><span class="chip" role="listitem">Density</span><span class="chip" role="listitem">Radar</span></div>
+</section>
+
+<section id="scores-intro" class="panel glass" data-aos="fade-up" aria-labelledby="sec-scores-intro" data-explain-id="06_scores-scores-intro">
+  <h2 class="section-title" id="sec-scores-intro" data-explain-id="06_scores-sec-scores-intro">점수 해석 프레임</h2>
+<details class="edu-toggle" data-edu-id="scores-intro"><!-- edu:scores-intro --><summary>세 점수의 생물학적 의미</summary><div class="edu-body"><h3>점수 해석 프레임: TDS/BRS/dediff</h3><h4>TDS (Thyroid Differentiation Score)</h4>
+<ul><li>정상 갑상선 세포가 가지는 고유 기능 유전자(TG, TPO, SLC5A5 등) 발현 강도의 평균.</li><li><strong>높을수록 분화 잘 되어 있음 = 정상에 가까움</strong>. 낮을수록 dedifferentiation 진행.</li></ul>
+<h4>BRS (BRAF-RAS Score)</h4>
+<ul><li>71개 유전자 집합에서 BRAF-like vs RAS-like 축에 투영한 값.</li><li><strong>양수(+)이면 BRAF-like, 음수(−)이면 RAS-like</strong>.</li></ul>
+<h4>Dedifferentiation score</h4>
+<ul><li>저분화/미분화 특징(예: EMT, 줄기세포성)이 얼마나 나타나는지를 보여주는 값.</li><li>높을수록 ATC/PDTC에 가깝고 예후가 나쁜 경향.</li></ul>
+<h4>한 줄 요약</h4>
+<ul><li>TDS ↓ + dediff ↑ 이면 공격적, BRS 부호가 subtype의 방향을 알려줍니다.</li></ul></div></details>
+  
+  <div class='card glass'><div class='subtle mono'>점수 의미</div><ul class='narrative-list'><li>TDS는 thyroid differentiation 축을 반영합니다. 높을수록 분화형 thyroid lineage가 유지된 패턴입니다.</li><li>BRS proxy는 공식 BRS가 아니라 TCGA-derived proxy입니다. 방향성 해석은 가능하지만 절대값 해석은 제한적입니다.</li><li>dedifferentiation proxy는 EMT/invasion 계열과 TDS 대비를 조합한 탐색 점수입니다.</li></ul></div>
+  
+</section>
+
+<section id="scores-a" class="panel glass" data-aos="fade-up" aria-labelledby="sec-scores-a" data-explain-id="06_scores-scores-a">
+  <h2 class="section-title" id="sec-scores-a" data-explain-id="06_scores-sec-scores-a">분포</h2>
+<details class="edu-toggle" data-edu-id="scores-a"><!-- edu:scores-a --><summary>violin plot 처음 보는 경우</summary><div class="edu-body"><h3>분포(violin/box) 해석</h3><h4>violin plot이 뭔가</h4>
+<ul><li>box plot(중앙값/사분위)에 <strong>확률밀도 모양</strong>을 덧씌운 플롯. 한쪽으로 치우친 분포, 이중 모드 분포 등을 한눈에 보여줍니다.</li></ul>
+<h4>읽는 법</h4>
+<ul><li>허리가 두꺼운 부분 = 그 값 근처에 샘플이 많다.</li><li>좌우 폭이 모두 길면 variance가 큼 = 서브그룹이 혼재했을 가능성.</li></ul>
+<h4>이 섹션에서</h4>
+<ul><li>subtype 축(BRAF_like / RAS_like / normal / dediff)으로 비교하므로 서로 다른 subtype의 violin이 얼마나 겹치는지가 "얼마나 구분하기 어려운가"를 말해줍니다.</li></ul></div></details>
+  <p class="subtle">violin + box + point를 함께 써서 subtype별 분포, 중심, 이상치를 동시에 보이게 했습니다.</p>
+  
+  
+    <div class="triple-grid">
+    
+    <div class="figure-wrap ">
+      <div class="figure-actions">
+        <a href="../figs_interactive/scores_tds_violin.html" target="_blank" rel="noopener" aria-label="HTML 새 탭">HTML</a>
+        <a href="../figs_preview/scores_tds_violin.png" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+        <a href="../figs_interactive/scores_tds_violin.svg" target="_blank" rel="noopener" aria-label="SVG 다운로드">SVG</a>
+        <a href="../figs_interactive/scores_tds_violin.tsv" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+        <button class="copy-cite" type="button" data-copy-cite="THCA Dashboard — scores tds violin — ../figs_interactive/scores_tds_violin.html" aria-label="인용 정보 복사">Cite</button>
+      </div>
+      <div class="figure-preview-shell">
+        <img class="figure-preview" loading="lazy" decoding="async" src="../figs_preview/scores_tds_violin.png" alt="scores tds violin 미리보기" data-figure-open="../figs_interactive/scores_tds_violin.html" data-figure-title="scores tds violin" data-figure-png="../figs_preview/scores_tds_violin.png" data-figure-tsv="../figs_interactive/scores_tds_violin.tsv">
+      </div>
+      <div class="figure-open-row">
+        <button class="btn primary figure-open-btn" type="button" data-figure-open="../figs_interactive/scores_tds_violin.html" data-figure-title="scores tds violin" data-figure-png="../figs_preview/scores_tds_violin.png" data-figure-tsv="../figs_interactive/scores_tds_violin.tsv">확대해서 보기</button>
+        <a class="btn figure-open-btn" href="../figs_interactive/scores_tds_violin.html" target="_blank" rel="noopener">새 탭으로 열기</a>
+      </div>
+      
+      <div class="figure-caption">
+        <strong>scores tds violin</strong>
+        페이지 안에서는 PNG preview를 기본으로 먼저 보여주고, 아래 접힘 패널에서 Plotly 인터랙티브 버전을 바로 확대해서 볼 수 있습니다.
+      </div>
+      
+    </div>
+    
+    <div class="figure-wrap ">
+      <div class="figure-actions">
+        <a href="../figs_interactive/scores_brs_violin.html" target="_blank" rel="noopener" aria-label="HTML 새 탭">HTML</a>
+        <a href="../figs_preview/scores_brs_violin.png" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+        <a href="../figs_interactive/scores_brs_violin.svg" target="_blank" rel="noopener" aria-label="SVG 다운로드">SVG</a>
+        <a href="../figs_interactive/scores_brs_violin.tsv" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+        <button class="copy-cite" type="button" data-copy-cite="THCA Dashboard — scores brs violin — ../figs_interactive/scores_brs_violin.html" aria-label="인용 정보 복사">Cite</button>
+      </div>
+      <div class="figure-preview-shell">
+        <img class="figure-preview" loading="lazy" decoding="async" src="../figs_preview/scores_brs_violin.png" alt="scores brs violin 미리보기" data-figure-open="../figs_interactive/scores_brs_violin.html" data-figure-title="scores brs violin" data-figure-png="../figs_preview/scores_brs_violin.png" data-figure-tsv="../figs_interactive/scores_brs_violin.tsv">
+      </div>
+      <div class="figure-open-row">
+        <button class="btn primary figure-open-btn" type="button" data-figure-open="../figs_interactive/scores_brs_violin.html" data-figure-title="scores brs violin" data-figure-png="../figs_preview/scores_brs_violin.png" data-figure-tsv="../figs_interactive/scores_brs_violin.tsv">확대해서 보기</button>
+        <a class="btn figure-open-btn" href="../figs_interactive/scores_brs_violin.html" target="_blank" rel="noopener">새 탭으로 열기</a>
+      </div>
+      
+      <div class="figure-caption">
+        <strong>scores brs violin</strong>
+        페이지 안에서는 PNG preview를 기본으로 먼저 보여주고, 아래 접힘 패널에서 Plotly 인터랙티브 버전을 바로 확대해서 볼 수 있습니다.
+      </div>
+      
+    </div>
+    
+    <div class="figure-wrap ">
+      <div class="figure-actions">
+        <a href="../figs_interactive/scores_dediff_violin.html" target="_blank" rel="noopener" aria-label="HTML 새 탭">HTML</a>
+        <a href="../figs_preview/scores_dediff_violin.png" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+        <a href="../figs_interactive/scores_dediff_violin.svg" target="_blank" rel="noopener" aria-label="SVG 다운로드">SVG</a>
+        <a href="../figs_interactive/scores_dediff_violin.tsv" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+        <button class="copy-cite" type="button" data-copy-cite="THCA Dashboard — scores dediff violin — ../figs_interactive/scores_dediff_violin.html" aria-label="인용 정보 복사">Cite</button>
+      </div>
+      <div class="figure-preview-shell">
+        <img class="figure-preview" loading="lazy" decoding="async" src="../figs_preview/scores_dediff_violin.png" alt="scores dediff violin 미리보기" data-figure-open="../figs_interactive/scores_dediff_violin.html" data-figure-title="scores dediff violin" data-figure-png="../figs_preview/scores_dediff_violin.png" data-figure-tsv="../figs_interactive/scores_dediff_violin.tsv">
+      </div>
+      <div class="figure-open-row">
+        <button class="btn primary figure-open-btn" type="button" data-figure-open="../figs_interactive/scores_dediff_violin.html" data-figure-title="scores dediff violin" data-figure-png="../figs_preview/scores_dediff_violin.png" data-figure-tsv="../figs_interactive/scores_dediff_violin.tsv">확대해서 보기</button>
+        <a class="btn figure-open-btn" href="../figs_interactive/scores_dediff_violin.html" target="_blank" rel="noopener">새 탭으로 열기</a>
+      </div>
+      
+      <div class="figure-caption">
+        <strong>scores dediff violin</strong>
+        페이지 안에서는 PNG preview를 기본으로 먼저 보여주고, 아래 접힘 패널에서 Plotly 인터랙티브 버전을 바로 확대해서 볼 수 있습니다.
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</section>
+
+<section id="scores-b" class="panel glass" data-aos="fade-up" aria-labelledby="sec-scores-b" data-explain-id="06_scores-scores-b">
+  <h2 class="section-title" id="sec-scores-b" data-explain-id="06_scores-sec-scores-b">2D / Radar</h2>
+<details class="edu-toggle" data-edu-id="scores-b"><!-- edu:scores-b --><summary>복합 지표 비교법</summary><div class="edu-body"><h3>2D / Radar 차트 읽기</h3><h4>2D scatter</h4>
+<ul><li>두 점수(예: TDS × BRS)를 축으로 놓아 각 샘플을 점으로 찍습니다.</li><li>사분면(+,+ / +,− 등)별 분포를 보면 subtype의 생물학적 축을 이해할 수 있습니다.</li></ul>
+<h4>Radar chart</h4>
+<ul><li>여러 점수(TDS, BRS, dediff, ...)를 축으로 돌려놓고 한 샘플/그룹의 <strong>다차원 프로파일</strong>을 polygon으로 그립니다.</li><li>폴리곤의 크기/모양 비대칭성으로 "어떤 축이 강한가"를 빠르게 비교합니다.</li></ul>
+<h4>주의</h4>
+<ul><li>Radar는 축 순서가 바뀌면 모양이 달라지므로 축 배열이 고정돼 있어야 공정한 비교가 됩니다.</li></ul></div></details>
+  <p class="subtle">밀도도는 두 점수 축이 함께 움직이는지 보는 용도이고, radar는 subtype 평균을 축약해서 보여줍니다.</p>
+  
+  
+    <div class="fig-grid">
+    
+    <div class="figure-wrap ">
+      <div class="figure-actions">
+        <a href="../figs_interactive/scores_density.html" target="_blank" rel="noopener" aria-label="HTML 새 탭">HTML</a>
+        <a href="../figs_preview/scores_density.png" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+        <a href="../figs_interactive/scores_density.svg" target="_blank" rel="noopener" aria-label="SVG 다운로드">SVG</a>
+        <a href="../figs_interactive/scores_density.tsv" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+        <button class="copy-cite" type="button" data-copy-cite="THCA Dashboard — scores density — ../figs_interactive/scores_density.html" aria-label="인용 정보 복사">Cite</button>
+      </div>
+      <div class="figure-preview-shell">
+        <img class="figure-preview" loading="lazy" decoding="async" src="../figs_preview/scores_density.png" alt="scores density 미리보기" data-figure-open="../figs_interactive/scores_density.html" data-figure-title="scores density" data-figure-png="../figs_preview/scores_density.png" data-figure-tsv="../figs_interactive/scores_density.tsv">
+      </div>
+      <div class="figure-open-row">
+        <button class="btn primary figure-open-btn" type="button" data-figure-open="../figs_interactive/scores_density.html" data-figure-title="scores density" data-figure-png="../figs_preview/scores_density.png" data-figure-tsv="../figs_interactive/scores_density.tsv">확대해서 보기</button>
+        <a class="btn figure-open-btn" href="../figs_interactive/scores_density.html" target="_blank" rel="noopener">새 탭으로 열기</a>
+      </div>
+      
+      <div class="figure-caption">
+        <strong>scores density</strong>
+        페이지 안에서는 PNG preview를 기본으로 먼저 보여주고, 아래 접힘 패널에서 Plotly 인터랙티브 버전을 바로 확대해서 볼 수 있습니다.
+      </div>
+      
+    </div>
+    
+    <div class="figure-wrap ">
+      <div class="figure-actions">
+        <a href="../figs_interactive/scores_radar.html" target="_blank" rel="noopener" aria-label="HTML 새 탭">HTML</a>
+        <a href="../figs_preview/scores_radar.png" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+        <a href="../figs_interactive/scores_radar.svg" target="_blank" rel="noopener" aria-label="SVG 다운로드">SVG</a>
+        <a href="../figs_interactive/scores_radar.tsv" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+        <button class="copy-cite" type="button" data-copy-cite="THCA Dashboard — scores radar — ../figs_interactive/scores_radar.html" aria-label="인용 정보 복사">Cite</button>
+      </div>
+      <div class="figure-preview-shell">
+        <img class="figure-preview" loading="lazy" decoding="async" src="../figs_preview/scores_radar.png" alt="scores radar 미리보기" data-figure-open="../figs_interactive/scores_radar.html" data-figure-title="scores radar" data-figure-png="../figs_preview/scores_radar.png" data-figure-tsv="../figs_interactive/scores_radar.tsv">
+      </div>
+      <div class="figure-open-row">
+        <button class="btn primary figure-open-btn" type="button" data-figure-open="../figs_interactive/scores_radar.html" data-figure-title="scores radar" data-figure-png="../figs_preview/scores_radar.png" data-figure-tsv="../figs_interactive/scores_radar.tsv">확대해서 보기</button>
+        <a class="btn figure-open-btn" href="../figs_interactive/scores_radar.html" target="_blank" rel="noopener">새 탭으로 열기</a>
+      </div>
+      
+      <div class="figure-caption">
+        <strong>scores radar</strong>
+        페이지 안에서는 PNG preview를 기본으로 먼저 보여주고, 아래 접힘 패널에서 Plotly 인터랙티브 버전을 바로 확대해서 볼 수 있습니다.
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</section>
+
+<section id="scores-linkout" class="panel glass" data-aos="fade-up" aria-labelledby="sec-scores-linkout" data-explain-id="06_scores-scores-linkout">
+  <h2 class="section-title" id="sec-scores-linkout" data-explain-id="06_scores-sec-scores-linkout">Embedding 연동 보기</h2>
+<details class="edu-toggle" data-edu-id="scores-linkout"><!-- edu:scores-linkout --><summary>점수와 임베딩을 같이 보는 이유</summary><div class="edu-body"><h3>Embedding 연동 보기</h3><h4>왜 연동하나</h4>
+<ul><li>점수 분포만 보면 "수치는 비슷한데 실제 샘플은 전혀 다른 클러스터"에 있는 경우를 놓칠 수 있습니다.</li><li>2D 임베딩 위에 점수를 색으로 덧씌우면 "어느 영역에서 BRAF-like 확신이 세진다"를 눈으로 확인할 수 있습니다.</li></ul>
+<h4>팁</h4>
+<ul><li>UMAP 좌표 위에 BRS를 heatmap처럼 칠했을 때 grad가 부드럽게 흐르면 그 축이 실제로 연속적 signal임을 뒷받침합니다.</li></ul></div></details>
+  <p class="subtle">점수 구조가 실제 embedding 분리와 어떻게 연결되는지 바로 이어서 볼 수 있게 PCA/UMAP도 같은 페이지에 붙였습니다.</p>
+  
+  
+    <div class="fig-grid">
+    
+    <div class="figure-wrap ">
+      <div class="figure-actions">
+        <a href="../figs_interactive/eda_pca.html" target="_blank" rel="noopener" aria-label="HTML 새 탭">HTML</a>
+        <a href="../figs_preview/eda_pca.png" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+        <a href="../figs_interactive/eda_pca.svg" target="_blank" rel="noopener" aria-label="SVG 다운로드">SVG</a>
+        <a href="../figs_interactive/eda_pca.tsv" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+        <button class="copy-cite" type="button" data-copy-cite="THCA Dashboard — eda pca — ../figs_interactive/eda_pca.html" aria-label="인용 정보 복사">Cite</button>
+      </div>
+      <div class="figure-preview-shell">
+        <img class="figure-preview" loading="lazy" decoding="async" src="../figs_preview/eda_pca.png" alt="eda pca 미리보기" data-figure-open="../figs_interactive/eda_pca.html" data-figure-title="eda pca" data-figure-png="../figs_preview/eda_pca.png" data-figure-tsv="../figs_interactive/eda_pca.tsv">
+      </div>
+      <div class="figure-open-row">
+        <button class="btn primary figure-open-btn" type="button" data-figure-open="../figs_interactive/eda_pca.html" data-figure-title="eda pca" data-figure-png="../figs_preview/eda_pca.png" data-figure-tsv="../figs_interactive/eda_pca.tsv">확대해서 보기</button>
+        <a class="btn figure-open-btn" href="../figs_interactive/eda_pca.html" target="_blank" rel="noopener">새 탭으로 열기</a>
+      </div>
+      
+      <div class="figure-caption">
+        <strong>eda pca</strong>
+        페이지 안에서는 PNG preview를 기본으로 먼저 보여주고, 아래 접힘 패널에서 Plotly 인터랙티브 버전을 바로 확대해서 볼 수 있습니다.
+      </div>
+      
+    </div>
+    
+    <div class="figure-wrap ">
+      <div class="figure-actions">
+        <a href="../figs_interactive/eda_umap.html" target="_blank" rel="noopener" aria-label="HTML 새 탭">HTML</a>
+        <a href="../figs_preview/eda_umap.png" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+        <a href="../figs_interactive/eda_umap.svg" target="_blank" rel="noopener" aria-label="SVG 다운로드">SVG</a>
+        <a href="../figs_interactive/eda_umap.tsv" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+        <button class="copy-cite" type="button" data-copy-cite="THCA Dashboard — eda umap — ../figs_interactive/eda_umap.html" aria-label="인용 정보 복사">Cite</button>
+      </div>
+      <div class="figure-preview-shell">
+        <img class="figure-preview" loading="lazy" decoding="async" src="../figs_preview/eda_umap.png" alt="eda umap 미리보기" data-figure-open="../figs_interactive/eda_umap.html" data-figure-title="eda umap" data-figure-png="../figs_preview/eda_umap.png" data-figure-tsv="../figs_interactive/eda_umap.tsv">
+      </div>
+      <div class="figure-open-row">
+        <button class="btn primary figure-open-btn" type="button" data-figure-open="../figs_interactive/eda_umap.html" data-figure-title="eda umap" data-figure-png="../figs_preview/eda_umap.png" data-figure-tsv="../figs_interactive/eda_umap.tsv">확대해서 보기</button>
+        <a class="btn figure-open-btn" href="../figs_interactive/eda_umap.html" target="_blank" rel="noopener">새 탭으로 열기</a>
+      </div>
+      
+      <div class="figure-caption">
+        <strong>eda umap</strong>
+        페이지 안에서는 PNG preview를 기본으로 먼저 보여주고, 아래 접힘 패널에서 Plotly 인터랙티브 버전을 바로 확대해서 볼 수 있습니다.
+      </div>
+      
+    </div>
+    
+  </div>
+  
+</section>
+
+
+      <footer class="footer glass" role="contentinfo">
+        <div>
+          <span class="mono">Build</span> 2026-04-24 11:29:10
+          &nbsp;·&nbsp; <span class="mono">Hash</span> no-git
+          &nbsp;·&nbsp; 7 datasets · 1509 samples · 51711 genes
+        </div>
+        <div><a href="../pages/14_caveats.html">Methods &amp; Caveats</a></div>
+      </footer>
+    </main>
+    <aside class="toc glass" aria-label="퀵 점프">
+      <h3>Quick Jump</h3>
+      <a href="#scores-intro">1. 점수 해석 프레임</a><a href="#scores-a">2. 분포</a><a href="#scores-b">3. 2D / Radar</a><a href="#scores-linkout">4. Embedding 연동 보기</a>
+    </aside>
+  </div>
+  <script src="../assets/vendor/plotly.min.js"></script>
+  <script defer src="../assets/js/marked.js"></script>
+  <script>window.ThyroidDash = window.ThyroidDash || {}; window.ThyroidDash.commandIndex = [{"label": "홈", "href": "index.html", "tags": "page"}, {"label": "투자자", "href": "view_investor.html", "tags": "page persona"}, {"label": "연구자", "href": "view_researcher.html", "tags": "page persona"}, {"label": "개요", "href": "pages/01_overview.html", "tags": "page"}, {"label": "데이터셋", "href": "pages/02_datasets.html", "tags": "page"}, {"label": "샘플", "href": "pages/03_sample_master.html", "tags": "page"}, {"label": "패널", "href": "pages/04_gene_panels.html", "tags": "page"}, {"label": "EDA", "href": "pages/05_eda.html", "tags": "page"}, {"label": "점수", "href": "pages/06_scores.html", "tags": "page"}, {"label": "ML", "href": "pages/07_ml_baseline.html", "tags": "page"}, {"label": "패널 비교", "href": "pages/08_panel_comparison.html", "tags": "page"}, {"label": "SHAP", "href": "pages/09_shap.html", "tags": "page"}, {"label": "유전자", "href": "pages/10_gene_explorer.html", "tags": "page"}, {"label": "코호트", "href": "pages/11_cohort_compare.html", "tags": "page"}, {"label": "비즈니스", "href": "pages/12_business.html", "tags": "page"}, {"label": "리포트", "href": "pages/13_reports.html", "tags": "page"}, {"label": "주의점", "href": "pages/14_caveats.html", "tags": "page"}, {"label": "드럭 디스커버리", "href": "15_drug_discovery.html", "tags": "page"}, {"label": "바이오마커 인사이트", "href": "17_biomarker_insights.html", "tags": "page"}, {"label": "해석", "href": "18_pathway_immune_meth.html", "tags": "page interpretation pathway immune methylation"}, {"label": "생존", "href": "21a_survival.html", "tags": "page survival kaplan-meier cox prognosis"}, {"label": "약물리버스", "href": "19a_cmap_network.html", "tags": "page cmap ppi network drug reversal"}, {"label": "ATC", "href": "pages/10_gene_explorer.html", "tags": "histology"}, {"label": "FTC", "href": "pages/10_gene_explorer.html", "tags": "histology"}, {"label": "FVPTC", "href": "pages/10_gene_explorer.html", "tags": "histology"}, {"label": "MTC", "href": "pages/10_gene_explorer.html", "tags": "histology"}, {"label": "PDTC", "href": "pages/10_gene_explorer.html", "tags": "histology"}, {"label": "cPTC", "href": "pages/10_gene_explorer.html", "tags": "histology"}, {"label": "normal", "href": "pages/10_gene_explorer.html", "tags": "histology"}, {"label": "unknown", "href": "pages/10_gene_explorer.html", "tags": "histology"}, {"label": "연구 개요 · 핵심 구조", "href": "pages/01_overview.html#hero", "tags": "section 01 / overview"}, {"label": "연구 개요 · 이 페이지에서 확인할 것", "href": "pages/01_overview.html#interpretation", "tags": "section 01 / overview"}, {"label": "데이터셋 탐색기 · 데이터셋 요약", "href": "pages/02_datasets.html#dataset-summary", "tags": "section 02 / datasets"}, {"label": "데이터셋 탐색기 · 데이터셋 테이블", "href": "pages/02_datasets.html#dataset-table", "tags": "section 02 / datasets"}, {"label": "데이터셋 탐색기 · 전역 뷰", "href": "pages/02_datasets.html#dataset-viz", "tags": "section 02 / datasets"}, {"label": "데이터셋 탐색기 · 추가 데이터셋 Figure Wall", "href": "pages/02_datasets.html#dataset-supplement", "tags": "section 02 / datasets"}, {"label": "샘플 마스터 · 샘플 레벨 메타데이터 요약", "href": "pages/03_sample_master.html#sample-summary", "tags": "section 03 / sample master"}, {"label": "샘플 마스터 · 검색형 테이블", "href": "pages/03_sample_master.html#sample-grid", "tags": "section 03 / sample master"}, {"label": "샘플 마스터 · 요약 도표", "href": "pages/03_sample_master.html#sample-figs", "tags": "section 03 / sample master"}, {"label": "유전자 패널 · 패널 비교", "href": "pages/04_gene_panels.html#panel-summary", "tags": "section 04 / gene panels"}, {"label": "유전자 패널 · 패널 overlap / coverage", "href": "pages/04_gene_panels.html#panel-viz", "tags": "section 04 / gene panels"}, {"label": "유전자 패널 · 패널 성능 벤치마크 미리보기", "href": "pages/04_gene_panels.html#panel-benchmark", "tags": "section 04 / gene panels"}, {"label": "탐색적 분석 · 읽는 법", "href": "pages/05_eda.html#eda-guide", "tags": "section 05 / eda"}, {"label": "탐색적 분석 · 임베딩 공간", "href": "pages/05_eda.html#embeddings", "tags": "section 05 / eda"}, {"label": "점수 시각화 · 점수 해석 프레임", "href": "pages/06_scores.html#scores-intro", "tags": "section 06 / scores"}, {"label": "점수 시각화 · 분포", "href": "pages/06_scores.html#scores-a", "tags": "section 06 / scores"}, {"label": "점수 시각화 · 2D / Radar", "href": "pages/06_scores.html#scores-b", "tags": "section 06 / scores"}, {"label": "점수 시각화 · Embedding 연동 보기", "href": "pages/06_scores.html#scores-linkout", "tags": "section 06 / scores"}, {"label": "ML baseline · 섹션 빠른 이동", "href": "pages/07_ml_baseline.html#ml-nav", "tags": "section 07 / ml baseline"}, {"label": "ML baseline · 이번 baseline의 정확한 정의", "href": "pages/07_ml_baseline.html#ml-task", "tags": "section 07 / ml baseline"}, {"label": "ML baseline · 곡선 기반 평가", "href": "pages/07_ml_baseline.html#ml-curves", "tags": "section 07 / ml baseline"}, {"label": "ML baseline · 요약 성능", "href": "pages/07_ml_baseline.html#ml-summary", "tags": "section 07 / ml baseline"}, {"label": "ML baseline · Threshold metrics", "href": "pages/07_ml_baseline.html#threshold-table", "tags": "section 07 / ml baseline"}, {"label": "패널 비교 · 성능 vs 패널 크기", "href": "pages/08_panel_comparison.html#perf", "tags": "section 08 / panel comparison"}, {"label": "패널 비교 · 증분 정보량", "href": "pages/08_panel_comparison.html#gain", "tags": "section 08 / panel comparison"}, {"label": "SHAP 해석 · 전역 해석 요약", "href": "pages/09_shap.html#shap-summary", "tags": "section 09 / shap"}, {"label": "SHAP 해석 · 전역 중요도", "href": "pages/09_shap.html#shap-global", "tags": "section 09 / shap"}, {"label": "SHAP 해석 · 샘플별 워터폴", "href": "pages/09_shap.html#shap-waterfall", "tags": "section 09 / shap"}, {"label": "유전자 탐색기 · 어떻게 읽을까", "href": "pages/10_gene_explorer.html#gene-intro", "tags": "section 10 / gene explorer"}, {"label": "유전자 탐색기 · 유전자 검색", "href": "pages/10_gene_explorer.html#gene-search", "tags": "section 10 / gene explorer"}, {"label": "유전자 탐색기 · 기본 유전자 Figure", "href": "pages/10_gene_explorer.html#gene-default", "tags": "section 10 / gene explorer"}, {"label": "유전자 탐색기 · 설명", "href": "pages/10_gene_explorer.html#gene-note", "tags": "section 10 / gene explorer"}, {"label": "코호트 비교 · 비교 원칙", "href": "pages/11_cohort_compare.html#cohort-text", "tags": "section 11 / cohort compare"}, {"label": "코호트 비교 · 분포 축 전환", "href": "pages/11_cohort_compare.html#cohort-toggle", "tags": "section 11 / cohort compare"}, {"label": "코호트 비교 · 코호트 비교 뷰", "href": "pages/11_cohort_compare.html#cohort-figs", "tags": "section 11 / cohort compare"}, {"label": "코호트 비교 · 보조 구조 도표", "href": "pages/11_cohort_compare.html#cohort-support", "tags": "section 11 / cohort compare"}, {"label": "사업성 비교 · 이 페이지의 전제", "href": "pages/12_business.html#biz-context", "tags": "section 12 / business"}, {"label": "사업성 비교 · 비즈니스 프레임", "href": "pages/12_business.html#biz-figs", "tags": "section 12 / business"}, {"label": "사업성 비교 · 경쟁 구도", "href": "pages/12_business.html#biz-table", "tags": "section 12 / business"}, {"label": "사업성 비교 · 과학적 anchor", "href": "pages/12_business.html#biz-anchor", "tags": "section 12 / business"}, {"label": "리포트 모음 · 문서 읽기 가이드", "href": "pages/13_reports.html#reports-intro", "tags": "section 13 / reports"}, {"label": "리포트 모음 · Rendered markdown", "href": "pages/13_reports.html#reports-md", "tags": "section 13 / reports"}, {"label": "한계와 실패 조건 · 리스크 레지스터", "href": "pages/14_caveats.html#risk", "tags": "section 14 / caveats"}, {"label": "한계와 실패 조건 · Known failure modes", "href": "pages/14_caveats.html#failure", "tags": "section 14 / caveats"}, {"label": "한계와 실패 조건 · 한계 해석용 구조 도표", "href": "pages/14_caveats.html#caveats-context", "tags": "section 14 / caveats"}, {"label": "양자 알고리즘", "href": "pages/16_quantum.html", "tags": "page quantum"}];</script>
+  <script src="../assets/js/plotly-theme.js"></script>
+  <script src="../assets/js/main.js"></script>
+  
+
+
+
+
+  <!-- ux:tour-js --><script src="../assets/js/tour.js" defer></script><!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

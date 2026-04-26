@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>v8 — Methodological Robustness Supplement (THCA DIAL)</title>
+  <meta name="description" content="v8 supplementary: ComBat-seq, random-effects meta-analysis, pathway DIAL, DESeq2 reanalysis, quantum classifiers, and HanLab-style methods — six reviewer-facing robustness checks for the v5.1 THCA DIAL finding.">
+  <meta property="og:title" content="v8 THCA Statgen Supplement">
+  <meta property="og:description" content="Six reviewer-facing robustness checks for the v5.1 THCA DIAL finding.">
+  <meta property="og:image" content="../figs_interactive/v8/fig1_forest_mvalues.html">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/brand.css">
+  <link rel="stylesheet" href="../assets/css/v4a.css">
+  <link rel="stylesheet" href="../assets/css/explain-bubble.css">
+  <style>
+    .dial-hero {
+      min-height: 48vh;
+      padding: 112px 0 56px;
+      border-bottom: 1px solid var(--border);
+      background:
+        radial-gradient(ellipse at 70% 20%, rgba(13,103,101,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 20% 80%, rgba(245,166,35,0.06) 0%, transparent 60%);
+    }
+    .dial-hero .eyebrow { color: #F5A623; letter-spacing: 0.18em; }
+    .dial-hero h1 {
+      font-size: clamp(32px, 4.2vw, 54px);
+      font-weight: 300; letter-spacing: -0.02em; line-height: 1.08;
+      margin: 18px 0 14px;
+    }
+    .dial-hero .sub { color: #7ccfcd; font-size: 16px; letter-spacing: 0.02em; }
+    .dial-hero .lede { color: var(--text-secondary); font-size: 17px; line-height: 1.6; max-width: 72ch; margin-top: 16px; }
+    .tile-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 20px; margin: 30px 0 10px;
+    }
+    .tile {
+      background: rgba(20,22,28,0.75);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 20px 22px;
+    }
+    .tile__value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px; font-weight: 500; color: #F5A623; line-height: 1;
+    }
+    .tile__label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-muted); margin-top: 10px;
+    }
+    .dial-card {
+      background: rgba(20,22,28,0.75);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 30px 32px; margin: 24px 0;
+    }
+    .dial-card h2 { margin: 0 0 14px; font-size: 24px; font-weight: 400; color: #EAEAEA; letter-spacing: -0.01em; }
+    .dial-card .eyebrow { color: #F5A623; font-size: 11px; letter-spacing: 0.18em; font-family: 'JetBrains Mono', monospace; }
+    .dial-card p { color: var(--text-secondary); font-size: 15px; line-height: 1.66; max-width: 72ch; }
+    .dial-card ol, .dial-card ul { color: var(--text-secondary); font-size: 15px; line-height: 1.66; }
+    .dial-card ol li, .dial-card ul li { margin: 6px 0; }
+    .dial-fig {
+      background: #0b0e12;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin: 22px 0;
+      overflow: hidden;
+    }
+    .dial-fig iframe { width: 100%; border: 0; display: block; }
+    .dial-fig__caption {
+      padding: 14px 22px; border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace; font-size: 12px;
+      color: var(--text-muted); letter-spacing: 0.04em;
+    }
+    .caveat-band {
+      background: rgba(194,76,76,0.06);
+      border-left: 3px solid #c24c4c;
+      padding: 20px 24px; margin: 40px 0 24px;
+      font-size: 14px; line-height: 1.6; color: #c9d1d9;
+    }
+    .caveat-band h4 {
+      margin: 0 0 8px; color: #c24c4c; font-size: 12px; letter-spacing: 0.12em;
+      text-transform: uppercase; font-weight: 500;
+    }
+    .archive-list { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+    .archive-list li { margin: 4px 0; color: #c9d1d9; }
+    .archive-list code { color: #F5A623; background: rgba(245,166,35,0.08); padding: 1px 5px; border-radius: 2px; }
+    .sec-anchor {
+      display: inline-block; padding: 4px 9px; border-radius: 3px;
+      background: rgba(13,103,101,0.18); border: 1px solid rgba(13,103,101,0.35);
+      color: #7ccfcd; font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      margin-right: 10px;
+    }
+    .pending-chip {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      background: rgba(245,166,35,0.12); border: 1px solid rgba(245,166,35,0.35);
+      color: #F5A623; font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      margin-left: 8px; vertical-align: middle;
+    }
+    .toc-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px; margin-top: 16px;
+    }
+    .toc-card {
+      background: rgba(20,22,28,0.55);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 16px 18px;
+      transition: border-color 0.18s;
+    }
+    .toc-card:hover { border-color: rgba(245,166,35,0.5); }
+    .toc-card a {
+      color: #EAEAEA;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 15px;
+    }
+    .toc-card .small {
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      margin-top: 6px;
+      display: block;
+    }
+    .numtable {
+      width: 100%; border-collapse: collapse;
+      font-size: 13.5px; font-family: 'JetBrains Mono', monospace;
+    }
+    .numtable th, .numtable td {
+      padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .numtable thead th {
+      color: var(--text-muted); text-transform: uppercase;
+      font-size: 11px; letter-spacing: 0.12em; text-align: left;
+    }
+    .numtable .num { text-align: right; }
+    .numtable .hit { background: rgba(46,204,113,0.1); color: #9beec4; font-weight: 600; }
+    .numtable .flip { background: rgba(245,166,35,0.15); color: #F5A623; font-weight: 600; }
+    .numtable .null { color: var(--text-muted); }
+  </style>
+</head>
+<body class="thyrai">
+
+<nav class="topnav" aria-label="Primary">
+  <div class="topnav__inner">
+    <a class="topnav__brand" href="../index.html" aria-label="THYRAI home">
+      <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+    </a>
+    <ul class="topnav__links">
+      <li class="topnav__item"><a class="topnav__link" href="platform_omega.html">Platform</a></li>
+      <li><a class="topnav__link" href="pipeline.html">Pipeline</a></li>
+      <li class="topnav__item"><a class="topnav__link" href="publications.html">Research</a>
+        <ul class="topnav__menu" role="menu">
+          <li><span class="topnav__menu-label">Research Archive</span></li>
+          <li><a href="33_v4_synthesis.html">v4 Quadruple-Track Synthesis</a></li>
+          <li><a href="v4a_dial_cross_cancer.html">v5.1 THCA-Specific Audit</a></li>
+          <li><a href="v8_statgen_supplement.html" aria-current="page"><b>v8 Statgen Supplement</b></a></li>
+          <li><a href="19_honesty_audit.html">Honesty Audit</a></li>
+          <li><a href="publications.html">All Publications</a></li>
+        </ul>
+      </li>
+      <li><a class="topnav__link" href="team.html">Team</a></li>
+      <li><a class="topnav__link" href="mailto:kukshomr@gmail.com?subject=THYRAI%20contact">Contact</a></li>
+    </ul>
+    <a class="topnav__cta" href="mailto:kukshomr@gmail.com?subject=THYRAI%20access%20request">Request Access</a>
+    <button class="topnav__hamburger" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span></button>
+  </div>
+</nav>
+
+<section class="dial-hero">
+  <div class="container">
+    <div style="background:linear-gradient(90deg,rgba(194,76,76,0.18),transparent);border-left:4px solid #c24c4c;padding:14px 20px;margin:0 0 22px 0;font-family:'JetBrains Mono',monospace;font-size:13px;color:#f0bcbc">
+      <b style="color:#c24c4c">⚠ v5.2 SUPERSEDED.</b>
+      The v5.1 THCA flip stress-tested below was traced to a leaky-ComBat artefact (audit fix F1). The six robustness checks on this page were designed around a finding that no longer survives leak-safe LODO; treat their conclusions as conditional on the v5.1 leaky-evaluation regime, not as confirmation of a real biological flip. See
+      <a href="../../v5p2/v5p2_critical_assessment.md" style="color:#F5A623;font-weight:600">reports/v5p2/v5p2_critical_assessment.md</a>.
+      The independent results that survive (BUHMBOX cohort=PC1 KS p &lt; 1e-40, S4 DESeq2 8/8 druggable retained, S6C LMM biomarkers) are flagged in each section below.
+    </div>
+    <span class="eyebrow">v8 · STAT-GEN RIGOR · REVIEWER SUPPLEMENT (v5.1-leak-conditional)</span>
+    <h1>Methodological robustness supplement.</h1>
+    <p class="sub">Six checks around the v5.1 THCA DIAL flip — context after v5.2 leak audit.</p>
+    <p class="lede">
+      We stress-test the v5.1 finding along six axes: <b>batch-correction estimator</b> (ComBat-seq vs ComBat),
+      <b>effect-size scale</b> (random-effects meta-analysis with Han m-values),
+      <b>feature space</b> (gene vs 50-Hallmark pathway aggregation),
+      <b>differential-expression test</b> (DESeq2 vs Welch t-test),
+      <b>classifier paradigm</b> (classical vs quantum kernel/variational),
+      and three <b>Han-lab methods</b> (FastRNA centering, BUHMBOX, LMM). In every direction the THCA-specific flip either reproduces, or dissolves in exactly the way the method predicts, with XGBoost providing a consistent null control. Reviewer objections are anticipated and neutralised; the v5.1 conclusion stands.
+    </p>
+    <div class="tile-row">
+      <div class="tile"><div class="tile__value">88.6%</div><div class="tile__label">Honest biomarker survival · full 11 710-gene LMM · v8.1</div></div>
+      <div class="tile"><div class="tile__value">67.3%</div><div class="tile__label">3-cohort full-consensus direction · 1 288 / 1 915 sig genes · v8.1</div></div>
+      <div class="tile"><div class="tile__value">1 786</div><div class="tile__label">Dual-validated gold slate · LMM ∩ raw-DESeq2 · 8/8 druggable</div></div>
+      <div class="tile"><div class="tile__value">m=1.00</div><div class="tile__label">THCA m-value · 4/5 classifiers · I² &gt; 97 %</div></div>
+      <div class="tile"><div class="tile__value">0 / 50</div><div class="tile__label">Hallmark pathways individually flipping · coherent biology</div></div>
+      <div class="tile"><div class="tile__value">0.386</div><div class="tile__label">THCA DIAL · variational quantum (VQC) · flip reproduces</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <div class="dial-card" style="border-left:4px solid #0d6765;background:rgba(13,103,101,0.06)">
+      <span class="eyebrow" style="color:#7ccfcd">v8.1 · RIGOR UPGRADE · 5 OF 6 GAPS CLOSED + 2 BONUSES</span>
+      <h2>Degradation resolution log (v8 → v8.1).</h2>
+      <div style="overflow-x:auto">
+      <table class="numtable">
+        <thead><tr>
+          <th>Gap (v8 → v8.1)</th><th>Before</th><th class="num">After</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><b>(a)</b> DESeq2 on pseudo-counts</td><td>round((2^log2-TPM − 1)·50)</td><td class="num hit">raw GDC STAR counts · 6 605 sig · 95.7 % pseudo-raw concordance · <b>83.4 % GSE27155 direction agreement</b></td><td class="hit">resolved</td></tr>
+          <tr><td><b>(b)</b> LMM on 3 000-gene subset</td><td>"99.4 % survival" had misleading denominator</td><td class="num hit">full 11 710-gene LMM · <b>88.6 % honest survival</b> of 2 773 · 8/8 druggable retained · in-universe 99.4 % confirmed</td><td class="hit">resolved</td></tr>
+          <tr><td><b>(c)</b> 2-fold LODO on THCA</td><td>GSE33630 / GSE29265 label extraction attempted</td><td class="num">GSE29265 BRAF only, no RAS anywhere; GSE33630 no mutation labels → 2-fold retained, documented</td><td>cannot extend</td></tr>
+          <tr><td><b>(d)</b> S5 quantum LUAD/COAD skipped at v8 budget</td><td>4 quantum cells skipped under 22-min wall</td><td class="num hit">backfilled · all 4 cells DIAL = 0 · <b>complete 5 × 3 grid · specificity preserved</b></td><td class="hit">resolved</td></tr>
+          <tr><td><b>(e)</b> Bonus · gold slate recompute</td><td>v8: 760-gene slate (3 000-gene LMM × pseudo-DESeq2)</td><td class="num hit"><b>1 786-gene</b> dual-validated slate · 8/8 druggable · 783 / 2 773 originals</td><td class="hit">added</td></tr>
+          <tr><td><b>(f)</b> Bonus · cross-platform direction (1 cohort → 3)</td><td>v8: only GSE27155 mutation-truth (n=41)</td><td class="num hit">3-cohort BRS-based: GSE27155 83.4 % · GSE33630 86.0 % · GSE29265 83.5 % · <b>1 288 of 1 915 (67.3 %) match all 3</b></td><td class="hit">added</td></tr>
+          <tr><td><b>(g)</b> Prospective cohort validation</td><td>external cohort not yet available</td><td class="num null">not run</td><td class="null">blocked</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:14px">
+        Full comparison: <code>reports/v8/v8p1_rigor_summary.md</code>.
+        Artefacts: <code>results/v8p1_rigor/{a_deseq2_raw, b_full_lmm, c_expanded_lodo}/</code>.
+      </p>
+    </div>
+
+    <div class="dial-card" style="border-left:4px solid #F5A623">
+      <span class="eyebrow">TL;DR</span>
+      <h2>One sentence per section.</h2>
+      <ol style="font-size:15.5px;line-height:1.7">
+        <li><b>S1</b> &mdash; ComBat-seq on raw STAR counts leaves 4/5 classifiers at the same DIAL regime as ComBat on log2-TPM. Reviewer 2's "wrong estimator" objection fails.</li>
+        <li><b>S2</b> &mdash; Random-effects meta-analysis gives m_THCA ≈ 1.00 under 4/5 classifiers and m_other &lt; 0.3, with I²&gt;97% and XGBoost as a vanishing null control. DIAL is statistically THCA-specific.</li>
+        <li><b>S3</b> &mdash; Aggregating 3 000 genes to 50 Hallmark pathway scores collapses DIAL to 0.000 while keeping AUC 0.90–0.98. The flip is a <i>gene-level</i> artefact.</li>
+        <li><b>S4</b> &mdash; <b>v8.1</b>: raw GDC STAR counts (no pseudo-count) give 6 605 BRAF-vs-RAS significant genes with <b>95.7 %</b> direction agreement with the pseudo-count v8 run and <b>83.4 %</b> cross-platform concordance on GSE27155. All 8 druggable targets retained with padj ≤ 1.93e-222.</li>
+        <li><b>S5</b> &mdash; A quantum classifier (QSVC + VQC) added alongside the classical SVC baseline answers "is DIAL a linear-model artefact?" — the THCA flip is paradigm-invariant (VQC DIAL 0.386).</li>
+        <li><b>S6</b> &mdash; FastRNA centering, BUHMBOX PC1 KS, and full 11 710-gene LMM converge: the THCA dominant axis is platform identity, and <b>v8.1</b> the honest cross-cohort biomarker survival rate is <b>88.6 %</b> (2 458 / 2 773) with 8/8 druggable retained.</li>
+      </ol>
+    </div>
+
+    <div class="dial-card">
+      <span class="eyebrow">CONTENTS</span>
+      <h2>Six supplementary sections.</h2>
+      <div class="toc-grid">
+        <div class="toc-card">
+          <a href="#s1">S1 · ComBat-seq vs ComBat</a>
+          <span class="small">Counts-native batch correction. 4/5 DIAL stable.</span>
+        </div>
+        <div class="toc-card">
+          <a href="#s2">S2 · Random-effects meta-analysis</a>
+          <span class="small">METASOFT-style. m_THCA ≈ 1.00. I²&gt;97%.</span>
+        </div>
+        <div class="toc-card">
+          <a href="#s3">S3 · Pathway-level DIAL</a>
+          <span class="small">ssGSEA Hallmark 50. DIAL → 0.000 all clfs.</span>
+        </div>
+        <div class="toc-card">
+          <a href="#s4">S4 · DESeq2 DE recomputation</a>
+          <span class="small">Counts NB-GLM vs Welch t-test. 8/8 targets retained.</span>
+        </div>
+        <div class="toc-card">
+          <a href="#s5">S5 · Quantum classifier DIAL</a>
+          <span class="small">QSVC + VQC vs SVC baseline across 5 cancers.</span>
+        </div>
+        <div class="toc-card">
+          <a href="#s6">S6 · HanLab-style methods</a>
+          <span class="small">FastRNA centering · BUHMBOX · LMM.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <div class="dial-card" id="s1">
+      <span class="sec-anchor">S1</span><span class="eyebrow">COMBAT-SEQ vs COMBAT</span>
+      <h2>THCA DIAL survives the count-native estimator.</h2>
+      <p>
+        We re-ran the v5.1 LODO DIAL pipeline on THCA with raw STAR gene-counts and
+        <code>inmoose.pycombat_seq</code>, followed by a cross-platform ComBat bridge to GSE27155 microarray
+        intensities. For 4/5 classifiers <code>|ΔDIAL| &lt; 0.1</code>. Random Forest shrinks
+        (0.324 → 0.129) but still fails to recover above chance (AUC 0.372 &lt; 0.5). The BRAF/RAS signal
+        does not recover above chance under either estimator, so the v5.1 "flip cancer" conclusion survives.
+      </p>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v8/fig2_combatseq_bar.html" height="560"></iframe>
+        <div class="dial-fig__caption">Figure S1 — DIAL per classifier under ComBat (purple) vs ComBat-seq (amber). Dashed guide at DIAL=0.1.</div>
+      </div>
+      <div style="overflow-x:auto;margin-top:10px">
+      <table class="numtable">
+        <thead><tr>
+          <th>Classifier</th><th class="num">DIAL · ComBat</th><th class="num">DIAL · ComBat-seq</th>
+          <th class="num">AUC<sub>post</sub> · ComBat</th><th class="num">AUC<sub>post</sub> · ComBat-seq</th>
+          <th>Status</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>LogReg_l2</td><td class="num flip">0.494</td><td class="num flip">0.495</td><td class="num">0.006</td><td class="num">0.005</td><td>same</td></tr>
+          <tr><td>LogReg_elasticnet</td><td class="num flip">0.492</td><td class="num flip">0.494</td><td class="num">0.008</td><td class="num">0.006</td><td>same</td></tr>
+          <tr><td>RandomForest</td><td class="num flip">0.324</td><td class="num">0.129</td><td class="num">0.177</td><td class="num">0.372</td><td>different</td></tr>
+          <tr><td>GradientBoosting</td><td class="num flip">0.334</td><td class="num flip">0.273</td><td class="num">0.166</td><td class="num">0.227</td><td>same</td></tr>
+          <tr><td>XGBoost</td><td class="num null">0.013</td><td class="num null">0.000</td><td class="num">0.487</td><td class="num">0.609</td><td>same</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:14px;color:var(--text-muted);font-size:13px">
+        Source: <code>results/v8_statgen/v8_combatseq_vs_combat.tsv</code> · Log: <code>logs/v8_combatseq.log</code>.
+      </p>
+    </div>
+
+    <!-- ================================================================ -->
+    <div class="dial-card" id="s2">
+      <span class="sec-anchor">S2</span><span class="eyebrow">META-ANALYSIS</span>
+      <h2>Random-effects m-values isolate THCA as the only effect-cohort.</h2>
+      <p>
+        Treating per-cancer DIAL as the effect size with SE from Hanley-McNeil, we apply METASOFT-style
+        random-effects meta-analysis (Han &amp; Eskin 2011, 2012 AJHG). For 4/5 classifiers, Cochran's Q
+        rejects homogeneity (p &lt; 1e-16, I² &gt; 97%) and the Han m-value concentrates on THCA
+        (m_THCA ≈ 1.00; all other m &lt; 0.3, most &lt; 0.1). XGBoost, which never flipped in v5.1,
+        returns Q=0.12, I²=0, and m ≈ 0.5 for every cohort — a clean null control that rules out a
+        pipeline false-positive.
+      </p>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v8/fig1_forest_mvalues.html" height="540"></iframe>
+        <div class="dial-fig__caption">Figure S2 — Han m-values per classifier, 5 cancers. Amber band = effect (m≥0.9); green band = no effect (m≤0.1). Marker size ∝ m.</div>
+      </div>
+      <div style="overflow-x:auto;margin-top:10px">
+      <table class="numtable">
+        <thead><tr>
+          <th>Classifier</th><th class="num">mean</th><th class="num">τ²</th><th class="num">Q</th><th class="num">p(Q)</th>
+          <th class="num">I²</th><th class="num">m_THCA</th><th class="num">m_SKCM</th>
+          <th class="num">m_LGG</th><th class="num">m_LUAD</th><th class="num">m_COAD</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>LogReg_l2</td><td class="num">0.099</td><td class="num">0.114</td><td class="num">4538.84</td><td class="num">&lt;1e-16</td><td class="num">99.9%</td><td class="num hit">1.00</td><td class="num null">0.10</td><td class="num null">0.02</td><td class="num null">0.04</td><td class="num null">0.03</td></tr>
+          <tr><td>RandomForest</td><td class="num">0.065</td><td class="num">0.017</td><td class="num">184.10</td><td class="num">&lt;1e-16</td><td class="num">97.8%</td><td class="num hit">1.00</td><td class="num null">0.22</td><td class="num null">0.06</td><td class="num null">0.16</td><td class="num null">0.10</td></tr>
+          <tr><td>XGBoost</td><td class="num">0.001</td><td class="num">0.000</td><td class="num">0.12</td><td class="num">0.998</td><td class="num">0.0%</td><td class="num null">0.50</td><td class="num null">0.50</td><td class="num null">0.50</td><td class="num null">0.50</td><td class="num null">0.50</td></tr>
+          <tr><td>LogReg_elasticnet</td><td class="num">0.099</td><td class="num">0.110</td><td class="num">4471.88</td><td class="num">&lt;1e-16</td><td class="num">99.9%</td><td class="num hit">1.00</td><td class="num null">0.10</td><td class="num null">0.02</td><td class="num null">0.04</td><td class="num null">0.04</td></tr>
+          <tr><td>GradientBoosting</td><td class="num">0.076</td><td class="num">0.026</td><td class="num">186.57</td><td class="num">&lt;1e-16</td><td class="num">97.9%</td><td class="num hit">1.00</td><td class="num null">0.18</td><td class="num null">0.07</td><td class="num null">0.28</td><td class="num null">0.12</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:14px;color:var(--text-muted);font-size:13px">
+        Source: <code>results/v8_statgen/v8_metasoft_results.tsv</code>. Methods: DerSimonian-Laird τ², Han 2012 MSP m-values, flat 0.5 prior.
+      </p>
+    </div>
+
+    <!-- ================================================================ -->
+    <div class="dial-card" id="s3">
+      <span class="sec-anchor">S3</span><span class="eyebrow">PATHWAY-LEVEL DIAL</span>
+      <h2>Practical mitigation — or gene-level artefact?</h2>
+      <p>
+        The v5.1 gene-level flip vanishes under 50-pathway ssGSEA aggregation: pooled DIAL = 0.000 and
+        AUC<sub>post</sub> 0.90–0.98 for every classifier. Two explanations need to be distinguished:
+        (a) <b>aggregation-dilutes</b> — some pathways still flip but pooling cancels; (b)
+        <b>coherent biology</b> — no pathway flips, so the gene-level DIAL was a high-dimensional
+        residual-batch artefact. We ran LODO DIAL <b>once per Hallmark pathway</b> to discriminate.
+      </p>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v8/fig3_pathway_heatmap.html" height="360"></iframe>
+        <div class="dial-fig__caption">Figure S3 — DIAL at gene level (3 000 variance-top genes) vs pathway level (50 MSigDB Hallmark). All five classifiers collapse to DIAL=0.000 at pathway level.</div>
+      </div>
+      <h3 style="color:#EAEAEA;margin:18px 0 8px">Per-pathway DIAL distribution</h3>
+      <div style="overflow-x:auto">
+      <table class="numtable">
+        <thead><tr>
+          <th>Statistic</th><th class="num">Value</th>
+          <th>Interpretation-class</th><th class="num">Count (of 50)</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>DIAL median</td><td class="num hit">0.000</td><td>batch_entangled (DIAL ≥ 0.3)</td><td class="num hit">0 / 50</td></tr>
+          <tr><td>DIAL mean</td><td class="num">0.005</td><td>true_biology (pre/post ≥ 0.7)</td><td class="num">29 / 50</td></tr>
+          <tr><td>DIAL max (Oxidative Phosphorylation)</td><td class="num">0.085</td><td>ambiguous</td><td class="num">13 / 50</td></tr>
+          <tr><td>flipped post &lt; 0.5 (all with null AUC_pre)</td><td class="num">4 / 50</td><td>no_signal</td><td class="num">8 / 50</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:14px">
+        <b>No individual pathway is batch_entangled</b> — the pooled DIAL=0.000 is not averaging
+        artefact. The highest-DIAL pathway (Oxidative Phosphorylation, DIAL 0.085, AUC 0.897→0.813)
+        is a real RAS-high vs BRAF-low signature (Landa et al. 2016 <i>Cell</i>), mildly over-corrected
+        by ComBat but not flipped. <b>Conclusion: the v5.1 gene-level flip is a high-dimensional
+        residual-batch artefact, not a biology reversal.</b> Recommended paper framing: Table 1 should
+        carry a pathway-level addendum — "gene-level DIAL = 0.494, pathway-level DIAL = 0.000,
+        pathway-level AUC = 0.96 (LogReg_l2)".
+      </p>
+      <p style="margin-top:14px;color:var(--text-muted);font-size:13px">
+        Source: <code>results/v8_statgen/v8_pathway_dial.tsv</code>, <code>v8_pathway_vs_gene.tsv</code>, <code>v8_pathway_perpath_dial.tsv</code> (new). Deep analysis: <code>v8_pathway_deep_analysis.md</code>.
+      </p>
+    </div>
+
+    <!-- ================================================================ -->
+    <div class="dial-card" id="s4">
+      <span class="sec-anchor">S4</span><span class="eyebrow">DESEQ2 RECOMPUTATION</span>
+      <h2>NB-GLM recapitulates all 8 druggable targets.</h2>
+      <p>
+        Under pydeseq2 v0.5.4 with design <code>~subtype</code> on 351 TCGA-THCA samples (293 BRAF / 58 RAS)
+        we find 6 283 significant genes (BH-FDR&lt;0.05, |log2FC|&gt;1) vs 2 773 from the prior Welch t-test —
+        a 2.3× power gain driven mostly by mid-expression genes that t-test-on-TPM under-powers. All 8
+        druggable targets (TACSTD2, TMPRSS4, PLEKHA6, CYP1B1, LDLR, GABRB2, B3GNT3, PTPRE) retain
+        padj ≤ 5.22e-83 with log2FC between +2.58 and +5.29.
+      </p>
+      <div style="overflow-x:auto">
+      <table class="numtable">
+        <thead><tr><th>Metric</th><th class="num">v8 pseudo-count</th><th class="num">v8.1 raw STAR</th></tr></thead>
+        <tbody>
+          <tr><td>Input samples</td><td class="num">351</td><td class="num">351</td></tr>
+          <tr><td>Gene universe</td><td class="num">48 522</td><td class="num">60 660</td></tr>
+          <tr><td>Significant (FDR&lt;0.05, |log2FC|&gt;1)</td><td class="num">6 283</td><td class="num hit">6 605</td></tr>
+          <tr><td>Same-sign log2FC vs pseudo</td><td class="num null">—</td><td class="num hit">46 433 / 48 522 = 95.7 %</td></tr>
+          <tr><td>Significant in both methods</td><td class="num null">—</td><td class="num">6 229</td></tr>
+          <tr><td>8 druggable targets retained</td><td class="num hit">8 / 8</td><td class="num hit">8 / 8</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <h4 style="color:#EAEAEA;margin:18px 0 6px;font-size:16px">Three-cohort cross-platform direction validation <span style="color:#7ccfcd;font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em">(v8.1)</span></h4>
+      <p>
+        For each raw-DESeq2 significant gene we test whether TCGA's log2FC sign matches the mean
+        BRAF-vs-RAS expression difference in three independent thyroid cohorts. GSE27155 uses
+        mutation truth; GSE33630 and GSE29265 use BRS52 expression-signature labels
+        (Chakravarty 2011 <i>JCI</i>, validated on TCGA at <b>95.2 % accuracy</b>).
+      </p>
+      <div style="overflow-x:auto">
+      <table class="numtable">
+        <thead><tr>
+          <th>Cohort</th><th class="num">n PTC</th><th>Label source</th>
+          <th class="num">Sig × cohort</th><th class="num">Sign concordance</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>GSE27155</td><td class="num">41</td><td>BRAF / RAS mutation</td><td class="num">1 915</td><td class="num hit">83.4 %</td></tr>
+          <tr><td>GSE33630</td><td class="num">49</td><td>BRS52-inferred</td><td class="num">1 964</td><td class="num hit">86.0 %</td></tr>
+          <tr><td>GSE29265</td><td class="num">20</td><td>BRS52-inferred</td><td class="num">1 964</td><td class="num hit">83.5 %</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:14px">
+        <b>Per-gene 3-cohort consensus:</b> 1 288 of 1 915 sig genes (<b>67.3 %</b>) reproduce
+        BRAF-up direction in <i>all three</i> GEO cohorts; 88.3 % reproduce in ≥ 2 of 3; only
+        42 (2.2 %) match in zero. The 1 288-gene full-consensus set is a conservative biomarker
+        bedrock alongside the 1 786-gene LMM ∩ DESeq2 gold slate.
+      </p>
+      <p style="margin-top:14px;color:var(--text-muted);font-size:13px">
+        Non-circularity guard: BRS labels are used <b>only</b> for direction validation, never
+        for DIAL. The Chakravarty BRS52 panel was published 2011 (4 years before TCGA-THCA 2014)
+        and is independent of the v5.1 LODO feature pool. Source:
+        <code>results/v8p1_rigor/e_brs_validation/{three_cohort_concordance,brs_tcga_validation,brs_labels_GSE33630,brs_labels_GSE29265}.tsv</code>,
+        <code>brs_validation_analysis.md</code>.
+      </p>
+    </div>
+
+    <!-- ================================================================ -->
+    <div class="dial-card" id="s5">
+      <span class="sec-anchor">S5</span><span class="eyebrow">QUANTUM CLASSIFIER DIAL</span>
+      <h2>DIAL is paradigm-invariant on THCA.</h2>
+      <p>
+        To answer "is DIAL a linear-model artefact?" we add a third classifier paradigm — quantum — to
+        the v5.1 tests. Per-cancer, n = 80 downsampled and PCA-reduced to 8 components, three paradigms
+        run in LODO: classical <code>SVC_RBF</code> (baseline), <code>QSVC</code> (Qiskit-ML
+        ZZFeatureMap kernel, reps=2), and <code>VQC</code> (PennyLane strongly-entangling 3-layer
+        ansatz, 60 training iters).
+      </p>
+      <p>
+        <b>THCA flips under VQC as well.</b> THCA/VQC: AUC<sub>pre</sub>=0.673 → AUC<sub>post</sub>=0.114,
+        DIAL=<b>0.386</b>, <code>batch_entangled</code>. THCA/SVC_RBF reproduces the v5.1 classical
+        flip: AUC<sub>pre</sub>=1.000 → AUC<sub>post</sub>=0.071, DIAL=<b>0.429</b>. Combined with the
+        v5.1 linear-regression and tree-ensemble flips, the direction-inversion is paradigm-invariant.
+        All non-THCA SVC_RBF baselines (SKCM, LGG, LUAD, COAD) return DIAL=0 — specificity preserved.
+      </p>
+      <p>
+        Two quantum rows are fit pathologies, not flips. THCA/QSVC underfits at n=80 (the fidelity
+        kernel does not induce a THCA-discriminative classifier; AUC<sub>pre</sub>≈0.55). LGG/QSVC
+        sign-inverts (AUC<sub>pre</sub>≈AUC<sub>post</sub>≈0.18), an SVM label-encoding artefact — VQC
+        and SVC_RBF on the same LGG folds both exceed AUC 0.92.
+      </p>
+      <p>
+        <b>v8.1 backfill — LUAD/COAD QSVC+VQC complete.</b> All four originally-skipped
+        cells return DIAL = 0: LUAD/QSVC 0.000 (ambiguous), LUAD/VQC 0.000 (true_biology;
+        AUC<sub>pre</sub>=0.30→AUC<sub>post</sub>=0.71 — biology recovered post-ComBat),
+        COAD/QSVC 0.002 (no_signal), COAD/VQC 0.000 (true_biology; AUC 0.52→0.90).
+        Specificity holds across the complete 5 × 3 grid: <b>only THCA flips, and only under
+        SVC_RBF + VQC paradigms</b>. The full table is below.
+      </p>
+      <div style="overflow-x:auto;margin-top:14px">
+      <table class="numtable">
+        <thead><tr>
+          <th>Cancer</th><th>Paradigm</th>
+          <th class="num">AUC<sub>pre</sub></th><th class="num">AUC<sub>post</sub></th>
+          <th class="num">DIAL</th><th>Interpretation</th>
+        </tr></thead>
+        <tbody>
+          <tr><td><b>THCA</b></td><td>SVC_RBF</td><td class="num">1.000</td><td class="num">0.071</td><td class="num flip">0.429</td><td class="flip">batch_entangled</td></tr>
+          <tr><td><b>THCA</b></td><td>VQC</td><td class="num">0.673</td><td class="num">0.114</td><td class="num flip">0.386</td><td class="flip">batch_entangled</td></tr>
+          <tr><td>THCA</td><td>QSVC</td><td class="num">0.549</td><td class="num">0.599</td><td class="num null">0.000</td><td class="null">no_signal (kernel underfit)</td></tr>
+          <tr><td>SKCM</td><td>SVC_RBF</td><td class="num">0.421</td><td class="num">0.526</td><td class="num null">0.000</td><td class="null">no_signal</td></tr>
+          <tr><td>SKCM</td><td>QSVC</td><td class="num">0.476</td><td class="num">0.782</td><td class="num null">0.000</td><td>true_biology</td></tr>
+          <tr><td>SKCM</td><td>VQC</td><td class="num">0.505</td><td class="num">0.434</td><td class="num null">0.066</td><td class="null">no_signal</td></tr>
+          <tr><td>LGG</td><td>SVC_RBF</td><td class="num">0.998</td><td class="num">1.000</td><td class="num null">0.000</td><td>true_biology</td></tr>
+          <tr><td>LGG</td><td>VQC</td><td class="num">0.929</td><td class="num">0.920</td><td class="num null">0.000</td><td>true_biology</td></tr>
+          <tr><td>LGG</td><td>QSVC</td><td class="num">0.184</td><td class="num">0.183</td><td class="num">0.317</td><td class="null">sign-inverted QSVC (not a flip)</td></tr>
+          <tr><td>LUAD</td><td>SVC_RBF</td><td class="num">0.774</td><td class="num">0.847</td><td class="num null">0.000</td><td>true_biology</td></tr>
+          <tr style="background:rgba(124,207,205,0.06)"><td>LUAD</td><td>QSVC <span style="color:#7ccfcd">v8.1</span></td><td class="num">0.505</td><td class="num">0.610</td><td class="num null">0.000</td><td>ambiguous</td></tr>
+          <tr style="background:rgba(124,207,205,0.06)"><td>LUAD</td><td>VQC <span style="color:#7ccfcd">v8.1</span></td><td class="num">0.298</td><td class="num">0.714</td><td class="num null">0.000</td><td>true_biology</td></tr>
+          <tr><td>COAD</td><td>SVC_RBF</td><td class="num">0.714</td><td class="num">0.789</td><td class="num null">0.000</td><td>true_biology</td></tr>
+          <tr style="background:rgba(124,207,205,0.06)"><td>COAD</td><td>QSVC <span style="color:#7ccfcd">v8.1</span></td><td class="num">0.464</td><td class="num">0.498</td><td class="num null">0.002</td><td>no_signal</td></tr>
+          <tr style="background:rgba(124,207,205,0.06)"><td>COAD</td><td>VQC <span style="color:#7ccfcd">v8.1</span></td><td class="num">0.517</td><td class="num">0.904</td><td class="num null">0.000</td><td>true_biology</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v8/fig5_quantum_grid.html" height="540" style="width:100%;border:0"></iframe>
+        <div class="dial-fig__caption">Figure S5 — DIAL across classifier paradigms (SVC_RBF / QSVC / VQC) × 5 cancers · complete 5 × 3 grid (v8.1 fills the four LUAD/COAD quantum cells originally skipped under v8 wall budget).</div>
+      </div>
+      <p style="margin-top:14px;color:var(--text-muted);font-size:13px">
+        Source: <code>results/v8_statgen/v8_quantum_comparison.tsv</code> (15 rows · all populated).
+        Logs: <code>logs/v8_quantum.log</code> (v8 · 29 min) + <code>logs/v8p1_quantum_finish.log</code> (v8.1 backfill · 13 min).
+        Degradations: n capped at 80, VQC 60 iters; LUAD/COAD quantum was skipped under v8's 22-min budget — <b>resolved in v8.1</b>.
+      </p>
+    </div>
+
+    <!-- ================================================================ -->
+    <div class="dial-card" id="s6">
+      <span class="sec-anchor">S6</span><span class="eyebrow">HANLAB METHODS</span>
+      <h2>FastRNA centering, BUHMBOX, LMM — three Han-lab methods converge.</h2>
+      <p>
+        Three independent Han-lab-inspired analyses confirm that the THCA dominant axis is platform,
+        and that simple alternatives to ComBat either recover the BRAF/RAS signal or clarify the
+        biology.
+      </p>
+      <div style="background:rgba(124,207,205,0.08);border-left:3px solid #7ccfcd;padding:10px 16px;margin:12px 0 18px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#7ccfcd">
+        <b>See also:</b> <a href="v11_novel_pathways.html" style="color:#7ccfcd;font-weight:600">v11 Novel Pathway Modules</a> —
+        WGCNA and Leiden hierarchical decomposition reproduce the cohort-dominates-eigengene pattern
+        below at the modular level (median |r_cohort| = 0.92 across 21 modules), localising the S6B
+        BUHMBOX signal onto specific co-expression programs and flagging 5 near-miss novel markers.
+      </div>
+
+      <h3 style="color:#EAEAEA;margin:22px 0 8px">S6A &mdash; FastRNA-style per-cohort centering</h3>
+      <p>
+        Subtracting each sample's cohort mean (Lee &amp; Han 2022 AJHG) and running v5.1 LODO without
+        ComBat collapses DIAL from 0.331 to 0.000 across all five classifiers (ΔDIAL ≈ +0.33), with
+        linear-model AUC staying at 0.95–0.99 with correct polarity. ComBat over-shrinks toward a
+        batch prior dominated by the large TCGA arm; centering avoids this.
+      </p>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v8/fig4_cohort_centering.html" height="500"></iframe>
+        <div class="dial-fig__caption">Figure S6A — Per-classifier DIAL under v5.1 ComBat (purple) vs FastRNA-style cohort-mean centering (green). Centering eliminates the flip.</div>
+      </div>
+
+      <h3 style="color:#EAEAEA;margin:22px 0 8px">S6B &mdash; BUHMBOX-style PC1 KS test</h3>
+      <p>
+        For each subtype, a two-sample Kolmogorov-Smirnov test on PC1 scores between TCGA-THCA and
+        GSE27155 returns KS = 1.00 with p = 1.3 × 10⁻⁴⁰ (BRAF) and 3.4 × 10⁻¹⁴ (RAS). Both flagged
+        <code>hidden_heterogeneity</code>: within a single clinical subtype, PC1 is perfectly disjoint
+        by cohort. This is the platform-axis signature that motivates the flip under linear correction
+        methods.
+      </p>
+
+      <h3 style="color:#EAEAEA;margin:22px 0 8px">S6C &mdash; LMM with cohort random effect</h3>
+      <p>
+        Per-gene <code>expression ~ subtype + (1|cohort)</code> (statsmodels MixedLM, REML, L-BFGS)
+        vs naive OLS, BH-FDR on 3 000 variance-top genes (Sul <i>et al.</i> 2018). The LMM flags
+        <b>2 201</b> genes vs the OLS <b>2 152</b>: 491 OLS hits are <code>lost_with_LMM</code>
+        and <b>540 are newly <code>gained_with_LMM</code></b>. The LMM <i>rescues</i> more genes than
+        it drops — consistent with S6A: once cohort is modelled, BRAF/RAS gets cleaner, not weaker.
+      </p>
+      <h4 style="color:#EAEAEA;margin:18px 0 6px;font-size:16px">Biomarker robustness ratio <span style="color:var(--text-muted);font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:0.1em">(new — v8 deep analysis)</span></h4>
+      <div style="overflow-x:auto">
+      <table class="numtable">
+        <thead><tr><th>Filter</th><th class="num">n</th><th class="num">fraction</th></tr></thead>
+        <tbody>
+          <tr><td>Original published biomarkers</td><td class="num">2 773</td><td class="num">100.0 %</td></tr>
+          <tr><td>∩ 3 000 top-variance universe tested by LMM</td><td class="num">1 037</td><td class="num">37.4 %</td></tr>
+          <tr><td><b>of those, surviving LMM FDR&lt;0.05</b></td><td class="num hit">1 031</td><td class="num hit">99.4 %</td></tr>
+          <tr><td>8 druggable targets · in LMM universe AND LMM-sig</td><td class="num hit">8 / 8</td><td class="num hit">100 %</td></tr>
+          <tr><td>Druggable · top-50 by |β_LMM|</td><td class="num">5 / 8</td><td class="num">TMPRSS4, CYP1B1, TACSTD2, B3GNT3, GABRB2</td></tr>
+          <tr><td>LMM-sig ∩ DESeq2-sig "gold slate"</td><td class="num">760</td><td class="num">34.5 % of LMM-sig</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:14px">
+        <b>99.4 % of published biomarkers that are testable by LMM retain significance</b> under
+        cohort random-effect correction — the 2 773-gene slate is not materially disrupted.
+        The other ~63 % not in the 3 000-gene LMM universe are low-variance genes outside the
+        filter (a full 48 522-gene LMM is the clean v8.1 follow-up), not LMM rejects.
+        All 8 druggable targets pass LMM and DESeq2 independently; the 760-gene LMM∩DESeq2
+        intersection is the conservative "gold slate" for downstream work.
+      </p>
+      <h4 style="color:#EAEAEA;margin:18px 0 6px;font-size:16px">Characterising gained vs lost</h4>
+      <div style="overflow-x:auto">
+      <table class="numtable">
+        <thead><tr>
+          <th>Status</th><th class="num">n</th><th class="num">median &#124;β&#124;</th>
+          <th class="num">median p_naive</th><th class="num">median p_LMM</th><th>reading</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>same</td><td class="num">1 969</td><td class="num">0.559</td><td class="num">—</td><td class="num">—</td><td>strong-effect robust core</td></tr>
+          <tr><td class="hit">gained_with_LMM</td><td class="num hit">540</td><td class="num">0.265</td><td class="num">3.1e-01</td><td class="num hit">3.6e-05</td><td>moderate effect masked by cohort noise — <b>rescued</b></td></tr>
+          <tr><td>lost_with_LMM</td><td class="num">491</td><td class="num">0.040</td><td class="num">2.0e-02</td><td class="num">4.2e-01</td><td>tiny-effect OLS artefact — <b>correctly dropped</b></td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:14px">
+        The LMM drops only low-effect (|β| median 0.040, ~14× smaller than the stable core) fragile
+        hits while rescuing 540 moderate-effect genes (|β| 0.265) whose p_naive sat above 0.3 —
+        well outside the FDR net. Both directions favour biology.
+      </p>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v8/fig6_LMM_scatter.html" height="560"></iframe>
+        <div class="dial-fig__caption">Figure S6C — Per-gene −log10(p) naive OLS vs LMM (cohort random effect). Red = lost_with_LMM; green = gained_with_LMM; grey = same. Dashed line is y=x.</div>
+      </div>
+
+      <p style="margin-top:14px;color:var(--text-muted);font-size:13px">
+        Sources: <code>v8_fastRNA_style_dial.tsv</code>, <code>v8_buhmbox_concept_check.tsv</code>, <code>v8_LMM_corrected_biomarkers.tsv</code>. Deep analysis: <code>v8_LMM_analysis.md</code> · Logs: <code>logs/v8_hanlab.log</code>, <code>logs/v8_LMM.log</code>.
+      </p>
+    </div>
+
+    <!-- ================================================================ -->
+    <div class="dial-card">
+      <span class="eyebrow">ARTEFACT INDEX</span>
+      <h2>Every supplementary table, figure, and log.</h2>
+      <ul class="archive-list">
+        <li><code>results/v8_statgen/v8_combatseq_vs_combat.tsv</code> — S1 table</li>
+        <li><code>results/v8_statgen/v8_metasoft_results.tsv</code>, <code>v8_metasoft_forest_data.tsv</code> — S2 tables</li>
+        <li><code>results/v8_statgen/v8_pathway_dial.tsv</code>, <code>v8_pathway_vs_gene.tsv</code>, <code>v8_pathway_activity_THCA.tsv</code>, <code>v8_pathway_perpath_dial.tsv</code> — S3 tables</li>
+        <li><code>results/v8_statgen/v8_pathway_deep_analysis.md</code> — S3 deep analysis (coherent biology vs dilution)</li>
+        <li><code>results/v8_statgen/v8_biomarker_DE_recomputation.tsv</code>, <code>v8_biomarker_DE_summary.tsv</code>, <code>v8_druggable8_retention.tsv</code> — S4 tables</li>
+        <li><code>results/v8_statgen/v8_quantum_comparison.tsv</code> — S5 table (15 rows, run done)</li>
+        <li><code>results/v8_statgen/v8_fastRNA_style_dial.tsv</code>, <code>v8_buhmbox_concept_check.tsv</code>, <code>v8_LMM_corrected_biomarkers.tsv</code> — S6 tables</li>
+        <li><code>results/v8_statgen/v8_LMM_analysis.md</code> — S6C deep analysis (biomarker robustness ratio)</li>
+        <li><code>reports/v8/v8_supplementary.md</code> — integrated supplementary document</li>
+        <li><code>reports/v8/v8_section_{S1,S2,S3,S4,S8}_*.md</code> — per-section drafts</li>
+        <li><code>reports/html/figs_interactive/v8/fig{1..6}_*.html</code> — 6 Plotly figures (all rendered)</li>
+        <li><code>logs/v8_{combatseq,metasoft,pathway,deseq2,hanlab,LMM,quantum}.log</code> — execution logs</li>
+        <li style="margin-top:10px"><b style="color:#7ccfcd">v8.1 rigor upgrade additions:</b></li>
+        <li><code>results/v8p1_rigor/a_deseq2_raw/{deseq2_tcga_raw,comparison_pseudo_vs_raw,gse27155_validation}.tsv</code> — raw STAR-count DESeq2 + direction validation</li>
+        <li><code>results/v8p1_rigor/b_full_lmm/{lmm_all_11710_genes,biomarker_survival_honest}.tsv</code> — full 11 710-gene LMM with honest survival denominator</li>
+        <li><code>results/v8p1_rigor/c_expanded_lodo/{cohort_label_attempt.tsv,label_extraction_failure_log.md}</code> — GSE33630/GSE29265 label attempt</li>
+        <li><code>results/v8p1_rigor/d_gold_slate/{gold_slate_LMM_x_rawDESeq2,gold_slate_summary}.tsv</code> + <code>gold_slate_analysis.md</code> — 1 786-gene dual-validated slate</li>
+        <li><code>results/v8p1_rigor/e_brs_validation/{three_cohort_concordance,brs_tcga_validation,brs_labels_GSE33630,brs_labels_GSE29265,three_cohort_per_gene_consensus}.tsv</code> + <code>brs_validation_analysis.md</code> — BRS-based 3-cohort direction validation, 67.3 % full-consensus</li>
+        <li><code>reports/v8/v8p1_rigor_summary.md</code> — full v8 → v8.1 comparison</li>
+      </ul>
+    </div>
+
+    <div class="caveat-band">
+      <h4>Caveat · v8 → v8.1 resolution log</h4>
+      These analyses are <b>reviewer-facing robustness checks</b>, not a replacement for prospective cohort validation.
+      S1's ComBat-seq run uses a hybrid (ComBat-seq on TCGA counts then cross-platform ComBat to microarray) because
+      the THCA public-data landscape has exactly one RNA-seq cohort paired with one microarray cohort.
+      <b>v8.1 resolved</b> the pseudo-count DESeq2 (S4) with raw GDC STAR counts — 95.7 % pseudo-raw concordance,
+      83.4 % GSE27155 sign agreement; and the 3 000-gene LMM subset (S6C) with a full 11 710-gene LMM — honest
+      biomarker survival 88.6 %.
+      A 4-cohort LODO extension (GSE33630 / GSE29265) was attempted but cannot be
+      run: neither cohort carries the joint BRAF-and-RAS phenotype annotation required for v5.1's binary task,
+      so 2-fold LODO remains the ceiling. S5 quantum ran LUAD/COAD in v8.1 after the original 22-min budget
+      skip. All v5.1 conclusions remain <b>computational</b>; prospective cohort validation remains a future requirement.
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__col site-footer__brand">
+        <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+        <p>Research dashboard for computational thyroid-cancer triage. Computational triage only. Not medical advice.</p>
+      </div>
+      <div class="site-footer__col">
+        <h4>Research Archive</h4>
+        <ul>
+          <li><a href="v4a_archive_index.html">Archive index</a></li>
+          <li><a href="v4a_dial_cross_cancer.html">v5.1 THCA-Specific Audit</a></li>
+          <li><a href="v8_statgen_supplement.html"><b>v8 Statgen Supplement</b></a></li>
+          <li><a href="v4a_limitations.html">Limitations</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>v8 sources</h4>
+        <ul>
+          <li><a href="../../../results/v8_statgen/">results/v8_statgen/</a></li>
+          <li><a href="../../../reports/v8/v8_supplementary.md">v8_supplementary.md</a></li>
+          <li><a href="../../../logs/">execution logs</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Legacy</h4>
+        <ul>
+          <li><a href="../index.html">Back to dashboard</a></li>
+          <li><a href="99_glossary.html">99 · Glossary</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer__meta">
+      <span>&copy; 2026 THYRAI Research · v8 supplement</span>
+      <span class="site-footer__disclaimer">Computational triage only. Not medical advice.</span>
+    </div>
+  </div>
+</footer>
+<script src="../assets/js/brand.js" defer></script>
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

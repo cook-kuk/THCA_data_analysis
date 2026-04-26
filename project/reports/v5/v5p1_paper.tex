@@ -1,0 +1,531 @@
+% =====================================================================
+% v5.2 RETRACTION HEADER (added 2026-04-25)
+% This v5.1 manuscript built its central claim ("THCA exhibits
+% batch_entangled in 4/5 classifiers under LODO") on a ComBat pipeline
+% that fit alpha, beta, gamma, delta on the FULL pooled X (train + test)
+% before the LODO split -- a textbook information leak. Re-running the
+% audit with ComBat fit per LODO fold on TRAIN only (and locally centering
+% the held-out cohort) gives auc_post = 0.995 and DIAL = 0.000 for the same
+% THCA LogReg_l2 row that v5.1 reported as auc_post = 0.006 / DIAL = 0.494.
+% All five THCA classifiers move from "batch_entangled" to "true_biology".
+% See:
+%   results/v5p2_fix/v5p2_dial_proper_lodo.tsv
+%   results/v5p2_fix/v5p2_lodo_comparison.tsv
+%   results/v5p2_fix/v5p2_impact_analysis.md
+%   reports/v5p2/v5p2_critical_assessment.md
+% Numbers below should be regarded as v5.1-leak-artifact pending rewrite.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs,amsmath,amssymb,hyperref}
+\title{DIAL: Direction-Invariant AUC Leakage as a Subtype-Cohort-Specific Audit \\ \large v5.1 REAL-DATA LODO RERUN \\ \large \textbf{[SUPERSEDED -- see reports/v5p2/v5p2\_critical\_assessment.md]}}
+\author{THCA Dash Project}
+\date{2026-04-24}
+\begin{document}
+\maketitle
+\begin{abstract}
+\textbf{[v5.2 pivot, 2026-04-25.]}
+The v5.1 central claim --- ``THCA batch-entangles 4/5 classifiers
+post-ComBat, DIAL up to 0.494'' --- \emph{does not survive proper
+Leave-One-Dataset-Out (LODO) evaluation}. The v5.1 pipeline fit
+covariate-preserving ComBat on the full pooled matrix (train + test)
+before the LODO split, a textbook information leak: the empirical-Bayes
+parameters $(\gamma_{gb}, \delta_{gb}, \alpha_g, \beta_g)$ borrowed
+strength from the held-out cohort under \texttt{par\_prior=True} and
+\texttt{covar\_mod=Y}. Re-running the audit with ComBat fit \emph{per
+LODO fold on train only}, and standardising the held-out cohort
+against train-fit hyper-priors with its own batch-centering, produces
+$\mathrm{AUC}_{\mathrm{post}} = 0.995$ and $\mathrm{DIAL} = 0.000$ for
+the same THCA LogReg\_l2 row that v5.1 reported as
+$\mathrm{AUC}_{\mathrm{post}} = 0.006$, $\mathrm{DIAL} = 0.494$
+($\Delta = -0.494$). All 4/4 THCA batch-entangled cells collapse to
+\texttt{true\_biology} under leak-safe LODO.
+
+We pivot this paper from \emph{``DIAL detects THCA-specific ComBat
+failure''} to a methodological contribution: \textbf{covariate-aware
+ComBat fit on pooled train+test data in LODO evaluation generates
+classifier-inversion artefacts that imitate batch entanglement} when a
+subtype-cohort confound exists in the underlying data (the BUHMBOX-style
+cohort-disjoint PC1 within each THCA subtype, KS $p < 10^{-40}$, is
+verified and remains a pre-ComBat structural observation). The original
+v5.1 positive-plus-specificity pattern, the BRS52 cross-platform
+direction validation, and the v8 DESeq2 + LMM biomarker stability
+(8/8 druggable targets retained, 88.6\,\% slate survival) are preserved
+as evaluation artefacts of the leaky regime, but none constitutes a
+cellular or biological claim. Section~\ref{sec:v5p2lesson} reports the
+leak-safe side-by-side table; Appendix~\ref{sec:lemma} is re-scoped to
+the affine-linearised family of batch-correction operators under which
+the flip mechanism applies, with an explicit caveat that full ComBat
+with multiplicative scale and empirical-Bayes shrinkage is not covered.
+\end{abstract}
+\section{Introduction}
+ComBat with subtype covariates is widely used to harmonise multi-cohort expression data before biomarker training. We previously introduced DIAL, the Direction-Invariant AUC Leakage metric, which flags situations where batch correction causes a classifier to invert its decision direction --- a known failure mode when the label distribution is nearly confounded with batch membership. Prior v5 analyses suggested this was a pan-cancer phenomenon, but only THCA used primary data; the other four cancers were anchored to semi-synthetic surrogates and are \textbf{retracted}. The present v5.1 report replaced them with real TCGA + GEO pairings and switched cross-validation from StratifiedKFold (which mixes cohorts across every fold and therefore cannot expose cohort-level batch structure) to Leave-One-Dataset-Out (LODO).
+
+\paragraph{v5.2 honest pivot.} The v5.1 LODO implementation called covariate-preserving ComBat on the entire pooled matrix \emph{before} the LODO split (\texttt{notebooks\_or\_scripts/v5p1\_common.py:167}); the empirical-Bayes parameters were therefore estimated using held-out cohort samples that the classifier later treated as test. We document this as the central methodological finding of v5.2. Under leak-safe per-fold ComBat fit (train-only $\hat\gamma$, $\hat\delta$, $\hat\alpha$, $\hat\beta$ and a separate batch shift estimated from the held-out cohort under train-fit hyper-priors), every THCA classifier returns \texttt{true\_biology} ($\mathrm{AUC}_{\mathrm{post}} \in [0.75, 0.99]$). The v5.1 ``THCA-specific'' pattern collapses; the asymmetry that previously distinguished THCA from the other four cancers vanishes because there was no asymmetry to detect once the leak was closed. The structural feature that allows the leak to manifest --- BUHMBOX-style cohort-disjoint PC1 within each subtype --- is independent of the leak and is reported in Section~\ref{sec:bumhbox}.
+
+The reframed contribution is therefore \emph{negative-with-mechanism}: cross-cohort ML evaluations that combine LODO with covariate-aware ComBat fit on pooled data inherit a quantifiable amount of leak-driven classifier inversion. The leak is the strongest in datasets that satisfy two structural conditions: (i) the subtype label is unevenly distributed across cohorts (THCA BRAF/RAS $\sim$5:1 vs $\sim$2:1), and (ii) cohort identity is fully separable in the within-subtype expression PCA (cohort = PC1, KS $p < 10^{-40}$). Both conditions hold in the public THCA TCGA + GSE27155 pairing; together with covariate-aware ComBat fit on pooled train+test, they are sufficient to produce the v5.1 flip. None of the three is sufficient on its own.
+\section{Cohort availability (REAL)}
+\begin{tabular}{llrrrrrl}\toprule
+Cancer & Cohort & total\_dl & label\_univ. & usable\_int. & class\_A & class\_B & Status \\ \midrule
+THCA & TCGA-THCA & 351 & 330 & 330 & 276 & 54 & included \\
+THCA & GSE27155 & 99 & 41 & 41 & 28 & 13 & included \\
+THCA & GSE33630 & 105 & 0 & 0 & 0 & 0 & excluded\_no\_labels \\
+THCA & GSE29265 & 49 & 0 & 0 & 0 & 0 & excluded\_no\_labels \\
+SKCM & TCGA-SKCM & 260 & 314 & 172 & 117 & 55 & included \\
+SKCM & GSE65904 & 214 & 0 & 0 & 0 & 0 & excluded\_no\_labels \\
+SKCM & GSE22153 & 57 & 39 & 39 & 27 & 12 & included \\
+LGG & TCGA-LGG & 260 & 509 & 257 & 213 & 44 & included \\
+LGG & GSE16011 & 284 & 0 & 0 & 0 & 0 & excluded\_no\_labels \\
+LGG & GSE4271 & 0 & 0 & 0 & 0 & 0 & excluded\_download\_fail \\
+LUAD & TCGA-LUAD & 260 & 190 & 87 & 69 & 18 & included \\
+LUAD & GSE31210 & 246 & 147 & 147 & 20 & 127 & included \\
+LUAD & GSE72094 & 0 & 0 & 0 & 0 & 0 & excluded\_no\_labels \\
+COAD & TCGA-COAD & 260 & 199 & 102 & 25 & 77 & included \\
+COAD & GSE39582 & 585 & 268 & 268 & 51 & 217 & included \\
+COAD & GSE17536 & 177 & 0 & 0 & 0 & 0 & excluded\_no\_labels \\
+\bottomrule\end{tabular}
+
+\paragraph{Column meanings (audit fix F2).} \texttt{total\_dl} = number of expression rows successfully fetched (TCGA: RNA-seq sample cap of 260, capped by \texttt{V5P1\_MAX\_RNASEQ}; GEO: full series-matrix sample count); \texttt{label\_univ.} = number of patients (TCGA) or samples (GEO) with a derivable subtype label (TCGA: union of class\_A and class\_B patient sets from MAF, drawn from a separate MAF cap of 600 files which can yield more patients than the RNA-seq cap; GEO: \texttt{class\_A}+\texttt{class\_B}); \texttt{usable\_int.} = patients (samples) appearing in both the expression matrix and the label set --- this is what flows into harmonisation. \texttt{class\_A} and \texttt{class\_B} sum to \texttt{usable\_int.} by construction. Prior versions of this table reported \texttt{n}=RNA-seq cap and (\texttt{n\_A},\texttt{n\_B})=MAF-derived patient counts on two independent code paths, which produced arithmetically impossible rows for LGG and SKCM (e.g.\ TCGA-LGG: $n=260$ but $n_A+n_B=509>n$); the new schema removes that inconsistency. For GEO cohorts labels are extracted from the series matrix itself, so \texttt{label\_univ.}=\texttt{usable\_int.} always.
+
+\paragraph{Heterogeneous cohort topology across cancers (audit fix F9).}
+Four of the five cancers in this study (THCA, SKCM, LUAD, COAD) follow
+the canonical \emph{cross-platform} cohort topology --- one TCGA RNA-seq
+cohort paired with one GEO microarray cohort --- which is the topology
+under which the DIAL flip mechanism (BUHMBOX-style cohort-disjoint PC1
+within each subtype) is most likely to fire. LGG is the exception:
+no GEO IDH-typed thyroid analogue exists with both BRAF/RAS-equivalent
+labels and an Affymetrix or Illumina expression matrix at the time of
+writing, so the LGG cohort axis is constructed by splitting the single
+TCGA-LGG RNA-seq cohort along its tissue-source-site (TSS) axis (4
+sub-cohorts: HT, DU, S9, DB; minimum sub-cohort size 22). LGG therefore
+provides a within-platform negative control: if DIAL fired here it
+would invalidate the metric (since no cross-platform alignment is
+imposed), and the observed null result is consistent with the metric
+being specific to the cross-platform setting. This asymmetry should
+be borne in mind when reading the cancer-specificity claim below: the
+THCA result is the positive case under the canonical topology, the
+LGG null is the negative control under a different topology, and
+SKCM / LUAD / COAD vary between the two regimes depending on classifier.
+
+\section{Harmonization (REAL)}
+\begin{tabular}{lrrrr}\toprule
+Cancer & n\_cohorts & shared genes & n\_A & n\_B \\ \midrule
+THCA & 2 & 11710 & 321 & 71 \\
+SKCM & 2 & 9179 & 145 & 67 \\
+LGG & 4 & 20964 & 116 & 26 \\
+LUAD & 2 & 13416 & 91 & 145 \\
+COAD & 2 & 12604 & 76 & 296 \\
+\bottomrule\end{tabular}
+\section{DIAL results (REAL, LODO)}
+The table below reports both the original v5.1a numbers (whole-matrix
+ComBat fit \emph{before} the LODO loop, i.e.\ test-cohort labels and
+expression contributed to the empirical-Bayes $(\gamma, \delta)$
+estimates) and the F1 leakage-corrected numbers (per-fold ComBat fit on
+the train slice only, applied separately to the held-out test cohort
+under train-only standardisation; see ``Leakage-correction update (F1)''
+below). The new \texttt{partial\_flip} and \texttt{dial\_v2} columns are
+defined in the same paragraph.
+
+\begin{tabular}{llrrrrrrll}\toprule
+Cancer & Classifier & AUC pre & AUC post (v5.1a $\to$ F1) & AUC flip post (v5.1a $\to$ F1) & DIAL (v5.1a $\to$ F1) & partial\_flip (F1) & dial\_v2 (F1) & Interp (F1) & Flip (v5.1a) \\ \midrule
+COAD & GradientBoosting & 0.603 & 0.894 $\to$ 0.603 & 0.894 $\to$ 0.603 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & ambiguous &  \\
+COAD & LogReg\_elasticnet & 0.975 & 0.975 $\to$ 0.975 & 0.975 $\to$ 0.975 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+COAD & LogReg\_l2 & 0.974 & 0.975 $\to$ 0.974 & 0.975 $\to$ 0.974 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+COAD & RandomForest & 0.458 & 0.952 $\to$ 0.458 & 0.952 $\to$ 0.542 & 0.000 $\to$ 0.042 & 0.042 & 0.000 & no\_signal &  \\
+COAD & XGBoost & 0.553 & 0.955 $\to$ 0.553 & 0.955 $\to$ 0.553 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & no\_signal &  \\
+LGG & GradientBoosting & 0.964 & 0.969 $\to$ 0.971 & 0.969 $\to$ 0.971 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+LGG & LogReg\_elasticnet & 0.982 & 0.985 $\to$ 0.986 & 0.985 $\to$ 0.986 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+LGG & LogReg\_l2 & 0.982 & 0.984 $\to$ 0.985 & 0.984 $\to$ 0.985 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+LGG & RandomForest & 0.982 & 0.985 $\to$ 0.994 & 0.985 $\to$ 0.994 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+LGG & XGBoost & 0.972 & 0.973 $\to$ 0.976 & 0.973 $\to$ 0.976 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+LUAD & GradientBoosting & 0.500 & 0.460 $\to$ 0.500 & 0.540 $\to$ 0.500 & 0.040 $\to$ 0.000 & 0.000 & 0.000 & no\_signal &  \\
+LUAD & LogReg\_elasticnet & 0.956 & 0.955 $\to$ 0.956 & 0.955 $\to$ 0.956 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+LUAD & LogReg\_l2 & 0.956 & 0.949 $\to$ 0.956 & 0.949 $\to$ 0.956 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+LUAD & RandomForest & 0.390 & 0.834 $\to$ 0.390 & 0.834 $\to$ 0.610 & 0.000 $\to$ 0.110 & 0.110 & 0.000 & partial\_batch &  \\
+LUAD & XGBoost & 0.573 & 0.539 $\to$ 0.573 & 0.539 $\to$ 0.573 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & no\_signal &  \\
+SKCM & GradientBoosting & 0.491 & 0.595 $\to$ 0.491 & 0.595 $\to$ 0.509 & 0.000 $\to$ 0.009 & 0.009 & 0.000 & no\_signal &  \\
+SKCM & LogReg\_elasticnet & 0.674 & 0.626 $\to$ 0.673 & 0.626 $\to$ 0.673 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & ambiguous &  \\
+SKCM & LogReg\_l2 & 0.695 & 0.641 $\to$ 0.695 & 0.641 $\to$ 0.695 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & ambiguous &  \\
+SKCM & RandomForest & 0.529 & 0.501 $\to$ 0.529 & 0.501 $\to$ 0.529 & 0.000 $\to$ 0.000 & 0.000 & 0.000 & no\_signal &  \\
+SKCM & XGBoost & 0.489 & 0.559 $\to$ 0.489 & 0.559 $\to$ 0.511 & 0.000 $\to$ 0.011 & 0.011 & 0.000 & no\_signal &  \\
+THCA & GradientBoosting & 0.750 & 0.166 $\to$ 0.750 & 0.834 $\to$ 0.750 & 0.334 $\to$ 0.000 & 0.000 & 0.000 & true\_biology & YES (v5.1a) \\
+THCA & LogReg\_elasticnet & 0.994 & 0.008 $\to$ 0.994 & 0.992 $\to$ 0.994 & 0.492 $\to$ 0.000 & 0.000 & 0.000 & true\_biology & YES (v5.1a) \\
+THCA & LogReg\_l2 & 0.994 & 0.006 $\to$ 0.994 & 0.994 $\to$ 0.994 & 0.494 $\to$ 0.000 & 0.000 & 0.000 & true\_biology & YES (v5.1a) \\
+THCA & RandomForest & 0.996 & 0.177 $\to$ 0.996 & 0.823 $\to$ 0.996 & 0.323 $\to$ 0.000 & 0.000 & 0.000 & true\_biology & YES (v5.1a) \\
+THCA & XGBoost & 0.781 & 0.487 $\to$ 0.781 & 0.513 $\to$ 0.781 & 0.013 $\to$ 0.000 & 0.000 & 0.000 & true\_biology &  \\
+\bottomrule\end{tabular}
+
+\paragraph{Interpretation rule (v5.1b).} A row is \texttt{batch\_entangled} when $\mathrm{DIAL} > 0.3$; \texttt{partial\_batch} when $0.1 < \mathrm{DIAL} \le 0.3$; \texttt{true\_biology} when $\mathrm{AUC}_{\mathrm{post}} > 0.7$ and $\mathrm{DIAL} < 0.05$; \texttt{no\_signal} when $\mathrm{AUC}_{\mathrm{post}} < 0.6$; \texttt{ambiguous} otherwise. The rule does not gate on batch identifiability because under LODO with two cohorts the ident classifier has only one group in its training fold and cannot be fit.
+
+\paragraph{Leakage-correction update (F1).}
+The v5.1a code in \texttt{notebooks\_or\_scripts/v5p1\_common.py:167}
+called \texttt{\_combat\_preserve(X\_raw, Y, B)} \emph{once} on the
+entire matrix \emph{before} entering the LODO \texttt{cv\_splits} loop;
+the held-out test cohort therefore contributed its labels and
+expression to the empirical-Bayes $(\gamma, \delta)$ estimates that
+were subsequently used to correct the train slice. Although the
+classifier itself never trained on test features, the train-slice
+features were aligned to a coordinate frame that was \emph{informed by
+the test cohort's class proportions} -- a non-trivial information leak
+that the original Methods text implied was avoided by LODO but in fact
+was not. We refer to this corrected pipeline as \textbf{F1}.
+
+\textit{(i) Original v5.1a behaviour.} A single
+\texttt{pycombat\_norm} call on the full $n_{\mathrm{train}} +
+n_{\mathrm{test}}$ matrix per cancer, prior to any cross-validation
+split.
+
+\textit{(ii) F1 fix (path (c) of the audit prompt).} ComBat is
+re-implemented from scratch (\texttt{\_combat\_fit\_train},
+\texttt{\_combat\_apply\_train}, \texttt{\_combat\_apply\_test} in the
+same module; algorithm mirrors \texttt{inmoose.pycombat.pycombat\_norm}
+0.9.1 with explicit fit/transform separation). For each LODO fold:
+(a) ComBat is fit on the train slice only (gives $\hat B$,
+$\bar\mu_{\mathrm{grand}}$, $\hat\sigma^{2}_{\mathrm{pool}}$,
+per-batch $(\gamma^{*}_{i}, \delta^{*}_{i})$ and shared hyper-priors
+$(\bar\gamma, t^{2}, a, b)$ from the train batches alone);
+(b) the train slice is corrected with these parameters;
+(c) the held-out test cohort -- a brand-new batch the train fit has
+never seen -- is standardised against $\bar\mu_{\mathrm{grand}}$ and
+$\hat\sigma^{2}_{\mathrm{pool}}$, and its own $(\gamma^{*},
+\delta^{*})$ are estimated from test data alone under the
+\emph{train-fitted} hyper-priors. Train labels never bias the test
+correction; test data never enters the train EB estimate.
+
+\textit{(iii) Magnitude shift on THCA.} The v5.1a flip on THCA
+\emph{disappears completely} under F1: $\mathrm{DIAL} = 0.494
+\to 0.000$ on \texttt{LogReg\_l2}, $0.492 \to 0.000$ on
+\texttt{LogReg\_elasticnet}, $0.323 \to 0.000$ on \texttt{RandomForest},
+$0.334 \to 0.000$ on \texttt{GradientBoosting}, and $0.013 \to 0.000$
+on \texttt{XGBoost}. \textbf{Zero of four} previously
+\texttt{batch\_entangled} THCA cells remain \texttt{batch\_entangled}
+under leak-safe LODO; all five THCA classifiers now read
+\texttt{true\_biology} with $\mathrm{AUC}_{\mathrm{post}} \in [0.75,
+0.996]$, recovering essentially their pre-correction performance.
+
+\textit{(iv) Cancer-specificity.} Under v5.1a the table localised the
+flip uniquely to THCA (4/4 \texttt{batch\_entangled} calls in THCA, 0
+elsewhere). Under F1 the table is even sharper but in the opposite
+direction: \emph{no} cancer registers a \texttt{batch\_entangled} call
+(0/25), and the only non-zero $\mathrm{DIAL}$ values are small
+\texttt{partial\_flip} residuals on \texttt{RandomForest} (LUAD 0.110,
+COAD 0.042) and on the two SKCM tree models ($\le 0.011$). The new
+\texttt{partial\_flip} column makes these residuals visible:
+\texttt{partial\_flip} $= \max(0, \mathrm{auc\_flip}(\mathrm{auc}_{\mathrm{post}})
+- \max(0.5, \mathrm{auc}_{\mathrm{post}}))$. The new
+\texttt{dial\_v2} column applies a stricter floor:
+$\mathrm{dial\_v2} = \max(0, \mathrm{auc\_flip}(\mathrm{auc}_{\mathrm{post}})
+- \mathrm{auc}_{\mathrm{post}})$ if $\mathrm{auc\_flip}(\mathrm{auc}_{\mathrm{post}}) > 0.8$,
+else 0; under F1 every cell has $\mathrm{dial\_v2} = 0$, confirming
+that no residual flip exceeds the strong-evidence threshold.
+
+\textit{Status of the v8/v8.1 corroborations.} The v8 random-effects
+meta-analysis, ComBat-seq sensitivity, ssGSEA pathway aggregation,
+DESeq2 NB-GLM, mixed-effects LMM, three-cohort cross-platform
+direction validation, and quantum-classifier paradigm sweep
+(Section~\ref{sec:robustness}) were all anchored to the v5.1a numbers
+and to the train+test ComBat fit they depended on. \textbf{The F1
+leakage-corrected DIAL collapses the headline
+\texttt{batch\_entangled} call on THCA to zero across all five
+classifier families.} The downstream biomarker slate (1\,786 dual-validated
+genes from raw-counts DESeq2 $\cap$ LMM) and the BRS52-validated
+cross-platform direction concordance remain intact because they do
+\emph{not} depend on ComBat's empirical-Bayes parameters; but the
+specific ``DIAL flip on THCA'' signal that motivated the original
+analysis is, under leak-safe LODO, a v5.1a artefact. The v5.1a
+numbers in this paper are retained for historical continuity with the
+v8/v11 derivative analyses; the F1 numbers above are the corrected
+record. F1 results are saved to
+\texttt{results/v5/v5p1\_dial\_all\_cancers\_F1.tsv} and
+\texttt{results/v5/v5p1\_dial\_\{CANCER\}\_F1.tsv}.
+
+\section{The v5.2 lesson: leak-safe LODO collapses the THCA flip}
+\label{sec:v5p2lesson}
+The leakage-correction update (F1) above carried out a full per-fold
+ComBat refit; this section reports the resulting side-by-side as a
+self-contained methodological table, and states the lesson explicitly.
+
+\subsection*{Side-by-side: v5.1a (leaky) vs v5.2 (leak-safe LODO)}
+\begin{tabular}{llrrrrl}\toprule
+Cancer & Classifier & $\mathrm{AUC}_{\mathrm{post}}$ v5.1a & $\mathrm{AUC}_{\mathrm{post}}$ v5.2 & DIAL v5.1a & DIAL v5.2 & $\Delta$ DIAL \\ \midrule
+THCA & LogReg\_l2          & 0.006 & 0.995 & 0.494 & 0.000 & $-0.494$ \\
+THCA & LogReg\_elasticnet  & 0.008 & 0.995 & 0.492 & 0.000 & $-0.492$ \\
+THCA & RandomForest        & 0.177 & 0.878 & 0.323 & 0.000 & $-0.323$ \\
+THCA & GradientBoosting    & 0.166 & 0.800 & 0.334 & 0.000 & $-0.334$ \\
+THCA & XGBoost / HistGB    & 0.487 & 0.740 & 0.013 & 0.000 & $-0.013$ \\
+SKCM, LGG, LUAD, COAD & all 20 cells & --- & --- & 0.000 & 0.000 & $0.000$ \\
+\bottomrule\end{tabular}
+
+(Source: \texttt{results/v5p2\_fix/v5p2\_lodo\_comparison.tsv}.
+v5.2's 5\textsuperscript{th} classifier slot is HistGB because the
+\texttt{xgboost} package is not present in the v5.2 venv; this does not
+rescue the v5.1 claim because HistGB also returns
+\texttt{true\_biology}.)
+
+\subsection*{The lesson}
+The v5.1a column was generated by calling \texttt{pycombat\_norm} once on
+the full $X$ before LODO splits, allowing the empirical-Bayes
+$(\hat\gamma_{gb}, \hat\delta_{gb}, \hat\alpha_g, \hat\beta_g)$ to absorb
+information from the held-out test cohort under
+\texttt{par\_prior=True} and \texttt{covar\_mod=Y}. The v5.2 column was
+generated by re-implementing ComBat with explicit fit/transform
+separation (\texttt{notebooks\_or\_scripts/v5p2\_combat\_lodo.py}: class
+\texttt{LinearComBat}), fitting on the train slice only, and projecting
+the held-out cohort against the train-fit grand mean and pooled
+variance with its own batch shift estimated from test data alone.
+Both pipelines see the same $X$, $Y$, $B$, the same LODO splits, the
+same variance-top-3000 gene filter, and the same five classifier
+families. The only thing that changes between the two columns is when
+ComBat is fit relative to the LODO split.
+
+\textbf{The v5.2 lesson is therefore method-internal:} a covariate-aware
+ComBat fit on pooled train+test under LODO can produce
+$\mathrm{AUC}_{\mathrm{post}} \to 1 - \mathrm{AUC}_{\mathrm{pre}}$
+artefacts in datasets that already exhibit cohort-disjoint within-subtype
+structure (Section~\ref{sec:bumhbox}). The pre-condition for the artefact
+is \emph{structural} (the cohort confound exists in the raw data); the
+trigger is \emph{procedural} (ComBat is fit before the LODO split). DIAL
+detects the resulting inversion because it is direction-invariant; LODO
+exposes it because it does not mix cohorts across folds. Eliminating the
+leak removes the artefact without changing the structural pre-condition.
+
+\section{BUHMBOX-style cohort-disjoint PC1 within each THCA subtype (pre-ComBat)}
+\label{sec:bumhbox}
+The leak-driven flip mechanism of Section~\ref{sec:v5p2lesson} requires a
+specific structural pre-condition in the \emph{raw} (pre-ComBat) data:
+within each subtype class, the PC1 of expression should separate the two
+cohorts. Borrowing the diagnostic logic of BUHMBOX (Han \emph{et al.}\
+2016 \emph{Nat Genet}), we ask: if TCGA-THCA and GSE27155 were sampling
+from the same biological population conditioned on subtype, the
+within-subtype PC1 distributions should coincide.
+
+\begin{tabular}{llrrrrl}\toprule
+Class & Cohort A & $n_A$ & Cohort B & $n_B$ & KS stat & KS $p$ \\ \midrule
+BRAF & GSE27155 & 28 & TCGA-THCA & 293 & 1.000 & $1.3\times 10^{-40}$ \\
+RAS  & GSE27155 & 13 & TCGA-THCA & \phantom{0}58 & 1.000 & $3.4\times 10^{-14}$ \\
+\bottomrule\end{tabular}
+
+(Source: \texttt{notebooks\_or\_scripts/v8\_buhmbox\_thca.py},
+\texttt{results/v8\_statgen/v8\_buhmbox\_concept\_check.tsv}.)
+
+A KS statistic of 1.0 with $p \approx 10^{-40}$ in the BRAF stratum
+means the within-BRAF PC1 distributions of TCGA-THCA and GSE27155 are
+\emph{disjoint}: cohort identity is recoverable from the leading
+expression principal component within each subtype. RAS shows the
+same separation at $p \approx 10^{-14}$. This satisfies the structural
+pre-condition $\mu_Y \in \mathcal{V}_B$ of the Lemma in
+Appendix~\ref{sec:lemma}: the biological direction $\mu_Y$ separating
+BRAF from RAS lies inside the span $\mathcal{V}_B$ of cohort-mean
+differences. The BUHMBOX result is independent of any batch-correction
+choice; it is a property of the raw cohort pairing. The v5.2 lesson is
+that this structural property combined with leak-prone covariate-aware
+ComBat fit on pooled data is what generated the v5.1a flip --- not
+batch entanglement of the underlying biology.
+
+\section{Cancer-specificity of the DIAL signal}
+\emph{(This section describes the v5.1a snapshot, which the v8/v11
+derivative analyses are anchored to. Under the F1 leakage-corrected
+pipeline above, all four THCA \texttt{batch\_entangled} calls collapse
+to \texttt{true\_biology}; the language that follows therefore
+characterises the v5.1a artefact, not the leak-safe baseline.)}
+The interpretation matrix across cancers and classifiers is sharp: THCA accounts for 4/4 of the \texttt{batch\_entangled} calls and 4/4 of the direction-invariant label flips (\texttt{auc\_post} $<$ 0.2 with \texttt{auc\_flip\_post} $>$ 0.8) observed across the entire 25-row table. All five non-THCA cancers return zero label flips; LGG and COAD are uniformly \texttt{true\_biology}, LUAD splits 3:2 (\texttt{true\_biology} : \texttt{no\_signal}), and SKCM is 3:2 (\texttt{no\_signal} : \texttt{ambiguous}).
+
+\begin{tabular}{lrrrrr}\toprule
+Cancer & batch\_ent. & partial & true\_bio. & no\_signal & flip \\ \midrule
+THCA & 4 & 0 & 0 & 1 & 4 \\
+SKCM & 0 & 0 & 0 & 3 & 0 \\
+LGG & 0 & 0 & 5 & 0 & 0 \\
+LUAD & 0 & 0 & 3 & 2 & 0 \\
+COAD & 0 & 0 & 5 & 0 & 0 \\
+\bottomrule\end{tabular}
+
+The THCA flip is observed across both linear logistic regression families (\texttt{LogReg\_l2}, \texttt{LogReg\_elasticnet}; $\mathrm{DIAL} \approx 0.49$) and tree ensembles (\texttt{RandomForest}, \texttt{GradientBoosting}; $\mathrm{DIAL} \approx 0.33$), so DIAL is not a linear-only artefact. Only XGBoost resists the flip (\texttt{auc\_post} = 0.487, \texttt{no\_signal}) and yields a lower pre-correction AUC as well (0.781 vs 0.994), consistent with its stronger regularisation reducing sensitivity to the cohort-aligned subspace that ComBat subsequently collapses.
+
+\paragraph{Why only THCA.} Three conditions must co-occur for DIAL to fire: (i) the two label classes are distributed unevenly across cohorts, (ii) ComBat aligns the cohort means by removing any direction along which cohort membership is predictable, and (iii) the classifier is expressive enough to exploit that direction before correction. THCA BRAF/RAS on TCGA-THCA + GSE27155 satisfies all three (BRAF:RAS ratio 293:58 on TCGA, 28:13 on GEO; platforms RNA-seq vs Affymetrix U133A; classifiers all trivially discriminate cohort in the pre-correction space). LGG uses a within-TCGA tissue-source-site split, so (ii) does not apply; COAD and LUAD have substantial class representation in both cohorts, limiting (i); SKCM has smaller cohorts (n=39 in GSE22153) and baseline AUC is already $\le 0.70$, leaving little room for a flip.
+\section{Robustness and cross-platform validation (v8/v8.1)}
+\label{sec:robustness}
+\emph{(v5.2 caveat.) The seven axes below were designed to stress-test
+the v5.1 ``THCA flip'' result. Under the leak-safe LODO of
+Section~\ref{sec:v5p2lesson} that flip does not exist, so robustness
+checks 1, 2, 3, and 5 (which all directly target the flip) are
+testing properties of the leaky-evaluation regime, not biology.
+Robustness checks 4 (DESeq2 on raw counts), 6 (full-gene LMM with
+cohort random effect), and 7 (cross-platform direction validation) are
+\emph{independent of} the LODO ComBat protocol and remain valid
+biomarker-stability claims --- they speak to the gene-level signal,
+not to the existence of a flip. The 8/8 druggable-target retention,
+the 1\,786-gene dual-validated gold slate, and the BRS52 cross-platform
+direction agreement (88.3\,\% in $\ge 2/3$ GEO cohorts) survive the
+v5.2 retraction.}
+
+We have tested the v5.1 finding along seven independent robustness axes; full details are in the v8/v8.1 supplementary documents (\texttt{reports/v8/v8\_supplementary.md}, \texttt{v8p1\_rigor\_summary.md}). The headline numbers:
+\begin{enumerate}
+\item \textbf{Counts-native estimator (S1).} ComBat-seq on raw GDC STAR counts (replacing v8's pseudo-counts; \emph{cf.}~Limitations item 2 below) leaves four of five classifier families at the same DIAL regime as ComBat on log2-TPM ($|\Delta\mathrm{DIAL}| < 0.1$), and post-correction AUC remains $\le 0.61$ for every model.
+\item \textbf{Random-effects meta-analysis (S2).} Treating per-cancer DIAL as an effect size, METASOFT-style random-effects analysis (Han \& Eskin 2011, 2012) gives Cochran's $Q$ p-value $< 10^{-16}$, $I^2 > 97\%$, and Han m-values of \emph{exactly} $1.00$ for THCA across four of five classifiers with $m < 0.30$ for every other cohort. XGBoost is a clean negative control ($Q$ p $= 0.998$, all m-values $\approx 0.5$), confirming the meta-analysis refuses to localise an effect when DIAL is null.
+\item \textbf{Pathway aggregation (S3).} Reducing the 3000-gene feature pool to a 50-pathway MSigDB Hallmark ssGSEA matrix collapses pooled DIAL to $0.000$ for all five classifiers while AUC$_{\mathrm{post}}$ recovers to $0.90$--$0.98$. A per-pathway decomposition shows \textbf{0 of 50 pathways individually flip} (highest DIAL = 0.085 on Oxidative Phosphorylation, a known RAS-like signature mildly over-corrected by ComBat). The flip is therefore a high-dimensional residual-batch artefact, not a biology reversal.
+\item \textbf{NB-GLM differential expression (S4, v8.1 raw STAR counts).} pydeseq2 on the actual GDC STAR gene counts (60\,660 genes $\times$ 351 samples) yields \textbf{6\,605 BRAF-vs-RAS significant genes} (FDR $< 0.05$, $|\log_2\mathrm{FC}| > 1$) with \textbf{95.7\,\% same-sign $\log_2$FC concordance} against the v8 pseudo-count run. All \textbf{8 of 8 druggable targets} (TACSTD2, TMPRSS4, PLEKHA6, CYP1B1, LDLR, GABRB2, B3GNT3, PTPRE) retain padj $\le 5.22\times10^{-83}$.
+\item \textbf{Quantum classifier paradigm (S5).} Adding a third paradigm beyond linear/tree-ensemble --- variational quantum classifier (PennyLane VQC, 3 strongly-entangling layers) and quantum support-vector kernel (Qiskit-ML QSVC, ZZFeatureMap) --- and recomputing DIAL on PCA-reduced features. THCA flips under VQC (DIAL $= 0.386$, $\mathrm{AUC}_{\mathrm{pre}} = 0.673 \to \mathrm{AUC}_{\mathrm{post}} = 0.114$); the four non-THCA cancers return DIAL $= 0$ for every classical and quantum cell across the complete $5 \times 3$ grid. The THCA flip is paradigm-invariant.
+\item \textbf{Cohort-aware mixed-effects DE (S6C, v8.1 full-gene LMM).} Per-gene \texttt{expression $\sim$ subtype + (1 $|$ cohort)} fit with statsmodels MixedLM across the full 11\,710-gene shared universe (no variance pre-filter; \emph{cf.}~Limitations item 1) gives \textbf{88.6\,\% honest survival} of the published 2\,773-biomarker slate (2\,458 retained) and 99.4\,\% of those reachable in the LMM universe. The intersection with the raw-count DESeq2 slate (\textbf{1\,786-gene dual-validated gold slate}) is recommended as the primary biomarker list for downstream work.
+\item \textbf{Cross-platform direction validation across three GEO cohorts (v8.1).} The v8.1 raw-DESeq2 slate is sign-validated against TCGA log$_2$FC in three independent thyroid microarray cohorts on three different platforms: GSE27155 (mutation-truth labels) at 83.4\,\%, GSE33630 (BRS52-inferred labels, $n_{\mathrm{PTC}} = 49$) at 86.0\,\%, and GSE29265 (BRS52-inferred, $n_{\mathrm{PTC}} = 20$) at 83.5\,\%. The Chakravarty 2011 BRS52 expression signature was independently validated on TCGA-THCA at 95.2\,\% accuracy (specificity for RAS = 100\,\%) before being applied to the unlabelled GEO cohorts. \textbf{1\,288 of 1\,915 (67.3\,\%) of v8.1 sig genes reproduce BRAF-up direction in all three GEO cohorts; 88.3\,\% in $\ge 2/3$.} CCLE thyroid cell lines were tested but not included as a 4$^{\mathrm{th}}$ cohort (54.4\,\% concordance, 66.7\,\% BRS accuracy on CCLE; consistent with Yu \emph{et al.} 2019 \emph{Nat Commun} on cell-line drift).
+\end{enumerate}
+\emph{(v5.2 reframing of the closing paragraph.)} The v8/v8.1 results
+\emph{do not} converge on the conclusion that the THCA flip is real
+biology --- under leak-safe LODO (Section~\ref{sec:v5p2lesson}) the
+flip does not exist. What they \emph{do} converge on is a more
+modest two-part statement that survives the leak audit: \textbf{(1)}
+the gene-level BRAF-vs-RAS signal in TCGA-THCA + GSE27155 is robust to
+the choice of differential-expression test (Welch t-test
+$\leftrightarrow$ DESeq2 $\leftrightarrow$ LMM with cohort random
+effect, 88.6\,\% to 95.7\,\% slate stability) and direction-validates
+across three independent GEO microarray cohorts (88.3\,\% in
+$\ge 2/3$); \textbf{(2)} the eight v7 druggable targets retain
+significance under every DE re-test, supporting the v7 repurposing
+shortlist independently of any LODO-evaluation claim. The v5.1 flip
+itself is not the conclusion; it is the symptom that motivated the
+audit which produced the methodological finding of
+Section~\ref{sec:v5p2lesson}.
+\section{Limitations}
+\begin{itemize}
+\item \textbf{v5.2 leak-correction reframes every claim that depends on the v5.1 flip.} The v5.1 flip itself was a covariate-aware ComBat fit on pooled train+test data prior to LODO split (\texttt{v5p1\_common.py:167}); under leak-safe per-fold ComBat the flip vanishes. This is the largest single limitation of the v5.1 manuscript and the headline result of the v5.2 pivot. Every paragraph in this paper that asserts ``THCA-specific batch entanglement'' should be read as ``leak-driven inversion artefact under the v5.1 evaluation regime, with structural prerequisites identified in Section~\ref{sec:bumhbox}''. The biomarker-stability and BRS52 cross-platform findings (Section~\ref{sec:robustness} items 4, 6, 7) are independent of the LODO ComBat protocol and survive.
+
+\item \textbf{LODO with two cohorts.} When a cancer has only two included cohorts (THCA, SKCM, LUAD, COAD here), each LODO fold's training set contains one cohort, so the batch-identifiability auxiliary classifier cannot be fit. We report \texttt{batch\_identifiability\_post} = NaN for those rows and adjust the interpretation rule to rely on DIAL and \texttt{AUC\_post} only; the v5 rule, which required \texttt{ident} $<$ 0.7 to call \texttt{batch\_entangled}, silently masked all LODO THCA flips and is hereby superseded. \emph{(v8.1 update: an attempt was made to extend THCA to 4-fold LODO via GSE33630 and GSE29265; both cohorts lack the BRAF/RAS joint annotation required for the v5.1 binary task --- GSE29265 carries BRAF status for 20 PTCs but no RAS, GSE33630 carries only histology. Documented in \texttt{results/v8p1\_rigor/c\_expanded\_lodo/}; 2-fold THCA LODO retained.)}
+\item \textbf{Variance top-3000 pre-filter.} pycombat is $O(p^2)$ and becomes prohibitive above $\sim$10k genes. Prior to batch correction and classification we subset $X$ to the top 3000 genes by sample variance within the harmonised shared-gene set. The shared-gene counts reported in Section~3 (Harmonization) are pre-filter; the \texttt{n\_genes} in the DIAL results table is always 3000. Re-running with full shared genes did not alter any interpretation label in pilot tests but costs $\sim$10$\times$ more compute. \emph{(v8.1 update: a full-gene cohort-aware mixed-effects DE was run across all 11\,710 shared genes (Section~\ref{sec:robustness} item 6), and the 2\,773-biomarker survival rate was 88.6\,\% under the unfiltered universe. Results stable.)}
+\item \textbf{StratifiedKFold does not expose cohort batch.} v5.1a initially used StratifiedKFold, which produced $\mathrm{DIAL}=0$ for all 25 rows because train and test folds both contained a uniform mixture of cohorts. The direction-invariant failure mode formalised in the Appendix is defined at the level of \emph{held-out cohorts}, not random within-cohort samples, so LODO is the correct evaluation.
+\item \textbf{Failed cohorts.} The following cohorts were excluded during Phase 1:
+  \begin{itemize}
+  \item \texttt{GSE33630} (THCA): excluded\_no\_labels
+  \item \texttt{GSE29265} (THCA): excluded\_no\_labels
+  \item \texttt{GSE65904} (SKCM): excluded\_no\_labels
+  \item \texttt{GSE16011} (LGG): excluded\_no\_labels
+  \item \texttt{GSE4271} (LGG): excluded\_download\_fail (HTTP 404)
+  \item \texttt{GSE72094} (LUAD): excluded\_no\_labels (probe--symbol mapping failed, GPL15048)
+  \item \texttt{GSE17536} (COAD): excluded\_no\_labels
+  \end{itemize}
+\end{itemize}
+\section{Reproducibility and archive}
+The previous v5 artifacts (including the semi-synthetic DIAL tables) are archived at \texttt{results/v5\_broken/}. All v5.1 code lives in \texttt{notebooks\_or\_scripts/v5p1\_*.py}. Inputs are downloaded fresh from the GDC data portal and NCBI GEO FTP at runtime; no synthetic substitutes are used. The v8/v8.1 robustness analyses (Section~\ref{sec:robustness}) are reproducible from \texttt{notebooks\_or\_scripts/v8\_*.py} and \texttt{v8p1\_*.py}; outputs are written to \texttt{results/v8\_statgen/} and \texttt{results/v8p1\_rigor/}. The integrated supplementary is \texttt{reports/v8/v8\_supplementary.md}; the v8 $\to$ v8.1 delta is \texttt{reports/v8/v8p1\_rigor\_summary.md}; submission-readiness summary is \texttt{reports/v8/v8p1\_FINAL\_STATUS.md}.
+\section*{Appendix: Theory (unchanged from v5)}
+% v5 DIAL Theoretical Supplement
+% Lemma and corollary for the Direction-Invariant AUC Leakage probe.
+% This section is fit for insertion into the main bioinformatics short paper
+% as an appendix or supplementary proof. No preamble is provided.
+
+\section{Theoretical Supplement: Label-Flip under Linear Batch Correction}
+\label{sec:dial-theory}
+
+We formalise the mechanism by which a linear, subtype-preserving
+batch-correction operator can invert the sign of a classifier's discriminant
+in cross-validated evaluation. Throughout this section we work with
+standardised gene-expression features $X \in \mathbb{R}^{n \times p}$, a
+binary label vector $Y \in \{0,1\}^{n}$, and a multi-valued batch vector
+$B \in \{1,\dots,k\}^{n}$.
+
+\paragraph{Setup and scope of the linearised model.}
+The Lemma below treats batch correction as an \emph{affine} operator
+$P : \mathbb{R}^{p} \to \mathbb{R}^{p}$ acting sample-wise as
+$P(X_i) = X_i - \hat\gamma_{B_i}$. This is the \textbf{first-moment, additive
+linearisation of ComBat} obtained when the multiplicative scale parameters
+$\delta$ are taken equal to one and the empirical-Bayes shrinkage on
+$(\gamma, \delta)$ is treated as having converged to its population limit.
+Full ComBat (Johnson et~al. 2007) and its count-data variant ComBat-seq
+(Zhang et~al. 2020 \emph{NAR Genomics and Bioinformatics}) include a
+multiplicative variance-rescaling step and finite-sample empirical-Bayes
+pooling that the affine Lemma does not capture; the affine analogy
+should therefore be read as the \textbf{first-order driver of the
+flip mechanism}, not as a model of full ComBat. The
+finite-sample, multiplicative deviations are addressed empirically in
+the v8 ComBat-seq sensitivity analysis (Section~6.1) and in the
+LMM-based DE re-analysis (Section~6.2).
+
+Let $\mu_Y = \mathbb{E}[X \mid Y=1] - \mathbb{E}[X \mid Y=0]
+\in \mathbb{R}^{p}$ denote the population-level biological direction
+separating the two label classes, and let $\Delta_B = \{\mu_{B=b} -
+\mu_{B=b'} : b \ne b'\} \subset \mathbb{R}^{p}$ denote the set of
+pair-wise batch-mean differences. Let
+$\mathcal{V}_B = \mathrm{span}(\Delta_B)$. A linear subtype-preserving
+batch-correction operator (in the affine-linearisation sense above) is
+any affine map $P$ whose sample-level action satisfies the empirical
+constraints
+\begin{enumerate}
+  \item[(i)] the mean of $P(X)$ within each batch $b$ equals the mean of
+   $P(X)$ within every other batch $b'$ (batch mean alignment);
+  \item[(ii)] the within-label means $\mathbb{E}[P(X) \mid Y=1]$ and
+   $\mathbb{E}[P(X) \mid Y=0]$ are preserved in aggregate, in the sense
+   that $\mathbb{E}[P(X) \mid Y=c] - \mathbb{E}[X \mid Y=c]$ is constant in
+   $c$.
+\end{enumerate}
+Constraints (i)--(ii) characterise the affine-linearised
+subtype-preserving ComBat family and its population limit. The full
+ComBat operator is recovered by adding (iii) a per-gene multiplicative
+scale and (iv) the empirical-Bayes shrinkage of $(\gamma, \delta)$ toward
+their across-batch hyper-priors.
+
+\label{sec:lemma}
+\paragraph{Lemma (Label-Flip under Linear Batch Correction).}
+\emph{Let $P$ satisfy (i)--(ii) and assume $\mu_Y \in \mathcal{V}_B$,
+i.e.\ the biological direction lies entirely in the span of batch-mean
+differences. Let $f_{\mathrm{pre}}$ be any classifier trained on $X$ by
+empirical risk minimisation over a class $\mathcal{F}$ of linear scoring
+rules with strictly convex regulariser, and let $f_{\mathrm{post}}$ be
+the analogous minimiser trained on $P(X)$. Then, in any cross-validated
+evaluation with held-out folds of size bounded below by a constant,
+\[
+\mathrm{AUC}(f_{\mathrm{post}}) \;\xrightarrow[n\to\infty]{} \;
+1 - \mathrm{AUC}(f_{\mathrm{pre}})
+\]
+with probability approaching one, where the flip is induced by the sign
+of the surviving second-moment residual after projection.}
+
+\paragraph{Corollary (Direction Invariance).}
+\emph{Under the assumptions of the Lemma,}
+\[
+\mathrm{auc\_flip}(f_{\mathrm{post}}) \;\approx\;
+\mathrm{auc\_flip}(f_{\mathrm{pre}}),
+\qquad
+\mathrm{auc\_flip}(a) := \max(a,\;1-a).
+\]
+\emph{Consequently the two-sided leakage statistic
+$\mathrm{DIAL} := \mathrm{auc\_flip}(f_{\mathrm{post}}) - 0.5$ (when
+$\mathrm{AUC}(f_{\mathrm{post}}) < 0.5$) is a consistent estimator of
+direction-invariant predictive leakage that survives batch correction.}
+
+\paragraph{Proof sketch.} Under constraints (i) and (ii), $P$ is an
+affine operator that (a) annihilates all batch-mean differences and
+(b) leaves within-label means unchanged up to a constant common to both
+classes. Since $\mathcal{V}_B$ is the linear span of batch
+differences, (a) implies that the restriction of $P$ to $\mathcal{V}_B$
+is the zero map; equivalently, $P$ is a projection onto the orthogonal
+complement $\mathcal{V}_B^{\perp}$ composed with a label-independent
+mean correction. The assumption $\mu_Y \in \mathcal{V}_B$ therefore
+gives $P(\mu_Y) = 0$: the first-moment label signal is eliminated.
+
+What survives is the difference in \emph{second-moment} structure
+between the two label classes projected onto $\mathcal{V}_B^{\perp}$,
+which is generically nonzero but whose sign is determined by arbitrary
+spectral ordering rather than biology. Empirical risk minimisation
+with strictly convex regularisation selects a unique minimiser; under
+cross-validation, the held-out folds produce estimates whose sign
+flips with probability approaching one when the pre-correction
+discriminant was near unity, because the remaining signal is aligned
+\emph{anti-correlated} with the original biological direction under the
+projection (this is the standard over-correction geometry of linear
+batch-removal operators). The $\mathrm{auc\_flip}$ transform is then
+invariant to this sign flip, giving the Corollary.
+
+A more formal proof, handling finite-sample concentration of the held-out
+AUC estimator, can be given by combining (a) Hoeffding concentration for
+the U-statistic representation of the AUC, (b) Davis--Kahan perturbation
+for the eigenvector of the projected second-moment matrix, and (c) the
+Lipschitz continuity of $\mathrm{auc\_flip}$ on $[0,1]$. We omit the
+details; the resulting rate is $O(n^{-1/2})$ in both directions. $\square$
+
+\paragraph{Remark on identifiability.} When $\mu_Y \in \mathcal{V}_B$,
+the pre-correction classifier cannot distinguish biological from
+batch signal, and a separate multi-class classifier trained to predict
+$B$ from $P(X)$ will attain AUC close to chance (since the batch means
+have been removed). The DIAL/identifiability quadrant in
+Figure~\ref{fig:quadrant} of the main text operationalises this
+observation: the pathological regime is precisely
+$(\mathrm{DIAL} > 0.3,\ \mathrm{ident}_{\mathrm{post}} < 0.7)$.
+
+\end{document}

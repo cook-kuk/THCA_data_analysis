@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block body %}
+<section class="hero" data-aos="fade-up" aria-labelledby="page-hero-title">
+  <div class="hero-aurora" aria-hidden="true"></div>
+  <div class="hero-noise" aria-hidden="true"></div>
+  <div class="subtle mono">{{ slug }}</div>
+  <h1 id="page-hero-title">{{ title }}</h1>
+  <p class="lede">{{ subtitle }}</p>
+  {% if chips %}<div class="chips" role="list">{% for chip in chips %}<span class="chip" role="listitem">{{ chip }}</span>{% endfor %}</div>{% endif %}
+</section>
+{% for section in sections %}
+<section id="{{ section.id }}" class="panel glass" data-aos="fade-up" aria-labelledby="sec-{{ section.id }}">
+  <h2 class="section-title" id="sec-{{ section.id }}">{{ section.title }}</h2>
+  {% if section.text %}<p class="subtle">{{ section.text }}</p>{% endif %}
+  {% if section.html %}{{ section.html|safe }}{% endif %}
+  {% if section.figures %}
+    <div class="{{ section.figure_class or 'fig-grid' }}">
+    {% for fig in section.figures %}
+    <div class="figure-wrap {% if fig.small %}small-figure{% endif %}">
+      <div class="figure-actions">
+        <a href="{{ fig.html_url }}" target="_blank" rel="noopener" aria-label="HTML 새 탭">HTML</a>
+        <a href="{{ fig.png_url }}" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+        <a href="{{ fig.svg_url }}" target="_blank" rel="noopener" aria-label="SVG 다운로드">SVG</a>
+        <a href="{{ fig.tsv_url }}" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+        <button class="copy-cite" type="button" data-copy-cite="THCA Dashboard — {{ fig.label or fig.name }} — {{ fig.html_url }}" aria-label="인용 정보 복사">Cite</button>
+      </div>
+      <div class="figure-preview-shell">
+        <img class="figure-preview" loading="{% if loop.first and loop.index0 == 0 %}eager{% else %}lazy{% endif %}" decoding="async" src="{{ fig.preview_url }}" alt="{{ fig.label or fig.name }} 미리보기" data-figure-open="{{ fig.html_url }}" data-figure-title="{{ fig.label or fig.name }}" data-figure-png="{{ fig.png_url }}" data-figure-tsv="{{ fig.tsv_url }}">
+      </div>
+      <div class="figure-open-row">
+        <button class="btn primary figure-open-btn" type="button" data-figure-open="{{ fig.html_url }}" data-figure-title="{{ fig.label or fig.name }}" data-figure-png="{{ fig.png_url }}" data-figure-tsv="{{ fig.tsv_url }}">확대해서 보기</button>
+        <a class="btn figure-open-btn" href="{{ fig.html_url }}" target="_blank" rel="noopener">새 탭으로 열기</a>
+      </div>
+      {% if fig.caption %}
+      <div class="figure-caption">
+        <strong>{{ fig.label or fig.name }}</strong>
+        {{ fig.caption }}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+{% if page_js %}<script>{{ page_js|safe }}</script>{% endif %}
+{% if page_extra_scripts %}{% for src in page_extra_scripts %}<script defer src="{{ src }}"></script>{% endfor %}{% endif %}
+{% endblock %}

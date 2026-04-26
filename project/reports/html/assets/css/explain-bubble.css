@@ -1,0 +1,122 @@
+/* Explain-bubble — universal "자세히" button + modal system.
+   Any element with data-explain-id gets a button auto-injected.
+   Fully self-contained, no external deps, CSP-safe. */
+
+.explain-btn{
+  position:absolute; top:8px; right:8px; z-index:3;
+  padding:4px 10px 4px 8px; border-radius:999px;
+  background:rgba(245,166,35,.14); border:1px solid rgba(245,166,35,.36);
+  color:#F5A623; font-size:.7rem; font-weight:600;
+  letter-spacing:.04em; cursor:pointer; line-height:1;
+  font-family:Inter,ui-sans-serif,system-ui;
+  transition:background .15s ease, border-color .15s ease, transform .15s ease;
+  display:inline-flex; align-items:center; gap:4px;
+}
+.explain-btn--inline{
+  position:static;
+  vertical-align:middle;
+  margin-left:10px;
+  transform:none !important;
+}
+.explain-btn:hover{background:rgba(245,166,35,.28);border-color:#F5A623;color:#FFB84D;transform:translateY(-1px)}
+.explain-btn:focus-visible{outline:2px solid #F5A623;outline-offset:2px}
+.explain-btn .icon{font-size:.85rem;line-height:1}
+
+/* Modal backdrop */
+.explain-modal-backdrop{
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(0,0,0,.78); backdrop-filter:blur(6px);
+  display:none; align-items:center; justify-content:center;
+  padding:20px; animation:explainFadeIn .2s ease;
+}
+.explain-modal-backdrop.open{display:flex}
+@keyframes explainFadeIn{from{opacity:0}to{opacity:1}}
+
+/* Modal card */
+.explain-modal{
+  max-width:680px; width:100%; max-height:85vh;
+  background:linear-gradient(145deg, #0E0E0E, #151515);
+  border:1px solid rgba(245,166,35,.35); border-radius:16px;
+  padding:28px 32px 24px;
+  color:#fff; font-family:Inter,ui-sans-serif,system-ui;
+  overflow-y:auto; position:relative;
+  box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 40px rgba(245,166,35,.12);
+  animation:explainSlideUp .25s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes explainSlideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+.explain-modal-close{
+  position:absolute; top:14px; right:14px; width:34px; height:34px;
+  border-radius:50%; border:1px solid rgba(255,255,255,.2);
+  background:rgba(20,20,20,.8); color:#fff; cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.15rem; line-height:1; padding:0;
+  transition:background .15s ease, border-color .15s ease;
+}
+.explain-modal-close:hover{background:rgba(245,166,35,.18);border-color:#F5A623;color:#F5A623}
+
+.explain-modal h3{
+  margin:0 0 6px; font-size:1.35rem; line-height:1.25; color:#fff;
+  padding-right:40px; /* leave room for close button */
+}
+.explain-modal .explain-tagline{
+  font-size:.88rem; color:#F5A623; margin:0 0 18px;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  letter-spacing:.04em;
+}
+.explain-modal h4{
+  margin:18px 0 6px; font-size:.98rem; color:#FFB84D;
+  display:flex; align-items:center; gap:6px;
+}
+.explain-modal p{margin:0 0 10px; color:rgba(255,255,255,.82); line-height:1.6; font-size:.92rem}
+.explain-modal ul{margin:6px 0 12px; padding-left:22px; color:rgba(255,255,255,.82); line-height:1.55; font-size:.9rem}
+.explain-modal li{margin:4px 0}
+.explain-modal li strong{color:#fff}
+.explain-modal code{
+  background:rgba(245,166,35,.12); color:#FFB84D;
+  padding:2px 7px; border-radius:5px; font-size:.82rem;
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+.explain-modal strong{color:#fff}
+.explain-modal em{color:#5eead4;font-style:normal;font-weight:500}
+.explain-modal a{color:#5eead4;text-decoration:underline;text-decoration-color:rgba(94,234,212,.4);text-underline-offset:3px}
+.explain-modal a:hover{color:#14b8a6;text-decoration-color:#14b8a6}
+
+.explain-modal-tags{
+  display:flex; flex-wrap:wrap; gap:6px; margin-top:16px;
+  padding-top:16px; border-top:1px dashed rgba(255,255,255,.12);
+}
+.explain-tag{
+  padding:3px 10px; border-radius:999px; font-size:.7rem;
+  background:rgba(20,184,166,.12); color:#5eead4;
+  border:1px solid rgba(20,184,166,.28);
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+
+/* Ensure host element has relative positioning so absolute button anchors correctly */
+[data-explain-id]:not(h1):not(h2):not(h3):not(h4):not(summary):not(figcaption){position:relative}
+[data-explain-auto]:not(h1):not(h2):not(h3):not(h4):not(summary):not(figcaption){position:relative}
+
+/* On small panels (cards), button slightly smaller */
+.biz-card[data-explain-id] .explain-btn,
+.biz-kpi[data-explain-id] .explain-btn,
+.q-card[data-explain-id] .explain-btn,
+.bm-card[data-explain-id] .explain-btn{
+  top:4px; right:4px; padding:2px 8px; font-size:.65rem;
+}
+.biz-kpi[data-explain-id] .explain-btn .label-text{display:none}
+
+/* Mobile */
+@media (max-width:760px){
+  .explain-modal{padding:22px 20px 18px;max-height:90vh;border-radius:14px}
+  .explain-modal h3{font-size:1.15rem}
+  .explain-btn{padding:3px 8px;font-size:.65rem}
+  .explain-btn--inline{margin-left:6px}
+  .explain-btn .label-text{display:none}
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .explain-modal-backdrop, .explain-modal{animation:none !important}
+  .explain-btn{transition:none}
+}

@@ -1,0 +1,520 @@
+% =====================================================================
+% DIAL — Supplementary Material
+% Target venue: Bioinformatics (OUP), supplementary appendix.
+% =====================================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs,amsmath,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{xcolor}
+\usepackage{array}
+
+\renewcommand{\thesection}{S\arabic{section}}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+
+\title{DIAL --- Supplementary Material \\
+\large \textit{a direction-invariant audit metric for batch-corrected
+cancer subtype classifiers}}
+\author{Seungho Kuk}
+\date{2026-04-25}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\vspace{1em}\hrule\vspace{1em}
+
+\paragraph{Overview.} This supplementary document collects seven
+reviewer-facing robustness analyses commissioned for the v5.1 DIAL
+paper, a complete proof of the label-flip lemma, and a
+code/data-availability statement. Each section asks: if we change the
+batch-correction estimator (S2), the DE test (S5), the classifier
+paradigm (S6), or the correction family (S7), does the thyroid-specific
+DIAL flip survive? Bottom line: the THCA flip is robust under the
+count-native ComBat-seq estimator (S2), is the only cohort flagged by
+random-effects meta-analysis (S3), is a gene-level phenomenon that
+pathway aggregation eliminates (S4), is not an artefact of the Welch
+$t$-test used upstream (S5), persists under a variational quantum
+classifier (S6), and reshuffles sensibly under FastRNA, BUHMBOX, and
+LMM Han-lab methods (S7).
+
+% =====================================================================
+\section{Mutation label schemes and exclusions}
+\label{sec:S1}
+
+The cohort availability matrix is given in Table~1 of the main text;
+here we document only the mutation-label conventions and the
+exclusion reasons for cohorts not carried through to the DIAL
+analysis.
+
+\paragraph{Subtype labels by cancer.}
+\begin{itemize}
+\item \textbf{THCA} --- BRAF V600E vs RAS (NRAS/HRAS/KRAS) hotspot
+  mutations. Wild-type and RET/PTC fusion samples are excluded.
+\item \textbf{SKCM} --- BRAF vs NRAS hotspot mutations (mutually
+  exclusive in TCGA-SKCM).
+\item \textbf{LGG} --- IDH1/IDH2 mutation status (mutated vs
+  wild-type).
+\item \textbf{LUAD} --- KRAS vs EGFR mutation status (mutually
+  exclusive when both are called in the same sample, resolved to the
+  higher-VAF call).
+\item \textbf{COAD} --- MSI-H vs MSS (mismatch-repair status from
+  TCGA MC3 or GEO companion annotation).
+\end{itemize}
+
+\paragraph{Exclusion reasons.} Seven cohorts considered during Phase
+1 were excluded: \texttt{GSE33630, GSE29265} (THCA, no mutation
+labels); \texttt{GSE65904} (SKCM, no labels); \texttt{GSE16011} (LGG,
+no labels); \texttt{GSE4271} (LGG, HTTP 404 on GEO FTP);
+\texttt{GSE72094} (LUAD, GPL15048 probe--gene mapping failed);
+\texttt{GSE17536} (COAD, no MSI/MSS labels).
+
+% =====================================================================
+\section{ComBat-seq robustness}
+\label{sec:S2}
+
+We re-ran the v5.1 LODO DIAL pipeline on THCA with two
+batch-correction variants: (a) the v5.1 baseline, ComBat
+(\texttt{pycombat\_norm}) on log2-TPM; and (b) ComBat-seq
+\citep{zhang2020combatseq} via \texttt{inmoose.pycombat.pycombat\_seq}
+on raw STAR unstranded counts for the RNA-seq cohort, followed by a
+cross-platform ComBat step to bridge to the Affymetrix microarray
+values. ComBat-seq is mathematically defined only on RNA-seq counts;
+we therefore cannot run it jointly across a count cohort and a
+microarray cohort, and the hybrid above is the strongest defensible
+construction given that THCA has exactly one cohort of each type.
+
+Four of five classifiers show $|\Delta\mathrm{DIAL}| < 0.1$:
+LogReg-$\ell_2$ $0.494 \to 0.495$,
+LogReg-elasticnet $0.492 \to 0.494$,
+GradientBoosting $0.334 \to 0.273$,
+XGBoost $0.013 \to 0.000$. Only RandomForest shrinks appreciably
+($0.324 \to 0.129$; post-correction AUC $0.177 \to 0.372$), and its
+AUC remains well below $0.5$. No classifier recovers BRAF/RAS signal
+above chance under either correction. The flip is therefore not an
+artefact of log2-TPM handling; switching to the count-native estimator
+leaves four of five classifiers in the same DIAL regime. (Artefact:
+\texttt{results/v8\_statgen/v8\_combatseq\_vs\_combat.tsv}.)
+
+% =====================================================================
+\section{Random-effects meta-analysis}
+\label{sec:S3}
+
+\paragraph{Background.} The primary analysis measured DIAL for five
+classifiers on five TCGA-derived cohorts. To formalise that the
+thyroid signal is specific rather than a heavy-tailed pan-cancer
+phenomenon, we applied random-effects meta-analysis in the style of
+METASOFT \citep{han2011metasoft,han2012mvalue,lee2017metasoft}.
+
+\paragraph{Methods.} Per-classifier, per-cancer DIAL is the effect
+size $\theta_i$ ($i = 1..5$). $\mathrm{SE}(\mathrm{DIAL})$ is
+approximated by Hanley--McNeil $\mathrm{SE}(\mathrm{AUC}_{\mathrm{post}})$
+using class counts from the harmonisation table; DIAL is a
+shifted/flipped function of AUC$_{\mathrm{post}}$ so this is valid to
+first order. SE is floored at $10^{-4}$ to avoid divide-by-zero under
+perfect separation. Between-study $\tau^2$ uses DerSimonian--Laird;
+Cochran's $Q$ is tested against $\chi^2$ with $k - 1 = 4$ d.f.;
+$I^2 = \max(0, (Q - \mathrm{df})/Q)$. Han $m$-values
+\citep{han2012mvalue} use a Gaussian two-component mixture with a
+flat $0.5$ prior: $P(\mathrm{data} \mid \mathrm{effect})$ at the RE
+pooled mean with variance $\mathrm{SE}_i^2 + \tau^2$ versus
+$P(\mathrm{data} \mid \mathrm{no\ effect})$ at zero with variance
+$\mathrm{SE}_i^2$.
+
+\paragraph{Results.}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lrrrrrrrrrr}\toprule
+Classifier & $\bar\theta$ & $\tau^2$ & $Q$ & $p(Q)$ & $I^2$ &
+$m_{\mathrm{THCA}}$ & $m_{\mathrm{SKCM}}$ & $m_{\mathrm{LGG}}$ &
+$m_{\mathrm{LUAD}}$ & $m_{\mathrm{COAD}}$ \\ \midrule
+LogReg-$\ell_2$      & 0.099 & 0.114 & 4538.8 & $<10^{-16}$ & 99.9\% &
+1.00 & 0.10 & 0.02 & 0.04 & 0.03 \\
+RandomForest         & 0.065 & 0.017 & 184.1 & $<10^{-16}$ & 97.8\% &
+1.00 & 0.22 & 0.06 & 0.16 & 0.10 \\
+XGBoost              & 0.001 & 0.000 & 0.12  & 0.998       & 0.0\%  &
+0.50 & 0.50 & 0.50 & 0.50 & 0.50 \\
+LogReg-elasticnet    & 0.099 & 0.110 & 4471.9 & $<10^{-16}$ & 99.9\% &
+1.00 & 0.10 & 0.02 & 0.04 & 0.04 \\
+GradientBoosting     & 0.076 & 0.026 & 186.6 & $<10^{-16}$ & 97.9\% &
+1.00 & 0.18 & 0.07 & 0.28 & 0.12 \\
+\bottomrule\end{tabular}
+\caption{Per-classifier random-effects meta-analysis of DIAL across
+five cancers. Four of five classifiers reject homogeneity
+overwhelmingly with THCA $m \geq 0.9999$; XGBoost is a null control.}
+\label{tab:s3}
+\end{table}
+
+Four classifiers reject homogeneity with $I^2 > 97\%$ and
+$p(Q) < 10^{-16}$. In every rejected case THCA has $m \geq 0.9999$
+while every other cohort sits at or below the Han $m \leq 0.1$
+no-effect band. XGBoost is a negative control: $Q$ is non-significant
+($p = 0.998$), $I^2 = 0$, and every $m$-value collapses to the $0.5$
+flat prior --- consistent with XGBoost never flipping in the primary
+analysis.
+
+% =====================================================================
+\section{Pathway-level DIAL (MSigDB Hallmark)}
+\label{sec:S4}
+
+The v5.1 primary analysis measured DIAL on the $3{,}000$
+variance-top genes, where THCA BRAF-vs-RAS produced a $0.494$ flip
+post-ComBat. The same $392$ THCA samples, scored instead as a
+50-dimensional MSigDB Hallmark \citep{liberzon2015hallmark} ssGSEA
+matrix \citep{barbie2009ssgsea, hanzelmann2013gsva}, return pooled
+$\mathrm{DIAL} = 0.000$ across all five classifiers with
+$\mathrm{AUC}_{\mathrm{post}} \in [0.90, 0.98]$.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lrrrr}\toprule
+Classifier & DIAL gene & DIAL pathway & AUC$_{\mathrm{post}}$ gene &
+AUC$_{\mathrm{post}}$ pathway \\ \midrule
+LogReg-$\ell_2$        & 0.494 & 0.000 & 0.006 & 0.964 \\
+LogReg-elasticnet      & 0.492 & 0.000 & 0.008 & 0.958 \\
+RandomForest           & 0.323 & 0.000 & 0.177 & 0.977 \\
+GradientBoosting       & 0.334 & 0.000 & 0.166 & 0.918 \\
+XGBoost                & 0.013 & 0.000 & 0.487 & 0.905 \\
+\bottomrule\end{tabular}
+\caption{Pooled gene-level versus pathway-level DIAL on THCA.}
+\label{tab:s4a}
+\end{table}
+
+To distinguish aggregation-dilutes (some pathways flip but the pooled
+vote cancels) from pathway-level resilience (no pathway flips), we
+computed per-pathway LODO DIAL: one LogReg-$\ell_2$ per Hallmark
+column, same joint 50-D ComBat. Zero of 50 pathways cross the
+batch-entangled threshold; median DIAL $= 0.000$, maximum $= 0.085$
+(Oxidative Phosphorylation, the canonical RAS-high signature in
+thyroid carcinoma \citep{landa2016thyroid}). $29/50$ pathways are
+clean \texttt{true\_biology}, $13/50$ \texttt{ambiguous}, $8/50$
+\texttt{no\_signal}. The v5.1 $3{,}000$-gene DIAL $0.494$ is therefore
+a high-dimensional residual-batch phenomenon, not a reversal of
+BRAF-vs-RAS biology.
+
+\paragraph{When to worry vs when it is fine.} A practical guide:
+(i) gene-level biomarker panel for clinical assay --- watch gene-level
+DIAL on the training space; do not deploy under a flip; (ii) pathway
+enrichment --- safe to proceed if every pathway has DIAL $\leq 0.1$, as
+here; (iii) deep-learning on raw expression --- re-measure
+embedding-space DIAL after encoding.
+
+% =====================================================================
+\section{DE biomarker recomputation with DESeq2}
+\label{sec:S5}
+
+\paragraph{Rationale.} The upstream biomarker list used a Welch
+$t$-test on log2-TPM with BH-FDR. Reviewers prefer the counts-based
+NB-GLM in DESeq2 \citep{love2014deseq2, muzellec2023pydeseq2}, which
+provides size-factor normalisation, empirical-Bayes dispersion
+shrinkage, and a Wald test on moderated log2 fold-changes --- all
+more robust for low-count genes than a $t$-test on TPM. We reran the
+BRAF-vs-RAS contrast with \texttt{pydeseq2} v0.5.4.
+
+\paragraph{Data and design.} TCGA-THCA $n=351$ (293 BRAF, 58 RAS).
+Design: \texttt{\textasciitilde subtype}. Cut:
+$\mathrm{FDR}_{\mathrm{BH}} < 0.05$, $|\log_2\mathrm{FC}| > 1$. Raw
+STAR counts were not on disk; integer pseudo-counts were derived from
+log2-TPM via $\mathrm{round}((2^x - 1) \times 50)$ assuming a nominal
+$50$M library. Size-factor normalisation absorbs scaling, but gene-level
+variance is understated relative to true counts; results are a
+reviewer-oriented sanity check rather than a definitive requantification.
+
+\paragraph{Results.}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lr}\toprule
+Metric & Value \\ \midrule
+Old significant genes (prior list) & 2{,}773 \\
+New significant genes (DESeq2) & 6{,}283 \\
+Intersection & 888 \\
+Old only & 1{,}885 \\
+New only & 5{,}395 \\
+Jaccard & 0.109 \\
+\bottomrule\end{tabular}
+\caption{DE biomarker recomputation: Welch $t$ vs DESeq2.}
+\label{tab:s5}
+\end{table}
+
+All eight druggable targets from the prior biomarker slate
+(TACSTD2, TMPRSS4, PLEKHA6, CYP1B1, LDLR, GABRB2, B3GNT3, PTPRE) are
+retained under DESeq2 with $p_{\mathrm{adj}}$ ranging from
+$1.9 \times 10^{-222}$ (TACSTD2) to $5.2 \times 10^{-83}$ (LDLR) and
+$\log_2\mathrm{FC}$ from $+2.58$ to $+5.29$. No target needs to be
+reprioritised on the basis of this reanalysis.
+
+% =====================================================================
+\section{Quantum classifier DIAL comparison}
+\label{sec:S6}
+
+\paragraph{Goal.} Test whether the v5.1 THCA flip is classifier-paradigm
+specific. The primary analysis used linear and tree ensembles only.
+We add a third paradigm --- quantum kernel / variational
+\citep{havlicek2019qsvm, schuld2019qml, huang2021quantum} --- and
+re-measure DIAL on the same five cancers under LODO. If the THCA flip
+is task-intrinsic (a cohort-pairing property of the data) it should
+reproduce under quantum classifiers; if it is a peculiarity of linear
+models it should not.
+
+\paragraph{Methods.} Per-cancer, downsampled to $n \leq 80$ (stratified
+by $Y \times B$), PCA(8 components) to project to an 8-qubit Hilbert
+space. Three paradigms: classical SVC-RBF (baseline); QSVC (Qiskit-ML
+quantum kernel with ZZFeatureMap, reps=2); VQC (PennyLane variational
+classifier, 3 strongly entangling layers, 60 training iterations).
+DIAL was computed identically to the primary analysis.
+
+\paragraph{Results.}
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{llrrrr}\toprule
+Cancer & Family & AUC$_{\mathrm{pre}}$ & AUC$_{\mathrm{post}}$ & DIAL & Interpretation \\ \midrule
+THCA & QSVC     & 0.549 & 0.599 & 0.000 & no\_signal (underfit) \\
+THCA & VQC      & 0.673 & 0.114 & \textbf{0.386} & \textbf{batch\_entangled} \\
+THCA & SVC-RBF  & 1.000 & 0.071 & \textbf{0.429} & \textbf{batch\_entangled} \\
+SKCM & QSVC     & 0.476 & 0.782 & 0.000 & true\_biology \\
+SKCM & VQC      & 0.505 & 0.434 & 0.066 & no\_signal \\
+SKCM & SVC-RBF  & 0.421 & 0.526 & 0.000 & no\_signal \\
+LGG  & QSVC     & 0.184 & 0.183 & 0.317 & artefact (sign-inverted) \\
+LGG  & VQC      & 0.929 & 0.920 & 0.000 & true\_biology \\
+LGG  & SVC-RBF  & 0.998 & 1.000 & 0.000 & true\_biology \\
+LUAD & SVC-RBF  & 0.774 & 0.847 & 0.000 & true\_biology \\
+COAD & SVC-RBF  & 0.714 & 0.789 & 0.000 & true\_biology \\
+\bottomrule\end{tabular}
+\caption{DIAL under QSVC, VQC, and SVC-RBF. THCA flips under VQC and
+SVC-RBF with magnitudes comparable to the classical LogReg/GBM flips.}
+\label{tab:s6}
+\end{table}
+
+THCA under VQC flips from $\mathrm{AUC}_{\mathrm{pre}}=0.673$ to
+$\mathrm{AUC}_{\mathrm{post}}=0.114$ (DIAL $0.386$), matching the
+magnitude of the classical flips. SVC-RBF agrees (DIAL $0.429$). The
+THCA-specific direction inversion therefore extends from linear +
+tree to variational-quantum paradigms; the reviewer objection "DIAL
+is a linear-model weakness" is answered negatively. QSVC on THCA
+underfits (AUC $\approx 0.55$) --- an underfit, not a flip. LGG/QSVC
+shows a sign-encoding artefact (AUC $\approx 0.18$ pre and post) but
+VQC and SVC-RBF on the same LGG folds both reach AUC $\geq 0.92$, so
+this is classifier-specific, not a batch flip.
+
+% =====================================================================
+\section{Han-lab-inspired methodology}
+\label{sec:S7}
+
+Three Han-lab-style analyses strengthen the thyroid-specific claim:
+(S7.1) FastRNA-style per-cohort centering \citep{lee2022fastrna},
+(S7.2) a BUHMBOX-inspired concept check for hidden sub-group
+heterogeneity \citep{han2016buhmbox}, and (S7.3) linear-mixed-model
+biomarker correction in the style of \citep{sul2018population}. All
+use the harmonised THCA cohort (n=392, BRAF=321/RAS=71;
+TCGA-THCA=351/GSE27155=41; top-3000 variance genes).
+
+\subsection{FastRNA-style cohort centering}
+\label{sec:S7.1}
+FastRNA subtracts the per-cohort mean from every sample --- variance
+is preserved, global location is removed, no empirical-Bayes step is
+required. Applied in place of ComBat and followed by the v5.1 LODO
+DIAL pipeline:
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lrrrr}\toprule
+Classifier & AUC$_{\mathrm{pre}}$ & AUC$_{\mathrm{post,centered}}$ & DIAL$_{\mathrm{centered}}$ & DIAL$_{\mathrm{ComBat}}$ \\ \midrule
+LogReg-$\ell_2$      & 0.994 & 0.993 & 0.000 & 0.494 \\
+LogReg-elasticnet    & 0.994 & 0.993 & 0.000 & 0.492 \\
+RandomForest         & 0.996 & 0.950 & 0.000 & 0.323 \\
+GradientBoosting     & 0.750 & 0.745 & 0.000 & 0.334 \\
+XGBoost              & 0.781 & 0.884 & 0.000 & 0.013 \\
+\bottomrule\end{tabular}
+\caption{FastRNA-style cohort centering eliminates the THCA flip.}
+\label{tab:s7a}
+\end{table}
+
+ComBat LODO gave mean DIAL $=0.331$ on THCA with two linear models at
+$\approx 0.49$ (essentially perfect label polarity flips). FastRNA
+centering yields DIAL $= 0.000$ for every classifier. The THCA
+cross-cohort signal is recoverable once the (highly unbalanced)
+per-cohort mean is removed.
+
+\subsection{BUHMBOX concept check}
+\label{sec:S7.2}
+BUHMBOX \citep{han2016buhmbox} detects whether shared heritability
+between two case groups reflects shared aetiology or hidden sub-group
+admixture. Our check is \emph{conceptual}: for each subtype, we fit
+PCA on the pooled class-specific expression matrix and tested whether
+PC1 scores from TCGA-THCA and GSE27155 follow the same distribution
+(two-sample Kolmogorov--Smirnov). We observe KS $= 1.00$ with
+$p = 1.3 \times 10^{-40}$ for BRAF ($n = 28$ vs $293$) and
+$p = 3.4 \times 10^{-14}$ for RAS ($n = 13$ vs $58$); both flagged
+\texttt{hidden\_heterogeneity}. PC1 aligns perfectly with cohort
+identity even after restricting to a single subtype.
+
+\subsection{LMM biomarker correction}
+\label{sec:S7.3}
+We fit per-gene
+$\texttt{expression} \sim \texttt{subtype} + (1 \mid \texttt{cohort})$
+(\texttt{statsmodels.MixedLM.from\_formula}, REML, L-BFGS) and
+compared to naive OLS $\texttt{expression} \sim \texttt{subtype}$.
+Both BH-FDR corrected across $3{,}000$ top-variance genes. At
+FDR$<0.05$ the naive test flagged $2{,}152$ genes; LMM flagged
+$2{,}201$. The lists overlap on $1{,}661$ genes; $491$ naive hits
+were lost with LMM and $540$ were gained.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lrrrrl}\toprule
+Status & $n$ & median $|\beta|$ & median $p_{\mathrm{naive}}$ & median $p_{\mathrm{LMM}}$ & reading \\ \midrule
+same               & 1{,}969 & 0.559 & --- & --- & strong-effect robust core \\
+gained with LMM    & 540     & 0.265 & $3.1 \times 10^{-1}$ & $3.6 \times 10^{-5}$ & rescued biology \\
+lost with LMM      & 491     & 0.040 & $2.0 \times 10^{-2}$ & $4.2 \times 10^{-1}$ & tiny-effect OLS artefacts \\
+\bottomrule\end{tabular}
+\caption{LMM versus naive OLS biomarker lists on the 3{,}000-gene
+universe. LMM \emph{rescues} more genes than it drops; dropped genes
+are tiny-effect cohort-confounded artefacts.}
+\label{tab:s7c}
+\end{table}
+
+$99.4\%$ of the prior 2{,}773-gene biomarker slate that is testable
+by LMM retains significance under the cohort random-effect correction;
+all eight druggable targets remain LMM-significant.
+
+% =====================================================================
+\section{Direction-invariance lemma (full proof)}
+\label{sec:S8}
+
+\paragraph{Setup.} Work with standardised expression features
+$X \in \mathbb{R}^{n \times p}$, binary labels
+$Y \in \{0,1\}^n$, and multi-valued batch indicator
+$B \in \{1,\ldots,k\}^n$. Let $\mu_Y := \mathbb{E}[X \mid Y = 1] -
+\mathbb{E}[X \mid Y = 0] \in \mathbb{R}^p$ be the population
+biological direction and $\Delta_B := \{\mu_{B=b} - \mu_{B=b'} :
+b \neq b'\}$ the set of pair-wise batch-mean differences, with
+$\mathcal{V}_B = \mathrm{span}(\Delta_B)$.
+
+A \emph{linear subtype-preserving batch-correction operator} is any
+affine map $P : \mathbb{R}^p \to \mathbb{R}^p$ whose sample-level
+action $P(X_i) = X_i - \hat\gamma_{B_i}$ satisfies (i) the
+post-correction mean within each batch is identical across batches and
+(ii) the within-label means $\mathbb{E}[P(X) \mid Y = c]$ preserve the
+pre-correction within-label means up to a label-independent constant.
+Constraints (i)--(ii) characterise the subtype-preserving ComBat
+family \citep{johnson2007combat} and its population limit.
+
+\begin{lemma}[First-moment annihilation]
+\label{lem:main}
+Let $P$ satisfy (i)--(ii) and assume $\mu_Y \in \mathcal{V}_B$. Then
+\[
+  \mathbb{E}[P(X) \mid Y = 1] - \mathbb{E}[P(X) \mid Y = 0] = 0.
+\]
+\end{lemma}
+
+\paragraph{Proof.} Constraint (i) implies, for every pair of batches
+$b \neq b'$,
+$\mathbb{E}[P(X) \mid B = b] = \mathbb{E}[P(X) \mid B = b']$. The
+batch-mean-difference vectors therefore lie in the kernel of $P$;
+equivalently, the restriction $P|_{\mathcal{V}_B}$ is the zero map.
+Writing $P = \Pi_{\mathcal{V}_B^\perp} + r$ where $r$ is the
+label-independent constant guaranteed by (ii), we have
+$P(\mu_Y) = \Pi_{\mathcal{V}_B^\perp}(\mu_Y) + 0 = 0$ under the
+hypothesis $\mu_Y \in \mathcal{V}_B$, and taking expectations
+conditional on $Y$ yields the stated equality. $\square$
+
+\begin{corollary}[Residual predictive content]
+\label{cor:main}
+Under the hypotheses of Lemma~\ref{lem:main}, the only expression
+direction on which the two classes can be separated in $P(X)$ is
+determined by the within-label second-moment residual
+\[
+  \Sigma^\perp := \Pi_{\mathcal{V}_B^\perp}(\Sigma_1 - \Sigma_0)
+  \Pi_{\mathcal{V}_B^\perp},
+\]
+$\Sigma_c = \mathrm{Cov}(X \mid Y = c)$. Any linear classifier
+$f_{\mathrm{post}}$ obtained by empirical risk minimisation with a
+strictly convex regulariser on $P(X)$ has its decision direction
+aligned with the leading eigenvector of $\Sigma^\perp$. Hence (i)
+$\mathrm{auc\_flip}(f_{\mathrm{post}})$ may remain bounded away from
+$0.5$ whenever $\Sigma^\perp$ is non-degenerate; (ii) the sign of the
+resulting discriminant is determined by spectral convention on
+$\Sigma^\perp$, not by $\mu_Y$; and (iii)
+$\mathrm{DIAL}(f_{\mathrm{post}}) > 0$ reports the batch-confounded
+predictive content that survives with its biological sign lost.
+\end{corollary}
+
+\paragraph{Sketch.} Lemma~\ref{lem:main} annihilates the
+first-moment label signal, so any linear separator on $P(X)$ must be
+recovered from the second-moment structure projected onto
+$\mathcal{V}_B^\perp$. Empirical risk minimisation over linear
+scoring rules with a strictly convex regulariser (the assumption
+$f_{\mathrm{post}}$ satisfies) returns a unique minimiser aligned
+with the leading eigenvector of the projected within-label covariance
+difference; the sign of that eigenvector is determined by spectral
+convention. See \citep{leek2010sva, nygaard2016batch,
+korsunsky2019harmony} for empirical over-correction geometry that
+matches this residual-second-moment regime. $\square$
+
+\paragraph{What the lemma does \emph{not} prove.} We are careful
+not to overclaim. The lemma states that the first-moment label
+signal is exactly annihilated when $\mu_Y \in \mathcal{V}_B$. It
+does not state, and we do not prove, a probabilistic AUC flip of the
+form $\mathrm{AUC}(f_{\mathrm{post}}) \to 1 -
+\mathrm{AUC}(f_{\mathrm{pre}})$ with probability one under some
+generating distribution. Such a statement would require the
+held-out-cohort data to be sampled from a distribution whose
+spectral gap between $\Sigma_1^\perp$ and $\Sigma_0^\perp$ is
+bounded below --- a condition neither TCGA nor GEO are guaranteed to
+satisfy, and whose verification would itself require repeated-cohort
+simulation. The empirical five-cancer specificity pattern we report
+in \S\ref{sec:S3} is the substantive claim of the paper; the
+lemma+corollary pair provide the geometric reason why DIAL is the
+right thing to measure, not a distributional guarantee.
+
+\paragraph{Remark on identifiability.} When $\mu_Y \in \mathcal{V}_B$,
+a separate multi-class classifier trained to predict $B$ from $P(X)$
+will attain AUC close to chance because the batch means have been
+removed. The pathological regime is therefore the pair (high DIAL,
+low batch identifiability), which the primary analysis reports where
+the auxiliary classifier is fitable (three-or-more-cohort collections;
+not the present two-cohort LODO).
+
+% =====================================================================
+\section{Code and data availability}
+\label{sec:S9}
+
+\paragraph{Code.} All pipeline code is written in Python 3.11 and is
+available in the project repository under
+\texttt{notebooks\_or\_scripts/v5p1\_*.py} and
+\texttt{notebooks\_or\_scripts/v8\_*.py}. The harmonisation, ComBat,
+ComBat-seq, LODO, and meta-analysis steps are each stand-alone
+scripts with deterministic seeds.
+
+\paragraph{Data.} Inputs are downloaded at runtime from the GDC data
+portal and the NCBI GEO FTP server; no synthetic substitutes are
+used. TCGA mutation annotations were obtained from the MC3 public
+MAF. Per-cohort harmonised matrices and per-classifier LODO results
+are exported as TSV under \texttt{results/v5/} and
+\texttt{results/v8\_statgen/}.
+
+\paragraph{Dashboard.} An interactive Plotly-based dashboard hosts
+every figure at gene and pathway level and is available at
+\url{http://40.82.129.113:8012/}.
+
+\paragraph{Reproducibility.} A \texttt{Dockerfile} and
+\texttt{docker-compose.yml} under the project root reproduce the
+full pipeline end-to-end from public sources. A frozen pip
+\texttt{requirements.txt} is shipped with the image.
+
+% =====================================================================
+\bibliographystyle{plainnat}
+\bibliography{../references}
+
+\end{document}

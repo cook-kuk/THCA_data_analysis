@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07132b">
+  <title>{{ title }}</title>
+  <meta name="description" content="{{ subtitle }}">
+  <meta property="og:title" content="{{ title }}">
+  <meta property="og:description" content="{{ subtitle }}">
+  <meta property="og:image" content="{{ root_prefix }}assets/img/og_card.png">
+  <link rel="icon" href="{{ root_prefix }}assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="{{ root_prefix }}assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ root_prefix }}assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ root_prefix }}assets/css/main.css">
+  <script src="{{ root_prefix }}assets/vendor/tailwind.min.js" defer></script>
+  <script>
+    (function(){ try{ if(localStorage.getItem('thyroid-theme')==='light') document.documentElement.classList.add('light-pending'); }catch(e){} })();
+    window.addEventListener('error', function(e){
+      if(e.target && e.target.tagName==='SCRIPT' && e.target.dataset.fallback){ var s=document.createElement('script'); s.src=e.target.dataset.fallback; document.head.appendChild(s); }
+    }, true);
+  </script>
+</head>
+<body class="dark">
+  <a class="sr-only" href="#main-content">본문으로 건너뛰기</a>
+  <div id="command-palette" class="palette" role="dialog" aria-modal="true" aria-label="명령 팔레트">
+    <div class="palette-card glass">
+      <div class="subtle mono">Cmd+K / Ctrl+K</div>
+      <input id="palette-input" type="text" placeholder="페이지, 섹션, 조직학 검색" aria-label="검색" autocomplete="off" spellcheck="false">
+      <div id="palette-results" class="palette-results"></div>
+    </div>
+  </div>
+  <div id="figure-modal" class="figure-modal hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="figure-modal-title">
+    <div class="figure-modal-backdrop" data-figure-close="1" aria-hidden="true"></div>
+    <div class="figure-modal-card glass">
+      <div class="figure-modal-header">
+        <strong id="figure-modal-title">인터랙티브 Figure</strong>
+        <div class="figure-modal-actions">
+          <a id="figure-modal-open" class="btn sm" href="#" target="_blank" rel="noopener" aria-label="새 탭으로 열기">새 탭</a>
+          <a id="figure-modal-png" class="btn sm" href="#" target="_blank" rel="noopener" aria-label="PNG 다운로드">PNG</a>
+          <a id="figure-modal-tsv" class="btn sm" href="#" target="_blank" rel="noopener" aria-label="TSV 다운로드">TSV</a>
+          <button id="figure-modal-copy" class="btn sm" type="button" aria-label="링크 복사">링크 복사</button>
+          <button id="figure-modal-fullscreen" class="btn sm" type="button" aria-label="전체화면">전체화면</button>
+          <button class="btn sm" type="button" data-figure-close="1" aria-label="닫기">닫기</button>
+        </div>
+      </div>
+      <iframe id="figure-modal-frame" class="figure-modal-frame" title="interactive figure"></iframe>
+    </div>
+  </div>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="{{ root_prefix }}index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar">
+        {% for item in nav_items %}<a class="nav-link{% if item.href == current_href %} active{% endif %}" href="{{ item.href }}" role="menuitem">{{ item.label }}</a>{% endfor %}
+      </div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+        <button class="btn sm ghost" type="button" data-copy-link="1" aria-label="현재 뷰 링크 복사">링크 복사 <span class="kbd">⌘K</span></button>
+        <button id="td-menu-toggle" class="menu-toggle" type="button" aria-controls="td-drawer" aria-expanded="false" aria-label="메뉴 열기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div id="td-drawer-backdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="td-drawer" class="drawer" aria-hidden="true" aria-label="모바일 메뉴">
+    <div class="drawer-header">
+      <strong>메뉴</strong>
+      <button class="btn sm ghost" type="button" id="td-drawer-close" onclick="document.getElementById('td-menu-toggle').click()" aria-label="메뉴 닫기">닫기</button>
+    </div>
+    {% for item in nav_items %}<a class="{% if item.href == current_href %}active{% endif %}" href="{{ item.href }}">{{ item.label }}</a>{% endfor %}
+  </aside>
+  <div class="layout">
+    <aside class="sidebar glass" aria-label="섹션 목차">
+      <h3>Section TOC</h3>
+      {% for section in sections %}<a href="#{{ section.id }}">{{ section.title }}</a>{% endfor %}
+    </aside>
+    <main class="content" id="main-content">
+      {% block body %}{% endblock %}
+      <footer class="footer glass" role="contentinfo">
+        <div>
+          <span class="mono">Build</span> {{ build_time }}
+          &nbsp;·&nbsp; <span class="mono">Hash</span> {{ git_hash }}
+          &nbsp;·&nbsp; {{ version.n_datasets }} datasets · {{ version.n_samples }} samples · {{ version.n_genes }} genes
+        </div>
+        <div><a href="{{ root_prefix }}pages/14_caveats.html">Methods &amp; Caveats</a></div>
+      </footer>
+    </main>
+    <aside class="toc glass" aria-label="퀵 점프">
+      <h3>Quick Jump</h3>
+      {% for section in sections %}<a href="#{{ section.id }}">{{ loop.index }}. {{ section.title }}</a>{% endfor %}
+    </aside>
+  </div>
+  <script src="{{ root_prefix }}assets/vendor/plotly.min.js"></script>
+  {% if asset_map.marked.status == 'ok' %}<script defer src="{{ root_prefix }}{{ asset_map.marked.local }}"></script>{% endif %}
+  <script>window.ThyroidDash = window.ThyroidDash || {}; window.ThyroidDash.commandIndex = {{ command_index|safe }};</script>
+  <script src="{{ root_prefix }}assets/js/plotly-theme.js"></script>
+  <script src="{{ root_prefix }}assets/js/main.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

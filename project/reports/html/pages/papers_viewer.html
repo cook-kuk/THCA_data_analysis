@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#000000">
+  <title>THYRAI — Interactive Papers Viewer</title>
+  <meta name="description" content="Inline-rendered viewer for the Bioinformatics (OUP) and AAAI submissions, all 8 publication figures, three formal proofs, and framing notes.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/jetbrains-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/brand.css">
+  <link rel="stylesheet" href="../assets/css/explain-bubble.css">
+  <style>
+    .tabs { display:flex; flex-wrap:wrap; gap:8px; border-bottom:1px solid var(--border); margin-bottom:24px; }
+    .tab {
+      padding:10px 18px; font-family:var(--font-mono); font-size:12px;
+      letter-spacing:0.1em; text-transform:uppercase;
+      background:transparent; color:var(--text-muted);
+      border:1px solid var(--border); border-bottom:none;
+      cursor:pointer; transition:color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+    }
+    .tab[aria-selected="true"] {
+      color:var(--accent); border-color:var(--accent);
+      background:var(--bg-1);
+    }
+    .tab:hover { color:var(--accent); }
+    .panel { display:none; }
+    .panel[aria-hidden="false"] { display:block; }
+    .pdf-frame {
+      width:100%; height:88vh; min-height:720px;
+      border:1px solid var(--border); background:#1a1a1a;
+    }
+    .pdf-bar {
+      display:flex; gap:8px; flex-wrap:wrap;
+      padding:12px 16px; background:var(--bg-1);
+      border:1px solid var(--border); border-bottom:none;
+      align-items:center;
+    }
+    .pdf-bar h3 { margin:0; font-size:14px; font-family:var(--font-mono); color:var(--text-secondary); letter-spacing:0.06em; }
+    .pdf-bar .spacer { flex:1; }
+    .lb-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; }
+    .lb-grid figure {
+      margin:0; background:var(--bg-1); border:1px solid var(--border);
+      cursor:zoom-in; transition:border-color var(--dur) var(--ease);
+    }
+    .lb-grid figure:hover { border-color:var(--accent); }
+    .lb-grid img { width:100%; display:block; background:#fff; }
+    .lb-grid figcaption { padding:10px 14px; font-size:13px; color:var(--text-secondary); }
+    .lb-grid figcaption strong { color:var(--accent); font-family:var(--font-mono); font-size:11px; letter-spacing:0.1em; }
+    .lightbox {
+      position:fixed; inset:0; background:rgba(0,0,0,0.92);
+      z-index:1000; display:none; align-items:center; justify-content:center;
+      padding:24px;
+    }
+    .lightbox[data-open="true"] { display:flex; }
+    .lightbox img { max-width:96%; max-height:90vh; background:#fff; }
+    .lightbox-close {
+      position:absolute; top:24px; right:24px;
+      background:transparent; border:1px solid var(--border-strong);
+      color:var(--text-primary);
+      width:40px; height:40px; cursor:pointer;
+      font-family:var(--font-mono); font-size:18px;
+    }
+    .lightbox-close:hover { border-color:var(--accent); color:var(--accent); }
+    .lightbox-caption {
+      position:absolute; bottom:24px; left:50%; transform:translateX(-50%);
+      color:var(--text-secondary); font-family:var(--font-mono);
+      font-size:13px; padding:8px 14px;
+      background:var(--bg-1); border:1px solid var(--border);
+    }
+    .md-viewer {
+      background:var(--bg-1); border:1px solid var(--border);
+      padding:32px; max-height:84vh; overflow-y:auto;
+      font-size:15px; line-height:1.65;
+    }
+    .md-viewer h1, .md-viewer h2, .md-viewer h3 {
+      color:var(--text-primary); margin-top:24px; font-weight:600;
+    }
+    .md-viewer h1 { font-size:22px; }
+    .md-viewer h2 { font-size:18px; }
+    .md-viewer h3 { font-size:16px; }
+    .md-viewer p, .md-viewer li { color:var(--text-secondary); }
+    .md-viewer code {
+      background:var(--bg-2); padding:2px 6px; font-family:var(--font-mono);
+      font-size:13px; color:var(--accent);
+    }
+    .md-viewer pre {
+      background:var(--bg-2); padding:14px 18px; overflow-x:auto;
+      border:1px solid var(--border);
+    }
+    .md-viewer table { border-collapse:collapse; width:100%; margin:16px 0; font-size:14px; }
+    .md-viewer th, .md-viewer td { padding:8px 12px; border:1px solid var(--border); text-align:left; }
+    .md-viewer blockquote { border-left:3px solid var(--accent); padding:0 16px; color:var(--text-muted); }
+    .doc-selector { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+    .doc-selector button {
+      padding:8px 14px; background:transparent;
+      border:1px solid var(--border); color:var(--text-secondary);
+      font-family:var(--font-mono); font-size:12px;
+      cursor:pointer; transition:border-color var(--dur) var(--ease);
+    }
+    .doc-selector button:hover, .doc-selector button[aria-pressed="true"] {
+      border-color:var(--accent); color:var(--accent);
+    }
+  </style>
+</head>
+<body class="thyrai">
+
+<nav class="topnav" aria-label="Primary">
+  <div class="topnav__inner">
+    <a class="topnav__brand" href="../index.html" aria-label="THYRAI home">
+      <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+    </a>
+    <ul class="topnav__links">
+      <li><a class="topnav__link" href="../pages/pipeline.html">Pipeline</a></li>
+      <li><a class="topnav__link" href="../pages/39_v5p1_real_data.html" style="color:#F5A623">v5.1 Audit</a></li>
+      <li><a class="topnav__link" aria-current="page" href="../pages/papers_archive.html" style="color:#58a6ff">📄 Papers</a></li>
+      <li><a class="topnav__link" href="../pages/v11_novel_pathways.html" style="color:#7ccfcd">Novel Pathways</a></li>
+      <li><a class="topnav__link" href="../pages/research_timeline.html">Timeline</a></li>
+      <li><a class="topnav__link" href="../pages/publications.html">Publications</a></li>
+      <li><a class="topnav__link" href="../pages/team.html">Team</a></li>
+      <li><a class="topnav__link" href="mailto:kukshomr@gmail.com?subject=THYRAI%20contact">Contact</a></li>
+    </ul>
+    <a class="topnav__cta" href="mailto:kukshomr@gmail.com?subject=THYRAI%20access%20request">Request Access</a>
+    <button class="topnav__hamburger" type="button" aria-label="Toggle navigation" aria-expanded="false"><span></span></button>
+  </div>
+</nav>
+
+<header class="page-header">
+  <div class="container">
+    <span class="eyebrow">Interactive viewer</span>
+    <h1>Browse both manuscripts inline.</h1>
+    <p class="page-header__subtitle">Bioinformatics (OUP) and AAAI 2027 drafts, all eight publication figures with lightbox, three formal proofs as standalone PDFs, framing notes, and every supporting artefact — rendered in-page.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
+      <a class="btn-ghost" href="papers_archive.html">← Papers index</a>
+      <a class="btn-ghost" href="../../v5/bioinformatics_submission/">Bioinformatics deep view</a>
+    </div>
+  </div>
+</header>
+
+<section class="section section--tight">
+  <div class="container">
+    <div style="margin-bottom:24px; padding:18px 22px; background:rgba(192,57,43,0.10); border-left:3px solid #c0392b; border-radius:6px; font-family:var(--font-mono); font-size:13px; color:#e06c5b;">
+      <b style="color:#c0392b">⚠ v5.2 SELF-AUDIT (2026-04-25):</b>
+      The v5.1 ``thyroid-specific batch_entanglement (DIAL = 0.494, 4-of-5)'' headline was an artefact of fitting ComBat on the full pooled X before the LODO split. Under proper per-fold ComBat THCA returns DIAL = 0.000 / true_biology for all five classifiers (ΔDIAL = −0.494). The OUP PDFs below are rewritten to report this honestly. See the <b style="color:#c0392b">v5.2 fix</b> tab for the corrected pipeline.
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" aria-selected="true"  data-tab="oup">📑 Bioinformatics (OUP, v5.2 reframe)</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="v5p2" style="color:#c0392b;border-color:#c0392b">⚠ v5.2 fix</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="aaai">📑 AAAI 2027</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="figs">🖼 Figures (lightbox)</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="proofs">📐 Formal proofs</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="framing">📝 Framing notes</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="data">📊 Data &amp; scripts</button>
+    </div>
+
+    <div class="panel" role="tabpanel" data-panel="v5p2" aria-hidden="true">
+      <p style="color:var(--text-secondary);max-width:80ch">v5.2 critical-assessment, corrected DIAL table, impact analysis, redesigned Table 1, and three reference scripts. The corrected matrix is the basis for the v5.2 reframe of the OUP submission.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:24px">
+        <div class="card-flat" style="border-left:3px solid #c0392b">
+          <span class="section-label" style="color:#c0392b">Verdict</span>
+          <h3 style="font-family:var(--font-sans);font-weight:600;font-size:18px;margin:8px 0">Pattern broken</h3>
+          <p>THCA flips from <code>4/5 batch_entangled</code> to <code>0/5</code> under proper LODO. ΔDIAL = −0.494 on LogReg-ℓ₂. <a href="../../v5p2/v5p2_critical_assessment.md">Read full assessment →</a></p>
+        </div>
+        <div class="card-flat">
+          <span class="section-label">Mechanism of the leak</span>
+          <h3 style="font-family:var(--font-sans);font-weight:600;font-size:18px;margin:8px 0">EB priors saw test rows</h3>
+          <p>v5.1 fit ComBat on full pooled X before LODO split; the empirical-Bayes priors borrowed strength across all samples, including the held-out cohort. Honest fix: per-fold <code>LinearComBat.fit/transform</code>.</p>
+        </div>
+        <div class="card-flat">
+          <span class="section-label">Other cancers</span>
+          <h3 style="font-family:var(--font-sans);font-weight:600;font-size:18px;margin:8px 0">Unchanged</h3>
+          <p>SKCM/LGG/LUAD/COAD: 0/20 batch_entangled in both v5.1 and v5.2. Mean |ΔDIAL| on these 16 directly comparable rows = 0.000.</p>
+        </div>
+      </div>
+      <ul class="report-list" style="margin-top:32px">
+        <li><a href="../../v5p2/v5p2_critical_assessment.md"><span>v5.2 critical assessment (full text)</span><span class="report-list__date">MD &rarr;</span></a></li>
+        <li><a href="../../../results/v5p2_fix/v5p2_dial_proper_lodo.tsv"><span>v5.2 corrected DIAL — 25 rows, per-fold ComBat</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5p2_fix/v5p2_dial_all_cancers.tsv"><span>v5.2 DIAL all cancers</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5p2_fix/v5p2_lodo_comparison.tsv"><span>v5.1 vs v5.2 side-by-side</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5p2_fix/v5p2_impact_analysis.md"><span>v5.2 impact analysis (per-row deltas)</span><span class="report-list__date">MD &rarr;</span></a></li>
+        <li><a href="../../../results/v5p2_fix/cohort_availability_detailed.tsv"><span>v5.2 cohort availability (redesigned)</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5p2_fix/table1_redesigned.tsv"><span>v5.2 Table 1 redesigned (TSV)</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../v5p2/table1_redesigned.tex"><span>v5.2 Table 1 redesigned (TeX)</span><span class="report-list__date">TEX &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p2_combat_lodo.py"><span>v5p2_combat_lodo.py — LinearComBat.fit/transform reference</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p2_dial_proper.py"><span>v5p2_dial_proper.py — re-run DIAL with proper LODO</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p2_table1_redesign.py"><span>v5p2_table1_redesign.py — Table 1 schema fix</span><span class="report-list__date">PY &rarr;</span></a></li>
+      </ul>
+    </div>
+
+    <div class="panel" role="tabpanel" data-panel="oup" aria-hidden="false">
+      <div class="pdf-bar">
+        <h3>Bioinformatics — Main · 19 pages · 5,597 words</h3>
+        <span class="spacer"></span>
+        <a class="btn-ghost" href="../../v5/bioinformatics_submission/main.pdf" target="_blank">New tab</a>
+        <a class="btn-ghost" href="../../v5/bioinformatics_submission/main.pdf" download>Download</a>
+      </div>
+      <iframe class="pdf-frame" src="../../v5/bioinformatics_submission/main.pdf#view=FitH" title="Bioinformatics main"></iframe>
+      <div class="pdf-bar" style="margin-top:24px">
+        <h3>Supplementary — S1–S9 · 9 pages</h3>
+        <span class="spacer"></span>
+        <a class="btn-ghost" href="../../v5/bioinformatics_submission/supplementary/supplementary.pdf" target="_blank">New tab</a>
+        <a class="btn-ghost" href="../../v5/bioinformatics_submission/supplementary/supplementary.pdf" download>Download</a>
+      </div>
+      <iframe class="pdf-frame" src="../../v5/bioinformatics_submission/supplementary/supplementary.pdf#view=FitH" title="Bioinformatics supplementary"></iframe>
+    </div>
+
+    <div class="panel" role="tabpanel" data-panel="aaai" aria-hidden="true">
+      <div class="pdf-bar">
+        <h3>AAAI 2027 v0 — Direction-Invariant Auditing with Classical &amp; Quantum Bounds</h3>
+        <span class="spacer"></span>
+        <a class="btn-ghost" href="../../v10_aaai/aaai_paper_v0.pdf" target="_blank">New tab</a>
+        <a class="btn-ghost" href="../../v10_aaai/aaai_paper_v0.pdf" download>Download</a>
+        <a class="btn-ghost" href="../../v10_aaai/aaai_paper_v0.tex" target="_blank">TeX</a>
+      </div>
+      <iframe class="pdf-frame" src="../../v10_aaai/aaai_paper_v0.pdf#view=FitH" title="AAAI 2027 v0 paper"></iframe>
+      <p style="margin-top:24px;color:var(--text-muted);font-size:14px">
+        Companion artefacts:
+        <a href="../../v10_aaai/aaai_covariate_shift_framing.md">covariate-shift framing</a> ·
+        <a href="../../v10_aaai/aaai_related_work.md">related work</a> ·
+        <a href="../../../results/v10_aaai/quantum_bound/bound_verification.html">quantum-bound verification (Plotly)</a> ·
+        <a href="../../../results/v10_aaai/synthetic_benchmark/phase_diagram.html">phase diagram (Plotly)</a>
+      </p>
+    </div>
+
+    <div class="panel" role="tabpanel" data-panel="figs" aria-hidden="true">
+      <p style="color:var(--text-secondary);max-width:78ch">Click any figure to open in a lightbox. Vector PDFs reachable via the caption link.</p>
+      <div class="lb-grid" id="lb-grid">
+        <figure data-src="../../v5/bioinformatics_submission/figures/fig1_heatmap.png" data-cap="Fig 1 · 5×5 interpretation matrix">
+          <img src="../../v5/bioinformatics_submission/figures/fig1_heatmap.png" alt="Fig 1">
+          <figcaption><strong>Fig 1 · Heatmap</strong><br><a href="../../v5/bioinformatics_submission/figures/fig1_heatmap.pdf">PDF</a></figcaption>
+        </figure>
+        <figure data-src="../../v5/bioinformatics_submission/figures/fig2_scatter.png" data-cap="Fig 2 · AUC pre vs post (25 cells)">
+          <img src="../../v5/bioinformatics_submission/figures/fig2_scatter.png" alt="Fig 2">
+          <figcaption><strong>Fig 2 · Scatter</strong><br><a href="../../v5/bioinformatics_submission/figures/fig2_scatter.pdf">PDF</a></figcaption>
+        </figure>
+        <figure data-src="../../v5/bioinformatics_submission/figures/fig3_flip_geom.png" data-cap="Fig 3 · Schematic flip geometry">
+          <img src="../../v5/bioinformatics_submission/figures/fig3_flip_geom.png" alt="Fig 3">
+          <figcaption><strong>Fig 3 · Flip geometry</strong><br><a href="../../v5/bioinformatics_submission/figures/fig3_flip_geom.pdf">PDF</a></figcaption>
+        </figure>
+        <figure data-src="../../v5/bioinformatics_submission/figures/fig4_combatseq.png" data-cap="Fig 4 · ComBat vs ComBat-seq">
+          <img src="../../v5/bioinformatics_submission/figures/fig4_combatseq.png" alt="Fig 4">
+          <figcaption><strong>Fig 4 · ComBat-seq</strong><br><a href="../../v5/bioinformatics_submission/figures/fig4_combatseq.pdf">PDF</a></figcaption>
+        </figure>
+        <figure data-src="../../v5/bioinformatics_submission/figures/fig5_forest.png" data-cap="Fig 5 · Random-effects meta-analysis forest plot">
+          <img src="../../v5/bioinformatics_submission/figures/fig5_forest.png" alt="Fig 5">
+          <figcaption><strong>Fig 5 · Forest</strong><br><a href="../../v5/bioinformatics_submission/figures/fig5_forest.pdf">PDF</a></figcaption>
+        </figure>
+        <figure data-src="../../v5/bioinformatics_submission/figures/fig6_mechanism.png" data-cap="Fig 6 · Real PCA + KS + FastRNA centering">
+          <img src="../../v5/bioinformatics_submission/figures/fig6_mechanism.png" alt="Fig 6">
+          <figcaption><strong>Fig 6 · Mechanism</strong><br><a href="../../v5/bioinformatics_submission/figures/fig6_mechanism.pdf">PDF</a></figcaption>
+        </figure>
+        <figure data-src="../../v5/bioinformatics_submission/figures/fig7_pathway.png" data-cap="Fig 7 · Per-pathway DIAL on 50 Hallmark sets">
+          <img src="../../v5/bioinformatics_submission/figures/fig7_pathway.png" alt="Fig 7">
+          <figcaption><strong>Fig 7 · Pathway</strong><br><a href="../../v5/bioinformatics_submission/figures/fig7_pathway.pdf">PDF</a></figcaption>
+        </figure>
+        <figure data-src="../../v5/bioinformatics_submission/figures/fig8_quantum.png" data-cap="Fig 8 · Quantum + classical DIAL grid">
+          <img src="../../v5/bioinformatics_submission/figures/fig8_quantum.png" alt="Fig 8">
+          <figcaption><strong>Fig 8 · Quantum</strong><br><a href="../../v5/bioinformatics_submission/figures/fig8_quantum.pdf">PDF</a></figcaption>
+        </figure>
+        <figure data-src="../../../results/v10_aaai/synthetic_benchmark/predicted_vs_observed_DIAL.png" data-cap="AAAI · Theorem 1 numerical: predicted vs observed DIAL on synthetic benchmark">
+          <img src="../../../results/v10_aaai/synthetic_benchmark/predicted_vs_observed_DIAL.png" alt="AAAI synth">
+          <figcaption><strong>AAAI · Synthetic</strong><br><a href="../../../results/v10_aaai/synthetic_benchmark/grid_results.tsv">grid TSV</a></figcaption>
+        </figure>
+      </div>
+      <p style="margin-top:24px;color:var(--text-muted);font-size:13px">
+        Plotly interactive versions:
+        <a href="../figs_interactive/v8/fig1_forest_mvalues.html">forest m-values</a> ·
+        <a href="../figs_interactive/v8/fig2_combatseq_bar.html">ComBat-seq bars</a> ·
+        <a href="../figs_interactive/v8/fig3_pathway_heatmap.html">pathway heatmap</a> ·
+        <a href="../figs_interactive/v8/fig4_cohort_centering.html">cohort centering</a> ·
+        <a href="../figs_interactive/v8/fig5_quantum_grid.html">quantum grid</a> ·
+        <a href="../figs_interactive/v8/fig6_LMM_scatter.html">LMM scatter</a> ·
+        <a href="../../../results/v10_aaai/quantum_bound/bound_verification.html">AAAI quantum bound</a> ·
+        <a href="../../../results/v10_aaai/quantum_bound/zz_markov_check.html">AAAI ZZ Markov</a> ·
+        <a href="../../../results/v10_aaai/synthetic_benchmark/phase_diagram.html">AAAI phase diagram</a>
+      </p>
+    </div>
+
+    <div class="panel" role="tabpanel" data-panel="proofs" aria-hidden="true">
+      <div class="doc-selector" id="proof-selector">
+        <button data-pdf="../../v10_aaai/proofs/theorem1_setup.pdf" data-tex="../../v10_aaai/proofs/theorem1_setup.tex" aria-pressed="true">Theorem 1 — Setup</button>
+        <button data-pdf="../../v10_aaai/proofs/theorem1_proof.pdf" data-tex="../../v10_aaai/proofs/theorem1_proof.tex">Theorem 1 — Proof</button>
+        <button data-pdf="../../v10_aaai/proofs/proposition2_quantum_bound.pdf" data-tex="../../v10_aaai/proofs/proposition2_quantum_bound.tex">Proposition 2 — Quantum bound</button>
+      </div>
+      <div class="pdf-bar">
+        <h3 id="proof-title">Theorem 1 — Setup</h3>
+        <span class="spacer"></span>
+        <a class="btn-ghost" id="proof-open" href="../../v10_aaai/proofs/theorem1_setup.pdf" target="_blank">New tab</a>
+        <a class="btn-ghost" id="proof-tex" href="../../v10_aaai/proofs/theorem1_setup.tex" target="_blank">TeX</a>
+      </div>
+      <iframe class="pdf-frame" id="proof-frame" src="../../v10_aaai/proofs/theorem1_setup.pdf#view=FitH" title="Proof"></iframe>
+      <p style="margin-top:24px;color:var(--text-muted);font-size:13px">
+        Companion v15 NeurIPS proof drafts (Theorem 2 — Unified shift decomposition):
+        <a href="../../v15_neurips/proofs/theorem2_setup.tex">theorem2_setup.tex</a> ·
+        <a href="../../v15_neurips/proofs/theorem2_proof.tex">theorem2_proof.tex</a>
+      </p>
+    </div>
+
+    <div class="panel" role="tabpanel" data-panel="framing" aria-hidden="true">
+      <div class="doc-selector" id="md-selector">
+        <button data-md="../../v10_aaai/aaai_covariate_shift_framing.md" aria-pressed="true">DIAL in covariate-shift taxonomy</button>
+        <button data-md="../../v10_aaai/aaai_related_work.md">AAAI related work</button>
+        <button data-md="../../v8/v8_supplementary.md">v8 statgen supplement (S1–S6)</button>
+        <button data-md="../../v5/v5p1_change_log.md">v5.1 change log</button>
+        <button data-md="../../v4_honest_audit.md">v4 honest audit</button>
+        <button data-md="../../v5_synthesis.md">v5 synthesis</button>
+        <button data-md="../../v5_upgraded_paper_outline.md">v5 paper outline</button>
+        <button data-md="../../paper_outline_v3.md">v3 paper outline</button>
+        <button data-md="../../v8/v8_section_S8_hanlab.md">v8 §S8 Han-lab methodology</button>
+        <button data-md="../../v11/v11_paper_section.md">v11 paper section</button>
+        <button data-md="../../v12/v12_biology_narrative.md">v12 biology narrative</button>
+        <button data-md="../../v13/v13_paper_section.md">v13 paper section</button>
+        <button data-md="../../v13/v13_trop2_standalone_draft.md">v13 TROP2 standalone</button>
+        <button data-md="../../v14/v14_ccle_section.md">v14 CCLE section</button>
+        <button data-md="../../v14/v14_impact_summary.md">v14 impact summary</button>
+        <button data-md="../../v7/v7_repurposing_section.md">v7 repurposing section</button>
+        <button data-md="../../external_validation_v3.md">v3 external validation</button>
+        <button data-md="../../biomarker_to_drug_report.md">biomarker → drug report</button>
+        <button data-md="../../v4_synthesis.md">v4 synthesis</button>
+        <button data-md="../../v4_combat_rescue.md">v4 ComBat rescue</button>
+        <button data-md="../../v4_bethesda_clinical.md">v4 Bethesda clinical</button>
+        <button data-md="../../v5_adversarial_method_card.md">v5 adversarial method card</button>
+        <button data-md="../../v5_robust_targets.md">v5 robust targets</button>
+        <button data-md="../../v5_cross_cancer_generalization.md">v5 cross-cancer (retracted)</button>
+        <button data-md="../../../results/v8_statgen/v8_LMM_analysis.md">v8 LMM analysis</button>
+        <button data-md="../../../results/v8_statgen/v8_pathway_deep_analysis.md">v8 pathway deep analysis</button>
+      </div>
+      <div class="md-viewer" id="md-viewer">
+        <p style="color:var(--text-muted)">Loading…</p>
+      </div>
+    </div>
+
+    <div class="panel" role="tabpanel" data-panel="data" aria-hidden="true">
+      <span class="section-label">Source TSV — primary</span>
+      <ul class="report-list" style="margin-bottom:32px">
+        <li><a href="../../../results/v5/v5p1_dial_all_cancers.tsv"><span>v5p1 · DIAL across 25 cells</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_cohort_availability.tsv"><span>v5p1 · cohort availability</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_harmonization.tsv"><span>v5p1 · harmonisation</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_linearity_gap.tsv"><span>v5p1 · linearity gap</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_tcga_mutation_groups.tsv"><span>v5p1 · TCGA mutation labels</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_dial_THCA.tsv"><span>v5p1 · DIAL THCA</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_dial_SKCM.tsv"><span>v5p1 · DIAL SKCM</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_dial_LGG.tsv"><span>v5p1 · DIAL LGG</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_dial_LUAD.tsv"><span>v5p1 · DIAL LUAD</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v5/v5p1_dial_COAD.tsv"><span>v5p1 · DIAL COAD</span><span class="report-list__date">TSV &rarr;</span></a></li>
+      </ul>
+
+      <span class="section-label">Source TSV — v8 robustness</span>
+      <ul class="report-list" style="margin-bottom:32px">
+        <li><a href="../../../results/v8_statgen/v8_combatseq_vs_combat.tsv"><span>v8 · ComBat-seq vs ComBat (Fig 4)</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_metasoft_results.tsv"><span>v8 · METASOFT results (Table S3)</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_metasoft_forest_data.tsv"><span>v8 · METASOFT forest (Fig 5)</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_pathway_perpath_dial.tsv"><span>v8 · per-pathway DIAL (Fig 7)</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_pathway_dial.tsv"><span>v8 · pooled pathway DIAL</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_pathway_vs_gene.tsv"><span>v8 · pathway vs gene</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_pathway_activity_THCA.tsv"><span>v8 · ssGSEA Hallmark THCA</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_biomarker_DE_recomputation.tsv"><span>v8 · DESeq2 recomputation</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_biomarker_DE_summary.tsv"><span>v8 · DE summary</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_druggable8_retention.tsv"><span>v8 · druggable8 retention</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_quantum_comparison.tsv"><span>v8 · quantum comparison (Fig 8)</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_fastRNA_style_dial.tsv"><span>v8 · FastRNA centering</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_buhmbox_concept_check.tsv"><span>v8 · BUHMBOX KS</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v8_statgen/v8_LMM_corrected_biomarkers.tsv"><span>v8 · LMM-corrected biomarkers</span><span class="report-list__date">TSV &rarr;</span></a></li>
+      </ul>
+
+      <span class="section-label">Source TSV — v10 AAAI experiments</span>
+      <ul class="report-list" style="margin-bottom:32px">
+        <li><a href="../../../results/v10_aaai/quantum_bound/alignment_probability_vs_qubits.tsv"><span>v10 · quantum bound — alignment vs qubits</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v10_aaai/quantum_bound/zz_markov_check.tsv"><span>v10 · quantum bound — ZZ Markov</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v10_aaai/synthetic_benchmark/grid_results.tsv"><span>v10 · synthetic benchmark grid</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../results/v10_aaai/synthetic_benchmark/theorem1_numerical.tsv"><span>v10 · theorem 1 numerical</span><span class="report-list__date">TSV &rarr;</span></a></li>
+      </ul>
+
+      <span class="section-label">Source matrices (NPZ + Y/B)</span>
+      <ul class="report-list" style="margin-bottom:32px">
+        <li><a href="../../../data_processed/v5_cross_cancer/THCA/X_combined.npz"><span>THCA · X_combined.npz (392 × 11,710)</span><span class="report-list__date">NPZ &rarr;</span></a></li>
+        <li><a href="../../../data_processed/v5_cross_cancer/THCA/Y.tsv"><span>THCA · Y.tsv</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../data_processed/v5_cross_cancer/THCA/B.tsv"><span>THCA · B.tsv</span><span class="report-list__date">TSV &rarr;</span></a></li>
+        <li><a href="../../../data_processed/v5_cross_cancer/SKCM/"><span>SKCM directory</span><span class="report-list__date">DIR &rarr;</span></a></li>
+        <li><a href="../../../data_processed/v5_cross_cancer/LGG/"><span>LGG directory</span><span class="report-list__date">DIR &rarr;</span></a></li>
+        <li><a href="../../../data_processed/v5_cross_cancer/LUAD/"><span>LUAD directory</span><span class="report-list__date">DIR &rarr;</span></a></li>
+        <li><a href="../../../data_processed/v5_cross_cancer/COAD/"><span>COAD directory</span><span class="report-list__date">DIR &rarr;</span></a></li>
+      </ul>
+
+      <span class="section-label">Scripts</span>
+      <ul class="report-list">
+        <li><a href="../../../notebooks_or_scripts/bioinformatics_figures.py"><span>bioinformatics_figures.py</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p1_orchestrator.py"><span>v5p1_orchestrator.py</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p1_download_real.py"><span>v5p1_download_real.py</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p1_harmonize.py"><span>v5p1_harmonize.py</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p1_dial.py"><span>v5p1_dial.py</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p1_figures.py"><span>v5p1_figures.py</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v5p1_paper.py"><span>v5p1_paper.py</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_combatseq_thca.py"><span>v8_combatseq_thca.py — S2</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_metasoft.py"><span>v8_metasoft.py — S3</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_pathway_dial.py"><span>v8_pathway_dial.py — S4</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_pathway_deep.py"><span>v8_pathway_deep.py — S4 deep</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_deseq2_thca.py"><span>v8_deseq2_thca.py — S5</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_quantum_dial.py"><span>v8_quantum_dial.py — S6</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_fastRNA_thca.py"><span>v8_fastRNA_thca.py — S7.1</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_buhmbox_thca.py"><span>v8_buhmbox_thca.py — S7.2</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v8_LMM_biomarkers.py"><span>v8_LMM_biomarkers.py — S7.3</span><span class="report-list__date">PY &rarr;</span></a></li>
+        <li><a href="../../../notebooks_or_scripts/v10_theorem1_numerical.py"><span>v10_theorem1_numerical.py — AAAI synthetic benchmark</span><span class="report-list__date">PY &rarr;</span></a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="lightbox" data-open="false" id="lightbox">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Close">×</button>
+  <img id="lightbox-img" alt="">
+  <div class="lightbox-caption" id="lightbox-cap"></div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__col site-footer__brand">
+        <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+        <p>Research dashboard for computational thyroid-cancer triage. Computational triage only. Not medical advice.</p>
+      </div>
+      <div class="site-footer__col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="../pages/platform_omega.html">OMEGA-THCA</a></li>
+          <li><a href="../pages/platform_chem.html">CHEM-THCA</a></li>
+          <li><a href="../pages/platform_panel.html">PANEL-THCA</a></li>
+          <li><a href="../pages/platform_clinic.html">CLINIC-THCA</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Research</h4>
+        <ul>
+          <li><a href="../pages/pipeline.html">Pipeline</a></li>
+          <li><a href="../pages/papers_archive.html">Papers</a></li>
+          <li><a href="../pages/papers_viewer.html">Interactive viewer</a></li>
+          <li><a href="../pages/publications.html">Publications</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Contact</h4>
+        <ul>
+          <li><a href="mailto:kukshomr@gmail.com">kukshomr@gmail.com</a></li>
+          <li><a href="../pages/team.html">Team</a></li>
+          <li><a href="mailto:kukshomr@gmail.com?subject=THYRAI%20licensing">Licensing</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer__meta">
+      <span>&copy; 2026 THYRAI Research</span>
+      <span class="site-footer__disclaimer">Visual system inspired by modern biotech platform conventions. Not affiliated with any drug-discovery AI company.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@13/lib/marked.umd.min.js"></script>
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.panel');
+  tabs.forEach(t => t.addEventListener('click', () => {
+    const k = t.dataset.tab;
+    tabs.forEach(x => x.setAttribute('aria-selected', x === t ? 'true' : 'false'));
+    panels.forEach(p => p.setAttribute('aria-hidden', p.dataset.panel === k ? 'false' : 'true'));
+  }));
+
+  const lb = document.getElementById('lightbox');
+  const lbImg = document.getElementById('lightbox-img');
+  const lbCap = document.getElementById('lightbox-cap');
+  document.querySelectorAll('#lb-grid figure').forEach(f => {
+    f.addEventListener('click', e => {
+      if (e.target.tagName === 'A') return;
+      lbImg.src = f.dataset.src;
+      lbCap.textContent = f.dataset.cap;
+      lb.dataset.open = 'true';
+    });
+  });
+  document.getElementById('lightbox-close').addEventListener('click', () => lb.dataset.open = 'false');
+  lb.addEventListener('click', e => { if (e.target === lb) lb.dataset.open = 'false'; });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.dataset.open = 'false'; });
+
+  const proofSel = document.getElementById('proof-selector');
+  const proofFrame = document.getElementById('proof-frame');
+  const proofTitle = document.getElementById('proof-title');
+  const proofOpen = document.getElementById('proof-open');
+  const proofTex = document.getElementById('proof-tex');
+  proofSel.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    proofSel.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    proofFrame.src = b.dataset.pdf + '#view=FitH';
+    proofTitle.textContent = b.textContent;
+    proofOpen.href = b.dataset.pdf;
+    proofTex.href = b.dataset.tex;
+  }));
+
+  const mdSel = document.getElementById('md-selector');
+  const mdView = document.getElementById('md-viewer');
+  async function loadMd(url) {
+    mdView.innerHTML = '<p style="color:var(--text-muted)">Loading…</p>';
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(resp.status);
+      const txt = await resp.text();
+      mdView.innerHTML = marked.parse(txt);
+    } catch (e) {
+      mdView.innerHTML = '<p style="color:var(--text-muted)">Failed to load: <code>' + url + '</code></p>';
+    }
+  }
+  mdSel.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    mdSel.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    loadMd(b.dataset.md);
+  }));
+  loadMd(mdSel.querySelector('button[aria-pressed="true"]').dataset.md);
+</script>
+
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07132b">
+  <title>CMap 약물 리버스 · PPI 네트워크 | THCA Multi-Omics Dashboard</title>
+  <meta name="description" content="Connectivity Map 스타일 약물 역전 후보 + 문헌 기반 단백질-단백질 상호작용 네트워크.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/edu-toggle.css">
+  <style>
+    .cmap-hero{position:relative;padding:36px 32px;border-radius:var(--radius-xl);overflow:hidden;border:1px solid rgba(148,163,184,.14);background:linear-gradient(135deg,rgba(6,17,38,.95),rgba(11,26,58,.68) 45%,rgba(44,18,90,.55));margin-bottom:22px}
+    .cmap-hero::before{content:'';position:absolute;inset:-40%;z-index:-1;pointer-events:none;background:conic-gradient(from 120deg at 30% 30%,rgba(236,72,153,.22),transparent 30%),radial-gradient(circle at 70% 90%,rgba(94,234,212,.14),transparent 55%);filter:blur(60px);animation:cmapDrift 24s linear infinite}
+    @keyframes cmapDrift{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .cmap-hero h1{font-size:clamp(1.8rem,1.3rem + 1.6vw,2.8rem);line-height:1.05;margin:0 0 6px;color:var(--ink-strong)}
+    .cmap-hero .lede{color:var(--slate-300);max-width:760px}
+    .cmap-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+    .cmap-kpi{padding:14px 16px;border-radius:14px;border:1px solid rgba(236,72,153,.3);background:linear-gradient(135deg,rgba(236,72,153,.14),rgba(94,234,212,.06))}
+    .cmap-kpi .k{font-size:1.5rem;font-weight:700;color:#fbcfe8;letter-spacing:-.02em;line-height:1}
+    .cmap-kpi .l{font-size:.7rem;color:var(--slate-300);margin-top:4px;text-transform:uppercase;letter-spacing:.12em}
+    .cmap-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+    .cmap-card{padding:16px;border-radius:var(--radius-lg);border:1px solid rgba(148,163,184,.14);background:rgba(11,26,58,.45);backdrop-filter:blur(10px)}
+    .cmap-card h3{margin:0 0 6px;font-size:1.12rem;color:var(--ink-strong)}
+    .cmap-card .note{font-size:.85rem;color:var(--slate-400);margin-bottom:10px;line-height:1.55}
+    .cmap-card .caveat{font-size:.83rem;padding:10px 12px;border-radius:8px;background:rgba(250,204,21,.07);border:1px solid rgba(250,204,21,.2);color:#fde68a;margin-top:10px;line-height:1.55}
+    .cmap-card iframe{width:100%;height:640px;border:0;display:block;border-radius:10px;background:#07132b}
+    .cmap-inlinefig{width:100%;min-height:520px;border-radius:10px;overflow:hidden}
+    .cmap-table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:12px}
+    .cmap-table th{text-align:left;padding:8px 10px;border-bottom:1px solid rgba(148,163,184,.22);color:#bae6fd;font-weight:600}
+    .cmap-table td{padding:8px 10px;border-bottom:1px solid rgba(148,163,184,.08);color:var(--ink);vertical-align:top}
+    .cmap-table tr:hover td{background:rgba(148,163,184,.05)}
+    .cmap-pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.72rem;border:1px solid rgba(94,234,212,.3);color:#bae6fd;background:rgba(6,17,38,.5);margin:2px 4px 2px 0}
+    .cmap-footer-cta{padding:16px;border-radius:12px;background:rgba(11,26,58,.45);border:1px solid rgba(148,163,184,.12);margin-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+    .cmap-footer-cta .txt{color:var(--slate-300);font-size:.9rem}
+    .cmap-footer-cta .btns{display:flex;gap:8px;flex-wrap:wrap}
+    @media (max-width: 760px){
+      .cmap-hero{padding:22px 16px}
+      .cmap-hero h1{font-size:1.55rem}
+      .cmap-kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .cmap-card iframe{height:60vh;min-height:400px}
+      .cmap-table{font-size:.78rem}
+      .cmap-table th:nth-child(4),.cmap-table td:nth-child(4){display:none}
+    }
+  </style>
+<!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body class="dark">
+  <a class="sr-only" href="#main-content">본문으로 건너뛰기</a>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="../index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar">
+        <a class="nav-link" href="../index.html" role="menuitem">홈</a><a class="nav-link" href="01_overview.html" role="menuitem">개요</a><a class="nav-link" href="02_datasets.html" role="menuitem">데이터셋</a><a class="nav-link" href="03_sample_master.html" role="menuitem">샘플</a><a class="nav-link" href="04_gene_panels.html" role="menuitem">패널</a><a class="nav-link" href="05_eda.html" role="menuitem">EDA</a><a class="nav-link" href="06_scores.html" role="menuitem">점수</a><a class="nav-link" href="07_ml_baseline.html" role="menuitem">ML</a><a class="nav-link" href="08_panel_comparison.html" role="menuitem">패널 비교</a><a class="nav-link" href="09_shap.html" role="menuitem">SHAP</a><a class="nav-link" href="10_gene_explorer.html" role="menuitem">유전자</a><a class="nav-link" href="11_cohort_compare.html" role="menuitem">코호트</a><a class="nav-link" href="12_business.html" role="menuitem">비즈니스</a><a class="nav-link" href="13_reports.html" role="menuitem">리포트</a><a class="nav-link" href="14_caveats.html" role="menuitem">주의점</a><a class="nav-link" href="15_drug_discovery.html" role="menuitem">드럭</a><a class="nav-link" href="16_quantum.html" role="menuitem">양자</a><a class="nav-link" href="17_biomarker_insights.html" role="menuitem">마커</a><a class="nav-link" href="18_pathway_immune_meth.html" role="menuitem">해석</a><a class="nav-link" href="20a_meta_power.html" role="menuitem">통계</a><a class="nav-link active" href="19a_cmap_network.html" role="menuitem">약물리버스</a><a class="nav-link" href="view_investor.html" role="menuitem">투자자</a><a class="nav-link" href="view_researcher.html" role="menuitem">연구자</a><a class="nav-link" href="99_glossary.html" role="menuitem">용어</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <main class="content" id="main-content" style="grid-column:1 / -1">
+
+      <section class="cmap-hero" aria-labelledby="cmap-hero-title">
+        <div class="subtle mono">19 / THERAPEUTIC — CMAP · PPI NETWORK</div>
+        <h1 id="cmap-hero-title">CMap 약물 리버스 + PPI 네트워크</h1>
+        <p class="lede">BRAF-like → RAS-like 재분화 상태로 되돌리는 <em>역전 후보 약물</em>을 CMap 스타일(connectivity score)로 스코어링하고, top-5 신규 바이오마커와 QUBO 선정 14 유전자의 <em>문헌 기반 PPI 네트워크</em>를 함께 표시합니다. 본 페이지의 CMap은 <strong>문헌-합의 surrogate</strong>이며 live CLUE.io 질의가 아닙니다.</p>
+        <div class="cmap-kpi-row" role="list">
+          <div class="cmap-kpi" role="listitem"><div class="k">39</div><div class="l">분석 화합물 (offline DB)</div></div>
+          <div class="cmap-kpi" role="listitem"><div class="k">28</div><div class="l">후보 리버서 (score &lt; -0.05)</div></div>
+          <div class="cmap-kpi" role="listitem"><div class="k">selumetinib</div><div class="l">Top-1 리버서 · score -0.500</div></div>
+          <div class="cmap-kpi" role="listitem"><div class="k">73 · 86</div><div class="l">PPI 노드 · 엣지</div></div>
+        </div>
+      </section>
+
+      <details class="edu-toggle" open style="margin-bottom:18px;border-radius:12px;border:1px solid rgba(148,163,184,.18);background:rgba(11,26,58,.35);overflow:hidden">
+        <summary style="cursor:pointer;padding:10px 14px;font-size:.9rem;color:#5eead4;list-style:none">💡 초보자용: CMap과 PPI가 무엇인가요?</summary>
+        <div style="padding:4px 16px 14px;border-top:1px dashed rgba(148,163,184,.18);color:var(--ink);font-size:.9rem;line-height:1.65">
+          <p><strong>Connectivity Map (CMap / CLUE.io)</strong> — 이 질환의 발현 패턴을 "거꾸로 뒤집는" 약물을 찾는 도구입니다. 예: 암에서 A 유전자가 올라가고 B가 내려가 있다면, A를 내리고 B를 올리는 약물이 "리버서"입니다. <em>원본 CMap은 LINCS L1000 실험 데이터베이스에 질의</em>하지만, 이 대시보드는 네트워크 fetch 없이 문헌에서 요약한 약물 시그니처로 <strong>proxy 점수</strong>를 계산합니다.</p>
+          <p><strong>Connectivity score</strong> — −1(완전 리버서) ~ +1(완전 강화). 우리 BRAF-up 리스트에서 약물이 down-시그니처를 갖고 있거나, RAS-up 리스트에 약물이 up-시그니처를 갖고 있을수록 더 음수(= 더 강한 리버서).</p>
+          <p><strong>PPI (Protein-Protein Interaction) 네트워크</strong> — 단백질끼리 물리적으로 결합하거나 기능적으로 상호작용한다고 <em>선행 문헌에서 보고</em>된 엣지 집합. STRING / BioGRID 같은 DB에서 추출합니다. 노드 크기는 해당 유전자의 이펙트 사이즈(|Cohen's d|), 색은 방향(빨강 = BRAF에서↑, 파랑 = RAS에서↑).</p>
+          <p class="subtle small">이 두 층은 <em>생물학적 가설 우선순위</em>를 정하는 도구이지 임상 효능의 근거가 아닙니다. 리버서 점수가 높다 ≠ 임상에서 효과 있다.</p>
+        </div>
+      </details>
+
+      <div class="cmap-grid">
+
+        <section class="cmap-card" id="cmap" data-explain-id="19_cmap_network-cmap">
+          <h3>① CMap 스타일 약물 역전 (drug reversal)</h3>
+          <div class="note">
+            <strong>방법:</strong> 우리 TCGA DE 테이블에서 top-200 BRAF-up · top-200 RAS-up 유전자를 추출한 뒤, 39개 화합물의 up/down 시그니처(문헌 기반 consensus)가 "리버스 패턴"(compound-up ∩ RAS-up, compound-down ∩ BRAF-up)과 "강화 패턴"(compound-up ∩ BRAF-up, compound-down ∩ RAS-up)에 각각 얼마나 겹치는지 계산. <code>score = (reinforce − reversal) / (up+down 시그니처 길이)</code> × compound weight. 범위 [−1, +1], <strong>음수가 강한 리버서</strong>.
+          </div>
+          <div class="cmap-inlinefig" style="margin-top:12px">
+            <iframe src="../figs_interactive/cmap_top_reversers.html" loading="lazy" title="CMap top reversers"></iframe>
+          </div>
+          <table class="cmap-table" aria-label="Top-10 candidate reversers">
+            <thead><tr><th>화합물</th><th>MoA</th><th style="text-align:right">score</th><th style="text-align:right">matched</th><th>왜 갑상선암에서 후보인가</th></tr></thead>
+            <tbody>
+            <tr><td><strong>selumetinib</strong></td><td>MEK1/2 억제 (MEK1/2 inhibitor)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.500</td><td style="text-align:right">12</td><td>radioiodine-refractory THCA에서 NIS 재발현 유도 (Ho et al., 2013).</td></tr>
+<tr><td><strong>sorafenib</strong></td><td>VEGFR · RAF · PDGFR 다중억제 (multikinase)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.478</td><td style="text-align:right">11</td><td>DTC(분화형 thyroid cancer) radioiodine-refractory에 승인 — DECISION trial.</td></tr>
+<tr><td><strong>dabrafenib</strong></td><td>BRAF V600E 억제 (BRAF V600E inhibitor)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.452</td><td style="text-align:right">14</td><td>BRAF V600E papillary thyroid cancer의 표준 표적. BRAF-like 프로그램을 직접 역전.</td></tr>
+<tr><td><strong>encorafenib</strong></td><td>BRAF V600E 억제 (BRAF V600E inhibitor, 3세대)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.435</td><td style="text-align:right">11</td><td>melanoma에서 vemurafenib 대비 potency↑; thyroid basket trial 진행 중.</td></tr>
+<tr><td><strong>vemurafenib</strong></td><td>BRAF V600E 억제 (BRAF V600E inhibitor)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.433</td><td style="text-align:right">13</td><td>첫 승인된 BRAF V600E 억제제; THCA 임상에서 재분화 유도 보고.</td></tr>
+<tr><td><strong>trametinib</strong></td><td>MEK1/2 억제 (MEK1/2 inhibitor)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.429</td><td style="text-align:right">12</td><td>MAPK pathway downstream 차단 — redifferentiation 유도 (Ho et al., NEJM 2013).</td></tr>
+<tr><td><strong>cabozantinib</strong></td><td>MET · VEGFR · RET 다중억제 (multikinase)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.427</td><td style="text-align:right">9</td><td>MTC + RR-DTC 후라인; MET-axis 차단.</td></tr>
+<tr><td><strong>cobimetinib</strong></td><td>MEK1/2 억제 (MEK1/2 inhibitor)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.426</td><td style="text-align:right">9</td><td>BRAFi 병용 (encorafenib/cobimetinib)로 저항 극복.</td></tr>
+<tr><td><strong>vandetanib</strong></td><td>VEGFR · EGFR · RET 억제 (multikinase)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.371</td><td style="text-align:right">7</td><td>MTC(medullary) 표준; RET-driven tumor에 효과.</td></tr>
+<tr><td><strong>romidepsin</strong></td><td>HDAC 억제 (class I HDAC inhibitor)</td><td style="text-align:right;font-variant-numeric:tabular-nums">-0.337</td><td style="text-align:right">8</td><td>CTCL 승인; thyroid redifferentiation 전임상.</td></tr>
+            </tbody>
+          </table>
+          <div class="cmap-inlinefig" style="margin-top:14px">
+            <iframe src="../figs_interactive/cmap_coverage_heatmap.html" loading="lazy" title="CMap coverage heatmap"></iframe>
+          </div>
+          <div class="caveat">
+            <strong>정직한 한계:</strong> (1) 이것은 <em>문헌-합의 proxy</em>이며 live CLUE.io / LINCS L1000 쿼리가 아닙니다. (2) 각 화합물의 up/down 시그니처는 공개 MoA 리뷰 + LINCS 요약을 손코딩한 15–30개 유전자로, 실제 L1000 ~978 랜드마크 경험식보다 훨씬 작습니다. (3) 세포독성 계열(cisplatin, doxorubicin 등)은 본질적으로 "MKI67↓ · CDKN1A↑" 공통 시그니처를 공유하여 어떤 암이든 <em>비특이적으로</em> 높게 나올 수 있습니다. (4) pembrolizumab/nivolumab은 발현 조절 약물이 아니므로 "IFN-γ response 유도" 대리 시그니처를 사용했으며, 해석은 조심스럽게. (5) score는 임상 효능의 근거가 아닙니다.
+          </div>
+        </section>
+
+        <section class="cmap-card" id="ppi" data-explain-id="19_cmap_network-ppi">
+          <h3>② 단백질-단백질 상호작용 네트워크 (PPI, literature-derived)</h3>
+          <div class="note">
+            <strong>방법:</strong> top-5 신규 검증 바이오마커 (TACSTD2, PLEKHA6, CYP1B1, TMPRSS4, LDLR) + QUBO-선정 14 유전자 (KLK10, DUSP5, DUSP6, DIO1, LOX, MET, TPO, SLC5A8, DUOX2, CD274, HLA-DRA, DUOX1, DIO2, FOXE1)와 1-차 이웃을 대상으로 STRING v11 high-confidence (&ge;0.700) · BioGRID curated 엣지를 손코딩. networkx spring-layout (seed=42)로 force-directed 배치.
+          </div>
+          <div style="margin-top:10px">
+            <strong>Top-5 허브 (degree 기준):</strong> <span class="cmap-pill">MAPK1 · degree 7</span><span class="cmap-pill">MET · degree 7</span><span class="cmap-pill">TPO · degree 6</span><span class="cmap-pill">BRAF · degree 5</span><span class="cmap-pill">LOX · degree 5</span>
+          </div>
+          <div class="cmap-inlinefig" style="margin-top:12px">
+            <iframe src="../figs_interactive/ppi_network_novel_qubo.html" loading="lazy" title="PPI network"></iframe>
+          </div>
+          <div class="caveat">
+            <strong>정직한 한계:</strong> (1) 엣지는 <em>외부 문헌에서 가져온 것</em>이며 본 프로젝트 발현 데이터로부터 <strong>재추론된 것이 아닙니다</strong>. (2) PPI DB는 연구-편향이 존재 — 잘 연구된 유전자일수록 엣지가 많이 붙고, under-studied 유전자(예: PLEKHA6)는 엣지가 적어 중심성이 낮게 나타납니다. (3) confidence score는 출처별 체계가 다르므로 직접 비교 조심. (4) 물리적 결합과 기능적 association을 같은 엣지로 합쳐 표시했습니다.
+          </div>
+        </section>
+
+        <section class="cmap-card" id="sources" data-explain-id="19_cmap_network-sources">
+          <h3>출처 · 정직성 선언</h3>
+          <div class="note">
+            <ul>
+              <li><strong>CMap / LINCS 개념</strong> — Lamb et al. <em>Science</em> 2006 (PMID 17008526); Subramanian et al. <em>Cell</em> 2017 (PMID 29195078, L1000).</li>
+              <li><strong>화합물 시그니처 (up/down 15–30 genes)</strong> — 해당 약물 MoA 리뷰 + iLINCS / LINCS L1000 공개 요약에서 파라프레이즈. 원본 L1000 landmark 데이터는 포함되지 않음.</li>
+              <li><strong>PPI 엣지</strong> — STRING v11 (Szklarczyk et al. <em>Nucleic Acids Res</em> 2019, PMID 30476243, cutoff &ge;0.700), BioGRID (Oughtred et al. <em>Protein Sci</em> 2021, PMID 33070389). hardcoded subset.</li>
+              <li><strong>갑상선 근거</strong> — Ho et al. <em>NEJM</em> 2013 (selumetinib redifferentiation); Schlumberger et al. <em>NEJM</em> 2015 (lenvatinib SELECT); Brose et al. <em>Lancet</em> 2014 (sorafenib DECISION).</li>
+            </ul>
+            <p><strong>선언:</strong> (a) CMap 결과는 <em>문헌 합의 surrogate</em>이지 live LINCS 쿼리가 아닙니다. (b) PPI 엣지는 <em>공공 DB 큐레이션</em>이지 본 프로젝트 발현 데이터로부터 re-derive된 것이 아닙니다. (c) <strong>생물학적 타당성 ≠ 임상 효능</strong>. 모든 결과는 가설 우선순위 설정용입니다.</p>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="cmap-footer-cta">
+        <div class="txt">이 페이지의 분석은 <strong>드럭 디스커버리</strong>의 타겟 리스트에 약물-측 증거를 더하고, <strong>바이오마커 인사이트</strong>의 유전자를 네트워크 맥락에서 해석합니다.</div>
+        <div class="btns">
+          <a class="btn sm" href="15_drug_discovery.html">드럭 디스커버리</a>
+          <a class="btn sm" href="17_biomarker_insights.html">바이오마커 인사이트</a>
+          <a class="btn sm ghost" href="08_panel_comparison.html">패널 비교</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    if(typeof toggleTheme === 'undefined'){
+      window.toggleTheme = function(){
+        var isLight = document.documentElement.classList.toggle('light');
+        try{ localStorage.setItem('thyroid-theme', isLight ? 'light' : 'dark'); }catch(e){}
+      };
+    }
+  </script>
+<!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

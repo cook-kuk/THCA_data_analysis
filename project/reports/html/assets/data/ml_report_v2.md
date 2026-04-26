@@ -1,0 +1,50 @@
+# ml_report_v2
+
+## Setup
+
+- Training cohort: TCGA-THCA
+- Task: BRAF_like vs RAS_like
+- Label source: open GDC masked somatic MAF anchor
+- BRAF_like definition: BRAF V600E only
+- RAS_like definition: KRAS/HRAS/NRAS mutant
+- Feature sets: TDS16, TierA67, variance_top50
+- BRS71 handling: proxy list derived internally from TCGA-THCA (71 genes); not used as a direct model feature in v2 because the required feature sets were fixed by task
+- GSE213647 relabel status: excluded
+
+## Internal CV
+
+```tsv
+task	dataset	feature_set	model	n_samples	cv_auc	cv_pr_auc	cv_auc_ci_lo	cv_auc_ci_hi	cv_brier	cv_balanced_accuracy	cv_balanced_accuracy_youden	cv_f1	cv_mcc	cv_youden_threshold	median_feature_count	status
+BRAF_like_vs_RAS_like	TCGA-THCA	TierA67_clean	LogReg_elasticnet	333	1.0	0.9999999999999999	0.9999999999999999	1.0	0.0022196756856841036	0.9982078853046594	1.0	0.9982046678635548	0.989090046575439	0.4952502460780698	55	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	TierA67_clean	LogReg_l2	333	1.0	0.9999999999999999	0.9999999999999999	1.0	0.001707639644917168	1.0	1.0	1.0	1.0	0.6315386087705629	55	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	TierA67	LogReg_elasticnet	333	1.0	0.9999999999999999	0.9999999999999999	1.0	0.0025075887577998067	1.0	1.0	1.0	1.0	0.5299469104965658	66	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	TierA67	LogReg_l2	333	1.0	0.9999999999999999	0.9999999999999999	1.0	0.0015468648981861904	1.0	1.0	1.0	1.0	0.6360760907926487	66	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	variance_top50	LogReg_elasticnet	333	1.0	0.9999999999999999	0.9999999999999999	1.0	0.0018648612681573566	0.9982078853046594	1.0	0.9982046678635548	0.989090046575439	0.42453801371727606	50	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	variance_top50	RandomForest	333	1.0	1.0	0.9999999999999999	1.0	0.003951567567567569	0.9814814814814814	1.0	0.9964285714285714	0.9778083319572793	0.722	50	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	variance_top50	GradientBoosting	333	1.0	1.0	0.9999999999999999	1.0	2.366541183619004e-10	1.0	1.0	1.0	1.0	0.9999925867600599	50	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	variance_top50	LogReg_l2	333	1.0	0.9999999999999999	0.9999999999999999	1.0	0.001218017359424287	1.0	1.0	1.0	1.0	0.5893460197847719	50	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	variance_top50	XGBoost	333	0.9999336253816541	0.9999871991807476	0.9996854356715948	1.0	0.002408626085184269	0.9889486260454002	0.9982078853046594	0.996415770609319	0.9778972520908005	0.8583704233169556	50	ok
+BRAF_like_vs_RAS_like	TCGA-THCA	TierA67	RandomForest	333	0.9998672507633082	0.9999743524804225	0.9993553378029912	1.0	0.01204386786786787	0.9907407407407407	0.9964157706093191	0.998211091234347	0.9889267872174312	0.698	66	ok
+```
+
+## External validation
+
+```tsv
+task	dataset	feature_set	model	n_samples	auc	pr_auc	auc_ci_lo	auc_ci_hi	balanced_accuracy	balanced_accuracy_youden	f1	f1_youden	mcc	threshold_applied_youden	status
+BRAF_like_vs_RAS_like	GSE126698	TierA67_clean	RandomForest	12	1.0	1.0	1.0	1.0	1.0	0.75	1.0	0.6666666666666666	1.0	0.702	ok
+BRAF_like_vs_RAS_like	GSE126698	TierA67_clean	GradientBoosting	12	1.0	1.0	1.0	1.0	1.0	0.9166666666666667	1.0	0.9090909090909091	1.0	0.9984426182476762	ok
+BRAF_like_vs_RAS_like	GSE126698	TierA67_clean	XGBoost	12	1.0	1.0	0.9999999999999999	1.0	0.9166666666666667	0.9166666666666667	0.9090909090909091	0.9090909090909091	0.8451542547285166	0.5997940301895142	ok
+BRAF_like_vs_RAS_like	GSE126698	TierA67_clean	LogReg_elasticnet	12	1.0	1.0	0.9999999999999999	1.0	0.8333333333333333	0.8333333333333333	0.8	0.8	0.7071067811865476	0.4952502460780698	ok
+BRAF_like_vs_RAS_like	GSE126698	TierA67	GradientBoosting	12	1.0	1.0	1.0	1.0	1.0	0.9166666666666667	1.0	0.9090909090909091	1.0	0.9999925867600599	ok
+BRAF_like_vs_RAS_like	GSE126698	TierA67	XGBoost	12	1.0	1.0	0.9999999999999999	1.0	1.0	1.0	1.0	1.0	1.0	0.47693729400634766	ok
+BRAF_like_vs_RAS_like	GSE126698	TierA67	LogReg_elasticnet	12	1.0	1.0	0.9999999999999999	1.0	0.8333333333333333	0.8333333333333333	0.8	0.8	0.7071067811865476	0.5299469104965658	ok
+BRAF_like_vs_RAS_like	GSE126698	TierA67	RandomForest	12	1.0	1.0	0.9999999999999999	1.0	1.0	0.75	1.0	0.6666666666666666	1.0	0.698	ok
+BRAF_like_vs_RAS_like	GSE27155	variance_top50	LogReg_elasticnet	72	0.9799382716049383	0.9742637136524049	0.9388351393188854	1.0	0.5	0.5	0.0	0.0	0.0	0.42453801371727606	ok
+BRAF_like_vs_RAS_like	GSE27155	TierA67_clean	LogReg_elasticnet	72	0.9783950617283951	0.9774733236461688	0.9456000982042648	0.9984459984459985	0.5	0.5	0.0	0.0	0.0	0.4952502460780698	ok
+```
+
+## Interpretation
+
+- External validation based on GSE27155 is still label-inferred, not mutation-verified.
+- GSE213647 is no longer treated as a valid BRAF_like vs RAS_like external set because the supplementary sample table resolves it as PTC/PDTC/ATC/Normal without a comparable RAS-like differentiated tumor class.
+- GSE126698 can be used only as a very small exploratory external set after restricting to PTC vs FTC.

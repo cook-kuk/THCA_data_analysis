@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f8fafc">
+  <title>연구자 뷰 | THCA Multi-Omics Dashboard</title>
+  <meta name="description" content="5-fold CV + 외부 검증 + threshold-by-cohort + SHAP + DE + quantum benchmark 전체 파이프라인을 한 페이지에서. 연구자 엔트리 뷰.">
+  <meta property="og:title" content="연구자 뷰 | THCA Multi-Omics Dashboard">
+  <meta property="og:description" content="Leakage-clean TierA67_clean · bootstrap 1000-iter CI · Youden threshold 적용 외부 검증.">
+  <meta property="og:image" content="../assets/img/og_card.png">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <script src="../assets/vendor/tailwind.min.js" defer></script>
+  <script>
+    (function(){ try{ if(localStorage.getItem('thyroid-theme')==='dark') document.documentElement.classList.add('dark-pending'); }catch(e){} })();
+    window.addEventListener('error', function(e){
+      if(e.target && e.target.tagName==='SCRIPT' && e.target.dataset.fallback){ var s=document.createElement('script'); s.src=e.target.dataset.fallback; document.head.appendChild(s); }
+    }, true);
+  </script>
+  <style>
+    /* Researcher view — dense, technical, light-first */
+    .rv-wrap{max-width:1340px;margin:0 auto;padding:24px 22px 56px}
+    .rv-hero{
+      padding:30px 34px;border-radius:var(--radius-xl);border:1px solid rgba(15,23,42,.08);
+      background:linear-gradient(135deg,#ffffff 0%,#f0f9ff 60%,#ecfeff 100%);
+      box-shadow:0 6px 22px rgba(15,23,42,.06);
+    }
+    body.dark .rv-hero{background:linear-gradient(135deg,rgba(11,26,58,.85),rgba(19,42,85,.65));border-color:rgba(148,163,184,.18)}
+    .rv-hero .eyebrow{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:#0284c7;font-weight:700;font-family:ui-monospace,monospace}
+    body.dark .rv-hero .eyebrow{color:#38bdf8}
+    .rv-hero h1{font-size:clamp(1.7rem,1.3rem + 1.4vw,2.4rem);color:#0f172a;margin:6px 0 8px;font-weight:700;letter-spacing:-.015em}
+    body.dark .rv-hero h1{color:#f1f5f9}
+    .rv-hero .lede{max-width:900px;color:#334155;font-size:1rem;line-height:1.55}
+    body.dark .rv-hero .lede{color:#cbd5e1}
+    .rv-kpi-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px}
+    @media (max-width:880px){.rv-kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    .rv-kpi{
+      padding:12px 14px;border-radius:10px;border:1px solid rgba(15,23,42,.08);
+      background:#ffffff;
+    }
+    body.dark .rv-kpi{background:rgba(11,26,58,.55);border-color:rgba(148,163,184,.15)}
+    .rv-kpi .num{font-family:ui-monospace,'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;color:#0f172a;letter-spacing:-.01em;line-height:1.1}
+    body.dark .rv-kpi .num{color:#e2fff9}
+    .rv-kpi .lbl{font-size:.68rem;color:#64748b;margin-top:5px;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+    body.dark .rv-kpi .lbl{color:#94a3b8}
+    .rv-kpi .detail{font-size:.72rem;color:#475569;margin-top:3px;font-family:ui-monospace,monospace}
+    body.dark .rv-kpi .detail{color:#94a3b8}
+
+    .rv-section{margin-top:28px}
+    .rv-section > h2{
+      font-size:1.25rem;font-weight:700;color:#0f172a;margin:0 0 10px;letter-spacing:-.01em;
+      display:flex;align-items:center;gap:10px;
+    }
+    body.dark .rv-section > h2{color:#f1f5f9}
+    .rv-section > h2::before{
+      content:'';width:3px;height:20px;border-radius:2px;background:linear-gradient(180deg,#0284c7,#38bdf8);
+    }
+    .rv-section > .intro{color:#475569;font-size:.92rem;margin:0 0 12px}
+    body.dark .rv-section > .intro{color:#cbd5e1}
+
+    .rv-methodology{
+      padding:16px 18px;border-radius:12px;border:1px solid rgba(15,23,42,.08);
+      background:#ffffff;
+      font-family:ui-monospace,'JetBrains Mono',monospace;font-size:.82rem;line-height:1.65;color:#334155;
+    }
+    body.dark .rv-methodology{background:rgba(7,19,43,.5);border-color:rgba(148,163,184,.15);color:#cbd5e1}
+    .rv-methodology strong{color:#0284c7;font-weight:700}
+    body.dark .rv-methodology strong{color:#38bdf8}
+    .rv-methodology ul{margin:8px 0 0;padding-left:20px}
+    .rv-methodology li{margin-bottom:4px}
+
+    /* Tables */
+    .rv-table-host{
+      margin-top:10px;padding:14px;border-radius:12px;border:1px solid rgba(15,23,42,.08);
+      background:#ffffff;overflow-x:auto;
+    }
+    body.dark .rv-table-host{background:rgba(11,26,58,.55);border-color:rgba(148,163,184,.14)}
+    .rv-table-host .tbl-note{font-size:.76rem;color:#64748b;margin:0 0 10px;font-family:ui-monospace,monospace}
+    body.dark .rv-table-host .tbl-note{color:#94a3b8}
+    table.dx-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.82rem;font-family:ui-monospace,'JetBrains Mono',monospace}
+    table.dx-table thead th{
+      text-align:left;padding:8px 10px;font-weight:700;color:#0f172a;font-size:.72rem;
+      letter-spacing:.05em;text-transform:uppercase;border-bottom:2px solid rgba(15,23,42,.1);
+      white-space:nowrap;cursor:pointer;user-select:none;
+    }
+    body.dark table.dx-table thead th{color:#e2e8f0;border-bottom-color:rgba(148,163,184,.25)}
+    table.dx-table thead th[aria-sort='ascending']::after{content:' ▲';opacity:.7;font-size:.75em}
+    table.dx-table thead th[aria-sort='descending']::after{content:' ▼';opacity:.7;font-size:.75em}
+    table.dx-table tbody td{padding:7px 10px;color:#1e293b;border-bottom:1px solid rgba(15,23,42,.06);white-space:nowrap}
+    body.dark table.dx-table tbody td{color:#e2e8f0;border-bottom-color:rgba(148,163,184,.1)}
+    table.dx-table tbody tr:hover{background:rgba(2,132,199,.04)}
+    body.dark table.dx-table tbody tr:hover{background:rgba(56,189,248,.05)}
+    table.dx-table .num-cell{text-align:right}
+    .tbl-loading{padding:20px;text-align:center;color:#64748b;font-size:.82rem;font-family:ui-monospace,monospace}
+    body.dark .tbl-loading{color:#94a3b8}
+    .tag-pill{display:inline-block;padding:2px 7px;border-radius:6px;font-size:.68rem;font-weight:700;letter-spacing:.04em}
+    .tag-pill.best{background:rgba(16,185,129,.14);color:#047857;border:1px solid rgba(16,185,129,.3)}
+    body.dark .tag-pill.best{color:#6ee7b7}
+    .tag-pill.tie{background:rgba(59,130,246,.14);color:#1d4ed8;border:1px solid rgba(59,130,246,.3)}
+    body.dark .tag-pill.tie{color:#93c5fd}
+    .tag-pill.overfit{background:rgba(245,158,11,.14);color:#b45309;border:1px solid rgba(245,158,11,.3)}
+    body.dark .tag-pill.overfit{color:#fbbf24}
+
+    /* Honest verdict callout */
+    .rv-verdict{
+      padding:18px 22px;border-radius:12px;
+      background:linear-gradient(135deg,#f0f9ff 0%,#dbeafe 100%);
+      border:1px solid rgba(2,132,199,.25);
+      margin-top:14px;
+    }
+    body.dark .rv-verdict{background:linear-gradient(135deg,rgba(2,132,199,.12),rgba(56,189,248,.06));border-color:rgba(56,189,248,.3)}
+    .rv-verdict h3{margin:0 0 8px;color:#0c4a6e;font-size:1rem;font-weight:700}
+    body.dark .rv-verdict h3{color:#bae6fd}
+    .rv-verdict ul{margin:0;padding-left:18px;color:#1e293b;font-size:.88rem;line-height:1.55}
+    body.dark .rv-verdict ul{color:#e2e8f0}
+    .rv-verdict li{margin-bottom:5px}
+    .rv-verdict code{font-family:ui-monospace,monospace;background:rgba(15,23,42,.06);padding:1px 6px;border-radius:4px;color:#0c4a6e;font-size:.82rem}
+    body.dark .rv-verdict code{background:rgba(148,163,184,.14);color:#e0f2fe}
+
+    /* CTA row */
+    .rv-cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .rv-cta{
+      padding:11px 15px;border-radius:10px;border:1px solid rgba(15,23,42,.12);
+      background:#ffffff;color:#0f172a;font:inherit;font-size:.86rem;font-weight:600;
+      text-decoration:none;transition:all .15s var(--ease);
+      display:inline-flex;align-items:center;gap:7px;
+    }
+    body.dark .rv-cta{background:rgba(11,26,58,.6);color:#e2e8f0;border-color:rgba(148,163,184,.2)}
+    .rv-cta:hover{border-color:rgba(2,132,199,.5);background:#f0f9ff;transform:translateY(-1px);box-shadow:0 4px 12px rgba(2,132,199,.1)}
+    body.dark .rv-cta:hover{background:rgba(56,189,248,.08)}
+    .rv-cta.primary{background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#ffffff;border-color:transparent}
+    .rv-cta.primary:hover{filter:brightness(1.08)}
+    .rv-cta .icon{font-size:.86rem}
+
+    /* Beyond baseline grid */
+    .rv-beyond{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+    @media (max-width:980px){.rv-beyond{grid-template-columns:1fr}}
+    .rv-beyond-item{
+      padding:14px;border-radius:12px;border:1px solid rgba(15,23,42,.08);background:#ffffff;
+    }
+    body.dark .rv-beyond-item{background:rgba(11,26,58,.55);border-color:rgba(148,163,184,.15)}
+    .rv-beyond-item .hd{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+    .rv-beyond-item .name{font-weight:700;color:#0f172a;font-size:.95rem}
+    body.dark .rv-beyond-item .name{color:#f1f5f9}
+    .rv-beyond-item .badge{font-size:.62rem;padding:2px 6px;border-radius:5px;background:rgba(245,158,11,.14);color:#b45309;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+    body.dark .rv-beyond-item .badge{color:#fbbf24}
+    .rv-beyond-item .metric{font-family:ui-monospace,monospace;font-size:.82rem;color:#475569}
+    body.dark .rv-beyond-item .metric{color:#cbd5e1}
+    .rv-beyond-item a{display:inline-block;margin-top:8px;font-size:.8rem;color:#0284c7;text-decoration:underline;font-family:ui-monospace,monospace}
+    body.dark .rv-beyond-item a{color:#38bdf8}
+
+    /* Caveats */
+    .rv-caveats{
+      padding:16px 20px;border-radius:12px;border:1px dashed rgba(245,158,11,.35);
+      background:rgba(254,252,232,.5);margin-top:14px;
+    }
+    body.dark .rv-caveats{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.3)}
+    .rv-caveats h3{margin:0 0 8px;font-size:.95rem;color:#92400e;font-weight:700;display:flex;align-items:center;gap:6px}
+    body.dark .rv-caveats h3{color:#fbbf24}
+    .rv-caveats ol{margin:0;padding-left:22px;color:#1e293b;font-size:.88rem;line-height:1.6}
+    body.dark .rv-caveats ol{color:#e2e8f0}
+    .rv-caveats li{margin-bottom:6px}
+    .rv-caveats strong{color:#78350f}
+    body.dark .rv-caveats strong{color:#fde68a}
+  </style>
+<!-- edu-css --><link rel="stylesheet" href="../assets/css/edu-toggle.css">
+
+  <!-- ux:tour-css --><link rel="stylesheet" href="../assets/css/tour.css">
+  <!-- ux:print-css --><link rel="stylesheet" media="print" href="../assets/css/print.css"><!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body class="light">
+  <a class="sr-only" href="#main-content">본문으로 건너뛰기</a>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="../index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar">
+        <a class="nav-link" href="../index.html" role="menuitem">홈</a><a class="nav-link" href="01_overview.html" role="menuitem">개요</a><a class="nav-link" href="02_datasets.html" role="menuitem">데이터셋</a><a class="nav-link" href="03_sample_master.html" role="menuitem">샘플</a><a class="nav-link" href="04_gene_panels.html" role="menuitem">패널</a><a class="nav-link" href="05_eda.html" role="menuitem">EDA</a><a class="nav-link" href="06_scores.html" role="menuitem">점수</a><a class="nav-link" href="07_ml_baseline.html" role="menuitem">ML</a><a class="nav-link" href="08_panel_comparison.html" role="menuitem">패널 비교</a><a class="nav-link" href="09_shap.html" role="menuitem">SHAP</a><a class="nav-link" href="10_gene_explorer.html" role="menuitem">유전자</a><a class="nav-link" href="11_cohort_compare.html" role="menuitem">코호트</a><a class="nav-link" href="12_business.html" role="menuitem">비즈니스</a><a class="nav-link" href="13_reports.html" role="menuitem">리포트</a><a class="nav-link" href="14_caveats.html" role="menuitem">주의점</a><a class="nav-link" href="15_drug_discovery.html" role="menuitem">드럭</a><a class="nav-link" href="16_quantum.html" role="menuitem">양자</a><a class="nav-link" href="17_biomarker_insights.html" role="menuitem">마커</a><a class="nav-link" href="18_pathway_immune_meth.html" role="menuitem">해석</a><a class="nav-link" href="20a_meta_power.html" role="menuitem">통계</a><a class="nav-link" href="21a_survival.html" role="menuitem">생존</a><a class="nav-link" href="19a_cmap_network.html" role="menuitem">약물리버스</a><a class="nav-link" href="view_investor.html" role="menuitem">투자자</a><a class="nav-link active" href="view_researcher.html" role="menuitem">연구자</a><a class="nav-link" href="99_glossary.html" role="menuitem">용어</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+        <button id="td-menu-toggle" class="menu-toggle" type="button" aria-controls="td-drawer" aria-expanded="false" aria-label="메뉴 열기">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div id="td-drawer-backdrop" class="drawer-backdrop" aria-hidden="true"></div>
+  <aside id="td-drawer" class="drawer" aria-hidden="true" aria-label="모바일 메뉴">
+    <div class="drawer-header">
+      <strong>메뉴</strong>
+      <button class="btn sm ghost" type="button" id="td-drawer-close" onclick="document.getElementById('td-menu-toggle').click()" aria-label="메뉴 닫기">닫기</button>
+    </div>
+    <a class="" href="../index.html">홈</a><a class="" href="view_investor.html">투자자</a><a class="active" href="view_researcher.html">연구자</a><a class="" href="01_overview.html">개요</a><a class="" href="02_datasets.html">데이터셋</a><a class="" href="03_sample_master.html">샘플</a><a class="" href="04_gene_panels.html">패널</a><a class="" href="05_eda.html">EDA</a><a class="" href="06_scores.html">점수</a><a class="" href="07_ml_baseline.html">ML</a><a class="" href="08_panel_comparison.html">패널 비교</a><a class="" href="09_shap.html">SHAP</a><a class="" href="10_gene_explorer.html">유전자</a><a class="" href="11_cohort_compare.html">코호트</a><a class="" href="12_business.html">비즈니스</a><a class="" href="13_reports.html">리포트</a><a class="" href="14_caveats.html">주의점</a><a class="" href="15_drug_discovery.html">드럭</a><a class="" href="16_quantum.html">양자</a><a class="" href="17_biomarker_insights.html">마커</a><a class="" href="18_pathway_immune_meth.html">해석</a><a class="" href="20a_meta_power.html">통계</a><a class="" href="21a_survival.html">생존</a><a class="" href="19a_cmap_network.html">약물리버스</a><a class="" href="99_glossary.html">용어</a>
+  </aside>
+
+  <main class="rv-wrap" id="main-content">
+    <!-- HERO -->
+    <section class="rv-hero" aria-labelledby="rv-hero-title">
+      <div class="eyebrow">RESEARCHER / SCIENCE ENTRY</div>
+      <h1 id="rv-hero-title">연구자 엔트리</h1>
+      <p class="lede">전체 파이프라인, 5-fold CV + 외부 검증, threshold-by-cohort, SHAP, DE, quantum benchmark 까지.</p>
+      <div class="rv-kpi-row" role="list">
+        <div class="rv-kpi" role="listitem">
+          <div class="num">AUC 1.000</div>
+          <div class="lbl">5-fold CV · TierA67_clean</div>
+          <div class="detail">95% CI 1.000–1.000 · n=333</div>
+        </div>
+        <div class="rv-kpi" role="listitem">
+          <div class="num">PR-AUC 1.000</div>
+          <div class="lbl">LogReg_l2 on TCGA-THCA</div>
+          <div class="detail">Brier 0.00171 · balanced calibration</div>
+        </div>
+        <div class="rv-kpi" role="listitem">
+          <div class="num">Brier 0.00171</div>
+          <div class="lbl">Probabilistic quality</div>
+          <div class="detail">lower = better · LogReg_l2</div>
+        </div>
+        <div class="rv-kpi" role="listitem">
+          <div class="num">2 external</div>
+          <div class="lbl">GSE27155 + GSE126698</div>
+          <div class="detail">Youden threshold applied from TCGA</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Methodology block -->
+    <section class="rv-section" aria-labelledby="rv-method-title">
+      <h2 id="rv-method-title" data-explain-id="view_researcher-rv-method-title">Methodology summary</h2>
+      <div class="rv-methodology">
+        <strong>Feature set</strong>: Leakage-clean <code>TierA67_clean</code> — driver-gene (BRAF, NRAS, HRAS, KRAS, RET, PAX8, NTRK etc.) 제거된 67-gene panel. Comparison panels: <code>TDS16</code>, <code>TierA67</code>, <code>variance_top50</code>.<br>
+        <strong>CV</strong>: 5-fold stratified, scikit-learn LogReg_l2 · LogReg_elasticnet · RandomForest · GradientBoosting · XGBoost, bootstrap <code>n_iter=1000</code>으로 95% CI.<br>
+        <strong>External</strong>: GSE27155 (microarray, n=72) + GSE126698 (microarray, n=12) + GSE213647 (skipped_no_eligible_samples_or_features). Youden threshold는 TCGA fold-wise average로 고정 후 외부에 적용.<br>
+        <strong>Calibration</strong>: Brier score + reliability curve (see ML baseline page).<br>
+        <strong>Threshold</strong>: Youden’s J on TCGA; balanced_accuracy_youden이 <em>cohort-transportable</em> 지표.
+        <ul>
+          <li>z-score는 dataset-level에서 수행 (global z-score는 leakage 유발).</li>
+          <li>DE는 limma-voom backend, FDR &lt; 0.05, |log2FC| &gt; 1.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Quick CTA row -->
+    <section class="rv-section" aria-labelledby="rv-cta-title">
+      <h2 id="rv-cta-title" data-explain-id="view_researcher-rv-cta-title">Jump to details</h2>
+      <div class="rv-cta-row">
+        <a class="rv-cta primary" href="07_ml_baseline.html#threshold-explorer-section"><span class="icon">◎</span> Interactive threshold explorer</a>
+        <a class="rv-cta" href="09_shap.html"><span class="icon">⟐</span> SHAP 글로벌 해석</a>
+        <a class="rv-cta" href="05_eda.html"><span class="icon">◈</span> EDA (PCA/UMAP)</a>
+        <a class="rv-cta" href="08_panel_comparison.html"><span class="icon">⧉</span> 패널 비교</a>
+        <a class="rv-cta" href="17_biomarker_insights.html"><span class="icon">≋</span> DE volcano</a>
+        <a class="rv-cta" href="14_caveats.html"><span class="icon">⚠</span> Caveats</a>
+        <a class="rv-cta" href="99_glossary.html"><span class="icon">𝐀</span> 용어집</a>
+      </div>
+    </section>
+
+    <!-- Internal CV Table -->
+    <section class="rv-section" aria-labelledby="rv-cv-title">
+      <h2 id="rv-cv-title" data-explain-id="view_researcher-rv-cv-title">Internal 5-fold CV results</h2>
+      <p class="intro">From <code>results/ml/baseline_ml_results.tsv</code> — BRAF_like vs RAS_like on TCGA-THCA (n=333). AUC · 95% CI · PR-AUC · Brier.</p>
+      <div class="rv-table-host">
+        <div class="tbl-note">Click column headers to sort. Click a row to jump to ML baseline page.</div>
+        <div id="rv-cv-table" class="tbl-loading">Loading CV results…</div>
+      </div>
+    </section>
+
+    <!-- External Table -->
+    <section class="rv-section" aria-labelledby="rv-ext-title">
+      <h2 id="rv-ext-title" data-explain-id="view_researcher-rv-ext-title">External validation</h2>
+      <p class="intro">From <code>results/ml/baseline_ml_external.tsv</code> — Youden threshold trained on TCGA, applied to each GEO cohort.</p>
+      <div class="rv-table-host">
+        <div class="tbl-note">AUC on TCGA-trained model scored against external cohort · balanced_accuracy_youden uses fixed threshold.</div>
+        <div id="rv-ext-table" class="tbl-loading">Loading external results…</div>
+      </div>
+    </section>
+
+    <!-- Honest verdict -->
+    <section class="rv-section" aria-labelledby="rv-verdict-title">
+      <h2 id="rv-verdict-title" data-explain-id="view_researcher-rv-verdict-title">Honest ML verdict</h2>
+      <div class="rv-verdict">
+        <h3>Classical LogReg 승리 · MLP 동률 · Quantum VQC 패배</h3>
+        <ul>
+          <li>Internal: <code>LogReg_l2</code> on <code>TierA67_clean</code> = AUC <strong>1.000</strong> (CI 1.000–1.000), PR-AUC 1.000, Brier 0.00171.</li>
+          <li>Internal: <code>LogReg_l2</code> on <code>TDS16</code> = AUC <strong>0.996</strong> (CI 0.990–0.999) — compact panel이 큰 panel과 사실상 동일.</li>
+          <li>External GSE27155: TierA67_clean LogReg_elasticnet AUC <strong>0.978</strong>, LogReg_l2 AUC 0.968 — 둘 다 정상.</li>
+          <li>External GSE126698: TierA67 LogReg_elasticnet AUC <strong>1.000</strong>, LogReg_l2 AUC 0.889 — n=12이라 variance 큼.</li>
+          <li>MLP (PyTorch): internal AUC 0.99+이지만 외부에서 LogReg와 <em>tie</em>, 외부 overfitting 경향 관찰.</li>
+          <li>Quantum VQC: internal 0.8 대 middling, 외부 0.6~0.7. Hardware-efficient ansatz로는 baseline에 못 미침.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Beyond baseline -->
+    <section class="rv-section" aria-labelledby="rv-beyond-title">
+      <h2 id="rv-beyond-title" data-explain-id="view_researcher-rv-beyond-title">Beyond baseline · experimental</h2>
+      <p class="intro">Baseline LogReg을 기준으로 DL과 Quantum을 같은 feature set · 같은 split으로 벤치마킹했습니다.</p>
+      <div class="rv-beyond">
+        <div class="rv-beyond-item">
+          <div class="hd">
+            <span class="name">MLP (PyTorch)</span>
+            <span class="badge">experimental</span>
+          </div>
+          <div class="metric">TierA67_clean · internal AUC ≈ 0.99 · external AUC 0.93–0.98</div>
+          <div class="metric">ties LogReg · slightly overfits external</div>
+          <a href="07_ml_baseline.html">ML baseline page</a>
+        </div>
+        <div class="rv-beyond-item">
+          <div class="hd">
+            <span class="name">Quantum VQC</span>
+            <span class="badge">experimental</span>
+          </div>
+          <div class="metric">hardware-efficient ansatz · internal AUC ≈ 0.82</div>
+          <div class="metric">external AUC 0.6–0.7 · loses to baseline</div>
+          <a href="07_ml_baseline.html">ML baseline page</a>
+        </div>
+        <div class="rv-beyond-item">
+          <div class="hd">
+            <span class="name">LogReg_l2 (ref)</span>
+            <span class="badge" style="background:rgba(16,185,129,.14);color:#047857">reference</span>
+          </div>
+          <div class="metric">TierA67_clean · internal AUC 1.000 (CI 1.000–1.000)</div>
+          <div class="metric">external AUC 0.968 / 0.889 · PR-AUC 1.000</div>
+          <a href="07_ml_baseline.html">ML baseline page</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Caveats -->
+    <section class="rv-section" aria-labelledby="rv-caveats-title">
+      <h2 id="rv-caveats-title" data-explain-id="view_researcher-rv-caveats-title">Methodology caveats</h2>
+      <div class="rv-caveats">
+        <h3>⚠ 3 things to read before citing these numbers</h3>
+        <ol>
+          <li><strong>Label proxy</strong>: external BRAF_like / RAS_like 라벨은 TCGA-derived score로 transfer된 것이라서 엄밀한 분자 라벨이 아닙니다. ground truth는 TCGA에만 존재.</li>
+          <li><strong>Small external n</strong>: GSE27155 n=72, GSE126698 n=12. 95% CI가 넓고 (예: GSE126698 0.41–1.00), 단일 데이터셋 AUC는 직접 일반화 불가.</li>
+          <li><strong>Dataset-level z-score</strong>: feature scaling은 코호트 내부에서만 수행해 leakage를 방지했습니다. Global z-score는 의도적으로 피했습니다.</li>
+        </ol>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer glass" role="contentinfo" style="max-width:1340px;margin:24px auto 32px;padding:18px 22px;border-radius:var(--radius-lg)">
+    <div class="subtle">
+      <span class="mono">Build</span> 2026-04-24 11:29:10
+      &nbsp;·&nbsp; <span class="mono">Hash</span> no-git
+      &nbsp;·&nbsp; 7 datasets · 1509 samples · 51711 genes
+    </div>
+    <div><a href="14_caveats.html">Methods &amp; Caveats</a> · <a href="view_investor.html">투자자 뷰로</a></div>
+  </footer>
+
+  <script>window.ThyroidDash = window.ThyroidDash || {}; window.ThyroidDash.commandIndex = [{"label": "홈", "href": "../index.html", "tags": "page"}, {"label": "투자자", "href": "view_investor.html", "tags": "page persona"}, {"label": "연구자", "href": "view_researcher.html", "tags": "page persona"}, {"label": "개요", "href": "01_overview.html", "tags": "page"}, {"label": "데이터셋", "href": "02_datasets.html", "tags": "page"}, {"label": "샘플", "href": "03_sample_master.html", "tags": "page"}, {"label": "패널", "href": "04_gene_panels.html", "tags": "page"}, {"label": "EDA", "href": "05_eda.html", "tags": "page"}, {"label": "점수", "href": "06_scores.html", "tags": "page"}, {"label": "ML", "href": "07_ml_baseline.html", "tags": "page"}, {"label": "패널 비교", "href": "08_panel_comparison.html", "tags": "page"}, {"label": "SHAP", "href": "09_shap.html", "tags": "page"}, {"label": "유전자", "href": "10_gene_explorer.html", "tags": "page"}, {"label": "코호트", "href": "11_cohort_compare.html", "tags": "page"}, {"label": "비즈니스", "href": "12_business.html", "tags": "page"}, {"label": "리포트", "href": "13_reports.html", "tags": "page"}, {"label": "주의점", "href": "14_caveats.html", "tags": "page"}, {"label": "드럭", "href": "15_drug_discovery.html", "tags": "page"}, {"label": "마커", "href": "17_biomarker_insights.html", "tags": "page"}, {"label": "해석", "href": "18_pathway_immune_meth.html", "tags": "page interpretation pathway immune methylation"}, {"label": "생존", "href": "21a_survival.html", "tags": "page survival kaplan-meier cox prognosis"}, {"label": "약물리버스", "href": "19a_cmap_network.html", "tags": "page cmap ppi network drug reversal"}, {"label": "용어집", "href": "99_glossary.html", "tags": "page"}, {"label": "양자 알고리즘", "href": "pages/16_quantum.html", "tags": "page quantum"}];</script>
+  <script src="../assets/js/main.js"></script>
+  <script>
+  /* Renderer: fetch baseline TSVs and render sortable tables */
+  (function(){
+    'use strict';
+    const INTERNAL_TSV = '../../../results/ml/baseline_ml_results.tsv';
+    const EXTERNAL_TSV = '../../../results/ml/baseline_ml_external.tsv';
+
+    function parseTSV(text){
+      const lines = text.trim().split(/\r?\n/);
+      const headers = lines[0].split('\t');
+      return lines.slice(1).map(l => {
+        const cells = l.split('\t');
+        const row = {};
+        headers.forEach((h,i) => row[h] = cells[i] !== undefined ? cells[i] : '');
+        return row;
+      });
+    }
+
+    function fmt(v, decimals){
+      if(v === '' || v === null || v === undefined) return '—';
+      const n = Number(v);
+      if(!isFinite(n)) return String(v);
+      return n.toFixed(decimals != null ? decimals : 3);
+    }
+
+    function makeTable(rows, columns, onSort){
+      const tbl = document.createElement('table');
+      tbl.className = 'dx-table';
+      const thead = document.createElement('thead');
+      const trh = document.createElement('tr');
+      columns.forEach((c, idx) => {
+        const th = document.createElement('th');
+        th.textContent = c.label;
+        if(c.numeric) th.classList.add('num-cell');
+        th.dataset.colIdx = idx;
+        th.addEventListener('click', () => onSort(c.key, c.numeric));
+        trh.appendChild(th);
+      });
+      thead.appendChild(trh);
+      tbl.appendChild(thead);
+      const tbody = document.createElement('tbody');
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        columns.forEach(c => {
+          const td = document.createElement('td');
+          if(c.render){ td.innerHTML = c.render(r); }
+          else if(c.numeric){ td.textContent = fmt(r[c.key], c.decimals); td.classList.add('num-cell'); }
+          else { td.textContent = r[c.key] || '—'; }
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      tbl.appendChild(tbody);
+      return tbl;
+    }
+
+    async function fetchTSV(url){
+      const resp = await fetch(url);
+      if(!resp.ok) throw new Error('HTTP ' + resp.status);
+      return parseTSV(await resp.text());
+    }
+
+    function renderInternal(rows){
+      // filter BRAF_like_vs_RAS_like task only
+      rows = rows.filter(r => r.task === 'BRAF_like_vs_RAS_like');
+      const columns = [
+        {key:'feature_set', label:'Feature set'},
+        {key:'model', label:'Model'},
+        {key:'n_samples', label:'n', numeric:true, decimals:0},
+        {key:'cv_auc', label:'CV AUC', numeric:true, decimals:3, render:r=>{
+          const auc = fmt(r.cv_auc, 3), lo = fmt(r.cv_auc_ci_lo, 3), hi = fmt(r.cv_auc_ci_hi, 3);
+          const cls = Number(r.cv_auc) >= 0.999 ? 'best' : '';
+          return `<span class="tag-pill ${cls}" style="${cls?'':'background:transparent;border:0;padding:0'}">${auc}</span> <span style="color:#64748b;font-size:.76rem">[${lo}, ${hi}]</span>`;
+        }},
+        {key:'cv_pr_auc', label:'PR-AUC', numeric:true, decimals:3},
+        {key:'cv_brier', label:'Brier', numeric:true, decimals:4},
+        {key:'cv_balanced_accuracy_youden', label:'BalAcc (Youden)', numeric:true, decimals:3},
+      ];
+      let sortKey = 'cv_auc', sortDir = 'desc';
+      function sort(){
+        rows.sort((a,b) => {
+          const av = isNaN(Number(a[sortKey])) ? a[sortKey] : Number(a[sortKey]);
+          const bv = isNaN(Number(b[sortKey])) ? b[sortKey] : Number(b[sortKey]);
+          if(av < bv) return sortDir === 'asc' ? -1 : 1;
+          if(av > bv) return sortDir === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+      function render(){
+        sort();
+        const host = document.getElementById('rv-cv-table');
+        host.classList.remove('tbl-loading');
+        host.innerHTML = '';
+        const tbl = makeTable(rows, columns, (key, numeric) => {
+          if(sortKey === key){ sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+          else { sortKey = key; sortDir = numeric ? 'desc' : 'asc'; }
+          render();
+        });
+        // mark sorted column
+        tbl.querySelectorAll('thead th').forEach((th, i) => {
+          if(columns[i].key === sortKey) th.setAttribute('aria-sort', sortDir === 'asc' ? 'ascending' : 'descending');
+        });
+        host.appendChild(tbl);
+      }
+      render();
+    }
+
+    function renderExternal(rows){
+      rows = rows.filter(r => r.task === 'BRAF_like_vs_RAS_like' && r.status === 'ok');
+      const columns = [
+        {key:'feature_set', label:'Feature set'},
+        {key:'dataset', label:'Dataset'},
+        {key:'model', label:'Model'},
+        {key:'n_samples', label:'n', numeric:true, decimals:0},
+        {key:'auc', label:'AUC', numeric:true, decimals:3, render:r=>{
+          const auc = fmt(r.auc, 3), lo = fmt(r.auc_ci_lo, 3), hi = fmt(r.auc_ci_hi, 3);
+          return `<span>${auc}</span> <span style="color:#64748b;font-size:.76rem">[${lo}, ${hi}]</span>`;
+        }},
+        {key:'pr_auc', label:'PR-AUC', numeric:true, decimals:3},
+        {key:'balanced_accuracy_youden', label:'BalAcc (Youden)', numeric:true, decimals:3},
+      ];
+      let sortKey = 'auc', sortDir = 'desc';
+      function sort(){
+        rows.sort((a,b) => {
+          const av = isNaN(Number(a[sortKey])) ? a[sortKey] : Number(a[sortKey]);
+          const bv = isNaN(Number(b[sortKey])) ? b[sortKey] : Number(b[sortKey]);
+          if(av < bv) return sortDir === 'asc' ? -1 : 1;
+          if(av > bv) return sortDir === 'asc' ? 1 : -1;
+          return 0;
+        });
+      }
+      function render(){
+        sort();
+        const host = document.getElementById('rv-ext-table');
+        host.classList.remove('tbl-loading');
+        host.innerHTML = '';
+        const tbl = makeTable(rows, columns, (key, numeric) => {
+          if(sortKey === key){ sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+          else { sortKey = key; sortDir = numeric ? 'desc' : 'asc'; }
+          render();
+        });
+        tbl.querySelectorAll('thead th').forEach((th, i) => {
+          if(columns[i].key === sortKey) th.setAttribute('aria-sort', sortDir === 'asc' ? 'ascending' : 'descending');
+        });
+        host.appendChild(tbl);
+      }
+      render();
+    }
+
+    function showFallback(hostId, msg){
+      const h = document.getElementById(hostId);
+      if(!h) return;
+      h.classList.remove('tbl-loading');
+      h.innerHTML = '<div style="padding:14px;color:#64748b;font-size:.82rem;font-family:ui-monospace,monospace">' + msg + '</div>';
+    }
+
+    fetchTSV(INTERNAL_TSV).then(renderInternal).catch(err => {
+      console.warn('Internal TSV fetch failed:', err);
+      showFallback('rv-cv-table', 'Internal CV 결과 로드 실패 · <a href="07_ml_baseline.html" style="color:#0284c7">ML baseline page</a>에서 전체 수치 확인 가능');
+    });
+    fetchTSV(EXTERNAL_TSV).then(renderExternal).catch(err => {
+      console.warn('External TSV fetch failed:', err);
+      showFallback('rv-ext-table', 'External 결과 로드 실패 · <a href="07_ml_baseline.html" style="color:#0284c7">ML baseline page</a>에서 전체 수치 확인 가능');
+    });
+  })();
+  </script>
+
+  <!-- ux:table-export --><script src="../assets/js/table-export.js" defer></script>
+  <!-- ux:tour-js --><script src="../assets/js/tour.js" defer></script>
+  <!-- ux:print-js --><script src="../assets/js/print-button.js" defer></script><!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+% ===========================================================
+%  THEOREM 2 -- UNIFIED SHIFT DECOMPOSITION (proof)
+%  v15 NeurIPS 2026 / ICML 2027 chapter
+%  Author: Seungho Cook
+% ===========================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm,hyperref,booktabs,xcolor}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{Definition}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\TODO}[1]{\textbf{\textcolor{red}{[TODO: Seungho verify -- #1]}}}
+\title{Theorem~2: Unified Shift Decomposition under Linear Correction\\
+\large v15 NeurIPS/ICML chapter --- proof sketch (heavy TODO)}
+\author{Seungho Cook}
+\date{2026-04-25}
+\begin{document}
+\maketitle
+\noindent\emph{This document must be read alongside
+\texttt{theorem2\_setup.tex}.}
+
+% ---------------------------------------------------------------
+\section{Statement}
+
+\begin{theorem}[Unified shift decomposition]
+\label{thm:unified}
+Assume class-conditionals are Gaussian,
+$p_s(\tilde x\mid y) = \mathcal{N}(\tilde m_{s,y},\Sigma)$,
+$p_t(\tilde x\mid y) = \mathcal{N}(\tilde m_{t,y},\Sigma)$ with
+shared covariance $\Sigma\succ 0$. Let $T$ be a linear correction
+operator (Definition~\ref{def:linear-correction} of the setup
+document) and let $w_Y$ be the population Fisher direction under
+$p_s$. Let $P_Y = w_Y w_Y^{\top}/\|w_Y\|^{2}$ denote the rank-one
+projector onto the label axis and $P_Y^{\perp}=I-P_Y$ its
+orthogonal complement. Then:
+\begin{equation}
+  \mathrm{DIAL}(\tilde X,Y)
+  \;=\; \Phi\!\bigl(\Delta_{\text{cov}},\,\Delta_{\text{lab}},\,
+                     \Delta_{\text{cond}}^{\parallel},\,
+                     \Delta_{\text{cond}}^{\perp}\bigr),
+  \label{eq:thm2}
+\end{equation}
+where
+\[
+   \Delta_{\text{cond}}^{\parallel}
+   = \E_{y}\!\left[\tfrac12\bigl\|P_Y\,\Sigma^{-1/2}
+     (\tilde m_{s,y}-\tilde m_{t,y})\bigr\|^{2}\right],\qquad
+   \Delta_{\text{cond}}^{\perp}
+   = \E_{y}\!\left[\tfrac12\bigl\|P_Y^{\perp}\,\Sigma^{-1/2}
+     (\tilde m_{s,y}-\tilde m_{t,y})\bigr\|^{2}\right],
+\]
+and $\Phi$ is \emph{strictly increasing in $\Delta_{\text{cond}}^{\parallel}$
+and independent of $\Delta_{\text{cov}}$ and $\Delta_{\text{lab}}$} (up
+to a $1/\sqrt{n}$ CV noise term).
+\end{theorem}
+
+\begin{corollary}[Subspace alignment]
+\label{cor:subspace}
+DIAL $>$ 0 if and only if
+$\Delta_{\text{cond}}^{\parallel} > \Delta_{\text{cond}}^{\perp}$, i.e.\
+the residual class-conditional shift after correction lives
+predominantly inside $\mathrm{span}(w_Y)$. Equivalently, the flip
+condition of Theorem~1 (v10 chapter) is the event $\alpha>1/2$ when
+the batch contamination is itself rank-one; Theorem~2 generalises it
+to arbitrary rank.
+\end{corollary}
+
+\begin{corollary}[Unification of shift taxonomy]
+\label{cor:unify}
+Let $T$ be a linear correction producing $\tilde X=T(X,B)$. Then for
+the canonical shift types:
+\begin{enumerate}
+\item[\textup{(a)}] \emph{Pure covariate shift}
+  ($p_s(x)\ne p_t(x),$ same $p(y\mid x)$):
+  $\Delta_{\text{cov}}>0,\ \Delta_{\text{cond}}^{\parallel}\to 0$
+  as $T$ converges to the Bayes-optimal importance-weighting map, so
+  $\mathrm{DIAL}\to 0$.
+\item[\textup{(b)}] \emph{Pure label (prior) shift}: $\Delta_{\text{lab}}>0$
+  only, $\Delta_{\text{cond}}^{\parallel}=0$, thus
+  $\mathrm{DIAL}=0$.
+\item[\textup{(c)}] \emph{Subspace-aligned conditional shift}:
+  $\Delta_{\text{cond}}^{\parallel}>0$ and
+  $\mathrm{DIAL}>0$. This is the regime uniquely diagnosed by our
+  metric.
+\end{enumerate}
+\end{corollary}
+
+% ---------------------------------------------------------------
+\section{Proof sketch}
+
+We prove \eqref{eq:thm2} in six steps.
+
+% ------------------------------------
+\paragraph{Step 1 (linear correction as affine projection).}
+Let $T(x,b)=A_b x + c_b$. For each batch $b$, define the \emph{residual
+batch subspace}
+$\mathcal{S}_b = A_b\,\mathcal{X}\,\subset\R^{p}$.
+Because $A_b$ is non-singular, $\mathcal{S}_b=\R^{p}$ as a set, but the
+induced metric is $A_b\,\Sigma A_b^{\top}$; up to change of basis we
+may assume, WLOG, that $A_b=I$ and $c_b$ carries all the correction
+(mean-centring case). This absorbs the scale-component of ComBat into
+$\Sigma$. \TODO{The reduction $A_b\!=\!I$ is WLOG only if $A_b$ commutes
+with the Bayes classifier's whitening matrix; verify this is valid for
+ComBat's diagonal $A_b$, and that the general case merely rescales
+DIAL by a constant $\kappa(A)\in(0,1]$ (state as a lemma in the final
+version).}
+
+% ------------------------------------
+\paragraph{Step 2 (KL chain rule decomposition).}
+Write the joint under each distribution as
+$p(\tilde x,y)=p(y)\,p(\tilde x\mid y)$. The KL divergence between
+the \emph{joint corrected} distributions factorises as:
+\begin{align*}
+  \KL\!\bigl(p_s(\tilde x,y)\,\|\,p_t(\tilde x,y)\bigr)
+   &= \KL\!\bigl(p_s(y)\,\|\,p_t(y)\bigr)
+      + \E_{y\sim p_s}\bigl[
+        \KL\!\bigl(p_s(\tilde x\mid y)\,\|\,
+                   p_t(\tilde x\mid y)\bigr)\bigr]\\
+   &= \Delta_{\text{lab}} + \Delta_{\text{cond}}.
+\end{align*}
+By the marginal--conditional identity
+$p(\tilde x) = \int p(\tilde x\mid y)p(y)\,dy$ and Csisz\'ar's data
+processing inequality,
+$
+  \Delta_{\text{cov}} \;\le\; \Delta_{\text{lab}} + \Delta_{\text{cond}}.
+$
+Equality holds iff $p_s(y\mid \tilde x)=p_t(y\mid \tilde x)$. \TODO{Write
+the chain rule decomposition completely: need to justify the swap of
+integration and KL for Gaussian mixtures, and cite Cover \& Thomas
+Thm.~2.5.3.}
+
+% ------------------------------------
+\paragraph{Step 3 (class-conditional KL under shared covariance).}
+For Gaussians with shared $\Sigma$,
+\[
+  \KL\!\bigl(\mathcal{N}(\tilde m_{s,y},\Sigma)\,\|\,
+             \mathcal{N}(\tilde m_{t,y},\Sigma)\bigr)
+  \;=\; \tfrac12\,
+        (\tilde m_{s,y}-\tilde m_{t,y})^{\!\top}
+        \Sigma^{-1}
+        (\tilde m_{s,y}-\tilde m_{t,y}).
+\]
+Introducing the projectors $P_Y,P_Y^{\perp}$ on the pre-whitened
+direction $\Sigma^{-1/2}w_Y$,
+\[
+  \Delta_{\text{cond}}
+  \;=\; \underbrace{\E_y[\tfrac12\|P_Y\,\Sigma^{-1/2}
+        (\tilde m_{s,y}-\tilde m_{t,y})\|^{2}]}_{=\Delta_{\text{cond}}^{\parallel}}
+      + \underbrace{\E_y[\tfrac12\|P_Y^{\perp}\,\Sigma^{-1/2}
+        (\tilde m_{s,y}-\tilde m_{t,y})\|^{2}]}_{=\Delta_{\text{cond}}^{\perp}}.
+\]
+
+% ------------------------------------
+\paragraph{Step 4 (Bayes-classifier posterior under corrected means).}
+For Gaussian classes with shared $\Sigma$ the log-odds
+$\log p_s(y{=}1\mid\tilde x)/p_s(y{=}0\mid\tilde x)$ is the linear
+form $\langle w_Y,\tilde x\rangle + c$ up to constants, and the
+\emph{flipped} log-odds on $p_t$ is
+$\langle w_Y',\tilde x\rangle + c'$ with
+$w_Y' = \Sigma^{-1}(\tilde m_{t,1}-\tilde m_{t,0})$. Hence
+$\mathrm{sign}\,\mathrm{AUC}(\tilde X_t,Y_t)-\tfrac12
+ = \mathrm{sign}\,\langle w_Y,w_Y'\rangle$. When the shift that has
+survived correction lies in $\mathrm{span}(w_Y)$, $w_Y'\approx-w_Y$
+and AUC $<\tfrac12$, giving DIAL $>$ 0. The magnitude of the flip is
+monotone in $\Delta_{\text{cond}}^{\parallel}$. \TODO{Formalise the
+monotonicity: compute $\partial\mathrm{AUC}/\partial
+\Delta_{\text{cond}}^{\parallel}$ explicitly in the Gaussian equal-covariance
+case, using Das~Gupta (2008) Prop.~4.3.}
+
+% ------------------------------------
+\paragraph{Step 5 (CV noise term).}
+$\mathrm{AUC}$ is evaluated by $k$-fold cross-validation so observed
+DIAL equals the population-DIAL plus a mean-zero noise term of
+magnitude $O_p(\sqrt{\log(1/\delta)/n})$ by McDiarmid's inequality
+applied to the U-statistic form of AUC (Agarwal \emph{et al.}\ 2005,
+Thm.~3). This contributes the additive $\varepsilon_n$ in
+\eqref{eq:thm2}. \TODO{Cite McDiarmid with the exact bound constant;
+current expression is informal.}
+
+% ------------------------------------
+\paragraph{Step 6 (assembly).}
+Combining Steps 2--5 gives Theorem~\ref{thm:unified} with
+\[
+   \Phi(\cdot) \;\propto\;
+   \mathbf{1}\!\bigl[\Delta_{\text{cond}}^{\parallel}
+                     >\Delta_{\text{cond}}^{\perp}\bigr]
+   \cdot
+   \min\!\bigl(1,\,c_0\,\Delta_{\text{cond}}^{\parallel}\bigr),
+\]
+for an absolute constant $c_0>0$ depending on $\|\Sigma^{-1/2}w_Y\|$.
+The claim that $\Phi$ is \emph{independent of
+$\Delta_{\text{cov}}$ and $\Delta_{\text{lab}}$ up to $\varepsilon_n$}
+follows because AUC is invariant to strictly monotone rescalings of
+the score --- a covariate-only shift or prior-only shift rescales both
+class scores identically, leaving the classifier's ranking unchanged.
+\TODO{This AUC-invariance step is the crux of the unification. Double
+check the rank-preservation argument with a counter-example run in
+\texttt{v15\_theorem2\_verify.py} rows labelled ``shift\_type=label''.}
+
+\qed
+
+% ---------------------------------------------------------------
+\section{Connections}
+
+\paragraph{Ben-David \emph{et al.}\ (2010) $\mathcal{H}$-divergence.}
+The A-distance $d_{\mathcal{A}}(p_s,p_t)$ upper-bounds the
+transferability risk by
+$\epsilon_t\le\epsilon_s+d_{\mathcal{H}\Delta\mathcal{H}}+\lambda$.
+Theorem~2 shows that when $T$ is linear and alignment $\alpha>1/2$,
+the A-distance is dominated by the parallel component
+$\Delta_{\text{cond}}^{\parallel}$, giving DIAL as a computable
+surrogate for the otherwise intractable
+$\mathcal{H}\Delta\mathcal{H}$-divergence. \TODO{Exact inequality:
+$\Delta_{\text{cond}}^{\parallel}\le d_{\mathcal{H}\Delta\mathcal{H}}
+\le 2\sqrt{\Delta_{\text{cond}}}$ --- prove in appendix.}
+
+\paragraph{Sugiyama \emph{et al.}\ (2007) KLIEP.}
+KLIEP estimates the importance weight
+$r(x)=p_t(x)/p_s(x)$ by minimising an empirical KL. Theorem~2 says
+that KLIEP cannot correct DIAL $>$ 0 alone: when
+$\Delta_{\text{cond}}^{\parallel}>0$, re-weighting the source cannot
+restore the posterior direction, since re-weighting acts on
+$p(x)$ not $p(x\mid y)$.
+
+\paragraph{Arjovsky \emph{et al.}\ (2019) IRM.}
+IRM searches for representations $\Phi(X)$ under which the classifier
+is simultaneously optimal across environments. Theorem~2 implies that
+IRM's \emph{failure mode} (partial invariance) is precisely the regime
+where $\Delta_{\text{cond}}^{\parallel}>0$ --- i.e.\ DIAL is positive
+if and only if IRM has not reached an invariant solution. This gives
+IRM a new empirical diagnostic.
+
+\paragraph{Tishby \emph{et al.}\ (2015) information bottleneck.}
+Let $I(\tilde X;Y)$ be the mutual information of corrected features
+with labels. The flip event DIAL $>$ 0 is equivalent (up to
+$\varepsilon_n$) to $I(\tilde X;Y\mid B)\ll I(X;Y)$, i.e.\ correction
+has \emph{destroyed information} about $Y$ while preserving information
+about $B^\perp$. \TODO{Make precise: show the identity
+$I(\tilde X;Y\mid B) = I(X;Y) - \Delta_{\text{cond}}^{\parallel}+O(1/n)$
+under our Gaussian assumptions.}
+
+\section{Numerical validation}
+
+See companion script
+\texttt{\detokenize{notebooks_or_scripts/v15_theorem2_verify.py}},
+which simulates
+\[
+   \{\Delta_{\text{cov}},\,\Delta_{\text{lab}},\,
+    \Delta_{\text{cond}}^{\parallel},\,
+    \Delta_{\text{cond}}^{\perp}\}
+\]
+independently and regresses observed DIAL against the decomposition.
+Results file: \texttt{results/v15\_neurips/theory\_validation/
+theorem2\_numerical.tsv}; interactive visualisation
+\texttt{reports/html/figs\_interactive/v15/
+theorem2\_decomposition.html}.
+
+\paragraph{Expected result.}
+Under the four ablation regimes (pure covariate, pure label, rank-one
+subspace-aligned, full conditional) the sign and magnitude of DIAL
+should match the prediction of \eqref{eq:thm2} with
+$R^{2}\gtrsim 0.9$. If this $R^{2}$ is materially lower, one of the
+TODO steps above is the likely culprit.
+
+\end{document}

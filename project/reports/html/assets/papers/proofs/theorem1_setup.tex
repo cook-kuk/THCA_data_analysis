@@ -1,0 +1,173 @@
+% ===========================================================
+%  THEOREM 1 -- FORMAL SETUP
+%  Direction-Invariant Label Flip under Linear Batch Correction
+%  (v10 AAAI 2027)
+% ===========================================================
+
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm,hyperref,booktabs}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{assumption}{Assumption}
+\newtheorem{definition}{Definition}
+\title{Theorem 1 -- Formal Setup\\
+ \large Direction-Invariant Label Flip under Linear Batch Correction}
+\date{v10 AAAI 2027 -- 2026-04-24}
+\begin{document}
+\maketitle
+
+\section{Objects and notation}
+
+Let
+\begin{align*}
+  X &\in \mathbb{R}^{n\times p}          &&\text{row-wise expression matrix,}\\
+  Y &\in \{0,1\}^{n}                     &&\text{binary clinical label,}\\
+  B &\in \{1,\dots,K\}^{n}               &&\text{cohort (batch) assignment, }K\ge 2,\\
+  \pi_{k} &= \{\,i : B_i=k\,\}           &&\text{index set of samples in batch }k.
+\end{align*}
+All rows $X_i$ are assumed column-standardised across the full dataset
+so that sample-level covariance is order-one.
+
+\subsection{Key directions}
+
+We define the three unit vectors that drive the analysis.
+\begin{align}
+  w_Y \;&=\; \frac{\,\mu_1-\mu_0\,}{\lVert\mu_1-\mu_0\rVert},
+     &\mu_c &=\mathbb{E}[X_i\mid Y_i=c] \quad (c\in\{0,1\}),
+     \tag{label direction}\\[2pt]
+  w_B \;&=\;
+     \underset{\lVert w\rVert=1,\; w\perp \ker(P_Y^{\perp})}{\arg\max}\;
+     w^{\!\top}\,\mathrm{Cov}_{\!B}(X)\,w,
+     &\mathrm{Cov}_{\!B}(X) &=
+     \mathbb{E}_{k}\!\bigl[(\mu_{B=k}-\bar\mu)(\mu_{B=k}-\bar\mu)^{\!\top}\bigr],
+     \tag{dominant batch direction}\\[2pt]
+  w_{\text{trained}} \;&=\;
+     \arg\min_{w,b} \sum_{i=1}^{n}\ell\!\bigl(Y_i,w^{\!\top}T_B(X)_i+b\bigr)
+     + \lambda\lVert w\rVert^{2},
+     \tag{trained classifier}
+\end{align}
+where $\ell$ is a convex margin loss (logistic, hinge, or squared-hinge)
+and $\lambda\ge 0$ is a ridge penalty.
+
+We write $\rho = \langle w_Y, w_B\rangle \in [-1,1]$ and note that under
+the sign convention above $\rho\ge 0$ after at most a relabelling of the
+batch coordinate.
+
+\subsection{Projection operators}
+
+\begin{definition}[Batch subspace projector]
+  $P_B \;=\; U_B U_B^{\!\top}$, where $U_B\in\mathbb{R}^{p\times r}$
+  has orthonormal columns spanning the column space of the centred
+  batch-indicator matrix $\tilde B\in\mathbb{R}^{n\times K}$ acting on
+  $X$; i.e.\ $\mathrm{range}(P_B)=\mathrm{span}\{\mu_{B=k}-\bar\mu:k=1,\dots,K\}$.
+  Rank $r = K-1$ generically.
+\end{definition}
+
+\begin{definition}[Label direction projector]
+  $P_Y \;=\; w_Y w_Y^{\!\top}$.
+\end{definition}
+
+\subsection{Linear batch correction with label covariate}
+
+Following the standard ComBat-with-covariate formulation, we model
+\begin{equation}
+   X_i \;=\; \alpha + \beta^{\!\top} Y_i + \gamma_{B_i} + \varepsilon_i,
+   \qquad \varepsilon_i\sim\mathcal{N}(0,\Sigma).
+   \label{eq:additive-model}
+\end{equation}
+The linear correction operator is
+\begin{equation}
+  T_B(X_i) \;=\; X_i - \hat\gamma_{B_i}
+  \;=\; X_i - \bigl(\bar X_{\pi_{B_i}} - \bar X - \hat\beta^{\!\top}(\bar Y_{\pi_{B_i}}-\bar Y)\bigr),
+  \label{eq:TB}
+\end{equation}
+where $\hat\gamma_k$ is the OLS estimate of $\gamma_k$ holding the label
+covariate $Y$ fixed. Matrix form: there exists $M_B\in\mathbb{R}^{n\times n}$
+(idempotent on the batch-indicator column space, orthogonal to~$Y$) such that
+\begin{equation}
+  T_B(X) \;=\; (I-M_B)X \;+\; (\text{label-covariate adjustment}).
+  \label{eq:TB-matrix}
+\end{equation}
+
+\subsection{The key quantity}
+
+The \emph{alignment parameter}
+\begin{equation}
+  \rho^{2} \;=\; \bigl\langle w_Y,\,w_B\bigr\rangle^{2}
+  \;\in\;[0,1]
+  \label{eq:rho}
+\end{equation}
+measures how closely the dominant batch direction parallels the true
+label direction.  \textbf{Theorem 1} (stated below) shows that
+$\rho^2>\tfrac12$ is the sharp threshold at which the trained classifier
+under $T_B$ \emph{inverts} relative to the pre-correction discriminant.
+
+\section{Assumptions}
+
+\begin{assumption}[Additive generative model]
+\label{asm:additive}
+Equation~\eqref{eq:additive-model} holds; residuals are isotropic with
+sub-Gaussian tails.
+\end{assumption}
+
+\begin{assumption}[Well-posedness]
+\label{asm:wellposed}
+$\mu_1\ne\mu_0$ and at least two batches differ in mean; the ridge
+parameter satisfies $\lambda = o(n)$.
+\end{assumption}
+
+\begin{assumption}[Cohort imbalance or near-confounding]
+\label{asm:conf}
+There exist $k\ne k'$ with $\bigl|\Pr(Y=1\mid B=k)-\Pr(Y=1\mid B=k')\bigr|\;\ge\;\delta>0$.
+This is what makes $\rho$ strictly positive in the finite-sample regime.
+\end{assumption}
+
+\begin{assumption}[Sample scaling]
+\label{asm:n}
+$n/p$ is bounded away from zero as $n\to\infty$; $\min_k|\pi_k| = \Omega(n/K)$.
+\end{assumption}
+
+\section{Main theorem (statement)}
+
+\begin{theorem}[Direction-invariant label flip]
+\label{thm:flip}
+Assume~\ref{asm:additive}--\ref{asm:n}. Let $f_{\text{trained}}(x)=
+w_{\text{trained}}^{\!\top}x + b_{\text{trained}}$ be the linear
+classifier fit on $(T_B(X),Y)$. Let
+\[
+   \mathrm{AUC}_{\text{post}}
+   \;=\; \Pr\bigl(f_{\text{trained}}(X^\ast)>f_{\text{trained}}(X^\dagger)\,\bigm|\, Y^\ast=1,\,Y^\dagger=0\bigr)
+\]
+on a held-out cohort, and set
+\[
+   \mathrm{DIAL}
+   \;=\; \max\!\bigl(\mathrm{AUC}_{\text{post}},\;1-\mathrm{AUC}_{\text{post}}\bigr)
+         \;-\; \mathrm{AUC}_{\text{post}}.
+\]
+Then there exists a universal threshold $\rho^\star\in(0,1)$ with
+$\rho^{\star 2}=\tfrac12$ such that
+\begin{enumerate}
+\item[\textup{(i)}] if $\rho^2<\rho^{\star 2}$,
+ $\lim_{n\to\infty}\Pr(\mathrm{AUC}_{\text{post}}>1/2)=1$,
+ and $\mathrm{DIAL}\xrightarrow{p}0$;
+\item[\textup{(ii)}] if $\rho^2>\rho^{\star 2}$ and Assumption~\ref{asm:conf} holds,
+ $\lim_{n\to\infty}\Pr(\mathrm{AUC}_{\text{post}}<1/2)=1$,
+ and $\mathrm{DIAL}\xrightarrow{p} 1-2\,\mathrm{AUC}_{\text{post}}^{\infty}>0$.
+\end{enumerate}
+Equivalently, $\mathrm{sign}\langle w_{\text{trained}},w_Y\rangle$ flips
+sharply at $\rho^2=\tfrac12$.
+\end{theorem}
+
+\begin{corollary}[DIAL characterisation]
+\label{cor:dial}
+Under Theorem~\ref{thm:flip}, $\mathrm{DIAL}>0$ if and only if
+$\rho^2>\tfrac12$.  In particular, DIAL is a direct estimator of the
+mass on the $\rho^2>\tfrac12$ event conditional on cohort structure.
+\end{corollary}
+
+% Proof is in theorem1_proof.tex.
+
+\end{document}

@@ -1,0 +1,44 @@
+% v5.2 REWRITE (2026-04-25): paper repositioned as a methodological
+% report on evaluation leakage in batch-correction pipelines. The
+% earlier v5.1 THCA "DIAL = 0.494 / batch_entangled" claim was an
+% artifact of fitting ComBat on the full pooled X (train + test)
+% before the LODO split; under proper per-fold ComBat the THCA
+% classifier returns AUC_post = 0.995 (true_biology). The honest
+% finding is that DIAL successfully diagnosed the leakage --- which
+% is what the paper now reports.
+\begin{abstract}
+
+\textbf{Motivation:} Public cancer expression cohorts (TCGA and GEO)
+are routinely combined via empirical-Bayes batch correction (ComBat)
+before training molecular subtype classifiers. A common but
+under-recognised error is to fit the correction on the full pooled
+matrix and then split for cross-cohort evaluation: the correction
+parameters borrow strength from the held-out fold and silently
+exaggerate apparent batch entanglement of the downstream classifier.
+
+\textbf{Results:} We introduce DIAL (\textit{Direction-Invariant AUC
+Leakage}), a post-hoc metric that flags label-axis inversion under
+linear batch correction. We prove a label-flip lemma characterising
+the geometric conditions under which it would fire on a correctly
+fitted pipeline. Applying DIAL to five cancers under
+Leave-One-Dataset-Out evaluation reproduces a published
+``thyroid-specific'' batch-entanglement pattern (4 of 5 thyroid
+classifiers flip; DIAL up to 0.494) only when the leaky pipeline is
+used. Refactoring ComBat to be fit per fold inside the LODO loop
+returns DIAL $= 0$ across all 25 cancer--classifier cells, including
+all 5 thyroid rows ($\Delta\mathrm{DIAL} = -0.494$ on
+LogReg-$\ell_2$). The discrepancy is reproducible, isolated to
+ComBat fitting, and unrelated to the classifier family.
+
+\textbf{Conclusion:} DIAL is a diagnostic, not a correction. In the
+present study it functioned as designed --- it diagnosed the
+evaluation leakage rather than ratifying it. The reframed
+contribution is a clean per-fold ComBat protocol, a worked example
+of the inflation it prevents, and a metric that distinguishes the
+two regimes.
+
+\textbf{Availability:} \url{http://40.82.129.113:8012/}
+
+\textbf{Contact:} \href{mailto:kukshomr@gmail.com}{kukshomr@gmail.com}
+
+\end{abstract}

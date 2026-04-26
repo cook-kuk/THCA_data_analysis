@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07132b">
+  <title>v3 리뷰어 가이드 | THCA Multi-Omics Dashboard</title>
+  <meta name="description" content="v3 리서치 페이즈 리뷰어 가이드 — 각 페이지가 증명하는 것, 원자료(TSV), 대표 그림, 대상 독자.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    /* v3 리뷰어 가이드 전용 스타일 */
+    .rg-hero{position:relative;padding:36px 32px;border-radius:var(--radius-xl);overflow:hidden;border:1px solid rgba(148,163,184,.14);background:linear-gradient(135deg,rgba(6,17,38,.95),rgba(11,26,58,.68) 45%,rgba(19,42,85,.55));margin-bottom:22px}
+    .rg-hero::before{content:'';position:absolute;inset:-40%;z-index:-1;pointer-events:none;background:conic-gradient(from 160deg at 30% 50%,rgba(94,234,212,.22),transparent 35%),radial-gradient(circle at 75% 85%,rgba(129,140,248,.18),transparent 55%);filter:blur(60px);animation:rgDrift 28s linear infinite}
+    @keyframes rgDrift{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .rg-hero h1{font-size:clamp(1.8rem,1.3rem + 1.6vw,2.8rem);line-height:1.05;margin:0 0 6px;color:var(--ink-strong)}
+    .rg-hero .lede{color:var(--slate-300);max-width:820px}
+    .rg-subtitle{color:var(--slate-400);font-size:.95rem;margin-top:8px;max-width:820px}
+    .rg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;margin-top:18px}
+    .rg-card{padding:18px;border-radius:var(--radius-lg);border:1px solid rgba(148,163,184,.14);background:rgba(11,26,58,.45);backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:8px}
+    .rg-card h3{margin:0;font-size:1.05rem;color:var(--ink-strong);display:flex;align-items:center;gap:8px}
+    .rg-card h3 .rg-num{font-size:.72rem;color:#5eead4;background:rgba(20,184,166,.12);border:1px solid rgba(45,212,191,.3);padding:2px 8px;border-radius:999px;letter-spacing:.08em}
+    .rg-card h3 a{color:inherit;text-decoration:none}
+    .rg-card h3 a:hover{color:#5eead4}
+    .rg-card .rg-tldr{font-size:.92rem;color:var(--ink);line-height:1.5;margin:2px 0 6px}
+    .rg-card .rg-meta{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:.82rem;color:var(--slate-300)}
+    .rg-card .rg-meta .lbl{color:var(--slate-400);text-transform:uppercase;letter-spacing:.08em;font-size:.68rem;align-self:center;white-space:nowrap}
+    .rg-card .rg-meta code{background:rgba(7,19,43,.55);border:1px solid rgba(148,163,184,.12);padding:1px 6px;border-radius:6px;font-size:.78rem;color:#e2e8f0;word-break:break-all}
+    .rg-card .rg-audience{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+    .rg-tag{font-size:.68rem;padding:2px 8px;border-radius:999px;border:1px solid rgba(148,163,184,.2);color:var(--slate-200);background:rgba(11,26,58,.35);letter-spacing:.04em}
+    .rg-tag.rg-beg{border-color:rgba(94,234,212,.45);color:#5eead4;background:rgba(20,184,166,.1)}
+    .rg-tag.rg-res{border-color:rgba(129,140,248,.45);color:#a5b4fc;background:rgba(99,102,241,.1)}
+    .rg-tag.rg-rev{border-color:rgba(251,191,36,.45);color:#fcd34d;background:rgba(245,158,11,.1)}
+    .rg-tag.rg-inv{border-color:rgba(236,72,153,.45);color:#f9a8d4;background:rgba(219,39,119,.1)}
+    .rg-card .rg-links{margin-top:auto;padding-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+    .rg-card .rg-links a{font-size:.8rem}
+    .rg-stage99{margin:22px 0;padding:16px;border-radius:12px;border:1px solid rgba(148,163,184,.16);background:rgba(7,19,43,.55)}
+    .rg-stage99 h2{margin:0 0 8px;font-size:1.05rem;color:var(--ink-strong)}
+    .rg-stage99 .note{font-size:.82rem;color:var(--slate-400);margin-bottom:8px}
+    .rg-stage99 pre{margin:0;padding:12px;border-radius:8px;background:#0a1428;color:#c7f9ee;border:1px solid rgba(148,163,184,.14);font-size:.78rem;line-height:1.5;max-height:360px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+    .rg-footer-cta{padding:16px;border-radius:12px;background:rgba(11,26,58,.45);border:1px solid rgba(148,163,184,.12);margin-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+    .rg-footer-cta .txt{color:var(--slate-300);font-size:.9rem}
+    .rg-footer-cta .btns{display:flex;gap:8px;flex-wrap:wrap}
+    /* light-mode overrides */
+    body.light .rg-hero{background:linear-gradient(135deg,#f8fafc,#e2e8f0 55%,#cbd5e1);border-color:rgba(15,23,42,.1)}
+    body.light .rg-hero .lede{color:#334155}
+    body.light .rg-subtitle{color:#475569}
+    body.light .rg-card{background:#ffffff;border-color:rgba(15,23,42,.08)}
+    body.light .rg-card .rg-tldr{color:#0f172a}
+    body.light .rg-card .rg-meta{color:#334155}
+    body.light .rg-card .rg-meta .lbl{color:#64748b}
+    body.light .rg-card .rg-meta code{background:#f1f5f9;color:#0f172a;border-color:rgba(15,23,42,.08)}
+    body.light .rg-stage99{background:#f8fafc;border-color:rgba(15,23,42,.08)}
+    body.light .rg-stage99 pre{background:#0f172a;color:#a7f3d0}
+    body.light .rg-footer-cta{background:#f8fafc;border-color:rgba(15,23,42,.08)}
+    body.light .rg-footer-cta .txt{color:#334155}
+    /* Mobile responsive */
+    @media (max-width: 760px){
+      .rg-hero{padding:24px 18px}
+      .rg-hero h1{font-size:1.55rem}
+      .rg-hero .lede{font-size:.9rem}
+      .rg-subtitle{font-size:.85rem}
+      .rg-grid{grid-template-columns:1fr;gap:12px;margin-top:12px}
+      .rg-card{padding:14px}
+      .rg-card h3{font-size:.98rem}
+      .rg-card .rg-meta code{font-size:.72rem}
+      .rg-stage99 pre{font-size:.72rem;max-height:280px}
+      .rg-footer-cta{padding:12px;flex-direction:column;align-items:flex-start}
+      .rg-footer-cta .btns{width:100%}
+      .rg-footer-cta .btns .btn{flex:1 1 calc(50% - 4px);text-align:center}
+    }
+    @media (max-width: 380px){
+      .rg-card{padding:12px}
+      .rg-card .rg-meta{grid-template-columns:1fr}
+      .rg-card .rg-meta .lbl{font-size:.62rem}
+      .rg-stage99 pre{font-size:.68rem;max-height:240px}
+    }
+  </style>
+<!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body class="light">
+  <a class="sr-only" href="#main-content">본문으로 건너뛰기</a>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="../index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar">
+        <a class="nav-link" href="../index.html" role="menuitem">홈</a><a class="nav-link" href="01_overview.html" role="menuitem">개요</a><a class="nav-link" href="02_datasets.html" role="menuitem">데이터셋</a><a class="nav-link" href="03_sample_master.html" role="menuitem">샘플</a><a class="nav-link" href="04_gene_panels.html" role="menuitem">패널</a><a class="nav-link" href="05_eda.html" role="menuitem">EDA</a><a class="nav-link" href="06_scores.html" role="menuitem">점수</a><a class="nav-link" href="07_ml_baseline.html" role="menuitem">ML</a><a class="nav-link" href="08_panel_comparison.html" role="menuitem">패널 비교</a><a class="nav-link" href="09_shap.html" role="menuitem">SHAP</a><a class="nav-link" href="10_gene_explorer.html" role="menuitem">유전자</a><a class="nav-link" href="11_cohort_compare.html" role="menuitem">코호트</a><a class="nav-link" href="12_business.html" role="menuitem">비즈니스</a><a class="nav-link" href="13_reports.html" role="menuitem">리포트</a><a class="nav-link" href="14_caveats.html" role="menuitem">주의점</a><a class="nav-link" href="15_drug_discovery.html" role="menuitem">드럭</a><a class="nav-link" href="16_quantum.html" role="menuitem">양자</a><a class="nav-link" href="17_biomarker_insights.html" role="menuitem">마커</a><a class="nav-link" href="18_pathway_immune_meth.html" role="menuitem">해석</a><a class="nav-link" href="20a_meta_power.html" role="menuitem">통계</a><a class="nav-link active" href="v3_reviewer_guide.html" role="menuitem">리뷰어</a><a class="nav-link" href="21a_survival.html" role="menuitem">생존</a><a class="nav-link" href="19a_cmap_network.html" role="menuitem">약물리버스</a><a class="nav-link" href="view_investor.html" role="menuitem">투자자</a><a class="nav-link" href="view_researcher.html" role="menuitem">연구자</a><a class="nav-link" href="99_glossary.html" role="menuitem">용어</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <main class="content" id="main-content" style="grid-column:1 / -1">
+      <section class="rg-hero" aria-labelledby="rg-hero-title">
+        <div class="subtle mono">v3 / REVIEWER GUIDE</div>
+        <h1 id="rg-hero-title">v3 리뷰어 가이드 — 각 페이지가 증명하는 것</h1>
+        <p class="lede">v3 리서치 페이즈에서 새로 추가된 6개 페이지(19–24)가 각각 어떤 주장을 원자료(TSV) + 그림으로 증명하는지, 그리고 누가 읽어야 하는지를 한 장에 요약한 가이드입니다.</p>
+        <p class="rg-subtitle">각 카드는 (1) 페이지 링크, (2) 한 줄 TL;DR, (3) 숫자가 담긴 TSV 경로, (4) 대표 그림(Money shot), (5) 대상 독자(초급/연구자/리뷰어/투자자) 태그 순서입니다.</p>
+      </section>
+
+      <div class="rg-grid">
+
+        <article class="rg-card">
+          <h3><span class="rg-num">19</span><a href="19_honesty_audit.html">정직성 감사 (Honesty Audit)</a></h3>
+          <p class="rg-tldr">TL;DR — 어디서 라벨 누수 / 데이터 누수가 생길 수 있는지, 그리고 정직한 파이프라인에서 성능이 얼마나 떨어지는지를 수치로 보여줍니다.</p>
+          <div class="rg-meta">
+            <span class="lbl">원자료</span><code>results/tables/v3_honesty_audit.tsv</code>
+            <span class="lbl">대표 그림</span><code>figs_interactive/v3_leakage_curve.html</code>
+          </div>
+          <div class="rg-audience">
+            <span class="rg-tag rg-rev">리뷰어</span>
+            <span class="rg-tag rg-res">연구자</span>
+          </div>
+          <div class="rg-links">
+            <a class="btn sm" href="19_honesty_audit.html">페이지 열기</a>
+            <a class="btn sm ghost" href="14_caveats.html">한계 &amp; 주의점</a>
+          </div>
+        </article>
+
+        <article class="rg-card">
+          <h3><span class="rg-num">20</span><a href="20_panel_size.html">패널 크기 메인 분석 (Panel Size)</a></h3>
+          <p class="rg-tldr">TL;DR — 유전자 패널 크기(10/20/50/100 등)에 따라 분류 성능이 어떻게 수렴하는지, 실전에서 몇 개가 "충분한가"를 곡선으로 보여줍니다.</p>
+          <div class="rg-meta">
+            <span class="lbl">원자료</span><code>results/tables/v3_panel_size_curve.tsv</code>
+            <span class="lbl">대표 그림</span><code>figs_interactive/v3_panel_size_curve.html</code>
+          </div>
+          <div class="rg-audience">
+            <span class="rg-tag rg-res">연구자</span>
+            <span class="rg-tag rg-rev">리뷰어</span>
+            <span class="rg-tag rg-inv">투자자</span>
+          </div>
+          <div class="rg-links">
+            <a class="btn sm" href="20_panel_size.html">페이지 열기</a>
+            <a class="btn sm ghost" href="04_gene_panels.html">패널 비교</a>
+          </div>
+        </article>
+
+        <article class="rg-card">
+          <h3><span class="rg-num">21</span><a href="21_three_class.html">3-클래스 분류 (BRAF / RAS / Other)</a></h3>
+          <p class="rg-tldr">TL;DR — 2분법(BRAF_like vs RAS_like)의 한계를 넘어, 3-클래스(BRAF/RAS/Other)로 분류했을 때의 혼동 행렬과 클래스별 F1을 제시합니다.</p>
+          <div class="rg-meta">
+            <span class="lbl">원자료</span><code>results/tables/v3_three_class_metrics.tsv</code>
+            <span class="lbl">대표 그림</span><code>figs_interactive/v3_three_class_confusion.html</code>
+          </div>
+          <div class="rg-audience">
+            <span class="rg-tag rg-res">연구자</span>
+            <span class="rg-tag rg-rev">리뷰어</span>
+          </div>
+          <div class="rg-links">
+            <a class="btn sm" href="21_three_class.html">페이지 열기</a>
+            <a class="btn sm ghost" href="07_ml_baseline.html">ML 베이스라인</a>
+          </div>
+        </article>
+
+        <article class="rg-card">
+          <h3><span class="rg-num">22</span><a href="22_survival.html">생존 분석 (Survival)</a></h3>
+          <p class="rg-tldr">TL;DR — BRAF_like / RAS_like 그룹 간 전체생존(OS) · 무재발생존(PFI)의 Kaplan–Meier 곡선과 Cox 다변량 HR을 제시합니다.</p>
+          <div class="rg-meta">
+            <span class="lbl">원자료</span><code>results/tables/v3_survival_km.tsv</code>
+            <span class="lbl">대표 그림</span><code>figs_interactive/v3_survival_km.html</code>
+          </div>
+          <div class="rg-audience">
+            <span class="rg-tag rg-res">연구자</span>
+            <span class="rg-tag rg-rev">리뷰어</span>
+            <span class="rg-tag rg-inv">투자자</span>
+          </div>
+          <div class="rg-links">
+            <a class="btn sm" href="22_survival.html">페이지 열기</a>
+            <a class="btn sm ghost" href="21a_survival.html">기존 생존 분석</a>
+          </div>
+        </article>
+
+        <article class="rg-card">
+          <h3><span class="rg-num">23</span><a href="23_bethesda_sim.html">Bethesda 분류 트리아지</a></h3>
+          <p class="rg-tldr">TL;DR — Bethesda III/IV "불명확(indeterminate)" 결절에 분자 시그니처를 얹었을 때 불필요한 수술을 얼마나 줄일 수 있는지의 임상 효용을 보여줍니다.</p>
+          <div class="rg-meta">
+            <span class="lbl">원자료</span><code>results/tables/v3_bethesda_triage.tsv</code>
+            <span class="lbl">대표 그림</span><code>figs_interactive/v3_bethesda_decision.html</code>
+          </div>
+          <div class="rg-audience">
+            <span class="rg-tag rg-beg">초급</span>
+            <span class="rg-tag rg-inv">투자자</span>
+            <span class="rg-tag rg-rev">리뷰어</span>
+          </div>
+          <div class="rg-links">
+            <a class="btn sm" href="23_bethesda_sim.html">페이지 열기</a>
+            <a class="btn sm ghost" href="12_business.html">비즈니스 모델</a>
+          </div>
+        </article>
+
+        <article class="rg-card">
+          <h3><span class="rg-num">24</span><a href="24_multimodal.html">멀티모달 통합 (Multimodal)</a></h3>
+          <p class="rg-tldr">TL;DR — mRNA + 메틸레이션 + 돌연변이를 함께 쓸 때 단일 modality 대비 성능이 얼마나 올라가는지(또는 올라가지 않는지)를 측정합니다.</p>
+          <div class="rg-meta">
+            <span class="lbl">원자료</span><code>results/tables/v3_multimodal_compare.tsv</code>
+            <span class="lbl">대표 그림</span><code>figs_interactive/v3_multimodal_auc.html</code>
+          </div>
+          <div class="rg-audience">
+            <span class="rg-tag rg-res">연구자</span>
+            <span class="rg-tag rg-rev">리뷰어</span>
+          </div>
+          <div class="rg-links">
+            <a class="btn sm" href="24_multimodal.html">페이지 열기</a>
+            <a class="btn sm ghost" href="18_pathway_immune_meth.html">해석 · 메틸레이션</a>
+          </div>
+        </article>
+
+      </div>
+
+      <section class="rg-stage99" aria-labelledby="rg-stage99-title">
+        <h2 id="rg-stage99-title" data-explain-id="v3_reviewer_guide-rg-stage99-title">STAGE 99 — 파이프라인 실행 요약</h2>
+        <p class="note">v3 오케스트레이터의 마지막 단계 로그 블록입니다. 각 스테이지의 런타임, 산출물 개수, 정합성 체크 결과를 확인할 수 있습니다.</p>
+        <pre id="rg-stage99-pre">(STAGE 99 블록이 /opt/thyroid-dash/project/logs/v3_run.log 에서 아직 기록되지 않았습니다.)</pre>
+      </section>
+
+      <div class="rg-footer-cta">
+        <div class="txt">리뷰어의 체크리스트: 19 (정직성 감사) → 14 (한계 &amp; 주의점) → 99 (용어집) 순서로 읽으면 v3의 주장을 빠르게 검증할 수 있습니다.</div>
+        <div class="btns">
+          <a class="btn sm" href="19_honesty_audit.html">19 정직성 감사</a>
+          <a class="btn sm" href="14_caveats.html">14 주의점</a>
+          <a class="btn sm ghost" href="99_glossary.html">99 용어집</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Theme toggle stub (uses global if available)
+    if(typeof toggleTheme === 'undefined'){
+      window.toggleTheme = function(){
+        var isLight = document.documentElement.classList.toggle('light');
+        try{ localStorage.setItem('thyroid-theme', isLight ? 'light' : 'dark'); }catch(e){}
+      };
+    }
+  </script>
+<!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

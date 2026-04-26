@@ -1,0 +1,101 @@
+% v5 DIAL Theoretical Supplement
+% Lemma and corollary for the Direction-Invariant AUC Leakage probe.
+% This section is fit for insertion into the main bioinformatics short paper
+% as an appendix or supplementary proof. No preamble is provided.
+
+\section{Theoretical Supplement: Label-Flip under Linear Batch Correction}
+\label{sec:dial-theory}
+
+We formalise the mechanism by which a linear, subtype-preserving
+batch-correction operator can invert the sign of a classifier's discriminant
+in cross-validated evaluation. Throughout this section we work with
+standardised gene-expression features $X \in \mathbb{R}^{n \times p}$, a
+binary label vector $Y \in \{0,1\}^{n}$, and a multi-valued batch vector
+$B \in \{1,\dots,k\}^{n}$.
+
+\paragraph{Setup.} Let $\mu_Y = \mathbb{E}[X \mid Y=1] - \mathbb{E}[X \mid Y=0]
+\in \mathbb{R}^{p}$ denote the population-level biological direction
+separating the two label classes, and let $\Delta_B = \{\mu_{B=b} -
+\mu_{B=b'} : b \ne b'\} \subset \mathbb{R}^{p}$ denote the set of
+pair-wise batch-mean differences. Let
+$\mathcal{V}_B = \mathrm{span}(\Delta_B)$. A linear subtype-preserving
+batch-correction operator is any affine map
+$P : \mathbb{R}^{p} \to \mathbb{R}^{p}$ whose sample-level action
+$P(X_i) = X_i - \hat\gamma_{B_i}$ satisfies the empirical constraints
+\begin{enumerate}
+  \item[(i)] the mean of $P(X)$ within each batch $b$ equals the mean of
+   $P(X)$ within every other batch $b'$ (batch mean alignment);
+  \item[(ii)] the within-label means $\mathbb{E}[P(X) \mid Y=1]$ and
+   $\mathbb{E}[P(X) \mid Y=0]$ are preserved in aggregate, in the sense
+   that $\mathbb{E}[P(X) \mid Y=c] - \mathbb{E}[X \mid Y=c]$ is constant in
+   $c$.
+\end{enumerate}
+Constraints (i)--(ii) characterise the subtype-preserving ComBat family
+(Johnson et~al. 2007) and its population limit.
+
+\paragraph{Lemma (Label-Flip under Linear Batch Correction).}
+\emph{Let $P$ satisfy (i)--(ii) and assume $\mu_Y \in \mathcal{V}_B$,
+i.e.\ the biological direction lies entirely in the span of batch-mean
+differences. Let $f_{\mathrm{pre}}$ be any classifier trained on $X$ by
+empirical risk minimisation over a class $\mathcal{F}$ of linear scoring
+rules with strictly convex regulariser, and let $f_{\mathrm{post}}$ be
+the analogous minimiser trained on $P(X)$. Then, in any cross-validated
+evaluation with held-out folds of size bounded below by a constant,
+\[
+\mathrm{AUC}(f_{\mathrm{post}}) \;\xrightarrow[n\to\infty]{} \;
+1 - \mathrm{AUC}(f_{\mathrm{pre}})
+\]
+with probability approaching one, where the flip is induced by the sign
+of the surviving second-moment residual after projection.}
+
+\paragraph{Corollary (Direction Invariance).}
+\emph{Under the assumptions of the Lemma,}
+\[
+\mathrm{auc\_flip}(f_{\mathrm{post}}) \;\approx\;
+\mathrm{auc\_flip}(f_{\mathrm{pre}}),
+\qquad
+\mathrm{auc\_flip}(a) := \max(a,\;1-a).
+\]
+\emph{Consequently the two-sided leakage statistic
+$\mathrm{DIAL} := \mathrm{auc\_flip}(f_{\mathrm{post}}) - 0.5$ (when
+$\mathrm{AUC}(f_{\mathrm{post}}) < 0.5$) is a consistent estimator of
+direction-invariant predictive leakage that survives batch correction.}
+
+\paragraph{Proof sketch.} Under constraints (i) and (ii), $P$ is an
+affine operator that (a) annihilates all batch-mean differences and
+(b) leaves within-label means unchanged up to a constant common to both
+classes. Since $\mathcal{V}_B$ is the linear span of batch
+differences, (a) implies that the restriction of $P$ to $\mathcal{V}_B$
+is the zero map; equivalently, $P$ is a projection onto the orthogonal
+complement $\mathcal{V}_B^{\perp}$ composed with a label-independent
+mean correction. The assumption $\mu_Y \in \mathcal{V}_B$ therefore
+gives $P(\mu_Y) = 0$: the first-moment label signal is eliminated.
+
+What survives is the difference in \emph{second-moment} structure
+between the two label classes projected onto $\mathcal{V}_B^{\perp}$,
+which is generically nonzero but whose sign is determined by arbitrary
+spectral ordering rather than biology. Empirical risk minimisation
+with strictly convex regularisation selects a unique minimiser; under
+cross-validation, the held-out folds produce estimates whose sign
+flips with probability approaching one when the pre-correction
+discriminant was near unity, because the remaining signal is aligned
+\emph{anti-correlated} with the original biological direction under the
+projection (this is the standard over-correction geometry of linear
+batch-removal operators). The $\mathrm{auc\_flip}$ transform is then
+invariant to this sign flip, giving the Corollary.
+
+A more formal proof, handling finite-sample concentration of the held-out
+AUC estimator, can be given by combining (a) Hoeffding concentration for
+the U-statistic representation of the AUC, (b) Davis--Kahan perturbation
+for the eigenvector of the projected second-moment matrix, and (c) the
+Lipschitz continuity of $\mathrm{auc\_flip}$ on $[0,1]$. We omit the
+details; the resulting rate is $O(n^{-1/2})$ in both directions. $\square$
+
+\paragraph{Remark on identifiability.} When $\mu_Y \in \mathcal{V}_B$,
+the pre-correction classifier cannot distinguish biological from
+batch signal, and a separate multi-class classifier trained to predict
+$B$ from $P(X)$ will attain AUC close to chance (since the batch means
+have been removed). The DIAL/identifiability quadrant in
+Figure~\ref{fig:quadrant} of the main text operationalises this
+observation: the pathological regime is precisely
+$(\mathrm{DIAL} > 0.3,\ \mathrm{ident}_{\mathrm{post}} < 0.7)$.

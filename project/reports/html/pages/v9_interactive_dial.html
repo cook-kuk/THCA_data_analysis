@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>v9 · Interactive DIAL — Ideker-style</title>
+<meta name="description" content="Watch ComBat invert the decision axis. 5 cancers, 25 classifiers, 1 phenomenon.">
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Three.js r147 (last version with non-module OrbitControls) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/controls/OrbitControls.js"></script>
+<!-- D3 v7 -->
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<!-- Plotly -->
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<!-- GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+<!-- Alpine (defer required) -->
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+<link rel="stylesheet" href="/reports/html/assets/v9/css/ideker.css">
+<style>
+  body { background: var(--bg-0); }
+</style>
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+<script defer src="../assets/js/explain-bubble.js"></script>
+</head>
+<body x-data="v9App()" x-init="init()">
+
+<!-- top bar -->
+<div class="top-bar">
+  <div class="brand"><span class="accent">DIAL</span> · v9 interactive · live from v5.1 results</div>
+  <div class="actions">
+    <button class="btn ghost" @click="toggleTheme()" title="Toggle theme">
+      <span x-text="theme === 'dark' ? '◐' : '◑'"></span>
+    </button>
+    <button class="btn ghost" @click="showShortcuts = true" title="Shortcuts (?)">⌨ shortcuts</button>
+    <button class="btn ghost" @click="shareLink()" title="Copy shareable URL">⎘ share</button>
+    <a class="btn ghost" href="/reports/html/pages/papers_viewer.html" title="Papers interactive viewer">📄 papers</a>
+    <a class="btn ghost" href="/reports/html/index.html">← back</a>
+  </div>
+</div>
+
+<div class="scroll-progress" x-bind:style="`--scroll: ${scrollPct}%`"></div>
+
+<!-- top cross-page strip (added v12) -->
+<div style="position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(10,14,20,0.85);backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 16px;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.08em">
+  <div style="max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:14px;flex-wrap:wrap;color:#9aa4b6">
+    <a href="../index.html" style="color:#9aa4b6;text-decoration:none">← THYRAI</a>
+    <a href="research_timeline.html" style="color:#9aa4b6;text-decoration:none">Timeline</a>
+    <a href="research_reasoning.html" style="color:#6AB04C;text-decoration:none">Reasoning</a>
+    <a href="v12_biological_evidence.html" style="color:#6AB04C;text-decoration:none">v12 Biology</a>
+    <a href="v4a_dial_cross_cancer.html" style="color:#F5A623;text-decoration:none">v5.1 Audit</a>
+    <span style="margin-left:auto;color:#6b7280">v9 Interactive · live</span>
+  </div>
+</div>
+
+<!-- sticky side nav -->
+<nav class="side-nav" style="margin-top:32px">
+  <template x-for="(sec, i) in sections" :key="sec.id">
+    <div class="dot"
+         :class="{active: activeSection === sec.id}"
+         :data-label="sec.label"
+         @click="goTo(sec.id)"></div>
+  </template>
+</nav>
+
+<div class="snap-container" @scroll="onScroll($event)" id="snap-container">
+
+<!-- =============================================================== -->
+<!-- SECTION 1 — HERO / 3D PCA FLIP                                    -->
+<!-- =============================================================== -->
+<section class="snap-section" id="section-hero">
+<div class="section-wrap">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto w-full">
+
+    <!-- left column -->
+    <div class="flex flex-col justify-center">
+      <div class="eyebrow" style="color:#e74c3c">INTERACTIVE · v5.2 SELF-AUDIT · LIVE</div>
+      <h1 class="hero-title">
+        How <span class="accent">DIAL</span> caught its own <br>data leak.
+      </h1>
+      <p class="sub-title">
+        v5.1 reported THCA DIAL up to 0.494 ("batch_entangled"). With proper
+        per-fold ComBat (v5.2), <b style="color:#6AB04C">DIAL = 0.000</b> for
+        every THCA classifier — the v5.1 "flip" was a leakage artifact (ComBat
+        was fit on full pooled X before the LODO split). Toggle below to see
+        v5.1 vs v5.2 side-by-side.
+      </p>
+      <div class="mt-3 px-3 py-2 rounded text-xs font-mono" style="background:rgba(231,76,60,0.08); border-left:3px solid #e74c3c; color:#f0a4a4;">
+        <b>v5.1 retracted</b> · ΔDIAL THCA = −0.494 (5/5 classifiers) ·
+        <a href="/reports/html/pages/papers_archive.html" style="color:#F5A623; text-decoration:underline;">v5.2 self-audit doc →</a>
+      </div>
+
+      <!-- cancer chips -->
+      <div class="flex flex-wrap gap-2 mt-6">
+        <template x-for="c in cancers" :key="c">
+          <button class="chip" :class="{active: selectedCancer === c}" @click="selectCancer(c)">
+            <span x-text="c"></span>
+            <span class="opacity-60" x-text="cancerDialMax(c).toFixed(2)"></span>
+          </button>
+        </template>
+      </div>
+
+      <!-- flip toggle -->
+      <div class="flex items-center gap-3 mt-5">
+        <button class="btn big primary" @click="toggleFlip()">
+          <span x-text="combatOn ? 'After ComBat' : 'Before ComBat'"></span>
+          <span class="opacity-60">⇄</span>
+        </button>
+        <span class="text-sm opacity-60" x-text="combatOn ? '(batch corrected)' : '(raw)'"></span>
+      </div>
+
+      <!-- v5.1 / v5.2 toggle -->
+      <div class="flex items-center gap-3 mt-3">
+        <span class="text-xs font-mono opacity-70">protocol:</span>
+        <button class="chip" :class="{active: !showV51}" @click="showV51 = false">
+          v5.2 · per-fold ComBat
+        </button>
+        <button class="chip" :class="{active: showV51}" @click="showV51 = true" style="--accent: #e74c3c;" title="Retracted: ComBat fit on full pooled X before LODO split">
+          v5.1 · pooled (RETRACTED)
+        </button>
+      </div>
+
+      <!-- stats card -->
+      <div class="stats-card mt-6">
+        <div class="eyebrow" style="--accent: var(--fg-2);">
+          <span x-text="selectedCancer"></span> · <span x-text="selectedClassifier"></span>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="label">DIAL</div>
+            <div class="value big" x-text="fmt(selectedRow.dial, 3)"></div>
+          </div>
+          <div class="stat-item">
+            <div class="label">AUC<sub>pre</sub></div>
+            <div class="value" x-text="fmt(selectedRow.auc_pre, 3)"></div>
+          </div>
+          <div class="stat-item">
+            <div class="label">AUC<sub>post</sub></div>
+            <div class="value" x-text="fmt(selectedRow.auc_post, 3)"></div>
+          </div>
+        </div>
+        <div class="mt-3">
+          <span class="chip-interp" :class="selectedRow.interpretation" x-text="selectedRow.interpretation || '—'"></span>
+          <span class="text-xs ml-2 opacity-60" x-text="`n=${selectedRow.n_samples || 0}`"></span>
+        </div>
+      </div>
+
+      <div class="mt-4 text-xs opacity-50 font-mono">
+        3D 회전: drag · 확대: scroll · keyboard: [space] toggle · [1-5] cancer
+      </div>
+    </div>
+
+    <!-- right column: 3D canvas -->
+    <div class="three-container" id="three-host">
+      <div class="canvas-controls">
+        <button class="btn ghost" @click="$dispatch('three-reset')">⟲ reset</button>
+        <button class="btn ghost" @click="$dispatch('three-tour')">▶ auto-tour</button>
+        <a class="btn ghost" :href="'data:application/json,' + encodeURIComponent(JSON.stringify(selectedPCA, null, 2))"
+           :download="`${selectedCancer}_pca.json`" title="Download PCA data">↓ data</a>
+      </div>
+      <div class="legend-overlay">
+        <div class="row">
+          <span class="legend-dot" style="background: var(--accent);"></span>
+          <span x-text="cohortInfo.class_a || 'class A'"></span>
+        </div>
+        <div class="row">
+          <span class="legend-dot" style="background: var(--green);"></span>
+          <span x-text="cohortInfo.class_b || 'class B'"></span>
+        </div>
+        <div class="row">
+          <span class="legend-dot" style="background: #ccc;"></span>
+          <span>TCGA (filled)</span>
+        </div>
+        <div class="row">
+          <span class="legend-ring" style="border-color: #ccc;"></span>
+          <span>GEO (ring)</span>
+        </div>
+        <div class="row mt-1" style="color: var(--fg-2); font-size: 0.65rem;">
+          <span x-text="`${selectedPCA.n_sampled || 0}/${selectedPCA.n_total || 0} samples`"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- =============================================================== -->
+<!-- SECTION 2 — SUNBURST HIERARCHY                                    -->
+<!-- =============================================================== -->
+<section class="snap-section" id="section-sunburst">
+<div class="section-wrap">
+  <div class="section-header">
+    <div class="eyebrow">HIERVIEW · SPECIFICITY MAP</div>
+    <h2>The specificity map</h2>
+    <p>Each ring: <b>cancer</b> → <b>classifier</b> → <b>CV fold</b>. Color encodes DIAL
+       (green = true biology, amber = partial, red = batch-entangled). Click any segment to drill in.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-10 gap-6 max-w-7xl mx-auto w-full">
+    <div class="lg:col-span-7">
+      <div class="breadcrumb mb-3" id="sunburst-breadcrumb"></div>
+      <div id="sunburst-container" style="position: relative;"></div>
+    </div>
+
+    <div class="lg:col-span-3">
+      <div class="detail-panel" id="sunburst-detail">
+        <div class="eyebrow mb-2">SELECTION</div>
+        <div class="text-sm opacity-70 mb-3">
+          Hover / click a segment to inspect.
+        </div>
+        <dl>
+          <dt>cancer</dt><dd id="det-cancer">—</dd>
+          <dt>classifier</dt><dd id="det-clf">—</dd>
+          <dt>dial</dt><dd id="det-dial">—</dd>
+          <dt>auc<sub>pre</sub></dt><dd id="det-aucpre">—</dd>
+          <dt>auc<sub>post</sub></dt><dd id="det-aucpost">—</dd>
+          <dt>interp</dt><dd id="det-interp">—</dd>
+          <dt>flip</dt><dd id="det-flip">—</dd>
+          <dt>n</dt><dd id="det-n">—</dd>
+        </dl>
+        <button class="btn mt-4 w-full" @click="if (sunburstSel.cancer) selectCancer(sunburstSel.cancer); goTo('section-hero')">
+          → View <span id="det-view" class="accent">THCA</span> in 3D
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- =============================================================== -->
+<!-- SECTION 3 — CLASSIFIER PLAYGROUND                                 -->
+<!-- =============================================================== -->
+<section class="snap-section" id="section-playground">
+<div class="section-wrap">
+  <div class="section-header">
+    <div class="eyebrow">DECISION PLAYGROUND</div>
+    <h2>Poke the classifier. Watch DIAL move.</h2>
+    <p>Change cancer, classifier, feature count, and CV scheme. ROC curves and DIAL update live
+       from a pre-computed grid. Same computation that produced v5.1; just exposed interactively.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-7xl mx-auto w-full">
+    <!-- controls -->
+    <div class="lg:col-span-1 flex flex-col gap-4">
+      <div class="range-row">
+        <label>cancer</label>
+        <select id="pg-cancer">
+          <template x-for="c in cancers" :key="c">
+            <option :value="c" x-text="c"></option>
+          </template>
+        </select>
+      </div>
+      <div class="range-row">
+        <label>classifier</label>
+        <select id="pg-clf">
+          <template x-for="c in classifiers" :key="c">
+            <option :value="c" x-text="c"></option>
+          </template>
+        </select>
+      </div>
+      <div class="range-row">
+        <label>feature count <span class="current" id="pg-fc-label">3000</span></label>
+        <input type="range" id="pg-fc" min="0" max="4" step="1" value="4">
+        <div class="text-xs opacity-50 font-mono flex justify-between">
+          <span>100</span><span>300</span><span>1k</span><span>2k</span><span>3k</span>
+        </div>
+      </div>
+      <div class="range-row">
+        <label>CV scheme</label>
+        <div class="flex gap-2">
+          <button class="chip active" data-cv="LODO" id="pg-cv-lodo">LODO</button>
+          <button class="chip" data-cv="StratifiedKFold" id="pg-cv-skf">StratifiedKFold</button>
+        </div>
+      </div>
+      <div class="text-xs opacity-60 font-mono mt-2">
+        LODO exposes batch confound. StratifiedKFold hides it (fold-internal shuffling).
+      </div>
+    </div>
+
+    <!-- center: ROC -->
+    <div class="lg:col-span-2">
+      <div id="pg-roc" style="width: 100%; height: 360px;"></div>
+      <div class="grid grid-cols-3 gap-3 mt-3">
+        <div class="stat-item text-center">
+          <div class="label">DIAL</div>
+          <div class="value big" id="pg-dial">—</div>
+        </div>
+        <div class="stat-item text-center">
+          <div class="label">AUC<sub>pre</sub></div>
+          <div class="value" id="pg-auc-pre">—</div>
+        </div>
+        <div class="stat-item text-center">
+          <div class="label">AUC<sub>post</sub></div>
+          <div class="value" id="pg-auc-post">—</div>
+        </div>
+      </div>
+      <div class="mt-2 text-center">
+        <span class="chip-interp" id="pg-interp">—</span>
+      </div>
+    </div>
+
+    <!-- right: historical sparklines -->
+    <div class="lg:col-span-1">
+      <div class="detail-panel">
+        <div class="eyebrow mb-2">TRAJECTORY</div>
+        <div class="text-xs opacity-60 mb-3">DIAL across feature counts</div>
+        <div id="pg-sparkline" style="height: 110px;"></div>
+        <div class="mt-4 text-sm" id="pg-delta-readout">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- =============================================================== -->
+<!-- SECTION 4 — VISIBLE AUDIT                                         -->
+<!-- =============================================================== -->
+<section class="snap-section" id="section-audit">
+<div class="section-wrap">
+  <div class="section-header">
+    <div class="eyebrow">VISIBLE AUDIT · BATCH GENES</div>
+    <h2>The genes batch correction <em>used to</em> erase.</h2>
+    <p>These genes have the largest TCGA-vs-GEO mean differences — the features pre-ComBat
+       classifiers <em>latch onto</em>. Under v5.1's leaky protocol they drove the apparent flip.
+       Under v5.2 (per-fold ComBat) they're correctly removed only from training, and the
+       classifier still works — DIAL = 0.000.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 max-w-7xl mx-auto w-full">
+    <div class="lg:col-span-3">
+      <div class="detail-panel">
+        <div class="flex justify-between items-center mb-3">
+          <div class="eyebrow">TOP 20 BATCH-DISCRIMINANT GENES · <span id="audit-cancer-label">THCA</span></div>
+          <select id="audit-cancer-sel" class="w-auto">
+            <template x-for="c in cancers" :key="c">
+              <option :value="c" x-text="c"></option>
+            </template>
+          </select>
+        </div>
+        <div class="dumbbell-row" style="color: var(--fg-2); font-size: 0.72rem;">
+          <div>gene</div>
+          <div class="text-center">expression (TCGA ↔ GEO)</div>
+          <div class="text-right">Δ</div>
+        </div>
+        <div id="audit-dumbbell"></div>
+        <div class="text-xs opacity-60 mt-3">
+          <span class="legend-dot" style="background: var(--teal); display: inline-block; width: 9px; height: 9px; border-radius: 50%;"></span> TCGA
+          &nbsp;&nbsp;<span class="legend-dot" style="background: var(--accent); display: inline-block; width: 9px; height: 9px; border-radius: 50%;"></span> GEO
+          · the further apart, the larger the batch effect.
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-2">
+      <div class="detail-panel mb-4">
+        <div class="eyebrow mb-2">WHY THIS DECISION?</div>
+        <div id="audit-explain" class="text-sm leading-relaxed" style="color: var(--fg-1);">
+          Select a cancer to load batch-discriminant genes.
+        </div>
+      </div>
+      <div class="detail-panel">
+        <div class="eyebrow mb-2">DECISION BOUNDARY (2D slice)</div>
+        <div id="audit-boundary" style="height: 260px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- =============================================================== -->
+<!-- SECTION 5 — AI PANEL (see floating FAB)                           -->
+<!-- =============================================================== -->
+
+</div> <!-- /.snap-container -->
+
+<!-- AI floating button + panel -->
+<button class="ai-fab" @click="aiOpen = !aiOpen" title="Ask DIAL">🤖</button>
+
+<div class="ai-panel" :class="{open: aiOpen}">
+  <div class="hd">
+    <div>
+      <div class="eyebrow">ASK DIAL</div>
+      <div class="text-xs opacity-60 mt-1">Powered by Claude (bring your own key)</div>
+    </div>
+    <button class="btn ghost" @click="aiOpen = false">✕</button>
+  </div>
+  <div class="body" id="ai-body">
+    <div class="ai-message bot">
+      Hi. <b style="color:#e74c3c">v5.2 self-audit</b> updated this dashboard:
+      v5.1 reported THCA DIAL = 0.494 (batch_entangled), but that was a
+      ComBat-on-pooled-X data leak. With per-fold ComBat (v5.2),
+      <b style="color:#6AB04C">DIAL = 0.000 / true_biology</b> for every THCA classifier.
+      Ask me about it:
+      <ul class="list-disc pl-5 mt-2 text-sm">
+        <li>What was the v5.1 leakage?</li>
+        <li>Why didn't it affect the other 4 cancers?</li>
+        <li>Should I still use DIAL?</li>
+      </ul>
+      <div class="text-xs mt-2 opacity-60">
+        Paste your Anthropic API key below for live answers. Without a key, you'll get
+        static pre-written answers for the 5 most common questions.
+      </div>
+    </div>
+  </div>
+  <div class="foot">
+    <textarea id="ai-input" rows="2" placeholder="Ask anything about these results…"></textarea>
+    <div class="flex gap-2 mt-2">
+      <button class="btn primary flex-1" id="ai-send">Send</button>
+      <button class="btn ghost" id="ai-key-btn" title="Set Anthropic API key">🔑</button>
+    </div>
+    <div class="text-xs opacity-50 mt-2 font-mono">
+      model: claude-sonnet-4 · key stored in browser only
+    </div>
+  </div>
+</div>
+
+<!-- keyboard shortcut overlay -->
+<div class="kbd-overlay" :class="{visible: showShortcuts}" @click.self="showShortcuts = false">
+  <div class="panel">
+    <h3>Keyboard shortcuts</h3>
+    <table>
+      <tr><td><kbd>1</kbd>–<kbd>5</kbd></td><td>select cancer (THCA → COAD)</td></tr>
+      <tr><td><kbd>space</kbd></td><td>toggle Before/After ComBat</td></tr>
+      <tr><td><kbd>j</kbd> / <kbd>↓</kbd></td><td>next section</td></tr>
+      <tr><td><kbd>k</kbd> / <kbd>↑</kbd></td><td>previous section</td></tr>
+      <tr><td><kbd>g</kbd></td><td>jump to top (hero)</td></tr>
+      <tr><td><kbd>s</kbd></td><td>share link (copy URL)</td></tr>
+      <tr><td><kbd>?</kbd></td><td>show this overlay</td></tr>
+      <tr><td><kbd>esc</kbd></td><td>close overlay / AI panel</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast">Link copied.</div>
+
+<script src="/reports/html/assets/v9/js/state_manager.js"></script>
+<script src="/reports/html/assets/v9/js/section1_3d.js"></script>
+<script src="/reports/html/assets/v9/js/section2_sunburst.js"></script>
+<script src="/reports/html/assets/v9/js/section3_playground.js"></script>
+<script src="/reports/html/assets/v9/js/section4_audit.js"></script>
+<script src="/reports/html/assets/v9/js/section5_ai.js"></script>
+
+<script>
+// Alpine component root
+function v9App() {
+  return {
+    sections: [
+      { id: 'section-hero',       label: '1 · Flip' },
+      { id: 'section-sunburst',   label: '2 · Map' },
+      { id: 'section-playground', label: '3 · Playground' },
+      { id: 'section-audit',      label: '4 · Audit' },
+    ],
+    activeSection: 'section-hero',
+    scrollPct: 0,
+    theme: 'dark',
+    aiOpen: false,
+    showShortcuts: false,
+    data: null,
+    grid: null,
+    cancers: ['THCA', 'SKCM', 'LGG', 'LUAD', 'COAD'],
+    classifiers: ['LogReg_l2', 'LogReg_elasticnet', 'RandomForest', 'GradientBoosting', 'XGBoost'],
+    selectedCancer: 'THCA',
+    selectedClassifier: 'LogReg_l2',
+    combatOn: false,
+    showV51: false,   // v5.1 retracted (toggle for transparency); default = v5.2 corrected
+    sunburstSel: { cancer: 'THCA' },
+    async init() {
+      try {
+        const r = await fetch('/reports/html/assets/v9/data/v9_data.json');
+        this.data = await r.json();
+      } catch (e) { console.error('data fetch failed', e); return; }
+      try {
+        const rg = await fetch('/reports/html/assets/v9/data/v9_grid.json');
+        if (rg.ok) this.grid = await rg.json();
+      } catch (e) { console.warn('grid optional', e); }
+
+      window.__v9 = this;
+
+      // pull state from URL
+      const params = new URLSearchParams(location.search);
+      if (params.get('cancer')) this.selectedCancer = params.get('cancer');
+      if (params.get('classifier')) this.selectedClassifier = params.get('classifier');
+      if (params.get('flip') === 'after') this.combatOn = true;
+
+      // render sections (section 1 immediately; rest lazy once visible)
+      Section1.init(this);
+      Section2.init(this);
+      Section3.init(this);
+      Section4.init(this);
+      Section5.init(this);
+      StateManager.init(this);
+
+      // auto-tour on first load
+      if (!sessionStorage.getItem('v9_seen')) {
+        sessionStorage.setItem('v9_seen', '1');
+        setTimeout(() => { this.toggleFlip(); }, 2500);
+        setTimeout(() => { this.toggleFlip(); }, 5500);
+      }
+    },
+    onScroll(e) {
+      const el = e.target;
+      const scrolled = el.scrollTop;
+      const total = el.scrollHeight - el.clientHeight;
+      this.scrollPct = total > 0 ? Math.min(100, (scrolled / total) * 100) : 0;
+      // find active section
+      for (const s of this.sections) {
+        const node = document.getElementById(s.id);
+        if (!node) continue;
+        const r = node.getBoundingClientRect();
+        if (r.top <= window.innerHeight * 0.45 && r.bottom >= window.innerHeight * 0.45) {
+          this.activeSection = s.id;
+          break;
+        }
+      }
+    },
+    goTo(id) {
+      const node = document.getElementById(id);
+      if (node) node.scrollIntoView({ behavior: 'smooth' });
+    },
+    selectCancer(c) {
+      this.selectedCancer = c;
+      // pick the classifier with max dial for this cancer
+      const rows = (this.data?.dial_results || []).filter(r => r.cancer === c);
+      if (rows.length) {
+        rows.sort((a, b) => (b.dial || 0) - (a.dial || 0));
+        this.selectedClassifier = rows[0].classifier;
+      }
+      Section1.onSelection(this);
+      StateManager.updateUrl(this);
+    },
+    toggleFlip() {
+      this.combatOn = !this.combatOn;
+      Section1.onFlip(this);
+      StateManager.updateUrl(this);
+    },
+    fmt(v, d = 2) {
+      if (v == null || isNaN(v)) return '—';
+      return Number(v).toFixed(d);
+    },
+    cancerDialMax(c) {
+      const rows = this.activeDialRows.filter(r => r.cancer === c);
+      return rows.reduce((m, r) => Math.max(m, r.dial || 0), 0);
+    },
+    get activeDialRows() {
+      const v52 = this.data?.dial_results || [];
+      const v51 = this.data?.dial_results_v51_retracted || [];
+      return this.showV51 ? v51 : v52;
+    },
+    get selectedRow() {
+      const rows = this.activeDialRows;
+      return rows.find(r => r.cancer === this.selectedCancer && r.classifier === this.selectedClassifier)
+             || { dial: null, auc_pre: null, auc_post: null, interpretation: '—', n_samples: null };
+    },
+    get selectedPCA() {
+      return (this.data?.pca_embeddings || {})[this.selectedCancer] || { pre: [], post: [], n_sampled: 0, n_total: 0 };
+    },
+    get cohortInfo() {
+      return (this.data?.cohort_info || {})[this.selectedCancer] || { class_a: 'A', class_b: 'B' };
+    },
+    shareLink() {
+      const q = new URLSearchParams({
+        cancer: this.selectedCancer,
+        classifier: this.selectedClassifier,
+        flip: this.combatOn ? 'after' : 'before',
+        view: '3d',
+      });
+      const url = location.origin + location.pathname + '?' + q.toString();
+      navigator.clipboard?.writeText(url).then(() => {
+        const t = document.getElementById('toast');
+        t.textContent = 'Link copied. Share this exact view.';
+        t.classList.add('visible');
+        setTimeout(() => t.classList.remove('visible'), 2500);
+      });
+    },
+    toggleTheme() {
+      this.theme = this.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', this.theme);
+      if (this.theme === 'light') {
+        document.documentElement.style.setProperty('--bg-0', '#fafafa');
+        document.documentElement.style.setProperty('--bg-1', '#f0f0f2');
+        document.documentElement.style.setProperty('--bg-2', '#e6e6ea');
+        document.documentElement.style.setProperty('--bg-3', '#dcdce2');
+        document.documentElement.style.setProperty('--fg-0', '#0a0a0b');
+        document.documentElement.style.setProperty('--fg-1', '#333');
+        document.documentElement.style.setProperty('--fg-2', '#666');
+      } else {
+        for (const v of ['--bg-0','--bg-1','--bg-2','--bg-3','--fg-0','--fg-1','--fg-2']) {
+          document.documentElement.style.removeProperty(v);
+        }
+      }
+    },
+  };
+}
+</script>
+</body>
+</html>

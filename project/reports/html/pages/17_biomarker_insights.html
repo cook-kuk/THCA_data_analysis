@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07132b">
+  <title>바이오마커 인사이트 | THCA Multi-Omics Dashboard</title>
+  <meta name="description" content="BRAF_like vs RAS_like 차등발현(DE) · 외부 코호트 재현 · Known vs Novel 비교 — 바이오마커 탐색 전용 뷰.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="../assets/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../assets/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <style>
+    /* 바이오마커 인사이트 전용 스타일 */
+    .bm-hero{position:relative;padding:36px 32px;border-radius:var(--radius-xl);overflow:hidden;border:1px solid rgba(148,163,184,.14);background:linear-gradient(135deg,rgba(6,17,38,.95),rgba(11,26,58,.68) 45%,rgba(19,42,85,.55));margin-bottom:22px}
+    .bm-hero::before{content:'';position:absolute;inset:-40%;z-index:-1;pointer-events:none;background:conic-gradient(from 200deg at 25% 40%,rgba(20,184,166,.28),transparent 30%),radial-gradient(circle at 70% 90%,rgba(94,234,212,.14),transparent 55%);filter:blur(60px);animation:bmDrift 24s linear infinite}
+    @keyframes bmDrift{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .bm-hero h1{font-size:clamp(1.8rem,1.3rem + 1.6vw,2.8rem);line-height:1.05;margin:0 0 6px;color:var(--ink-strong)}
+    .bm-hero .lede{color:var(--slate-300);max-width:760px}
+    .bm-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+    .bm-kpi{padding:14px 16px;border-radius:14px;border:1px solid rgba(45,212,191,.3);background:linear-gradient(135deg,rgba(20,184,166,.12),rgba(6,182,212,.06))}
+    .bm-kpi .k{font-size:1.6rem;font-weight:700;color:#e2fff9;letter-spacing:-.02em;line-height:1}
+    .bm-kpi .l{font-size:.7rem;color:var(--slate-300);margin-top:4px;text-transform:uppercase;letter-spacing:.12em}
+    .bm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px;margin-top:18px}
+    .bm-card{padding:16px;border-radius:var(--radius-lg);border:1px solid rgba(148,163,184,.14);background:rgba(11,26,58,.45);backdrop-filter:blur(10px)}
+    .bm-card h3{margin:0 0 6px;font-size:1.05rem;color:var(--ink-strong)}
+    .bm-card .note{font-size:.82rem;color:var(--slate-400);margin-bottom:10px}
+    .bm-card .fig-host{position:relative;min-height:320px;border-radius:12px;background:rgba(7,19,43,.55);border:1px solid rgba(148,163,184,.1);overflow:hidden}
+    .bm-card .fig-host iframe{width:100%;height:520px;border:0;display:block}
+    .bm-card .fig-host:empty::before{content:"로딩 중…";display:block;padding:40px;text-align:center;color:var(--slate-400);font-size:.82rem}
+    /* Mobile responsive: stack cards, shrink iframe, tighten hero */
+    @media (max-width: 760px){
+      .bm-hero{padding:24px 18px}
+      .bm-hero h1{font-size:1.65rem}
+      .bm-hero .lede{font-size:.9rem}
+      .bm-kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .bm-kpi .k{font-size:1.3rem}
+      .bm-kpi .l{font-size:.62rem}
+      .bm-grid{grid-template-columns:1fr;gap:12px;margin-top:12px}
+      .bm-card{padding:12px}
+      .bm-card .fig-host iframe{height:60vh;min-height:360px}
+      .bm-footer-cta{padding:12px;flex-direction:column;align-items:flex-start}
+      .bm-footer-cta .btns{width:100%}
+      .bm-footer-cta .btns .btn{flex:1 1 calc(50% - 4px);text-align:center}
+    }
+    /* Extra-small phones */
+    @media (max-width: 380px){
+      .bm-kpi-row{grid-template-columns:1fr}
+      .bm-card .fig-host iframe{height:55vh;min-height:320px}
+    }
+    .bm-footer-cta{padding:16px;border-radius:12px;background:rgba(11,26,58,.45);border:1px solid rgba(148,163,184,.12);margin-top:16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center}
+    .bm-footer-cta .txt{color:var(--slate-300);font-size:.9rem}
+    .bm-footer-cta .btns{display:flex;gap:8px;flex-wrap:wrap}
+  </style>
+<!-- edu-css --><link rel="stylesheet" href="../assets/css/edu-toggle.css">
+
+  <!-- ux:tour-css --><link rel="stylesheet" href="../assets/css/tour.css">
+  <!-- ux:print-css --><link rel="stylesheet" media="print" href="../assets/css/print.css"><!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<body class="dark">
+  <a class="sr-only" href="#main-content">본문으로 건너뛰기</a>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="../index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar"><a class="nav-link" href="research_timeline.html" role="menuitem" style="color:#F5A623">📊 Timeline</a><a class="nav-link" href="research_reasoning.html" role="menuitem" style="color:#6AB04C">🧠 Reasoning</a><a class="nav-link" href="v12_biological_evidence.html" role="menuitem" style="color:#6AB04C">🧬 v12 Biology</a><a class="nav-link" href="v4a_dial_cross_cancer.html" role="menuitem" style="color:#F5A623">🔬 v5.1 Audit</a>
+        <a class="nav-link" href="../index.html" role="menuitem">홈</a><a class="nav-link" href="01_overview.html" role="menuitem">개요</a><a class="nav-link" href="02_datasets.html" role="menuitem">데이터셋</a><a class="nav-link" href="03_sample_master.html" role="menuitem">샘플</a><a class="nav-link" href="04_gene_panels.html" role="menuitem">패널</a><a class="nav-link" href="05_eda.html" role="menuitem">EDA</a><a class="nav-link" href="06_scores.html" role="menuitem">점수</a><a class="nav-link" href="07_ml_baseline.html" role="menuitem">ML</a><a class="nav-link" href="08_panel_comparison.html" role="menuitem">패널 비교</a><a class="nav-link" href="09_shap.html" role="menuitem">SHAP</a><a class="nav-link" href="10_gene_explorer.html" role="menuitem">유전자</a><a class="nav-link" href="11_cohort_compare.html" role="menuitem">코호트</a><a class="nav-link" href="12_business.html" role="menuitem">비즈니스</a><a class="nav-link" href="13_reports.html" role="menuitem">리포트</a><a class="nav-link" href="14_caveats.html" role="menuitem">주의점</a><a class="nav-link" href="15_drug_discovery.html" role="menuitem">드럭</a><a class="nav-link" href="16_quantum.html" role="menuitem">양자</a><a class="nav-link active" href="17_biomarker_insights.html" role="menuitem">마커</a><a class="nav-link" href="18_pathway_immune_meth.html" role="menuitem">해석</a><a class="nav-link" href="20a_meta_power.html" role="menuitem">통계</a><a class="nav-link" href="21a_survival.html" role="menuitem">생존</a><a class="nav-link" href="19a_cmap_network.html" role="menuitem">약물리버스</a><a class="nav-link" href="view_investor.html" role="menuitem">투자자</a><a class="nav-link" href="view_researcher.html" role="menuitem">연구자</a><a class="nav-link" href="99_glossary.html" role="menuitem">용어</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+      </div>
+    </div>
+  </nav>
+<div style="background:linear-gradient(90deg,rgba(192,57,43,0.18),rgba(192,57,43,0.04));border-left:3px solid #c0392b;padding:10px 18px;margin:0;font-family:'JetBrains Mono','SF Mono',monospace;font-size:12px;letter-spacing:0.04em;color:#e06c5b;line-height:1.55"><b style="color:#c0392b">⚠ v5.2 SELF-AUDIT (2026-04-25):</b> Any &ldquo;THCA DIAL = 0.494 / batch_entangled / 4-of-5 classifiers&rdquo; claim on this page comes from the v5.1 protocol (ComBat fit on pooled $X$ before LODO split = data leak). Per-fold ComBat returns DIAL = 0.000 for every THCA classifier (&Delta;DIAL = &minus;0.494). <a href="papers_viewer.html" style="color:#F5A623;text-decoration:underline;font-weight:600">v5.2 self-audit paper &rarr;</a> &middot; <a href="v9_interactive_dial.html" style="color:#F5A623;text-decoration:underline;font-weight:600">v9 live toggle &rarr;</a></div>
+  <div class="layout">
+    <main class="content" id="main-content" style="grid-column:1 / -1">
+      <section class="bm-hero" aria-labelledby="bm-hero-title" data-explain-id="17-biomarker-hero">
+        <div class="subtle mono">17 / BIOMARKER INSIGHTS</div>
+        <h1 id="bm-hero-title">바이오마커 인사이트</h1>
+        <p class="lede">TCGA-THCA에서 BRAF_like vs RAS_like를 가르는 유전자들을 차등발현(DE) 스캐닝으로 찾고, GSE27155·GSE126698 두 외부 코호트에서 재현 여부를 검증했습니다. Known 마커 148개 중 70개가 재현되었고, 필터를 통과한 Novel 후보는 2,773개입니다.</p>
+        <div class="bm-kpi-row" role="list">
+          <div class="bm-kpi" data-explain-id="17-biomarker-kpi-1" role="listitem"><div class="k">51,711</div><div class="l">유전자 스캔</div></div>
+          <div class="bm-kpi" data-explain-id="17-biomarker-kpi-1" role="listitem"><div class="k">148</div><div class="l">Known 마커</div></div>
+          <div class="bm-kpi" data-explain-id="17-biomarker-kpi-1" role="listitem"><div class="k">70</div><div class="l">외부 재현 (Known)</div></div>
+          <div class="bm-kpi" data-explain-id="17-biomarker-kpi-1" role="listitem"><div class="k">2,773</div><div class="l">Novel 후보 (validated)</div></div>
+          <div class="bm-kpi" data-explain-id="17-biomarker-kpi-1" role="listitem"><div class="k">TOP 5</div><div class="l">TACSTD2 · PLEKHA6 · CYP1B1 · TMPRSS4 · LDLR</div></div>
+        </div>
+      </section>
+
+      <details class="edu-toggle" open style="margin-bottom:18px;border-radius:12px;border:1px solid rgba(148,163,184,.18);background:rgba(11,26,58,.35);overflow:hidden">
+        <summary style="cursor:pointer;padding:10px 14px;font-size:.85rem;color:#5eead4;list-style:none">💡 처음 보는 경우 — 이 페이지 읽는 법</summary>
+        <div style="padding:4px 16px 14px;border-top:1px dashed rgba(148,163,184,.18);color:var(--ink);font-size:.9rem;line-height:1.6">
+          <p><strong>BRAF-like vs RAS-like</strong>는 갑상선암의 분자적 2분법입니다. BRAF V600E 돌연변이가 있는 종양은 MAPK 신호가 강해 탈분화되고, RAS(KRAS/NRAS/HRAS) 돌연변이 종양은 상대적으로 분화 상태를 유지합니다. 두 그룹 사이에서 mRNA 발현이 유의하게 다른 유전자 = <em>후보 바이오마커</em>입니다.</p>
+          <p>아래 4개 그림은:</p>
+          <ul>
+            <li><strong>Volcano</strong> = x축 effect size, y축 유의성. 오른쪽 위 = BRAF_like에서 많이 올라감, 왼쪽 위 = RAS_like에서 올라감.</li>
+            <li><strong>Replication scatter</strong> = TCGA에서 본 effect가 외부 코호트에서도 같은 방향으로 나타나는지. 대각선 위에 있는 점일수록 재현 강함.</li>
+            <li><strong>Known vs Novel heatmap</strong> = 기존 알려진 마커 + 이번에 새로 찾은 후보들의 발현 패턴 히트맵.</li>
+            <li><strong>Effect vs Coverage</strong> = 효과 크기 × 탐지 가능한 코호트 수. 오른쪽 위 = 범용 + 강력.</li>
+          </ul>
+          <p class="subtle small">오버사이즈 그림(7.85MB)은 첫 로딩 부담을 줄이려 클릭할 때만 로드됩니다.</p>
+        </div>
+      </details>
+
+      <div class="bm-grid">
+
+        <div class="bm-card" data-explain-id="17-biomarker-card-1">
+          <h3>Volcano · BRAF_like vs RAS_like</h3>
+          <div class="note">x=log2 fold change · y=-log10(FDR) · 색=known 재현/novel 검증 상태. Hover로 유전자 이름 확인.</div>
+          <div class="fig-host" data-src="../figs_interactive/volcano_braf_vs_ras.html" data-fig-name="볼케이노 플롯"></div>
+        </div>
+
+        <div class="bm-card" data-explain-id="17-biomarker-card-2">
+          <h3>Replication scatter · TCGA ↔ 외부 코호트</h3>
+          <div class="note">x=TCGA log2FC · y=외부 평균 log2FC. 대각선 근처 = 재현 강함. 색=known / novel.</div>
+          <div class="fig-host" data-src="../figs_interactive/biomarker_replication_scatter.html" data-fig-name="재현성 스캐터"></div>
+        </div>
+
+        <div class="bm-card" data-explain-id="17-biomarker-card-3">
+          <h3>Known vs Novel Heatmap</h3>
+          <div class="note">Top-30 known 마커 + Top-30 novel 후보의 샘플별 z-score 히트맵 (TCGA only).</div>
+          <div class="fig-host" data-src="../figs_interactive/biomarker_heatmap_known_vs_novel.html" data-fig-name="Known vs Novel 히트맵"></div>
+        </div>
+
+        <div class="bm-card" data-explain-id="17-biomarker-card-4">
+          <h3>Effect size × Cohort coverage</h3>
+          <div class="note">|Cohen's d| vs 유전자가 검출된 코호트 수. 오른쪽 위 = 강력 + 범용.</div>
+          <div class="fig-host" data-src="../figs_interactive/biomarker_effect_vs_coverage.html" data-fig-name="Effect × Coverage"></div>
+        </div>
+
+      </div>
+
+      <div class="bm-footer-cta">
+        <div class="txt">상세 DE 테이블, BRS/TDS 기반 점수, 각 유전자별 코호트 발현은 기존 페이지에서 확인할 수 있습니다.</div>
+        <div class="btns">
+          <a class="btn sm" href="10_gene_explorer.html">유전자 탐색기</a>
+          <a class="btn sm" href="04_gene_panels.html">패널 비교</a>
+          <a class="btn sm" href="15_drug_discovery.html">드럭 디스커버리</a>
+          <a class="btn sm ghost" href="14_caveats.html">한계 &amp; 주의점</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Auto-load all figure iframes as the user scrolls them into view.
+    // Uses IntersectionObserver so mobile users don't pay the full 14MB upfront,
+    // but every figure loads without requiring a click.
+    (function(){
+      var hosts = document.querySelectorAll('.fig-host[data-src]');
+      function attach(host){
+        if (host.dataset.loaded) return;
+        host.dataset.loaded = '1';
+        var src = host.getAttribute('data-src');
+        var name = host.getAttribute('data-fig-name') || 'figure';
+        host.innerHTML = '<iframe src="'+src+'" loading="lazy" title="'+ name.replace(/"/g,'&quot;') +'" referrerpolicy="no-referrer"></iframe>';
+      }
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){
+            if (e.isIntersecting) { attach(e.target); io.unobserve(e.target); }
+          });
+        }, { rootMargin: '250px 0px' });
+        hosts.forEach(function(h){ io.observe(h); });
+      } else {
+        hosts.forEach(attach);
+      }
+    })();
+    // Theme toggle stub (uses global if available)
+    if(typeof toggleTheme === 'undefined'){
+      window.toggleTheme = function(){
+        var isLight = document.documentElement.classList.toggle('light');
+        try{ localStorage.setItem('thyroid-theme', isLight ? 'light' : 'dark'); }catch(e){}
+      };
+    }
+  </script>
+
+  <!-- ux:tour-js --><script src="../assets/js/tour.js" defer></script>
+  <!-- ux:print-js --><script src="../assets/js/print-button.js" defer></script><!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>

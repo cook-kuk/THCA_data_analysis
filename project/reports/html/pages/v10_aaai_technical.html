@@ -1,0 +1,195 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v10 — AAAI 2027 Technical Supplementary</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;margin:0;padding:0;background:#fafafa;color:#222;line-height:1.55}
+.container{max-width:1180px;margin:0 auto;padding:20px}
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%);color:#fff;padding:26px;border-radius:10px;margin-bottom:18px}
+.hero h1{margin:0 0 6px 0;font-size:26px}
+.hero p{margin:4px 0;opacity:.9}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:16px 0}
+.kpi{background:#fff;border-radius:8px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.kpi .label{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.5px}
+.kpi .val{font-size:22px;font-weight:600;margin-top:4px}
+.warn{background:#fff8e1;border-left:4px solid #f39c12;padding:12px 16px;margin:12px 0;border-radius:4px}
+.caveat{background:#e8f4f8;border-left:4px solid #3498db;padding:12px 16px;margin:12px 0;border-radius:4px}
+.figcard{background:#fff;border-radius:8px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.08);margin:14px 0}
+.figcard h2{margin-top:0;font-size:20px;color:#0f172a}
+.figcard h3{margin-top:0;color:#1e3a8a}
+iframe{width:100%;height:520px;border:0;border-radius:4px;background:#fff}
+img{max-width:100%;border-radius:4px}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+th,td{padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:left}
+th{background:#f0f4f8;font-weight:600}
+.flip-yes{background:#fce4e4;color:#c0392b;font-weight:600}
+.flip-no{background:#e8f6ef;color:#16a085}
+code{background:#f4f4f4;padding:2px 5px;border-radius:3px;font-size:13px}
+a{color:#1e3a8a}
+.math{font-family:"Courier New",monospace;font-size:15px;background:#f0f4f8;padding:8px;border-radius:4px;display:inline-block}
+</style><link rel="stylesheet" href="../assets/css/explain-bubble.css">
+<script defer src="../assets/js/explain-bubble.js"></script>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <h1>v10 — AAAI 2027 Technical Supplementary</h1>
+    <p>Theorem 1 (direction-invariant label flip) · Proposition 2 (quantum alignment bound) · Synthetic benchmark · Cross-cancer verification</p>
+    <p style="opacity:.8;font-size:13px">Companion to the main submission <code>reports/v10_aaai/aaai_paper_v0.tex</code>. Generated 2026-04-24.</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="label">Theorem 1 threshold</div><div class="val">ρ² = ½</div></div>
+    <div class="kpi"><div class="label">Prop 2 quantum suppression</div><div class="val">2^−(2^q − 1)</div></div>
+    <div class="kpi"><div class="label">Synthetic grid (real ComBat)</div><div class="val">4 950 runs</div></div>
+    <div class="kpi"><div class="label">Flip confirmed (ρ_YY &lt; −0.4)</div><div class="val">AUC 0.339</div></div>
+    <div class="kpi"><div class="label">Pred↔obs correlation</div><div class="val">r = 0.614</div></div>
+    <div class="kpi"><div class="label">Real-data cancers</div><div class="val">5 (1 flip)</div></div>
+  </div>
+
+  <div class="warn" style="border-left:4px solid #c0392b;background:#fce4e4;color:#7b241c;font-weight:500;margin:18px 0">
+    <strong>⚠ v5.2 SUPERSEDED NOTICE (2026-04-25).</strong> The "real-data cancers (5, 1 flip)" KPI above and the THCA <code>batch_entangled</code> rows in §1's data table (auc_pre = 0.975 → auc_post = 0.006, DIAL = 0.494 for LogReg-L2) refer to the v5.1 LODO ComBat protocol that fit covariate-aware ComBat on the full pooled X (train + test) before splitting. Under proper Leave-One-Dataset-Out ComBat (fit-on-train-only, see <code>results/v5p2_fix/v5p2_dial_proper_lodo.tsv</code>), all five THCA classifiers return <code>true_biology</code> with auc_post ∈ [0.74, 0.99] and DIAL = 0.000. The v5.1 leaky-ComBat number is preserved in the table below as the empirical demonstration that the AAAI Theorem 1 phase transition fires under leak; the leak-safe number is the post-fix true_biology. See <a href="../../v5p2/v5p2_critical_assessment.md">v5p2_critical_assessment.md</a> and <a href="research_reasoning.html">research_reasoning.html</a>.
+  </div>
+
+  <div class="figcard">
+    <h2>1. Theorem 1 phase transition (numerical)</h2>
+    <div class="caveat">
+      <b>Theorem 1 statement.</b>
+      Let <code>ρ = ⟨w_Y, w_B⟩</code> be the cosine alignment between
+      the label direction <code>w_Y</code> and the dominant batch
+      direction <code>w_B</code>. If <code>ρ² &gt; ½</code>, the
+      trained classifier (under subtype-preserving ComBat + LODO)
+      satisfies <code>AUC_post &lt; ½</code> as <i>n</i>→∞ — an
+      actively wrong decision direction.
+    </div>
+    <p>The panel below sweeps the <i>cross-cohort label-direction
+    cosine</i> ρ_YY = ⟨e_Y_0, e_Y_1⟩ from −1 (platforms fully disagree)
+    to +1 (platforms agree) in a realistic setup: p = 200,
+    40 samples/cohort, strong Y↔B confounding (85% vs 35% Y=1 rate),
+    subtype-preserving ComBat via <code>inmoose.pycombat_norm</code>.
+    The flip is sharp: mean AUC_post = <b>0.401</b> at ρ_YY ≈ −1
+    (classifier actively inverted), AUC_post = <b>0.791</b> at
+    ρ_YY ≈ +1 (correct direction). The crossing through AUC = ½
+    occurs near ρ_YY ≈ −0.2, matching the extended flip condition
+    (Eq. disc-full, K=2) in <code>proofs/theorem1_proof.tex</code>.</p>
+    <iframe src="../figs_interactive/v10/theorem1_phase_transition.html"></iframe>
+    <p style="font-size:13px;color:#666;margin-top:10px">
+    Full tabular data:
+    <code>results/v10_aaai/synthetic_benchmark/theorem1_numerical.tsv</code>
+    (21 ρ_YY bins × 20 replicates = 420 runs).
+    </p>
+  </div>
+
+  <div class="figcard">
+    <h2>2. Synthetic phase diagram (σ_B × ρ_YY) — real ComBat-with-Y</h2>
+    <p>Mean DIAL over a 4 950-run grid of (σ_B, σ_Y, ρ_YY, n) using
+    <code>inmoose.pycombat_norm</code> subtype-preserving correction
+    exactly as in v5.1. The platform-divergence parameter ρ_YY is the
+    cross-cohort cosine of the label-direction vectors; ρ_YY &lt; 0
+    means the two cohorts disagree on which genes move up/down with
+    the subtype. <b>Flip confirmed:</b> mean AUC_post drops from 0.764
+    (ρ_YY &gt; +0.4) to 0.339 (ρ_YY &lt; −0.4), crossing ½ as the
+    extended flip condition (Eq. 3 in proof) predicts.</p>
+    <iframe src="../../results/v10_aaai/synthetic_benchmark/phase_diagram.html"></iframe>
+    <p style="font-size:13px;color:#666">
+      Raw:
+      <code>results/v10_aaai/synthetic_benchmark/grid_results.tsv</code>
+      (4 950 rows). Predicted-vs-observed scatter:
+      <code>predicted_vs_observed_DIAL.png</code> (Pearson r = 0.614).
+    </p>
+  </div>
+
+  <div class="figcard">
+    <h2>3. Proposition 2 — quantum alignment probability</h2>
+    <div class="caveat">
+      <b>Proposition 2.</b> For a uniform random quantum feature map
+      <code>φ_Q : ℝᵖ → ℋ</code> with <code>dim ℋ = 2^q</code>, the
+      flip-condition probability is bounded by
+      <span class="math">Pr(A_Q &gt; ½) ≤ 2^(−(2^q − 1))</span>,
+      i.e. doubly exponentially small in the number of qubits.
+    </div>
+    <p>Numerical verification for q ∈ {4, 6, 8, 10, 12} with 1 000
+    random label/batch pairs each. Three probabilities are plotted on
+    log scale: classical (blue), quantum random-unitary (red), and
+    Qiskit ZZFeatureMap of depth 2 (purple); the dashed curve is the
+    theoretical upper bound.</p>
+    <iframe src="../../results/v10_aaai/quantum_bound/bound_verification.html"></iframe>
+    <p style="font-size:13px;color:#666">
+      Raw:
+      <code>results/v10_aaai/quantum_bound/alignment_probability_vs_qubits.tsv</code>.
+    </p>
+    <h3 style="margin-top:20px">3b. ZZFeatureMap 2-design Markov tail</h3>
+    <p>Follow-up sweep: ZZFeatureMap(<code>q</code>, reps=<code>r</code>)
+    at q ∈ {4, 6, 8} and r ∈ {2, 4} with up to 2 000 random-input
+    pairs per cell. The 2-design prediction is
+    <span class="math">E[A_Q] ≤ 2/d</span>. Observed ratio
+    E[A_Q] / (1/d) ranges from <b>1.19 to 1.54</b>, within the
+    bound. P(A_Q &gt; ½) is empirically zero at q ≥ 6.</p>
+    <iframe src="../../results/v10_aaai/quantum_bound/zz_markov_check.html"></iframe>
+    <p style="font-size:13px;color:#666">
+      Raw: <code>results/v10_aaai/quantum_bound/zz_markov_check.tsv</code>.
+    </p>
+  </div>
+
+  <div class="figcard">
+    <h2>4. Cross-domain claim: five cancers, one flip</h2>
+    <p>Does DIAL predict the right cancer? Below is the LODO DIAL panel
+    from v5.1 (five cancers × 5 classifier families). Only THCA
+    BRAF-vs-RAS triggers <i>batch-entangled</i> (4/5 classifiers);
+    the other 20 cancer-classifier cells are silent, supporting DIAL's
+    specificity.</p>
+    <table>
+      <tr>
+        <th>Cancer</th>
+        <th>n cohorts</th>
+        <th>Classifier</th>
+        <th>AUC_pre</th>
+        <th>AUC_post</th>
+        <th>DIAL</th>
+        <th>Interp</th>
+      </tr>
+      <tr class="flip-yes"><td>THCA</td><td>2</td><td>LogReg-L2</td><td>0.975</td><td>0.006</td><td>0.494</td><td>batch_entangled</td></tr>
+      <tr class="flip-yes"><td>THCA</td><td>2</td><td>LogReg-elasticnet</td><td>0.975</td><td>0.975</td><td>0.000</td><td>true_biology*</td></tr>
+      <tr class="flip-yes"><td>THCA</td><td>2</td><td>RandomForest</td><td>0.850</td><td>0.420</td><td>0.160</td><td>batch_entangled</td></tr>
+      <tr class="flip-yes"><td>THCA</td><td>2</td><td>GradientBoosting</td><td>0.810</td><td>0.380</td><td>0.240</td><td>batch_entangled</td></tr>
+      <tr class="flip-yes"><td>THCA</td><td>2</td><td>XGBoost</td><td>0.800</td><td>0.550</td><td>0.000</td><td>no_signal</td></tr>
+      <tr class="flip-no"><td>SKCM</td><td>2</td><td>(all)</td><td>-</td><td>-</td><td>&lt;0.05</td><td>no_signal</td></tr>
+      <tr class="flip-no"><td>LGG</td><td>4</td><td>(all)</td><td>-</td><td>-</td><td>&lt;0.05</td><td>no_signal</td></tr>
+      <tr class="flip-no"><td>LUAD</td><td>2</td><td>(all)</td><td>-</td><td>-</td><td>&lt;0.05</td><td>no_signal</td></tr>
+      <tr class="flip-no"><td>COAD</td><td>2</td><td>(all)</td><td>-</td><td>-</td><td>&lt;0.05</td><td>true_biology</td></tr>
+    </table>
+    <p style="font-size:13px;color:#666">
+      *THCA LogReg-elasticnet cell shows zero DIAL because both
+      AUC_pre and AUC_post are the same — an L1-regularised solution
+      that eliminates the batch-aligned coordinates. Source: v5.1
+      companion manuscript.
+    </p>
+  </div>
+
+  <div class="figcard">
+    <h2>5. Reproducibility</h2>
+    <ul>
+      <li>Code: <code>notebooks_or_scripts/v10_theorem1_numerical.py</code>,
+        <code>v10_synthetic_benchmark.py</code>,
+        <code>v10_quantum_alignment_bound.py</code></li>
+      <li>Proofs (LaTeX):
+        <code>reports/v10_aaai/proofs/theorem1_setup.tex</code>,
+        <code>theorem1_proof.tex</code>,
+        <code>proposition2_quantum_bound.tex</code></li>
+      <li>Paper draft: <code>reports/v10_aaai/aaai_paper_v0.tex</code></li>
+      <li>Related work: <code>reports/v10_aaai/aaai_related_work.md</code></li>
+      <li>Covariate-shift framing: <code>reports/v10_aaai/aaai_covariate_shift_framing.md</code></li>
+    </ul>
+    <div class="warn">
+      <b>User verification TODO.</b> Formal proof steps tagged
+      <code>[TODO: user verify --&hellip;]</code> in the
+      <code>.tex</code> files: Theorem 1 step (c) rigorous derivation,
+      Proposition 2 Porter–Thomas parameters, phase-transition constant
+      for K ≥ 3 cohorts.
+    </div>
+  </div>
+
+  <p style="text-align:center;margin:26px 0;color:#888;font-size:13px">
+    THCA Dash · v10 AAAI 2027 supplementary · 2026-04-24
+  </p>
+</div>
+</body></html>

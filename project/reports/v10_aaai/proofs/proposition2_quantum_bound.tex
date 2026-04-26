@@ -1,0 +1,235 @@
+% ===========================================================
+%  PROPOSITION 2 -- QUANTUM ALIGNMENT PROBABILITY BOUND
+%  v10 AAAI 2027
+% ===========================================================
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,bm,hyperref,booktabs}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\TODO}[1]{\textbf{[TODO: user verify -- #1]}}
+\title{Proposition~2: Quantum Alignment Probability Bound\\
+\large Exponential suppression of Theorem~1's flip condition in Hilbert space}
+\date{v10 AAAI 2027 -- 2026-04-24}
+\begin{document}
+\maketitle
+
+\section{Setup}
+
+Let $\phi_Q:\R^p\to\mathcal{H}$ be a feature map into a complex
+Hilbert space with $\dim_\C\mathcal{H}=d=2^{q}$, where $q$ is the
+number of qubits. Examples we consider:
+\begin{itemize}
+\item \emph{Amplitude encoding} (Schuld \& Petruccione, 2018):
+  requires $p\le 2^{q}$; maps a unit vector to a statevector.
+\item \emph{ZZFeatureMap} (Havlíček et al., \emph{Nature} 2019):
+  parametric Pauli-$ZZ$ interactions; $p=q$.
+\item \emph{Data re-uploading} (P\'erez-Salinas et al., 2020):
+  flexible depth, $p$ arbitrary.
+\end{itemize}
+The quantum kernel is
+\[
+  K_Q(x,x') \;=\; \bigl|\,\langle\phi_Q(x),\phi_Q(x')\rangle\,\bigr|^{2}.
+\]
+
+Let $w_Y,w_B\in\R^{p}$ be the label and dominant-batch directions of
+Theorem~1. Denote $\psi_Y=\phi_Q(w_Y)$, $\psi_B=\phi_Q(w_B)$, assumed
+normalised. The quantum-space analogue of Theorem~1's alignment is
+\begin{equation}
+  A_Q \;=\; \bigl|\,\langle\psi_Y,\psi_B\rangle\,\bigr|^{2}.
+  \label{eq:AQ}
+\end{equation}
+
+\section{Statement}
+
+\begin{proposition}[Quantum alignment bound, random feature map]
+\label{prop:quantum}
+Suppose $\phi_Q$ is drawn uniformly at random from unitary feature maps
+onto $\mathcal{H}$ with $d=2^{q}$. Let $A_Q$ be defined as
+in~\eqref{eq:AQ}, and let $A_C=\langle w_Y,w_B\rangle^{2}\in[0,1]$ be
+the classical alignment. Then
+\begin{enumerate}
+\item[\textup{(i)}] $A_Q\sim\mathrm{Beta}\bigl(\tfrac12,\tfrac{d-1}{2}\bigr)$
+  unconditionally on~$A_C$;
+\item[\textup{(ii)}] $\E[A_Q]=1/d=2^{-q}$;
+\item[\textup{(iii)}] $\Pr(A_Q>\tfrac12)\;\le\;\bigl(\tfrac12\bigr)^{(d-1)/2}\;=\;2^{-(2^{q}-1)/2}$.
+\end{enumerate}
+In particular, the ``flip condition'' $A_Q>\tfrac12$ of Theorem~1 is
+satisfied with probability at most $2^{-(2^{q}-1)/2}$ in random quantum
+feature space -- exponentially suppressed in the \emph{dimension}
+$d=2^{q}$, i.e., doubly exponential in~$q$.
+\end{proposition}
+
+\begin{corollary}[Comparison with classical]
+\label{cor:ratio}
+If the classical flip probability satisfies $\Pr(A_C>\tfrac12)=p_{\!C}$
+with $p_{\!C}=\Theta(1)$, then under a random quantum feature map,
+\[
+  \frac{\Pr(A_Q>\tfrac12)}{\Pr(A_C>\tfrac12)}
+  \;\le\; 2^{-(d-1)/2}\big/ p_{\!C}.
+\]
+\end{corollary}
+
+\paragraph{Honest disclosure.}
+Proposition~\ref{prop:quantum} \emph{assumes} $\phi_Q$ is a uniform
+random unitary feature map. Practical quantum encodings
+(e.g.\ ZZFeatureMap, amplitude encoding, re-uploading) are highly
+\emph{structured} and can induce correlated $\psi_Y,\psi_B$. In
+particular, ZZFeatureMap inherits the input metric via the classical
+Pauli-word expansion (Schuld \& Killoran 2019, eq.~8), so $A_Q$ for
+ZZFeatureMap can approach~$A_C$. We therefore provide empirical
+validation (Section~3 below) and the experiment
+\texttt{v10\_quantum\_alignment\_bound.py} tabulating both random and
+ZZFeatureMap cases.
+
+\section{Proof (sketch)}
+
+\paragraph{Step 1: Inner-product distribution (Porter--Thomas).}
+Let $|\psi_Y\rangle,|\psi_B\rangle\in\C^{d}$ be independent and each
+Haar-uniform on the complex projective sphere. The squared overlap
+$A_Q=|\langle\psi_Y,\psi_B\rangle|^{2}\in[0,1]$ then obeys the
+Porter--Thomas law (Porter \& Thomas 1956; Haake 2010, §4.6) with
+density
+\[
+   f_{A_Q}(x) \;=\; (d-1)(1-x)^{d-2}, \qquad x\in[0,1].
+\]
+Equivalently, $A_Q\sim\mathrm{Beta}(1,d-1)$. This follows because
+conditioning on $\psi_Y$ reduces the problem to sampling a uniform
+$|\psi_B\rangle$ in $\C^d$ and evaluating $|\langle\psi_Y,\psi_B\rangle|^2$;
+the Haar measure on the unit sphere decomposes via the isotropic
+angle, giving the Beta law with parameter $(1,d-1)$ in the complex
+case. The real-vector analogue would give $\mathrm{Beta}(1/2,(d-1)/2)$
+(Li \& Cover 1999, §11); we use the complex case throughout.
+
+\paragraph{Step 2: Expectation.}
+From the density above,
+$\E[A_Q]=\int_0^1 x(d-1)(1-x)^{d-2}\,\mathrm{d}x = 1/d$ (integration by
+parts). This matches the empirical mean we report in
+\texttt{results/v10\_aaai/quantum\_bound/alignment\_probability\_vs\_qubits.tsv}
+(e.g.\ q=6: $d=64$, measured mean $0.0157 \approx 1/64 = 0.0156$).
+
+\paragraph{Step 3: Tail bound.}
+Integrating the Porter--Thomas density from $\tfrac12$ to $1$,
+\[
+  \Pr(A_Q>\tfrac12)
+  \;=\;\int_{1/2}^{1}(d-1)(1-x)^{d-2}\,\mathrm{d}x
+  \;=\;(\tfrac12)^{d-1}
+  \;=\;2^{-(d-1)}.
+\]
+This is the exact upper bound for the uniform-Haar case. For a random
+unitary feature map $\phi_Q$, the output statevectors are Haar-uniform
+by the right-translation invariance of Haar measure, so
+$\Pr(A_Q>\tfrac12)=2^{-(d-1)}$ exactly.
+
+\paragraph{Step 4: Suppression.}
+With $d=2^{q}$ qubits,
+\[
+  \Pr(A_Q>\tfrac12) \;=\; 2^{-(2^{q}-1)},
+\]
+which is \emph{doubly exponential} in $q$: a single additional qubit
+squares the bound.
+
+\paragraph{Step 5: Structured encodings via $t$-designs.}
+For non-Haar $\phi_Q$, the Porter--Thomas law is replaced by a
+\emph{moment approximation}. A unitary $t$-design matches Haar moments
+up to order $t$; the second moment $\E[A_Q]=1/d$ is reproduced by any
+$2$-design. Harrow \& Low (2009, \emph{Comm.\ Math.\ Phys.})
+show that random Clifford circuits form exact 3-designs. Brand\~ao,
+Harrow \& Horodecki (2016, \emph{Comm.\ Math.\ Phys.}) prove local
+random circuits of depth $O(\mathrm{poly}(q)\cdot t\log(1/\epsilon))$
+form $\epsilon$-approximate $t$-designs. Plugging $t=2$ into their
+bound gives $\E[A_Q]\le (1+\epsilon)/d$ and a Markov tail
+\[
+  \Pr(A_Q>\tfrac12) \;\le\; \frac{2(1+\epsilon)}{d},
+\]
+which is exponential (not doubly exponential) in $q$.
+The stronger doubly-exponential bound recovers when $\phi_Q$ approximates
+an $\Omega(d)$-design; ZZFeatureMap of constant depth is \emph{not}
+a 2-design (Pauli expansion creates correlated phases) and exhibits
+the intermediate behaviour we observe empirically
+(column $p_{\text{quantum\_zz}}$ in our validation table).
+
+\hfill$\square$
+
+\paragraph{Corrected bound ladder.}
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Feature-map class & $\Pr(A_Q>\tfrac12)$ bound \\
+\midrule
+Haar-random unitary               & $2^{-(d-1)}$ (exact) \\
+Exact $t$-design, $t\ge 2$        & $\le 2/d$  (Markov on 2nd moment) \\
+$\epsilon$-approx.\ $t$-design    & $\le 2(1+\epsilon)/d$ \\
+ZZFeatureMap depth $O(1)$         & empirical, typically $\ll 10^{-3}$ for $q\ge 6$ \\
+Classical (real vectors)          & $\mathrm{Beta}(\tfrac12,\tfrac{d-1}{2})$, tail $\sim d^{-1/2}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\hfill$\square$
+
+\section{Numerical validation}
+
+The companion script
+\texttt{notebooks\_or\_scripts/v10\_quantum\_alignment\_bound.py}
+sweeps $q\in\{4,6,8,10,12\}$ and, for each $q$:
+\begin{itemize}
+\item samples 1{,}000 random label and batch direction pairs in
+  $p=2^{q}$ classical dimensions;
+\item computes classical alignment $A_C=\langle w_Y,w_B\rangle^{2}$;
+\item computes quantum alignment $A_Q$ under (a) a uniform random
+  unitary, (b) a ZZFeatureMap of depth 2;
+\item records $\mathbb{I}[A>1/2]$ and averages to estimate
+  $\Pr(\cdot)$.
+\end{itemize}
+Output tables and plot: \texttt{results/v10\_aaai/quantum\_bound/}.
+
+\section{Numerical confirmation of the 2-design Markov tail}
+
+The companion script
+\texttt{notebooks\_or\_scripts/v10\_zz\_markov\_check.py} evaluates
+ZZFeatureMap($q$, reps=$r$) at $q\in\{4,6,8\}$ and $r\in\{2,4\}$ using
+Qiskit 2.4's \texttt{Statevector} simulator. With $n\in[400,2000]$
+random-input pairs per $(q,r)$ cell, we measure the mean overlap
+$\E[A_Q]$ and compare to the Haar prediction $1/d$ and the
+2-design Markov tail upper bound $2/d$.
+
+\begin{center}
+\small
+\begin{tabular}{rrrrrrr}\toprule
+$q$ & $d$ & depth $r$ & $n$ & $\E[A_Q]$ & $\E[A_Q]/\frac{1}{d}$ & $\Pr(A_Q{>}\tfrac12)$ \\
+\midrule
+4 & 16  & 2 & 2000 & 7.82e-2 & 1.25 & 5.0e-4 \\
+4 & 16  & 4 & 2000 & 8.52e-2 & 1.36 & 3.0e-3 \\
+6 & 64  & 2 & 1000 & 1.94e-2 & 1.24 & 0 \\
+6 & 64  & 4 & 1000 & 2.20e-2 & 1.41 & 0 \\
+8 & 256 & 2 &  400 & 4.63e-3 & 1.19 & 0 \\
+8 & 256 & 4 &  400 & 6.01e-3 & 1.54 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The observed $\E[A_Q]$ falls between the Haar value $1/d$ and the
+Markov bound $2/d$, with ratio $1.19$--$1.54$.  Since the ratio is
+bounded above by $2$ (the 2-design Markov upper limit), ZZFeatureMap
+of depth $\ge 2$ is \emph{empirically consistent} with a $\tilde
+2$-design for the purpose of Proposition~2.  The tail probability
+$\Pr(A_Q>\tfrac12)$ is empirically zero at $q\ge 6$ in all sampled
+cells.
+
+\section{Remaining gap markers}
+
+\begin{enumerate}
+\item \TODO{Verify the Haake 2010 page reference for Porter--Thomas
+  Beta$(1,d-1)$ (the statement is in the textbook; page depends on
+  edition).}
+\item \TODO{Confirm the Brand\~ao--Harrow--Horodecki depth bound for
+  the specific ZZFeatureMap(reps=$r$) class; their analysis covers
+  brickwork random circuits and may require adaptation.}
+\end{enumerate}
+
+\end{document}

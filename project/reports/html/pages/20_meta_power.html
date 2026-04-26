@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07132b">
+  <title>메타분석 · 통계적 파워 · 재현성 | THCA Multi-Omics Dashboard</title>
+  <meta name="description" content="Cross-cohort meta-analysis, interactive power/sample-size calculator, and reproducibility bundle for the THCA multi-omics dashboard.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/edu-toggle.css">
+  <link rel="stylesheet" href="../assets/css/tour.css">
+  <link rel="stylesheet" href="../assets/css/power-calculator.css">
+  <link rel="stylesheet" media="print" href="../assets/css/print.css">
+  <style>
+    .mp-hero{position:relative;padding:36px 32px;border-radius:var(--radius-xl,18px);overflow:hidden;border:1px solid rgba(148,163,184,.14);background:linear-gradient(135deg,rgba(6,17,38,.95),rgba(11,26,58,.68) 45%,rgba(19,42,85,.55));margin-bottom:22px}
+    .mp-hero::before{content:'';position:absolute;inset:-40%;z-index:-1;pointer-events:none;background:conic-gradient(from 180deg at 30% 50%,rgba(168,85,247,.22),transparent 35%),radial-gradient(circle at 80% 80%,rgba(94,234,212,.12),transparent 55%);filter:blur(60px);animation:mpDrift 28s linear infinite}
+    @keyframes mpDrift{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .mp-hero h1{font-size:clamp(1.8rem,1.3rem + 1.6vw,2.8rem);line-height:1.05;margin:0 0 6px;color:var(--ink-strong,#e2e8f0)}
+    .mp-hero .lede{color:var(--slate-300,#cbd5e1);max-width:780px;line-height:1.55}
+    .mp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:16px;margin-top:18px}
+    .mp-card{padding:16px;border-radius:var(--radius-lg,14px);border:1px solid rgba(148,163,184,.14);background:rgba(11,26,58,.45);backdrop-filter:blur(10px)}
+    .mp-card h3{margin:0 0 6px;font-size:1.05rem;color:var(--ink-strong,#e2e8f0)}
+    .mp-card .note{font-size:.82rem;color:var(--slate-400,#94a3b8);margin-bottom:10px}
+    .mp-card iframe{width:100%;height:620px;border:0;border-radius:10px;background:#07132b}
+    .mp-card.wide{grid-column:1 / -1}
+    .mp-card.wide iframe{height:720px}
+    .mp-section{margin-top:28px}
+    .mp-section h2{font-size:1.3rem;color:var(--ink-strong,#e2e8f0);margin:0 0 4px;letter-spacing:-.01em}
+    .mp-section .mp-sub{color:var(--slate-400,#94a3b8);font-size:.9rem;margin:0 0 12px}
+    .mp-kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px}
+    .mp-kpi{padding:14px 16px;border-radius:14px;border:1px solid rgba(168,85,247,.3);background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(94,234,212,.05))}
+    .mp-kpi .k{font-size:1.6rem;font-weight:700;color:#f5d0fe;letter-spacing:-.02em;line-height:1}
+    .mp-kpi .l{font-size:.7rem;color:var(--slate-300,#cbd5e1);margin-top:4px;text-transform:uppercase;letter-spacing:.12em}
+    .mp-repro{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+    .mp-repro .mp-card pre{max-height:320px;overflow:auto;font-size:.75rem;background:rgba(7,19,43,.8);padding:10px;border-radius:8px;border:1px solid rgba(148,163,184,.18);color:#cbd5e1;white-space:pre;line-height:1.45}
+    .mp-repro .mp-card a.btn{margin-top:8px}
+    @media (max-width:760px){
+      .mp-hero{padding:22px 16px}
+      .mp-hero h1{font-size:1.6rem}
+      .mp-card iframe{height:70vh;min-height:420px}
+    }
+  </style>
+<!-- explain-bubble-assets -->
+<link rel="stylesheet" href="../assets/css/explain-bubble.css">
+</head>
+<!-- explain-ids-injected -->
+<body class="dark">
+  <a class="sr-only" href="#main-content">본문으로 건너뛰기</a>
+  <nav class="topnav" aria-label="주요 메뉴">
+    <div class="topnav-inner">
+      <a class="brand" href="../index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+      <div class="nav-links" role="menubar">
+        <a class="nav-link" href="../index.html" role="menuitem">홈</a><a class="nav-link" href="01_overview.html" role="menuitem">개요</a><a class="nav-link" href="02_datasets.html" role="menuitem">데이터셋</a><a class="nav-link" href="03_sample_master.html" role="menuitem">샘플</a><a class="nav-link" href="04_gene_panels.html" role="menuitem">패널</a><a class="nav-link" href="05_eda.html" role="menuitem">EDA</a><a class="nav-link" href="06_scores.html" role="menuitem">점수</a><a class="nav-link" href="07_ml_baseline.html" role="menuitem">ML</a><a class="nav-link" href="08_panel_comparison.html" role="menuitem">패널 비교</a><a class="nav-link" href="09_shap.html" role="menuitem">SHAP</a><a class="nav-link" href="10_gene_explorer.html" role="menuitem">유전자</a><a class="nav-link" href="11_cohort_compare.html" role="menuitem">코호트</a><a class="nav-link" href="12_business.html" role="menuitem">비즈니스</a><a class="nav-link" href="13_reports.html" role="menuitem">리포트</a><a class="nav-link" href="14_caveats.html" role="menuitem">주의점</a><a class="nav-link" href="15_drug_discovery.html" role="menuitem">드럭</a><a class="nav-link" href="16_quantum.html" role="menuitem">양자</a><a class="nav-link" href="17_biomarker_insights.html" role="menuitem">마커</a><a class="nav-link" href="18_pathway_immune_meth.html" role="menuitem">해석</a><a class="nav-link" href="19a_cmap_network.html" role="menuitem">약물리버스</a><a class="nav-link" href="21a_survival.html" role="menuitem">생존</a><a class="nav-link active" href="20a_meta_power.html" role="menuitem">통계</a><a class="nav-link" href="view_investor.html" role="menuitem">투자자</a><a class="nav-link" href="view_researcher.html" role="menuitem">연구자</a><a class="nav-link" href="99_glossary.html" role="menuitem">용어</a>
+      </div>
+      <div class="nav-actions">
+        <button class="btn sm ghost" type="button" onclick="toggleTheme()" aria-label="다크/라이트 모드 전환">다크/라이트</button>
+      </div>
+    </div>
+  </nav>
+  <div class="layout">
+    <main class="content" id="main-content" style="grid-column:1 / -1">
+
+      <section class="mp-hero" aria-labelledby="mp-hero-title">
+        <div class="subtle mono">20 / META-ANALYSIS · POWER · REPRODUCIBILITY</div>
+        <h1 id="mp-hero-title">메타분석 · 통계적 파워 · 재현성</h1>
+        <p class="lede">세 코호트 (TCGA, GSE27155, GSE126698) 의 차등발현 결과를 <b>fixed-effect</b> 와 <b>random-effect (DerSimonian–Laird)</b> 메타분석으로 통합하고, 이질성 (<i>I², Cochran Q</i>), 출판편향 (funnel), 그리고 현재 표본 크기로 탐지 가능한 효과크기를 <b>interactive power calculator</b> 로 보여줍니다. 연구 재현을 위한 <b>pinned requirements + Dockerfile</b> 도 함께 제공합니다.</p>
+        <div class="mp-kpi-row" role="list">
+          <div class="mp-kpi" role="listitem"><div class="k">25,278</div><div class="l">meta-analyzed genes</div></div>
+          <div class="mp-kpi" role="listitem"><div class="k">11,615</div><div class="l">3-cohort genes</div></div>
+          <div class="mp-kpi" role="listitem"><div class="k">13,031</div><div class="l">direction-concordant</div></div>
+          <div class="mp-kpi" role="listitem"><div class="k">3 / 1</div><div class="l">FE · RE · Fisher methods</div></div>
+        </div>
+      </section>
+
+      <details class="edu-toggle" open style="margin-bottom:18px;border-radius:12px;border:1px solid rgba(148,163,184,.18);background:rgba(11,26,58,.35);overflow:hidden">
+        <summary style="cursor:pointer;padding:10px 14px;font-size:.85rem;color:#5eead4;list-style:none">💡 처음 보는 경우 — 메타분석 & 파워 빠른 이해</summary>
+        <div style="padding:4px 16px 14px;border-top:1px dashed rgba(148,163,184,.18);color:var(--ink,#e2e8f0);font-size:.9rem;line-height:1.65">
+          <p><strong>Fixed-effect (고정효과) vs Random-effect (랜덤효과)</strong>: 고정효과는 세 코호트가 <em>같은 진짜 효과</em> 를 측정한다고 가정하고 inverse-variance 가중치로 평균합니다. 랜덤효과는 코호트마다 <em>효과가 살짝 다를 수 있다</em>고 가정하고 between-study 분산 (τ²) 을 더해 더 보수적인 CI 를 줍니다.</p>
+          <p><strong>I² (이질성)</strong>: 0% = 세 코호트가 완벽히 같은 효과, 75%↑ = 이질성 큼. Cochran's Q 는 이질성이 "통계적으로 유의한가?" 의 χ² 검정.</p>
+          <p><strong>Fisher's combined p</strong>: 세 코호트 p-value 를 하나로 합치는 고전 방법 (-2·Σ log p).</p>
+          <p><strong>Power (통계적 파워)</strong>: 진짜 효과가 있을 때 그걸 찾아낼 확률. 공식 <code>n = (z_{α/2}+z_β)²·2/d²</code>. 작은 코호트 (GSE126698 n=12) 는 <em>큰 효과</em> 만 잡아낼 수 있어요.</p>
+          <p><strong>Forest plot 읽는 법</strong>: 각 코호트 점+에러바 = 95% CI, 보라색 마름모 = random-effect 메타 요약. 세 코호트 에러바가 모두 0 을 피하고 같은 방향이면 <em>강한 재현</em>.</p>
+        </div>
+      </details>
+
+      <!-- ============================= META-ANALYSIS ============================= -->
+      <section class="mp-section" id="meta" data-explain-id="20_meta_power-meta">
+        <h2 data-explain-id="20_meta_power-auto-1-cross-cohort-meta-analysis">1. Cross-cohort Meta-analysis</h2>
+        <p class="mp-sub">TCGA + GSE27155 + GSE126698 — inverse-variance fixed-effect, DerSimonian–Laird random-effect, Cochran's Q, I², Fisher's combined p.</p>
+        <div class="mp-grid">
+          <div class="mp-card wide">
+            <h3>Forest plot · Top-20 most-replicated genes</h3>
+            <div class="note">각 유전자마다 3 개 코호트 effect size (95% CI) 와 random-effect meta 요약 (보라색 마름모). direction-concordance 우선 정렬, 같은 concordance 안에서는 meta q-value 오름차순.</div>
+            <iframe src="../figs_interactive/meta_forest_top20.html" loading="lazy" title="Meta-analysis Forest Plot (Top 20)" referrerpolicy="no-referrer"></iframe>
+          </div>
+          <div class="mp-card wide">
+            <h3>Funnel plot · 출판 편향 점검</h3>
+            <div class="note">x = meta log2 fold change · y = standard error (뒤집힘). 좌우 비대칭 = 잠재적 publication bias. 연두 = direction-concordant, 빨강 = discordant.</div>
+            <iframe src="../figs_interactive/meta_funnel.html" loading="lazy" title="Meta Funnel Plot" referrerpolicy="no-referrer"></iframe>
+          </div>
+        </div>
+        <p class="mp-sub" style="margin-top:14px">전체 결과: <a href="../../../results/tables/meta_analysis.tsv" download>meta_analysis.tsv</a> · 컬럼: meta_log2fc, meta_se, meta_z, meta_p, meta_q, I2, Q, fisher_p, direction_concordance</p>
+      </section>
+
+      <!-- ============================= POWER CALCULATOR ========================== -->
+      <section class="mp-section" id="power" data-explain-id="20_meta_power-power">
+        <h2 data-explain-id="20_meta_power-auto-2-interactive-power-sample-size-calculat">2. Interactive Power / Sample-size Calculator</h2>
+        <p class="mp-sub">효과크기 · α · 목표 power 를 조정하면 필요한 그룹당 n 과, 현재 세 코호트 (333/72/12) 에서 달성 가능한 실제 power 를 실시간으로 계산합니다.</p>
+
+        <div class="pc-wrap">
+          <div class="pc-controls">
+            <h3>입력</h3>
+            <div class="pc-row">
+              <label>효과크기 |Cohen's d|<span class="pc-value" id="pc-d-val">0.50</span></label>
+              <input type="range" id="pc-d" min="0.1" max="3.0" step="0.05" value="0.5">
+              <div class="pc-help">d=0.2 (small), 0.5 (medium), 0.8 (large). 갑상선 BRAF_like vs RAS_like 전사체 차이는 대개 d=0.5~1.5 범위입니다.</div>
+            </div>
+            <div class="pc-row">
+              <label>유의수준 α<span class="pc-value" id="pc-a-val">0.050</span></label>
+              <input type="range" id="pc-alpha" min="0.001" max="0.10" step="0.001" value="0.05">
+              <div class="pc-help">multiple testing 을 감안하면 α≈0.005 (genome-wide FDR~5%) 이 현실적.</div>
+            </div>
+            <div class="pc-row">
+              <label>목표 power<span class="pc-value" id="pc-p-val">0.80</span></label>
+              <input type="range" id="pc-power" min="0.5" max="0.99" step="0.01" value="0.80">
+              <div class="pc-help">일반적 기준 = 0.80. FDA 등록용 연구는 0.90 이상 요구.</div>
+            </div>
+          </div>
+
+          <div class="pc-card">
+            <h3>결과</h3>
+            <div id="pc-plot"></div>
+            <div class="pc-metrics">
+              <div class="pc-metric">
+                <div class="k" id="pc-reqN">—</div>
+                <div class="l">필요한 그룹당 n</div>
+              </div>
+            </div>
+            <table class="pc-cohort-table" aria-label="코호트별 achievable power">
+              <thead><tr><th>코호트</th><th>total n</th><th>n/group</th><th>달성 power</th><th>판정</th></tr></thead>
+              <tbody id="pc-cohort-body"></tbody>
+            </table>
+            <div class="pc-biomarker-note" id="pc-minD-msg"></div>
+          </div>
+        </div>
+
+        <details class="edu-toggle" style="margin-top:14px;border-radius:12px;border:1px solid rgba(148,163,184,.18);background:rgba(11,26,58,.35);overflow:hidden">
+          <summary style="cursor:pointer;padding:10px 14px;font-size:.85rem;color:#5eead4;list-style:none">📐 수식 자세히 보기</summary>
+          <div style="padding:4px 16px 14px;border-top:1px dashed rgba(148,163,184,.18);color:#cbd5e1;font-size:.88rem;line-height:1.7">
+            <p>두 그룹 t-test 의 정규 근사식:</p>
+            <pre style="background:rgba(7,19,43,.7);padding:10px;border-radius:8px;overflow:auto">n_per_group = ((z_{α/2} + z_β)² × (σ₁² + σ₂²)) / d²</pre>
+            <p>d 가 이미 표준화되어 있으므로 σ₁=σ₂=1 → 분자 = 2 (z_{α/2}+z_β)² .</p>
+            <p>역으로, 고정된 n 에서 power 는:</p>
+            <pre style="background:rgba(7,19,43,.7);padding:10px;border-radius:8px;overflow:auto">power = Φ( √(n · d² / 2) − z_{α/2} )</pre>
+            <p>코호트별 n/group 은 total/2 로 근사 (TCGA 392 vs 111 은 harmonic mean 이 더 정확하지만, 교육 목적으로 단순화).</p>
+          </div>
+        </details>
+      </section>
+
+      <!-- ============================= REPRODUCIBILITY =========================== -->
+      <section class="mp-section" id="repro" data-explain-id="20_meta_power-repro">
+        <h2 data-explain-id="20_meta_power-auto-3-reproducibility-bundle">3. Reproducibility Bundle</h2>
+        <p class="mp-sub">모든 pin 된 패키지 버전 + Dockerfile + docker-compose + QUICKSTART 로 타 기관이 같은 환경에서 결과를 재현할 수 있습니다.</p>
+        <div class="mp-repro">
+          <div class="mp-card">
+            <h3>requirements.txt</h3>
+            <div class="note">25 개의 과학적 핵심 패키지 pin.</div>
+            <pre id="pre-req">로딩 중…</pre>
+            <a class="btn sm" href="../../../requirements.txt" download>다운로드</a>
+          </div>
+          <div class="mp-card">
+            <h3>Dockerfile</h3>
+            <div class="note">python:3.12-slim 기반, <code>scripts/serve_secure.py</code> 를 8012 포트로 ENTRYPOINT.</div>
+            <pre id="pre-dock">로딩 중…</pre>
+            <a class="btn sm" href="../../../Dockerfile" download>다운로드</a>
+          </div>
+          <div class="mp-card">
+            <h3>QUICKSTART.md</h3>
+            <div class="note">클론 → pip install → pipeline → server → browser 5 단계.</div>
+            <pre id="pre-qs">로딩 중…</pre>
+            <a class="btn sm" href="../../../QUICKSTART.md" download>다운로드</a>
+          </div>
+          <div class="mp-card">
+            <h3>REPRODUCIBILITY.md</h3>
+            <div class="note">seed, determinism, BLAS backend 주의점.</div>
+            <pre id="pre-rp">로딩 중…</pre>
+            <a class="btn sm" href="../../../REPRODUCIBILITY.md" download>다운로드</a>
+          </div>
+        </div>
+
+        <details class="edu-toggle" style="margin-top:14px;border-radius:12px;border:1px solid rgba(148,163,184,.18);background:rgba(11,26,58,.35);overflow:hidden">
+          <summary style="cursor:pointer;padding:10px 14px;font-size:.85rem;color:#5eead4;list-style:none">📚 무엇이 결정론적이고 무엇이 아닌가?</summary>
+          <div style="padding:4px 16px 14px;border-top:1px dashed rgba(148,163,184,.18);color:#cbd5e1;font-size:.88rem;line-height:1.7">
+            <p><strong>결정론적:</strong> DE (t-test, Cohen's d), meta-analysis (FE/RE/Fisher), FDR (BH), power 계산, quantum VQC (statevector, seed=42).</p>
+            <p><strong>비결정론적 (seed 가 있어도 ±1e-6):</strong> XGBoost / MLP 학습 (스레딩 & BLAS 커널), UMAP/t-SNE (numba SIMD 경로), shot-based quantum (통계적 분산).</p>
+            <p><strong>Pixel-level 재현:</strong> Plotly 버전 을 6.7.0 로 고정해야 그림이 동일합니다.</p>
+          </div>
+        </details>
+      </section>
+
+      <div class="bm-footer-cta" style="padding:16px;border-radius:12px;background:rgba(11,26,58,.45);border:1px solid rgba(148,163,184,.12);margin-top:20px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+        <div class="txt" style="color:#cbd5e1;font-size:.9rem">바이오마커 세부 결과, ML 성능, 경로/면역 해석은 기존 페이지에서 확인하세요.</div>
+        <div class="btns" style="display:flex;gap:8px;flex-wrap:wrap">
+          <a class="btn sm" href="17_biomarker_insights.html">마커</a>
+          <a class="btn sm" href="18_pathway_immune_meth.html">해석</a><a class="" href="19a_cmap_network.html">약물리버스</a><a class="" href="21a_survival.html">생존</a>
+          <a class="btn sm" href="14_caveats.html">주의점</a>
+          <a class="btn sm ghost" href="99_glossary.html">용어</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Vendored Plotly (CSP-safe, local) -->
+  <script src="../assets/vendor/plotly/plotly-2.35.2.min.js"></script>
+  <!-- Power calculator -->
+  <script src="../assets/js/power-calculator.js"></script>
+
+  <script>
+    // Theme toggle stub (uses global if available)
+    if(typeof toggleTheme === 'undefined'){
+      window.toggleTheme = function(){
+        var isLight = document.documentElement.classList.toggle('light');
+        try{ localStorage.setItem('thyroid-theme', isLight ? 'light' : 'dark'); }catch(e){}
+      };
+    }
+    // Populate repro preview panels (fetch as text; same-origin => OK under CSP)
+    (function(){
+      var panels = [
+        { id: 'pre-req',  url: '../../../requirements.txt' },
+        { id: 'pre-dock', url: '../../../Dockerfile' },
+        { id: 'pre-qs',   url: '../../../QUICKSTART.md' },
+        { id: 'pre-rp',   url: '../../../REPRODUCIBILITY.md' }
+      ];
+      panels.forEach(function(p){
+        fetch(p.url).then(function(r){ return r.ok ? r.text() : Promise.reject(r.status); })
+          .then(function(t){
+            var el = document.getElementById(p.id);
+            if (el) el.textContent = t.length > 8000 ? t.slice(0, 8000) + '\n… (truncated — see download)' : t;
+          })
+          .catch(function(e){
+            var el = document.getElementById(p.id);
+            if (el) el.textContent = '(failed to load: ' + e + ')';
+          });
+      });
+    })();
+  </script>
+  <script src="../assets/js/tour.js" defer></script>
+  <script src="../assets/js/print-button.js" defer></script>
+<!-- explain-bubble-assets -->
+<script src="../assets/js/explain-bubble.js" defer></script>
+</body>
+</html>
