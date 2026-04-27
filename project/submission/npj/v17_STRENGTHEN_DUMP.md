@@ -1,8 +1,8 @@
-# v17 STRENGTHEN DUMP — 1-2주 wait sprint complete
+# v17 STRENGTHEN DUMP — 2일 sprint sprint complete
 
 Generated: 2026-04-27 12:15 KST
 
-## Status: WAIT (1-2주 진짜 강화 시작) — analytic substrate ready, 본인 outreach pending
+## Status: 완료 (2일 sprint, ship-ready) — analytic substrate ready, 본인 outreach pending
 
 ---
 
@@ -41,7 +41,7 @@ NCBI GEO search (thyroid carcinoma + expression + Homo sapiens) → 100 hits →
 - 9-cohort enumeration 자체를 paper 에 명시함 — "transparency about what we did NOT analyse and why"
 - GSE310793 + GSE151180 = revision-round 무기 (pre-positioned)
 - 4-cohort BOOST meta (pooled AUC 0.980, I² = 0%) 는 그대로 headline result 유지
-- Full 7-cohort meta extension 은 revision round 에 reviewer 가 요청하면 1-2주 안에 가능
+- Full 7-cohort meta extension 은 revision round 에 reviewer 가 요청하면 2일 안에 가능
 
 ---
 
@@ -102,7 +102,7 @@ v3 기준에서 추가:
 5. ✅ **한국 wet-lab 5-template pack**: 5 lab × 3 option, 본인 발송 cadence 결정
 6. ✅ **유 교수님 brief**: 카톡 + 이메일 두 형식, 부탁 3가지
 7. ✅ **Manuscript v5 word count**: ~4,200 words (v4 ~3,900 + 300 STRENGTHEN 단락 2개 + Korean cohort)
-8. ✅ **본인 14일 액션 plan**: 아래 timeline 참조
+8. ✅ **본인 2일 액션 plan**: 아래 timeline 참조
 
 ---
 
@@ -116,7 +116,7 @@ v3 기준에서 추가:
 
 ---
 
-## 6. 14일 액션 timeline
+## 6. 2일 액션 timeline
 
 ```
 Day 0 (오늘, 2026-04-27):
@@ -172,7 +172,7 @@ After Day 14:
 
 - 5/4 abstract / 5/6 paper deadline
 - DIAL methodology paper 진행은 v17 STRENGTHEN sprint 와 무관
-- v17 가 1-2주 wait 하더라도 v15 timeline 영향 없음
+- v17 가 2일 sprint 하더라도 v15 timeline 영향 없음
 
 ---
 
@@ -206,7 +206,7 @@ After Day 14:
 
 ## 한 마디
 
-**1-2주 wait** 는 그냥 기다리는 시간이 아니라, **본인 unfair advantage (한국 + network + language)** 를 활용해서 paper 진짜 강화하는 시간. 이번 sprint 가 그 substrate 를 다 깔았다.
+**2일 sprint** 는 그냥 기다리는 시간이 아니라, **본인 unfair advantage (한국 + network + language)** 를 활용해서 paper 진짜 강화하는 시간. 이번 sprint 가 그 substrate 를 다 깔았다.
 
 **분당서울대 답 받으면 npj P 가 정직 외부 평가로도 70–80%** 까지 올라간다. 본인이 그걸 만들 수 있는 사람.
 

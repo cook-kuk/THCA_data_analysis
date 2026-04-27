@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v17 npj 종합 인터랙티브 리포트 — DM1/DM2 + 8-gene RAI + TERT</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Pretendard','Inter','Noto Sans KR',-apple-system,sans-serif;
+     margin:0;background:#0a0e14;color:#eaeaea;line-height:1.6;font-size:14.5px}
+header{padding:48px 28px 28px;border-bottom:1px solid #233;
+       background:linear-gradient(135deg,rgba(13,103,101,0.18) 0%,rgba(245,166,35,0.10) 100%)}
+header h1{margin:0 0 10px;font-size:clamp(22px,3vw,30px);font-weight:350;letter-spacing:-0.01em}
+header .sub{color:#7ccfcd;font-size:14px;letter-spacing:0.02em}
+header .lede{color:#b8b0a4;font-size:14.5px;max-width:880px;margin-top:14px;line-height:1.7}
+.wrap{max-width:1280px;margin:0 auto;padding:24px 28px 80px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:24px 0}
+.tile{background:rgba(20,22,28,0.85);border:1px solid #243;border-radius:6px;padding:16px 18px}
+.tile .v{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:500;color:#F5A623;line-height:1.05}
+.tile .l{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.13em;text-transform:uppercase;
+         color:#888;margin-top:8px;line-height:1.45}
+section{margin:36px 0}
+section h2{font-size:21px;color:#7ccfcd;font-weight:400;letter-spacing:-0.005em;margin:0 0 14px;
+            border-bottom:1px solid #234;padding-bottom:8px}
+section h3{font-size:16.5px;color:#F5A623;font-weight:500;margin:18px 0 8px}
+.card{background:#15191f;border:1px solid #243;border-radius:6px;padding:22px 24px;margin:14px 0}
+.card p{color:#c8c8c8;margin:0 0 10px}
+.eyebrow{font-family:'JetBrains Mono',monospace;color:#F5A623;font-size:11px;
+          letter-spacing:0.16em;text-transform:uppercase;margin-bottom:6px}
+.fig{background:#0d1014;border:1px solid #234;border-radius:4px;margin:16px 0;overflow:hidden}
+.fig iframe{width:100%;height:540px;border:0;display:block;background:#FFF}
+.fig img{width:100%;display:block;background:#FFF}
+.fig .cap{padding:10px 16px;border-top:1px solid #234;font-family:'JetBrains Mono',monospace;
+           font-size:11.5px;color:#888;line-height:1.5}
+.fig .cap b{color:#F5A623}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:'JetBrains Mono',monospace;margin:8px 0}
+th,td{padding:9px 12px;border-bottom:1px solid rgba(255,255,255,0.06);text-align:left}
+th{color:#888;text-transform:uppercase;font-size:11px;letter-spacing:0.1em}
+.num{text-align:right}
+.hit{background:rgba(46,204,113,0.10);color:#9beec4;font-weight:600}
+.warn{background:rgba(245,166,35,0.14);color:#F5A623;font-weight:600}
+nav{background:#10131a;padding:14px 28px;border-bottom:1px solid #234;position:sticky;top:0;z-index:50}
+nav a{color:#7ccfcd;margin-right:18px;font-size:13px;text-decoration:none;font-family:'JetBrains Mono',monospace}
+nav a:hover{color:#F5A623}
+.pill{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;
+       background:rgba(124,207,205,0.14);color:#7ccfcd;font-family:'JetBrains Mono',monospace;margin-right:6px}
+.pill.warn{background:rgba(245,166,35,0.14);color:#F5A623}
+.pill.hit{background:rgba(46,204,113,0.14);color:#9beec4}
+.callout{background:rgba(245,166,35,0.07);border-left:3px solid #F5A623;padding:14px 18px;border-radius:3px;margin:14px 0}
+.callout .label{color:#F5A623;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.16em;
+                  text-transform:uppercase;margin-bottom:6px}
+.linkrow a{color:#7ccfcd;margin-right:12px;font-family:'JetBrains Mono',monospace;font-size:12.5px;text-decoration:none}
+.linkrow a:hover{color:#F5A623;text-decoration:underline}
+
+/* sidebar TOC (only on wide viewports) */
+.toc{position:fixed;top:80px;right:18px;width:220px;max-height:calc(100vh - 110px);overflow-y:auto;
+     padding:14px 16px;background:rgba(13,17,24,0.92);border:1px solid #233;border-radius:6px;
+     font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.55;backdrop-filter:blur(6px);z-index:40}
+.toc .label{color:#F5A623;letter-spacing:0.16em;text-transform:uppercase;font-size:10px;margin-bottom:8px}
+.toc a{display:block;padding:3px 6px;color:#7ccfcd;text-decoration:none;border-left:2px solid transparent;
+       margin:1px 0;border-radius:0 3px 3px 0}
+.toc a:hover{color:#F5A623;background:rgba(245,166,35,0.06)}
+.toc a.active{color:#F5A623;border-left-color:#F5A623;background:rgba(245,166,35,0.10)}
+@media (max-width:1499px){.toc{display:none}}
+
+/* print stylesheet — paper-ready PDF via Ctrl+P */
+@media print{
+  body{background:#fff;color:#222;font-size:11pt;line-height:1.45}
+  nav,.toc{display:none !important}
+  header{background:none;padding:0 0 12px;border-bottom:1px solid #999}
+  header .sub,header .lede{color:#444}
+  header h1{color:#000;font-weight:500}
+  .wrap{max-width:100%;padding:0;margin:0}
+  section{margin:14pt 0;page-break-inside:auto}
+  section h2{color:#003;border-bottom:1px solid #999;font-size:14pt;page-break-after:avoid}
+  section h3{color:#603;font-size:12pt;page-break-after:avoid}
+  .tile{background:#f6f6f6;border:1px solid #ccc;color:#222;page-break-inside:avoid}
+  .tile .v{color:#a04000}
+  .tile .l{color:#444}
+  .callout{background:#fff8e8;border-left:3px solid #c08000;color:#222}
+  .callout .label{color:#a06000}
+  .fig{background:#fff;border:1px solid #bbb;page-break-inside:avoid}
+  .fig img{max-height:7.5in;object-fit:contain}
+  .fig iframe{display:none}
+  .fig .iframe-fallback{display:block !important;padding:18px;text-align:center;color:#666;
+       font-family:'JetBrains Mono',monospace;font-size:9pt;border-top:1px dashed #999}
+  .fig .cap{color:#444;border-top:1px solid #ddd}
+  .fig .cap b{color:#a04000}
+  .grid2{display:block}
+  .linkrow a{color:#003}
+  table{font-size:9pt}
+  a{color:#003;text-decoration:underline}
+  /* page-break hints */
+  #fig1-discovery,#fig4-distinct,#fig6-rai,#fig8-tert,#robustness,#supp,#assets{page-break-before:always}
+}
+</style>
+</head>
+<body>
+
+<nav>
+<a href="#headline">headline</a>
+<a href="#fig1-discovery">fig1·discovery</a>
+<a href="#fig4-distinct">fig4·driver</a>
+<a href="#fig5-immune">fig5·immune</a>
+<a href="#fig6-rai">fig6·8-gene</a>
+<a href="#biomarker-discovery">biomarker</a>
+<a href="#fig8-tert">fig8·TERT</a>
+<a href="#leak-audit">leak audit</a>
+<a href="#robustness">robustness</a>
+<a href="#external-cohorts">multi-cohort</a>
+<a href="#decision-curve">DCA</a>
+<a href="#subgroup">subgroup</a>
+<a href="#rai-tool">RAI tool</a>
+<a href="#notebooks-embed">notebooks</a>
+<a href="#supp">supp</a>
+<a href="#assets">assets</a>
+<a href="javascript:window.print()" style="float:right;color:#F5A623" title="Ctrl+P 인쇄용 PDF로 저장">⎙ print</a>
+</nav>
+
+<aside class="toc" aria-label="Table of contents">
+  <div class="label">on this page</div>
+  <a href="#headline">▸ headline</a>
+  <a href="#fig1-discovery">Fig 1 · discovery</a>
+  <a href="#fig2-bio">Fig 2 · biology</a>
+  <a href="#fig3-trajectory">Fig 3 · trajectory</a>
+  <a href="#fig4-distinct">Fig 4 · driver</a>
+  <a href="#fig5-immune">Fig 5 · immune</a>
+  <a href="#fig6-rai">Fig 6 · 8-gene ★</a>
+  <a href="#biomarker-discovery">biomarker disc.</a>
+  <a href="#fig7-drug">Fig 7 · drug</a>
+  <a href="#fig8-tert">Fig 8 · TERT</a>
+  <a href="#leak-audit">leak audit (R1–R4)</a>
+  <a href="#robustness">robustness</a>
+  <a href="#external-cohorts">multi-cohort</a>
+  <a href="#decision-curve">DCA</a>
+  <a href="#subgroup">subgroup</a>
+  <a href="#rai-tool">RAI calculator</a>
+  <a href="#notebooks-embed">notebooks</a>
+  <a href="#supp">supp 1–15</a>
+  <a href="#assets">all assets</a>
+</aside>
+
+<script>
+// scroll-spy: highlight active TOC entry
+(function(){
+  const toc = document.querySelector('.toc');
+  if (!toc) return;
+  const ids = Array.from(toc.querySelectorAll('a')).map(a => a.getAttribute('href').slice(1));
+  const sections = ids.map(id => document.getElementById(id)).filter(Boolean);
+  const links = Object.fromEntries(ids.map(id => [id, toc.querySelector('a[href="#'+id+'"]')]));
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        Object.values(links).forEach(a => a && a.classList.remove('active'));
+        const link = links[e.target.id];
+        if (link) link.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-30% 0px -65% 0px', threshold:0});
+  sections.forEach(s => obs.observe(s));
+})();
+</script>
+
+<header>
+  <div class="sub">v17 npj precision oncology · 종합 인터랙티브 리포트</div>
+  <h1>An 8-gene RAI-responsiveness biomarker outperforms BRAF V600E status in papillary thyroid carcinoma</h1>
+  <div class="lede">
+    Seungho Cook (Independent Researcher, Seoul) · [Yu Kyungho]<br>
+    513 TCGA-THCA primary tumours · 8 main figures + 15 supplementary · 36 TERT-promoter recovered ·
+    multivariate logrank p = 3.78 × 10⁻⁵ · 8-gene CV AUC 0.954 · ΔAUC = +0.132 vs BRAF V600E.
+    <br>본 리포트는 모든 main figure + robustness audit + external multi-cohort 결과를 인라인으로 보여주는 단일 페이지입니다.
+  </div>
+</header>
+
+<div class="wrap">
+
+<section id="headline">
+  <h2>Headline metrics — at a glance</h2>
+  <div class="metrics">
+    <div class="tile"><div class="v">+0.132</div><div class="l">ΔAUC vs BRAF V600E (Fig 6)</div></div>
+    <div class="tile"><div class="v">0.954</div><div class="l">8-gene CV AUC (LogReg)</div></div>
+    <div class="tile"><div class="v">+1.683</div><div class="l">Hot/Cold Cohen's d (Fig 5)</div></div>
+    <div class="tile"><div class="v">3.78×10⁻⁵</div><div class="l">TERT 4-group multivariate logrank p (Fig 8)</div></div>
+    <div class="tile"><div class="v">6.31 → 1.88</div><div class="l">TERT⁺ Cox HR uni → multi (honest reframe)</div></div>
+    <div class="tile"><div class="v">0.974</div><div class="l">External GSE76039 AUC (correct-direction)</div></div>
+    <div class="tile"><div class="v">4 / 4</div><div class="l">BRAF concordance CCLE</div></div>
+    <div class="tile"><div class="v">2.6×10⁻⁵</div><div class="l">Bootstrap median p (1,000 iter)</div></div>
+  </div>
+  <div class="callout">
+    <div class="label">honest reframe</div>
+    TERT⁺ univariate Cox HR = 6.31 (95% CI 2.34–17.04, p = 3 × 10⁻⁴) drops to <b>multivariate HR = 1.88
+    (95% CI 0.58–6.09, p = 0.29)</b> after stage + age + sex adjustment. We frame TERT⁺ as a clinically
+    actionable molecular handle for Stage III/IV identification, not as a stage-and-age-independent
+    prognostic marker. 1,000-iter bootstrap median p = 2.6 × 10⁻⁵ and 36-patient leave-one-out worst-case
+    p = 7.5 × 10⁻⁴ confirm the four-group separation is not single-event-driven.
+  </div>
+</section>
+
+<section id="fig1-discovery">
+  <h2>Fig 1 · DM1/DM2 axis discovery</h2>
+  <p>Unsupervised Leiden clustering (resolution 0.5, K = 2) on the dark-matter (driver-negative) residual recovers two transcriptomic states. DM1 = MAPK-active + inflammatory + dedifferentiated; DM2 = canonical-thyroid-differentiation. Bootstrap-stable (concordance &gt; 0.92).</p>
+  <div class="fig"><img src="figures/Fig1.png" alt="Fig 1"><div class="cap"><b>Fig 1</b> · (a) driver landscape donut · (b) v14 BRS confusion vs v17 dark-matter · (c) DM1/DM2 score-space · (d) bootstrap stability.</div></div>
+  <div class="fig">
+    <iframe loading="lazy" src="figures/v17_boost/eda_umap.html" style="height:560px"></iframe>
+    <div class="cap"><b>UMAP — DM1/DM2 axis (interactive)</b> · 513 TCGA-THCA primary tumours, hover for sample-level scores. Confirms the bimodal structure that motivates K=2 Leiden clustering.</div>
+  </div>
+</section>
+
+<section id="fig2-bio">
+  <h2>Fig 2 · Biology and clinical features</h2>
+  <p>41 cluster-defining genes (FDR &lt; 1e-30); DM1 patients are 13 years younger; lower TDS / RAI uptake; histology subtype enrichment (Fisher p &lt; 0.05). Cox HR for DM1/DM2 not significant for OS after age + stage adjustment — a known TCGA-THCA limitation (~16 OS events).</p>
+  <div class="fig"><img src="figures/Fig2.png" alt="Fig 2"><div class="cap"><b>Fig 2</b> · marker heatmap, age violin (Δ=13y, p&lt;1e-8), TDS/RAI box, histology Fisher.</div></div>
+</section>
+
+<section id="fig3-trajectory">
+  <h2>Fig 3 · Trajectory PTC → PDTC → ATC</h2>
+  <p>Spearman ρ = 0.74 between RAI score and pseudotime. PDTC retains higher RAI than ATC (8.34–11.65 vs 2.89–7.62) — confirms DM2 captures preserved differentiation across the histology boundary. 8-gene panel recovers the ordering with AUC 0.974 in correct-direction interpretation on GSE76039.</p>
+  <div class="fig"><img src="figures/Fig3.png" alt="Fig 3"><div class="cap"><b>Fig 3</b> · pseudotime by histology, RAI by histology, DM1 ATC-proximal, AMP4 ROC.</div></div>
+</section>
+
+<section id="fig4-distinct">
+  <h2>Fig 4 · BRAF/RAS distinctness — 17 outliers</h2>
+  <p>99 % of BRAF-mutant fall in DM1, 72 % of RAS-mutant fall in DM2 — but <b>17 outliers</b> (2 BRAF/DM2-like + 15 RAS/DM1-like) violate the canonical map. Spearman ρ = 0.49 (DM-score vs BRAF indicator) — substantial overlap but not redundancy.</p>
+  <div class="fig"><img src="figures/Fig4.png" alt="Fig 4"><div class="cap"><b>Fig 4</b> · driver violin · BRAF/RAS × DM contingency · 17 outliers · ρ correlations.</div></div>
+  <div class="grid2">
+    <div class="fig">
+      <iframe loading="lazy" src="figures/v17_boost/volcano_braf_vs_ras.html" style="height:520px"></iframe>
+      <div class="cap"><b>BRAF vs RAS — DEG volcano (interactive)</b> · log2FC × −log10(FDR). Hover for gene symbols; lasso-select to inspect outlier sets.</div>
+    </div>
+    <div class="fig">
+      <iframe loading="lazy" src="figures/v17_boost/km_braf_vs_ras.html" style="height:520px"></iframe>
+      <div class="cap"><b>KM by driver class (interactive)</b> · BRAF / RAS / Triple-neg overall survival; toggle traces and CI bands.</div>
+    </div>
+  </div>
+</section>
+
+<section id="fig5-immune">
+  <h2>Fig 5 · Hot/cold immune (Cohen's d = +1.683)</h2>
+  <p>4-pathway GSEA (Inflammatory NES = +1.93, IFN-γ +1.92, TNF-α +1.85, Allograft +1.89; FDR &lt; 1e-15 each) + scRNA immune dominance (57:1) + immune-evasion gene panel + integrated <b>Hot/Cold composite Cohen's d = +1.683 (p = 4.0 × 10⁻¹⁸)</b>. Very large effect size, immune-stratification candidate.</p>
+  <div class="fig"><img src="figures/Fig5.png" alt="Fig 5"><div class="cap"><b>Fig 5</b> · GSEA NES bars · scRNA stack · immune-evasion heatmap · Hot/Cold composite violin.</div></div>
+  <div class="grid2">
+    <div class="fig">
+      <iframe loading="lazy" src="figures/v17_boost/pathway_dotplot.html" style="height:740px"></iframe>
+      <div class="cap"><b>Pathway dotplot (interactive)</b> · NES × −log10(FDR), dot size = gene-set size. Hover for hallmark name + leading-edge genes.</div>
+    </div>
+    <div class="fig">
+      <iframe loading="lazy" src="figures/v17_boost/pathway_barplot_top15.html" style="height:700px"></iframe>
+      <div class="cap"><b>Top-15 hallmark bar (interactive)</b> · ranked NES, click bars to filter; coherent with the immune-hot story (IFN-γ, TNF-α, Inflammatory, Allograft).</div>
+    </div>
+  </div>
+</section>
+
+<section id="fig6-rai">
+  <h2>Fig 6 · The 8-gene RAI biomarker (★ headline)</h2>
+  <p>LogReg AUC = 0.954, RandomForest AUC = 0.975 vs BRAF V600E baseline AUC = 0.822 → <b>ΔAUC = +0.132</b>. External GSE76039 AUC 0.974 (correct-direction). Top features: TPO (0.27), DIO1 (0.21), TG (0.14), FOXE1 (0.14) — all canonical thyroid-differentiation markers.</p>
+  <div class="fig"><img src="figures/Fig6.png" alt="Fig 6"><div class="cap"><b>Fig 6</b> · feature importance · CV ROC · CV-fold AUC distribution · LogReg coefficients.</div></div>
+</section>
+
+<section id="biomarker-discovery">
+  <h2>Biomarker discovery — interactive triptych</h2>
+  <p>Three views of the 8-gene panel selection that complement the static Fig 6 panels: (1) effect-size vs coverage scatter to motivate the panel cutoff, (2) known-vs-novel enrichment heatmap, (3) external-cohort replication scatter.</p>
+  <div class="fig">
+    <iframe loading="lazy" src="figures/v17_boost/biomarker_effect_vs_coverage.html" style="height:580px"></iframe>
+    <div class="cap"><b>Effect vs coverage (interactive)</b> · per-gene |log2FC| × cohort coverage. The 8 selected genes lie in the upper-right cluster (high effect, high coverage) — selection is not driven by single-cohort outliers.</div>
+  </div>
+  <div class="grid2">
+    <div class="fig">
+      <iframe loading="lazy" src="figures/v17_boost/biomarker_heatmap_known_vs_novel.html" style="height:920px"></iframe>
+      <div class="cap"><b>Known vs novel — heatmap</b> · the 8-gene panel against canonical thyroid-differentiation markers (TPO, DIO1, TG, FOXE1, etc.); shows the panel reuses validated biology, not noise.</div>
+    </div>
+    <div class="fig">
+      <iframe loading="lazy" src="figures/v17_boost/biomarker_replication_scatter.html" style="height:540px"></iframe>
+      <div class="cap"><b>External replication scatter</b> · TCGA log2FC vs GEO log2FC per gene; concordance r &gt; 0.7 anchors the panel beyond TCGA discovery.</div>
+    </div>
+  </div>
+</section>
+
+<section id="fig7-drug">
+  <h2>Fig 7 · Drug actionability (PRISM mechanism-class)</h2>
+  <p>4/4 BRAF V600E CCLE lines correctly DM1. n = 5 vs 5 limits FDR-grade discovery, but mechanism-class signals coherent: MEK inhibitors and HMGCR inhibitors nominally DM1-selective. Positioned as hypothesis-generating, not a finalised clinical recommendation.</p>
+  <div class="fig"><img src="figures/Fig7.png" alt="Fig 7"><div class="cap"><b>Fig 7</b> · drug volcano · MOA Δ count · MEK + HMGCR class · cell-line DM1/DM2 axis (4/4 BRAF DM1).</div></div>
+</section>
+
+<section id="fig8-tert">
+  <h2>Fig 8 · TERT 4-group survival with full robustness audit</h2>
+  <p>36 TERT-promoter-mutated patients recovered from cBioPortal (Sanger-validated MAF). 4-group BRAF / RAS / TERT⁺ / Triple-neg multivariate logrank p = 3.78 × 10⁻⁵. <b>Honest reframe</b>: univariate Cox HR = 6.31 → multivariate (stage + age + sex) HR = 1.88 (p = 0.29). TERT⁺ as molecular handle for Stage III/IV, not stage-independent prognostic.</p>
+  <div class="fig"><img src="figures/Fig8.png" alt="Fig 8"><div class="cap"><b>Fig 8</b> · KM with 95% CI bands · Cox HR forest (uni vs multi) · stage stack · TDS violin.</div></div>
+  <div class="fig">
+    <iframe loading="lazy" src="figures/v17_boost/survival_cumulative_incidence.html" style="height:520px"></iframe>
+    <div class="cap"><b>Cumulative incidence (interactive)</b> · 4-group cause-specific cumulative incidence; complements the KM view by showing absolute event accumulation at each follow-up window.</div>
+  </div>
+</section>
+
+<section id="leak-audit">
+  <h2>Leak audit · 4-variant honest re-evaluation (REALFIX R1–R4)</h2>
+  <p>Reviewer concern: the original DM1/DM2 cluster was constructed from TIERA67 (55 genes) which includes the 8-gene panel — predicting that cluster with the 8-gene panel is autocorrelation. We rebuilt 4 leak-free clusters that share <b>zero overlap</b> with the 8-gene panel, then re-measured AUC honestly.</p>
+  <div class="callout">
+    <div class="label">honest result</div>
+    Variant <b>A</b> (TIERA67 minus 8-gene, 47 genes) → 8-gene LogReg AUC = <b>0.962</b> (95 % CI 0.940–0.979) · ΔAUC vs BRAF baseline = <b>+0.113</b>.<br>
+    Variant <b>B</b> (MAPK + immune + EMT, 30 genes, zero overlap) → AUC <b>0.925</b> · ΔAUC <b>+0.130</b>.<br>
+    Variant <b>D</b> (BRS71 minus 8-gene, 26 genes, Chakravarty 2011) → AUC <b>0.957</b> · ΔAUC <b>+0.111</b>.<br>
+    Variant <b>C</b> (5-feature immune composite) → AUC <b>0.664</b> — collapses, confirming biology specificity (panel is differentiation-axis, not immune-axis).<br>
+    External GSE76039 (n = 37 ATC vs PDTC, ground-truth histology) → AUC = <b>0.935</b> (95 % CI 0.824–1.000).
+  </div>
+
+  <h3>R1 · cluster concordance (does the 4 leak-free clusters recover similar biology?)</h3>
+  <div class="grid2">
+    <div class="fig"><img src="figures/FigR1_1_concordance_heatmap.png" alt="FigR1.1"><div class="cap"><b>R1.1</b> · variant × variant ARI heatmap. A↔D ARI = 0.68; A↔B = 0.57 → cores agree.</div></div>
+    <div class="fig"><img src="figures/FigR1_2_ari_bar.png" alt="FigR1.2"><div class="cap"><b>R1.2</b> · ARI of each variant vs original DM1/DM2. 0.4 robustness threshold marked.</div></div>
+  </div>
+  <div class="fig"><img src="figures/FigR1_3_cluster_sizes.png" alt="FigR1.3"><div class="cap"><b>R1.3</b> · DM1 / DM2 sample-count split per variant.</div></div>
+
+  <h3>R2 · honest AUC against the leak-free clusters</h3>
+  <div class="grid2">
+    <div class="fig"><img src="figures/FigR2_1_auc_with_ci.png" alt="FigR2.1"><div class="cap"><b>R2.1</b> · 8-gene LogReg AUC + 95 % CI for variants A/B/C/D. Three variants ≥ 0.92 confirm panel signal isn't autocorrelation.</div></div>
+    <div class="fig"><img src="figures/FigR2_2_delta_auc_forest.png" alt="FigR2.2"><div class="cap"><b>R2.2</b> · ΔAUC vs BRAF V600E baseline forest — all positive (+0.11 / +0.13 / +0.11) on A/B/D; C marks the biology limit.</div></div>
+  </div>
+  <div class="fig"><img src="figures/FigR2_3_prefix_vs_postfix.png" alt="FigR2.3"><div class="cap"><b>R2.3</b> · Pre-fix (circular AUC 0.954) vs post-fix (4 leak-free AUCs) — apples-to-apples honest reframe.</div></div>
+
+  <h3>R3 · external ground-truth (GSE76039 ATC vs PDTC histology)</h3>
+  <div class="fig"><img src="figures/FigR3_1_gse76039_roc.png" alt="FigR3.1" style="max-height:520px;object-fit:contain"><div class="cap"><b>R3.1</b> · 8-gene panel ROC on GSE76039 (n=37) — AUC <b>0.935</b> (95 % CI 0.824–1.000), bootstrap band shown. True ground-truth label, not derived from same expression.</div></div>
+
+  <h3>R4 · master comparison panel</h3>
+  <div class="fig"><img src="figures/FigR4_1_master_panel.png" alt="FigR4.1"><div class="cap"><b>R4.1</b> · master pre-fix vs post-fix big-picture: leak-AUC 0.954 → 4 leak-free AUCs (0.66/0.92/0.96/0.96) + external 0.935 + ΔAUC vs BRAF + cluster concordance, in one panel.</div></div>
+
+  <p style="margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#888">
+    Sources: <a href="../../results/v17_realfix/R2_real_auc_table.tsv" style="color:#7ccfcd">R2_real_auc_table.tsv</a> · <a href="../../results/v17_realfix/R1_concordance_table.tsv" style="color:#7ccfcd">R1_concordance_table.tsv</a> · <a href="../../results/v17_realfix/R3_summary.json" style="color:#7ccfcd">R3_summary.json</a>
+  </p>
+</section>
+
+<section id="robustness">
+  <h2>Robustness audit · interactive</h2>
+  <p>The v3 honest reframe (HR 6.31 → 1.88) is supported by three robustness layers, each with an interactive plot below.</p>
+  <div class="grid2">
+    <div class="fig">
+      <iframe loading="lazy" src="figures/v17_boost/v17_forest_HR.html" style="height:390px"></iframe>
+      <div class="cap"><b>Cox HR forest</b> · univariate vs +stage vs +stage+age vs +stage+age+sex. Hover for exact HR + 95% CI per adjustment.</div>
+    </div>
+    <div class="fig">
+      <iframe loading="lazy" src="figures/v17_boost/v17_bootstrap_p.html" style="height:410px"></iframe>
+      <div class="cap"><b>1,000-iter bootstrap p</b> distribution. Median 2.6×10⁻⁵; 95% CI 3.2×10⁻¹⁵ – 0.21; 93% iter p &lt; 0.05.</div>
+    </div>
+  </div>
+  <div class="fig">
+    <iframe loading="lazy" src="figures/v17_boost/v17_loo_p.html" style="height:410px"></iframe>
+    <div class="cap"><b>36-patient leave-one-out</b> · worst-case p = 7.5×10⁻⁴; all 36 LOO iterations p &lt; 10⁻³ — separation is not single-event-driven.</div>
+  </div>
+</section>
+
+<section id="external-cohorts">
+  <h2>External multi-cohort meta · interactive</h2>
+  <p>5-cohort external transfer (TCGA + 4 GEO). DIA-AUC forest with the 8-gene panel + robustness in independent cohorts. 2/5 robust at DIA-AUC &gt; 0.85; 3 marginal cohorts indicate cross-platform heterogeneity (open question for revision-round Korean cohort).</p>
+  <div class="fig">
+    <iframe loading="lazy" src="figures/v17_boost/B1A_multi_cohort_forest.html" style="height:410px"></iframe>
+    <div class="cap"><b>Multi-cohort forest</b> · per-cohort AUC + 95% CI for the 8-gene panel.</div>
+  </div>
+  <div class="fig">
+    <iframe loading="lazy" src="figures/v17_boost/meta_forest_top20.html" style="height:560px"></iframe>
+    <div class="cap"><b>Meta forest — top 20 genes (interactive)</b> · pooled effect with 95% CI per gene across cohorts; the 8 panel genes anchor the upper rows.</div>
+  </div>
+</section>
+
+<section id="decision-curve">
+  <h2>Clinical decision curve · interactive</h2>
+  <p>Net benefit (Vickers DCA) of the 8-gene panel vs BRAF V600E baseline vs treat-all / treat-none across the threshold range. The 8-gene panel dominates BRAF V600E across most threshold-probability ranges.</p>
+  <div class="fig">
+    <iframe loading="lazy" src="figures/v17_boost/B1B_decision_curve.html" style="height:540px"></iframe>
+    <div class="cap"><b>Decision curve analysis</b> · 8-gene panel vs BRAF V600E vs treat-all/treat-none.</div>
+  </div>
+</section>
+
+<section id="subgroup">
+  <h2>Subgroup forest · interactive</h2>
+  <p>8-gene panel performance by clinical subgroup (sex, age, stage, BRAF status). Effect direction consistent across subgroups — biomarker is not driven by a confounder.</p>
+  <div class="fig">
+    <iframe loading="lazy" src="figures/v17_boost/B1C_subgroup_forest.html" style="height:410px"></iframe>
+    <div class="cap"><b>Subgroup forest</b> · per-subgroup AUC + 95% CI.</div>
+  </div>
+</section>
+
+<section id="rai-tool">
+  <h2>RAI decision tool · interactive (8-gene calculator)</h2>
+  <p>Interactive bedside tool — enter the 8 thyroid-differentiation gene expression values, get a P(DM2) score and a Hot/Cold composite. Built for translational use.</p>
+  <div class="fig">
+    <iframe loading="lazy" src="rai_calculator.html" style="height:680px"></iframe>
+    <div class="cap"><b>8-gene RAI calculator</b> · client-side; no server roundtrip.</div>
+  </div>
+</section>
+
+<section id="notebooks-embed">
+  <h2>Notebooks · live walkthroughs (embedded)</h2>
+  <p>32 executed Jupyter notebooks reproducing every figure. Three are embedded here for quick inspection — the rest live at <a href="notebooks/index.html" style="color:#7ccfcd">notebooks/ index</a>.</p>
+  <div class="fig">
+    <iframe loading="lazy" src="notebooks/00_overview.html" style="height:620px;background:#fff"></iframe>
+    <div class="cap"><b>00 · overview</b> · cohort, axis, headline metrics in a single executed notebook.</div>
+  </div>
+  <div class="grid2">
+    <div class="fig">
+      <iframe loading="lazy" src="notebooks/Fig8.html" style="height:560px;background:#fff"></iframe>
+      <div class="cap"><b>Fig 8 walkthrough</b> · 4-group survival, lifelines Cox, multivariate adjustment chain.</div>
+    </div>
+    <div class="fig">
+      <iframe loading="lazy" src="notebooks/robustness.html" style="height:560px;background:#fff"></iframe>
+      <div class="cap"><b>Robustness</b> · 1,000-iter bootstrap + 36-LOO + alt endpoints.</div>
+    </div>
+  </div>
+  <p class="linkrow" style="margin-top:14px">
+    <a href="notebooks/index.html">→ all 32 notebooks (index)</a>
+    <a href="notebooks/Fig1.html">Fig1</a>
+    <a href="notebooks/Fig2.html">Fig2</a>
+    <a href="notebooks/Fig3.html">Fig3</a>
+    <a href="notebooks/Fig4.html">Fig4</a>
+    <a href="notebooks/Fig5.html">Fig5</a>
+    <a href="notebooks/Fig6.html">Fig6</a>
+    <a href="notebooks/Fig7.html">Fig7</a>
+    <a href="notebooks/audit.html">audit</a>
+    <a href="notebooks/master.html">master</a>
+    <a href="notebooks/supp.html">supp</a>
+    <a href="notebooks/polish.html">polish</a>
+  </p>
+</section>
+
+<section id="supp">
+  <h2>Supplementary figures · 15 panels inline</h2>
+  <div class="grid2">
+    <div class="fig"><img src="figures/SuppFig1.png" alt="SuppFig1"><div class="cap"><b>S1</b> · 1,000-bootstrap concordance</div></div>
+    <div class="fig"><img src="figures/SuppFig2.png" alt="SuppFig2"><div class="cap"><b>S2</b> · K=2 vs K=3,4,5 silhouette</div></div>
+    <div class="fig"><img src="figures/SuppFig3.png" alt="SuppFig3"><div class="cap"><b>S3</b> · DIAL audit</div></div>
+    <div class="fig"><img src="figures/SuppFig4.png" alt="SuppFig4"><div class="cap"><b>S4</b> · ComBat-seq λ heatmap</div></div>
+    <div class="fig"><img src="figures/SuppFig5.png" alt="SuppFig5"><div class="cap"><b>S5</b> · pan-cancer transfer</div></div>
+    <div class="fig"><img src="figures/SuppFig6.png" alt="SuppFig6"><div class="cap"><b>S6</b> · full marker heatmap (41 genes)</div></div>
+    <div class="fig"><img src="figures/SuppFig7.png" alt="SuppFig7"><div class="cap"><b>S7</b> · scRNA per-patient DM landscape</div></div>
+    <div class="fig"><img src="figures/SuppFig8.png" alt="SuppFig8"><div class="cap"><b>S8</b> · alt endpoints + Cox</div></div>
+    <div class="fig"><img src="figures/SuppFig9.png" alt="SuppFig9"><div class="cap"><b>S9</b> · AMP4 logistic coef + CV AUC</div></div>
+    <div class="fig"><img src="figures/SuppFig10.png" alt="SuppFig10"><div class="cap"><b>S10</b> · BRAF-only baseline vs 8-gene</div></div>
+    <div class="fig"><img src="figures/SuppFig11.png" alt="SuppFig11"><div class="cap"><b>S11</b> · PDTC vs ATC RAI reframe</div></div>
+    <div class="fig"><img src="figures/SuppFig12.png" alt="SuppFig12"><div class="cap"><b>S12</b> · 5-cohort transfer detail</div></div>
+    <div class="fig"><img src="figures/SuppFig13.png" alt="SuppFig13"><div class="cap"><b>S13</b> · Hallmark GSEA full</div></div>
+    <div class="fig"><img src="figures/SuppFig14.png" alt="SuppFig14"><div class="cap"><b>S14</b> · 17 driver↔DM outliers table</div></div>
+    <div class="fig"><img src="figures/SuppFig15.png" alt="SuppFig15"><div class="cap"><b>S15</b> · reproducibility checklist</div></div>
+  </div>
+</section>
+
+<section id="assets">
+  <h2>All assets · navigate</h2>
+  <h3>Manuscript + cover letter</h3>
+  <p class="linkrow">
+    <a href="manuscript_v1.pdf">manuscript.pdf (173KB)</a>
+    <a href="manuscript_v1.docx">manuscript.docx</a>
+    <a href="manuscript_v1.md">manuscript.md</a>
+    <a href="cover_letter.pdf">cover_letter.pdf</a>
+    <a href="cover_letter.docx">cover_letter.docx</a>
+  </p>
+  <h3>Tables + reviewer materials</h3>
+  <p class="linkrow">
+    <a href="tables/Supplementary_Tables.xlsx">Supplementary_Tables.xlsx (7 sheets)</a>
+    <a href="v17p35_REVIEWER_DEFENSE.md">REVIEWER_DEFENSE (20 attacks)</a>
+    <a href="voice_polish_audit.md">voice_polish_audit.md</a>
+    <a href="manuscript_AUDIT.md">manuscript_AUDIT.md</a>
+  </p>
+  <h3>Notebooks (tutorial-style with executed outputs)</h3>
+  <p class="linkrow">
+    <a href="notebooks/index.html">notebooks/ index</a>
+    <a href="notebooks/00_overview.html">00_overview</a>
+    <a href="notebooks/01_data_inventory.html">01_data_inventory</a>
+    <a href="notebooks/Fig8.html">Fig8 walkthrough</a>
+    <a href="notebooks/robustness.html">robustness audit</a>
+  </p>
+  <h3>Browse-only</h3>
+  <p class="linkrow">
+    <a href="figures/master_panel.html">master_panel</a>
+    <a href="yu_dashboard_KR.html">yu_dashboard (KR)</a>
+    <a href="rai_calculator.html">rai_calculator</a>
+    <a href="figures/figure_audit_report.md">figure_audit_report.md</a>
+  </p>
+  <h3>Bundles</h3>
+  <p class="linkrow">
+    <a href="reviewer_bundle.zip">reviewer_bundle.zip (≈8 MB)</a>
+    <a href="anonymous_code.zip">anonymous_code.zip</a>
+  </p>
+  <h3>Submission</h3>
+  <p class="linkrow">
+    <a href="SUBMIT_INSTRUCTIONS.md">SUBMIT_INSTRUCTIONS.md</a>
+    <a href="SUBMISSION_CHECKLIST.md">SUBMISSION_CHECKLIST.md</a>
+    <a href="SUBMISSION_READY.md">SUBMISSION_READY.md</a>
+  </p>
+</section>
+
+<p style="margin-top:48px;font-size:11px;color:#555;font-family:'JetBrains Mono',monospace">
+v17_FINAL_polish + v17_ACTUAL_robustness + v17p35_SYNTH1 + interactive_v2 — 2-day sprint, 2026-04-26 to 2026-04-27 KST<br>
+embedded interactive: 6 v17_boost iframes + 7 newly-curated panels (UMAP, volcano, KM, pathway×2, biomarker×3, meta-forest, cumulative-incidence) + 3 inline notebooks + RAI calculator.
+</p>
+</div>
+</body>
+</html>

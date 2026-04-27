@@ -1,13 +1,13 @@
 # Bundang SNUH Korean outreach email — FINAL DRAFT
 
-To: 분당서울대병원 갑상선·내분비외과 또는 내분비내과 PI (이름 + 이메일은 본인이 fill)
+To: 유형원 교수님 (분당서울대학교병원 외과·내분비외과)
 From: 국승호 (Seungho Cook) <kukshomr@gmail.com>
 CC: 유 교수님 (Yu Kyungho — 성함 + 이메일 fill)
 Subject: 갑상선 유두암 RAI 반응성 8-gene biomarker 한국인 cohort 검증 협력 제안 — npj Precision Oncology 제출 직전
 
 ---
 
-존경하는 [PI 성함] 교수님,
+존경하는 유형원 교수님,
 
 안녕하십니까. 저는 서울에서 활동 중인 독립 컴퓨터과학 연구자 **국승호**이며, 의료 AI 분야에서 약 10년의 경력을 가지고 있습니다 (Portrai 의료영상 CAIO 2.5년, Cornerstone Partners AI 솔루션 아키텍트). 현재 [Yu Kyungho — 교수님 성함] 교수님과 **공동 1저자/공동 교신저자 관계**로 갑상선암 유전체 분석 연구를 진행 중이며, 박사과정은 [서울대 융합과학기술대학원] 파트타임으로 병행하고 있습니다.
 
@@ -37,7 +37,7 @@ Subject: 갑상선 유두암 RAI 반응성 8-gene biomarker 한국인 cohort 검
 
 ### (b) 협력 framework 제안
 - **본 연구 1저자**: 국승호 (분석 lead)
-- **공동 교신저자**: [Yu Kyungho 교수님] + [분당서울대 PI] (co-corresponding)
+- **공동 교신저자**: [Yu Kyungho 교수님] + 유형원 교수님 (co-corresponding)
 - **분당서울대 cohort 분석 결과**:
   - Option A — Paper revision round 에 추가 figure/section 으로 통합. npj 최종 published 시 한국 cohort 분석 contributor 들이 author 로 등재.
   - Option B — 별도 후속 paper 로 진행 (이 경우 분당서울대 PI 가 1저자 또는 senior author).
