@@ -1,0 +1,231 @@
+% =====================================================================
+%  v15 — first-draft snippets for sections currently MISSING or STUB
+%  in v15_neurips_paper_v0.tex
+%
+%  Drop-in ready. Generated 2026-04-27.
+%  Each block is preceded by its target location in the main paper.
+% =====================================================================
+
+
+% ---------------------------------------------------------------------
+%  REPLACEMENT for §6.4 Broader impact (currently 1 short paragraph)
+% ---------------------------------------------------------------------
+\subsection{Broader impact}
+
+\paragraph{Positive impact.}
+A post-hoc, AUC-based diagnostic for preprocessing-induced flips
+lowers the audit cost for biomedical ML pipelines, where many
+published classifiers may be vulnerable to v5.1-style leakage.
+DIAL has direct application in regulatory ML audits (FDA medical-
+device re-validation, EMA cross-cohort review) and in ML-for-science
+reproducibility programmes (NeurIPS Reproducibility Checklist, ICLR
+ML+code reviews). The case study in \S\ref{sec:exp}.5 illustrates
+that a leaky pipeline can produce statistically dramatic but
+methodologically vacuous results; DIAL flags such cases at audit
+time.
+
+\paragraph{Negative / dual-use risk.}
+DIAL is a diagnostic, not a corrective. We see no direct dual-use
+risk: the method does not enable surveillance, manipulation of
+clinical outcomes, or generation of harmful content. The closest
+indirect risk is reviewer over-reliance on a single AUC-based
+audit; we explicitly flag in \S\ref{sec:exp} (Limitations) that
+DIAL is classifier- and CV-protocol-dependent, and that a low
+DIAL value does not certify a pipeline as leak-free outside the
+Theorem~\ref{thm:unified} assumption regime.
+
+\paragraph{Mitigations.}
+We release both the metric implementation and the v5.2 leak-fix
+audit script (\texttt{LinearComBat.fit}/\texttt{transform}
+decomposition) with explicit fail-safe behaviour: under proper
+LODO-fit-on-train-only, $\dial = 0$ at all $n$ for the leak-
+inducing pipeline (Theorem~\ref{thm:unified}). The v15 numerical
+experiments are fully synthetic and reproducible from seeded
+scripts; no human-subjects data are involved.
+
+\paragraph{Scope of claim.}
+DIAL fires under the Theorem~\ref{thm:unified} conditions (Gaussian-
+shared-$\Sigma$ class-conditionals, linear correction $T$).
+Outside these assumptions, DIAL's behaviour is empirical and
+modality-dependent; we benchmark four modalities in \S\ref{sec:exp}.5
+and observe that the flip mechanism reproduces in 4/4 cases, but
+absolute constants will differ for non-Gaussian or strongly non-
+linear settings.
+
+
+% ---------------------------------------------------------------------
+%  NEW SECTION (insert before Appendix A): Ethics statement
+% ---------------------------------------------------------------------
+\section*{Ethics statement}
+
+The v15 numerical experiments use no human-subjects data. The
+v5.1 leak example referenced in \S\ref{sec:intro} and \S\ref{sec:exp}.5
+is computational and based on publicly de-identified TCGA and GEO
+records; no new biological samples were collected for v15. The
+broader-impact discussion in \S6.4 covers dual-use considerations.
+The author declares no conflict of interest.
+
+
+% ---------------------------------------------------------------------
+%  REPLACEMENT for "Code availability" (currently a stub)
+% ---------------------------------------------------------------------
+\section*{Code and data availability}
+\label{app:code}
+
+All code used to produce the v15 numerical experiments is at
+\url{https://anonymous.4open.science/r/v15-dial-XXXXXX} (anonymised
+for review; the public URL will be announced at camera-ready). The
+five experiment scripts and their corresponding outputs are:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Script & Section & Output checkpoint \\
+\midrule
+\texttt{v15\_theorem2\_verify.py} & \S\ref{sec:exp}.1 & \texttt{task1\_theorem2.json} \\
+\texttt{v15\_stress\_test.py}     & \S\ref{sec:exp}.2 & \texttt{task2\_stress.json} \\
+\texttt{v15\_tta\_benchmark.py}   & \S\ref{sec:exp}.3 & \texttt{task3\_tta.json} \\
+\texttt{v15\_scaling.py}          & \S\ref{sec:exp}.4 & \texttt{task4\_scaling.json} \\
+\texttt{v15\_cross\_domain.py}    & \S\ref{sec:exp}.5 & \texttt{task5\_cross\_domain.json} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each script writes a JSON checkpoint (recording exact wall time,
+seed list, and headline metric) plus a long-form TSV that supports
+the tabular numbers in the paper. No human-subjects data are used
+in v15; the v5.1 leak example referenced in \S\ref{sec:intro} and
+\S\ref{sec:exp}.5 is reproducible from public TCGA/GEO inputs but
+is not required to validate any v15 claim.
+
+
+% ---------------------------------------------------------------------
+%  NEW APPENDIX SECTION: Hyperparameters table (closes Repro Q7)
+% ---------------------------------------------------------------------
+\section{Experimental hyperparameters}
+\label{app:hparams}
+
+\begin{center}
+\begin{tabular}{llrl}
+\toprule
+Section & Hyperparameter & Value & Notes \\
+\midrule
+\S\ref{sec:exp}.1 & shift magnitudes        & 0,0.25,\dots,2.0 & 7 levels  \\
+\S\ref{sec:exp}.1 & shift types             & 6                & none, cov, lab, par, perp, subspace  \\
+\S\ref{sec:exp}.1 & repetitions             & 15               & per (type, mag) cell  \\
+\S\ref{sec:exp}.1 & total runs              & 630              & 6$\times$7$\times$15  \\
+\S\ref{sec:exp}.1 & wall                    & 3.4 s            & single-thread  \\
+\midrule
+\S\ref{sec:exp}.2 & feature dim $p$         & 64               &   \\
+\S\ref{sec:exp}.2 & sample size $n$         & 300              & per cohort  \\
+\S\ref{sec:exp}.2 & shift types             & 4                & cov, lab, concept, subspace  \\
+\S\ref{sec:exp}.2 & magnitudes              & 5                & 0,0.25,0.5,0.75,1.0  \\
+\S\ref{sec:exp}.2 & classifier families     & 5                & LogReg-$\ell_2$, RF, GB, XGB-substitute, MLP  \\
+\S\ref{sec:exp}.2 & repetitions             & 20               & per cell  \\
+\S\ref{sec:exp}.2 & total runs              & 2{,}000          &   \\
+\S\ref{sec:exp}.2 & wall                    & 672 s            & 8 cores  \\
+\midrule
+\S\ref{sec:exp}.3 & feature dim $p$         & 64               &   \\
+\S\ref{sec:exp}.3 & sample size $n$         & 300              & per cohort  \\
+\S\ref{sec:exp}.3 & shift magnitude         & 0.8              & subspace-aligned  \\
+\S\ref{sec:exp}.3 & methods                 & 10               & see Table in \S\ref{sec:exp}.3  \\
+\S\ref{sec:exp}.3 & seeds                   & 5                &   \\
+\midrule
+\S\ref{sec:exp}.4 & encoder configurations  & 8                & 2K to 5.4M params  \\
+\S\ref{sec:exp}.4 & shift magnitude         & 0.8              &   \\
+\S\ref{sec:exp}.4 & seeds                   & 3                &   \\
+\S\ref{sec:exp}.4 & wall                    & 96 s             &   \\
+\midrule
+\S\ref{sec:exp}.5 & domains                 & 4                & vision, NLP, biology, clinical  \\
+\S\ref{sec:exp}.5 & dimensions per domain   & 32, 64, 128, 200 & shape-dependent  \\
+\S\ref{sec:exp}.5 & seeds                   & 6                & per domain  \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Hardware: single workstation, AMD-class 8-core CPU, 32 GB RAM,
+Linux 6.17. No GPU required. Total wall-clock for all five
+experiments: $\approx 13$ min.
+
+
+% ---------------------------------------------------------------------
+%  REPRODUCIBILITY CHECKLIST (NeurIPS standard 14 questions)
+% ---------------------------------------------------------------------
+\section*{Reproducibility checklist}
+
+\begin{enumerate}
+\item \textbf{Claims and abstract accurately reflect contributions:}
+  Yes. The abstract claims (R$^2 = 0.94$, ROC = 0.78, scaling
+  negative result, 4/4 domains) are each backed by a checkpoint
+  file referenced in \S\ref{sec:exp}.
+
+\item \textbf{Limitations are clearly discussed:} Yes,
+  \S\ref{sec:exp} (Limitations) explicitly lists the Gaussian
+  assumption, classifier-dependence of DIAL, and the synthetic-only
+  scope of v15 empirics.
+
+\item \textbf{Theoretical claims have full proofs:} Theorem~\ref{thm:unified}
+  is proven in Appendix~A (\texttt{theorem2\_proof.tex}). \textbf{See
+  Author Note: 10 TODO markers in the proof are flagged for
+  verification.} A fallback restricted to Gaussian-only is
+  available if any step does not go through.
+
+\item \textbf{Did you describe assumptions and limits of theory:}
+  Yes; Definition~1 in the proof setup states the Gaussian shared-
+  $\Sigma$ assumption explicitly and \S\ref{sec:exp} (Limitations)
+  acknowledges it.
+
+\item \textbf{Experimental code provided:} Yes, five
+  \texttt{v15\_*.py} scripts.
+
+\item \textbf{Experimental data described:} Yes; all data are fully
+  synthetic. Data generators are inline in each script.
+
+\item \textbf{Hyperparameters specified:} Yes; see
+  Appendix~\ref{app:hparams}.
+
+\item \textbf{Random seeds reported:} Yes; checkpoints record
+  \texttt{n\_seeds} per experiment (3 for scaling, 5 for TTA, 6 for
+  cross-domain, 15 for theory validation, 20 for stress test).
+
+\item \textbf{Variance reported:} Yes; \texttt{\_std} columns present
+  in all TSV outputs.
+
+\item \textbf{Compute resource described:} Yes; see
+  Appendix~\ref{app:hparams} (single 8-core CPU, 32 GB, no GPU).
+  Wall times in checkpoints (3 s to 672 s).
+
+\item \textbf{Code license declared:} Yes; MIT (LICENSE in repo
+  root).
+
+\item \textbf{Data license declared:} Not applicable; data are
+  synthetic and generated at runtime.
+
+\item \textbf{Privacy / consent:} Not applicable; no human-subjects
+  data.
+
+\item \textbf{Theoretical fairness considered:} Yes; broader-impact
+  statement (\S6.4) discusses dual-use risk, mitigations, and
+  scope of claim.
+\end{enumerate}
+
+
+% ---------------------------------------------------------------------
+%  CITATION INSTRUCTION FOR v17 (drop-in for any v17 paper that wants
+%  to cite v15 DIAL methodology)
+% ---------------------------------------------------------------------
+%
+%   "DIAL (Direction-Invariant AUC Leakage), a post-hoc diagnostic for
+%   subspace-aligned conditional shift under linear batch correction
+%   [Cook 2026 NeurIPS]; we apply DIAL to evaluate dark-matter
+%   sub-cohort transfer to GSE27155 / GSE76039."
+%
+%   bibtex:
+%   @inproceedings{cook2026dial,
+%     title={DIAL: A post-hoc diagnostic for subspace-aligned
+%       conditional shift under linear batch correction},
+%     author={Cook, Seungho},
+%     booktitle={NeurIPS 2026 [under review at v15-dial-XXXXXX]},
+%     year={2026}
+%   }
+% ---------------------------------------------------------------------

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>v17 요약</title>
+  <style>
+    :root{--bg:#0b0f14;--panel:#121923;--line:#273242;--text:#eef4ff;--muted:#9dafc6;--amber:#f5a623;--mint:#7fd2c9;--green:#9fd36f}
+    *{box-sizing:border-box} body{margin:0;background:linear-gradient(180deg,#091018,#0b0f14);color:var(--text);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+    .wrap{max-width:1060px;margin:0 auto;padding:34px 20px 80px}
+    .hero,.sec{background:rgba(18,25,35,.9);border:1px solid var(--line);border-radius:18px}
+    .hero{padding:28px}.ey{font:12px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--amber)}
+    h1{font-size:42px;line-height:1.08;font-weight:300;letter-spacing:-.03em;margin:10px 0 8px}
+    .lede{color:var(--muted);max-width:82ch}
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:20px}
+    .stat{background:#0f141d;border:1px solid var(--line);border-radius:14px;padding:16px}
+    .stat b{display:block;font-size:30px;color:var(--mint)} .stat span{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+    .sec{padding:22px;margin-top:18px}
+    h2{margin:0 0 10px;font-size:26px;font-weight:500}
+    h3{margin:18px 0 6px;font-size:18px;color:#fff}
+    p,li{color:var(--muted)} ul{margin:10px 0 0;padding-left:20px}
+    .links{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+    .btn{display:inline-block;padding:10px 14px;border-radius:999px;text-decoration:none;border:1px solid var(--line);color:var(--text);background:#0f141d}
+    .btn.primary{background:var(--amber);border-color:var(--amber);color:#111;font-weight:700}
+  </style>
+</head>
+<body>
+
+<div style="background:rgba(193,68,68,0.10);border:2px solid #c14;color:#c14;padding:14px 18px;margin:16px 0;border-radius:6px;font-family:'Pretendard','Inter',sans-serif;font-size:14px;">
+  <strong>⚠ v5.2 retraction notice (2026-04-25):</strong> some DIA-AUC and DIAL numbers below were computed under v5.1 leaky-ComBat protocol, which fit ComBat on full pooled data before LODO split (information leak). Under proper per-fold ComBat, the numbers shift. Current submission-ready figures are at the <a href="../html/pages/v17_npj_robustness.html" style="color:#c14;font-weight:600;">v17 npj robustness page</a> (manuscript v3, scenario-B reframe). See <a href="../v5p2/v5p2_critical_assessment.md" style="color:#c14;font-weight:600;">v5p2_critical_assessment.md</a> for details.
+</div>
+
+  <div class="wrap">
+    <section class="hero">
+      <div class="ey">v17 summary · korean render</div>
+      <h1>BRAF/RAS 밖에 남은 178명은 잔여군이 아니라 구조였다.</h1>
+      <p class="lede">이번 v17 실행은 TCGA Dark Matter 178명을 다시 분해하고, 그 구조가 외부 코호트 transfer와 progression-like trajectory에서도 유지되는지 보는 스프린트였다. 핵심은 단순 이분법을 넘어서 “설명되지 않던 표본들”을 subtype space 안으로 끌어들였다는 점이다.</p>
+      <div class="stats">
+        <div class="stat"><span>Dark Matter</span><b>178</b></div>
+        <div class="stat"><span>Best K</span><b>2</b></div>
+        <div class="stat"><span>Stability</span><b>0.9788</b></div>
+        <div class="stat"><span>DIA-AUC</span><b>0.969-1.000</b></div>
+        <div class="stat"><span>Trajectory</span><b>645</b></div>
+      </div>
+      <div class="links">
+        <a class="btn primary" href="index.html">v17 메인으로</a>
+        <a class="btn" href="methods.html">방법론 HTML</a>
+        <a class="btn" href="../../results/v17/figs/dark_matter_umap.html">대표 figure</a>
+      </div>
+    </section>
+
+    <section class="sec">
+      <h2>핵심 결과</h2>
+      <h3>1. Dark Matter clustering</h3>
+      <p>TCGA-THCA tumor 중 `driver_anchor` 가 `BRAF`, `RAS` 가 아닌 178명을 추출했고, TierA 기반 consensus clustering에서 `K=2` 가 선택됐다. cluster 크기는 `DM1=109`, `DM2=69` 이고 stability는 `0.9788` 이다.</p>
+
+      <h3>2. Quad-group 비교</h3>
+      <p>이번 로컬 실행에서는 TERT promoter가 WXS MAF에서 제대로 관측되지 않아 사실상 `BRAF only`, `RAS only`, `triple-negative` 세 그룹 비교가 됐다. 평균 RAI/TDS는 `RAS > triple-negative > BRAF` 순이었다.</p>
+
+      <h3>3. DIAL audit</h3>
+      <p>External transfer proxy에서 `GSE27155`, `GSE76039` 두 코호트 모두 `DIA-AUC 0.9688-1.0000` 으로 매우 높았다. 반면 identifiability는 ComBat 후 `1.000/0.9998 -> 0.2577/0.1573` 으로 급감했다. 즉 biology transfer는 유지되지만 cohort signature는 심하게 지워진다.</p>
+
+      <h3>4. Trajectory</h3>
+      <p>Trajectory는 공통 gene 50개, 총 645개 tumor sample에서 계산됐다. pseudotime 증가와 가장 강한 음의 상관을 보인 유전자는 `TPO`, `SLC26A4`, `DIO1`, `TG`, `DIO2`, `PAX8` 이고, 양의 상관 축에는 `DUSP5`, `MET`, `LOX` 가 올라왔다.</p>
+    </section>
+
+    <section class="sec">
+      <h2>이 결과가 의미하는 것</h2>
+      <ul>
+        <li>Dark Matter는 “드라이버를 못 찾은 샘플”의 묶음이 아니라, expression 구조상 다시 나뉘는 군이다.</li>
+        <li>이 구조는 외부 코호트에서도 거의 완벽하게 transfer된다.</li>
+        <li>다만 batch correction은 transfer와 identifiability 사이에 강한 trade-off를 만든다.</li>
+        <li>Trajectory 상에서는 분화 유전자 프로그램이 pseudotime이 증가할수록 무너진다.</li>
+      </ul>
+    </section>
+
+    <section class="sec">
+      <h2>현재 한계</h2>
+      <ul>
+        <li>TERT promoter는 이번 run에서 제대로 assay되지 않았다. “없음”이 아니라 “비관측”에 가깝다.</li>
+        <li>fusion은 raw flat file 재수집이 아니라 기존 내부 proxy를 재활용했다.</li>
+        <li>trajectory는 현재 5-cohort full이 아니라 usable subset 결과다.</li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>

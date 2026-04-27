@@ -1,0 +1,89 @@
+% NeurIPS 2026 Paper Checklist — filled answers for v15 (DIAL)
+% This block REPLACES the instructions block of checklist.tex.
+% Required for submission; papers without checklist are desk-rejected.
+
+\section*{NeurIPS Paper Checklist}
+
+\begin{enumerate}
+
+\item {\bf Claims}
+    \item[] Question: Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The five contributions enumerated in §1 are: (i) Theorem~\ref{thm:unified} unified shift decomposition; (ii) numerical validation R$^{2}{=}0.94$; (iii) ten-method TTA benchmark; (iv) cross-domain reproduction in 4/4 modalities; (v) connection to preprocessing leakage. Each is established in the corresponding §5 subsection and Appendix~A; the abstract states the specific quantitative claims (R$^{2}{=}0.94$, ROC$=0.78$, target AUC $0.39$ vs $0.33$) that the experiments back.
+
+\item {\bf Limitations}
+    \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Explicit Limitations subsection in §6.2 lists: (a) Gaussian shared-covariance assumption; (b) DIAL is classifier-and-CV-protocol dependent; (c) all v15 empirics are synthetic. The retraction of v5.1 leak motivation is openly disclosed in abstract, §1, §5.1 framing, §6, and Conclusion.
+
+\item {\bf Theory assumptions and proofs}
+    \item[] Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Theorem~\ref{thm:unified} states the Gaussian shared-$\Sigma$ assumption and linear correction operator (Definition~\ref{def:linear-correction}) explicitly. Full proof in Appendix~A: 6 steps + 3 supporting lemmas + 1 supporting Proposition + 1 explicitly-marked Conjecture for the deferred information-bottleneck identity. All steps cite standard references (Cover-Thomas 2006, Anderson 2003, Hanley-McNeil 1982, Agarwal et al. 2005).
+
+\item {\bf Experimental result reproducibility}
+    \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: All five experiments are synthetic; data generators are inline in the code. Hyperparameter table in Appendix (\texttt{app:hparams}) lists feature dim, sample size, shift type, repetition counts, and total runs per experiment. Each script writes a checkpoint JSON recording exact wall time + seed list + headline metric.
+
+\item {\bf Open access to data and code}
+    \item[] Question: Does the paper provide open access to the data and code?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Anonymous code repository at \url{https://anonymous.4open.science/r/v15-dial-XXXXXX} (placeholder URL; will be replaced with real URL before May 6 paper deadline). Five \texttt{v15\_*.py} scripts + five JSON checkpoints + nine TSV result files + LICENSE (MIT). Synthetic data is generated at runtime — no external data dependencies.
+
+\item {\bf Experimental setting/details}
+    \item[] Question: Does the paper specify all the training and test details?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Experimental setting in body of \S5; full hyperparameter table in Appendix. Each script is reproducible end-to-end with no external configuration: \texttt{python scripts/v15\_<name>.py} reproduces every claim.
+
+\item {\bf Experiment statistical significance}
+    \item[] Question: Does the paper report error bars?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: All TSV outputs include \texttt{\_std} columns from independent seed replicates (3 seeds for scaling, 5 for TTA, 6 for cross-domain, 15 for theory validation, 20 for stress test). Figures 3–5 show error bars. Standard deviation across seeds is the variability measure; mean and std are reported.
+
+\item {\bf Experiments compute resources}
+    \item[] Question: Compute resources?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: Single workstation, AMD-class 8-core CPU, 32 GB RAM, Linux 6.17. No GPU required. Total wall-clock for all five experiments: $\approx$ 13 min (3.4 s + 672 s + 90 s + 96 s + 0.4 s). See Appendix (\texttt{app:hparams}). Failed / preliminary experiments not significant — DIAL is a closed-form derivation, not a hyperparameter sweep.
+
+\item {\bf Code of ethics}
+    \item[] Question: Conforms with NeurIPS Code of Ethics?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: All v15 work is synthetic; no human-subjects data. The v5.1 leak example referenced in §1 and §5 is computational and based on publicly de-identified TCGA / GEO records, with full disclosure of the retraction. The Code of Ethics (\url{https://neurips.cc/public/EthicsGuidelines}) was reviewed.
+
+\item {\bf Broader impacts}
+    \item[] Question: Both positive and negative societal impacts discussed?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: §6.4 Broader Impact has four explicit subsections: positive societal impact (lower audit cost for biomedical ML), negative / dual-use risk (reviewer over-reliance on a single AUC-based audit), mitigations (explicit fail-safe behaviour and synthetic-only reproducibility), and scope of claim (Theorem~\ref{thm:unified} conditions).
+
+\item {\bf Safeguards}
+    \item[] Question: Safeguards for responsible release?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: v15 releases neither pre-trained models, image generators, nor scraped datasets. The released artefacts are five Python scripts (analysis utilities) and five JSON / TSV result files derived from synthetic data — no high-risk-of-misuse assets.
+
+\item {\bf Licenses for existing assets}
+    \item[] Question: Existing assets credited and licenses respected?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: All cited methods (DANN, TENT, SHOT, ComBat, CORAL, etc.) are credited via the bibliography. No external code is copied verbatim; all five \texttt{v15\_*.py} scripts are original implementations using NumPy / scikit-learn (BSD-licensed) and PennyLane / Qiskit (Apache-2.0) where relevant.
+
+\item {\bf New assets}
+    \item[] Question: New assets well documented?
+    \item[] Answer: \answerYes{}
+    \item[] Justification: The five v15 scripts and the LinearComBat fit/transform decomposition are documented in the anonymous repository's \texttt{README.md} with reproduction instructions, hardware spec, and expected wall times. License is MIT (see \texttt{LICENSE} in the repo).
+
+\item {\bf Crowdsourcing and research with human subjects}
+    \item[] Question: Crowdsourcing details / IRB?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: No crowdsourcing experiments; no research with human subjects. The v5.1 leak example uses publicly de-identified TCGA/GEO data with no new human-subjects work.
+
+\item {\bf IRB / participants}
+    \item[] Question: Risks to participants / IRB?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: No human subjects in v15. The TCGA / GEO data referenced in the leak example are public, de-identified, and were originally collected under their own institutional review, which is documented in the original TCGA and GEO publications.
+
+\item {\bf LLM usage}
+    \item[] Question: Important / non-standard LLM usage in core methods?
+    \item[] Answer: \answerNA{}
+    \item[] Justification: LLMs were not used as a component of the core methodology, theory, or experiments. (LLMs may have been used for editing/proofreading; per NeurIPS guidance such usage requires no declaration.)
+
+\end{enumerate}

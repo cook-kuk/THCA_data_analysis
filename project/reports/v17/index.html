@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <meta name="theme-color" content="#07132b">
+  <title>v17 — BRAF/RAS를 넘어선 갑상선암 분자 분류</title>
+  <meta name="description" content="v17 — BRAF/RAS를 넘어선 갑상선암 분자 분류">
+  <link rel="icon" href="../html/assets/img/favicon.svg" type="image/svg+xml">
+  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../html/assets/css/main.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables.net-dt@1.13.8/css/jquery.dataTables.min.css">
+    <style>
+      :root{--bg:#07132b;--fg:#f8fafc;--accent:#f5a623}
+      body.dark{font-family:"Inter","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif}
+      body.dark h1,body.dark h2,body.dark h3,body.dark h4,body.dark p,body.dark li,body.dark td,body.dark th,body.dark a,body.dark span,body.dark div{font-family:"Inter","Noto Sans KR",-apple-system,BlinkMacSystemFont,sans-serif}
+      body.dark .mono, body.dark code{font-family:"JetBrains Mono",ui-monospace,monospace}
+      .v17-wrap{padding-bottom:72px}
+      .v17-hero{padding:36px 32px;border-radius:24px;border:1px solid rgba(255,255,255,.08);background:
+        radial-gradient(circle at 15% 18%, rgba(245,166,35,.16), transparent 28%),
+        radial-gradient(circle at 85% 14%, rgba(20,184,166,.10), transparent 22%),
+        linear-gradient(180deg, rgba(15,23,42,.96), rgba(2,6,23,.92))}
+      .v17-hero h1{font-size:clamp(36px,4.8vw,64px);font-weight:300;letter-spacing:-.04em;line-height:1.04;margin:10px 0 10px}
+      .v17-hero .subtitle{font-size:18px;color:#cbd5e1;margin:0 0 16px}
+      .v17-hero .meta{display:flex;gap:12px;flex-wrap:wrap;color:#94a3b8;font-size:13px}
+      .hero-summary{margin-top:18px;padding-left:18px}
+      .hero-summary li{margin:6px 0;color:#dbe4f0}
+      .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-top:22px}
+      .tile{padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+      .tile b{display:block;font-size:30px;color:#f8fafc}
+      .tile span{display:block;margin-top:8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#94a3b8}
+      .hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+      .hero-actions a{display:inline-flex;align-items:center;padding:10px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+      .hero-actions a.primary{background:#f5a623;color:#111;border-color:#f5a623;font-weight:700}
+      .v17-section{margin-top:22px}
+      .v17-panel{padding:24px;border-radius:22px;background:rgba(15,23,42,.72);border:1px solid rgba(255,255,255,.08)}
+      .v17-panel h2{margin:0 0 10px;font-size:30px}
+      .v17-panel p{color:#cbd5e1}
+      .two-col{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(280px,.65fr);gap:18px}
+      .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+      .fig-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:16px}
+      .fig-card{border:1px solid rgba(255,255,255,.08);border-radius:18px;overflow:hidden;background:rgba(2,6,23,.42)}
+      .fig-card__head{padding:14px 16px 10px;border-bottom:1px solid rgba(255,255,255,.06)}
+      .fig-card__head h3{margin:0 0 4px;font-size:18px}
+      .fig-card__head p{margin:0;font-size:14px;color:#94a3b8}
+      .fig-card iframe{display:block;width:100%;border:0;background:#030712}
+      .fig-card__links{padding:10px 16px 16px}
+      .fig-card__links a{color:#7dd3fc}
+      .note-box,.warn-box{padding:16px 18px;border-radius:18px}
+      .note-box{background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.2)}
+      .warn-box{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.22)}
+      .html-table-wrap{overflow:auto}
+      table.dataTable{width:100%!important}
+      table.dataTable thead th{background:#0f172a;color:#f8fafc;border-bottom:1px solid rgba(255,255,255,.15)}
+      table.dataTable tbody td{color:#cbd5e1;background:#071120}
+      .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(245,166,35,.12);color:#f5a623;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+      .list-tight li{margin:4px 0}
+      .footer-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+      @media (max-width:980px){.two-col{grid-template-columns:1fr}.fig-grid{grid-template-columns:1fr}}
+    </style>
+    
+</head>
+<body class="dark">
+
+<div style="background:rgba(193,68,68,0.10);border:2px solid #c14;color:#c14;padding:14px 18px;margin:16px 0;border-radius:6px;font-family:'Pretendard','Inter',sans-serif;font-size:14px;">
+  <strong>⚠ v5.2 retraction notice (2026-04-25):</strong> some DIA-AUC and DIAL numbers below were computed under v5.1 leaky-ComBat protocol, which fit ComBat on full pooled data before LODO split (information leak). Under proper per-fold ComBat, the numbers shift. Current submission-ready figures are at the <a href="../html/pages/v17_npj_robustness.html" style="color:#c14;font-weight:600;">v17 npj robustness page</a> (manuscript v3, scenario-B reframe). See <a href="../v5p2/v5p2_critical_assessment.md" style="color:#c14;font-weight:600;">v5p2_critical_assessment.md</a> for details.
+</div>
+
+  
+    <nav class="topnav" aria-label="주요 메뉴">
+      <div class="topnav-inner">
+        <a class="brand" href="../html/index.html" aria-label="홈으로"><span class="brand-dot" aria-hidden="true"></span><span>THYROID DASH</span></a>
+        <div class="nav-links" role="menubar"><a class='nav-link' href='../html/index.html' role='menuitem'>홈</a><a class='nav-link' href='../html/pages/01_overview.html' role='menuitem'>개요</a><a class='nav-link' href='../html/pages/13_reports.html' role='menuitem'>리포트</a><a class='nav-link' href='../html/pages/v12_biological_evidence.html' role='menuitem'>v12 Biology</a><a class='nav-link' href='../html/pages/v13_drug_discovery.html' role='menuitem'>v13 Drug Discovery</a><a class='nav-link' href='../html/pages/v15_neurips_theory.html' role='menuitem'>v15 NeurIPS</a><a class='nav-link active' href='../v17/index.html' role='menuitem'>v17 New</a></div>
+        <div class="nav-actions"><a class="btn sm ghost" href="../v17/index.html">v17 Hub</a></div>
+      </div>
+    </nav>
+    
+  <div class="layout v17-wrap">
+    <aside class="sidebar glass" aria-label="섹션 목차">
+      <h3>Section TOC</h3>
+      <a href='#problem'>문제 제기</a><a href='#dark-matter'>Dark Matter</a><a href='#drivers'>Driver landscape</a><a href='#dial'>DIAL</a><a href='#trajectory'>Trajectory</a><a href='#limits'>한계</a><a href='#venue'>Venue</a><a href='#all-figures'>전체 figure</a><a href='#all-tables'>전체 table</a>
+    </aside>
+    <main class="content" id="main-content">
+      
+    <section class="v17-hero">
+      <div class="subtle mono">v17 / HTML REPORT</div>
+      <h1>v17 — BRAF/RAS를 넘어선 갑상선암 분자 분류</h1>
+      <p class="subtitle">Cross-cohort robust subtyping of papillary thyroid carcinoma</p>
+      <div class="meta"><span>국승호</span><span>·</span><span>2026-04-26</span><span>·</span><span>THYROID DASH deliverable</span></div>
+      <div class='hero-actions' style='margin-top:12px'><a class='btn sm primary' href='index.html'>Report</a><a class='btn sm ghost' href='methods.html'>Methods</a><a class='btn sm ghost' href='tables.html'>Tables</a><a class='btn sm ghost' href='figures.html'>Figures</a></div>
+      <ul class="hero-summary">
+        <li>TCGA에서 BRAF/RAS-negative tumor 178명은 하나의 residual bucket이 아니라 DM1/DM2 두 군으로 안정적으로 갈렸다.</li>
+        <li>Consensus stability는 0.9788로 높았고, external transfer proxy에서도 DIA-AUC 0.969-1.000을 유지했다.</li>
+        <li>ComBat 후 identifiability는 1.000 근처에서 0.157-0.258까지 급락해, biology transfer와 batch fingerprint 제거가 동시에 일어남을 보였다.</li>
+        <li>Trajectory에서는 TPO, TG, DIO1/2, PAX8 같은 thyroid differentiation axis가 pseudotime 증가와 함께 무너졌다.</li>
+        <li>다만 TERT promoter와 raw fusion은 아직 비관측/대리변수 단계라서, 다음 단계는 Korean cohort + wet validation이다.</li>
+      </ul>
+      <div class="metric-grid">
+        <div class='tile'><b>178</b><span>Dark Matter n</span></div><div class='tile'><b>2</b><span>cluster K</span></div><div class='tile'><b>0.969-1.000</b><span>DIAL AUC</span></div><div class='tile'><b>5</b><span>cohort</span></div>
+      </div>
+      <div class="hero-actions">
+        <a class="primary" href="methods.html">방법론 상세</a>
+        <a href="tables.html">18개 테이블 보기</a>
+        <a href="figures.html">Figure 갤러리</a>
+      </div>
+    </section>
+
+    <section id="problem" class="v17-section v17-panel">
+      <span class="badge">Section 1</span>
+      <h2>왜 BRAF/RAS 이분법만으로 부족한가</h2>
+      <div class="two-col">
+        <div>
+          <p>v14까지의 통합 파이프라인은 갑상선암을 BRAF-like와 RAS-like 축 위에서 안정적으로 정리했고, 5-cohort harmonization과 compact panel, DIAL audit, ComBat-seq robustness까지 이미 구축했다. 그런데 TCGA-THCA tumor 513명 안에서도 BRAF와 RAS로 깔끔하게 anchoring 되지 않는 표본이 178명 남았다. 이 집단은 이전 프레임에서는 설명의 끝이었지만, v17에서는 오히려 새로운 시작점이 된다.</p>
+          <p>즉 v17의 질문은 단순하다. “BRAF/RAS로 설명되지 않는 표본은 진짜 noise인가, 아니면 아직 이름이 없던 subtype space인가?” 이번 결과는 후자 쪽으로 강하게 기운다.</p>
+          <p>현재 TCGA tumor 기준 v14 molecular subtype과 v17 driver anchor의 불일치율은 <b>0.6%</b> 이다. 이는 surrogate subtype과 driver taxonomy가 완전히 같은 이야기를 하지 않는다는 점을 보여준다.</p>
+        </div>
+        <div class="warn-box">
+          <h3>v14 → v17 한 줄 전환</h3>
+          <p>v14가 “BRAF_like/RAS_like가 외부 코호트에서도 유지되는가”를 물었다면, v17은 “그 밖에 남는 표본도 구조를 갖는가”를 묻는다.</p>
+          <p><b>BRS surrogate misclassification rate:</b> 0.6%</p>
+        </div>
+      </div>
+      <div class="fig-grid" style="margin-top:16px">
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Driver-anchor 분포 도넛</h3>
+        <p>TCGA 및 통합 sample master 기준 v17 driver taxonomy의 상대적 분포를 보여준다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/driver_landscape_pie.html" title="Driver-anchor 분포 도넛" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/driver_landscape_pie.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>v14 subtype vs v17 driver confusion</h3>
+        <p>BRAF_like/RAS_like 라벨과 확장 driver taxonomy가 어디서 어긋나는지 요약한다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/v14_vs_v17_confusion.html" title="v14 subtype vs v17 driver confusion" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/v14_vs_v17_confusion.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+      </div>
+    </section>
+
+    <section id="dark-matter" class="v17-section v17-panel">
+      <span class="badge">Section 2</span>
+      <h2>Dark Matter 코호트</h2>
+      <p>TCGA-THCA tumor 중 `driver_anchor != BRAF, RAS` 조건으로 추출한 178명은 이번 분석의 중심 cohort다. TierA expression을 standardization 후 PCA로 축약하고, 반복 seed consensus clustering으로 내부 구조를 찾았다. 결과는 `DM1=109`, `DM2=69` 이고, 합의 안정도는 `0.9788` 이다.</p>
+      <p>DM1은 상대적으로 lower differentiation, lower RAI, younger age, 그리고 v14 기준 BRAF_like 잔존 성분이 더 많다. DM2는 TDS/RAI 평균이 더 높고, RAS_like 비율이 상대적으로 높다. 즉 Dark Matter가 완전히 무질서한 드라이버-음성 군이 아니라, BRAF-like 잔향과 RAS-like 잔향이 다른 두 군으로 갈라지는 해석이 가능하다.</p>
+      <p>아래 figure 네 장이 이 섹션의 핵심이다. UMAP은 공간 분리, consensus heatmap은 구조 안정도, marker heatmap은 분자 차이, RAI boxplot은 생물학적 해석 가능성을 보여준다.</p>
+      <div class="fig-grid">
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Dark Matter UMAP</h3>
+        <p>DM1과 DM2가 저차원 embedding에서 어떻게 분리되는지 보여준다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/dark_matter_umap.html" title="Dark Matter UMAP" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/dark_matter_umap.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Consensus heatmap</h3>
+        <p>30개 seed 반복에서 sample pair가 얼마나 일관되게 함께 묶였는지 나타낸다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/dark_matter_consensus_heatmap.html" title="Consensus heatmap" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/dark_matter_consensus_heatmap.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Marker heatmap</h3>
+        <p>각 cluster의 top marker가 one-vs-rest 비교에서 어떻게 갈리는지 요약한다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/dark_matter_marker_heatmap.html" title="Marker heatmap" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/dark_matter_marker_heatmap.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>RAI boxplot</h3>
+        <p>iodine uptake program이 cluster별로 어떻게 달라지는지 보여준다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/dark_matter_rai_boxplot.html" title="RAI boxplot" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/dark_matter_rai_boxplot.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+      </div>
+      <div class="html-table-wrap" style="margin-top:18px">
+        <table id='dark-core-table' class='display compact stripe'><thead><tr><th>cluster</th><th>n</th><th>TDS16 mean</th><th>RAI mean</th><th>age mean</th><th>BRAF_like</th><th>RAS_like</th><th>unknown</th></tr></thead><tbody><tr><td>DM1</td><td>109</td><td>6.812</td><td>7.58</td><td>41.818</td><td>86</td><td>18</td><td>5</td></tr><tr><td>DM2</td><td>69</td><td>8.126</td><td>9.201</td><td>54.708</td><td>25</td><td>39</td><td>5</td></tr></tbody></table>
+      </div>
+    </section>
+
+    <section id="drivers" class="v17-section v17-panel">
+      <span class="badge">Section 3</span>
+      <h2>Driver Landscape 확장</h2>
+      <p>v17 driver landscape는 로컬 TCGA mutation summary와 기존 fusion proxy를 합쳐 만든 빠른 재현판이다. 전체 1,509 sample 기준으로 `unknown=1072`, `BRAF=343`, `RAS=74`가 상위 그룹이며, 소수의 `PAX8PPARG`, `DICER1/EIF1AX/PPM1D`, `RET`, `ALK`, `NTRK`, `TP53` 축이 뒤를 잇는다.</p>
+      <div class="fig-grid">
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Driver oncoplot</h3>
+        <p>TCGA tumor에서 sample-by-driver membership을 heatmap 형태로 정리한 그림.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/driver_landscape_oncoplot.html" title="Driver oncoplot" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/driver_landscape_oncoplot.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Driver pie</h3>
+        <p>v17 taxonomy의 상대 빈도 구성.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/driver_landscape_pie.html" title="Driver pie" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/driver_landscape_pie.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Dark Matter overlay</h3>
+        <p>Dark Matter cluster 안에서 v17 driver 항목이 어떻게 섞이는지 보여준다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/dark_matter_fusion_overlay.html" title="Dark Matter overlay" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/dark_matter_fusion_overlay.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+      </div>
+      <div class="warn-box" style="margin-top:16px">
+        <h3>Caveat — fusion proxy 재사용</h3>
+        <p>이번 실행은 raw TCGA fusion flat file 재호출이 아니라 기존 `v3_fusion_anchor_tcga.tsv` proxy를 재사용했다. 따라서 sensitivity 한계가 있고, rare fusion class는 under-call 되었을 가능성이 있다.</p>
+      </div>
+    </section>
+
+    <section id="dial" class="v17-section v17-panel">
+      <span class="badge">Section 4</span>
+      <h2>Cross-Cohort 검증 (DIAL)</h2>
+      <p>TCGA에서 학습한 DM1/DM2 signature를 external cohort로 transfer했을 때, separation은 거의 완벽하게 유지됐다. `GSE27155`, `GSE76039` 에서 DIA-AUC는 0.969-1.000 범위를 보였다. 반면 ComBat 후 cohort identifiability는 1.000 근처에서 0.2577, 0.1573으로 무너졌다.</p>
+      <p><b>한 줄 요약:</b> biology-preserving transfer는 강하지만, batch correction은 그 과정에서 cohort fingerprint를 공격적으로 지운다.</p>
+      <div class="fig-grid">
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>DIAL forest plot</h3>
+        <p>cohort별, cluster별 direction-invariant AUC를 요약한다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/dial_forest_plot.html" title="DIAL forest plot" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/dial_forest_plot.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Identifiability heatmap</h3>
+        <p>ComBat 전후에 TCGA-vs-external 구분 가능성이 얼마나 달라지는지 보여준다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/dial_identifiability_heatmap.html" title="Identifiability heatmap" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/dial_identifiability_heatmap.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>ComBat comparison</h3>
+        <p>identifiability 분포를 correction 전후로 비교한다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/dial_combat_comparison.html" title="ComBat comparison" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/dial_combat_comparison.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+      </div>
+    </section>
+
+    <section id="trajectory" class="v17-section v17-panel">
+      <span class="badge">Section 5</span>
+      <h2>탈분화 Trajectory</h2>
+      <p>Trajectory는 공통 TierA gene 50개, 총 645 tumor sample에서 계산했다. pseudotime 증가와 함께 `TPO`, `TG`, `DIO1/2`, `PAX8` 같은 thyroid differentiation module은 줄고, `DUSP5`, `MET`, `LOX` 같은 축은 상대적으로 올라갔다. 이는 일부 Dark Matter cluster가 단순 driver-negative 군이 아니라 탈분화 쪽으로 기운 진행축 안에 놓일 수 있음을 시사한다.</p>
+      <p>현재 구현은 full 5-cohort complete state가 아니라 usable gene-overlap subset 기반이다. 그럼에도 PTC에서 더 뒤쪽 tail로 가는 표본이 어떤 표현형을 띠는지 보는 bonus figure로는 충분히 강하다.</p>
+      <div class="fig-grid">
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>Trajectory UMAP 3D</h3>
+        <p>pseudotime으로 색칠한 global tumor manifold.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/trajectory_umap_3d.html" title="Trajectory UMAP 3D" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/trajectory_umap_3d.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>TDS gradient</h3>
+        <p>pseudotime에 따라 differentiation score가 어떻게 변하는지 보여준다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/trajectory_tds_gradient.html" title="TDS gradient" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/trajectory_tds_gradient.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+        
+    <div class="fig-card">
+      <div class="fig-card__head">
+        <h3>High-risk tail</h3>
+        <p>pseudotime 상위 tail이 manifold 어디에 놓이는지 보여준다.</p>
+      </div>
+      <iframe loading="lazy" src="../../results/v17/figs/trajectory_high_risk_cluster.html" title="High-risk tail" style="height:340px"></iframe>
+      <div class="fig-card__links"><a href="../../results/v17/figs/trajectory_high_risk_cluster.html" target="_blank" rel="noopener">새 창으로 열기</a></div>
+    </div>
+    
+      </div>
+      <div class="note-box" style="margin-top:16px">
+        <p><b>PTC→PDTC→ATC 질문에 대한 현재 답:</b> 이번 로컬 run은 histology full projection보다는 progression-like axis 재현이 중심이었고, 그 축에서 DM1 일부가 상대적으로 뒤쪽 tail과 더 가까워 보인다. definitive claim은 Korean cohort와 higher-risk histology 확장이 필요하다.</p>
+      </div>
+    </section>
+
+    <section id="limits" class="v17-section v17-panel">
+      <span class="badge">Section 6</span>
+      <h2>한계와 다음 단계</h2>
+      <ul class="list-tight">
+        <li><b>TERT promoter 비관측:</b> 현재 로컬 GDC WXS MAF는 canonical promoter hotspot을 사실상 포착하지 못했다.</li>
+        <li><b>Fusion proxy 사용:</b> raw fusion caller가 아니라 기존 proxy table을 썼기 때문에 민감도 한계가 있다.</li>
+        <li><b>Wet validation 부재:</b> 현재 결과는 computational subtype proposal이다.</li>
+        <li><b>Korean cohort access 대기:</b> 외부 검증과 임상 일반화를 위해 가장 중요한 다음 단계다.</li>
+      </ul>
+    </section>
+
+    <section id="venue" class="v17-section v17-panel">
+      <span class="badge">Section 7</span>
+      <h2>Paper venue 진단</h2>
+      <div class="card-grid">
+        <div class="warn-box"><h3>현 상태로 가능</h3><p>Bioinformatics, npj Precision Oncology, Genome Medicine</p></div>
+        <div class="note-box"><h3>도전 가능</h3><p>Nature Communications — Korean cohort 추가 시</p></div>
+        <div class="warn-box"><h3>매우 어려움</h3><p>Nature Cancer — wet validation + large Korean cohort + 12개월 추가 필요</p></div>
+      </div>
+      <p style="margin-top:16px"><b>한 줄 진단:</b> “v17 그대로 → Bioinformatics 70%, Nature Cancer 5%”.</p>
+    </section>
+
+    <section id="footer" class="v17-section v17-panel">
+      <h2>재현성</h2>
+      <p>Python 3.12 / `project/.venv` / local TCGA MAF cache / Plotly interactive HTML. 이번 페이지는 UTF-8 한국어 HTML로 직접 렌더링되며, figure와 table은 모두 같은 서버 루트에서 정적 제공된다.</p>
+      <div class="footer-links">
+        <a href="../html/index.html">v14 dashboard</a>
+        <a href="../html/pages/v15_neurips_theory.html">v15 NeurIPS draft</a>
+        <a href="tables.html">18 tables</a>
+        <a href="figures.html">32 figures</a>
+      </div>
+    </section>
+    <section id="all-figures" class="v17-section v17-panel">
+      <h2>전체 figure catalog</h2>
+      <p>이번 run에서 생성된 모든 interactive figure를 한 번에 모아 둔 섹션이다. 핵심 23개뿐 아니라 supplemental figure도 함께 포함한다.</p>
+      <div class="card-grid"><div class='tile'><b style='font-size:16px'>dark_matter_cluster_metrics</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dark_matter_cluster_metrics.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_cluster_size</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dark_matter_cluster_size.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_consensus_heatmap</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dark_matter_consensus_heatmap.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_fusion_overlay</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dark_matter_fusion_overlay.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_fusion_overlay_bar</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dark_matter_fusion_overlay_bar.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_marker_heatmap</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dark_matter_marker_heatmap.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_rai_boxplot</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dark_matter_rai_boxplot.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_umap</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dark_matter_umap.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dial_combat_comparison</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dial_combat_comparison.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dial_forest_plot</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dial_forest_plot.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dial_identifiability_delta</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dial_identifiability_delta.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>dial_identifiability_heatmap</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/dial_identifiability_heatmap.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>driver_landscape_bar</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/driver_landscape_bar.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>driver_landscape_oncoplot</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/driver_landscape_oncoplot.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>driver_landscape_pie</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/driver_landscape_pie.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>driver_landscape_treemap</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/driver_landscape_treemap.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_age_boxplot</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/quad_group_age_boxplot.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_counts</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/quad_group_counts.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_km_os</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/quad_group_km_os.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_km_pfi</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/quad_group_km_pfi.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_rai_boxplot</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/quad_group_rai_boxplot.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_stage_heatmap</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/quad_group_stage_heatmap.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_stage_stacked</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/quad_group_stage_stacked.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_tds_boxplot</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/quad_group_tds_boxplot.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_dark_cluster_projection</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/trajectory_dark_cluster_projection.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_dark_cluster_pseudotime</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/trajectory_dark_cluster_pseudotime.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_dynamic_genes_bar</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/trajectory_dynamic_genes_bar.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_high_risk_cluster</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/trajectory_high_risk_cluster.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_pseudotime_histogram</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/trajectory_pseudotime_histogram.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_tds_gradient</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/trajectory_tds_gradient.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_umap_3d</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/trajectory_umap_3d.html'>열기</a></div></div><div class='tile'><b style='font-size:16px'>v14_vs_v17_confusion</b><span>figure</span><div class='footer-links'><a href='../../results/v17/figs/v14_vs_v17_confusion.html'>열기</a></div></div></div>
+    </section>
+    <section id="all-tables" class="v17-section v17-panel">
+      <h2>전체 table catalog</h2>
+      <p>이번 run의 TSV 산출물 18개를 한 페이지에서 접근할 수 있도록 모았다.</p>
+      <div class="card-grid"><div class='tile'><b style='font-size:16px'>dark_matter_cluster_clinical.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/dark_matter_cluster_clinical.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_cluster_markers.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/dark_matter_cluster_markers.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_cluster_stability.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/dark_matter_cluster_stability.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_cohort.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/dark_matter_cohort.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>dark_matter_fusion_overlay.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/dark_matter_fusion_overlay.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>dial_audit_v17.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/dial_audit_v17.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>driver_landscape_v17_summary.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/driver_landscape_v17_summary.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>fusion_calls_per_sample.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/fusion_calls_per_sample.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_histology_distribution.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/quad_group_histology_distribution.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_stage_distribution.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/quad_group_stage_distribution.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_stats.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/quad_group_stats.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_summary.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/quad_group_summary.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>quad_group_survival.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/quad_group_survival.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>sample_master_v17_full.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/sample_master_v17_full.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>sample_master_v17_tert.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/sample_master_v17_tert.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_dynamic_genes.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/trajectory_dynamic_genes.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>trajectory_pseudotime.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/trajectory_pseudotime.tsv'>TSV</a></div></div><div class='tile'><b style='font-size:16px'>v14_vs_v17_confusion.tsv</b><span>table</span><div class='footer-links'><a href='../../results/v17/tables/v14_vs_v17_confusion.tsv'>TSV</a></div></div></div>
+    </section>
+    
+    </main>
+    <aside class="toc glass" aria-label="퀵 점프">
+      <h3>Quick Jump</h3>
+      <a href='#problem'>1. 문제 제기</a><a href='#dark-matter'>2. Dark Matter</a><a href='#drivers'>3. Driver landscape</a><a href='#dial'>4. DIAL</a><a href='#trajectory'>5. Trajectory</a><a href='#limits'>6. 한계</a><a href='#venue'>7. Venue</a><a href='#all-figures'>8. 전체 figure</a><a href='#all-tables'>9. 전체 table</a>
+    </aside>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/datatables.net@1.13.8/js/jquery.dataTables.min.js"></script>
+  <script>
+  document.querySelectorAll('table.display').forEach((el)=>{ new DataTable(el, {pageLength:10, order:[]}); });
+  </script>
+</body>
+</html>

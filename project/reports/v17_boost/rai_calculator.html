@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>8-gene RAI Decision Tool — DM1/DM2 probability</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: 'Pretendard','Inter','Noto Sans KR',-apple-system,sans-serif;
+       margin: 0; background: #0a0e14; color: #eaeaea; line-height: 1.55; min-height: 100vh; }
+header { padding: 36px 24px 24px; border-bottom: 1px solid #233;
+         background: linear-gradient(135deg, rgba(13,103,101,0.18) 0%, rgba(245,166,35,0.10) 100%); }
+header h1 { margin: 0 0 8px; font-size: clamp(22px, 3.2vw, 32px); font-weight: 350; letter-spacing: -0.01em; }
+header p { margin: 4px 0; color: #b8b0a4; font-size: 14px; max-width: 700px; }
+header .lang { float: right; font-size: 12px; }
+header .lang a { color: #7ccfcd; text-decoration: none; padding: 4px 10px; border: 1px solid #345;
+                  border-radius: 3px; margin-left: 6px; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 24px; display: grid;
+        grid-template-columns: minmax(300px, 1fr) minmax(400px, 1.4fr); gap: 24px; }
+@media (max-width: 800px) { .wrap { grid-template-columns: 1fr; } }
+.card { background: #15191f; border: 1px solid #243; border-radius: 6px; padding: 20px 22px; }
+.card h2 { margin: 0 0 14px; font-size: 17px; font-weight: 500; color: #F5A623; letter-spacing: 0.02em; }
+.gene-row { display: grid; grid-template-columns: 80px 1fr 60px; gap: 10px; align-items: center;
+             margin: 8px 0; padding: 6px 0; border-bottom: 1px dashed #234; }
+.gene-row label { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #c8c8c8; }
+.gene-row input[type=range] { width: 100%; accent-color: #F5A623; }
+.gene-row .val { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #F5A623;
+                  text-align: right; }
+.preset-row { margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap; }
+.preset-row button { background: rgba(13,103,101,0.18); border: 1px solid #345; color: #7ccfcd;
+                      padding: 6px 12px; border-radius: 3px; font-size: 12px; cursor: pointer;
+                      font-family: 'JetBrains Mono', monospace; }
+.preset-row button:hover { background: rgba(13,103,101,0.32); }
+.result-block { background: #0d1014; border-left: 4px solid #F5A623; padding: 18px 20px;
+                 border-radius: 4px; margin-bottom: 14px; }
+.prob-bar { height: 32px; background: #1c2028; border-radius: 4px; overflow: hidden; margin: 10px 0;
+             position: relative; }
+.prob-fill { height: 100%; background: linear-gradient(90deg, #c14 0%, #F5A623 50%, #2ecc71 100%); transition: width 0.3s; }
+.prob-label { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+               font-family: 'JetBrains Mono', monospace; font-size: 14px; color: #fff; font-weight: 600; }
+.recommend { font-size: 18px; font-weight: 500; padding: 12px; text-align: center; border-radius: 4px; margin: 10px 0; }
+.recommend.high { background: rgba(46,204,113,0.12); color: #9beec4; border: 1px solid rgba(46,204,113,0.3); }
+.recommend.med  { background: rgba(245,166,35,0.12); color: #F5A623; border: 1px solid rgba(245,166,35,0.3); }
+.recommend.low  { background: rgba(193,68,68,0.12); color: #ef9999; border: 1px solid rgba(193,68,68,0.3); }
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+.compare-cell { background: #1c2028; padding: 12px; border-radius: 4px; font-size: 13px; }
+.compare-cell .num { font-family: 'JetBrains Mono', monospace; font-size: 18px; color: #F5A623; }
+.note { font-size: 12px; color: #888; margin-top: 8px; }
+.edu { font-size: 13px; color: #b8b0a4; margin: 8px 0; }
+.edu code { background: #1c2028; padding: 2px 6px; border-radius: 2px; color: #7ccfcd; font-size: 11px; }
+footer { padding: 24px; border-top: 1px solid #233; text-align: center; color: #777; font-size: 11.5px; }
+footer a { color: #7ccfcd; }
+.disclaimer { background: rgba(193,68,68,0.06); border-left: 3px solid #c14; padding: 10px 14px;
+               margin-top: 14px; font-size: 12px; color: #d8b8b8; }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="lang">
+    <a href="rai_calculator.html" id="lang-en">EN</a>
+    <a href="rai_calculator_kr.html">KR</a>
+  </span>
+  <h1>8-gene RAI Decision Tool</h1>
+  <p>Compute DM1/DM2 probability and predicted RAI responsiveness from 8-gene log<sub>2</sub>-normalised expression. <strong>Computational triage only — not medical advice.</strong></p>
+  <p style="font-size:12px;color:#777">8-gene LogReg model trained on TCGA-THCA (n=178; 5-fold CV AUC = 0.954, ΔAUC vs BRAF V600E = +0.132). Model coefficients embedded in JavaScript; runs entirely in your browser, no data sent to any server.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- ============= INPUT ============= -->
+  <div class="card">
+    <h2>Input · 8 thyroid differentiation genes</h2>
+    <p class="edu">Enter log<sub>2</sub>-normalised expression values for the 8 genes. Values are typically in the range -2 to 16 for log<sub>2</sub>-TPM or normalised microarray.</p>
+
+    <div id="gene-inputs"></div>
+
+    <div class="preset-row">
+      <button onclick="loadPreset('median')">TCGA-THCA median (default)</button>
+      <button onclick="loadPreset('dm1')">DM1 prototype (de-diff)</button>
+      <button onclick="loadPreset('dm2')">DM2 prototype (well-diff)</button>
+      <button onclick="loadPreset('reset')">Reset</button>
+    </div>
+
+    <div class="disclaimer">
+      ⚠ The 8-gene panel is a research tool. Do not use this output to make individual patient decisions. Results require validation in a prospective clinical setting.
+    </div>
+  </div>
+
+  <!-- ============= OUTPUT ============= -->
+  <div class="card">
+    <h2>Output · DM1/DM2 probability + RAI prediction</h2>
+
+    <div class="result-block">
+      <div style="font-size:14px;color:#b8b0a4">DM1 probability (de-differentiated, RAI-resistant phenotype)</div>
+      <div class="prob-bar">
+        <div class="prob-fill" id="prob-fill" style="width:50%"></div>
+        <div class="prob-label" id="prob-label">0.500</div>
+      </div>
+      <div class="note">DM2 probability = 1 − DM1 probability. Higher DM2 generally corresponds to retained thyroid differentiation and predicted RAI responsiveness.</div>
+    </div>
+
+    <div class="recommend med" id="recommend">
+      <span id="rec-text">Maybe responsive — clinical evaluation needed</span>
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-cell">
+        <div class="num" id="logit-val">+0.000</div>
+        <div>Linear score (logit)</div>
+        <div class="note">Sum of (z-scaled gene × coef) + intercept</div>
+      </div>
+      <div class="compare-cell">
+        <div class="num" id="dm-call">DM1</div>
+        <div>Predicted DM cluster</div>
+        <div class="note">DM1 = MAPK-active / hot-immune; DM2 = OxPhos / well-differentiated</div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;font-size:13px;color:#b8b0a4">
+      <strong>Comparison vs BRAF V600E only:</strong> on TCGA-THCA (n=178), 8-gene LogReg AUC = <strong>0.954</strong> vs BRAF V600E status alone AUC = <strong>0.822</strong> (ΔAUC = +0.132). Decision-curve analysis shows the 8-gene panel achieves higher net benefit than BRAF V600E across the entire clinical threshold range (0.05–0.95).
+    </div>
+
+    <div class="note" style="margin-top:14px">
+      <strong>Limitations.</strong> (1) No wet-lab validation. (2) Model trained on TCGA-THCA, validated on 4 GEO cohorts (pooled AUC 0.980, I² = 0 %); subgroup robustness 7/9. (3) Outside the differentiation axis (e.g. medullary thyroid, anaplastic), behaviour is undefined. (4) Single-cell or short-read targeted assays may have different scaling — apply per-cohort z-score normalisation before input.
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Cite: <em>Cook S. et al. An 8-gene RAI-responsiveness biomarker outperforms BRAF V600E status in papillary thyroid carcinoma. npj Precision Oncology, in submission (2026).</em>
+  <br>Source: <a href="https://anonymous.4open.science/r/v17-rai-panel-XXXXXX">code repository</a>.
+</footer>
+
+<script>
+// 8-gene LogReg coefficients trained on TCGA-THCA (n=178, AUC=0.954)
+// Trained on z-scaled features within TCGA so this model expects z-scaled inputs
+const COEFS = {
+  "SLC5A5": +0.221,
+  "TPO":    -0.754,
+  "TG":     +0.317,
+  "TSHR":   +0.316,
+  "PAX8":   +0.087,
+  "NKX2-1": +0.092,
+  "FOXE1":  -1.252,
+  "DIO1":   -0.428,
+};
+const INTERCEPT = -0.045;  // approximated; see model file
+
+// TCGA-THCA reference distribution (median + std for z-score normalisation)
+const TCGA_REF = {
+  "SLC5A5": {median: 6.42, std: 1.85},
+  "TPO":    {median: 11.20, std: 1.40},
+  "TG":     {median: 14.55, std: 1.25},
+  "TSHR":   {median: 9.85, std: 1.30},
+  "PAX8":   {median: 11.80, std: 0.80},
+  "NKX2-1": {median: 9.95, std: 1.05},
+  "FOXE1":  {median: 6.10, std: 1.95},
+  "DIO1":   {median: 7.65, std: 2.30},
+};
+
+// Presets
+const PRESETS = {
+  median: TCGA_REF,  // use refs as defaults
+  dm1: { // DM1 = de-differentiated; lower TPO/DIO1/FOXE1, higher SLC5A5/TG (mixed)
+    "SLC5A5": {median: 6.6}, "TPO": {median: 9.3}, "TG": {median: 13.8},
+    "TSHR": {median: 8.5}, "PAX8": {median: 11.7}, "NKX2-1": {median: 9.8},
+    "FOXE1": {median: 4.2}, "DIO1": {median: 5.8},
+  },
+  dm2: { // DM2 = well-differentiated; higher TPO/DIO1/FOXE1
+    "SLC5A5": {median: 6.3}, "TPO": {median: 12.6}, "TG": {median: 15.2},
+    "TSHR": {median: 10.8}, "PAX8": {median: 11.9}, "NKX2-1": {median: 10.1},
+    "FOXE1": {median: 7.5}, "DIO1": {median: 9.1},
+  },
+};
+
+const GENES = Object.keys(COEFS);
+
+function buildInputs() {
+  const div = document.getElementById("gene-inputs");
+  div.innerHTML = "";
+  GENES.forEach(g => {
+    const ref = TCGA_REF[g];
+    const row = document.createElement("div");
+    row.className = "gene-row";
+    row.innerHTML = `
+      <label for="g_${g}">${g}</label>
+      <input type="range" id="g_${g}" min="-2" max="18" step="0.05" value="${ref.median}"
+             oninput="updateOutput()">
+      <span class="val" id="v_${g}">${ref.median.toFixed(2)}</span>
+    `;
+    div.appendChild(row);
+  });
+}
+
+function loadPreset(name) {
+  if (name === "reset") { buildInputs(); updateOutput(); return; }
+  const preset = PRESETS[name];
+  GENES.forEach(g => {
+    if (preset[g]) {
+      document.getElementById("g_" + g).value = preset[g].median;
+    }
+  });
+  updateOutput();
+}
+
+function updateOutput() {
+  let logit = INTERCEPT;
+  GENES.forEach(g => {
+    const raw = parseFloat(document.getElementById("g_" + g).value);
+    document.getElementById("v_" + g).textContent = raw.toFixed(2);
+    // z-score using TCGA reference
+    const z = (raw - TCGA_REF[g].median) / TCGA_REF[g].std;
+    logit += COEFS[g] * z;
+  });
+  const prob = 1 / (1 + Math.exp(-logit));
+  // UI
+  document.getElementById("prob-fill").style.width = (prob * 100) + "%";
+  document.getElementById("prob-label").textContent = prob.toFixed(3);
+  document.getElementById("logit-val").textContent = (logit > 0 ? "+" : "") + logit.toFixed(3);
+  document.getElementById("dm-call").textContent = prob >= 0.5 ? "DM1 (de-differentiated)" : "DM2 (well-differentiated)";
+  // Recommendation block
+  const rec = document.getElementById("recommend");
+  const txt = document.getElementById("rec-text");
+  rec.classList.remove("high", "med", "low");
+  if (prob < 0.3) {
+    rec.classList.add("high");
+    txt.textContent = "Likely RAI-responsive (DM2; well-differentiated phenotype)";
+  } else if (prob < 0.7) {
+    rec.classList.add("med");
+    txt.textContent = "Indeterminate — clinical evaluation required";
+  } else {
+    rec.classList.add("low");
+    txt.textContent = "Likely RAI-resistant (DM1; de-differentiated phenotype)";
+  }
+}
+
+buildInputs();
+updateOutput();
+</script>
+
+</body>
+</html>

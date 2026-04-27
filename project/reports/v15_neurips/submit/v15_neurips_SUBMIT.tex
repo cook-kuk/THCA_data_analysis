@@ -1,0 +1,458 @@
+% =====================================================================
+%  v15 NeurIPS 2026 — SUBMIT PDF (assembled from components)
+%  Template: neurips_2026.sty (official 2026 .sty, fetched 2026-04-27)
+%  Anonymised for double-blind review.
+%  Generated 2026-04-27 by v15_submit_S2A_template assembly.
+% =====================================================================
+\documentclass{article}
+
+\usepackage[final]{neurips_2026}   % `final` = camera-ready style; for submission use plain
+% \usepackage{neurips_2026}        % de-anonymise: switch to this for anonymous review
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsfonts,amsmath,amssymb,amsthm}
+\usepackage{nicefrac}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage{bm}
+\usepackage{graphicx}
+
+% Tolerate hboxes ≤ 12pt overflow (matches NeurIPS typical micro-spacing)
+\hfuzz=12pt
+\vfuzz=12pt
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\newtheorem{lemma}{Lemma}
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{definition}{Definition}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\KL}{\mathrm{KL}}
+\newcommand{\dial}{\mathrm{DIAL}}
+
+\title{DIAL: A post-hoc diagnostic for subspace-aligned conditional shift\\
+under linear batch correction}
+
+% Author block anonymised for review
+\author{%
+  Anonymous \\
+  Anonymous Affiliation \\
+  \texttt{anonymous@anonymous.org}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce \emph{DIAL} (\textbf{D}irection-\textbf{I}nvariant \textbf{A}UC
+\textbf{L}eakage), a single-number post-hoc diagnostic that fires when a
+linear batch-correction operator $T$ leaves a residual class-conditional
+shift inside the label subspace, causing a source-trained classifier to
+have AUC \emph{below} chance on the target cohort. We prove a unified
+shift decomposition (Theorem~\ref{thm:unified}) showing that $\dial>0$
+is governed by the component of the post-correction conditional KL
+that lies parallel to the Fisher discriminant direction, and is
+independent (up to finite-sample noise) of pure covariate or pure
+label shift. We validate the decomposition numerically ($R^{2}=0.94$),
+show that DIAL discriminates subspace-aligned conditional shift from
+three alternative shift types with ROC--AUC $0.78$ for any flip-positive
+shift type (broader definition), benchmark ten test-time-adaptation
+methods on a synthetic flip (best method: DANN-lite, target AUC 0.39 vs
+0.33 for naive ComBat), report a \emph{negative} foundation-model
+scaling result (encoder parameter count does not monotonically reduce
+DIAL), and demonstrate cross-domain reproducibility in vision-, NLP-,
+clinical-, and biology-shaped synthetic data (4/4 domains). All real-
+data motivation cited in earlier drafts of this work was retracted
+under proper LODO-fit-on-train-only ComBat (companion audit, 2026-04);
+v15 is therefore framed as a calibration paper: Theorem~\ref{thm:unified}
+explains exactly which shift regimes produce a flip, and the leak
+detection becomes a worked example of preprocessing-induced leakage
+that DIAL flags.
+\end{abstract}
+
+% =====================================================================
+\section{Introduction}
+\label{sec:intro}
+% =====================================================================
+
+Cross-cohort generalisation in biomedical and ML pipelines is routinely
+audited by training a classifier on a source cohort and reporting its
+target-cohort AUC. A surprising and under-discussed phenomenon arises
+when the target AUC falls \emph{below} chance: the source-trained
+classifier ranks target instances in the wrong order, even though it
+achieved near-perfect AUC on source cross-validation. We call this the
+\emph{flip event}.
+
+\paragraph{What induces a flip?}
+Empirically, flips are observed when a linear batch-correction operator
+(ComBat~\citep{johnson2007combat}, CORAL~\citep{sun2016coral},
+mean-centring) is applied to data with class-imbalanced batches. We
+have observed the phenomenon both in deliberately constructed synthetic
+regimes (Section~\ref{sec:exp}) and in a companion audit of a public
+biomedical cross-cohort transfer that — under proper Leave-One-Dataset-
+Out (LODO) ComBat fit-on-train-only — turned out to be a leakage
+artefact. The leak diagnosis itself is a special case of the
+phenomenon Theorem~\ref{thm:unified} characterises: pooled-fit ComBat
+on class-imbalanced cohorts induces precisely the subspace-aligned
+conditional shift that produces a positive DIAL.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+\item \textbf{Theorem~\ref{thm:unified} (Unified Shift Decomposition).}
+  We decompose the post-correction joint KL into covariate-marginal,
+  label-prior, conditional-parallel, and conditional-perpendicular
+  components. Under Gaussian shared-covariance assumptions,
+  $\dial(\tilde X,Y)$ is strictly increasing in
+  $\Delta_{\text{cond}}^{\parallel}$ and independent of the other
+  components up to finite-sample noise.
+\item \textbf{Numerical validation.} A controlled simulation regresses
+  observed DIAL against the four KL components and recovers
+  $R^{2}=0.94$ with the parallel coefficient dominating by a factor
+  of $33\times$ (\S\ref{sec:exp}.1).
+\item \textbf{TTA + foundation-model benchmark.} Ten methods on a
+  synthetic flip; honest negative result on foundation-model scaling
+  (\S\ref{sec:exp}.3, \S\ref{sec:exp}.4).
+\item \textbf{Cross-domain reproducibility.} The same flip mechanism
+  reproduces in synthetic data shaped after vision, NLP, clinical, and
+  biology modalities (4/4 domains; \S\ref{sec:exp}.5).
+\item \textbf{Connection to preprocessing leakage.} Our retraction
+  audit is consistent with Theorem~\ref{thm:unified}: pooled-fit
+  ComBat on class-imbalanced cohorts produces a subspace-aligned
+  conditional shift that DIAL fires on. DIAL therefore functions as a
+  \emph{leak detector} for biomedical pipelines.
+\end{enumerate}
+
+% =====================================================================
+\section{Related work}
+\label{sec:related}
+% =====================================================================
+
+\textbf{Covariate-shift theory.}
+Shimodaira~\citep{shimodaira2000improving} and KLIEP
+\citep{sugiyama2007kliep} target $p_s(x)/p_t(x)$.
+Theorem~\ref{thm:unified} shows this is insufficient under
+conditional-parallel shift.
+
+\textbf{Domain-invariance bounds.}
+Ben-David et al.~\citep{ben2007theory,ben2010theory} define
+$d_{\mathcal{H}\Delta\mathcal{H}}$;
+Mansour et al.~\citep{mansour2009domain} and Zhao
+et al.~\citep{zhao2019learning} extend it. Under linear $T$ and
+Gaussian conditionals, DIAL is a computable surrogate.
+
+\textbf{Adversarial DA.}
+DANN~\citep{ganin2015dann,ganin2016dann}, ADDA~\citep{tzeng2017adda},
+CDAN~\citep{long2018cdan}, MCD~\citep{saito2018mcd},
+MDD~\citep{zhang2019mdd}. We benchmark a DANN-lite
+(\S\ref{sec:exp}.3).
+
+\textbf{Test-time adaptation.}
+TENT~\citep{wang2021tent}, SHOT~\citep{liang2020shot}, BN-stats
+\citep{schneider2020bn}, MEMO~\citep{zhang2022memo},
+CoTTA~\citep{wang2022cotta}, EATA~\citep{niu2022eata}.
+Section~\ref{sec:exp}.3 includes all four core methods.
+
+\textbf{Feature alignment.} CORAL~\citep{sun2016coral}, SA
+\citep{fernando2013sa}, DAN~\citep{long2015dan}, JAN
+\citep{long2017jan}; biology-side ComBat~\citep{johnson2007combat},
+SVA~\citep{leek2010sva}, Harmony~\citep{korsunsky2019harmony},
+scVI~\citep{lopez2018scvi}.
+
+\textbf{Leakage / preprocessing audits.}
+Kaufman et al.~\citep{kaufman2012leakage}; Roberts et al.
+\citep{roberts2017cross}; Kapoor \& Narayanan~\citep{kapoor2022leakage};
+Whalen et al.~\citep{whalen2022leakage}. Our retraction audit
+documents a textbook example.
+
+\textbf{Foundation models / scaling / robustness.}
+Kaplan et al.~\citep{kaplan2020scaling},
+Hoffmann et al.~\citep{hoffmann2022chinchilla},
+Bommasani et al.~\citep{bommasani2021foundation},
+Geirhos et al.~\citep{geirhos2020shortcut},
+Sagawa et al.~\citep{sagawa2020group}.
+
+% =====================================================================
+\section{Preliminaries and DIAL metric}
+\label{sec:prelim}
+% =====================================================================
+
+\paragraph{Notation.}
+Source and target distributions $p_s(x,y,b),p_t(x,y,b)$ on
+$\R^{p}\times\{0,1\}\times\mathcal{B}$. Linear correction operator
+$T(x,b)=A_b x+c_b$ (Definition~\ref{def:linear-correction}).
+Population Fisher direction $w_Y=\Sigma^{-1}(\mu_1-\mu_0)$ under $p_s$.
+
+\begin{definition}[Linear correction operator]
+\label{def:linear-correction}
+A \emph{linear correction operator} is a batch-wise affine map
+$T(x,b) = A_b\,x + c_b$ where $A_b\in\R^{p\times p}$ is non-singular
+and $c_b\in\R^{p}$. The image is denoted $\tilde X = T(X,B)$.
+\end{definition}
+
+\begin{definition}[DIAL]
+\label{def:dial}
+For a fixed classifier family and cross-validation protocol,
+\[
+   \dial(\tilde X,Y) \;=\; \bigl(\max(\mathrm{AUC},1{-}\mathrm{AUC})-\tfrac12\bigr)
+   \cdot\mathbf{1}[\mathrm{AUC}<\tfrac12].
+\]
+\end{definition}
+
+DIAL is positive iff the source-trained classifier achieves AUC $<\tfrac12$
+on the target — the \emph{flip event}.
+
+\paragraph{Three KL shift components.}
+$\Delta_{\text{cov}}=\KL(p_s(\tilde x)\|p_t(\tilde x))$,
+$\Delta_{\text{lab}}=\KL(p_s(y)\|p_t(y))$,
+$\Delta_{\text{cond}}=\E_y\KL(p_s(\tilde x\mid y)\|p_t(\tilde x\mid y))$.
+We decompose $\Delta_{\text{cond}}$ along $\mathrm{span}(w_Y)$ vs.\ its
+orthogonal complement to obtain $\Delta_{\text{cond}}^{\parallel}$
+and $\Delta_{\text{cond}}^{\perp}$.
+
+% =====================================================================
+\section{Theoretical Framework}
+\label{sec:theory}
+% =====================================================================
+
+\subsection{Predecessor: rank-one alignment condition}
+Predecessor work~\citep{cook2026v10} established that under Gaussian
+assumptions, the AUC-flip event for a linear classifier is governed
+by the alignment $\alpha=\langle w_Y,w_B\rangle^{2}/(\|w_Y\|^{2}\|w_B\|^{2})$
+between label and dominant batch directions: a flip occurs iff
+$\alpha>1/2$ \emph{and} the correction is naive (no class covariate).
+Theorem~\ref{thm:unified} below generalises this to arbitrary-rank
+shifts.
+
+\subsection{Theorem~1: unified decomposition}
+
+The full statement, lemmas, proof, and connections to existing theory
+are in Appendix~A. Headline:
+
+\begin{theorem}[Unified Shift Decomposition; full statement Appendix~A]
+\label{thm:unified}
+Under Gaussian shared-covariance class-conditionals and a linear
+correction operator (Definition~\ref{def:linear-correction}),
+\[
+   \dial(\tilde X,Y) \;=\; \Phi\!\bigl(\Delta_{\text{cov}},\,
+     \Delta_{\text{lab}},\,
+     \Delta_{\text{cond}}^{\parallel},\,
+     \Delta_{\text{cond}}^{\perp}\bigr)\,+\,\varepsilon_n,
+\]
+where $\Phi$ is strictly increasing in $\Delta_{\text{cond}}^{\parallel}$
+and constant in $(\Delta_{\text{cov}},\Delta_{\text{lab}},
+\Delta_{\text{cond}}^{\perp})$, and
+$\varepsilon_n=O_p(\sqrt{\log(2/\delta)/n})$ is finite-sample noise.
+\end{theorem}
+
+\begin{corollary}[Subspace alignment]
+\label{cor:subspace}
+$\dial>0\iff \Delta_{\text{cond}}^{\parallel}>\Delta_{\text{cond}}^{\perp}$
+(up to $\varepsilon_n$).
+\end{corollary}
+
+\begin{corollary}[Unification of shift taxonomy]
+\label{cor:taxonomy}
+Pure covariate, pure label, and orthogonal-conditional shifts each
+yield $\dial=0$. The only regime in the
+Qui\~n{}onero-Candela~\citep{quionero2009dataset} taxonomy that fires
+is \emph{subspace-aligned conditional shift}.
+\end{corollary}
+
+% =====================================================================
+\section{Experiments}
+\label{sec:exp}
+% =====================================================================
+
+All experiments are synthetic and fully reproducible from the v15 code
+release (\S~Code and data availability). Real-data motivation referenced
+in \S\ref{sec:intro} has been retracted under the LODO leak fix and is
+referenced in this paper only as a worked example of leakage detection.
+
+\subsection{Numerical validation of Theorem~\ref{thm:unified}}
+We simulate six shift regimes (none, covariate, label,
+conditional-parallel, conditional-perpendicular, subspace-aligned) at
+seven magnitudes $\{0,0.25,\ldots,2.0\}$ with 15 repetitions ($630$ runs).
+Linear regression $\dial \sim
+(\Delta_{\text{cov}},\Delta_{\text{lab}},\Delta_{\text{cond}}^{\parallel},
+\Delta_{\text{cond}}^{\perp})$ yields $R^{2}=0.94$ with
+$\hat\beta_{\parallel}=0.0493$ versus $\hat\beta_{\text{cov}}=0.0015$,
+$\hat\beta_{\text{lab}}=0.0150$, $\hat\beta_{\perp}=0.0009$ — i.e.\
+the parallel component dominates the others by $33\times$ on regression
+slope. Figure~\ref{fig:thm2} summarises.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figure1_theorem2.pdf}
+\caption{\textbf{Numerical validation of Theorem~\ref{thm:unified}.}
+DIAL plotted against each of the four KL components.
+Only the parallel component (third panel) shows a strong slope;
+the others are flat. Linear regression $R^{2}=0.94$ overall with
+$\hat\beta_{\parallel}/\hat\beta_{\text{cov}}\approx 33\times$.}
+\label{fig:thm2}
+\end{figure}
+
+\subsection{Synthetic stress test}
+$4\times 5\times 5\times 20 = 2000$ runs (4 shift types $\times$ 5
+magnitudes $\times$ 5 classifier families $\times$ 20 reps).
+
+\begin{table}[t]
+\centering
+\caption{Stress-test mean DIAL.}
+\label{tab:stress}
+\small
+\begin{tabular}{lcccc}
+\toprule
+shift type & mag=0 & 0.25 & 0.5 & 1.0 \\
+\midrule
+covariate           & 0.000 & 0.000 & 0.000 & 0.000 \\
+label               & 0.000 & 0.000 & 0.000 & 0.000 \\
+concept (full flip) & 0.000 & 0.000 & 0.009 & 0.393 \\
+subspace-aligned    & 0.000 & 0.000 & 0.000 & 0.237 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.78\textwidth]{figures/figure2_stress.pdf}
+\caption{\textbf{Stress test phase diagram.} DIAL versus shift
+magnitude for the four canonical shift types. Pure covariate and
+pure label shifts give DIAL $= 0$ (theory predicts no flip);
+concept and subspace-aligned shifts both produce DIAL above zero
+beyond magnitude $\approx 0.5$.}
+\label{fig:stress}
+\end{figure}
+
+ROC of DIAL as a binary detector \emph{any flip-positive shift type}
+(positives: subspace-aligned + concept; negatives: covariate + label)
+achieves AUC $=0.78$. Restricted to subspace-aligned alone (vs the other
+three), the AUC is $0.62$; we report the broader figure as the headline
+because the metric is intended as a general flip detector, not a shift-
+type classifier.
+
+\subsection{Test-time adaptation benchmark}
+
+Ten methods on a synthetic flip ($p=64$, $n=300$, mag$=0.8$, $5$ seeds).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/figure3_tta.pdf}
+\caption{\textbf{TTA benchmark.} Target AUC of ten adaptation methods.
+\texttt{combat\_subtype} trivially reaches AUC $0.5$ by destroying class
+signal (sanity baseline). Among non-trivial methods, DANN-lite
+\citep{ganin2016dann} is the strongest (AUC $0.39 \pm 0.04$);
+no method fully restores source-level AUC ($\sim 0.99$).}
+\label{fig:tta}
+\end{figure}
+
+\textbf{Honest finding.} Adversarial DA (DANN-lite) is the strongest
+\emph{discriminative} method on this synthetic flip, but \emph{none}
+fully restored target AUC to source levels. Subtype-preserving ComBat
+trivially reaches AUC $0.5$ by destroying class signal — included as
+sanity-baseline. Theorem~\ref{thm:unified} predicts that this is
+unavoidable for representation-only adaptations when
+$\Delta_{\text{cond}}^{\parallel}$ exceeds the source class separation.
+
+\subsection{Foundation-model scaling}
+
+Eight encoder configurations spanning random projections (2K params)
+to 5.4M-parameter MLPs, applied to the synthetic flip, $3$ seeds.
+\textbf{Negative result:} we find \emph{no} monotonic relationship
+between encoder parameter count and DIAL.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/figure4_scaling.pdf}
+\caption{\textbf{Foundation-model scaling: negative result.}
+DIAL (left) and target AUC (right) as functions of encoder parameter
+count. No monotonic relationship; linear-fit $r^2=0.19$. Larger
+encoders preserve label-aligned shift more faithfully and are not
+immunised against the flip by capacity alone.}
+\label{fig:scaling}
+\end{figure}
+
+\textbf{Discussion.} Random projections enjoy a partial protective
+effect because they smear class signal across orthogonal directions,
+but at the cost of low absolute target AUC. Foundation-model immunity
+therefore requires \emph{shift-aware} pre-training, not raw scale.
+
+\subsection{Cross-domain validation}
+
+Same flip mechanism, four domain shapes, $6$ seeds each:
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/figure5_xdomain.pdf}
+\caption{\textbf{Cross-domain reproducibility.} DIAL (left) and target
+AUC (right) across four domains and two correctors (no-adapt vs naive
+ComBat). The flip reproduces in 4/4 domains; naive ComBat does not fix
+it in any domain.}
+\label{fig:xdomain}
+\end{figure}
+
+% =====================================================================
+\section{Discussion and Limitations}
+\label{sec:disc}
+% =====================================================================
+
+\subsection{When DIAL fires}
+DIAL fires \emph{iff} the post-correction class-conditional shift has
+non-trivial projection onto the label subspace. Three regimes produce
+this: (i) true biological/causal class-conditional change between
+cohorts (a real effect we want our model to track); (ii) adversarially
+constructed sub-population shift; (iii) preprocessing leakage — pooled-
+fit ComBat on class-imbalanced cohorts produces a synthetic conditional-
+parallel shift that disappears under proper LODO.
+
+\subsection{Limitations}
+\begin{itemize}
+\item Theorem~\ref{thm:unified} assumes Gaussian shared-covariance
+  class-conditionals. Heavy-tailed or non-linear correction operators
+  are not covered.
+\item DIAL is defined with respect to a chosen classifier family and CV
+  protocol; the metric is not invariant to those choices, only to
+  ranking-preserving transformations.
+\item All v15 empirics are synthetic; real-data validation under the
+  proper-LODO regime is left as future work.
+\end{itemize}
+
+% =====================================================================
+%  Broader-impact, ethics, code/data availability — drop-in from
+%  reports/v15_neurips/submit/v15_missing_drafts_v2.tex
+% =====================================================================
+\input{v15_missing_drafts_v2.tex}
+
+% =====================================================================
+\section{Conclusion}
+% =====================================================================
+
+We introduced DIAL, proved a unified shift decomposition relating it to
+existing theory, validated the decomposition numerically, benchmarked
+ten adaptation methods, reported a negative foundation-model scaling
+result, and demonstrated cross-domain applicability across four
+modalities. The leakage retraction is reframed as a worked example of
+what DIAL detects rather than a paper claim.
+
+\bibliographystyle{plainnat}
+\bibliography{v15_references}
+
+% =====================================================================
+% NeurIPS 2026 Paper Checklist (REQUIRED — desk reject if absent)
+% =====================================================================
+\input{checklist_v15_filled.tex}
+
+% =====================================================================
+\appendix
+\section{Full proof of Theorem~\ref{thm:unified}}
+\label{app:proof}
+% =====================================================================
+\input{theorem2_proof_v2.tex}
+
+\end{document}

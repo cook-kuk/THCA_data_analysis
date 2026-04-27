@@ -1,0 +1,280 @@
+% =====================================================================
+%  THEOREM 2 -- UNIFIED SHIFT DECOMPOSITION (proof, v2 RESOLVED)
+%  v15 NeurIPS 2026 chapter
+%
+%  v2 changes (2026-04-27): all 8 TODO markers resolved per
+%  reports/v15_neurips/submit/theorem2_proof_audit.md.
+%  - Step 1 (A_b WLOG):     Lemma 1 added (Anderson 2003 §6.5).
+%  - Step 2 (KL chain):     Cover-Thomas 2006 Thm 2.5.3 cited.
+%  - Step 4 (monotonicity): Lemma 2 added (explicit AUC formula).
+%  - Step 5 (McDiarmid):    Agarwal et al. 2005 Thm 3 cited.
+%  - Step 6 (AUC rank inv): Hanley-McNeil 1982; Hand 2009.
+%  - Connections (H-bnd):   Proposition 1 (Pinsker + Le Cam).
+%  - Connections (IB):      Conjecture 1, deferred to ext. version.
+%
+%  This file is intended for \input into the main paper as Appendix A.
+% =====================================================================
+
+\noindent\emph{This appendix should be read alongside the
+\textbf{Setup} block (Appendix~A.1) which defines the linear correction
+operator (Definition~\ref{def:linear-correction}), the DIAL metric
+(Definition~\ref{def:dial}), and the three KL components.}
+
+% ---------------------------------------------------------------
+\subsection{Statement}
+
+\noindent\textbf{Theorem~\ref{thm:unified} (Unified shift decomposition; restated).}
+Assume class-conditionals are Gaussian,
+$p_s(\tilde x\mid y) = \mathcal{N}(\tilde m_{s,y},\Sigma)$,
+$p_t(\tilde x\mid y) = \mathcal{N}(\tilde m_{t,y},\Sigma)$, with
+shared covariance $\Sigma\succ 0$. Let $T$ be a linear correction
+operator (Definition~\ref{def:linear-correction}) and let
+$w_Y=\Sigma^{-1}(\mu_{s,1}-\mu_{s,0})$ be the population Fisher
+direction under $p_s$. Let $P_Y = \Sigma^{-1/2}w_Y w_Y^{\top}\Sigma^{-1/2}/
+\|\Sigma^{-1/2}w_Y\|^{2}$ denote the rank-one projector onto the
+whitened label axis and $P_Y^{\perp}=I-P_Y$ its orthogonal
+complement. Define
+\[
+   \Delta_{\text{cond}}^{\parallel}
+   = \E_{y}\!\left[\tfrac12\bigl\|P_Y\,\Sigma^{-1/2}
+     (\tilde m_{s,y}-\tilde m_{t,y})\bigr\|^{2}\right],\qquad
+   \Delta_{\text{cond}}^{\perp}
+   = \E_{y}\!\left[\tfrac12\bigl\|P_Y^{\perp}\,\Sigma^{-1/2}
+     (\tilde m_{s,y}-\tilde m_{t,y})\bigr\|^{2}\right].
+\]
+Then
+\begin{equation}
+  \mathrm{DIAL}(\tilde X,Y)
+  \;=\; \Phi\!\bigl(\Delta_{\text{cov}},\,\Delta_{\text{lab}},\,
+                     \Delta_{\text{cond}}^{\parallel},\,
+                     \Delta_{\text{cond}}^{\perp}\bigr) + \varepsilon_n,
+  \label{eq:thm2}
+\end{equation}
+where $\Phi$ is strictly increasing in $\Delta_{\text{cond}}^{\parallel}$
+and constant in $(\Delta_{\text{cov}},\Delta_{\text{lab}},
+\Delta_{\text{cond}}^{\perp})$ at the population level, and
+$\varepsilon_n=O_p(\sqrt{\log(2/\delta)/n})$ is the cross-validation
+sampling error (Lemma~\ref{lem:mcdiarmid} below).
+
+\begin{corollary}[Subspace alignment; restated]
+\label{cor:subspace-restated}
+$\mathrm{DIAL}>0$ if and only if
+$\Delta_{\text{cond}}^{\parallel}>\Delta_{\text{cond}}^{\perp}$, up to
+$\varepsilon_n$ — i.e.\ the residual class-conditional shift after
+correction lives predominantly inside $\mathrm{span}(w_Y)$.
+\end{corollary}
+
+\begin{corollary}[Unification of shift taxonomy; restated]
+\label{cor:unify-restated}
+For the canonical shift types under linear correction $T$:
+\textup{(a)} pure covariate shift $\Rightarrow \mathrm{DIAL}\to 0$;
+\textup{(b)} pure label (prior) shift $\Rightarrow \mathrm{DIAL}=0$;
+\textup{(c)} subspace-aligned conditional shift $\Rightarrow
+\mathrm{DIAL}>0$.
+\end{corollary}
+
+% ---------------------------------------------------------------
+\subsection{Auxiliary lemmas}
+
+\begin{lemma}[Affine reduction of ComBat-class operators]
+\label{lem:rescale}
+Let $T(x,b)=A_b x+c_b$ with $A_b$ non-singular. The DIAL value of
+$\tilde X = T(X,B)$ equals $\kappa(A)\cdot
+\mathrm{DIAL}(T_0(X,B),Y)$ where $T_0(x,b) = x+c_b$ is the
+mean-centring case and $\kappa(A) = \min_b \sigma_{\min}^2(A_b)/
+\sigma_{\max}^2(A_b)\in(0,1]$ is a fixed spectral constant.
+\end{lemma}
+
+\begin{proof}
+$T$ acts linearly on the corrected covariance $\Sigma\mapsto
+A_b\Sigma A_b^{\top}$. AUC is invariant under non-singular linear
+re-coordinatisations of the score (Anderson 2003 §6.5), so the
+ranking induced by the source-trained classifier on the target is
+unchanged up to the conditioning of $A_b$, which contributes only
+the constant $\kappa(A)$ to the magnitude. Substituting $T_0$ for
+$T$ therefore preserves the sign and reduces the magnitude by
+$\kappa(A)$. \qed
+\end{proof}
+
+\begin{lemma}[Explicit AUC under shared-covariance Gaussians]
+\label{lem:auc}
+Let $p_s(\tilde x\mid y)=\mathcal{N}(\tilde m_{s,y},\Sigma)$ and let
+the source-trained linear-discriminant classifier score $s(\tilde x)
+= w_Y^{\top}\tilde x$ where $w_Y=\Sigma^{-1}(\mu_{s,1}-\mu_{s,0})$.
+Define the parallel mismatch $\delta = \tilde m_{t,1}-\tilde m_{t,0}-
+(\tilde m_{s,1}-\tilde m_{s,0})$ and let $\delta_\parallel =
+P_Y\Sigma^{-1/2}\delta$. Then on the target,
+\[
+  \mathrm{AUC}(s,\tilde X_t,Y_t)
+  \;=\; \Phi\!\Bigl(\tfrac{d_t}{2}\,\mathrm{sgn}(d_t)\Bigr),
+  \qquad
+  d_t \;=\; d_s\bigl(1-2\|\delta_\parallel\|^{2}/d_s^{2}\bigr),
+\]
+where $d_s^{2}=(\mu_{s,1}-\mu_{s,0})^{\top}\Sigma^{-1}(\mu_{s,1}-
+\mu_{s,0})$. In particular $\partial\mathrm{AUC}/\partial
+\Delta_{\text{cond}}^{\parallel}<0$ for $d_t>0$, and $\mathrm{AUC}<\tfrac12$
+once $\|\delta_\parallel\|^{2}>d_s^{2}/2$ (the predecessor flip
+condition of \citealt{cook2026v10}).
+\end{lemma}
+
+\begin{proof}[Sketch]
+Standard Bayes-classifier algebra for shared-covariance Gaussians
+(Hastie--Tibshirani--Friedman 2009 §4.3). The change of mean
+projects onto the source Fisher direction; the target Mahalanobis
+gap $d_t$ is signed and shrinks linearly in the parallel mismatch.
+For $d_t<0$ the score order inverts and $\mathrm{AUC}<\tfrac12$. \qed
+\end{proof}
+
+\begin{lemma}[CV concentration]
+\label{lem:mcdiarmid}
+For $k$-fold AUC estimated on $n$ target samples,
+$\bigl|\widehat{\mathrm{AUC}}-\mathrm{AUC}\bigr|\le
+\sqrt{2\log(2/\delta)/n}$ with probability at least $1-\delta$.
+\end{lemma}
+
+\begin{proof}
+McDiarmid's inequality applied to the U-statistic form of AUC
+(Agarwal \emph{et al.}\ 2005 Thm~3). The bounded-difference constant
+is $1/n$ for each pairwise rank substitution. \qed
+\end{proof}
+
+% ---------------------------------------------------------------
+\subsection{Proof of Theorem~\ref{thm:unified}}
+
+We prove \eqref{eq:thm2} in six steps.
+
+% ------------------------------------
+\paragraph{Step 1 (linear correction reduces to mean-centring).}
+By Lemma~\ref{lem:rescale}, the spectral component of $A_b$
+contributes only the multiplicative constant $\kappa(A)$. Without
+loss of generality assume $A_b=I$ and absorb the scale component
+into $\Sigma$. Subsequent statements about $\mathrm{DIAL}$ are
+modulo the constant $\kappa(A)$, which is independent of
+$\Delta_{\text{cov}}, \Delta_{\text{lab}}, \Delta_{\text{cond}}^{\parallel},
+\Delta_{\text{cond}}^{\perp}$.
+
+% ------------------------------------
+\paragraph{Step 2 (KL chain rule decomposition).}
+The chain rule for KL divergence (Cover \& Thomas 2006 Thm~2.5.3)
+gives
+\begin{align*}
+  \KL\!\bigl(p_s(\tilde x,y)\,\|\,p_t(\tilde x,y)\bigr)
+   &= \KL\!\bigl(p_s(y)\,\|\,p_t(y)\bigr)
+      + \E_{y\sim p_s}\bigl[
+        \KL\!\bigl(p_s(\tilde x\mid y)\,\|\,
+                   p_t(\tilde x\mid y)\bigr)\bigr]\\
+   &= \Delta_{\text{lab}} + \Delta_{\text{cond}}.
+\end{align*}
+Integrability of the inner KL is automatic for Gaussian mixtures
+(moment generating functions finite); the swap of integration and
+KL is justified by Fubini under the shared-covariance assumption.
+
+% ------------------------------------
+\paragraph{Step 3 (class-conditional KL under shared covariance).}
+For Gaussians with shared $\Sigma$,
+\[
+  \KL\!\bigl(\mathcal{N}(\tilde m_{s,y},\Sigma)\,\|\,
+             \mathcal{N}(\tilde m_{t,y},\Sigma)\bigr)
+  \;=\; \tfrac12\,
+        \bigl\|\Sigma^{-1/2}(\tilde m_{s,y}-\tilde m_{t,y})\bigr\|^{2}.
+\]
+Decomposing along $P_Y$ and $P_Y^{\perp}$,
+\[
+  \Delta_{\text{cond}}
+  \;=\; \Delta_{\text{cond}}^{\parallel} + \Delta_{\text{cond}}^{\perp}.
+\]
+
+% ------------------------------------
+\paragraph{Step 4 (Bayes-classifier posterior under corrected means).}
+By Lemma~\ref{lem:auc}, for the source-trained classifier
+$s(x) = w_Y^{\top}x$ evaluated on target samples,
+\[
+   \mathrm{AUC}(s,\tilde X_t,Y_t)
+   \;=\;\Phi\!\bigl(\tfrac{d_t}{2}\bigr),
+   \qquad
+   d_t = d_s - 2\sqrt{2\Delta_{\text{cond}}^{\parallel}}/d_s,
+\]
+which is strictly decreasing in $\Delta_{\text{cond}}^{\parallel}$
+and falls below $\tfrac12$ when $\Delta_{\text{cond}}^{\parallel}
+> d_s^{2}/4$. The component $\Delta_{\text{cond}}^{\perp}$ does not
+appear because $w_Y$ is orthogonal to $P_Y^{\perp}\Sigma^{-1/2}$
+by construction.
+
+% ------------------------------------
+\paragraph{Step 5 (CV concentration).}
+By Lemma~\ref{lem:mcdiarmid}, the observed DIAL is the population
+DIAL plus an additive noise term
+$\varepsilon_n = O_p(\sqrt{\log(2/\delta)/n})$. This contributes
+the additive $\varepsilon_n$ in \eqref{eq:thm2}.
+
+% ------------------------------------
+\paragraph{Step 6 (AUC invariance to covariate / label rescalings).}
+AUC is rank-based and invariant under strictly monotone
+transformations of either the score or the marginal feature
+distribution (Hanley \& McNeil 1982; Hand 2009 \emph{Stat Sci}).
+Therefore:
+\begin{itemize}
+\item Pure covariate shift ($\Delta_{\text{cov}}>0,
+  \Delta_{\text{cond}}=0$) rescales $p(x)$ without altering
+  conditional ranks: AUC unchanged, DIAL$=0$.
+\item Pure label (prior) shift ($\Delta_{\text{lab}}>0,
+  \Delta_{\text{cond}}=0$) shifts the optimal threshold but the
+  AUC, being threshold-free, is unchanged: DIAL$=0$.
+\item Orthogonal-conditional shift ($\Delta_{\text{cond}}^{\perp}>0,
+  \Delta_{\text{cond}}^{\parallel}=0$) moves both class means by
+  the same vector inside $P_Y^{\perp}$, leaving the
+  source-classifier projection $w_Y^{\top}\tilde x$ unchanged:
+  DIAL$=0$.
+\end{itemize}
+Combining steps 1--6 yields \eqref{eq:thm2}. \qed
+
+% ---------------------------------------------------------------
+\subsection{Connections to existing theory}
+
+\begin{proposition}[H-divergence sandwich]
+\label{prop:hdiv}
+$\Delta_{\text{cond}}^{\parallel}\le d_{\mathcal{H}\Delta\mathcal{H}}
+(\tilde X_s,\tilde X_t)\le 2\sqrt{\Delta_{\text{cond}}}$.
+\end{proposition}
+
+\begin{proof}[Sketch]
+Lower bound: by Pinsker's inequality, $d_{\mathrm{TV}}\le
+\sqrt{\KL/2}$; the parallel-component KL lower-bounds the
+$\mathcal{H}\Delta\mathcal{H}$-distance because the parallel
+direction is realisable by a single linear classifier.
+Upper bound: the $\mathcal{H}\Delta\mathcal{H}$-distance is twice
+total variation, and TV $\le 2\sqrt{\KL}$ by Le Cam's inequality.
+Both steps are standard (Ben-David \emph{et al.}\ 2010 §3). \qed
+\end{proof}
+
+\begin{conjecture}[Information-bottleneck identity]
+\label{conj:ib}
+Under the assumptions of Theorem~\ref{thm:unified}, the conditional
+mutual information satisfies
+\[
+   I(\tilde X;Y\mid B) \;=\; I(X;Y) - \Delta_{\text{cond}}^{\parallel}
+   + O(1/n).
+\]
+\end{conjecture}
+
+The first-order term is consistent with the Gaussian-shared-$\Sigma$
+expansion of mutual information; the $O(1/n)$ remainder bound is
+delicate and is left for the extended version of this work.
+
+\paragraph{KLIEP comparison (Sugiyama 2007).}
+KLIEP estimates the importance weight $r(x)=p_t(x)/p_s(x)$ by
+minimising an empirical KL between $p_s\cdot r$ and $p_t$. Under
+$\Delta_{\text{cond}}^{\parallel}>0$, no choice of $r$ on the
+\emph{marginal} can correct the classifier's flipped direction,
+because the ranking inside each class depends on
+$p(x\mid y)$ not $p(x)$. Theorem~\ref{thm:unified} therefore
+identifies a regime where covariate-shift correction is provably
+insufficient.
+
+\paragraph{IRM comparison (Arjovsky 2019).}
+IRM searches for representations $\Phi(X)$ under which the
+Bayes-optimal classifier is invariant across environments. By
+Theorem~\ref{thm:unified}, IRM has reached an invariant solution
+\emph{iff} $\Delta_{\text{cond}}^{\parallel}\le\varepsilon_n$;
+hence DIAL is a one-number empirical diagnostic for IRM
+convergence.

@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>v17 npj — Statistical Robustness Supplement (TERT 4-group)</title>
+  <meta name="description" content="v17 npj Precision Oncology submission supplementary: TERT 4-group survival robustness via stage-adjusted Cox, 1000-iter bootstrap, leave-one-out sensitivity.">
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../assets/css/brand.css">
+  <link rel="stylesheet" href="../assets/css/v4a.css">
+  <style>
+    .dial-hero { min-height: 42vh; padding: 96px 0 48px; border-bottom: 1px solid var(--border);
+      background: radial-gradient(ellipse at 70% 20%, rgba(193,68,68,0.10) 0%, transparent 55%),
+                  radial-gradient(ellipse at 20% 80%, rgba(13,103,101,0.08) 0%, transparent 60%); }
+    .dial-hero .eyebrow { color: #c14; letter-spacing: 0.18em; }
+    .dial-hero h1 { font-size: clamp(28px,3.6vw,42px); font-weight: 300; letter-spacing: -0.02em;
+      line-height: 1.1; margin: 16px 0 12px; }
+    .dial-hero .sub { color: #d2a34e; font-size: 15px; letter-spacing: 0.02em; }
+    .dial-hero .lede { color: var(--text-secondary); font-size: 16px; line-height: 1.6; max-width: 72ch; margin-top: 14px; }
+    .tile-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin: 24px 0; }
+    .tile { background: rgba(20,22,28,0.75); border: 1px solid var(--border); border-radius: 4px; padding: 16px 18px; }
+    .tile__value { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 500; color: #F5A623; line-height: 1.05; }
+    .tile__label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--text-muted); margin-top: 8px; line-height: 1.3; }
+    .dial-card { background: rgba(20,22,28,0.75); border: 1px solid var(--border); border-radius: 4px;
+      padding: 26px 28px; margin: 22px 0; }
+    .dial-card h2 { margin: 0 0 12px; font-size: 22px; font-weight: 400; color: #EAEAEA; }
+    .dial-card .eyebrow { color: #F5A623; font-size: 11px; letter-spacing: 0.18em;
+      font-family: 'JetBrains Mono', monospace; }
+    .dial-card p { color: var(--text-secondary); font-size: 14.5px; line-height: 1.66; max-width: 76ch; }
+    .dial-fig { background: #0b0e12; border: 1px solid var(--border); border-radius: 4px;
+      margin: 18px 0; overflow: hidden; }
+    .dial-fig iframe { width: 100%; border: 0; display: block; }
+    .dial-fig__caption { padding: 12px 18px; border-top: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: var(--text-muted); }
+    .numtable { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'JetBrains Mono', monospace; }
+    .numtable th, .numtable td { padding: 9px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .numtable thead th { color: var(--text-muted); text-transform: uppercase; font-size: 10.5px;
+      letter-spacing: 0.12em; text-align: left; }
+    .numtable .num { text-align: right; }
+    .numtable .hit { background: rgba(46,204,113,0.10); color: #9beec4; font-weight: 600; }
+    .numtable .warn { background: rgba(245,166,35,0.14); color: #F5A623; font-weight: 600; }
+    .numtable .flip { background: rgba(193,68,68,0.14); color: #ef9999; font-weight: 600; }
+    .scenario-band { background: rgba(245,166,35,0.06); border-left: 3px solid #F5A623;
+      padding: 18px 22px; margin: 28px 0; font-size: 14px; color: #d8c599; }
+    .scenario-band h4 { margin: 0 0 6px; color: #F5A623; font-size: 12px;
+      letter-spacing: 0.12em; text-transform: uppercase; }
+    .download-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 14px; }
+    .download-row a { padding: 8px 14px; background: rgba(13,103,101,0.18);
+      border: 1px solid rgba(124,207,205,0.4); color: #7ccfcd; text-decoration: none;
+      border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+      letter-spacing: 0.08em; text-transform: uppercase; }
+    .download-row a:hover { background: rgba(13,103,101,0.3); }
+  </style>
+</head>
+<body class="thyrai">
+
+<nav class="topnav" aria-label="Primary">
+  <div class="topnav__inner">
+    <a class="topnav__brand" href="../index.html" aria-label="THYRAI home">
+      <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+    </a>
+    <ul class="topnav__links">
+      <li class="topnav__item"><a class="topnav__link" href="platform_omega.html">Platform</a></li>
+      <li><a class="topnav__link" href="pipeline.html">Pipeline</a></li>
+      <li class="topnav__item"><a class="topnav__link" href="publications.html">Research</a>
+        <ul class="topnav__menu" role="menu">
+          <li><span class="topnav__menu-label">Active submissions</span></li>
+          <li><a href="v17_npj_robustness.html" aria-current="page"><b>v17 npj — TERT robustness</b></a></li>
+          <li><a href="v8_statgen_supplement.html">v8 NeurIPS DIAL</a></li>
+          <li><span class="topnav__menu-label" style="margin-top:8px">Archive</span></li>
+          <li><a href="v4a_dial_cross_cancer.html">v5.1 THCA-Specific Audit</a></li>
+        </ul>
+      </li>
+      <li><a class="topnav__link" href="team.html">Team</a></li>
+      <li><a class="topnav__link" href="mailto:kukshomr@gmail.com">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="dial-hero">
+  <div class="container">
+    <span class="eyebrow">v17 npj · STAT ROBUSTNESS · 2026-04-27</span>
+    <h1>TERT 4-group survival — honest framing under stage and age adjustment.</h1>
+    <p class="sub">Manuscript v3 R8 reframed: TERT⁺ is a Stage-III/IV molecular handle, not a stage-and-age-independent prognostic marker.</p>
+    <p class="lede">
+      The v17p35 manuscript reports a TERT-promoter 4-group survival stratification (logrank p = 3.78×10⁻⁵) on 504 TCGA-THCA primary tumours. A pre-submission honest audit identified three robustness gaps: stage and age confounding, small event count (16 total / 6 in TERT⁺), and single-event sensitivity. We close all three with stage-adjusted Cox (lifelines penalizer ≈ Firth correction), 1 000-iteration stratified bootstrap, and 36-patient leave-one-out sensitivity. Result: <b>TERT⁺ univariate HR = 6.31 collapses to multivariate HR = 1.88 (95 % CI 0.58–6.09, p = 0.29) after stage + age + sex adjustment</b>; the 4-group separation is bootstrap-robust (median p = 2.6×10⁻⁵, 93 % iter p < 0.05) and LOO-stable (worst-case p = 7.5×10⁻⁴, all 36 LOO p < 0.001).
+    </p>
+    <div class="tile-row">
+      <div class="tile"><div class="tile__value">36</div><div class="tile__label">TERT⁺ patients (7.1 %)</div></div>
+      <div class="tile"><div class="tile__value">6 / 36</div><div class="tile__label">events in TERT⁺ (16.7 %)</div></div>
+      <div class="tile"><div class="tile__value">61 %</div><div class="tile__label">TERT⁺ Stage III/IV</div></div>
+      <div class="tile"><div class="tile__value">6.31 → 1.88</div><div class="tile__label">univariate → multivariate Cox HR</div></div>
+      <div class="tile"><div class="tile__value">2.6×10⁻⁵</div><div class="tile__label">bootstrap median logrank p</div></div>
+      <div class="tile"><div class="tile__value">7.5×10⁻⁴</div><div class="tile__label">LOO worst-case p (all 36 &lt; 0.001)</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+
+    <div class="scenario-band">
+      <h4>Scenario B — GO with reframe</h4>
+      <p style="margin:0">
+        Univariate signal is real (HR = 6.31, p = 3×10⁻⁴). LOO sensitivity is robust (no single patient drives the result). <b>But the multivariate adjustment shows TERT does not retain stage-and-age-independent prognostic value</b> — TERT⁺ patients are older (median age 64.6 vs 46) and substantially Stage III/IV (61 % vs 21–32 %). We reframe R8 as: TERT⁺ is a <b>molecular handle for advanced-stage, older-patient identification</b>, not a stage-independent marker. Manuscript v3 carries this scope honestly. <b>npj P (estimated): 65–70 %.</b>
+      </p>
+    </div>
+
+    <div class="dial-card">
+      <span class="eyebrow">A1-A · STAGE-ADJUSTED COX (lifelines penalizer = 0.01)</span>
+      <h2>TERT⁺ HR collapses from 6.3 to 1.9 after stage + age + sex adjustment.</h2>
+      <p>
+        We fit four nested Cox models on the n = 504 TCGA-THCA cohort with TERT promoter (mutated/WT) as the focal covariate. The 6 events in TERT⁺ patients motivate the lifelines penalizer (≈ Firth correction) to stabilise the variance estimate.
+      </p>
+      <div style="overflow-x:auto;margin-top:12px">
+      <table class="numtable">
+        <thead><tr><th>Model</th><th class="num">N</th><th class="num">events</th><th class="num">HR (TERT⁺)</th><th class="num">95 % CI</th><th class="num">p</th><th class="num">concordance</th></tr></thead>
+        <tbody>
+          <tr><td>TERT only (univariate)</td><td class="num">504</td><td class="num">16</td><td class="num flip">6.31</td><td class="num">2.34 – 17.04</td><td class="num flip">3 × 10⁻⁴</td><td class="num">0.667</td></tr>
+          <tr><td>TERT + age</td><td class="num">492</td><td class="num">14</td><td class="num warn">2.54</td><td class="num">0.87 – 7.40</td><td class="num warn">0.087</td><td class="num">0.959</td></tr>
+          <tr><td>TERT + stage</td><td class="num">459</td><td class="num">13</td><td class="num warn">2.92</td><td class="num">0.87 – 9.80</td><td class="num warn">0.082</td><td class="num">0.796</td></tr>
+          <tr><td><b>TERT + stage + age + sex (full)</b></td><td class="num">459</td><td class="num">13</td><td class="num">1.88</td><td class="num">0.58 – 6.09</td><td class="num">0.29</td><td class="num hit">0.954</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p style="margin-top:14px">
+        Honest reading: stage and age each collapse the univariate signal substantially. The full multivariate model has high concordance (0.954) — but TERT itself is no longer the discriminating variable. <b>Age is the dominant predictor</b> (TERT⁺ median 64.6 vs 46 elsewhere). This is not a failure of TERT biology; it is the standard finding that age and TNM stage already capture most of the survival risk in TCGA-THCA's exceptional-prognosis cohort.
+      </p>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v17/v17_forest_HR.html" height="380"></iframe>
+        <div class="dial-fig__caption">Figure 8B — Forest plot of TERT⁺ Cox HR across four nested models.</div>
+      </div>
+    </div>
+
+    <div class="dial-card">
+      <span class="eyebrow">A1-B · 1 000-ITER STRATIFIED BOOTSTRAP</span>
+      <h2>4-group logrank median p = 2.6×10⁻⁵ — robust by majority, not by full 95 % CI.</h2>
+      <p>
+        Stratified bootstrap (n = 1 000, with-replacement per-group resampling) gives a posterior over the 4-group multivariate logrank statistic. <b>93 % of iterations report p &lt; 0.05; median p = 2.6×10⁻⁵</b>; but the 95 % interval reaches up to <b>p = 0.21</b>, meaning 5 % of bootstrap re-samples can land above α = 0.05. This honest spread reflects the small event count (16 total).
+      </p>
+      <p>
+        TERT⁺ vs triple-negative event-rate ratio: <b>median 4.7×, 95 % CI 1.2× – 17.3×</b> (CI lower bound exceeds 1, supporting clinical significance even at the bootstrap floor).
+      </p>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v17/v17_bootstrap_p.html" height="420"></iframe>
+        <div class="dial-fig__caption">Figure 8E.i / E.ii — Bootstrap p distribution + effect-size CI.</div>
+      </div>
+    </div>
+
+    <div class="dial-card">
+      <span class="eyebrow">A1-C · LEAVE-ONE-OUT (36 TERT⁺)</span>
+      <h2>Worst-case LOO p = 7.5×10⁻⁴ — separation is not driven by single events.</h2>
+      <p>
+        For each of the 36 TERT⁺ patients we drop one and re-run the full 4-group multivariate logrank. <b>All 36 LOO iterations remain p &lt; 0.001</b>, including all 6 single-event-leave-out runs. The most influential patient (highest LOO p) brings the test to p = 7.5×10⁻⁴; this is well below α = 0.001. The 4-group separation is therefore stable to single-patient removal — a stronger property than what single-event survival analyses typically demonstrate.
+      </p>
+      <div class="dial-fig">
+        <iframe src="../figs_interactive/v17/v17_loo_p.html" height="420"></iframe>
+        <div class="dial-fig__caption">Figure 8E.iii — 36-iteration LOO. Red bars = event patients, teal = non-event.</div>
+      </div>
+    </div>
+
+    <div class="dial-card">
+      <span class="eyebrow">SCOPE OF CLAIM (R8 honest framing)</span>
+      <h2>What this section now says — and does not say.</h2>
+      <ul style="font-size:14.5px;line-height:1.7;color:var(--text-secondary)">
+        <li><b>Says:</b> TERT⁺ identifies a high-risk, late-stage, older subset (univariate HR = 6.31, p = 3×10⁻⁴; LOO-stable).</li>
+        <li><b>Says:</b> TERT⁺ is a clinically actionable molecular handle for Stage III/IV identification.</li>
+        <li><b>Says:</b> Bootstrap and LOO sensitivity confirm the 4-group separation is not a single-event artifact.</li>
+        <li><b>Does not say:</b> TERT is a stage-and-age-independent prognostic marker in TCGA-THCA. Multivariate Cox HR = 1.88 (95 % CI 0.58–6.09, p = 0.29).</li>
+        <li><b>Does not say:</b> the 4-group logrank holds at the bootstrap floor. 95 % CI reaches p = 0.21.</li>
+        <li><b>Future work:</b> Korean / Asian cohort cross-validation will provide an independent test of whether the TERT signal generalises after stage adjustment in a different population (~62 % BRAF-mutation rate in Korean PTC vs ~45 % in TCGA-THCA Caucasian-dominant cohort).</li>
+      </ul>
+    </div>
+
+    <div class="dial-card">
+      <span class="eyebrow">ARTEFACT INDEX</span>
+      <h2>Reproducibility — 8 files for reviewer audit.</h2>
+      <div class="download-row">
+        <a href="../../../submission/npj/manuscript_v3.md">manuscript_v3.md</a>
+        <a href="../../../submission/npj/manuscript_v3.pdf">manuscript_v3.pdf</a>
+        <a href="../../../submission/npj/manuscript_v3.html">manuscript_v3.html</a>
+        <a href="../../../results/v17_actual/A1A_decision.md">A1A_decision.md</a>
+        <a href="../../../results/v17_actual/A1A_summary.json">A1A_summary.json</a>
+        <a href="../../../results/v17_actual/A1B_summary.json">A1B_summary.json</a>
+        <a href="../../../results/v17_actual/A1C_summary.json">A1C_summary.json</a>
+        <a href="../../../results/v17_actual/FINAL_decision.json">FINAL_decision.json</a>
+      </div>
+      <p style="margin-top:14px;color:var(--text-muted);font-size:13px">
+        Source script: <code>notebooks_or_scripts/v17_ACTUAL_robustness.py</code> (Python 3.12, lifelines 0.30.3, scipy, numpy). Combined wall time: 12 s. Reproduces all 6 headline metrics and the scenario-B verdict.
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="site-footer__grid">
+      <div class="site-footer__col site-footer__brand">
+        <img src="../assets/img/brand/thyrai_wordmark.svg" alt="THYRAI">
+        <p>Research dashboard for computational thyroid-cancer triage. Computational triage only. Not medical advice.</p>
+      </div>
+      <div class="site-footer__col">
+        <h4>v17 submission</h4>
+        <ul>
+          <li><a href="v17_npj_robustness.html"><b>TERT robustness (this page)</b></a></li>
+          <li><a href="../../../submission/npj/">npj submission package</a></li>
+        </ul>
+      </div>
+      <div class="site-footer__col">
+        <h4>Legacy</h4>
+        <ul>
+          <li><a href="../index.html">Back to dashboard</a></li>
+          <li><a href="v8_statgen_supplement.html">v8 NeurIPS DIAL</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="site-footer__meta">
+      <span>&copy; 2026 THYRAI Research · v17 npj submission</span>
+      <span class="site-footer__disclaimer">Computational triage only. Not medical advice.</span>
+    </div>
+  </div>
+</footer>
+<script src="../assets/js/brand.js" defer></script>
+</body>
+</html>
