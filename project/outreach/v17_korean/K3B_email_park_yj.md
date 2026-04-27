@@ -26,7 +26,7 @@ Subject: Korean parallel work 협력 제안 — TCGA-THCA 8-gene RAI decision pa
 | 8-gene RAI panel (NIS, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1) | TCGA leak-free CV AUC = **0.962** (95% CI 0.940–0.979) |
 | vs BRAF V600E baseline | AUC 0.849 → **ΔAUC = +0.113** (sustained across 4 leak-free cluster definitions) |
 | GSE76039 외부 validation (ATC vs PDTC, histology ground truth) | AUC = **0.935** (95% CI 0.824–1.000) |
-| **PRJEB11591 Korean validation (Yoo 2016)** | **AUC = [측정값 PENDING]** (분석 진행 중) |
+| **PRJEB11591 Korean validation (Yoo 2016)** | n = 9 pilot subset 처리 완료 → 9/9 DM2 (mean p_DM2 = **0.898**, range 0.619–0.998). ground-truth-labeled AUC 는 전체 262-run 처리 + Yoo SK metadata sharing 후 revision round 측정 예정 |
 | Hot/Cold immune composite | Cohen's d = **+1.683**, p = 4.0×10⁻¹⁸ (Han 2023 CAF/immune findings 와 alignment) |
 | TERT 4-group survival (Liu-Xing framework) | multivariate logrank p = 3.78×10⁻⁵ |
 | Cross-platform transfer success | 97% performance retention (4 transfer barriers) |
@@ -96,7 +96,7 @@ P.S. **Han SC 박사님** 또는 **송영신 박사님** 께도 cc 또는 introd
 
 - [ ] 박영주 교수님 정확한 이메일 확인 (서울대 갑상선 외과 또는 학회 directory)
 - [ ] [본인 휴대전화 번호] fill
-- [ ] PRJEB11591 분석 결과 (K2-A 의 AUC) 측정값 fill
+- [x] PRJEB11591 n=9 pilot 측정값 반영 (mean p_DM2 = 0.898, 9/9 DM2). 전체 262-run + ground-truth AUC 는 revision round.
 - [ ] manuscript_v6.pdf + 한국어 review packet 첨부 준비
 - [ ] 유형원 교수님께 cc 또는 한 줄 endorsement 받기
 - [ ] 발송

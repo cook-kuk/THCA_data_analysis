@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v17 npj — 순서대로 따라가기</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Pretendard','Inter','Noto Sans KR',-apple-system,sans-serif;
+     margin:0;background:#f7f5f0;color:#222;line-height:1.85;font-size:16px}
+.wrap{max-width:780px;margin:0 auto;padding:36px 24px 80px}
+header{padding:8px 0 24px;border-bottom:2px solid #222;margin-bottom:18px}
+h1{font-size:30px;font-weight:600;margin:0 0 6px;letter-spacing:-0.01em}
+.lede{color:#666;font-size:15px;margin:0}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 24px}
+.toolbar a{background:#fff;border:1px solid #ddd;padding:6px 12px;border-radius:5px;
+            text-decoration:none;color:#1F77B4;font-size:13px;font-family:'JetBrains Mono',monospace}
+.toolbar a.glossary{background:#FF7F0E;color:#fff;border-color:#FF7F0E;font-weight:600}
+.toolbar a:hover{background:#1F77B4;color:#fff;border-color:#1F77B4}
+.toolbar a.glossary:hover{background:#a04e00;border-color:#a04e00}
+
+/* Inline term explanation */
+.term{border-bottom:1px dotted #1F77B4;cursor:help;color:#1F77B4}
+.def{color:#888;font-size:13px;font-style:italic}
+
+/* Narrative chapter blocks */
+.chapter{margin:32px 0;border-left:3px solid transparent;padding-left:18px;position:relative}
+.chapter .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:0.18em;
+                 text-transform:uppercase;color:#999;display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.chapter .label .glyph{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;
+                        justify-content:center;color:#fff;font-weight:600;font-size:12px;
+                        font-family:'JetBrains Mono',monospace}
+.chapter h2{font-size:21px;margin:0 0 12px;font-weight:600;letter-spacing:-0.005em}
+.chapter p{margin:0 0 14px;color:#333}
+.chapter .quote{background:#fff;border:1px solid #ddd;border-radius:6px;padding:14px 18px;margin:12px 0;
+                 font-size:15px;color:#444;font-style:italic;border-left:3px solid #ccc}
+
+.chapter.gi{border-left-color:#7AB8C7}
+.chapter.gi .label{color:#3a7e8e}
+.chapter.gi .glyph{background:#7AB8C7}
+
+.chapter.seung{border-left-color:#1F77B4}
+.chapter.seung .label{color:#1F77B4}
+.chapter.seung .glyph{background:#1F77B4}
+
+.chapter.jeon{border-left-color:#D62728}
+.chapter.jeon .label{color:#9c1d1e}
+.chapter.jeon .glyph{background:#D62728}
+
+.chapter.gyul{border-left-color:#FF7F0E}
+.chapter.gyul .label{color:#a04e00}
+.chapter.gyul .glyph{background:#FF7F0E}
+
+.steps{background:#fff;border:1px solid #ddd;border-radius:8px;padding:18px 22px;margin:16px 0}
+.steps ol{margin:0;padding-left:22px;line-height:1.85}
+.steps ol li{padding:4px 0}
+.steps a{color:#1F77B4;text-decoration:none;font-weight:500}
+.steps a:hover{text-decoration:underline}
+.steps a.primary{background:#1F77B4;color:#fff;padding:3px 9px;border-radius:4px;font-size:13px;
+                  margin-right:4px;font-family:'JetBrains Mono',monospace;font-weight:500}
+.steps a.primary:hover{background:#155179;text-decoration:none}
+.steps .meta{color:#888;font-size:13px;font-family:'JetBrains Mono',monospace}
+
+.tldr{background:linear-gradient(135deg,rgba(31,119,180,0.08) 0%,rgba(245,166,35,0.05) 100%);
+       border:1px solid #ddd;border-radius:8px;padding:18px 22px;margin:18px 0;font-size:15px}
+.tldr strong{color:#1F77B4}
+.tldr .pill{display:inline-block;padding:2px 9px;background:#fff;border:1px solid #ddd;border-radius:12px;
+             font-family:'JetBrains Mono',monospace;font-size:12px;margin-right:5px;color:#444}
+
+.divider{margin:36px 0 18px;text-align:center;color:#bbb;letter-spacing:0.4em;font-size:11px}
+
+footer{margin-top:48px;padding-top:18px;border-top:1px solid #ddd;color:#888;font-size:12px}
+
+@media (min-width:1100px){
+  .glossary-banner{position:fixed;top:120px;right:24px;width:240px;background:#fff;border:1px solid #FF7F0E;
+                    border-radius:8px;padding:14px 16px;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
+  .glossary-banner h3{margin:0 0 6px;font-size:13px;color:#FF7F0E;font-family:'JetBrains Mono',monospace;
+                       text-transform:uppercase;letter-spacing:0.1em}
+  .glossary-banner p{margin:0 0 8px;font-size:12.5px;color:#555;line-height:1.5}
+  .glossary-banner a{color:#FF7F0E;font-weight:600;text-decoration:none;font-size:12.5px}
+  .glossary-banner a:hover{text-decoration:underline}
+}
+@media (max-width:1099px){.glossary-banner{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>v17 npj — 순서대로 따라가기</h1>
+  <p class="lede">manuscript_v6_ULTIMATE 기준 · 2026-04-27 · 기승전결 7-step + 모든 약어 인라인 설명</p>
+</header>
+
+<div class="toolbar">
+  <a class="glossary" href="glossary.html">📖 용어집</a>
+  <a class="glossary" href="data_models_performance.html" style="background:#10b981;border-color:#10b981">📊 데이터×모달리티×모델×성능</a>
+  <a class="glossary" href="analyses_done.html" style="background:#5b21b6;border-color:#5b21b6">🔬 13개 분석 layer 종합</a>
+  <a href="manuscript_v6_ULTIMATE.pdf">manuscript pdf</a>
+  <a href="interactive_report.html">interactive report</a>
+  <a href="yu_dashboard_KR.html">유 교수님 dashboard</a>
+</div>
+
+<div class="glossary-banner">
+  <h3>📖 용어집</h3>
+  <p>약어 / 통계 / 도구 / 유전자 모든 어려운 용어를 한 페이지에 한글 설명. <kbd>Ctrl+F</kbd>로 검색.</p>
+  <a href="glossary.html">glossary.html →</a>
+</div>
+
+<div class="tldr">
+  <strong>한 줄 요약</strong> — <span class="term">BRAF V600E (PTC에서 가장 흔한 driver mutation, 600번 아미노산 V→E 치환, 약 60% 환자가 갖고 있음)</span>만 보고 <span class="term">RAI (Radioactive Iodine, 방사성요오드 치료. 갑상선 수술 후 잔여 종양 제거)</span>를 결정하는 현재 표준에 도전했고, 8-gene panel이 실제로 더 잘 한다는 것을 정직하게 검증했고, <span class="term">TERT (Telomerase Reverse Transcriptase. promoter mutation은 텔로머라제 활성화 → 무한 분열)</span>는 <span class="term">stage-confounded (병기에 의한 교란)</span>임을 드러내고 reframe 했고, 지금 <span class="term">npj (Nature Partner Journals)</span> Precision Oncology submit 직전이다.
+  <div style="margin-top:8px">
+    <span class="pill">ΔAUC = +0.132</span>
+    <span class="pill">Cohen's d = +1.683</span>
+    <span class="pill">multivariate p = 3.78×10⁻⁵</span>
+    <span class="pill">HR 6.31 → 1.88</span>
+    <span class="pill">2일 sprint</span>
+  </div>
+  <p style="margin:10px 0 0;font-size:13px;color:#666"><em>위 4개 통계 수치 의미: ΔAUC = 두 분류기 AUC 차이 (높을수록 본 논문 panel이 BRAF baseline보다 잘 함). Cohen's d = 효과 크기 (0.8 이상이면 large; +1.68은 very large). multivariate p = 4-군 stage/age/sex 보정 후 logrank p-value. HR = Hazard Ratio (위험비), univariate vs multivariate 차이가 honest reframe의 핵심.</em></p>
+</div>
+
+<!-- 기 -->
+<div class="chapter gi">
+  <div class="label"><span class="glyph">起</span> 기 · 시작 — 문제 정의</div>
+  <h2>RAI 결정에 BRAF V600E 하나로는 부족했다</h2>
+  <p>
+    <span class="term">PTC (Papillary Thyroid Carcinoma, 갑상선 유두암 — 가장 흔한 갑상선암, 전체의 80%+)</span>에서 RAI 치료 결정은 지금도 BRAF V600E 변이 한 개에 의존한다. 그런데 두 가지 사실이 알려져 있다 — <span class="term">BRS (BRAF-RAS Score, 52-gene 발현 분류기. Chakravarty 2011 + TCGA 2014)</span> 분류기는 ~10%를 잘못 분류하고 (<span class="term">Landa 2016 (MSKCC PDTC/ATC cohort)</span>의 BRAF/RAS-like-by-expression subset이 대표 사례), 전체 코호트의 ~30%는 BRAF/RAS 변이 자체가 없다 (<span class="term">driver-negative residual</span>).
+  </p>
+  <p>
+    그리고 지금 진행 중인 두 thyroid <span class="term">TROP2-ADC (TROP2 단백질을 표적하는 항체-약물 접합체. 갑상선암 ADC trial)</span> trial — <span class="term">SETHY (NCT06235216, 2024-09 등록 시작)</span>, <span class="term">STRAP (NCT07521670, 2026-05 예정)</span> — 둘 다 molecular sub-stratification 없이 등록받고 있다. STRAP은 <span class="term">TROP2 IHC (Immunohistochemistry, 면역조직화학 — 항체로 단백질 발현 시각화)</span>조차 안 본다.
+  </p>
+  <p class="quote">
+    질문 하나로 정리하면: <strong>BRAF V600E보다 더 잘 하는 quantitative pre-RAI biomarker가 있는가?</strong>
+  </p>
+</div>
+
+<!-- 승 -->
+<div class="chapter seung">
+  <div class="label"><span class="glyph">承</span> 승 · 발전 — DM1/DM2 axis + 8-gene panel</div>
+  <h2>513명 TCGA-THCA를 다시 분석해서 axis를 찾고 8-gene panel을 만들었다</h2>
+  <p>
+    <span class="term">TCGA (The Cancer Genome Atlas — NIH 미국 국립암센터의 대규모 암 유전체 지도. 33개 암종 ~11,000명)</span>의 갑상선암 코호트 (<span class="term">TCGA-THCA, 513 primary tumour</span>)에 대해 driver-negative residual (BRAF/RAS 변이 없는 환자군)에서 <span class="term">unsupervised clustering (정답 라벨 없이 그룹 자동 발견)</span>을 돌렸다.
+  </p>
+  <p>
+    구체적으로 <span class="term">Leiden algorithm (community detection 알고리즘. K=2 forced + resolution 0.5)</span>로 clustering → 두 transcriptomic state가 <span class="term">bootstrap-stable (1,000번 sub-sample resample 시 cluster 일관성 유지)</span>하게 (concordance &gt; 0.92) 나왔다. 이걸 <strong>DM1/DM2 axis</strong>라 부른다 (DM = "Dark Matter" — driver-negative residual에서 처음 발견됐다는 의미의 작업 명칭).
+  </p>
+  <p>
+    BRAF/RAS 변이와는 <span class="term">Spearman ρ (rank 상관계수, -1 ~ +1) = 0.49</span> — 겹치지만 동일하지 않은 sub-axis. 17명 outlier (2명은 BRAF mutation인데 DM2-like, 15명은 RAS mutation인데 DM1-like)가 이 axis가 mutation status의 재진술이 아님을 증명한다.
+  </p>
+  <p>
+    이 axis 위에 canonical thyroid-differentiation 8-gene (<span class="term">NIS / SLC5A5 (sodium-iodide symporter, 요오드 흡수 단백질)</span>, <span class="term">TPO (thyroperoxidase, 요오드 organification 효소)</span>, <span class="term">TG (thyroglobulin, 요오드 저장 단백질)</span>, <span class="term">TSHR (TSH receptor, 갑상선자극호르몬 수용체)</span>, <span class="term">PAX8 / NKX2-1 / FOXE1 (갑상선 lineage transcription factor)</span>, <span class="term">DIO1 (deiodinase 1, T4→T3 변환 효소)</span>) 으로 <span class="term">LogReg (Logistic Regression, 로지스틱 회귀 — 분류용 ML 모델)</span> 학습 → 5-fold <span class="term">CV (Cross-Validation, 교차 검증 — data를 5등분, 4개로 학습 / 1개로 검증, 5번 반복)</span> <span class="term">AUC (Area Under ROC Curve, 분류기 성능 0.5~1.0)</span> = <strong>0.954</strong>.
+  </p>
+  <p>
+    BRAF V600E 단일 feature baseline AUC 0.822 대비 <strong>ΔAUC = +0.132</strong>. 외부 검증 (Landa 2016 PDTC + ATC, n=37, <span class="term">GSE76039 (Gene Expression Omnibus 데이터셋 ID)</span>)에서 <span class="term">direction-correct AUC (PDTC-vs-ATC raw labelling은 AUC 0.026이지만 방향 해석으로 0.974)</span> = 0.974.
+  </p>
+  <p>
+    DM1과 DM2의 hot/cold immune separation은 <span class="term">Cohen's d (효과 크기 = 평균차/표준편차. 0.8 이상이면 large)</span> = <strong>+1.683</strong> (<span class="term">Mann-Whitney p (두 그룹 비모수 비교 p-value)</span> = 4.0×10⁻¹⁸)로 거대하다 (very large 효과 크기) — <span class="term">checkpoint immunotherapy (면역관문 차단제, PD-1/PD-L1/CTLA-4 inhibitor)</span> stratification 후보까지 자연스럽게 따라온다.
+  </p>
+  <div class="steps">
+    <p style="margin:0 0 8px"><strong>읽고 확인</strong> — <span class="meta">총 60분</span></p>
+    <ol>
+      <li>
+        <a class="primary" href="manuscript_v6_ULTIMATE.pdf">manuscript_v6_ULTIMATE.pdf</a>
+        <span class="meta">45분 · 본문 마지막 read-through</span>
+      </li>
+      <li>
+        <a class="primary" href="interactive_report.html">interactive_report.html</a>
+        <span class="meta">15분 · 그림 다 인라인, 수치 시각 점검</span>
+      </li>
+    </ol>
+  </div>
+</div>
+
+<!-- 전 -->
+<div class="chapter jeon">
+  <div class="label"><span class="glyph">轉</span> 전 · 반전 — TERT는 stage-confounded</div>
+  <h2>TERT 4-group 결과를 honest reframe 했다</h2>
+  <p>
+    <span class="term">cBioPortal (MSK가 운영하는 cancer genomics 포털)</span>의 <span class="term">thca_tcga_pub (TCGA-THCA Cell 2014 publication MAF의 mirror)</span> mirror에서 36명 TERT-promoter mutated 환자를 회수했다. <span class="term">Liu-Xing 4-genotype framework (BRAF only / RAS only / TERT⁺ / Triple-negative — Xing 2014, Liu 2017 JAMA Oncol)</span> 4-group <span class="term">multivariate logrank (다변량 보정 logrank test)</span> p = <strong>3.78×10⁻⁵</strong>. <em>여기서 멈췄으면 깔끔한 결과였다.</em>
+  </p>
+  <p>
+    그런데 정직하게 audit 했더니 — TERT⁺ 환자는 median age 64.6 (vs 46.1) + Stage III/IV 61% (vs 21–32%). Stage + age + sex로 <span class="term">multivariate Cox (다변량 Cox 회귀 — 여러 covariate 동시 보정)</span> 보정을 하면 <span class="term">univariate (단변량) HR (Hazard Ratio, 위험비. 1보다 크면 ref 대비 위험 ↑)</span> 6.31 (95% <span class="term">CI (Confidence Interval, 신뢰구간)</span> 2.34–17.04, p = 3×10⁻⁴)가 <strong><span class="term">multivariate (보정 후 다변량)</span> HR = 1.88</strong> (95% CI 0.58–6.09, p = 0.29)로 떨어진다.
+  </p>
+  <p>
+    <strong>HR 95% CI가 1을 포함</strong> → 통계적으로 유의 X. TERT는 우리 코호트에서 stage-and-age-independent prognostic이 아니다. <span class="def">(쉽게 말해: TERT 환자가 사망률 높은 게 사실 진짜 TERT 때문이 아니라 그 환자들이 원래 stage III/IV / 노령이라 그렇다.)</span>
+  </p>
+  <p class="quote">
+    그래서 <span class="term">R8 (Result 8 — 논문 본문 8번째 결과 단원)</span>을 reframe했다 — TERT⁺를 "독립 aggressive prognostic"이 아니라 "Stage III/IV identification을 위한 molecular handle (분자 식별 표지)"로. 1,000-iter <span class="term">bootstrap (resampling 기반 robustness 검정)</span> (median p = 2.6×10⁻⁵, 93% iter p &lt; 0.05) + 36-patient <span class="term">leave-one-out (LOO, 한 명씩 빼고 다시 계산)</span> (worst-case p = 7.5×10⁻⁴, 모두 p &lt; 10⁻³)로 4-group separation 자체가 single-event-driven은 아님을 확인. Reviewer가 던질 가장 명백한 공격을 미리 답한 셈이다.
+  </p>
+  <p>
+    추가로 v6 ULTIMATE에서 cluster orientation 자체도 정정했다 — v5 preprint의 표기 (DM1=MAPK-active, DM2=canonical-differentiation)는 4개 독립 증거 (<span class="term">WHO 2022 (2022년 WHO 갑상선암 분류 update)</span> 매핑, Pu 2021 direction concordance, methylation cross-modality, GSE213647)에 의해 반대로 확인됐다. <strong>DM1 = 분화, DM2 = 탈분화</strong>가 진짜.
+  </p>
+</div>
+
+<!-- 결 -->
+<div class="chapter gyul">
+  <div class="label"><span class="glyph">結</span> 결 · 결말 — submit + outreach + 다음</div>
+  <h2>유 교수님 confirm 받고 submit click + 외부 협력 5개 sound out</h2>
+  <p>
+    최종 단계는 (1) 유 교수님께 5개 결정 confirm 받기, (2) manuscript final read-through, (3) <span class="term">npj Editorial Manager (npj 출판사가 사용하는 submission 포털 — editorialmanager.com/npjpo)</span>에서 click, (4) 동시에 외부 outreach 5개 발송 — Mingzhao Xing (Liu-Xing 4-genotype framework foundational), Iñigo Landa (PDTC/ATC cohort metadata), 분당서울대 (한국 cohort revision round 검증), Park YJ (서울대 parallel work), Yoo SK. <span class="term">revision round (심사 후 수정본 재제출 단계)</span>에 한국 cohort 추가가 가장 강한 카드다.
+  </p>
+
+  <div class="steps">
+    <p style="margin:0 0 8px"><strong>본인 액션 — 7-step</strong> <span class="meta">총 ~2시간 30분</span></p>
+    <ol>
+      <li>
+        <a class="primary" href="yu_decision_5_items.md">1. yu_decision_5_items.md</a>
+        <span class="meta">15분 · 5개 결정 항목 confirm 받기 (cluster orientation, de-circularization, GSE213647 framing, Park YJ timing, submit venue)</span>
+      </li>
+      <li>
+        <a class="primary" href="manuscript_v6_ULTIMATE.pdf">2. manuscript_v6_ULTIMATE.pdf</a>
+        <span class="meta">45분 · 마지막 read-through</span>
+      </li>
+      <li>
+        <a class="primary" href="interactive_report.html">3. interactive_report.html</a>
+        <span class="meta">15분 · 그림 시각 점검 (8 main + 15 supp + robustness + multi-cohort)</span>
+      </li>
+      <li>
+        <a class="primary" href="outreach/yu_review_packet_KR.docx">4. yu_review_packet_KR.docx</a>
+        <a href="outreach/yu_brief_KR_FINAL.md">brief</a>
+        <span class="meta">10분 · 유 교수님 카톡/메일 송부</span>
+      </li>
+      <li>
+        외부 메일 5개 placeholder 채우고 발송 —
+        <a class="primary" href="outreach/K3B_email_park_yj.md">Park YJ</a>
+        <a class="primary" href="outreach/K3C_email_bundang_v3.md">Bundang v3</a>
+        <a class="primary" href="outreach/K3D_email_yoo_sk.md">Yoo SK</a>
+        <a class="primary" href="outreach/email_xing_DRAFT.md">Xing</a>
+        <a class="primary" href="outreach/email_landa_DRAFT.md">Landa</a>
+        <span class="meta">30분</span>
+      </li>
+      <li>
+        <a class="primary" href="SUBMIT_INSTRUCTIONS.md">6. npj Editorial Manager submit</a>
+        <a href="reviewer_bundle.zip">bundle.zip</a>
+        <span class="meta">30분 · 포털에서 직접 click</span>
+      </li>
+      <li>
+        제출 후 확인 메일 + submission ID forward + 외부 outreach 미발송분 발송
+        <span class="meta">5분</span>
+      </li>
+    </ol>
+  </div>
+
+  <p class="quote">
+    revision round 카드: 한국 cohort (Bundang / Park YJ / wet-lab) → 분당서울대 응답이 1–2개월 안에 오면 revision round에 "Korean cohort cross-validation" 추가. 6개월 이상 걸리면 Scenario B (revision commitment)로 진행. submit 자체는 기다리지 않는다 — momentum이 답.
+  </p>
+</div>
+
+<div class="divider">— · · — · · — · · —</div>
+
+<div class="tldr">
+  <strong>참고용 (안 봐도 됨)</strong>
+  <div style="margin-top:8px;font-size:13px;color:#555">
+    <a href="glossary.html" style="color:#FF7F0E;margin-right:12px;font-weight:600">📖 용어집 (모든 약어 한글 설명)</a>
+    <a href="data_models_performance.html" style="color:#10b981;margin-right:12px;font-weight:600">📊 데이터 × 모달리티 × 모델 × 성능</a>
+    <a href="analyses_done.html" style="color:#5b21b6;margin-right:12px;font-weight:600">🔬 13개 분석 layer 종합</a>
+    <br>
+    <a href="index.html" style="color:#1F77B4;margin-right:12px">전체 자산 인덱스</a>
+    <a href="yu_dashboard_KR.html" style="color:#1F77B4;margin-right:12px">유 교수님 dashboard</a>
+    <a href="rai_calculator.html" style="color:#1F77B4;margin-right:12px">RAI calculator</a>
+    <a href="notebooks/index.html" style="color:#1F77B4;margin-right:12px">노트북 16개</a>
+    <a href="figures/master_panel.html" style="color:#1F77B4;margin-right:12px">figure 인덱스</a>
+    <a href="v17p35_REVIEWER_DEFENSE.md" style="color:#1F77B4;margin-right:12px">REVIEWER_DEFENSE</a>
+    <a href="comments.html" style="color:#1F77B4">comments</a>
+  </div>
+</div>
+
+<footer>
+  v17 npj 종합 · Seungho Cook (Independent Researcher) + Yu Hyeong Won (Department of Surgery, SNU Bundang Hospital, Seongnam) · manuscript_v6_ULTIMATE 기준 · 모든 어려운 용어는 <a href="glossary.html">📖 glossary.html</a>에 한글 설명 정리됨
+</footer>
+
+</div>
+</body>
+</html>

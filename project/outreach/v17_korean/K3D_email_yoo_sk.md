@@ -16,7 +16,7 @@ Dear Dr. Yoo SK,
 ## 본인 paper 진행 상황
 
 - TCGA-THCA n=513 + GSE76039 PDTC+ATC + **PRJEB11591 (Yoo 2016) Korean primary cohort** 통합 분석 완료
-- 8-gene RAI panel (NIS, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1) leak-free re-validation: TCGA AUC **0.962**, GSE76039 AUC **0.935**, PRJEB11591 Korean AUC **[K2-A measurement PENDING]**
+- 8-gene RAI panel (NIS, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1) leak-free re-validation: TCGA AUC **0.962**, GSE76039 AUC **0.935**, PRJEB11591 Korean **n=9 pilot 처리 완료** (kallisto single-end, 8-gene mini-index, scale-invariant within-sample-centered LogReg) → 9/9 DM2 (preserved-differentiation), mean p_DM2 = **0.898** (range 0.619–0.998). 전체 262-run cohort + ground-truth-labeled AUC 는 박사님 metadata sharing 후 revision round 에 측정 예정입니다.
 - vs BRAF V600E ΔAUC = **+0.113** (sustained across 4 leak-free cluster definitions)
 - DM1/DM2 axis 가 Han SC et al. ENM 2023 의 BL/RL framework 와 일치
 - Hot/Cold immune integration (Cohen's d = +1.683)
@@ -92,7 +92,7 @@ Department of Surgery, Seoul National University Bundang Hospital, Seongnam, Rep
 ## 본인 액션 (메일 보내기 전)
 
 - [ ] Yoo SK 박사님 contact 확인 (PubMed paper 의 corresponding email, LinkedIn, Google Scholar, 또는 박영주 교수님 경유)
-- [ ] PRJEB11591 분석 결과 (K2-A AUC) 측정값 fill
+- [x] PRJEB11591 n=9 pilot 측정값 반영 (mean p_DM2 = 0.898, 9/9 DM2). 전체 262-run + ground-truth AUC 는 metadata sharing 후 revision round.
 - [ ] manuscript_v6.pdf + 한국어 dashboard link 첨부 준비
 - [ ] 유형원 교수님 cc 또는 endorsement 받기
 - [ ] 발송 (영문 + 한국어 mixed 가 자연스러움 — Korean researcher 이지만 international convention)

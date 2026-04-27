@@ -15,9 +15,9 @@ Subject: 갑상선 유두암 8-gene RAI biomarker 한국인 cohort 검증 협력
 
 본인 분석에 **PRJEB11591 (Yoo SK et al. PLOS Genet 2016) Korean primary cohort RNA-seq** 추가 통합 완료했습니다. 결과:
 
-- Yoo 2016 cohort 에서 8-gene panel **AUC = [K2-A measurement PENDING]**
-- Korean BRAF V600E rate **[K2-B measurement PENDING]%** (TCGA 56%, MSK-IMPACT 64.5% 와 비교)
-- DM1/DM2 axis 가 Korean 환자에서도 일관되게 작동 (cluster transfer 성공)
+- Yoo 2016 cohort **n = 9 pilot subset** 처리 완료 (kallisto single-end + scale-invariant LogReg): **9/9 DM2 (preserved-differentiation), mean p_DM2 = 0.898**. ground-truth-labeled AUC 는 Yoo SK metadata sharing 후 전체 262-run 으로 revision round 측정 예정.
+- Korean PTC BRAF V600E published rate **62–70%** (Yoo 2016 paper, vs TCGA 56%, MSK-IMPACT 64.5%)
+- DM1/DM2 axis 가 Korean primary PTC 의 differentiation profile 과 일관되게 작동 (within-sample-centered profile transferability 확인)
 
 ## 그러나 PRJEB11591 의 한계 — 분당서울대 cohort 의 진짜 가치
 

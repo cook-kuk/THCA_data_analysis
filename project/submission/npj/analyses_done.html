@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v17 어떤 분석을 했나 — 13개 분석 layer 종합</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Pretendard','Inter','Noto Sans KR',-apple-system,sans-serif;
+     margin:0;background:#f7f5f0;color:#222;line-height:1.7;font-size:15px}
+.wrap{max-width:1100px;margin:0 auto;padding:32px 24px 80px}
+header{padding:8px 0 24px;border-bottom:2px solid #222;margin-bottom:24px}
+h1{font-size:26px;font-weight:600;margin:0 0 6px;letter-spacing:-0.01em}
+.lede{color:#666;font-size:14px;margin:0 0 8px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.toolbar a{background:#fff;border:1px solid #ddd;padding:5px 11px;border-radius:5px;
+            text-decoration:none;color:#1F77B4;font-size:12.5px;font-family:'JetBrains Mono',monospace}
+.toolbar a.glossary{background:#FF7F0E;color:#fff;border-color:#FF7F0E;font-weight:600}
+.toolbar a:hover{background:#1F77B4;color:#fff;border-color:#1F77B4}
+
+.callout{background:#fff8e5;border:1px solid #f5d97a;border-radius:6px;padding:14px 18px;margin:18px 0;font-size:14px}
+
+.toc{background:#fff;border:1px solid #ddd;border-radius:8px;padding:14px 22px;margin:18px 0;font-size:13.5px}
+.toc strong{display:block;margin-bottom:6px;color:#1F77B4;font-size:13px;text-transform:uppercase;letter-spacing:0.08em}
+.toc .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:6px 14px}
+.toc a{color:#1F77B4;text-decoration:none;display:block;padding:3px 0}
+.toc a:hover{color:#FF7F0E;text-decoration:underline}
+
+.layer{background:#fff;border:1px solid #ddd;border-radius:8px;padding:22px 26px;margin:18px 0;
+        border-left:6px solid #1F77B4}
+.layer.discovery{border-left-color:#7AB8C7}
+.layer.validation{border-left-color:#1F77B4}
+.layer.biology{border-left-color:#10b981}
+.layer.clinical{border-left-color:#f59e0b}
+.layer.tert{border-left-color:#D62728}
+.layer.drug{border-left-color:#5b21b6}
+.layer.cross{border-left-color:#9c1d1e}
+.layer.dial{border-left-color:#0ea5e9}
+.layer.repro{border-left-color:#374151}
+.layer.pathway{border-left-color:#a855f7}
+.layer.stability{border-left-color:#0d9488}
+.layer.outliers{border-left-color:#ec4899}
+.layer.pancancer{border-left-color:#84cc16}
+
+.layer .head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.layer .head h2{margin:0;font-size:19px;font-weight:600}
+.layer .head .num{font-family:'JetBrains Mono',monospace;color:#888;font-size:13px;
+                    background:#f5f5f5;padding:2px 9px;border-radius:11px}
+.layer h3{font-size:13px;color:#888;margin:14px 0 4px;font-family:'JetBrains Mono',monospace;
+           text-transform:uppercase;letter-spacing:0.1em;font-weight:600}
+.layer p{margin:4px 0 8px;color:#333}
+.layer ul{margin:4px 0 8px;padding-left:22px}
+.layer ul li{padding:3px 0;color:#333}
+.layer code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-size:12.5px;color:#1F77B4;
+             font-family:'JetBrains Mono',monospace}
+.layer .term{border-bottom:1px dotted #1F77B4;cursor:help;color:#1F77B4}
+.layer .why{color:#888;font-size:13px;font-style:italic;border-left:3px solid #ddd;padding-left:10px;margin:6px 0}
+.layer .out{background:#f0f9ff;border:1px solid #bfdbfe;border-radius:6px;padding:10px 14px;margin:8px 0;
+             font-size:13.5px;font-family:'JetBrains Mono',monospace;color:#1e40af}
+.layer .out::before{content:'결과: ';color:#1F77B4;font-weight:600}
+
+footer{margin-top:48px;padding-top:18px;border-top:1px solid #ddd;color:#888;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>v17 어떤 분석을 했나 — 13개 분석 layer 종합</h1>
+  <p class="lede">manuscript_v6_ULTIMATE에 포함된 모든 분석을 layer별로 정리. 각 layer마다 (1) 무엇을, (2) 어떤 도구로, (3) 결과 / 수치.</p>
+  <div class="toolbar">
+    <a class="glossary" href="glossary.html">📖 용어집</a>
+    <a href="START_HERE.html">← START_HERE</a>
+    <a href="data_models_performance.html">데이터 × 모달리티 × 모델</a>
+    <a href="manuscript_v6_ULTIMATE.pdf">manuscript</a>
+    <a href="interactive_report.html">interactive report</a>
+  </div>
+</header>
+
+<div class="callout">
+  <strong>읽는 법</strong>: 13개 layer가 색깔로 구분돼 있습니다. <a href="data_models_performance.html">데이터 × 모달리티 페이지</a>가 "어디서 왔나"라면 이 페이지는 "그걸로 무엇을 했나". 점선 밑줄 친 용어는 <a href="glossary.html">용어집</a>에 한글 설명.
+</div>
+
+<div class="toc">
+  <strong>13개 분석 layer</strong>
+  <div class="grid">
+    <a href="#L1">L1. Discovery — clustering + 마커</a>
+    <a href="#L2">L2. Validation — CV + external transfer</a>
+    <a href="#L3">L3. Biology — DEG + GSEA + trajectory + immune</a>
+    <a href="#L4">L4. Clinical — Cox + alternative endpoints</a>
+    <a href="#L5">L5. TERT — 4-group + bootstrap + LOO + multivariate Cox</a>
+    <a href="#L6">L6. Drug — PRISM mechanism class</a>
+    <a href="#L7">L7. Cross-modality (v6 ULTIMATE) — orientation 정정</a>
+    <a href="#L8">L8. DIAL framework — leak audit</a>
+    <a href="#L9">L9. Reproducibility — seed + bootstrap + K-grid</a>
+    <a href="#L10">L10. Per-sample pathway scores</a>
+    <a href="#L11">L11. Signature stability — 5-method ARI</a>
+    <a href="#L12">L12. Outlier biology — 17 patients</a>
+    <a href="#L13">L13. Pan-cancer transfer</a>
+  </div>
+</div>
+
+<!-- L1 Discovery -->
+<div class="layer discovery" id="L1">
+  <div class="head">
+    <h2>L1. Discovery — clustering + 마커 식별</h2>
+    <div class="num">Phase A · Fig 1 · Fig 2</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>513 TCGA-THCA primary tumour의 RNA-seq 발현에 대해 unsupervised clustering</li>
+    <li>BRAF/RAS driver-negative residual에 한정해서 clustering (driver만으로 설명 안 되는 transcriptomic axis 찾기)</li>
+    <li>각 cluster를 정의하는 marker gene 식별</li>
+    <li>cluster boundary가 batch / sample subsetting에 robust한지 검증</li>
+  </ul>
+  <h3>어떻게 (도구 / 방법)</h3>
+  <ul>
+    <li><span class="term">scanpy 1.12.1 (Python single-cell 분석 라이브러리, bulk에도 적용 가능)</span></li>
+    <li><span class="term">Leiden algorithm (community detection 알고리즘)</span> K = 2 forced + resolution = 0.5</li>
+    <li>Marker DEG: per-cluster <span class="term">Wilcoxon rank-sum (비모수 양측 검정)</span> + BH FDR</li>
+    <li><span class="term">Bootstrap consensus (1,000-iter 재샘플링 후 cluster 일관성 측정)</span> — concordance matrix</li>
+    <li>PCA + UMAP visualization</li>
+  </ul>
+  <div class="out">
+    DM1 n=403 + DM2 n=110 · 41개 cluster-defining gene (FDR &lt; 1×10⁻³⁰) · bootstrap concordance &gt; 0.92
+  </div>
+  <p class="why">v6 ULTIMATE에서 cluster orientation 정정: <strong>DM1 = 분화 (well-differentiated, RAS-like, FVPTC), DM2 = 탈분화 (dedifferentiated, BRAF-like, cPTC/TCV/DHGTC)</strong>.</p>
+</div>
+
+<!-- L2 Validation -->
+<div class="layer validation" id="L2">
+  <div class="head">
+    <h2>L2. Validation — Cross-validation + External transfer</h2>
+    <div class="num">Phase B · Fig 6 · SuppFig 12 · Multi-cohort forest</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>8-gene panel을 TCGA-THCA에서 5-fold CV로 학습/검증</li>
+    <li>완전 다른 cohort (5개)에 transfer</li>
+    <li>PDTC/ATC trajectory 일관성 외부 검증 (GSE76039)</li>
+    <li>가장 큰 cross-platform cohort (GSE213647) 검증</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li>scikit-learn 1.8.0 LogReg(C=1.0, max_iter=2000) + RF(n_estimators=300)</li>
+    <li><span class="term">5-fold StratifiedKFold (계층화 5등분 교차검증)</span> random_state=42</li>
+    <li>per-fold leave-one-cohort-out <span class="term">ComBat-seq (RNA-seq batch effect 보정)</span> — leak 방지</li>
+    <li>BRAF V600E single-feature LogReg baseline → ΔAUC 비교</li>
+    <li>External transfer: 학습은 TCGA에서, 평가는 다른 cohort에서</li>
+    <li>Decision curve analysis (Vickers DCA) — net benefit vs 임계값</li>
+  </ul>
+  <div class="out">
+    LogReg CV AUC = 0.954 / RF 0.975 / BRAF baseline 0.822 → ΔAUC = +0.132 · GSE76039 direction-correct AUC 0.974 · GSE213647 aggressive AUC 0.672 (cross-platform 감소) · 5-cohort 2/5 robust (DIA-AUC &gt; 0.85)
+  </div>
+</div>
+
+<!-- L3 Biology -->
+<div class="layer biology" id="L3">
+  <div class="head">
+    <h2>L3. Biology — DEG + GSEA + Trajectory + Hot/Cold</h2>
+    <div class="num">Fig 3 · Fig 5 · scRNA</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>DM1 vs DM2 differential expression (full transcriptome)</li>
+    <li>Hallmark pathway enrichment</li>
+    <li>PTC → PDTC → ATC dedifferentiation trajectory</li>
+    <li>scRNA-seq cell-type breakdown</li>
+    <li>Hot/cold immune composite</li>
+    <li>Immune evasion gene panel (PD-L1, IDO1, CTLA4, HLA, B2M)</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li>DEG: <span class="term">DESeq2-like Wilcoxon rank-sum + BH FDR (비모수 양측, 다중 검정 보정)</span></li>
+    <li>GSEA: <span class="term">gseapy 1.13 prerank (사전 랭킹된 gene list 기반 enrichment)</span> with MSigDB <span class="term">Hallmark v2024.1.Hs (Broad Institute의 51개 well-curated pathway 모음)</span> — nperm = 1000</li>
+    <li>Trajectory: pseudotime 추정 → DM cluster 할당 + RAI score 상관</li>
+    <li>scRNA: per-cell DM signature score → per-patient dominant DM → cell-type fraction</li>
+    <li>Hot/Cold composite: <span class="term">cytolytic activity (GZMA × PRF1 geometric mean — effector T/NK cell 활성)</span> + Hallmark IFN-γ + immune-cell fraction → z-norm 평균</li>
+    <li>Immune-evasion: per-sample mean expression of CD274, PDCD1, CTLA4, IDO1, HLA-A/B/C, B2M</li>
+  </ul>
+  <div class="out">
+    GSEA: Inflammatory NES = +1.93 / IFN-γ +1.92 / TNFA +1.85 / Allograft +1.89 (FDR &lt; 1×10⁻¹⁵) / OxPhos −1.90 (FDR=0) ·
+    Trajectory: pseudotime ↔ RAI Spearman ρ = 0.74 (p &lt; 1×10⁻¹⁵) · scRNA: 57:1 immune dominance ratio ·
+    Hot/Cold composite Cohen's d = +1.683 (Mann-Whitney p = 4.0×10⁻¹⁸)
+  </div>
+</div>
+
+<!-- L4 Clinical -->
+<div class="layer clinical" id="L4">
+  <div class="head">
+    <h2>L4. Clinical — Cox + Alternative Endpoints + Histology</h2>
+    <div class="num">Fig 2 · FIX3 · TCGA-CDR</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>DM1/DM2 cluster이 OS / PFI / DSS / DFI 4개 endpoint에 대해 독립적인 prognostic 인자인지</li>
+    <li>age + stage + sex 보정 후 효과 유지되는지</li>
+    <li>Histology subtype enrichment (cPTC / FVPTC / oxyphilic / columnar)</li>
+    <li>Bethesda category cross-tab</li>
+    <li>Age 분포, TDS / RAI score 분포</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li><span class="term">lifelines 0.30 CoxPHFitter (penalty=0.01 — small-event 안정화, Firth-like correction)</span></li>
+    <li><span class="term">Cox multivariable regression (다변량 Cox 회귀, 여러 covariate 동시 보정)</span></li>
+    <li><span class="term">Fisher exact test (작은 표본 contingency table 정확 검정)</span> for histology enrichment</li>
+    <li><span class="term">Mann-Whitney U-test (두 그룹 비모수 비교)</span> for age, TDS, RAI</li>
+    <li>Endpoint source: <span class="term">TCGA-CDR (TCGA Clinical Data Resource — Liu 2018 Cell, OS/DSS/DFI/PFI 표준 endpoint 모음)</span></li>
+  </ul>
+  <div class="out">
+    OS Cox: HR 0.82 (DM1/DM2, age + stage 보정 후 not significant — TCGA-THCA의 ~16 OS event 한계) ·
+    rai_score_recalc continuous best (nominal p &lt; 0.05) · Age violin Mann-Whitney p &lt; 1×10⁻⁸ (Δ=13y) ·
+    Histology Fisher p &lt; 0.05 (4 subtype 모두)
+  </div>
+  <p class="why">DM1/DM2 cluster가 OS independent prognostic이 아닌 점은 honest limitation #3 (TCGA-THCA의 exceptional prognosis 때문). RAI-responsiveness가 더 적절한 clinical endpoint.</p>
+</div>
+
+<!-- L5 TERT -->
+<div class="layer tert" id="L5">
+  <div class="head">
+    <h2>L5. TERT — 4-group survival + Bootstrap + LOO + Multivariate Cox</h2>
+    <div class="num">★ R8 honest reframe · Fig 8 · v17_actual</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>cBioPortal thca_tcga_pub mirror에서 TERT promoter mutation 36명 회수</li>
+    <li>Liu-Xing 4-group (BRAF only / RAS only / TERT⁺ / Triple-neg) 생존 분석</li>
+    <li>TERT⁺ 단독 logrank</li>
+    <li>univariate Cox HR 측정</li>
+    <li>★ stage + age + sex 보정 multivariate Cox</li>
+    <li>1,000-iter stratified bootstrap robustness</li>
+    <li>36-patient leave-one-out (LOO) sensitivity</li>
+    <li>DM × TERT cross-tab (Fisher) — 두 axis가 독립적인지</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li><span class="term">multivariate_logrank_test (lifelines, 다군 logrank)</span></li>
+    <li>CoxPHFitter with L2 penalizer 0.01 (Firth-like correction)</li>
+    <li>bootstrap: numpy random.choice resample × 1,000 → per-iter logrank → p-value 분포</li>
+    <li>LOO: 36명 TERT⁺ 한 명씩 제외 → 4-group logrank 재계산</li>
+    <li>Fisher exact: DM-clustered 178 sample 안에서 TERT⁺ 5명 vs WT</li>
+    <li>scripts: <code>v17_ACTUAL_robustness.py</code>, <code>v17_ACTUAL_figures.py</code></li>
+    <li>output: <code>results/v17_actual/A1A_cox_unadjusted.tsv</code>, <code>A1A_cox_full_multivariate.tsv</code>, <code>A1B_bootstrap_logrank.tsv</code>, <code>A1C_loo_logrank.tsv</code>, <code>A1C_influence_score.tsv</code></li>
+  </ul>
+  <div class="out">
+    4-group multivariate logrank p = 3.78×10⁻⁵ · TERT-vs-WT logrank p = 4.92×10⁻⁶ ·
+    univariate Cox HR = 6.31 (95% CI 2.34–17.04, p = 3×10⁻⁴) → <strong>multivariate Cox HR = 1.88 (95% CI 0.58–6.09, p = 0.29)</strong> ·
+    bootstrap median p = 2.6×10⁻⁵ (93% iter p &lt; 0.05) · LOO worst-case p = 7.5×10⁻⁴ (모두 36개 LOO p &lt; 10⁻³) ·
+    DM × TERT Fisher p = 0.65 (underpowered) → 두 axis 독립
+  </div>
+  <p class="why">honest reframe: TERT⁺를 "독립 stage-and-age-independent prognostic marker"가 아니라 "Stage III/IV identification을 위한 molecular handle"로. univariate signal은 stage / age confounding이 거의 전부.</p>
+</div>
+
+<!-- L6 Drug -->
+<div class="layer drug" id="L6">
+  <div class="head">
+    <h2>L6. Drug — PRISM 4,517 compounds + Mechanism class enrichment</h2>
+    <div class="num">Fig 7 · CCLE thyroid 11 lines</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>PRISM Repurposing 19Q4 4,517 compound × thyroid CCLE 11 lines</li>
+    <li>per-compound DM1 vs DM2 차별 약물 반응</li>
+    <li>MOA별 enrichment count (어떤 mechanism class가 DM1 / DM2 selective인가)</li>
+    <li>BRAF concordance 검증 (4/4 BRAF 라인이 DM1?)</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li>cell-line cluster assignment: within-thyroid-cohort z-score median split (5 vs 5)</li>
+    <li>per-compound: ΔLFC = DM1_mean_LFC − DM2_mean_LFC + Mann-Whitney p-value</li>
+    <li><span class="term">BH FDR correction (Benjamini-Hochberg false discovery rate)</span> — 4,517 multiple test 보정</li>
+    <li>MOA enrichment: 각 mechanism class 안 compound 수 (DM1 vs DM2)</li>
+    <li>Source: figshare 9393293 (file IDs 20237709/20237715/20237718)</li>
+  </ul>
+  <div class="out">
+    BRAF concordance 4/4 perfect · 0 compounds at FDR &lt; 0.1 (n=5 vs 5 underpowered) ·
+    nominal mechanism-class signals: MEK inhibitor (nobiletin ΔLFC = −0.72, p = 0.016) DM1-selective ·
+    HMGCR inhibitor (procaine ΔLFC = −0.39, p = 0.032) DM1-selective ·
+    Topo-I idarubicin ΔLFC = −1.85 (p = 0.095, underpowered)
+  </div>
+  <p class="why">honest framing: n=5 vs 5는 single-drug FDR-grade discovery에 부족. Mechanism class direction (MEK + HMGCR DM1-selective)이 biologically coherent + v14 LDLR-axis와 일치 → "hypothesis-generating, not finalised clinical recommendation"으로 명시.</p>
+</div>
+
+<!-- L7 Cross-modality -->
+<div class="layer cross" id="L7">
+  <div class="head">
+    <h2>L7. Cross-modality (v6 ULTIMATE) — Cluster Orientation 정정 + De-circularization</h2>
+    <div class="num">v6 ULTIMATE · 4 independent evidence layers</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>v5 preprint의 cluster orientation (DM1=MAPK-active vs DM2=canonical)이 맞는지 4개 독립 증거로 audit</li>
+    <li>0.954 CV AUC가 circular validation인지 확인 + leak-free 재구성</li>
+  </ul>
+  <h3>어떻게 (4가지 독립 증거)</h3>
+  <ul>
+    <li><strong>U2A — WHO 2022 매핑</strong>: 2022 WHO 분류로 histology 재라벨링 → DM 분포</li>
+    <li><strong>U2C — Pu 2021 direction concordance</strong>: 외부 published signature와 direction 일치 측정</li>
+    <li><strong>U1D — methylation cross-modality</strong>: TCGA 450K methylation → met-DM cluster → aggressive histology 분포</li>
+    <li><strong>U1C — GSE213647 dm-score</strong>: cPTC > PDTC > ATC 분포 패턴</li>
+    <li><strong>De-circularization (v6 ULTIMATE 4 leak-free variant)</strong>:
+      <ul>
+        <li>Variant A: <span class="term">TIERA67-8gene (Thyroid Immune-Excluded RAS-Associated 67 genes 중 8 gene 빼고 47 gene)</span></li>
+        <li>Variant B: MAPK + immune + EMT (30 genes, 8-gene과 zero overlap)</li>
+        <li>Variant D: <span class="term">BRS71-8gene (BRS 71-gene 중 8-gene 빼고 26 gene)</span></li>
+        <li>Variant C: immune-only 5 genes (control — biology specificity 입증용)</li>
+      </ul>
+    </li>
+  </ul>
+  <div class="out">
+    U2A: DM2 = 85.6% BRAF-like cPTC, DM1 = 77.5% RAS-like FVPTC → DM1=분화 confirmed ·
+    U2C: 88.9% (8/9) signature gene direction concordant ·
+    U1D: 모든 aggressive histology 100%가 met_DM2 ·
+    U1C: cPTC > ATC dm-score (DM1=분화) ·
+    Leak-free Variant A AUC 0.962 / B 0.925 / D 0.957 / C 0.664 (붕괴) · ΔAUC vs BRAF +0.111 ~ +0.130
+  </div>
+  <p class="why">v5의 cluster orientation 표기는 4개 독립 증거 모두 반대로 확인 → v6 ULTIMATE에서 정정. 0.954 circular figure는 더 이상 claim 안 함; honest range AUC 0.92–0.96.</p>
+</div>
+
+<!-- L8 DIAL -->
+<div class="layer dial" id="L8">
+  <div class="head">
+    <h2>L8. DIAL framework — Direction Identifiability After Leave-out (leak audit)</h2>
+    <div class="num">v5.2 critical fix · SuppFig 3 · 5 cancer × 5 classifier</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>cluster orientation이 batch effect / leak에 의해 뒤집히는지 audit</li>
+    <li>v5.1 THCA DIAL=0.494 flip artifact 발견 (pooled-pre-fold ComBat의 data leakage)</li>
+    <li>v5.2 LODO ComBat protocol 도입 → 모든 5개 classifier DIAL 0.000으로 회복</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li>5 cancer types (THCA + 4 others) × 5 classifier (BRS / TDS / DM / 다른 2개) 각 조합에 적용</li>
+    <li>per-fold ComBat-seq (LODO protocol)</li>
+    <li>direction identifiability: cluster sign이 leave-one-cohort-out 후 일관성 유지하는지</li>
+    <li>ComBat λ sensitivity curve (DIA AUC vs identifiability)</li>
+  </ul>
+  <div class="out">
+    v5.1 THCA DIAL = 0.494 → v5.2 모든 5 THCA classifier DIAL = 0.000 / true_biology · 모든 v15/v10/v13 downstream을 v5.2 fix 기준으로 halt
+  </div>
+  <p class="why">memory entry "v5.2 critical fix"의 출처. v5.1을 인용한 모든 후속 작업은 retracted; 그래서 v17이 ground truth.</p>
+</div>
+
+<!-- L9 Reproducibility -->
+<div class="layer repro" id="L9">
+  <div class="head">
+    <h2>L9. Reproducibility — Seed + K-grid + ComBat sensitivity</h2>
+    <div class="num">SuppFig 1, 2, 3, 4</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>모든 분석에 random seed 고정 (재현성)</li>
+    <li>K-grid: K=2 vs K=3,4,5 silhouette + ARI 비교</li>
+    <li>ComBat λ sensitivity curve</li>
+    <li>permutation null distribution</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li><code>np.random.seed(42)</code> + scikit-learn <code>random_state=42</code> 모두 (모델 / CV split / RF / LogReg / bootstrap)</li>
+    <li>K-grid: scanpy Leiden을 K=2,3,4,5로 5번 run → silhouette score + ARI vs K=2</li>
+    <li>ComBat: λ ∈ {0.0, 0.1, 0.3, 0.5, 1.0} → DIA AUC + identifiability</li>
+    <li>Permutation: cluster label 1,000회 random permute → null p-value 분포</li>
+  </ul>
+  <div class="out">
+    K=2 silhouette 0.46 (best) · ARI vs K=2 적정 (K=3,4,5는 sub-cluster) · ComBat λ sensitivity stable across 0.0–1.0 · permutation null p &lt; 0.001
+  </div>
+</div>
+
+<!-- L10 Pathway scores -->
+<div class="layer pathway" id="L10">
+  <div class="head">
+    <h2>L10. Per-sample pathway scores — Hallmark + MAPK + CIBERSORT-proxy</h2>
+    <div class="num">v17p2 hallmark_score_per_sample · cibersort_immune_fractions</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>각 sample마다 51개 Hallmark pathway score</li>
+    <li>MAPK activity score (MAPK target gene set 평균)</li>
+    <li>면역세포 분율 proxy (CIBERSORT-style)</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li><span class="term">ssGSEA (single-sample GSEA — sample 단위 pathway score 계산)</span> style: leading-edge gene mean expression</li>
+    <li>MAPK: DUSP5/6, FOSL1, ETV4/5, MET 평균</li>
+    <li>CIBERSORT-proxy: Treg / M2 macrophage / ExhaustedT 마커 panel mean (proper CIBERSORT은 license 필요해서 proxy)</li>
+    <li>output: <code>v17p2/tables/hallmark_score_per_sample.tsv</code>, <code>cibersort_immune_fractions.tsv</code>, <code>mapk_activity_score.tsv</code></li>
+  </ul>
+  <div class="out">
+    각 sample × 51 Hallmark + MAPK + 3 immune proxy → DM1 hot inflammatory + MAPK-active 일관성 · DM2 cold OxPhos
+  </div>
+</div>
+
+<!-- L11 Stability -->
+<div class="layer stability" id="L11">
+  <div class="head">
+    <h2>L11. Signature stability — 5-method ARI + sub-sample bootstrap</h2>
+    <div class="num">v17p2 robustness_5method_ARI</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>Leiden 외에 다른 clustering method (k-means / hierarchical / spectral 등) 5개로도 같은 cluster가 나오는지</li>
+    <li>sample을 무작위로 50% / 70% / 90% 뽑아 다시 clustering → 일관성</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li>5 method (Leiden / k-means / hierarchical_ward / spectral / GMM) 각각 K=2 fit</li>
+    <li>각 method 쌍에 대해 <span class="term">ARI (Adjusted Rand Index — 두 partition 일치도, -1 ~ +1)</span> + <span class="term">NMI (Normalized Mutual Information)</span></li>
+    <li>Sub-sample: 50/70/90% sample subset × 100회 → cluster stability 비율</li>
+    <li>output: <code>v17p2/tables/robustness_5method_ARI.tsv</code>, <code>sample_subsample_stability.tsv</code></li>
+  </ul>
+  <div class="out">
+    5-method ARI 평균 0.85 (Leiden vs k-means / hierarchical 모두 0.8 이상) · 50% subsample stability 92% · 90% subsample stability 99%
+  </div>
+</div>
+
+<!-- L12 Outliers -->
+<div class="layer outliers" id="L12">
+  <div class="head">
+    <h2>L12. Outlier biology — 17 patients (2 BRAF/DM2 + 15 RAS/DM1)</h2>
+    <div class="num">Fig 4c · SuppFig 14</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>BRAF mutation인데 DM2-like 분류된 2명, RAS mutation인데 DM1-like 분류된 15명</li>
+    <li>이들이 same-driver majority와 어떻게 다른가 (DEG)</li>
+    <li>임상 특성 (stage, age, RAI uptake)</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li>17명 outlier vs 같은 driver의 majority (canonical BRAF/RAS classification 따른 그룹)</li>
+    <li>DEG: Wilcoxon + BH FDR (small n이라 nominal p 위주)</li>
+    <li>output: <code>v17p35/tables/AMP_17_outliers.tsv</code> (Fig 4 script가 자동 생성)</li>
+  </ul>
+  <div class="out">
+    RAS/DM1-like 15명: 평균보다 높은 MAPK target 발현 (BRAF-active phenotype despite RAS mutation) → 임상적 함의: MEK inhibitor + RAS-mutant의 합리적 후보 · BRAF/DM2-like 2명: 분화 marker 유지 → SG ADC 효과 약할 가능성
+  </div>
+  <p class="why">17명 outlier가 DM-axis가 mutation status의 단순 재진술이 아님을 결정적으로 입증. Fig 4의 핵심 narrative.</p>
+</div>
+
+<!-- L13 Pan-cancer -->
+<div class="layer pancancer" id="L13">
+  <div class="head">
+    <h2>L13. Pan-cancer transfer — DM signature → LUAD / COAD / LGG / SKCM</h2>
+    <div class="num">SuppFig 5 · A4_pancancer_dm_signature_transfer</div>
+  </div>
+  <h3>무엇을</h3>
+  <ul>
+    <li>DM1/DM2 signature가 thyroid 외 다른 4개 암종에 적용 가능한지</li>
+    <li>conserved markers vs cancer-specific markers</li>
+    <li>각 cancer cohort 안에서 DM-cluster delta + dm-score correlation</li>
+  </ul>
+  <h3>어떻게</h3>
+  <ul>
+    <li>TCGA Pan-Cancer dataset에서 LUAD / COAD / LGG / SKCM 추출</li>
+    <li>DM signature 적용 → per-sample dm-score</li>
+    <li>각 cancer 안에서 unsupervised K=2 → DM1/DM2 분포</li>
+    <li>output: <code>v17p3/tables/A4_pancancer_dm_signature_transfer.tsv</code>, <code>A4_conserved_genes_across_cancers.tsv</code></li>
+  </ul>
+  <div class="out">
+    Conserved markers (CDKN2A, FOSL1, ETV4, DUSP6) 모두 cancer 4개에서 DM1 enrichment 일관 ·
+    Cancer-specific markers: TPO/DIO1 (thyroid only — lineage marker) ·
+    DM-score correlation across cancers: 0.4–0.7 (signature 일부 transferable, 일부는 thyroid-specific)
+  </div>
+  <p class="why">"MAPK-active vs lineage-differentiated" universal axis hypothesis. 본 thyroid paper의 scope를 넘는 발견 → 후속 cross-cancer paper로 분리.</p>
+</div>
+
+<footer>
+  v17 npj 종합 분석 layer 13개 · manuscript_v6_ULTIMATE 기준 ·
+  데이터 source는 <a href="data_models_performance.html">data_models_performance.html</a> ·
+  모든 어려운 용어는 <a href="glossary.html">📖 glossary.html</a>
+</footer>
+
+</div>
+</body>
+</html>

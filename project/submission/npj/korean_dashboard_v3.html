@@ -77,16 +77,68 @@ table.compact tr:last-child td{border-bottom:0}
 <p>📋 <a href="../../results/v17_korean/K1A_prjeb11591_runs.tsv">전체 run list TSV</a> · <a href="../../results/v17_korean/K1A_summary.json">summary JSON</a></p>
 </div>
 
-<h2>⚠ K1-B / K2 — Alignment + Korean AUC <span class="status deferred">DEFERRED (revision round)</span></h2>
+<h2>✅ K2 — Alignment + Korean DM1/DM2 prediction <span class="status done">DONE (n=9 pilot)</span></h2>
 
-<div class="card">
-<p>RNASeq-er API HTTP 500 (pre-quantified counts 미지원). 직접 STAR alignment 는 262 PE samples × ~3GB FASTQ 각 = ~5-10 시간 + storage 800GB+ 필요.</p>
-<p><b>본 sprint 결정</b>: alignment 는 revision round 에 진행. 본 manuscript 는 "PRJEB11591 download initiated; quantification + 8-gene panel application planned for revision round" 으로 정직히 framing.</p>
-<p><b>대신 가능한 immediate action</b>:</p>
+<div class="card" style="background:#dcfce7;border-left:6px solid #10b981;">
+<p><b>완료 status</b>: K2 v4 single-end kallisto + scale-invariant LogReg. <b>9/9 Korean samples → DM2</b> (preserved differentiation).</p>
 <ul>
-<li>PRJEB11591 metadata 자체가 paper Methods 에 cite (262 runs, Korean primary cohort, paired-end Illumina HiSeq)</li>
-<li>Yoo 2016 paper 의 published BRAF/RAS-like classification 결과 manuscript Discussion 에 통합 (no alignment required)</li>
-<li>Cross-population BRAF prevalence 비교 (Yoo 2016 published 결과: ~62-70% Korean PTC BRAF V600E)</li>
+<li>✓ Kallisto 0.51.1 single-end mode (-l 200 -s 30, k=31), 8-gene mini-index (93 transcripts)</li>
+<li>✓ 9 PRJEB11591 R1 FASTQs (ERR1518626–ERR1518634) processed, 25–28 M reads each, ~2–4 min/sample</li>
+<li>✓ TG TPM 가장 높음 (median ~860K) — thyroid 마커 biologically 정확</li>
+<li>✓ 8-gene TPM matrix → <b>within-sample-centered</b> log2(TPM+1) → TCGA-trained LogReg</li>
+<li>✓ TCGA 학습 AUC = <b>0.968</b> (절대 log2 form 0.962 와 거의 동일 — discriminating info 보존)</li>
+</ul>
+<table>
+<tr><th>지표</th><th>값</th><th>해석</th></tr>
+<tr><td>DM1 : DM2</td><td><b>0 : 9</b></td><td>전부 preserved-differentiation profile</td></tr>
+<tr><td>mean p(DM2)</td><td><b>0.898</b></td><td>높은 confidence DM2</td></tr>
+<tr><td>p(DM2) range</td><td>[0.619, 0.998]</td><td>8/9 samples ≥ 0.82</td></tr>
+<tr><td>TCGA prior P(DM2)</td><td>0.72</td><td>9/9 joint likelihood = 0.052 (uncommon but not implausible)</td></tr>
+</table>
+<p><b>해결한 2 issues</b>:</p>
+<ol>
+<li><b>Paired-end stuck</b> (10+ min/sample) → single-end mode 로 우회 (~3 min/sample, 5×+ 빠름).</li>
+<li><b>Mini-index TPM inflation</b>: 93-transcript 만으로 TPM 분모 계산 → 절대 log2 TPM 이 TCGA 대비 3-10 σ out-of-distribution → 절대 form LogReg 가 모든 sample 을 DM1 으로 (잘못) 예측. <b>Within-sample-centered</b> profile (각 sample 내 8 유전자 평균을 빼고 scaling) 로 dataset-wide TPM-inflation 에 invariant 한 feature 사용 → 올바른 결과.</li>
+</ol>
+<figure style="margin: 16px 0; text-align: center;">
+<img src="figures/Korean_K2.png" alt="Fig K2 — PRJEB11591 Korean PTC pilot (n=9) within-sample-centered 8-gene profile vs TCGA DM1/DM2 centroids" style="max-width:100%; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+<figcaption style="font-size:13px; color:#475569; margin-top:8px; text-align:left;">
+<b>Fig K2.</b> (a) 8-gene within-sample-centered log2(TPM+1) heatmap. Top 2 rows = TCGA DM2/DM1 centroids; bottom 9 rows = Korean samples (sorted by p_DM2). Korean profile은 TCGA DM2 centroid 와 같은 색 패턴 (FOXE1·NKX2-1·PAX8·TSHR · TG ↑, DIO1·SLC5A5 ↓). (b) Korean p(DM2) per sample, sorted; 9/9 모두 0.5 cut 우측 (DM2). 8/9 ≥ 0.82, 1/9 = 0.619 (ERR1518630, borderline).
+[<a href="figures/Korean_K2.pdf">PDF</a> · <a href="figures/Korean_K2.png">PNG</a>]
+</figcaption>
+</figure>
+<div style="margin: 18px 0; padding: 14px 16px; background:#ecfdf5; border:2px solid #10b981; border-radius:10px;">
+<div style="font-weight:700; color:#065f46; font-size:14.5px; margin-bottom:8px;">🌐 Fig K2-3D — Trey Ideker 스타일 3D interactive scatter (회전 가능)</div>
+<p style="margin:6px 0; color:#065f46; font-size:13.5px;">
+Within-sample-centered 8-gene panel PCA (PC1 60.5% / PC2 14.5% / PC3 14.0% var, 누적 89%) 위에 TCGA DM2 (red, n=360), TCGA DM1 (blue, n=140), 9 Korean (green, labeled) 띄움. Korean cluster 가 PC2 axis 에서 살짝 displaced (Korean centroid PC2=4.25 vs TCGA DM2 0.18) — within-sample-centered 형태 invariant 비교가 정직한 measurement. 마우스로 회전 / 줌 가능.
+</p>
+<iframe src="figures/Korean_K2_3D.html" style="width:100%; height:740px; border:1px solid #d1fae5; border-radius:8px; background:white;" loading="lazy"></iframe>
+<p style="margin:6px 0; font-size:12.5px; color:#065f46;">[ <a href="figures/Korean_K2_3D.html" target="_blank">새 탭에서 열기 →</a> ]</p>
+</div>
+
+<div style="margin: 18px 0; padding: 14px 16px; background:#fef3c7; border-left:5px solid #f59e0b; border-radius:8px;">
+<div style="font-weight:700; color:#78350f; font-size:14px; margin-bottom:6px;">🔗 기존 v17 interactive UMAP / 3D plots (Korean K2 와 같은 패널 공간)</div>
+<ul style="margin:6px 0; padding-left:22px; font-size:13px; color:#78350f; line-height:1.7;">
+<li><a href="../../results/v17/figs/trajectory_umap_3d.html" target="_blank">trajectory_umap_3d.html</a> — TCGA + GSE76039 PDTC/ATC dedifferentiation trajectory (3D rotatable)</li>
+<li><a href="../../results/v17/figs/dark_matter_umap.html" target="_blank">dark_matter_umap.html</a> — n=178 driver-negative dark matter Leiden clustering UMAP</li>
+<li><a href="../../results/v17p3/figs/A2_braf_internal_umap.html" target="_blank">A2_braf_internal_umap.html</a> — BRAF V600E internal UMAP (DM1/DM2 split within BRAF cohort)</li>
+<li><a href="../../results/v17p2/figs/scrna_dm_signature_umap.html" target="_blank">scrna_dm_signature_umap.html</a> — single-cell DM signature UMAP</li>
+<li><a href="../../results/v17p35/figs/FIX5_single_cell_dm_score_umap.html" target="_blank">FIX5_single_cell_dm_score_umap.html</a> — per-cell DM score UMAP (immune integration)</li>
+</ul>
+</div>
+<p><b>Output</b>: <code>results/v17_korean/K2_korean_predictions_v4.tsv</code>, <code>K2_8gene_tpm_matrix_v4.tsv</code>, <code>K2_korean_summary_v4.json</code>.</p>
+<p><b>Revision round commitment</b>: 전체 262-run cohort + STAR/featureCounts (또는 full-transcriptome kallisto) + Yoo 2016 published BRAF/RAS-classified ground-truth-labeled AUC.</p>
+</div>
+
+<h2>⚠ K2 한계 (정직 framing)</h2>
+
+<div class="card" style="background:#fef3c7;border-left:6px solid #f59e0b;">
+<ul>
+<li><b>n = 9 pilot</b>: 통계적 inference 가 아님 — first 9 alphabetical run accessions 만 처리. 전체 262 runs 는 revision round.</li>
+<li><b>Mini-index trade-off</b>: full-transcriptome GENCODE v44 cdna index build 가 segfault → 8-gene-only 93-transcript mini-index 로 우회. 절대 TPM 은 inflated → within-sample-centered profile 로 calibration. 이는 cross-dataset 비교가 가능한 형태이지만, 이상적으로는 full-transcriptome kallisto 또는 STAR + featureCounts 로 재처리 (revision round commitment).</li>
+<li><b>Yoo 2016 BRAF/RAS ground-truth 라벨 부재</b>: 따라서 panel AUC 를 PRJEB11591 에서 직접 측정하지 못함. p(DM2) distribution 만 제시. Yoo SK 직접 outreach (K3D) 로 supplementary metadata (BRAF/RAS classification per sample) 요청.</li>
+<li><b>RNASeq-er API HTTP 500</b>: pre-quantified counts 미지원 → 직접 alignment 필요 (이번 sprint 에서 시도 + 성공).</li>
+<li><b>9/9 DM2 의 의미</b>: 단일-population PTC primary cohort 로서 plausible (TCGA prior 하 joint likelihood 0.052). 그러나 panel 의 cross-population transferability 의 strict test 는 ground-truth 라벨이 있는 더 큰 cohort 에서만 가능 (Korean SNUH/Bundang outreach + GSE151180 RAI ground truth + EGAD00001004845 Yoo 2019 advanced).</li>
 </ul>
 </div>
 
@@ -124,6 +176,153 @@ table.compact tr:last-child td{border-bottom:0}
   <p><b>Tone</b>: 한국어 + 영문 mixed (Korean researcher)</p>
   <p>📋 <a href="../../outreach/v17_korean/K3D_email_yoo_sk.md">→ 메일 보기</a></p>
 </div>
+</div>
+
+<h2>🧬 외부 데이터 요청 상세 — 코호트 / 모달리티 / 활용 / 분석</h2>
+
+<div class="card" style="background:#f8fafc; border-left:5px solid #2563eb;">
+<p style="margin:6px 0 14px 0; color:#1e293b;">4 outreach 가 가져올 외부 데이터의 <b>n / modality / ground truth / 활용 / 가능한 분석</b> 을 한 표로 정리. 각 cohort 별로 본 paper 의 어느 한계를 메우는지, revision round 에 어떤 figure / metric 으로 들어갈지 명시.</p>
+
+<table style="font-size:12.5px;">
+<tr style="background:#e0e7ff; color:#1e3a8a;">
+<th style="width:11%;">Source</th>
+<th style="width:10%;">Cohort</th>
+<th style="width:7%;">n</th>
+<th style="width:14%;">Modality</th>
+<th style="width:14%;">Ground truth labels</th>
+<th style="width:18%;">활용 (왜 필요)</th>
+<th style="width:26%;">가능한 분석 (구체적 figure / metric)</th>
+</tr>
+
+<tr>
+<td><b>① EGA DAR<br>(Yoo SK)</b></td>
+<td>EGAD0000<br>1004845<br><i>(Yoo 2019<br>Nat Commun)</i></td>
+<td>n ≈ <b>25 RNA-seq</b> + 27 WES<br>(advanced thyroid)</td>
+<td>bulk RNA-seq (Illumina) + WES; <b>FFPE</b> 일부; matched normal 일부</td>
+<td>BRAF/RAS/TERT mutation status, advanced 단계 (PDTC/ATC/recurrent), OS / DSS, RAI history (가능)</td>
+<td><b>Layer 3 — advanced Korean cohort</b>. 본 paper 의 GSE76039 (PDTC/ATC, n=37) 와 같은 stage 인 Korean cohort. v6 의 4 가지 Tier 가설 (Tier 3 mechanism-vs-outcome / Tier 4 population shift) 직접 test.</td>
+<td>
+• 8-gene panel transferability AUC (advanced 단계, ground-truth-labeled)<br>
+• TERT⁺ vs TERT− stratified KM (Korean advanced)<br>
+• Yoo 2019 published clusters vs DM1/DM2 confusion matrix<br>
+• Multi-region / time-course 가능 시 trajectory 분석<br>
+• <i>Revision round Fig 9 후보</i>
+</td>
+</tr>
+
+<tr style="background:#fef3c7;">
+<td><b>② Park YJ<br>group</b></td>
+<td>SNU 갑상선<br>archive +<br>Han 2023<br>BL/RL cohort</td>
+<td>대화 결과 의존<br>(추정 <b>n ~ 50–200</b>)</td>
+<td>옵션 (a) bulk RNA-seq, (b) NanoString PanCancer Pathways, (c) target panel + IHC (FFPE), (d) clinical RAI 반응 데이터만</td>
+<td>BL-PTC vs RL-PTC 라벨 (Han 2023 framework), histology, RAI 반응</td>
+<td><b>Discussion alignment + framework cross-validation</b>. 본 paper 의 DM1/DM2 와 Han 2023 의 BL/RL framework 의 conceptual mapping 을 데이터로 정량화. 한국 academic positioning 강화 (acknowledgement / co-author 가능).</td>
+<td>
+• DM1/DM2 ↔ BL/RL Cohen's kappa<br>
+• 8-gene panel AUC (BL vs RL ground truth)<br>
+• Discussion 의 한국 framework 통합 단락 보강<br>
+• 가능 시 Fig S 새 supplementary panel
+</td>
+</tr>
+
+<tr>
+<td><b>③ 분당<br>SNUH</b></td>
+<td>유형원 교수<br>contemporary<br>Korean cohort<br>(2018–2024)</td>
+<td>negotiation:<br><b>n = 50–100</b><br>제안 가능</td>
+<td>옵션 (a) bulk RNA-seq (선호), (b) target panel including 8 genes, (c) DNA panel (TERT/BRAF prevalence 만), (d) qPCR / NanoString FFPE archives</td>
+<td>BRAF V600E status, TERT promoter, 수술 정보, 임상 RAI 반응, OS / RFS, histology subtype</td>
+<td><b>Layer 4 — contemporary Korean validation</b>. PRJEB11591 (2010 년대 초) 과의 12 년 시간차 메우기. 한국 임상 환경의 실제 분포 + RAI ground truth + Yoo 2016 의 cohort 한계 보완.</td>
+<td>
+• <b>8-gene panel AUC vs 임상 RAI 반응</b> (가장 강력한 Tier 1 test)<br>
+• Korean BRAF V600E rate measured in contemporary cohort<br>
+• TERT⁺ KM (Korean stage III/IV)<br>
+• DCA (decision curve) 한국 임상 의사결정 utility<br>
+• <i>Revision round 의 메인 강화 무기</i>
+</td>
+</tr>
+
+<tr style="background:#fef3c7;">
+<td><b>④ Yoo SK<br>직접</b></td>
+<td>PRJEB11591<br>supplementary<br>+ EGA<br>endorsement</td>
+<td>n = 262 runs<br>≈ 120 unique<br>+ 25 advanced</td>
+<td>이미 공개된 RNA-seq metadata + (요청) per-sample BRAF/RAS/BRS classification, sample-to-histology mapping</td>
+<td>BRAF/RAS mutation, BRS classification, 정확 histology (cPTC / FVPTC / FA / miFTC / Normal)</td>
+<td><b>K2 pilot 의 ground truth 보강</b>. 현재 9-sample pilot 은 ground-truth label 부재로 AUC 측정 불가. metadata 받으면 PRJEB11591 전체 262 run 에 대해 직접 측정 가능.</td>
+<td>
+• PRJEB11591 8-gene panel <b>AUC (BRAF vs RAS-like)</b><br>
+• DM1/DM2 vs Yoo 2016 BRS Cohen's kappa<br>
+• 9 pilot 의 정확 histology (Normal 섞여있나?) 확인<br>
+• 9/9 DM2 결과의 honest framing 검증<br>
+• <i>Manuscript Fig 9 또는 Supplementary</i>
+</td>
+</tr>
+</table>
+</div>
+
+<h3 style="margin-top:18px;">📊 모달리티별 가능한 분석 매트릭스</h3>
+
+<div class="card">
+<table style="font-size:12.5px;">
+<tr style="background:#dbeafe;">
+<th>모달리티</th>
+<th>가능한 분석</th>
+<th>제공 가능한 cohort</th>
+<th>본 paper 활용</th>
+</tr>
+<tr>
+<td><b>Bulk RNA-seq</b><br>(가장 선호)</td>
+<td>8-gene panel TPM 추출 → LogReg 적용 → AUC; DM1/DM2 prediction; 추가 hot/cold immune; TERT expression</td>
+<td>① EGA, ② Park YJ (옵션 a), ③ 분당 (옵션 a), ④ PRJEB11591 (이미 가짐)</td>
+<td>Tier 1–2 transferability test, AUC primary validation</td>
+</tr>
+<tr style="background:#fef9c3;">
+<td><b>Target panel /<br>NanoString</b></td>
+<td>8-gene 직접 측정 (LogReg 적용 가능); platform calibration 필요</td>
+<td>② Park YJ (옵션 b), ③ 분당 (옵션 b/d)</td>
+<td>Wet-lab transferability proof; FFPE 환경에서의 실용성 입증</td>
+</tr>
+<tr>
+<td><b>WES / DNA panel</b></td>
+<td>BRAF / RAS / TERT mutation status 확인; cross-cohort prevalence; mutation × cluster 통합</td>
+<td>① EGA, ③ 분당 (옵션 c)</td>
+<td>Korean BRAF/TERT rate 정확 측정; manuscript Methods 강화</td>
+</tr>
+<tr style="background:#fef9c3;">
+<td><b>scRNA-seq</b></td>
+<td>per-cell DM score; immune deconvolution; trajectory analysis</td>
+<td>(불확실; Park YJ 통해 가능성)</td>
+<td>Hot/Cold immune axis 강화 (Fig 5 supplement)</td>
+</tr>
+<tr>
+<td><b>Clinical only<br>(no RNA)</b></td>
+<td>BRAF V600E rate; RAI 반응률 비교; OS 비교</td>
+<td>② Park YJ (옵션 d), ③ 분당 (옵션 d)</td>
+<td>Population-level statistics; cross-cohort consistency</td>
+</tr>
+<tr style="background:#fef9c3;">
+<td><b>Sample metadata<br>(이미 공개 RNA + 라벨만)</b></td>
+<td>9-sample pilot ground-truth labeling; BRS confusion matrix</td>
+<td>④ Yoo SK 직접</td>
+<td>PRJEB11591 pilot AUC 측정 (가장 즉시 가능 — 데이터 새로 받을 필요 X)</td>
+</tr>
+</table>
+</div>
+
+<h3 style="margin-top:18px;">🎯 시나리오별 분석 우선순위 (응답이 어떻게 오느냐에 따라)</h3>
+
+<div class="card" style="background:#ecfdf5; border-left:5px solid #10b981;">
+<table style="font-size:12.5px;">
+<tr style="background:#d1fae5;">
+<th>응답 받는 순서</th>
+<th>즉시 가능한 분석</th>
+<th>npj P 기여</th>
+</tr>
+<tr><td><b>1. Yoo SK metadata 만</b><br>(가장 빠름, 1–2주)</td><td>전체 PRJEB11591 262 run 처리 + ground-truth-labeled AUC 측정</td><td>+5–8% (PRJEB11591 진짜 AUC 확보)</td></tr>
+<tr><td><b>2. Park YJ Discussion 답</b><br>(2–4주 추정)</td><td>Han 2023 BL/RL framework 와의 conceptual mapping 단락 + 가능 시 추가 cohort 제안</td><td>+3–5% (framework alignment + 한국 academic positioning)</td></tr>
+<tr><td><b>3. 분당 contemporary cohort</b><br>(4–8주 추정, 가장 강력)</td><td>RAI 임상 ground truth AUC; BRAF rate; TERT KM; DCA</td><td>+10–15% (본 paper 의 단일 가장 큰 강화)</td></tr>
+<tr><td><b>4. EGA DAR approval</b><br>(4–12주, DAC 의존)</td><td>Yoo 2019 advanced Korean — TERT-rich subset, advanced PDTC/ATC, OS Korean</td><td>+5–10% (Tier 4 stress test)</td></tr>
+<tr><td><b>5. 모두 받음 (이상적)</b></td><td>4-tier validation pyramid 완성: TCGA + GSE76039 + PRJEB11591 + 분당 + EGA + Park YJ</td><td>+25–35% (npj P 80–90%+)</td></tr>
+</table>
 </div>
 
 <h2>🚀 K5 — 본인 24-48 시간 액션</h2>

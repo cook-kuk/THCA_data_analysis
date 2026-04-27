@@ -18,11 +18,12 @@ def build():
     label_disp = [d for d, k in zip(label_disp, ordered) if k in drv_counts.index]
     colors_a = ['#D62728', '#2CA02C', '#9467BD', '#7F7F7F'][:len(labels)]
 
-    # --- B. v14 BRS misclassification matrix ---
-    conf = pd.read_csv(RES / 'v17' / 'tables' / 'v14_vs_v17_confusion.tsv', sep='\t', index_col=0)
-    drivers_show = ['BRAF', 'RAS', 'RET_fusion', 'PAX8PPARG', 'NTRK_fusion', 'TP53', 'unknown']
-    drivers_show = [c for c in drivers_show if c in conf.columns]
-    cm = conf[drivers_show]
+    # --- B. v14 BRS × v17 DM1/DM2 confusion (manuscript caption: legacy BRS-surrogate vs DM-axis) ---
+    df_pri = df[(df['dataset'] == 'TCGA-THCA') & (df['normal_vs_tumor'] == 'tumor')].copy()
+    df_pri = df_pri.dropna(subset=['molecular_subtype', 'dm_like'])
+    cm = pd.crosstab(df_pri['molecular_subtype'], df_pri['dm_like'])
+    cm = cm.reindex(index=[r for r in ['BRAF_like', 'RAS_like', 'dedifferentiated', 'unknown'] if r in cm.index])
+    cm = cm.reindex(columns=[c for c in ['DM1_like', 'DM2_like'] if c in cm.columns])
 
     # --- C. Score-space scatter (DM1/DM2 separation in dediff vs prob_dm2 plane) ---
     sc = df.dropna(subset=['dedifferentiation_proxy_score', 'prob_dm2', 'dm_like']).copy()
@@ -50,9 +51,12 @@ def build():
     fig.add_trace(go.Pie(labels=label_disp, values=values, hole=0.55, marker=dict(colors=colors_a, line=dict(color='white', width=2)),
                          textinfo='label+percent+value', textfont=dict(size=11)), row=1, col=1)
 
-    fig.add_trace(go.Heatmap(z=cm.values, x=drivers_show, y=list(cm.index),
-                             colorscale='Blues', colorbar=dict(title='n', x=1.02, y=0.78, len=0.42),
-                             text=cm.values, texttemplate='%{text}', textfont={'size': 9}),
+    cm_pct = cm.div(cm.sum(axis=1).replace(0, 1), axis=0) * 100  # row-percent for color
+    fig.add_trace(go.Heatmap(z=cm_pct.values, x=[c.replace('_like', '') for c in cm.columns], y=list(cm.index),
+                             colorscale='Blues', zmin=0, zmax=100,
+                             colorbar=dict(title='row %', x=1.02, y=0.78, len=0.42),
+                             text=[[f"<b>{v}</b><br>{cm_pct.iloc[i,j]:.0f}%" for j, v in enumerate(row)] for i, row in enumerate(cm.values)],
+                             texttemplate='%{text}', textfont={'size': 11}),
                   row=1, col=2)
 
     for label, col in [('DM1_like', DM1_COLOR), ('DM2_like', DM2_COLOR)]:
@@ -68,17 +72,15 @@ def build():
                          text=[f'{v:.3f}' for v in boot_summary['mean']], textposition='outside',
                          showlegend=False),
                   row=2, col=2)
-    fig.add_shape(type='line', xref='x4 domain', yref='y4', x0=0, x1=1, y0=0.92, y1=0.92,
-                  line=dict(color='#888', dash='dash'))
-    fig.add_annotation(xref='x4 domain', yref='y4', x=0.98, y=0.93, text='reported >0.92',
-                       showarrow=False, font=dict(size=9, color='#555'), xanchor='right')
+    # Note: 'reported >0.92' threshold annotation removed — it was bleeding into panel b in plotly subplots.
+    # The bar text labels already show exact bootstrap concordance values per cluster.
 
     fig.update_xaxes(title_text='Dedifferentiation proxy score', row=2, col=1)
     fig.update_yaxes(title_text='logit P(DM2)', row=2, col=1)
     fig.update_xaxes(title_text='Cluster', row=2, col=2)
     fig.update_yaxes(title_text='Bootstrap concordance', range=[0.7, 1.02], row=2, col=2)
-    fig.update_xaxes(title_text='v17 driver anchor', row=1, col=2, tickangle=-30)
-    fig.update_yaxes(title_text='v14 molecular subtype', row=1, col=2)
+    fig.update_xaxes(title_text='v17 DM-axis assignment', row=1, col=2)
+    fig.update_yaxes(title_text='v14 BRS-surrogate subtype', row=1, col=2, autorange='reversed')
 
     apply_npj(fig)
     fig.update_layout(showlegend=True, legend=dict(orientation='h', x=0.0, y=-0.05))
