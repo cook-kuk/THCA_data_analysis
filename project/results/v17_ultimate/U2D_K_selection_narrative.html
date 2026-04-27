@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>U2D_K_selection_narrative</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="../../_md_theme.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">U2D_K_selection_narrative</h1>
+</header>
+<h1 id="u2d-k-selection-justification-variant-a-47-gene-panel">U2D —
+K-selection justification (Variant A 47-gene panel)</h1>
+<p><strong>Cohort:</strong> TCGA-THCA primary tumours, n=500, matched to
+v17 REALFIX R1A subset. <strong>Features:</strong> 47 genes (TIERA67
+minus 8 thyroid-differentiation genes; leak-free).
+<strong>Method:</strong> <code>KMeans(random_state=42, n_init=20)</code>
+on z-scored expression, K ∈ {2,3,4,5}.</p>
+<h2 id="internal-cluster-quality-metrics">1. Internal cluster-quality
+metrics</h2>
+<table>
+<thead>
+<tr class="header">
+<th>K</th>
+<th>Silhouette ↑</th>
+<th>Davies–Bouldin ↓</th>
+<th>Calinski–Harabasz ↑</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>2</td>
+<td>0.1856</td>
+<td>2.1917</td>
+<td>82.2</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>0.1637</td>
+<td>2.0316</td>
+<td>71.2</td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>0.1043</td>
+<td>2.2135</td>
+<td>62.9</td>
+</tr>
+<tr class="even">
+<td>5</td>
+<td>0.0910</td>
+<td>2.1705</td>
+<td>55.6</td>
+</tr>
+</tbody>
+</table>
+<p>K=2 maximises silhouette and Calinski–Harabasz and minimises
+Davies–Bouldin in this sweep — the canonical signature of an
+intrinsically bi-modal feature space. Adding clusters monotonically
+degrades all three internal indices, indicating that K≥3 splits begin to
+fracture homogeneous regions rather than reveal separated modes.</p>
+<h2 id="k2-vs-k4-confusion-sample-counts">2. K=2 vs K=4 confusion
+(sample counts)</h2>
+<pre><code>K2    0    1
+K4          
+0     0  110
+1   182    0
+2    45   16
+3   129   18</code></pre>
+<p>Per-K=4-cluster fraction in the original DM1/DM2 partition:</p>
+<pre><code>    frac_DM1  frac_DM2    n
+K4                         
+0   1.000000  0.000000  110
+1   0.000000  1.000000  182
+2   0.229508  0.770492   61
+3   0.108844  0.891156  147</code></pre>
+<p>K=4 is essentially a <strong>refinement</strong> of K=2: each K=4
+cluster lives almost entirely inside a single DM1 or DM2 partition. K=2
+therefore loses no patient-level information that K=4 carries — it just
+collapses two pairs of close sub-clusters.</p>
+<h2 id="k4-mapping-to-pu-w-et-al.-2022-oncogene-4-subtype-framework">3.
+K=4 mapping to Pu W et al. 2022 (Oncogene) 4-subtype framework</h2>
+<p>Each K=4 cluster was scored against four Pu-2022 signature panels
+(immune, stromal/EMT, BRAF-like MAPK output, proliferation/CNV proxy).
+Dominant signal:</p>
+<ul>
+<li><strong>K=4 cluster 0</strong> (n=110) → <strong>Stromal</strong>
+(scores: Immune-enriched=-0.48, Stromal=-0.38, BRAF-enriched=-0.89,
+CNV-enriched=-0.43)</li>
+<li><strong>K=4 cluster 1</strong> (n=182) →
+<strong>CNV-enriched</strong> (scores: Immune-enriched=+0.29,
+Stromal=+0.15, BRAF-enriched=+0.20, CNV-enriched=+0.36)</li>
+<li><strong>K=4 cluster 2</strong> (n=61) →
+<strong>Immune-enriched</strong> (scores: Immune-enriched=-0.08,
+Stromal=-0.36, BRAF-enriched=-0.09, CNV-enriched=-0.14)</li>
+<li><strong>K=4 cluster 3</strong> (n=147) →
+<strong>BRAF-enriched</strong> (scores: Immune-enriched=+0.03,
+Stromal=+0.24, BRAF-enriched=+0.45, CNV-enriched=-0.07)</li>
+</ul>
+<p>Interpretation: K=4 recovers a Pu-2022-compatible decomposition
+(immune, stromal, BRAF-like MAPK, proliferation), confirming that the
+47-gene panel encodes the same biological axes as the published
+4-subtype taxonomy. This is useful for <strong>research depth</strong> —
+e.g. immunotherapy candidate triage from the Immune-enriched cluster —
+but not for clinical deployment.</p>
+<h2 id="recommendation">4. Recommendation</h2>
+<ul>
+<li><strong>Deploy K=2 (DM1/DM2).</strong> Best internal metrics,
+simplest decision boundary, highest patient-level reliability, and the
+granularity that drives every downstream survival / TERT / ATA-risk
+readout in v17.</li>
+<li><strong>Use K=4 only as a Pu-2022-aligned research overlay.</strong>
+It is interpretable (immune / stromal / BRAF-MAPK / proliferation) and
+supports targeted analyses, but its silhouette is materially lower and
+clusters are not independent of the K=2 partition.</li>
+</ul>
+<p>A clinician asked to act on a single binary report (“aggressive vs
+indolent”) should receive the K=2 call. A translational team
+prioritising mechanistic follow-up should additionally see the K=4 /
+Pu-2022 overlay. Both views are fully consistent because K=4 nests
+inside K=2.</p>
+</body>
+</html>

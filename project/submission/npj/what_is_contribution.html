@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>본 paper 가 진짜 한 것 — "새 subtype" 인가?</title>
+<style>
+body {
+  font-family: -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  max-width: 1100px; margin: 0 auto; padding: 30px 24px 60px;
+  color: #1f2937; line-height: 1.7; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 60%);
+}
+.hero {
+  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+  color: white; padding: 36px 32px; border-radius: 16px;
+  text-align: center; margin: 20px 0 36px;
+  box-shadow: 0 10px 40px rgba(30,64,175,0.25);
+}
+.hero h1 { margin: 0 0 12px; font-size: 32px; line-height: 1.3; }
+.hero .sub { font-size: 16px; opacity: 0.95; }
+
+h2 { font-size: 24px; color: #1e40af; margin: 38px 0 14px; padding-bottom: 8px; border-bottom: 3px solid #1e40af; }
+h3 { font-size: 18px; color: #374151; margin: 24px 0 8px; }
+
+.verdict {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin: 24px 0;
+}
+.verdict .v {
+  background: white; border-radius: 12px; padding: 22px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.08); border-top: 5px solid;
+}
+.verdict .v.yes { border-top-color: #10b981; }
+.verdict .v.partial { border-top-color: #f59e0b; }
+.verdict .v.no { border-top-color: #dc2626; }
+.verdict .v .icon { font-size: 36px; margin-bottom: 8px; }
+.verdict .v .label { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+.verdict .v .title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.verdict .v.yes .title { color: #065f46; }
+.verdict .v.partial .title { color: #92400e; }
+.verdict .v.no .title { color: #991b1b; }
+.verdict .v .desc { font-size: 13px; color: #4b5563; line-height: 1.6; }
+
+.contribs {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin: 18px 0;
+}
+.contrib {
+  background: white; border-radius: 10px; padding: 18px 20px;
+  border-left: 4px solid #10b981; box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+}
+.contrib .num { font-size: 28px; color: #10b981; font-weight: 800; margin-bottom: 6px; }
+.contrib h4 { margin: 0 0 6px; color: #065f46; font-size: 15px; }
+.contrib p { margin: 0; font-size: 13px; color: #4b5563; line-height: 1.6; }
+.contrib .metric { font-size: 12px; color: #1e40af; font-weight: 600; margin-top: 6px; padding: 4px 10px; background: #eff6ff; border-radius: 4px; display: inline-block; }
+
+.didnt {
+  background: #fef2f2; border-radius: 10px; padding: 18px 22px;
+  border-left: 4px solid #dc2626; margin: 14px 0;
+}
+.didnt h4 { color: #991b1b; margin: 0 0 10px; font-size: 15px; }
+.didnt ul { margin: 0; padding-left: 22px; }
+.didnt li { color: #7f1d1d; font-size: 14px; margin: 6px 0; }
+.didnt li b { color: #991b1b; }
+
+.framing {
+  background: linear-gradient(135deg, #ecfdf5 0%, #dbeafe 100%);
+  padding: 26px 28px; border-radius: 14px; margin: 24px 0;
+  border-left: 6px solid #10b981;
+}
+.framing h3 { margin-top: 0; color: #065f46; }
+.framing .quote {
+  background: white; padding: 18px 22px; border-radius: 8px;
+  font-style: italic; color: #1f2937; line-height: 1.7;
+  border-left: 4px solid #10b981; margin: 12px 0;
+}
+
+.analogy {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 18px 0;
+}
+.analogy .panel {
+  background: white; border-radius: 10px; padding: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.analogy .panel.us { border-top: 4px solid #10b981; }
+.analogy .panel.them { border-top: 4px solid #6b7280; opacity: 0.85; }
+.analogy h4 { margin-top: 0; color: #1f2937; font-size: 15px; }
+.analogy .icon-large { font-size: 42px; margin-bottom: 8px; }
+.analogy ul { padding-left: 22px; font-size: 13px; color: #4b5563; }
+
+.compare-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  background: white; border-radius: 10px; overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+.compare-table th { background: #1e40af; color: white; padding: 12px; text-align: left; font-size: 13px; }
+.compare-table td { padding: 11px 14px; border-bottom: 1px solid #e5e7eb; font-size: 13.5px; vertical-align: top; }
+.compare-table tr:last-child td { border-bottom: 0; }
+.compare-table tr:nth-child(even) td { background: #f9fafb; }
+.stars { color: #f59e0b; font-size: 16px; letter-spacing: 1px; }
+.stars-faded { color: #d1d5db; font-size: 16px; letter-spacing: 1px; }
+
+.venue-fit {
+  background: white; border-radius: 12px; padding: 24px 28px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08); margin: 18px 0;
+  border-top: 4px solid #f59e0b;
+}
+.venue-fit h3 { color: #92400e; margin-top: 0; }
+.venue-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; border-bottom: 1px dashed #e5e7eb;
+}
+.venue-row:last-child { border-bottom: 0; }
+.venue-row .vname { font-weight: 700; min-width: 220px; color: #1e40af; }
+.venue-row .vfit { font-size: 13px; flex: 1; color: #4b5563; }
+.venue-row .vp { font-weight: 700; padding: 4px 12px; border-radius: 14px; font-size: 12px; }
+.venue-row .vp.green { background: #dcfce7; color: #065f46; }
+.venue-row .vp.yellow { background: #fef3c7; color: #92400e; }
+.venue-row .vp.red { background: #fee2e2; color: #991b1b; }
+
+.topnav {
+  background: linear-gradient(90deg, #1e40af, #3730a3);
+  color: white; padding: 12px 18px; border-radius: 8px;
+  margin: 0 0 24px; font-size: 13px;
+}
+.topnav a { color: #dbeafe; margin: 0 10px; text-decoration: none; }
+.topnav a:hover { color: white; text-decoration: underline; }
+
+@media (max-width: 768px) {
+  .verdict, .contribs, .analogy { grid-template-columns: 1fr; }
+  .venue-row { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .venue-row .vname { min-width: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+<a href="index.html"><b>🏠 Landing</b></a>·
+<a href="realfix_dashboard.html">🔥 REAL FIX</a>·
+<a href="reviewer_faq.html">❓ FAQ</a>·
+<a href="methods_deepdive.html">🔬 Methods</a>·
+<a href="biology_8gene.html">🧬 8-gene biology</a>·
+<a href="timeline_14day.html">⏱️ 48hr timeline</a>·
+<a href="editorial_manager_walkthrough.html">📤 EM 제출</a>·
+<a href="manuscript_v6.html">📕 Manuscript v6</a>·
+<a href="comments.html">💬 의견 모음</a>
+</div>
+
+<div class="hero">
+  <h1>🤔 본 paper 가 진짜 한 것은?<br>"새 subtype" 발견인가?</h1>
+  <div class="sub">정직한 framing — reviewer 의 "subtype claim" attack 사전 차단</div>
+</div>
+
+<h2>3 단어 요약</h2>
+
+<div class="verdict">
+  <div class="v partial">
+    <div class="icon">🟡</div>
+    <div class="label">완전 새 subtype?</div>
+    <div class="title">Partially Yes</div>
+    <div class="desc">DM1/DM2 라는 specific naming + characterization 은 우리 first; but BRAF-like/RAS-like 와 ρ=0.49 = 25% variance 공유 → "완전 새" 는 아님</div>
+  </div>
+  <div class="v yes">
+    <div class="icon">✅</div>
+    <div class="label">Sub-stratification + integration?</div>
+    <div class="title">YES (정확한 framing)</div>
+    <div class="desc">3가지 simultaneously 제공: statistical distinctness + BRAF outperformance (ΔAUC +0.13) + hot/cold immune integration (Cohen's d=1.68). prior framework 없음.</div>
+  </div>
+  <div class="v no">
+    <div class="icon">❌</div>
+    <div class="label">완전 novel cancer biology?</div>
+    <div class="title">No (정직)</div>
+    <div class="desc">TCGA Cell 2014 의 BRAF-like/RAS-like 위에 layer 추가; 그 framework 자체를 대체하지 않음. Nature Cancer 급 "discovery" 는 안 함.</div>
+  </div>
+</div>
+
+<h2>✅ 우리가 진짜 한 것 (6 contributions)</h2>
+
+<div class="contribs">
+  <div class="contrib">
+    <div class="num">①</div>
+    <h4>DM1/DM2 axis 명명 + 특성화</h4>
+    <p>"Dark Matter 1/2" specific naming. DM1 = MAPK-active inflammatory de-differentiated; DM2 = thyroid lineage preserved.</p>
+    <span class="metric">Bootstrap stability concordance > 0.92</span>
+  </div>
+  <div class="contrib">
+    <div class="num">②</div>
+    <h4>임상 deployable 8-gene panel</h4>
+    <p>NIS, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1 의 specific 8 combination. qPCR / NanoString deploy 가능.</p>
+    <span class="metric">CV AUC 0.962 · ΔAUC vs BRAF +0.113</span>
+  </div>
+  <div class="contrib">
+    <div class="num">③</div>
+    <h4>Hot/cold immune axis 통합</h4>
+    <p>Cytolytic + IFN-γ + immune fraction 의 4-evidence-layer composite. DM1=hot, DM2=cold 정량적 분리.</p>
+    <span class="metric">Cohen's d = +1.683 · MW p = 4.0 × 10⁻¹⁸</span>
+  </div>
+  <div class="contrib">
+    <div class="num">④</div>
+    <h4>PTC → PDTC → ATC trajectory placement</h4>
+    <p>DM1 ATC-proximal, DM2 cPTC-proximal 위치 정량화. Pseudotime 과 RAI score Spearman ρ=0.74.</p>
+    <span class="metric">n=670 across TCGA + GSE76039</span>
+  </div>
+  <div class="contrib">
+    <div class="num">⑤</div>
+    <h4>17 outliers preserved as biology</h4>
+    <p>BRAF/DM2-like 2개 + RAS/DM1-like 15개. mutation alone 으로 못 잡는 sub-stratification 의 quantitative 증명.</p>
+    <span class="metric">Spearman ρ(BRAF, DM1) = 0.49 — partial overlap not redundancy</span>
+  </div>
+  <div class="contrib">
+    <div class="num">⑥</div>
+    <h4>Methodological honesty layer</h4>
+    <p>Leak-free re-validation (4 cluster variants) + 5-tier underperformance framework + 6-principle robustness checklist + cross-platform 97% retention.</p>
+    <span class="metric">Future-proof methodology 제안</span>
+  </div>
+</div>
+
+<h2>❌ 우리가 안 한 것 (claim 안 함, 정직)</h2>
+
+<div class="didnt">
+  <h4>Reviewer 의 "subtype claim 과대" 공격 사전 차단</h4>
+  <ul>
+    <li><b>완전히 새로운 cancer subtype 발견 X</b> — NETM 같은 이전에 없던 분류 만들지 않음</li>
+    <li><b>BRAF-like / RAS-like 가 틀렸다고 주장 X</b> — DM-axis 가 BRAF/RAS 와 ρ=0.49 (25% variance 공유)</li>
+    <li><b>TCGA Cell 2014 의 4-group classification 대체 X</b> — 우리는 그 위에 layer 추가</li>
+    <li><b>OS prognostic biomarker claim X</b> — DM1/DM2 OS logrank p = 0.36 (TCGA-THCA 16 events 의 underpower; differentiation axis ≠ prognostic axis)</li>
+    <li><b>Pan-cancer subtype 발견 X</b> — Discussion 의 한 단락만 (signature-overlap only)</li>
+  </ul>
+  <div style="margin-top:12px;font-size:13px;color:#7f1d1d;font-style:italic;">→ 이 솔직함이 paper 의 strength. Overclaim 했다면 reviewer 가 catch 했을 것.</div>
+</div>
+
+<h2>🌳 DM1/DM2 는 누구의 sub-sub-type 인가? (정확한 hierarchical 위치)</h2>
+
+<div style="background:white;padding:24px 28px;border-radius:12px;box-shadow:0 4px 18px rgba(0,0,0,0.08);margin:18px 0;border-top:4px solid #1e40af;">
+<p style="margin-top:0;"><b>핵심 답</b>: Strict 한 sub-sub-type 이 아니라 <b>orthogonal sub-stratification axis</b>. 기존 BRAF-like/RAS-like 와 ρ=0.49 (25% variance 공유) — partial overlap.</p>
+
+<pre style="background:#1f2937;color:#fbbf24;padding:18px 20px;border-radius:8px;font-size:12px;overflow-x:auto;line-height:1.5;font-family:ui-monospace,monospace;margin:14px 0;">
+PTC (Papillary Thyroid Carcinoma)
+│
+├── (1) TCGA mutation [Cell 2014]
+│   ├── BRAF-like        (BRS52, ~56%)
+│   ├── RAS-like         (BRS52, ~10%)
+│   └── "Dark matter"    (driver-negative, ~30%)
+│
+├── (2) Liu-Xing 4-genotype [JAMA Oncol 2017]
+│   ├── BRAF V600E only  (~50%)
+│   ├── RAS only         (~10%)
+│   ├── TERT⁺            (~7%)
+│   └── Triple-negative  (~33%)
+│
+├── (3) WHO 2022 histology
+│   ├── cPTC / FVPTC / oxyphilic / columnar / etc.
+│
+└── ★ DM1 / DM2 (본 paper) — "orthogonal axis"
+    │  = expression-based differentiation continuum
+    │  = (1)/(2)/(3) 와 strict sub-sub-type 아니라
+    │     partial overlap + cross-cut
+    │
+    ├── DM1 (n=140): MAPK-active, de-diff, immune-hot
+    │   - BRAF V600E 99% → DM1
+    │   - "Dark matter" 의 72% → DM1
+    │   - cPTC enriched
+    │
+    └── DM2 (n=360): lineage preserved, well-diff, cold
+        - RAS-like 72% → DM2
+        - 15 RAS/DM1-like outliers (preserved as biology)
+        - FVPTC enriched (OR 3.7×)
+</pre>
+
+<table style="border-collapse:collapse;width:100%;font-size:13.5px;margin:14px 0;">
+<tr><th style="background:#1e40af;color:white;padding:10px;text-align:left;">비교 axis</th><th style="background:#1e40af;color:white;padding:10px;text-align:left;">DM1/DM2 와의 관계</th><th style="background:#1e40af;color:white;padding:10px;text-align:left;">상관도</th></tr>
+<tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;"><b>BRAF-like/RAS-like (BRS52)</b></td><td style="padding:10px;border-bottom:1px solid #e5e7eb;">가장 가까움 (partial)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;"><b>ρ = 0.49</b></td></tr>
+<tr style="background:#f9fafb;"><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Liu-Xing 4-genotype</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;">부분 overlap (BRAF/RAS 통해)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;">비슷</td></tr>
+<tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">WHO histology (cPTC/FVPTC)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Cross-cut (cPTC=DM1 enriched, FVPTC=DM2 enriched)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;">OR 2.4 / 3.7</td></tr>
+<tr style="background:#f9fafb;"><td style="padding:10px;border-bottom:1px solid #e5e7eb;">TERT promoter</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;">거의 무관 (Fisher p=0.65)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;">독립적 axis</td></tr>
+<tr><td style="padding:10px;">TDS (Yoo 16-gene differentiation score)</td><td style="padding:10px;">매우 가까움 (둘 다 differentiation)</td><td style="padding:10px;">더 높음</td></tr>
+</table>
+
+<p><b>왜 strict sub-sub-type 이 아닌가</b> (4 가지 이유):</p>
+<ul>
+<li><b>Strict containment 안 됨</b>: BRAF-like 의 99% 가 DM1 (= 3 outliers BRAF/DM2-like)</li>
+<li><b>RAS-like 도 partial</b>: 72% 만 DM2 (15 RAS/DM1-like outliers preserved as biology)</li>
+<li><b>Histology axis 와 cross-cut</b>: cPTC, columnar 등 다양한 histology 가 DM1 안에 공존</li>
+<li><b>Multi-factorial</b>: DM1/DM2 = f(BRAF, RAS, methylation, immune state, MAPK signaling, lineage TF level) — 단일 mutation 또는 histology 의 sub-sub-type 아님</li>
+</ul>
+
+<p style="background:#fef3c7;padding:14px 18px;border-radius:8px;border-left:4px solid #f59e0b;margin-top:18px;">
+  <b>정확한 한 줄 답</b>: "DM1/DM2 는 PTC 의 <b>expression-based differentiation continuum sub-stratification axis</b> 로, 기존 BRAF-like/RAS-like dichotomy (ρ=0.49 = 25% variance 공유) 와 partial 하게 align 하면서, 그 위에 hot/cold immune axis + 17 outliers 의 추가 정보를 capture 함. <b>Strict 한 sub-sub-type 관계가 아니라 orthogonal axis</b>."
+</p>
+</div>
+
+<h2>🌟 정확한 framing</h2>
+
+<div class="framing">
+  <h3>본 paper 의 contribution 한 문장</h3>
+  <div class="quote">
+    "본 8-gene RAI panel 은 기존 BRAF/RAS framework 위에 추가된 <b>sub-stratification + integration layer</b> 입니다. (i) statistical distinctness from mutation status (17 outliers preserved as biology, ρ=0.49); (ii) head-to-head outperformance over BRAF V600E in clinically relevant prediction (ΔAUC = +0.113~+0.130 across 4 leak-free cluster definitions); (iii) direct mapping to a hot/cold immune landscape (Cohen's d = +1.683). 이 세 가지를 simultaneously 제공하는 prior framework 는 없었습니다. 단, 본 paper 는 BRAF/RAS framework 의 대체가 아니라 그 위에 임상 deployable layer 를 추가한 것이며, OS prognostic claim 은 하지 않습니다."
+  </div>
+</div>
+
+<h2>🌌 비유로 이해하기</h2>
+
+<div class="analogy">
+  <div class="panel us">
+    <div class="icon-large">🪐</div>
+    <h4>본 paper = 기존 행성의 새 과학</h4>
+    <ul>
+      <li>"기존 행성 (BRAF-like)의 자전축 + 대기 구성 + 위성 system 통합 분석"</li>
+      <li>행성 자체는 알려진 것</li>
+      <li>그러나 <b>integration framework 자체가 novel</b></li>
+      <li>관측 도구 (8-gene panel) 도 novel</li>
+      <li>임상 적용 가능</li>
+    </ul>
+  </div>
+  <div class="panel them">
+    <div class="icon-large">⭐</div>
+    <h4>새 subtype 발견 = 새 행성 발견</h4>
+    <ul>
+      <li>"지금까지 안 보였던 행성 자체 발견"</li>
+      <li>본 paper 는 이게 <b>아닙니다</b> (정직)</li>
+      <li>그런 발견 시 Nature/Cell 급</li>
+      <li>본 paper 는 specialty journal (npj) 적합</li>
+    </ul>
+  </div>
+</div>
+
+<h2>📊 강점 비교 표 (정직)</h2>
+
+<table class="compare-table">
+<tr><th>항목</th><th>Strength</th><th>설명</th></tr>
+<tr><td>임상 deployable 8-gene panel</td><td><span class="stars">★★★</span></td><td>BRAF V600E 능가, qPCR/NanoString 가능</td></tr>
+<tr><td>분화 + immune 양 axis 통합</td><td><span class="stars">★★★</span></td><td>한 paper 에 두 axis 통합한 prior 없음</td></tr>
+<tr><td>Honest leak-free framework</td><td><span class="stars">★★★</span></td><td>methodological contribution 자체로 의미</td></tr>
+<tr><td>Cross-platform transfer 97% retention</td><td><span class="stars">★★</span></td><td>technical robustness</td></tr>
+<tr><td>TERT 4-group integration</td><td><span class="stars">★★</span></td><td>Liu-Xing 위에 추가</td></tr>
+<tr><td>새 subtype 발견</td><td><span class="stars">★</span><span class="stars-faded">★★</span></td><td>DM1/DM2 가 BRAF-like/RAS-like 와 strongly correlated</td></tr>
+<tr><td>완전 새 cancer biology</td><td><span class="stars-faded">★★★</span></td><td>안 함 — 정직히</td></tr>
+<tr><td>OS prognostic biomarker</td><td><span class="stars-faded">★★★</span></td><td>logrank p=0.36 — 본 paper scope 아님</td></tr>
+</table>
+
+<h2>🎯 Venue fit (적정 venue)</h2>
+
+<div class="venue-fit">
+  <h3>본 contribution 의 honest scope = npj-level fit</h3>
+
+  <div class="venue-row">
+    <span class="vname">npj Precision Oncology</span>
+    <span class="vfit">★ Best fit. Sub-stratification + clinical deployable + honest framework — npj 의 main scope.</span>
+    <span class="vp green">P 55-90%</span>
+  </div>
+  <div class="venue-row">
+    <span class="vname">BMC Cancer / Frontiers Oncol</span>
+    <span class="vfit">Backup. Broader oncology audience, friendlier review.</span>
+    <span class="vp green">P 70-85%</span>
+  </div>
+  <div class="venue-row">
+    <span class="vname">Endocrine-Related Cancer</span>
+    <span class="vfit">Specialty. Higher prestige but harder; thyroid 분야 전문 reviewer.</span>
+    <span class="vp yellow">P 50-60%</span>
+  </div>
+  <div class="venue-row">
+    <span class="vname">JCO Precision Oncology</span>
+    <span class="vfit">Aspirational. Higher bar; matches scope but 어려움.</span>
+    <span class="vp yellow">P 30-40%</span>
+  </div>
+  <div class="venue-row">
+    <span class="vname">Nature Cancer / Cancer Cell</span>
+    <span class="vfit">"새 subtype 발견" claim 필요한 venue. 본 paper 는 그 claim 안 함 → fit X.</span>
+    <span class="vp red">P 5-10%</span>
+  </div>
+</div>
+
+<h2>💡 핵심 takeaway</h2>
+
+<div style="background:#1e40af; color:white; padding: 26px 30px; border-radius: 12px; margin: 24px 0; box-shadow: 0 6px 24px rgba(30,64,175,0.3);">
+  <div style="font-size: 18px; font-weight: 700; margin-bottom: 12px;">정직한 sub-stratification framing 의 이점:</div>
+  <ol style="margin:0; padding-left: 26px; font-size: 14.5px; line-height: 1.85;">
+    <li><b>npj reviewer attack 면역</b>: "subtype 과대 claim" 공격 무의미 (claim 안 함)</li>
+    <li><b>Nature Cancer 부적합 인지</b>: 본 paper 의 venue 가 npj specialty 라는 정확한 self-positioning</li>
+    <li><b>Future paper 의 base</b>: 다음 paper 에서 "이 sub-stratification 위에 새 axis 추가" 식 progressive contribution 가능</li>
+    <li><b>본인 reputation</b>: honest researcher = 다음 paper 들의 review 에서 trust capital</li>
+    <li><b>임상 deploy</b>: 8-gene panel 의 clinical 가치는 venue 무관 (qPCR 으로 어느 병원에서든 사용 가능)</li>
+  </ol>
+</div>
+
+<p style="text-align:center; color:#6b7280; font-size: 13px; margin-top: 36px;">
+  v17 npj submission · 2026-04-27 · <a href="manuscript_v6.pdf" style="color:#1d4ed8;">📕 Manuscript v6</a> · <a href="reviewer_faq.html" style="color:#1d4ed8;">❓ FAQ 33 Q&A</a> · <a href="comments.html" style="color:#1d4ed8;">💬 의견</a>
+</p>
+
+<script src="comment_widget.js"></script>
+</body>
+</html>

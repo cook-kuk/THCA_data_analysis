@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>유형원 교수님 의견 한 곳에서 보기</title>
+<style>
+  body { font-family: -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+         max-width: 1100px; margin: 30px auto; padding: 0 24px; color: #1f2937; line-height: 1.7; }
+  h1 { font-size: 28px; border-bottom: 3px solid #1e40af; padding-bottom: 8px; }
+  h2 { font-size: 20px; color: #1e40af; margin-top: 26px; }
+  .section-block {
+    background: #f9fafb; border-left: 4px solid #1e40af;
+    padding: 14px 18px; border-radius: 6px; margin: 14px 0;
+  }
+  .section-block.empty { border-left-color: #d1d5db; opacity: 0.7; }
+  .comment {
+    background: white; border: 1px solid #e5e7eb; border-radius: 6px;
+    padding: 12px 14px; margin: 8px 0; font-size: 14px;
+  }
+  .comment .meta { font-size: 11px; color: #6b7280; margin-bottom: 6px; }
+  .comment .text { color: #1f2937; white-space: pre-wrap; }
+  .toolbar {
+    background: linear-gradient(90deg, #1e40af, #7c3aed); color: white;
+    padding: 16px 20px; border-radius: 8px; margin: 14px 0;
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  }
+  .toolbar button {
+    background: white; color: #1e40af; padding: 8px 14px;
+    border-radius: 6px; border: none; cursor: pointer;
+    font-weight: 600; font-size: 13px;
+  }
+  .toolbar button.danger { background: #fee2e2; color: #991b1b; }
+  .toolbar .count { color: white; font-weight: 700; font-size: 16px; }
+  .topnav {
+    background: linear-gradient(90deg, #1e40af, #3730a3);
+    color: white; padding: 10px 16px; border-radius: 6px;
+    margin: 12px 0; font-size: 13px;
+  }
+  .topnav a { color: #dbeafe; margin: 0 10px; text-decoration: none; }
+  .topnav a:hover { color: white; text-decoration: underline; }
+  .empty-msg {
+    text-align: center; padding: 40px 20px; color: #6b7280; font-style: italic;
+  }
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    margin: 14px 0;
+  }
+  .stat {
+    background: #1e40af; color: white; padding: 14px;
+    border-radius: 6px; text-align: center;
+  }
+  .stat .n { font-size: 22px; font-weight: 700; }
+  .stat .l { font-size: 11px; opacity: 0.9; }
+  pre.export {
+    background: #1f2937; color: #f3f4f6; padding: 14px;
+    border-radius: 6px; overflow-x: auto; font-size: 12px;
+    max-height: 400px; overflow-y: auto;
+  }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+<a href="index.html"><b>🏠 Landing</b></a>·
+<a href="realfix_dashboard.html">🔥 REAL FIX</a>·
+<a href="reviewer_faq.html">❓ FAQ</a>·
+<a href="methods_deepdive.html">🔬 Methods</a>·
+<a href="biology_8gene.html">🧬 8-gene biology</a>·
+<a href="timeline_14day.html">⏱️ 48hr timeline</a>·
+<a href="editorial_manager_walkthrough.html">📤 EM 제출</a>·
+<a href="manuscript_v6.html">📕 Manuscript v6</a>
+</div>
+
+<h1>💬 유형원 교수님 의견 — 한 곳에서 모두 보기</h1>
+<p style="color:#6b7280; font-size: 14px;">모든 dashboard / manuscript 의 floating "💬 의견 남기기" 버튼으로 저장된 의견이 여기에 모입니다. Browser localStorage 기반 — server 없이 동일 브라우저에서 retain.</p>
+
+<div class="stats" id="stats" style="grid-template-columns:repeat(4,1fr);">
+  <div class="stat"><div class="n" id="stat-total">0</div><div class="l">총 의견 수</div></div>
+  <div class="stat"><div class="n" id="stat-sections">0</div><div class="l">의견 있는 섹션</div></div>
+  <div class="stat"><div class="n" id="stat-authors">0</div><div class="l">작성자 수</div></div>
+  <div class="stat"><div class="n" id="stat-recent">—</div><div class="l">가장 최근</div></div>
+</div>
+
+<div id="author-filter" style="background:#eff6ff;border:1px solid #bfdbfe;padding:12px 16px;border-radius:6px;margin:14px 0;">
+  <b>작성자 별 필터</b>: <span id="author-buttons">로드 중...</span>
+</div>
+
+<div class="toolbar">
+  <span class="count" id="count-display">로드 중...</span>
+  <button onclick="exportMarkdown()">📋 Markdown 으로 export</button>
+  <button onclick="exportEmail()">📧 이메일로 export</button>
+  <button onclick="copyAllToClipboard()">📎 전체 복사</button>
+  <button onclick="downloadJson()">💾 JSON 다운로드</button>
+  <button class="danger" onclick="clearAll()">🗑 전부 삭제</button>
+</div>
+
+<h2>📍 섹션별 의견</h2>
+<div id="comments-container">
+  <div class="empty-msg">로드 중...</div>
+</div>
+
+<h2>📋 Export preview (markdown)</h2>
+<pre class="export" id="export-preview">로드 중...</pre>
+
+<script>
+// Try to load from SERVER first; fall back to localStorage if offline
+async function getCommentsAsync() {
+  try {
+    var r = await fetch('/api/comments?_=' + Date.now());
+    var data = await r.json();
+    if (data.ok && data.comments) {
+      // Merge with localStorage entries (in case some not yet synced)
+      var local = [];
+      try { local = JSON.parse(localStorage.getItem('yu_comments_v17') || '[]'); } catch(e) {}
+      // Server is authoritative; show server entries + flag any local that don't have server matching timestamp
+      var serverTs = new Set(data.comments.map(function(c) { return c.timestamp; }));
+      var localOnly = local.filter(function(c) { return !serverTs.has(c.timestamp); });
+      var merged = data.comments.concat(localOnly.map(function(c) { c._unsynced = true; return c; }));
+      return {comments: merged, source: 'server', n_server: data.comments.length, n_local_unsynced: localOnly.length};
+    }
+  } catch(e) {
+    console.warn('[comments] server fetch failed, using localStorage:', e);
+  }
+  // Fallback: localStorage only
+  try {
+    return {comments: JSON.parse(localStorage.getItem('yu_comments_v17') || '[]'), source: 'localStorage', n_server: 0, n_local_unsynced: 0};
+  } catch (e) { return {comments: [], source: 'localStorage', n_server: 0, n_local_unsynced: 0}; }
+}
+function getComments() {
+  // Sync wrapper for legacy code
+  try {
+    return JSON.parse(localStorage.getItem('yu_comments_v17') || '[]');
+  } catch (e) { return []; }
+}
+function saveComments(arr) {
+  localStorage.setItem('yu_comments_v17', JSON.stringify(arr));
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+function render() {
+  var arr = getComments();
+  var container = document.getElementById('comments-container');
+
+  document.getElementById('stat-total').textContent = arr.length;
+
+  if (arr.length === 0) {
+    container.innerHTML = '<div class="empty-msg">아직 의견 없음. 다른 페이지의 💬 버튼 클릭하면 저장됩니다.</div>';
+    document.getElementById('count-display').textContent = '0개 의견';
+    document.getElementById('stat-sections').textContent = '0';
+    document.getElementById('stat-recent').textContent = '—';
+    document.getElementById('export-preview').textContent = '(빈 상태)';
+    return;
+  }
+
+  // Group by section
+  var bySection = {};
+  arr.forEach(function(c) {
+    if (!bySection[c.section]) bySection[c.section] = [];
+    bySection[c.section].push(c);
+  });
+
+  var sections = Object.keys(bySection).sort();
+  document.getElementById('stat-sections').textContent = sections.length;
+  var latest = arr[arr.length - 1];
+  document.getElementById('stat-recent').textContent = latest ? new Date(latest.timestamp).toLocaleString('ko-KR') : '—';
+  document.getElementById('count-display').textContent = arr.length + '개 의견 · ' + sections.length + '개 섹션';
+
+  var html = '';
+  sections.forEach(function(s) {
+    var comments = bySection[s];
+    html += '<div class="section-block">';
+    html += '<h3>📍 ' + escapeHtml(s) + ' <span style="font-size:13px;color:#6b7280;">(' + comments.length + '개)</span></h3>';
+    comments.forEach(function(c) {
+      var t = new Date(c.timestamp).toLocaleString('ko-KR');
+      html += '<div class="comment">';
+      html += '<div class="meta">🕐 ' + escapeHtml(t) + ' · <a href="' + escapeHtml(c.url || '#') + '" style="color:#1d4ed8;">→ 원본 페이지</a></div>';
+      html += '<div class="text">' + escapeHtml(c.text) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html;
+
+  // Update preview
+  document.getElementById('export-preview').textContent = generateMarkdown(arr);
+}
+
+function generateMarkdown(arr) {
+  if (arr.length === 0) return '(빈 상태)';
+  var bySection = {};
+  arr.forEach(function(c) {
+    if (!bySection[c.section]) bySection[c.section] = [];
+    bySection[c.section].push(c);
+  });
+  var sections = Object.keys(bySection).sort();
+  var md = '# 유형원 교수님 의견 (v17 paper review)\n\n';
+  md += '생성: ' + new Date().toLocaleString('ko-KR') + '\n';
+  md += '총 의견: ' + arr.length + '개 / ' + sections.length + '개 섹션\n\n';
+  sections.forEach(function(s) {
+    md += '## 📍 ' + s + ' (' + bySection[s].length + '개)\n\n';
+    bySection[s].forEach(function(c, i) {
+      var t = new Date(c.timestamp).toLocaleString('ko-KR');
+      var a = c.author || '익명';
+      md += '### [' + a + '] 의견 #' + (i+1) + ' — ' + t + '\n\n';
+      md += c.text + '\n\n';
+      md += '_원본: ' + c.url + '_\n\n';
+    });
+  });
+  return md;
+}
+
+function exportMarkdown() {
+  var md = generateMarkdown(getComments());
+  var blob = new Blob([md], {type: 'text/markdown'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'yu_comments_' + new Date().toISOString().slice(0,10) + '.md';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportEmail() {
+  var arr = getComments();
+  if (arr.length === 0) { alert('빈 상태'); return; }
+  var subject = '유형원 교수님 의견 — v17 paper review (' + arr.length + '개)';
+  var body = generateMarkdown(arr);
+  var mailto = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  // Some browsers limit mailto length; use clipboard fallback if too long
+  if (mailto.length > 8000) {
+    copyAllToClipboard();
+    alert('의견이 너무 많아 mailto link 한도 초과 → 클립보드에 복사. 이메일 본문에 paste 하세요.');
+  } else {
+    location.href = mailto;
+  }
+}
+
+function copyAllToClipboard() {
+  var md = generateMarkdown(getComments());
+  navigator.clipboard.writeText(md).then(function() {
+    alert('✓ 클립보드에 복사됨 (markdown 형식)');
+  }).catch(function() {
+    alert('복사 실패. 아래 export preview 영역에서 직접 복사하세요.');
+  });
+}
+
+function downloadJson() {
+  var blob = new Blob([JSON.stringify(getComments(), null, 2)], {type: 'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'yu_comments_' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function clearAll() {
+  if (!confirm('정말 모든 의견을 삭제하시겠습니까? 복구 불가능.')) return;
+  if (!confirm('정말정말 확실하신가요?')) return;
+  saveComments([]);
+  render();
+}
+
+// Async render — fetches from server first, falls back to localStorage
+async function renderAsync() {
+  var result = await getCommentsAsync();
+  var arr = result.comments;
+  var container = document.getElementById('comments-container');
+
+  document.getElementById('stat-total').textContent = arr.length;
+
+  // Source indicator banner
+  var srcBanner = document.getElementById('source-banner');
+  if (!srcBanner) {
+    srcBanner = document.createElement('div');
+    srcBanner.id = 'source-banner';
+    srcBanner.style.cssText = 'background:#dcfce7;border:1px solid #86efac;color:#065f46;padding:8px 14px;border-radius:6px;margin:10px 0;font-size:13px;font-weight:600;';
+    document.querySelector('h2').parentNode.insertBefore(srcBanner, document.querySelector('h2'));
+  }
+  if (result.source === 'server') {
+    srcBanner.style.background = '#dcfce7';
+    srcBanner.style.borderColor = '#86efac';
+    srcBanner.style.color = '#065f46';
+    srcBanner.textContent = '✓ 서버에서 로드됨 (' + result.n_server + '개)' + (result.n_local_unsynced > 0 ? ' + 동기화 안 된 local ' + result.n_local_unsynced + '개' : '');
+  } else {
+    srcBanner.style.background = '#fef3c7';
+    srcBanner.style.borderColor = '#fcd34d';
+    srcBanner.style.color = '#92400e';
+    srcBanner.textContent = '⚠ 서버 fetch 실패 → localStorage 만 표시 (다른 브라우저 데이터 안 보임)';
+  }
+
+  if (arr.length === 0) {
+    container.innerHTML = '<div class="empty-msg">아직 의견 없음. 다른 페이지의 💬 버튼 클릭하면 저장됩니다.</div>';
+    document.getElementById('count-display').textContent = '0개 의견';
+    document.getElementById('stat-sections').textContent = '0';
+    document.getElementById('stat-authors').textContent = '0';
+    document.getElementById('stat-recent').textContent = '—';
+    document.getElementById('export-preview').textContent = '(빈 상태)';
+    document.getElementById('author-buttons').innerHTML = '<i style="color:#6b7280;">아직 의견 없음</i>';
+    return;
+  }
+
+  var bySection = {};
+  var byAuthor = {};
+  arr.forEach(function(c) {
+    if (!bySection[c.section]) bySection[c.section] = [];
+    bySection[c.section].push(c);
+    var a = c.author || '익명';
+    if (!byAuthor[a]) byAuthor[a] = 0;
+    byAuthor[a]++;
+  });
+
+  var sections = Object.keys(bySection).sort();
+  var authors = Object.keys(byAuthor).sort(function(a,b) { return byAuthor[b] - byAuthor[a]; });
+  document.getElementById('stat-sections').textContent = sections.length;
+  document.getElementById('stat-authors').textContent = authors.length;
+  var latest = arr[arr.length - 1];
+  document.getElementById('stat-recent').textContent = latest ? new Date(latest.timestamp).toLocaleString('ko-KR') : '—';
+  document.getElementById('count-display').textContent = arr.length + '개 의견 · ' + sections.length + '개 섹션 · ' + authors.length + '명 작성자';
+
+  // Author filter buttons
+  var ab = document.getElementById('author-buttons');
+  var filterAuthor = window._activeAuthor || null;
+  var btnHtml = '<button onclick="window._activeAuthor=null;render()" style="background:' + (!filterAuthor ? '#1e40af' : '#e5e7eb') + ';color:' + (!filterAuthor ? 'white' : '#1f2937') + ';border:0;padding:5px 12px;border-radius:14px;font-size:12px;cursor:pointer;margin-right:6px;font-weight:600;">전체 (' + arr.length + ')</button>';
+  authors.forEach(function(a) {
+    var color = colorForAuthor(a);
+    var active = filterAuthor === a;
+    btnHtml += '<button onclick="window._activeAuthor=' + JSON.stringify(a) + ';render()" style="background:' + (active ? color.bg : '#fff') + ';color:' + (active ? 'white' : color.fg) + ';border:1px solid ' + color.fg + ';padding:5px 12px;border-radius:14px;font-size:12px;cursor:pointer;margin-right:6px;font-weight:600;">' + escapeHtml(a) + ' (' + byAuthor[a] + ')</button>';
+  });
+  ab.innerHTML = btnHtml;
+
+  // Filter by author if active
+  if (filterAuthor) {
+    bySection = {};
+    arr.filter(function(c) { return (c.author || '익명') === filterAuthor; }).forEach(function(c) {
+      if (!bySection[c.section]) bySection[c.section] = [];
+      bySection[c.section].push(c);
+    });
+    sections = Object.keys(bySection).sort();
+  }
+
+  var html = '';
+  sections.forEach(function(s) {
+    var comments = bySection[s];
+    html += '<div class="section-block">';
+    html += '<h3>📍 ' + escapeHtml(s) + ' <span style="font-size:13px;color:#6b7280;">(' + comments.length + '개)</span></h3>';
+    comments.forEach(function(c) {
+      var t = new Date(c.timestamp).toLocaleString('ko-KR');
+      var a = c.author || '익명';
+      var color = colorForAuthor(a);
+      var authorBadge = '<span style="background:' + color.bg + ';color:white;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;margin-right:6px;">' + escapeHtml(a) + '</span>';
+      var unsyncedTag = c._unsynced ? ' <span style="background:#fef3c7;color:#92400e;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:bold;">로컬 only</span>' : '';
+      html += '<div class="comment">';
+      html += '<div class="meta">' + authorBadge + '🕐 ' + escapeHtml(t) + unsyncedTag + ' · <a href="' + escapeHtml(c.url || '#') + '" style="color:#1d4ed8;">→ 원본 페이지</a></div>';
+      html += '<div class="text">' + escapeHtml(c.text) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  container.innerHTML = html || '<div class="empty-msg">선택한 작성자의 의견이 없습니다.</div>';
+
+  document.getElementById('export-preview').textContent = generateMarkdown(arr);
+}
+
+// Author color palette (deterministic)
+function colorForAuthor(name) {
+  var palette = [
+    {bg:'#1e40af', fg:'#1e40af'},  // blue
+    {bg:'#10b981', fg:'#10b981'},  // green
+    {bg:'#f59e0b', fg:'#f59e0b'},  // amber
+    {bg:'#dc2626', fg:'#dc2626'},  // red
+    {bg:'#7c3aed', fg:'#7c3aed'},  // purple
+    {bg:'#0891b2', fg:'#0891b2'},  // cyan
+    {bg:'#be123c', fg:'#be123c'},  // pink
+    {bg:'#65a30d', fg:'#65a30d'},  // lime
+  ];
+  // Simple hash of name → palette index
+  var h = 0;
+  for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+  return palette[h % palette.length];
+}
+
+// Override sync render with async version
+function render() { renderAsync(); }
+
+// Override clearAll to use server endpoint
+async function clearAll() {
+  if (!confirm('정말 모든 의견을 삭제하시겠습니까? 복구 불가능 (서버 + localStorage 둘 다).')) return;
+  if (!confirm('정말정말 확실하신가요?')) return;
+  try {
+    var r = await fetch('/api/comments?confirm=1', {method: 'DELETE'});
+    var data = await r.json();
+    if (data.ok) {
+      saveComments([]);
+      alert('✓ 서버 + localStorage 모두 삭제됨');
+      render();
+    } else {
+      alert('❌ 서버 삭제 실패: ' + (data.error || '알 수 없음'));
+    }
+  } catch(e) {
+    saveComments([]);
+    alert('⚠ 서버 응답 없음 → localStorage 만 삭제됨');
+    render();
+  }
+}
+
+// Initial render
+renderAsync();
+window.addEventListener('storage', function(e) {
+  if (e.key === 'yu_comments_v17') renderAsync();
+});
+// Auto-refresh every 30s in case other browser added comments
+setInterval(renderAsync, 30000);
+</script>
+
+</body>
+</html>

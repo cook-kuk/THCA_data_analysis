@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>쉽게 풀어 쓰는 본 paper — DM1/DM2 가 뭐야?</title>
+<style>
+body {
+  font-family: -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  max-width: 1000px; margin: 0 auto; padding: 30px 24px 80px;
+  color: #1f2937; line-height: 1.85; background: #fefce8;
+}
+.hero {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  padding: 32px 36px; border-radius: 16px; text-align: center;
+  margin: 20px 0 36px; border: 3px solid #fbbf24;
+  box-shadow: 0 8px 28px rgba(251,191,36,0.25);
+}
+.hero h1 { margin: 0 0 12px; font-size: 30px; color: #78350f; line-height: 1.4; }
+.hero .sub { font-size: 16px; color: #92400e; }
+
+h2 {
+  font-size: 22px; color: #1f2937; margin: 36px 0 14px;
+  padding: 10px 16px; background: white; border-left: 6px solid #f59e0b;
+  border-radius: 6px;
+}
+h3 { font-size: 17px; color: #92400e; margin: 24px 0 10px; }
+
+.card {
+  background: white; padding: 22px 26px; border-radius: 12px;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.06); margin: 16px 0;
+}
+.compare-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  background: white; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.07);
+}
+.compare-table th { background: #1e40af; color: white; padding: 12px 14px; text-align: left; font-size: 13.5px; }
+.compare-table td { padding: 12px 14px; border-bottom: 1px solid #e5e7eb; font-size: 14px; vertical-align: top; }
+.compare-table tr:last-child td { border-bottom: 0; }
+.compare-table .h { background: #fef3c7; color: #92400e; font-weight: 700; }
+.compare-table .c { background: #dbeafe; color: #1e40af; font-weight: 700; }
+
+.analogy-box {
+  background: white; padding: 22px 26px; border-radius: 12px;
+  margin: 18px 0; box-shadow: 0 3px 14px rgba(0,0,0,0.06);
+  border-left: 6px solid #7c3aed;
+}
+.analogy-box h3 { margin-top: 0; color: #5b21b6; }
+
+.three-contribs {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 18px 0;
+}
+.three-contribs .item {
+  background: white; padding: 22px; border-radius: 12px;
+  border-top: 4px solid #10b981; box-shadow: 0 3px 14px rgba(0,0,0,0.06);
+}
+.three-contribs .item .num {
+  font-size: 36px; font-weight: 800; color: #10b981;
+}
+.three-contribs .item h4 { margin: 6px 0 8px; color: #065f46; font-size: 15px; }
+.three-contribs .item p { margin: 0; font-size: 13.5px; color: #4b5563; }
+
+.qa {
+  background: white; padding: 18px 22px; border-radius: 10px;
+  margin: 14px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  border-left: 4px solid #1e40af;
+}
+.qa .q { color: #92400e; font-weight: 700; margin-bottom: 6px; font-size: 15px; }
+.qa .a { color: #1f2937; font-size: 14px; }
+
+.summary-table {
+  width: 100%; border-collapse: collapse; margin: 16px 0;
+  background: white; border-radius: 12px; overflow: hidden;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.07);
+}
+.summary-table th { background: #065f46; color: white; padding: 14px; text-align: left; font-size: 14px; }
+.summary-table td { padding: 12px 16px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+.summary-table .yes { color: #065f46; font-weight: 700; }
+.summary-table .no { color: #991b1b; font-weight: 700; }
+
+.takeaway {
+  background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+  color: white; padding: 26px 30px; border-radius: 14px;
+  margin: 28px 0 18px; box-shadow: 0 8px 28px rgba(30,64,175,0.3);
+}
+.takeaway h3 { color: white; margin-top: 0; }
+.takeaway .big { font-size: 18px; line-height: 1.7; }
+.takeaway .one-liner {
+  background: rgba(255,255,255,0.15); padding: 14px 18px;
+  border-radius: 8px; margin-top: 14px; font-style: italic;
+  border-left: 4px solid #fbbf24; backdrop-filter: blur(4px);
+}
+
+.topnav {
+  background: linear-gradient(90deg, #1e40af, #3730a3);
+  color: white; padding: 12px 18px; border-radius: 8px;
+  margin: 0 0 24px; font-size: 13px;
+}
+.topnav a { color: #dbeafe; margin: 0 10px; text-decoration: none; }
+.topnav a:hover { color: white; text-decoration: underline; }
+
+.scenario {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0;
+}
+.scenario > div {
+  background: white; padding: 18px 20px; border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.scenario .ours { border-top: 4px solid #10b981; }
+.scenario .theirs { border-top: 4px solid #6b7280; opacity: 0.85; }
+.scenario h4 { margin-top: 0; font-size: 15px; }
+.scenario .ours h4 { color: #065f46; }
+.scenario .theirs h4 { color: #4b5563; }
+
+@media (max-width: 768px) {
+  .three-contribs { grid-template-columns: 1fr; }
+  .scenario { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+<a href="index.html"><b>🏠 Landing</b></a>·
+<a href="what_is_contribution.html">🤔 진짜 한 것</a>·
+<a href="realfix_dashboard.html">🔥 REAL FIX</a>·
+<a href="reviewer_faq.html">❓ FAQ</a>·
+<a href="methods_deepdive.html">🔬 Methods</a>·
+<a href="biology_8gene.html">🧬 8-gene biology</a>·
+<a href="manuscript_v6.html">📕 Manuscript v6</a>·
+<a href="comments.html">💬 의견 모음</a>
+</div>
+
+<div class="hero">
+  <h1>📚 쉽게 풀어 쓰는 본 paper<br>"DM1/DM2 가 도대체 뭐야?"</h1>
+  <div class="sub">학술 용어 빼고 일상 한국어로 설명</div>
+</div>
+
+<h2>📖 한 줄 요약</h2>
+
+<div class="card">
+<p style="font-size: 17px; margin: 0;">갑상선암 환자가 <b>RAI 치료 (방사성 요오드)</b> 잘 들을지 미리 알고 싶은데, 기존 검사 (BRAF V600E mutation) 가 정확도 약함. 우리는 <b>8개 유전자 expression</b> 측정해서 더 정확하게 예측하는 검사를 만들고, 환자를 두 그룹으로 나눔.</p>
+</div>
+
+<h2>👥 환자를 두 그룹으로 나눔</h2>
+
+<table class="compare-table">
+<tr>
+  <th>특징</th>
+  <th class="h">DM1 (Hot)</th>
+  <th class="c">DM2 (Cold)</th>
+</tr>
+<tr>
+  <td><b>갑상선 정체성</b></td>
+  <td>본래 갑상선 모습 잃음 (탈분화)</td>
+  <td>갑상선 정체성 유지 (well-differentiated)</td>
+</tr>
+<tr>
+  <td><b>Iodine pump (NIS)</b></td>
+  <td>약함 → 요오드 못 받아들임</td>
+  <td>강함 → 요오드 잘 받음</td>
+</tr>
+<tr>
+  <td><b>면역 세포</b></td>
+  <td>많이 침투 (hot tumor)</td>
+  <td>적음 (cold tumor)</td>
+</tr>
+<tr>
+  <td><b>MAPK 신호</b></td>
+  <td>활성화 (암 진행 ↑)</td>
+  <td>정상</td>
+</tr>
+<tr>
+  <td><b>RAI 치료 효과</b></td>
+  <td>잘 안 들 가능성 ↑</td>
+  <td>잘 들음</td>
+</tr>
+<tr>
+  <td><b>누가 이 그룹?</b></td>
+  <td>99% BRAF V600E + 일부 RAS</td>
+  <td>대부분 RAS + 일부 BRAF</td>
+</tr>
+<tr>
+  <td><b>예상 임상 결정</b></td>
+  <td>RAI 외 추가 치료 고려<br>(MEK inhibitor, redifferentiation therapy)</td>
+  <td>표준 RAI 진행</td>
+</tr>
+</table>
+
+<p style="font-size:15px; padding-left: 8px; color: #4b5563;">
+→ 한 줄: <b>"갑상선 본래 모습 잃은 환자 (DM1) vs 잘 유지하는 환자 (DM2)"</b>
+</p>
+
+<h2>🤔 그럼 이게 "새 발견" 인가?</h2>
+
+<div class="card" style="background: #fef2f2; border-left: 6px solid #dc2626;">
+<p style="font-size: 16px; margin: 0;"><b>정직한 답: 완전 새 발견은 아닙니다.</b></p>
+<p style="margin: 10px 0 0;">이미 다른 사람들이 비슷한 분류 했음:</p>
+<ul style="margin: 6px 0;">
+  <li><b>TCGA 2014</b>: "BRAF-like vs RAS-like" 분류</li>
+  <li><b>Yoo 2017</b>: "TDS (Thyroid Differentiation Score)"</li>
+</ul>
+<p style="margin: 10px 0 0;">우리 <b>DM1/DM2 가 그것들과 약 50% 일치</b> (Spearman ρ = 0.49) → 완전 새로운 그룹 아니라 약간 다른 측정 방식의 비슷한 분류.</p>
+</div>
+
+<div class="analogy-box">
+<h3>🧍 비유로 이해</h3>
+<p>다른 사람이 이미 <b>"키 큰 사람 vs 작은 사람"</b> 분류했는데, 우리가 약간 다른 방식으로 measure 해서 거의 비슷한 그룹을 만든 셈.</p>
+<p style="margin-bottom: 0;">→ <b>50% 동일 + 50% 새 정보</b>. 새 분류 발견은 아니지만 측정 방식 + 추가 정보 (면역 axis) 가 새로움.</p>
+</div>
+
+<h2>✨ 그럼 우리 contribution 은 무엇?</h2>
+
+<p style="font-size: 15px; padding: 0 8px; color: #4b5563;">3가지가 진짜 새로움:</p>
+
+<div class="three-contribs">
+<div class="item">
+  <div class="num">①</div>
+  <h4>임상 deploy 가능한 8-gene 검사</h4>
+  <p>이전: 52~67개 gene 필요 → 비싸고 어려움<br>
+  본 paper: <b>8개 gene 만</b> → qPCR ~$50 에 30분 안 결과<br>
+  한국 어느 병원이든 즉시 deploy 가능</p>
+</div>
+<div class="item">
+  <div class="num">②</div>
+  <h4>분화 + 면역 두 axis 통합</h4>
+  <p>이전: 분화만 (TDS, BRS) 또는 면역만 (hot/cold)<br>
+  본 paper: <b>한 paper 에 두 axis 같이 + 정량적</b> (Cohen's d = 1.68)<br>
+  면역치료 + RAI 결정 둘 다 한 번에</p>
+</div>
+<div class="item">
+  <div class="num">③</div>
+  <h4>정직한 검증 protocol</h4>
+  <p>"Circular validation 의심 → 4가지 cluster 변형으로 재검증"<br>
+  "AUC 안 나오는 cohort → 5-tier framework 으로 정직 explain"<br>
+  이 protocol 자체가 다른 paper 들의 reference 가 될 수 있음</p>
+</div>
+</div>
+
+<h2>🌌 한 줄 비유</h2>
+
+<div class="scenario">
+  <div class="ours">
+    <h4>✅ 본 paper</h4>
+    <div style="font-size:32px; margin-bottom: 6px;">🔭</div>
+    <p><b>기존 행성을 더 정확하게 측정하는 휴대용 망원경 + 정직한 측정 protocol</b></p>
+    <ul style="font-size: 13px;">
+      <li>행성 자체는 알려진 것 (BRAF-like)</li>
+      <li>그러나 측정 도구 (8-gene panel) 가 새로움</li>
+      <li>임상 적용 가능</li>
+      <li>정직한 검증 framework</li>
+      <li>npj specialty journal 적합 ★</li>
+    </ul>
+  </div>
+  <div class="theirs">
+    <h4>❌ 새 subtype 발견 (안 함)</h4>
+    <div style="font-size:32px; margin-bottom: 6px;">⭐</div>
+    <p><b>지금까지 안 보였던 행성 자체 발견</b></p>
+    <ul style="font-size: 13px;">
+      <li>새 cancer biology 발견</li>
+      <li>본 paper 는 이게 아닙니다 (정직)</li>
+      <li>그런 발견 시 Nature/Cell 급</li>
+      <li>본 paper scope 외</li>
+    </ul>
+  </div>
+</div>
+
+<h2>❓ Reviewer 가 물으면 한 줄 답</h2>
+
+<div class="qa">
+<div class="q">Q: "이게 새로운 subtype 인가?"</div>
+<div class="a">A: <b>"새 subtype 발견은 아닙니다.</b> 기존 BRAF/RAS 분류를 (a) 8개 gene 으로 임상 deployable 하게 simplify, (b) 면역 axis 와 통합, (c) 정직한 leak-free protocol 로 재검증한 paper 입니다."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q: "BRAF-like 의 단순 재명명 아닌가?"</div>
+<div class="a">A: ρ = 0.49 = <b>partial overlap</b> (25% variance 공유). BRAF-like 의 99% 가 DM1 (1% outliers), RAS-like 의 72% 만 DM2 (28% outliers preserved as biology). 또한 hot/cold immune integration (Cohen's d = 1.683) 와 17 outliers 의 capture 가 추가 정보. <b>단순 재명명 아니라 sub-stratification axis</b>.</div>
+</div>
+
+<div class="qa">
+<div class="q">Q: "OS 생존에 영향 있나?"</div>
+<div class="a">A: <b>없습니다 (정직).</b> DM1/DM2 OS logrank p = 0.36. 단, TCGA-THCA 의 OS event 가 16/504 = 3.2% 로 underpowered. DM1/DM2 는 <b>RAI 반응성 axis</b> 이지 prognostic axis 아님. 본 paper 의 prognostic axis 는 TERT 4-group (Liu-Xing).</div>
+</div>
+
+<h2>📋 정리표</h2>
+
+<table class="summary-table">
+<tr><th style="width:60%;">본 paper 가</th><th style="width:40%;">한 / 안 한</th></tr>
+<tr><td>임상 즉시 적용 가능한 8-gene 검사 만들었나?</td><td><span class="yes">✅ YES</span></td></tr>
+<tr><td>분화 + 면역 두 axis 통합?</td><td><span class="yes">✅ YES</span></td></tr>
+<tr><td>정직한 검증 protocol (leak-free + 5-tier framework)?</td><td><span class="yes">✅ YES</span></td></tr>
+<tr><td>BRAF V600E 보다 정확? (ΔAUC +0.13)</td><td><span class="yes">✅ YES</span></td></tr>
+<tr><td>Cross-platform transfer 잘 됨? (97% retention)</td><td><span class="yes">✅ YES</span></td></tr>
+<tr><td>완전 새로운 cancer subtype 발견?</td><td><span class="no">❌ NO</span></td></tr>
+<tr><td>TCGA 2014 분류 대체?</td><td><span class="no">❌ NO</span></td></tr>
+<tr><td>OS prognostic biomarker?</td><td><span class="no">❌ NO</span></td></tr>
+<tr><td>Pan-cancer subtype?</td><td><span class="no">❌ NO (signature-overlap만 mention)</span></td></tr>
+</table>
+
+<div class="takeaway">
+<h3>💡 핵심 takeaway</h3>
+<div class="big">
+"새 발견" 이 아니라 <b>"임상 적용 가능한 도구 + 정직한 검증 protocol"</b> 입니다.
+</div>
+<div class="one-liner">
+이 honest framing 자체가 paper 의 <b>강점</b> — overclaim 했으면 reviewer attack 받았을 것. 본 contribution 의 정확한 scope = npj specialty journal 의 적정 fit. Nature Cancer 급 "새 subtype" claim 은 안 함, npj 의 "임상 deployable + sub-stratification + honest framework" claim 은 정확히 맞음.
+</div>
+</div>
+
+<p style="text-align:center; color:#6b7280; font-size: 13px; margin-top: 36px;">
+  v17 npj submission · 친절한 설명 · <a href="manuscript_v6.pdf" style="color:#1d4ed8;">📕 Manuscript v6 (영문 학술)</a> · <a href="what_is_contribution.html" style="color:#1d4ed8;">🤔 hierarchical 위치</a> · <a href="comments.html" style="color:#1d4ed8;">💬 의견 남기기</a>
+</p>
+
+<script src="comment_widget.js"></script>
+</body>
+</html>

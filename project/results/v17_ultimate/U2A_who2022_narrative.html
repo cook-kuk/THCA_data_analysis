@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>U2A_who2022_narrative</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <link rel="stylesheet" href="../../_md_theme.css" />
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">U2A_who2022_narrative</h1>
+</header>
+<h1
+id="v17-ultimate-u2a-who-2022-thyroid-morphology-mapped-onto-dm1dm2">v17
+ULTIMATE U2A — WHO 2022 thyroid morphology mapped onto DM1/DM2</h1>
+<p><strong>Cohort.</strong> TCGA-THCA primary tumors with v17 DM cluster
+labels (n=500). After applying the WHO 2022 mapping (24 NIFTP /
+non-thyroid / unmappable cases excluded), <strong>n=476</strong> tumors
+enter the concordance analysis.</p>
+<p><strong>WHO 2022 mapping rules.</strong> - <em>Classical / usual
+PTC</em> -&gt; cPTC (BRAF-like) -&gt; expected DM1. - <em>Tall cell
+variant</em>, <em>columnar cell variant</em>, <em>diffuse sclerosing
+variant</em> -&gt; aggressive cPTC umbrella -&gt; expected DM1. -
+<em>Follicular variant PTC (FVPTC)</em>: WHO 2022 splits this into
+<strong>IEFVPTC</strong> (invasive encapsulated FVPTC, RAS-like,
+indolent -&gt; DM2) and <strong>infiltrative FVPTC</strong> (BRAF-like,
+behaves like cPTC -&gt; DM1). <strong>Limitation:</strong> TCGA
+<code>HISTOLOGICAL_DIAGNOSIS</code> records “Thyroid Papillary Carcinoma
+- Follicular (&gt;=99% follicular patterns)” without consistently
+distinguishing encapsulated vs infiltrative architecture. We therefore
+use <strong>FVPTC overall as a RAS-like proxy</strong> (the WHO 2022
+majority subtype within this category) and flag the mapping as
+medium-confidence. - <em>NIFTP</em> (non-invasive encapsulated FVPTC,
+reclassified 2017) is not malignant and is excluded. - <em>Poorly
+differentiated / anaplastic / DHGTC</em>: rare in TCGA, mapped to the
+aggressive arm (DM1).</p>
+<p><strong>Cluster alignment.</strong> In the leak-free R1A label file
+used here, <code>'DM2'</code> is the BRAF-like cluster (cPTC majority)
+and <code>'DM1'</code> is the RAS-like cluster (FVPTC majority). This is
+auto-detected from the cPTC distribution and reported transparently — it
+differs from the manuscript v6 convention (DM1 = BRAF-like) because
+R1A’s kappa-aware alignment to the original TIERA67 cluster yielded a
+kappa of -0.79 (label flip preserved because partition equivalence was
+the optimisation target, not name).</p>
+<p><strong>Headline result.</strong> - <strong>BRAF-like cluster (‘DM2’)
+&lt;-&gt; cPTC concordance: 84.3%</strong> (cPTC -&gt; ‘DM2’). -
+<strong>RAS-like cluster (‘DM1’) &lt;-&gt; (I)EFVPTC concordance:
+77.5%</strong> (FVPTC -&gt; ‘DM1’). - Overall Cohen’s kappa (after
+BRAF/RAS-aligned relabelling) = <strong>0.567</strong>, Fisher OR =
+<strong>20.35</strong>, p = <strong>2.47e-33</strong>. - Sensitivity
+(BRAF-like correctly placed in DM1) = 85.6%. - Specificity (RAS-like
+correctly placed in DM2) = 77.5%. - PPV (DM1 -&gt; BRAF-like) = 93.3%. -
+NPV (DM2 -&gt; RAS-like) = 59.4%.</p>
+<p><strong>Interpretation.</strong> v17 DM1/DM2 is not orthogonal to
+morphology — it is a <strong>transcriptomic re-derivation of the WHO
+2022 morphologic axis</strong>. The BRAF-like / RAS-like dichotomy that
+pathologists draw under the microscope (cPTC + tall cell + columnar +
+diffuse-sclerosing on one side, encapsulated follicular variant on the
+other) is recovered, in expression space alone, by DM1/DM2 with kappa =
+0.57. This is the strongest possible biological control for an
+unsupervised cluster: it tells us that DM1 and DM2 are not
+methodological artefacts of LODO ComBat, but quantitative measurements
+of the same morphologic axis that has organised the WHO 2022
+classification.</p>
+<p><strong>Caveat.</strong> The principal ceiling on kappa is the FVPTC
+encap-vs-infiltrative ambiguity in TCGA. WHO 2022 reclassifies ~70% of
+historical FVPTC as IEFVPTC (RAS-like) and ~30% as infiltrative
+(BRAF-like). Because TCGA does not encode the encapsulation status,
+every FVPTC tumor we score against DM2 includes ~30% that should belong
+to DM1, lower-bounding our observed concordance. Sites with
+subtype-aware re-review (or any future GDC update that distinguishes
+IEFVPTC) would push kappa upward.</p>
+<p><strong>Files.</strong> - mapping table:
+<code>project/results/v17_ultimate/U2A_who2022_mapping.tsv</code> -
+metrics JSON:
+<code>project/results/v17_ultimate/U2A_morphology_concordance.json</code>
+- figure (PNG/PDF):
+<code>project/results/v17_ultimate/figures/U2A_who2022_concordance.png</code></p>
+</body>
+</html>
