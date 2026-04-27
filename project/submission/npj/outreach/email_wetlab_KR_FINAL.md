@@ -20,14 +20,14 @@
 
 To: [LAB] [PI 성함] 교수님 <[PI 이메일]>
 From: 국승호 (Seungho Cook) <kukshomr@gmail.com>
-CC: 유 교수님 (Yu Kyungho)
+CC: 유 교수님 (Yu Hyeong Won)
 Subject: 갑상선 유두암 8-gene RAI 반응성 panel — [LAB] qPCR 또는 NanoString 협력 검증 제안
 
 ---
 
 존경하는 [PI 성함] 교수님,
 
-안녕하십니까. 저는 독립 컴퓨터과학 연구자 **국승호**이며, [Yu Kyungho 교수님 성함] 교수님과 공동 1저자·교신저자 관계로 갑상선암 유전체 분석 연구를 진행 중입니다.
+안녕하십니까. 저는 독립 컴퓨터과학 연구자 **국승호**이며, 유형원 교수님과 공동 1저자·교신저자 관계로 갑상선암 유전체 분석 연구를 진행 중입니다.
 
 최근 TCGA-THCA 513명 갑상선 유두암 환자 재분석을 통해 **8-gene RAI 반응성 panel** (NIS/SLC5A5, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1) 을 발견하였고, 5-fold CV AUC 0.954, BRAF V600E 단독 (AUC 0.822) 대비 ΔAUC = **+0.132** 의 정량적 우월성을 입증했습니다. 4-cohort meta-analysis 에서 pooled AUC = 0.980 (I² = 0%) 의 robustness 도 확인했으며, Decision Curve Analysis 에서 임상 threshold 0.05–0.95 의 91/91 지점에서 BRAF-only 대비 dominant 한 net benefit 을 보입니다.
 
@@ -55,7 +55,7 @@ Subject: 갑상선 유두암 8-gene RAI 반응성 panel — [LAB] qPCR 또는 Na
 ## 2. 협력 framework
 
 - **본 연구 1저자**: 국승호 (분석 lead)
-- **공동 교신저자**: [Yu Kyungho 교수님] + [LAB PI 성함] (co-corresponding)
+- **공동 교신저자**: 유형원 교수님 + [LAB PI 성함] (co-corresponding)
 - **Wet-lab 검증 part 별도 figure/section** 으로 명시 ("Korean wet-lab validation" 단락 + 별도 figure)
 - **저자 형식**:
   - npj revision round 에 통합되면 → 모든 contributor 가 published author
@@ -87,7 +87,7 @@ Subject: 갑상선 유두암 8-gene RAI 반응성 panel — [LAB] qPCR 또는 Na
 독립 연구자 + 박사과정 학생 (서울대 융합과학기술대학원)
 이메일: kukshomr@gmail.com
 
-**공동 교신저자**: [Yu Kyungho 교수님 성함], [소속]
+**공동 교신저자**: 유형원, [소속]
 
 ---
 

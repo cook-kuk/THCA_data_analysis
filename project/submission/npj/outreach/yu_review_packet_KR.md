@@ -41,8 +41,8 @@
 
 | # | 결정 항목 | 현 상태 / 후보 | 교수님 의견 부탁드립니다 |
 |---|-----------|--------------|------------------------|
-| 1 | **저자 표기 (Yu Kyungho 풀네임)** | manuscript / cover letter 의 placeholder `[Yu Kyungho]` — 한글 + 영문 표기 결정 필요 | 사용하실 영문 spelling (예: Kyungho Yu vs Kyung-Ho Yu) |
-| 2 | **소속 affiliation** | placeholder `[Department TBD], [Affiliation TBD], Seoul, Republic of Korea` | 현 소속 (분당서울대, 서울대 의대 등) 정확히 |
+| 1 | **저자 표기 (Yu Hyeong Won 풀네임)** | manuscript / cover letter 의 placeholder `Yu Hyeong Won` — 한글 + 영문 표기 결정 필요 | 사용하실 영문 spelling (예: Kyungho Yu vs Kyung-Ho Yu) |
+| 2 | **소속 affiliation** | placeholder `Department of Surgery, Seoul National University Bundang Hospital, Seongnam, Republic of Korea` | 현 소속 (분당서울대, 서울대 의대 등) 정확히 |
 | 3 | **이메일** | placeholder `[email TBD]` | corresponding 으로 노출하실 이메일 |
 | 4 | **분당서울대 cohort 협업 timing** | 현재 outreach DRAFT (`outreach/email_*_DRAFT.md`) 작성만 됨, 미발송 | 투고 전 발송할지, revision round 에서 발송할지 — 그리고 첫 contact 받을 분 |
 | 5 | **인용 추가 (한국 논문)** | 현재 ref [12] Yoo SK et al. PLoS Genet 2017 만 한국 group | 추가로 인용해야 할 한국 그룹 논문 (특히 갑상선 분자 분류 / TERT / RAI uptake) |

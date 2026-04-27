@@ -42,7 +42,7 @@ Date: 2026-04-27
 
 ## 이메일 버전 (PDF 첨부 형식)
 
-To: [Yu Kyungho 교수님 이메일]
+To: [Yu Hyeong Won 교수님 이메일]
 From: 국승호 <kukshomr@gmail.com>
 Subject: v17 npj paper — 1-2주 wait 결정 + 강화 plan 공유 (3가지 부탁)
 
@@ -85,7 +85,7 @@ Subject: v17 npj paper — 1-2주 wait 결정 + 강화 plan 공유 (3가지 부�
 ### (3) 저자 형식 최종 confirm
 현재 manuscript 에서 가정 중인 형식:
 - **1저자**: 국승호 (분석 lead)
-- **공동 교신저자**: 국승호 + [Yu Kyungho 교수님] (co-corresponding)
+- **공동 교신저자**: 국승호 + 유형원 교수님 (co-corresponding)
 - **분당서울대 협력 시**: 분당서울대 PI = 추가 co-corresponding
 - **Wet-lab 협력 시**: Wet-lab PI = co-author 또는 별도 후속 paper 의 1저자/senior
 

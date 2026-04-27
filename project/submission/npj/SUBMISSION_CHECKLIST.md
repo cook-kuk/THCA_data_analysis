@@ -35,8 +35,8 @@ Generated 2026-04-27T10:23:21 · Updated 2026-04-27T12:00 (BOOST sprint)
 - TERT 4-group multivariate logrank p = 3.78×10⁻⁵; honest stage-adjusted HR 1.88 (p = 0.29)
 
 ## Still TBD (placeholders to fill before submit)
-- [ ] [Yu Kyungho] full Korean/English name in title page, author contributions, cover letter
-- [ ] [Yu Kyungho] affiliation + email
+- [ ] Yu Hyeong Won full Korean/English name in title page, author contributions, cover letter
+- [ ] Yu Hyeong Won affiliation + email
 - [ ] Korean cohort outreach update (SNUH / Bundang Hospital)
 - [ ] Final reviewer_bundle.zip regenerated to include v4 manuscript + cover letter + 6E/6F/6G + B1 tables + calculator
 

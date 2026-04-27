@@ -13,7 +13,7 @@ Decisions about radioactive-iodine (RAI) therapy in papillary thyroid carcinoma 
 
 The manuscript matches _npj Precision Oncology_'s scope on three fronts. First, the headline contribution is a **directly clinically deployable biomarker** with quantified outperformance over the standard-of-care molecular test (BRAF V600E). Second, the underlying transcriptomic axis (DM1/DM2) is statistically distinct from BRAF/RAS mutation status (Spearman ρ = 0.49 with the canonical dichotomy; 17 of 335 mutation-carrying tumours violate the canonical map) and maps to a hot/cold immune landscape with implications for both immunotherapy and TROP2-directed antibody-drug conjugate (ADC) stratification. Third, we propose evaluation as a correlative biomarker overlay in two ongoing thyroid TROP2-ADC trials (NCT06235216 SETHY, NCT07521670 STRAP), both of which currently accrue without molecular sub-stratification — translating the in-silico work into an immediately actionable trial-design recommendation.
 
-This work represents a fully in-silico discovery from an independent Korean computational researcher (with part-time PhD affiliation at Seoul National University Graduate School of Convergence Science and Technology), in collaboration with [Yu Kyungho — full Korean/English name TBD by user] of [Affiliation TBD]. Korean cohort cross-validation via Seoul National University Hospital / Bundang Hospital is in active outreach for the revision round.
+This work represents a fully in-silico discovery from an independent Korean computational researcher (with part-time PhD affiliation at Seoul National University Graduate School of Convergence Science and Technology), in collaboration with Yu Hyeong Won (Department of Surgery, Seoul National University Bundang Hospital, Seongnam, Republic of Korea). Korean cohort cross-validation via Seoul National University Hospital / Bundang Hospital is in active outreach for the revision round.
 
 We honestly report eleven limitations: no wet-lab validation, no Korean cohort yet integrated, Cox HR for DM1/DM2 not significant for OS (consistent with TCGA-THCA's exceptional prognosis), 2/5 robust external transfer, scRNA cohort limited to 7 patients, PRISM cell-line drug screen underpowered at n = 5 vs n = 5, Thorsson cross-reference replaced by our composite, pan-cancer transfer is signature-overlap only, TERT calls from cBioPortal mirror (not BAM re-call), TERT subset only 6 events (with bootstrap and leave-one-out audit reported), and the stage-adjustment caveat (univariate HR 6.31 → multivariate HR 1.88). The 8-gene panel ΔAUC outperformance is the central submission-defensible contribution.
 
@@ -33,5 +33,5 @@ Seungho Cook
 Independent Researcher (with part-time PhD affiliation), Seoul, Republic of Korea
 kukshomr@gmail.com
 
-[Yu Kyungho — full name + email TBD by user]
-[Affiliation TBD], Seoul, Republic of Korea
+Yu Hyeong Won
+Department of Surgery, Seoul National University Bundang Hospital, Seongnam, Republic of Korea

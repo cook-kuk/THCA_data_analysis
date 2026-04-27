@@ -117,7 +117,7 @@ trial-design recommendation.
 This work represents a fully in-silico discovery from an independent
 Korean computational researcher (with part-time PhD affiliation at Seoul
 National University Graduate School of Convergence Science and
-Technology), in collaboration with \[Yu Kyungho --- full Korean/English
+Technology), in collaboration with \[Yu Hyeong Won --- full Korean/English
 name TBD by user\] of \[Affiliation TBD\]. Korean cohort
 cross-validation via Seoul National University Hospital / Bundang
 Hospital is in active outreach for the revision round; the v4 4-cohort
@@ -162,7 +162,7 @@ Sincerely,
 Seungho Cook Independent Researcher (with part-time PhD affiliation),
 Seoul, Republic of Korea kukshomr@gmail.com
 
-\[Yu Kyungho --- full name + email TBD by user\] \[Affiliation TBD\],
+\[Yu Hyeong Won --- full name + email TBD by user\] \[Affiliation TBD\],
 Seoul, Republic of Korea
 
 ---

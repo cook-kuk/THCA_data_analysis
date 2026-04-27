@@ -3,7 +3,7 @@
 ⚠ **DRAFT — do not send as-is. Read-through and replace placeholders before sending.**
 
 **To**: mxing1@jhmi.edu  _(verify current email; Xing may now be at SUSTech — check ORCID 0000-0003-0010-0265)_
-**CC**: [Yu Kyungho email TBD]
+**CC**: [Yu Hyeong Won email TBD]
 **Subject**: Collaboration inquiry — TERT/BRAF transcriptomic axis extension (TCGA-THCA, npj submission preparation)
 
 ---
@@ -12,7 +12,7 @@ Dear Professor Xing,
 
 I write to share computational work that builds directly on your foundational framework of BRAF V600E and TERT promoter mutations in papillary thyroid cancer (Liu R, Bishop J, Zhu G, et al. _JAMA Oncology_ 2017; Xing M, Liu R, Liu X, et al. _JCO_ 2014).
 
-I am Seungho Cook, an independent computational researcher based in Seoul, working in partnership with [Yu Kyungho — full name TBD] at [Affiliation TBD]. We have re-analysed 513 TCGA-THCA primary tumours and recovered 36 TERT-promoter-mutated patients via the cBioPortal `thca_tcga_pub` mirror (Sanger-validated by TCGA Cell 2014). Three findings, in order of relevance to your work:
+I am Seungho Cook, an independent computational researcher based in Seoul, working in partnership with [Yu Hyeong Won — full name TBD] at [Affiliation TBD]. We have re-analysed 513 TCGA-THCA primary tumours and recovered 36 TERT-promoter-mutated patients via the cBioPortal `thca_tcga_pub` mirror (Sanger-validated by TCGA Cell 2014). Three findings, in order of relevance to your work:
 
 1. **Four-group stratification (BRAF / RAS / TERT⁺ / triple-negative)** yields logrank p = 4.92×10⁻⁶ for overall survival in TCGA-THCA, confirming the Liu–Xing genetic-duet framework in this cohort. Four-group p = 3.78×10⁻⁵.
 
@@ -37,11 +37,11 @@ Independent Researcher (with part-time PhD affiliation, Seoul National Universit
 Seoul, Republic of Korea
 Email: kukshomr@gmail.com
 
-Co-investigator: [Yu Kyungho — full name TBD], [Affiliation TBD]
+Co-investigator: [Yu Hyeong Won — full name TBD], [Affiliation TBD]
 
 ---
 
 **Internal note (delete before sending)**:
-- Replace `[Yu Kyungho — full name TBD]` and `[Affiliation TBD]` with confirmed values.
+- Replace `[Yu Hyeong Won — full name TBD]` and `[Affiliation TBD]` with confirmed values.
 - Verify Xing's current institutional email (he split time between Hopkins and SUSTech historically).
 - Consider attaching the manuscript v2 PDF if Xing prefers to review before responding.

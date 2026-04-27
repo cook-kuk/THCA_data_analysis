@@ -8,12 +8,12 @@ version: "v5 (STRENGTHEN sprint — adds MSK-IMPACT n=231 cross-cohort prevalenc
 
 # An 8-gene RAI-responsiveness biomarker outperforms BRAF V600E status in papillary thyroid carcinoma
 
-Seungho Cook^1,*^ and [Yu Kyungho]^2,*^
+Seungho Cook^1,*^ and Yu Hyeong Won^2,*^
 
 ^1^ Independent Researcher, Seoul, Republic of Korea; Graduate School of Convergence Science and Technology, Seoul National University, Suwon, Republic of Korea (part-time PhD candidate).
-^2^ [Department TBD], [Affiliation TBD], Seoul, Republic of Korea.
+^2^ Department of Surgery, Seoul National University Bundang Hospital, Seongnam, Republic of Korea.
 
-\* Co-corresponding authors. Correspondence: Seungho Cook (kukshomr@gmail.com); [Yu Kyungho] ([email TBD]).
+\* Co-corresponding authors. Correspondence: Seungho Cook (kukshomr@gmail.com); Yu Hyeong Won ([email TBD]).
 
 ---
 
@@ -149,7 +149,7 @@ Pipeline scripts at `notebooks_or_scripts/v17p35_*.py`, `notebooks_or_scripts/v1
 
 ## Author contributions
 
-**Seungho Cook**: conceptualisation, data curation, formal analysis, methodology, software, validation, visualisation, writing — original draft, project administration. **[Yu Kyungho]**: conceptualisation, methodology, supervision, resources, writing — review and editing.
+**Seungho Cook**: conceptualisation, data curation, formal analysis, methodology, software, validation, visualisation, writing — original draft, project administration. **Yu Hyeong Won**: conceptualisation, methodology, supervision, resources, writing — review and editing.
 
 ## Acknowledgements
 

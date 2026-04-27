@@ -2,14 +2,14 @@
 
 To: 유형원 교수님 (분당서울대학교병원 외과·내분비외과)
 From: 국승호 (Seungho Cook) <kukshomr@gmail.com>
-CC: 유 교수님 (Yu Kyungho — 성함 + 이메일 fill)
+CC: (선택사항) 학과 동료 또는 분당 외과 의국
 Subject: 갑상선 유두암 RAI 반응성 8-gene biomarker 한국인 cohort 검증 협력 제안 — npj Precision Oncology 제출 직전
 
 ---
 
 존경하는 유형원 교수님,
 
-안녕하십니까. 저는 서울에서 활동 중인 독립 컴퓨터과학 연구자 **국승호**이며, 의료 AI 분야에서 약 10년의 경력을 가지고 있습니다 (Portrai 의료영상 CAIO 2.5년, Cornerstone Partners AI 솔루션 아키텍트). 현재 [Yu Kyungho — 교수님 성함] 교수님과 **공동 1저자/공동 교신저자 관계**로 갑상선암 유전체 분석 연구를 진행 중이며, 박사과정은 [서울대 융합과학기술대학원] 파트타임으로 병행하고 있습니다.
+안녕하십니까. 저는 서울에서 활동 중인 독립 컴퓨터과학 연구자 **국승호**이며, 의료 AI 분야에서 약 10년의 경력을 가지고 있습니다 (Portrai 의료영상 CAIO 2.5년, Cornerstone Partners AI 솔루션 아키텍트). 유형원 교수님과 **공동 교신저자 관계**로 갑상선암 유전체 분석 연구를 진행 중이며, 박사과정은 [서울대 융합과학기술대학원] 파트타임으로 병행하고 있습니다.
 
 교수님의 갑상선암 수술 + 로봇수술 + AI-assisted 분야 연구 (BABA approach, AR/AI 활용 endocrine surgery 등) 를 학술 활동을 통해 알게 되었고, 본 연구의 **임상 deployable 8-gene RAI biomarker** 가 교수님 분야와 강하게 연결될 것이라 판단하여 협력을 제안드립니다. 분당서울대병원이 한국 갑상선암 진료의 leading center 인 만큼, 한국인 cohort 검증의 가장 적합한 site 라 생각합니다.
 
@@ -39,7 +39,7 @@ Subject: 갑상선 유두암 RAI 반응성 8-gene biomarker 한국인 cohort 검
 
 ### (b) 협력 framework 제안
 - **본 연구 1저자**: 국승호 (분석 lead)
-- **공동 교신저자**: [Yu Kyungho 교수님] + 유형원 교수님 (co-corresponding)
+- **공동 교신저자**: 국승호 + 유형원 교수님 (co-corresponding)
 - **분당서울대 cohort 분석 결과**:
   - Option A — Paper revision round 에 추가 figure/section 으로 통합. npj 최종 published 시 한국 cohort 분석 contributor 들이 author 로 등재.
   - Option B — 별도 후속 paper 로 진행 (이 경우 분당서울대 PI 가 1저자 또는 senior author).
@@ -85,14 +85,14 @@ Subject: 갑상선 유두암 RAI 반응성 8-gene biomarker 한국인 cohort 검
 이메일: kukshomr@gmail.com
 연락처: [본인 휴대전화 번호]
 
-**공동 교신저자**: [Yu Kyungho — 교수님 성함], [소속]
+**공동 교신저자**: 유형원 교수님, 분당서울대학교병원 외과·내분비외과
 
 ---
 
 ## 본인 액션 (메일 보내기 전 체크)
 
 - [ ] 분당서울대 PI 정확한 성함 + 이메일 확인 (유 교수님께 여쭤보거나 본인 network 활용)
-- [ ] [Yu Kyungho — 교수님 성함] 부분 fill in
+- [ ] [본인 휴대전화 번호] fill in
 - [ ] [소속] fill in
 - [ ] [본인 휴대전화 번호] fill in
 - [ ] 첨부 파일 4개 + 2개 link 준비

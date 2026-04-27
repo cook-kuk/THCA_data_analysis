@@ -26,7 +26,7 @@ v17 갑상선암 paper (DM1/DM2 + 8-gene RAI panel + TERT 4-group survival) **np
    - Co-corresponding (senior): 유 교수님
    - 본인 affiliation: "Independent Researcher, Seoul + Part-time PhD candidate, Seoul National University Graduate School of Convergence Science and Technology"
    - 교수님 affiliation 한 줄로 확인 부탁드립니다 (소속 부서 + 직책)
-   - 영문 이름 표기 (Yu Kyungho? Yu Kyung-ho? 다른 표기?)
+   - 영문 이름 표기 (Yu Hyeong Won? Yu Kyung-ho? 다른 표기?)
    - CRediT contribution 정리해서 별도 보내드림 — 교수님 contribution: Conceptualization, Methodology, Supervision, Resources, Writing (review & editing)
 
 2. **외부 협력 outreach (오늘 보낼 예정)**
