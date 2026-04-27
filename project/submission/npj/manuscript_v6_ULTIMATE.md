@@ -101,7 +101,7 @@ Random-effects pooled AUC across the seven external cohorts = **0.898 [0.835, 0.
 
 ## TERT promoter survival framing across cohorts
 
-We recovered 36 TERT promoter mutations in TCGA-THCA (cBioPortal `thca_tcga_pub` study) — the Sanger-validated MAF that the original GDC release does not surface in coding-only mutation calls. Four-group BRAF / RAS / TERT⁺ / triple-negative multivariate logrank p = 3.78 × 10⁻⁵. Univariate Cox HR for TERT⁺ = 6.31 (95% CI 2.34-17.04) drops to multivariate (stage + age + sex) HR = 1.88 (95% CI 0.58-6.09, p = 0.29). We honestly reframe TERT⁺ as a clinically actionable molecular handle for Stage III/IV identification rather than a stage-independent prognostic marker.
+We recovered 36 TERT promoter mutations in TCGA-THCA (cBioPortal `thca_tcga_pub` study) — the Sanger-validated MAF that the original GDC release does not surface in coding-only mutation calls. Four-group BRAF / RAS / TERT⁺ / triple-negative multivariate logrank p = 3.78 × 10⁻⁵. Joint 4-group Cox (lifelines, penalizer 0.01): univariate HR for TERT⁺ = 4.33 (95% CI 1.48-12.67, p = 0.007) drops to multivariate (stage + age + sex) HR = 0.95 (95% CI 0.20-4.59, p = 0.95). We honestly reframe TERT⁺ as a clinically actionable molecular handle for Stage III/IV identification rather than a stage-independent prognostic marker.
 
 Cross-cohort prevalence (cBioPortal API across six thyroid studies, n=2,194 samples, n_strata=8 with n_tested ≥ 10):
 
