@@ -31,7 +31,7 @@ original TIERA67 cluster yielded a kappa of -0.79 (label flip preserved
 because partition equivalence was the optimisation target, not name).
 
 **Headline result.**
-- **BRAF-like cluster ('DM2') <-> cPTC concordance: 100.0%** (cPTC -> 'DM2').
+- **BRAF-like cluster ('DM2') <-> cPTC concordance: 84.3%** (cPTC -> 'DM2').
 - **RAS-like cluster ('DM1') <-> (I)EFVPTC concordance: 77.5%** (FVPTC -> 'DM1').
 - Overall Cohen's kappa (after BRAF/RAS-aligned relabelling) = **0.567**,
   Fisher OR = **20.35**, p = **2.47e-33**.

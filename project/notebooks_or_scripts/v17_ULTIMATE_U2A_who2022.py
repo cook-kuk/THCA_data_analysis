@@ -556,10 +556,10 @@ that distinguishes IEFVPTC) would push kappa upward.
     # final stdout summary
     log("==== HEADLINE ====")
     log(f"n_used={n_keep}  kappa={kappa:.3f}  p={overall['fisher_p']:.2e}")
-    log(f"sens(BRAF->DM1)={overall['sensitivity_BRAF_to_DM1']:.1%}  "
-        f"spec(RAS->DM2)={overall['specificity_RAS_to_DM2']:.1%}")
-    log(f"DM1<->cPTC concordance = {cptc_pct}%   "
-        f"DM2<->IEFVPTC/FVPTC concordance = {fvptc_pct}%")
+    log(f"sens(BRAF->{braf_dm})={overall['sensitivity_BRAF_to_DM1']:.1%}  "
+        f"spec(RAS->{ras_dm})={overall['specificity_RAS_to_DM2']:.1%}")
+    log(f"{braf_dm}(BRAF-like)<->cPTC concordance = {cptc_pct}%   "
+        f"{ras_dm}(RAS-like)<->FVPTC concordance = {fvptc_pct}%")
 
 
 if __name__ == "__main__":

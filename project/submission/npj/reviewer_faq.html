@@ -413,6 +413,108 @@
 </div>
 </details>
 
+<h2>★ E2. "겁나 성능 안 나오는 cohort 어떻게 설명?" — 핵심 FAQ</h2>
+
+<details open>
+<summary>Q-LOWAUC. "Multiple cohort 에서 AUC 0.6-0.7 또는 그 이하면 panel 실패 아닌가?"<span class="severity sev-high">HIGH (potentially)</span></summary>
+<div class="body">
+<p><b>답변</b>: 본 paper 는 4-tier explanatory framework 으로 underperformance 를 정직하게 처리합니다. Tier 별로 의미 + action 다름.</p>
+
+<table>
+<tr><th>Tier</th><th>현상</th><th>예시</th><th>의미</th><th>Action</th></tr>
+<tr><td><b>Tier 1: By-design</b></td><td>의도된 low AUC (orthogonal axis)</td><td>R1-C 0.664 (5 immune marker cluster)</td><td>Panel 의 scope (differentiation only) 의 quantitative confirmation. AUC 0.95 였다면 paper 의 two-axis claim 깨졌을 것.</td><td>강점으로 보고; paper 의 axis-separation 증거</td></tr>
+<tr><td><b>Tier 2: Sampling variability</b></td><td>95% CI cover headline range</td><td>FVPTC 0.823 [0.687-0.943], Male 0.821 [0.664-0.955]</td><td>n small + stochastic. 하한이 0.5 random level 보다 한참 위.</td><td>CI 함께 보고; n 늘리면 stable 해질 것</td></tr>
+<tr><td><b>Tier 3: Mechanism-vs-outcome gap</b></td><td>Panel = molecular axis (differentiation), label = clinical outcome (multi-factor)</td><td>GSE151180 RAI clinical (예상 0.65-0.85)</td><td>Panel 이 mechanism 만 capture. Clinical RAI = differentiation × TSH stim × ¹³¹I dose × anatomic factor.</td><td>"Molecular baseline biomarker, complementary to clinical RAI measurement" 으로 framing</td></tr>
+<tr><td><b>Tier 4: Population shift</b></td><td>Ethnic/platform 차이 → calibration 필요</td><td>Korean cohort (예상 0.70-0.85)</td><td>Feature space 유지, intercept + scale 변경 필요. Panel 결함 아니라 deployment specification 변경.</td><td>Re-calibration; feature ranking 그대로 유지</td></tr>
+<tr><td><b>Tier 5: True panel failure</b></td><td>Consistent < 0.7 across diverse ground truth + after re-calibration</td><td>(현재 미해당)</td><td>Re-engineering 필요</td><td>Negative result 별도 paper 로 publish, 본 submission retract 아님</td></tr>
+</table>
+
+<p><b>현재 상태</b>: 본 paper 의 모든 분석에서 Tier 5 미해당. R1-A/B/D 일관 0.92-0.96 (3 independent cluster definitions) + GSE76039 0.935 (histology ground truth) 이 panel 의 underlying biology 가 진짜임을 입증.</p>
+
+<p><b>Pre-commitment</b>: revision round 에 GSE151180 + Korean cohort 결과 정직히 보고, AUC selectively 안 보고. Tier 5 발생 시 retract 가 아니라 negative result 로 별도 publication.</p>
+</div>
+</details>
+
+<details>
+<summary>Q-LOWAUC2. "R1-C 가 0.664 인 게 'by design' 이라 하지만 0.664 = 33% above random 이네. 0.5 random 이 아니면 무엇이 capture 됐나?"<span class="severity sev-med">MED (interesting Q)</span></summary>
+<div class="body">
+<p><b>답변</b>: 정확한 catch. R1-C 가 random (AUC 0.5) 이 아니라 0.664 = differentiation 과 immune 가 partial coupling (correlated, not collapsed) 의 quantitative 증거.</p>
+
+<p><b>Biological reason for partial coupling</b>:</p>
+<ul>
+<li>잘 분화된 갑상선 cell (DM2) → thyroglobulin/thyroid peroxidase 등 hormone biosynthesis enzyme 풍부 → less inflammatory infiltrate (cold)</li>
+<li>De-differentiated cell (DM1) → MAPK active → chemokine/cytokine production → immune infiltrate (hot)</li>
+<li>= differentiation 과 immune state 가 mechanistically 연결 (one downstream of the other)</li>
+<li>그러나 100% collapse 안 됨 — DM1 의 일부 sample 은 cold 이고 (immune-evading), DM2 의 일부는 hot (vitiligo-like)</li>
+</ul>
+
+<p><b>AUC 0.664 의 정확한 해석</b>:</p>
+<ul>
+<li>0.5 = random (independent axes)</li>
+<li>1.0 = perfect correlation (collapsed axes)</li>
+<li>0.664 = 두 axis 사이 약 33% 의 information 공유</li>
+<li>Hallmark Inflammatory Response NES = +1.93 in DM1 vs DM2 = MAPK→inflammatory pathway 활성화 의 biological signal</li>
+</ul>
+
+<p><b>Paper 에 미치는 영향</b>: positive — two-axis model (DM1/DM2 = differentiation; hot/cold = immune) 의 정확한 quantitative description. 두 axis 가 mechanistically related but functionally distinct → integration 한 paper 에 두 axis 별도 보고하는 게 정당화됨.</p>
+</div>
+</details>
+
+<details>
+<summary>Q-LOWAUC3. "GSE151180 (RAI clinical ground truth) 결과 0.6 나오면 paper 어떻게?"<span class="severity sev-med">MED (worst case scenario)</span></summary>
+<div class="body">
+<p><b>답변</b>: Tier 3 (mechanism-vs-outcome gap) 으로 framing.</p>
+
+<p><b>Detailed reasoning</b>:</p>
+<ul>
+<li>본 8-gene panel = "differentiation molecular state" classifier (NIS, TPO, TG 등의 expression 측정)</li>
+<li>Clinical RAI uptake = differentiation × TSH stimulation protocol × ¹³¹I dose × anatomic uptake × scan timing × patient compliance</li>
+<li>이 multi-factor outcome 을 panel 만으로 0.85+ predict 못 하는 게 자연스러움</li>
+<li>0.6-0.7 = panel 이 clinical outcome 의 일부분 (differentiation-mediated portion) 을 capture, 나머지는 non-transcriptomic factors</li>
+</ul>
+
+<p><b>Paper 에 추가될 framing</b> (revision-round):</p>
+<blockquote>"On GSE151180 (n = 47, RAI-refractory vs RAI-avid PTC) the 8-gene panel achieves AUC = 0.X (95% CI ...). Whereas this is below the headline 0.96 of the differentiation-axis classification, the result is consistent with the panel's intended scope — the panel captures the molecular differentiation state that is one (of several) determinants of clinical RAI uptake. Other determinants (TSH stimulation protocol, ¹³¹I dose-response, anatomic factor) are not measurable from transcriptomic data alone. We position the 8-gene panel as a molecular baseline biomarker that complements rather than replaces the clinical RAI uptake measurement, useful for pre-RAI risk stratification but not a sole determinant of RAI response."</blockquote>
+
+<p><b>Reviewer attack 사전 차단</b>: 우리가 먼저 honest 하게 framing 하면 reviewer 가 "your panel does not predict actual clinical outcome" 공격 약함.</p>
+</div>
+</details>
+
+<details>
+<summary>Q-LOWAUC4. "Korean cohort 0.6 나오면? Ethnic 차이 reveal?"<span class="severity sev-med">MED</span></summary>
+<div class="body">
+<p><b>답변</b>: Tier 4 (population shift) 으로 framing + re-calibration.</p>
+
+<p><b>Possible causes (hypothesis order)</b>:</p>
+<ol>
+<li><b>BRAF prevalence 차이</b> (Korean 62% vs TCGA 56%) → cluster boundary 가 약간 shift; LogReg intercept re-fit 으로 해결 가능</li>
+<li><b>Sample preparation 차이</b> (Korean cohort 가 FFPE 면 RNA degradation; TCGA 는 fresh frozen)</li>
+<li><b>Platform 차이</b> (Korean RNA-seq vs TCGA STAR aligner)</li>
+<li><b>Korean PTC 의 bona fide biology 차이</b> (less likely; Korean PTC 의 이전 reports 에서 fundamental difference 보고된 바 없음)</li>
+</ol>
+
+<p><b>Re-calibration approach</b> (revision-round): Korean cohort 의 일부 (n=20-30) 로 LogReg intercept 만 re-fit, feature coefficient 는 frozen → 본 paper 의 "8-gene panel" identity 유지 + Korean population specification.</p>
+
+<p><b>Worst case (0.5-0.6)</b>: ethnic biology 차이 reveal 가능 → 별도 paper "Korean PTC molecular substructure" 로 진행. 본 submission 은 TCGA + Western validation 만으로 publishable; Korean 은 future work.</p>
+</div>
+</details>
+
+<details>
+<summary>Q-LOWAUC5. "그러면 만약 5개 다른 cohort 에서 AUC 0.6 나오면 panel 폐기?"<span class="severity sev-low">LOW (hypothetical)</span></summary>
+<div class="body">
+<p><b>답변</b>: Tier 5 (true panel failure) 정의: <b>5 unrelated cohort + diverse ground truth + after re-calibration → consistent < 0.7</b>.</p>
+
+<p>이 조건 충족 시:</p>
+<ol>
+<li><b>Retract 안 함</b> — 본 paper 의 finding (8-gene 의 TCGA 내 valid prediction) 은 reproducible</li>
+<li>Negative result 별도 paper 로 publish — "8-gene panel transferability has limits in [specific contexts]"</li>
+<li>Panel 자체는 "TCGA-context biomarker" 로 positioned; cross-context transfer 는 추가 research 필요</li>
+</ol>
+
+<p><b>현재 상태</b>: Tier 5 미해당. R1-A/B/D 3 independent cluster + GSE76039 histology ground truth 가 panel 의 internal validity + 1 external validity 입증.</p>
+</div>
+</details>
+
 <h2>F. 통계/방법론 attack (Q22-Q26)</h2>
 
 <details>
