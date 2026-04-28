@@ -27,16 +27,27 @@ If you are a **reviewer** or **PI reading this for the first time**, open the bu
 | **`cover_letter_v6_ULTIMATE.{md,html,pdf,docx}`** | Latest cover letter. |
 | `manuscript_v{1,4,5}.*` + `cover_letter_v{3,4,5}.*` | Earlier versions kept for diff. |
 
+## AUC type taxonomy (read this before any number)
+
+| Label | What it means | Bias |
+|---|---|---|
+| **Training AUC** | Model evaluated on its own training data | ★ Overfit-biased — **diagnostic only**, not a performance claim |
+| **5-fold CV AUC** | 5-fold cross-validation, evaluated on held-out fold per round | Honest, leak-free |
+| **External held-out AUC** | Completely separate cohort (e.g. GSE76039) | Honest — hardest single-cohort test |
+| **Pooled meta-analytic AUC** | Random-effects pool across multiple held-out cohorts | Honest — cross-cohort transferability |
+
+Every AUC reported below is labeled with one of these. Training-AUC values appear only when explicitly noted as diagnostic.
+
 ## Headline numbers
 
-- **8-gene panel CV AUC 0.962** (95% CI 0.940–0.979) vs BRAF V600E baseline 0.849 → **ΔAUC = +0.113** (95% CI excludes 0).
-- **4-cohort meta-analysis pooled AUC 0.980** (I² = 0%, all four AUC > 0.96), all 4 leak-free panel variants tested.
-- **Decision Curve Analysis**: 8-gene strategy dominant across 0.05–0.95 threshold range.
-- **Subgroup forest** (9 strata): 7/9 AUC ≥ 0.85; Stage III/IV peaks at AUC 0.996.
+- **8-gene panel 5-fold CV AUC = 0.962** (95% CI 0.940–0.979; held-out fold, leak-free) vs BRAF V600E 5-fold CV baseline 0.849 → **ΔAUC = +0.113** (95% CI excludes 0).
+- **4-cohort pooled meta-analytic AUC = 0.980** (I² = 0%, all four cohort-level held-out AUC > 0.96), all 4 leak-free panel variants tested.
+- **Decision Curve Analysis**: 8-gene strategy dominant across 0.05–0.95 threshold range (population-level discrimination utility).
+- **Subgroup CV AUC** (9 strata of the same 5-fold CV): 7/9 ≥ 0.85; Stage III/IV peaks at 0.996.
 - **Hot/Cold composite Cohen's d = +1.683** (Mann-Whitney p = 4.0 × 10⁻¹⁸).
 - **TERT 4-group survival** logrank p = 3.78 × 10⁻⁵ (n = 504); joint 4-group Cox univariate HR = 4.33 → **multivariate (stage + age + sex) HR = 0.95, p = 0.95** — honestly reframed as advanced-stage molecular handle, not stage-independent prognostic.
-- **External GSE76039** validation AUC = 0.935 (leak-free re-trained model).
-- **Korean cohort initial integration (PRJEB11591, Yoo 2016, n = 9 pilot)**: kallisto single-end + 8-gene mini-index + scale-invariant within-sample-centered LogReg → 9/9 DM2 (mean p = 0.898). Full 262-run + ground-truth-labeled AUC committed for revision round.
+- **External held-out GSE76039 AUC = 0.935** (95% CI 0.824–1.000; leak-free re-trained model).
+- **Korean cohort initial integration (PRJEB11591, Yoo 2016, n = 9 pilot)**: kallisto single-end + 8-gene mini-index + scale-invariant within-sample-centered LogReg. TCGA training-cohort 5-fold CV AUC = 0.963 ± 0.026 (within-sample-centered) vs 0.964 ± 0.021 (absolute log2 form). Korean pilot itself is **predicted-distribution-only** (no per-sample BRS/RAS ground-truth labels yet — committed for revision round after Yoo SK metadata sharing): 9/9 DM2, mean p_DM2 = 0.898.
 
 ## Figures
 

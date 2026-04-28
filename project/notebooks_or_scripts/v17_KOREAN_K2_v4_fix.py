@@ -82,6 +82,7 @@ def main():
 
     from sklearn.linear_model import LogisticRegression
     from sklearn.metrics import roc_auc_score
+    from sklearn.model_selection import StratifiedKFold, cross_val_score
     from sklearn.preprocessing import StandardScaler
 
     X_tr_c = center(X_tr)
@@ -89,9 +90,23 @@ def main():
     model = LogisticRegression(C=1.0, max_iter=2000, random_state=42).fit(
         sc.transform(X_tr_c), y_tr
     )
-    auc_tr = roc_auc_score(y_tr, model.predict_proba(sc.transform(X_tr_c))[:, 1])
-    acc_tr = model.score(sc.transform(X_tr_c), y_tr)
-    print(f"  TCGA scale-invariant LogReg: AUC={auc_tr:.3f}, acc={acc_tr:.3f}, n={len(common)}")
+    # Training AUC (model evaluated on its own training data — overfit-biased; diagnostic only)
+    auc_train = roc_auc_score(y_tr, model.predict_proba(sc.transform(X_tr_c))[:, 1])
+    acc_train = model.score(sc.transform(X_tr_c), y_tr)
+    # 5-fold CV AUC (held-out fold per round — honest performance estimate)
+    cv_scores = cross_val_score(
+        LogisticRegression(C=1.0, max_iter=2000, random_state=42),
+        sc.transform(X_tr_c), y_tr,
+        cv=StratifiedKFold(5, shuffle=True, random_state=42),
+        scoring='roc_auc',
+    )
+    auc_cv_mean = float(cv_scores.mean())
+    auc_cv_std = float(cv_scores.std())
+    auc_cv_min = float(cv_scores.min())
+    auc_cv_max = float(cv_scores.max())
+    print(f"  TCGA scale-invariant LogReg fitted on n={len(common)}")
+    print(f"    Training AUC (overfit-biased, diagnostic): {auc_train:.4f}")
+    print(f"    5-fold CV AUC (held-out fold, honest):     {auc_cv_mean:.4f} ± {auc_cv_std:.4f}  [{auc_cv_min:.4f}, {auc_cv_max:.4f}]")
 
     Xk = np.log2(mat[g_have].values + 1.0)
     Xk_c = center(Xk)
@@ -110,11 +125,16 @@ def main():
 
     summary = {
         "method": "Single-end kallisto pseudoalignment (-l 200 -s 30) on full R1 FASTQ; 8-gene-only mini-index (93 transcripts); scale-invariant within-sample-centered LogReg trained on TCGA leak-free DM1/DM2 labels",
-        "calibration_note": "Mini-index TPM is inflated relative to full-transcriptome quants because the per-sample TPM denominator covers only 93 transcripts. We control for this by subtracting each sample's panel-mean log2(TPM+1) before scaling — the resulting feature is the relative panel shape, invariant to dataset-wide TPM inflation. TCGA training AUC = 0.968 (vs 0.962 absolute), so discriminating information is preserved.",
+        "calibration_note": "Mini-index TPM is inflated relative to full-transcriptome quants because the per-sample TPM denominator covers only 93 transcripts. We control for this by subtracting each sample's panel-mean log2(TPM+1) before scaling — the resulting feature is the relative panel shape, invariant to dataset-wide TPM inflation. TCGA 5-fold CV AUC ≈ 0.963 (within-sample-centered) vs 0.964 (absolute log2 form), so discriminating information is preserved.",
         "n_korean_samples": int(len(mat)),
         "panel_genes": GENE_8,
-        "tcga_train_auc": round(auc_tr, 3),
-        "tcga_train_acc": round(acc_tr, 3),
+        "tcga_training_auc_overfit_biased": round(auc_train, 4),
+        "tcga_training_acc": round(acc_train, 4),
+        "tcga_5fold_cv_auc_mean": round(auc_cv_mean, 4),
+        "tcga_5fold_cv_auc_std": round(auc_cv_std, 4),
+        "tcga_5fold_cv_auc_min": round(auc_cv_min, 4),
+        "tcga_5fold_cv_auc_max": round(auc_cv_max, 4),
+        "auc_label_taxonomy_note": "Two AUCs reported — Training (model evaluated on its own training data, optimistically biased; useful only for diagnostic) and 5-fold CV (held-out fold, honest performance estimate).",
         "tcga_train_dm1_dm2": f"{int((y_tr==0).sum())}:{int((y_tr==1).sum())}",
         "tpm_summary": mat.describe().round(2).to_dict(),
         "n_DM1": int((p < 0.5).sum()),
@@ -141,7 +161,8 @@ def main():
     print("\n=== K2 v4 SUMMARY (FIXED, scale-invariant) ===")
     print(f"  n={summary['n_korean_samples']}, DM1:DM2 = {summary['korean_dm1_dm2_ratio']}")
     print(f"  mean p_DM2 = {summary['mean_p_DM2']}, range [{summary['p_DM2_min']}, {summary['p_DM2_max']}]")
-    print(f"  TCGA train AUC = {summary['tcga_train_auc']}")
+    print(f"  TCGA training AUC (overfit-biased) = {auc_train:.4f}")
+    print(f"  TCGA 5-fold CV AUC (honest)        = {auc_cv_mean:.4f} ± {auc_cv_std:.4f}")
     return 0
 
 

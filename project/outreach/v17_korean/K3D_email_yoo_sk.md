@@ -16,7 +16,10 @@ Dear Dr. Yoo SK,
 ## 본인 paper 진행 상황
 
 - TCGA-THCA n=513 + GSE76039 PDTC+ATC + **PRJEB11591 (Yoo 2016) Korean primary cohort** 통합 분석 완료
-- 8-gene RAI panel (NIS, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1) leak-free re-validation: TCGA AUC **0.962**, GSE76039 AUC **0.935**, PRJEB11591 Korean **n=9 pilot 처리 완료** (kallisto single-end, 8-gene mini-index, scale-invariant within-sample-centered LogReg) → 9/9 DM2 (preserved-differentiation), mean p_DM2 = **0.898** (range 0.619–0.998). 전체 262-run cohort + ground-truth-labeled AUC 는 박사님 metadata sharing 후 revision round 에 측정 예정입니다.
+- 8-gene RAI panel (NIS, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1) leak-free re-validation:
+  - TCGA **5-fold CV AUC** = **0.962** (95% CI 0.940–0.979; honest, held-out fold)
+  - GSE76039 **external held-out AUC** = **0.935** [0.824, 1.000]
+  - PRJEB11591 Korean **n=9 pilot 처리 완료** (kallisto single-end, 8-gene mini-index, scale-invariant within-sample-centered LogReg; TCGA 학습용 5-fold CV AUC = 0.963 ± 0.026) → 9/9 DM2 (preserved-differentiation), mean p_DM2 = **0.898** (range 0.619–0.998). 전체 262-run cohort + **ground-truth-labeled AUC** (BRS-classified) 는 박사님 metadata sharing 후 revision round 에 측정 예정입니다.
 - vs BRAF V600E ΔAUC = **+0.113** (sustained across 4 leak-free cluster definitions)
 - DM1/DM2 axis 가 Han SC et al. ENM 2023 의 BL/RL framework 와 일치
 - Hot/Cold immune integration (Cohen's d = +1.683)

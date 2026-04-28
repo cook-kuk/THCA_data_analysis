@@ -23,9 +23,9 @@ Subject: Korean parallel work 협력 제안 — TCGA-THCA 8-gene RAI decision pa
 
 | 항목 | 결과 |
 |------|------|
-| 8-gene RAI panel (NIS, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1) | TCGA leak-free CV AUC = **0.962** (95% CI 0.940–0.979) |
-| vs BRAF V600E baseline | AUC 0.849 → **ΔAUC = +0.113** (sustained across 4 leak-free cluster definitions) |
-| GSE76039 외부 validation (ATC vs PDTC, histology ground truth) | AUC = **0.935** (95% CI 0.824–1.000) |
+| 8-gene RAI panel (NIS, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1) | TCGA **5-fold CV AUC** (held-out fold, leak-free) = **0.962** (95% CI 0.940–0.979) |
+| vs BRAF V600E baseline | 5-fold CV AUC 0.849 → **ΔAUC = +0.113** (sustained across 4 leak-free cluster definitions) |
+| GSE76039 **external held-out** validation (ATC vs PDTC, histology ground truth) | AUC = **0.935** (95% CI 0.824–1.000) |
 | **PRJEB11591 Korean validation (Yoo 2016)** | n = 9 pilot subset 처리 완료 → 9/9 DM2 (mean p_DM2 = **0.898**, range 0.619–0.998). ground-truth-labeled AUC 는 전체 262-run 처리 + Yoo SK metadata sharing 후 revision round 측정 예정 |
 | Hot/Cold immune composite | Cohen's d = **+1.683**, p = 4.0×10⁻¹⁸ (Han 2023 CAF/immune findings 와 alignment) |
 | TERT 4-group survival (Liu-Xing framework) | multivariate logrank p = 3.78×10⁻⁵ |
