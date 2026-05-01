@@ -82,10 +82,19 @@ verified: "2026-05-01 — 54 hard-coded data points (Figures 2/2b/2c/2d) all mat
 
 ### C.1 Pillar 1 forest meta — Methods + Discussion
 
-| Paragraph | Source file |
-|---|---|
-| § 3.1.6 Methods (Pillar 1 forest meta) | `results/p2_pillar1_forest/methods_paragraph.md` |
-| § 3.1.7 Discussion (Pillar 1 forest meta) | `results/p2_pillar1_forest/discussion_paragraph.md` |
+| Paragraph | Source file | Verbatim ratio |
+|---|---|---|
+| § 3.1.6 Methods (Pillar 1 forest meta) | `results/p2_pillar1_forest/methods_paragraph.md` | 99.78% |
+| § 3.1.7 Discussion (Pillar 1 forest meta) | `results/p2_pillar1_forest/discussion_paragraph.md` | 97.81% |
+
+### C.2 Brief vs source — minor advisory enhancements
+
+Brief 의 paste-ready paragraphs 는 source 대비 두 가지 enhancement 가 추가됨 (의도적, advisor-friendly):
+
+1. **§ 3.1.6 Methods**: 브리프에서 "arcasHLA **0.6.0** RNA-seq imputation" 으로 version 명시 (source 는 version 미기재)
+2. **§ 3.1.7 Discussion**: 브리프 Discussion 끝에 "Cochran I² >50% for 4/6 alleles, though DPB1*05:01 stays at I²=0%" 한 줄이 추가됨 — sub-cohort heterogeneity 의 정확한 magnitude 를 advisor 에게 미리 보여주기 위함
+
+**Manuscript paste-ready 시점**: source `methods_paragraph.md` / `discussion_paragraph.md` 를 직접 paste 권장 (source 가 canonical, brief enhancements 는 brief-only). 만일 brief enhancements 를 manuscript 에 포함하고 싶다면 script `v17_paper2_pillar1_forest.py` 를 수정 후 regenerate.
 
 ## D. Cohort raw data
 
