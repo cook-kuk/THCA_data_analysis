@@ -6,6 +6,26 @@
 
 Source: Chu X et al. 2018 J Med Genet 55(10):685-692, doi:10.1136/jmedgenet-2017-105146
         (PMC 6161647; n_GD=1,468 / n_ctrl=1,490 Han Chinese)
+
+★ Citation history: Prior memory + reports listed reference as "Chen 2018" — INCORRECT.
+  Verified via PMC 6161647 web fetch 2026-05-03. All references should be Chu 2018.
+  See: ../results/d4p1_panasian_meta/DEPRECATED.md for cleanup audit.
+
+★ Status: This script (NOT the older v17_D4P1_forest_meta.py) is the canonical
+  Pillar 1 forest meta-analysis. Output → ../results/p2_pillar1_forest/.
+  Run produces: chu2018_allele_summary.tsv, forest_meta_results.tsv,
+                random_effects_pooled.tsv, korean_subcohort_heterogeneity.tsv,
+                sensitivity_4scenarios.tsv, methods_paragraph.md,
+                discussion_paragraph.md, PILLAR1_FOREST_SUMMARY.md.
+
+★ Downstream consumers:
+  - project/manuscript_p2_brief/p2_advisor_discussion.html (Figures 2/2b/2c/2d)
+  - project/manuscript_p2_brief/DATA_SOURCES_INDEX.md
+  - project/manuscript_v8/02_outline.md (Paper 1 supp role)
+  - Paper 2 manuscript Methods/Discussion (when written)
+
+★ Memory: ~/.claude/projects/-home-seungho-personal-THCA-data-analysis/memory/
+          v17_paper2_pillar1_forest_strong.md
 """
 from __future__ import annotations
 from pathlib import Path
