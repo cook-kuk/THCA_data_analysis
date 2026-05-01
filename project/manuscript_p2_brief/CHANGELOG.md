@@ -7,6 +7,31 @@ date: 2026-05-01
 
 This file tracks substantive changes to the advisor brief.
 
+## [unreleased] — 2026-05-02 (autonomous infra batch 2)
+
+### Print CSS optimization
+- PDF 56 pages → **50 pages (−11%)** + 28 kB 감소
+- Atomic units (figure / stat / callout / mermaid-wrap / why-matters / flow-intro) `break-inside:avoid` + `page-break-inside:avoid`
+- Tables: header repeats across page splits (`thead{display:table-header-group}`), rows atomic
+- Section margins / padding tightened (`24pt → 18pt`, `font-size 11pt → 10.5pt`)
+- TOC compact (`14pt 18pt` padding, `gap:4pt 22pt`)
+
+### Korean font fallback chain (browser portability)
+- body font-family: `'Newsreader', Georgia, serif` → `'Newsreader', Georgia, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', '맑은 고딕', sans-serif, serif`
+- iOS Safari (Apple SD Gothic Neo), Windows (Malgun Gothic), Linux (Noto Sans KR) 모두 Korean glyph guaranteed
+
+### COHORT_ACCESS_GUIDE.md (NEW)
+- 5 cohorts (TCGA / GSE286332 / GSE213647 / K2 PRJEB11591 / Chu 2018) raw data accession + download method + processing script + IRB
+- ~600 MB processed data 로 brief 전체 reproduce 가능 (raw 160 GB 다운 불필요)
+
+### Audit reports
+- Mermaid PDF rendering: 19/19 node terms verified ✅ (Phase trajectory + Mediation chain)
+- External link audit: 5 URLs all reachable (3 fonts CDN + 2 JS libs)
+- Korean glyph integrity: 0 replacement chars, 299 phrases in PDF, 모든 advisor key terms present
+
+### Companion docs (8 files total in brief dir)
+- Footer 의 companion doc list 갱신: 5 → 8 docs
+
 ## [unreleased] — 2026-05-01 (autonomous infra batch)
 
 ### Added — companion docs (4 files)
