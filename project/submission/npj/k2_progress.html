@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>K2 Pipeline 실시간 진행률 — PRJEB11591 262 samples</title>
+<style>
+* { box-sizing: border-box; }
+body { font-family: "Noto Sans CJK KR", "NanumGothic", -apple-system, sans-serif; margin: 0; padding: 24px; background: #0f172a; color: #e2e8f0; line-height: 1.55; }
+.container { max-width: 1100px; margin: 0 auto; }
+h1 { color: #38bdf8; font-size: 22px; margin: 0 0 4px; }
+.sub { color: #94a3b8; font-size: 13.5px; margin-bottom: 22px; }
+.status-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 22px 26px; margin-bottom: 18px; }
+.big-num { font-size: 56px; font-weight: 700; color: #38bdf8; line-height: 1; }
+.big-num .of { color: #64748b; font-size: 30px; font-weight: 500; }
+.label { color: #94a3b8; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
+.metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 18px 0; }
+.metric { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 14px; }
+.metric .v { font-size: 22px; font-weight: 700; color: #f1f5f9; }
+.metric .l { color: #94a3b8; font-size: 11.5px; text-transform: uppercase; margin-top: 4px; }
+.bar-track { height: 18px; background: #1e293b; border: 1px solid #334155; border-radius: 9px; overflow: hidden; margin: 14px 0 8px; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, #06b6d4 0%, #38bdf8 50%, #818cf8 100%); transition: width 0.6s ease; box-shadow: 0 0 12px rgba(56,189,248,0.5); }
+.dot-running { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #22c55e; margin-right: 6px; box-shadow: 0 0 8px rgba(34,197,94,0.7); animation: pulse 1.5s ease-in-out infinite; }
+.dot-stopped { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #94a3b8; margin-right: 6px; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.section-title { color: #cbd5e1; font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; margin: 18px 0 8px; }
+.in-flight { background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px 14px; }
+.in-flight-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #334155; font-size: 13px; }
+.in-flight-row:last-child { border-bottom: 0; }
+.in-flight-row .run { color: #f1f5f9; font-family: 'JetBrains Mono', monospace; }
+.in-flight-row .sz { color: #94a3b8; font-variant-numeric: tabular-nums; }
+.log-box { background: #020617; border: 1px solid #1e293b; border-radius: 8px; padding: 12px 14px; font-family: 'JetBrains Mono', 'Menlo', monospace; font-size: 11.5px; line-height: 1.6; max-height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+.log-box .dl { color: #38bdf8; }
+.log-box .ok { color: #22c55e; }
+.log-box .err { color: #ef4444; }
+.log-box .pip { color: #a78bfa; }
+.disk-bar { height: 12px; background: #1e293b; border: 1px solid #334155; border-radius: 6px; overflow: hidden; margin-top: 8px; }
+.disk-fill { height: 100%; background: linear-gradient(90deg, #84cc16 0%, #f59e0b 70%, #ef4444 100%); transition: width 0.5s ease; }
+.timestamp { color: #64748b; font-size: 11px; text-align: right; margin-top: 12px; font-variant-numeric: tabular-nums; }
+.error { background: #7f1d1d; color: #fecaca; padding: 12px; border-radius: 6px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<h1>🚀 K2 Pipeline 실시간 진행률</h1>
+<div class="sub">PRJEB11591 (Yoo 2016) — 262 Korean PTC samples · kallisto single-end + 8-gene mini-index · 3-way 다운로드 + 2-way quant 파이프라인 · 자동 새로고침 (10초)</div>
+
+<div class="status-card">
+  <div style="display:flex; align-items:flex-end; justify-content:space-between; flex-wrap:wrap; gap:20px;">
+    <div>
+      <div class="big-num"><span id="done">…</span><span class="of"> / <span id="target">262</span></span></div>
+      <div class="label">samples quanted (cumulative)</div>
+    </div>
+    <div style="text-align:right;">
+      <div style="font-size:18px; font-weight:600;"><span id="status-dot" class="dot-running"></span><span id="status-label">checking…</span></div>
+      <div class="label" id="pct-label">…</div>
+    </div>
+  </div>
+  <div class="bar-track"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+</div>
+
+<div class="metrics-grid">
+  <div class="metric"><div class="v" id="rate">–</div><div class="l">samples / min (this session)</div></div>
+  <div class="metric"><div class="v" id="eta">–</div><div class="l">ETA to 262</div></div>
+  <div class="metric"><div class="v" id="elapsed">–</div><div class="l">elapsed (this session)</div></div>
+  <div class="metric"><div class="v" id="remaining">–</div><div class="l">remaining</div></div>
+</div>
+
+<div class="section-title">📡 In-flight downloads (R1 FASTQ ≥ 100 MB)</div>
+<div class="in-flight" id="in-flight"><div style="color:#64748b; font-size:12px;">no in-flight downloads detected</div></div>
+
+<div class="section-title">📜 Recent log (latest 20 lines)</div>
+<div class="log-box" id="log">…</div>
+
+<div class="section-title">💾 Disk (/data)</div>
+<div class="status-card" style="margin-bottom:0; padding:12px 16px;">
+  <div style="display:flex; justify-content:space-between; font-size:13px;">
+    <span><b id="disk-used">–</b> GB used / <span id="disk-total">–</span> GB total</span>
+    <span><b id="disk-free">–</b> GB free · <span id="disk-pct">–</span>%</span>
+  </div>
+  <div class="disk-bar"><div class="disk-fill" id="disk-fill" style="width:0%"></div></div>
+</div>
+
+<div class="timestamp" id="timestamp">last update: …</div>
+
+</div>
+
+<script>
+function colorize(line) {
+  if (/⬇|download/i.test(line)) return '<span class="dl">' + line + '</span>';
+  if (/✓|quanted|pipeline done/i.test(line)) return '<span class="ok">' + line + '</span>';
+  if (/✗|fail|error/i.test(line)) return '<span class="err">' + line + '</span>';
+  if (/index OK|target N/.test(line)) return '<span class="pip">' + line + '</span>';
+  return line;
+}
+function fmtSec(s) {
+  if (!s || s < 0) return '–';
+  if (s < 60) return s + 's';
+  if (s < 3600) return Math.floor(s/60) + 'm ' + (s%60) + 's';
+  return Math.floor(s/3600) + 'h ' + Math.floor((s%3600)/60) + 'm';
+}
+async function update() {
+  try {
+    const res = await fetch('k2_progress.json?_=' + Date.now(), {cache:'no-store'});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const d = await res.json();
+    document.getElementById('done').textContent = d.done ?? '–';
+    document.getElementById('target').textContent = d.target ?? 262;
+    document.getElementById('pct-label').textContent = (d.pct ?? 0) + '% complete';
+    document.getElementById('bar').style.width = (d.pct ?? 0) + '%';
+    const dot = document.getElementById('status-dot');
+    const lbl = document.getElementById('status-label');
+    if (d.running) { dot.className = 'dot-running'; lbl.textContent = 'RUNNING'; lbl.style.color = '#22c55e'; }
+    else { dot.className = 'dot-stopped'; lbl.textContent = (d.done >= d.target ? 'COMPLETE ✅' : 'STOPPED'); lbl.style.color = d.done >= d.target ? '#22c55e' : '#94a3b8'; }
+    document.getElementById('rate').textContent = d.rate_per_min != null ? d.rate_per_min.toFixed(2) : '–';
+    document.getElementById('eta').textContent = d.eta_human || '–';
+    document.getElementById('elapsed').textContent = fmtSec(d.elapsed_sec);
+    document.getElementById('remaining').textContent = d.remaining ?? '–';
+
+    const ifEl = document.getElementById('in-flight');
+    if (d.in_flight_downloads && d.in_flight_downloads.length) {
+      ifEl.innerHTML = d.in_flight_downloads.map(f =>
+        `<div class="in-flight-row"><span class="run">${f.run}</span><span class="sz">${f.size_mb} MB</span></div>`).join('');
+    } else {
+      ifEl.innerHTML = '<div style="color:#64748b; font-size:12px;">no in-flight downloads detected</div>';
+    }
+
+    const logEl = document.getElementById('log');
+    if (d.recent_log_lines && d.recent_log_lines.length) {
+      logEl.innerHTML = d.recent_log_lines.map(colorize).join('\n');
+      logEl.scrollTop = logEl.scrollHeight;
+    } else {
+      logEl.textContent = '(no log lines yet)';
+    }
+
+    if (d.disk) {
+      document.getElementById('disk-used').textContent = d.disk.used_gb;
+      document.getElementById('disk-total').textContent = d.disk.total_gb;
+      document.getElementById('disk-free').textContent = d.disk.free_gb;
+      document.getElementById('disk-pct').textContent = d.disk.pct_used;
+      document.getElementById('disk-fill').style.width = d.disk.pct_used + '%';
+    }
+
+    document.getElementById('timestamp').textContent = 'last update: ' + (d.ts_human || '–');
+  } catch (e) {
+    document.getElementById('timestamp').innerHTML = '<span class="error">⚠ progress JSON 못 읽음: ' + e.message + '</span>';
+  }
+}
+update();
+setInterval(update, 10000);
+</script>
+</body>
+</html>
