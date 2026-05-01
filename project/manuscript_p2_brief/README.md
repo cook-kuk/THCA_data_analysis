@@ -8,12 +8,21 @@ purpose: "advisor 미팅 single-page brief 의 모든 deliverable 와 source 검
 
 `Paper 2 (Autoimmune-overlap PTC)` 의 advisor 미팅용 single-page discussion brief + 보조 자료. **HLA / autoimmune-overlap (DM2) 축만** 다룸. Paper 1 (Dark Matter, DM1) 은 별도 — 본 디렉토리 scope 밖.
 
-## 1. Deliverables (8 files)
+## 1. Deliverables (10 files)
+
+### Primary (advisor 미팅 메인 자료)
 
 | File | Size | Purpose |
 |---|---|---|
-| **`p2_advisor_discussion.html`** ★ | 130 kB | Plotly interactive single-page brief — main deliverable. 21 figures (6 paper-defining), 5 tables, 12 advisor questions. 8 sub-section anchors (s311–s318). Browser 또는 server 로 view. |
-| **`p2_advisor_discussion.pdf`** | 2.6 MB | 56-page printable / email-able PDF version. Headless Chrome rendering — Plotly figures 모두 SVG embed. Korean glyphs intact (0 replacement chars). |
+| **`paper2_brief.html`** ★ NEW | 102 kB | **Story-driven version** — 5 chapter (Introduction / Evidence / Synthesis / Translation / Decision), 14 sections, 11 figures (6 paper-defining), Mermaid mediation chain, 균일한 Pillar 구조 (Q→방법→결과→해석→한계), 약어 사전 § 0 + inline tooltips. Advisor 미팅 권장. |
+| **`paper2_brief.pdf`** ★ NEW | 2.8 MB | 38-page printable / email-able PDF. Chapter 별 divider page 로 시각적 분리. |
+
+### Extended reference (kitchen-sink, deep-dive)
+
+| File | Size | Purpose |
+|---|---|---|
+| `p2_advisor_discussion.html` | 130 kB | **Extended kitchen-sink version** — 21 figures, 5 tables, WHY 박스, 4-scenario sensitivity 등 모든 detail. Reviewer 답변 / supplementary 작성 시 reference. |
+| `p2_advisor_discussion.pdf` | 2.6 MB | 50-page extended PDF. 8 sub-section anchors (s311–s318). |
 | `DATA_SOURCES_INDEX.md` | 11 kB | 21 figures + 5 tables → underlying TSV/JSON path mapping. **26/26 source paths verified ✅**. § C.2 verbatim ratio (Methods 99.78%, Discussion 97.81%). § E.0 Figure# ↔ Plotly id mapping table. |
 | `COHORT_ACCESS_GUIDE.md` | 7 kB | 5 cohorts (TCGA/GSE286332/GSE213647/K2/Chu 2018) raw data accession + download method + processing script + IRB. ~600 MB 처리된 자료로 brief 전체 reproduce 가능. |
 | `PROMPT_DECISION_LOG.md` | 12 kB | Audit log — v4 audit 통합 작업 중 scope 오판단 → HLA-only 정정 trace + 16-row propagation checklist |
