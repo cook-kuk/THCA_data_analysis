@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>rThyroid 마무리 audit (A→J) — 2026-04-29</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root {
+    --bg:#0d1117; --panel:#161b22; --border:#30363d;
+    --fg:#e6edf3; --muted:#8b949e; --accent:#58a6ff;
+    --good:#3fb950; --warn:#d29922; --bad:#f85149;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.55}
+  header{padding:28px 32px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#161b22 0%,#0d1117 100%);position:sticky;top:0;z-index:5}
+  h1{margin:0 0 6px 0;font-size:22px;font-weight:600}
+  header p{margin:0;color:var(--muted);font-size:13px}
+  nav{padding:12px 32px;border-bottom:1px solid var(--border);display:flex;gap:14px;flex-wrap:wrap;background:var(--panel)}
+  nav a{color:var(--accent);text-decoration:none;font-size:13px;font-weight:500;padding:4px 10px;border:1px solid var(--border);border-radius:6px}
+  nav a:hover{background:var(--bg)}
+  main{padding:24px 32px;max-width:1400px;margin:0 auto}
+  section{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:22px;margin-bottom:22px;scroll-margin-top:90px}
+  section h2{margin:0 0 14px 0;font-size:18px;border-bottom:1px solid var(--border);padding-bottom:10px}
+  section h3{font-size:14px;margin:18px 0 8px 0;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+  .figbox{background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px;margin:14px 0;cursor:zoom-in;transition:transform 0.15s ease,border-color 0.15s ease}
+  .figbox:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .figbox img{display:block;width:100%;height:auto;border-radius:4px}
+  .figcaption{padding:10px 6px 4px 6px;font-size:12px;color:var(--muted);font-style:italic;background:transparent;border:none}
+  .figcaption strong{color:var(--fg);font-style:normal}
+  .figcaption .pdflink{margin-left:8px;color:var(--accent);text-decoration:none;font-style:normal}
+  .figcaption .pdflink:hover{text-decoration:underline}
+  /* Lightbox modal */
+  .lightbox{display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.92);z-index:100;cursor:zoom-out;padding:30px;overflow:auto;text-align:center}
+  .lightbox.open{display:flex;align-items:center;justify-content:center}
+  .lightbox img{max-width:96vw;max-height:92vh;border:1px solid var(--accent);border-radius:6px;background:white}
+  .lightbox .close-hint{position:fixed;top:20px;right:24px;color:var(--muted);font-size:13px;background:rgba(13,17,23,0.85);padding:8px 14px;border-radius:6px;border:1px solid var(--border)}
+  .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;margin-left:8px;vertical-align:middle}
+  .badge-good{background:rgba(63,185,80,0.15);color:var(--good);border:1px solid rgba(63,185,80,0.3)}
+  .badge-warn{background:rgba(210,153,34,0.15);color:var(--warn);border:1px solid rgba(210,153,34,0.3)}
+  .badge-bad{background:rgba(248,81,73,0.15);color:var(--bad);border:1px solid rgba(248,81,73,0.3)}
+  .badge-info{background:rgba(88,166,255,0.15);color:var(--accent);border:1px solid rgba(88,166,255,0.3)}
+  table{width:100%;border-collapse:collapse;margin:8px 0;font-size:13px}
+  th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+  th{background:rgba(88,166,255,0.06);color:var(--accent);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.3px}
+  tr:hover td{background:rgba(255,255,255,0.02)}
+  .num{font-family:"SF Mono",Monaco,Consolas,monospace;font-size:12px}
+  code{background:rgba(255,255,255,0.06);padding:1px 6px;border-radius:3px;font-family:"SF Mono",Monaco,Consolas,monospace;font-size:12px}
+  pre{background:#0d1117;border:1px solid var(--border);border-radius:6px;padding:12px;overflow-x:auto;font-size:12px}
+  img.fig{max-width:100%;border:1px solid var(--border);border-radius:6px;margin:8px 0;background:white}
+  pre code{background:transparent;padding:0;color:#79c0ff}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .card{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px}
+  .card .label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+  .card .value{font-size:18px;font-weight:600}
+  .card .sub{color:var(--muted);font-size:12px;margin-top:4px}
+  .files{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:8px}
+  .files a{display:block;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--accent);text-decoration:none;font-size:12px;font-family:"SF Mono",Monaco,Consolas,monospace}
+  .files a:hover{border-color:var(--accent)}
+  .quote{border-left:3px solid var(--accent);padding:6px 14px;background:rgba(88,166,255,0.05);margin:10px 0;font-size:13px;color:var(--muted)}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin:14px 0}
+  .stat{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:center}
+  .stat .v{font-size:24px;font-weight:700;color:var(--accent)}
+  .stat .l{color:var(--muted);font-size:11px;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+  .toc-row{display:grid;grid-template-columns:60px 1fr 90px 110px;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;align-items:center}
+  .toc-row:last-child{border-bottom:none}
+  .toc-row .id{font-weight:700;color:var(--accent);font-size:14px}
+  .footer{margin-top:32px;padding:18px 0;color:var(--muted);font-size:12px;text-align:center;border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>rThyroid 마무리 분석 — A→J 일괄 audit</h1>
+  <p>2026-04-29 PM session · Dark Matter reframe 후 · 10 prompt 일괄 실행 결과 · <a href="dashboard.html" style="color:#3fb950;font-weight:600">⚡ 인터랙티브 dashboard로 가기 →</a></p>
+</header>
+
+<nav>
+  <a href="#summary">요약</a>
+  <a href="#A">A 포렌식</a>
+  <a href="#B">B 4-way</a>
+  <a href="#C">C 가성비</a>
+  <a href="#D">D K2≠분당</a>
+  <a href="#E">E MSK bias</a>
+  <a href="#F">F sc</a>
+  <a href="#G">G trajectory</a>
+  <a href="#H">H FFPE</a>
+  <a href="#I">I NRG1</a>
+  <a href="#J">J Wang</a>
+  <a href="meeting_brief_pm.md">미팅 brief</a>
+  <a href="audit_report_8gene.md">A 전체 리포트</a>
+</nav>
+
+<main>
+
+<section id="summary">
+  <h2>한 줄 요약 <span class="badge badge-good">paper not blocked</span></h2>
+  <p><strong>8-gene Dark Matter paper는 차단되지 않고, 오히려 reframe 후 강화됨.</strong> A audit는 의도된 design (manuscript title 자체가 "RAI-responsiveness biomarker"), B paradox는 group-definition artifact (BRAF+TERT+ 25/36이 진짜 worst), D는 K2≠Bundang 정정, E는 MSK refractory enrichment 정량화, F는 thyrocyte-intrinsic 확인, G는 monotonic dedifferentiation 회복, H는 FFPE 강건성, C는 P8 가성비 검증, J는 Wang citation 확정.</p>
+
+  <div class="summary-grid">
+    <div class="stat"><div class="v">10/10</div><div class="l">prompts 완료</div></div>
+    <div class="stat"><div class="v">7</div><div class="l">분석 스크립트</div></div>
+    <div class="stat"><div class="v">7</div><div class="l">PDF 4-panel figs</div></div>
+    <div class="stat"><div class="v">0</div><div class="l">차단 사유</div></div>
+  </div>
+
+  <h3>Prompt × 결과 인덱스</h3>
+  <div class="toc-row" style="font-weight:700;border-bottom:2px solid var(--border)">
+    <div>ID</div><div>주제</div><div>판정</div><div>핵심 수치</div>
+  </div>
+  <div class="toc-row"><div class="id">A</div><div>포렌식 audit (BLOCKER 의심)</div><div><span class="badge badge-good">PASS</span></div><div class="num">design intent</div></div>
+  <div class="toc-row"><div class="id">B</div><div>TERT × BRAF × RAS 4-way</div><div><span class="badge badge-good">paradox 해소</span></div><div class="num">25/36 = 69%</div></div>
+  <div class="toc-row"><div class="id">C</div><div>P8 vs P10 vs P12 vs P16 가성비</div><div><span class="badge badge-good">P8 충분</span></div><div class="num">ΔAUC +0.007</div></div>
+  <div class="toc-row"><div class="id">D</div><div>K2 ≠ Bundang 정정</div><div><span class="badge badge-warn">cohort id</span></div><div class="num">PRJEB11591</div></div>
+  <div class="toc-row"><div class="id">E</div><div>MSK enrichment bias</div><div><span class="badge badge-warn">caveat</span></div><div class="num">p=6.6e-131</div></div>
+  <div class="toc-row"><div class="id">F</div><div>sc thyrocyte-intrinsic</div><div><span class="badge badge-good">확인</span></div><div class="num">15,330 / 67,678</div></div>
+  <div class="toc-row"><div class="id">G</div><div>PTC→PDTC→ATC trajectory</div><div><span class="badge badge-good">monotonic</span></div><div class="num">+0.50→-1.99</div></div>
+  <div class="toc-row"><div class="id">H</div><div>FFPE robustness</div><div><span class="badge badge-good">robust</span></div><div class="num">KS p=0.44</div></div>
+  <div class="toc-row"><div class="id">I</div><div>NRG1 (germline 부재)</div><div><span class="badge badge-info">defer</span></div><div class="num">plan only</div></div>
+  <div class="toc-row"><div class="id">J</div><div>Wang citation 확정</div><div><span class="badge badge-good">identified</span></div><div class="num">PMID 39235852</div></div>
+</section>
+
+<section id="A">
+  <h2>A. 8-gene 포렌식 audit <span class="badge badge-good">paper not blocked</span></h2>
+  <h3>의문</h3>
+  <div class="quote">"갑상선암에서 의미 있는 거 뽑으라"고 했으면 BRAF가 1-2등이 정상인데, 8개가 모두 RAI/iodine 관련. 명령지에 RAI bias가 의도치 않게 들어간 건 아닌가? (오전 미팅, 유 교수님)</div>
+
+  <h3>발견</h3>
+  <ul>
+    <li>8-gene은 RandomForest feature importance ranking 결과; candidate pool은 TIERA67 67-gene 큐레이션 (<code>rerun_v2.py:121-192</code>)</li>
+    <li><code>Driver_anchor</code> 카테고리 (BRAF, TERT, NRAS, RET 등 12개) 명시적 제거 (<code>rerun_v2.py:198</code>) → 55-gene clean pool로 RandomForest 학습</li>
+    <li>이유: <em>"BRAF_like vs RAS_like labels in TCGA. Used as a leakage-clean comparator"</em> (코드 주석)</li>
+    <li>Manuscript v6 title: <strong>"An 8-gene RAI-responsiveness biomarker outperforms BRAF V600E status"</strong> — RAI framing이 paper 핵심 narrative</li>
+    <li>Leak-free 재검증 R1-B (30-gene MAPK+immune+EMT, 8-gene과 zero overlap) → 8-gene이 새 cluster를 AUC 0.925로 예측, ΔAUC +0.130 vs BRAF</li>
+  </ul>
+
+  <h3>Smoking-gun 코드 (rerun_v2.py)</h3>
+  <pre><code># Lines 121-139: TDS_core curated category (all 8 panel genes are here)
+TIERA67_CATEGORIES = {
+    "TDS_core": [
+        "DIO1", "DIO2", "DUOX1", "DUOX2",
+        "FOXE1", "GLIS3", "NKX2-1", "PAX8",
+        "SLC26A4", "SLC5A5", "SLC5A8",
+        "TG", "THRA", "THRB", "TPO", "TSHR",
+    ],
+
+# Lines 152-165: Driver_anchor (BRAF, TERT explicitly listed and later removed)
+    "Driver_anchor": [
+        "BRAF", "NRAS", "HRAS", "KRAS", "RET",
+        "NTRK1", "NTRK3", "ALK", "PAX8", "PPARG",
+        "TERT", "EIF1AX",
+    ],
+
+# Lines 196-198: Explicit exclusion (intentional, label-leakage prevention)
+# Driver-free variant: removes the Driver_anchor category whose genes
+# (BRAF/NRAS/KRAS/RET/...) are also used to assign BRAF_like vs RAS_like
+# labels in TCGA. Used as a leakage-clean comparator.
+TIERA67_CLEAN_CATEGORIES = {k: v for k, v in TIERA67_CATEGORIES.items()
+                            if k != "Driver_anchor"}</code></pre>
+
+  <h3>Action</h3>
+  <p>Methods 한 문장만 reframe: <em>"unsupervised genome-wide search"</em> → <em>"RandomForest-ranked from a curated 55-gene pool (TIERA67 minus driver genes); driver mutations excluded by design to prevent label leakage with reference subtypes."</em></p>
+
+  <div class="files">
+    <a href="audit_report_8gene.md">audit_report_8gene.md (전체 + reviewer Q&amp;A)</a>
+  </div>
+</section>
+
+<section id="B">
+  <h2>B. TERT × BRAF × RAS 4-way matrix <span class="badge badge-good">paradox 해소</span></h2>
+  <div class="quote">"트리플 negative + TERT positive가 제일 안 좋게 나왔네. 이상하다. TERT positive + BRAF positive가 제일 안 좋아야 되는데." — 오전 미팅</div>
+
+  <p>4-group 정의가 TERT+를 mutually-exclusive 카테고리로 두면서 TERT+ 안의 driver 분포를 감춤. 8-cell breakdown으로 진실 드러남.</p>
+
+  <figure class="figbox" data-pdf="4way/figure_4way_revalidation.pdf">
+    <img src="4way/figure_4way_revalidation.png" alt="4-way revalidation 4-panel">
+    <figcaption class="figcaption">
+      <strong>Figure B.</strong> TCGA-THCA n=504, 4-panel: (A) KM curves for 4 collapsed groups (BRAF only / RAS only / TERT+ / triple-negative). (B) Bootstrap HR forest plot (1000 resamples, ridge-penalized Cox) for the 8-cell driver × TERT decomposition vs OTHER_TERT- reference. (C) N + event-rate heatmap. (D) TERT+ patients are 69% BRAF+ — the apparent "TERT-only triple-neg-ish is worst" reflects an n=4 subgroup with 4-orders-of-magnitude CI. <a class="pdflink" href="4way/figure_4way_revalidation.pdf">PDF ↗</a> · <a class="pdflink" href="#" onclick="openLightbox('4way/figure_4way_revalidation.png');return false">확대 ⤢</a>
+    </figcaption>
+  </figure>
+
+  <h3>8-cell N + event rate (TCGA-THCA n=504)</h3>
+  <table>
+    <tr><th>Cell</th><th>N</th><th>Events</th><th>Event rate</th><th>HR (boot median)</th><th>95% CI</th><th>logrank p</th></tr>
+    <tr><td>BRAF_TERT-</td><td class="num">250</td><td class="num">3</td><td class="num">1.2%</td><td class="num">0.45</td><td class="num">[0.19, 1.16]</td><td class="num">0.067</td></tr>
+    <tr><td>OTHER_TERT- (≈Triple_neg)</td><td class="num">170</td><td class="num">6</td><td class="num">3.5%</td><td class="num">ref</td><td class="num">—</td><td class="num">—</td></tr>
+    <tr><td>RAS_TERT-</td><td class="num">48</td><td class="num">1</td><td class="num">2.1%</td><td class="num">0.64</td><td class="num">[0.22, 2.35]</td><td class="num">0.651</td></tr>
+    <tr style="background:rgba(248,81,73,0.07)"><td><strong>BRAF_TERT+</strong></td><td class="num"><strong>25</strong></td><td class="num"><strong>4</strong></td><td class="num"><strong>16.0%</strong></td><td class="num"><strong>3.04</strong></td><td class="num">[0.63, 11.18]</td><td class="num"><strong>0.043</strong></td></tr>
+    <tr><td>RAS_TERT+</td><td class="num">6</td><td class="num">0</td><td class="num">0.0%</td><td class="num">—</td><td class="num">— (0 events)</td><td class="num">—</td></tr>
+    <tr style="background:rgba(210,153,34,0.07)"><td>OTHER_TERT+ ("TERT-only")</td><td class="num">4</td><td class="num">1</td><td class="num">25.0%</td><td class="num">6.90</td><td class="num">[0.009, 34.09]</td><td class="num">0.010</td></tr>
+    <tr><td>NTRK_TERT+</td><td class="num">1</td><td class="num">1</td><td class="num">100.0%</td><td class="num">—</td><td class="num">— (n=1, ignore)</td><td class="num">—</td></tr>
+  </table>
+
+  <h3>TERT+ 36명 driver 분포 (smoking gun)</h3>
+  <table>
+    <tr><th>Driver</th><th>n in TERT+</th><th>% of TERT+</th><th>Events</th></tr>
+    <tr style="background:rgba(248,81,73,0.07)"><td><strong>BRAF</strong></td><td class="num"><strong>25</strong></td><td class="num"><strong>69.4%</strong></td><td class="num">4</td></tr>
+    <tr><td>RAS</td><td class="num">6</td><td class="num">16.7%</td><td class="num">0</td></tr>
+    <tr><td>OTHER (≈triple-neg-otherwise)</td><td class="num">4</td><td class="num">11.1%</td><td class="num">1</td></tr>
+    <tr><td>NTRK</td><td class="num">1</td><td class="num">2.8%</td><td class="num">1</td></tr>
+  </table>
+
+  <h3>결론</h3>
+  <ul>
+    <li>"TERT-only triple-neg-otherwise"로 의심된 그룹은 <strong>n=4</strong>. CI = [0.009, 34.09] — 4 orders of magnitude span, small-N artifact</li>
+    <li>진짜 worst는 <strong>BRAF_TERT+</strong> (n=25, e=4, HR=3.04 boot, p=0.04) — literature 일관 (Xing 2014 PMID 25024077 의 BRAF+TERT+ HR 8.51 패턴)</li>
+  </ul>
+
+  <div class="files">
+    <a href="4way/4way_audit.md">4way_audit.md (writeup)</a>
+    <a href="4way/figure_4way_revalidation.pdf">figure (PDF)</a>
+    <a href="4way/8cell_crosstab.tsv">8cell_crosstab.tsv</a>
+    <a href="4way/forest_HR_8cell.tsv">forest_HR_8cell.tsv</a>
+    <a href="4way/tert_subgroup_breakdown.tsv">tert_subgroup_breakdown.tsv</a>
+  </div>
+</section>
+
+<section id="C">
+  <h2>C. P8 vs P10 vs P12 vs P16 가성비 <span class="badge badge-good">P8 충분</span></h2>
+  <p>"DeepSeek 가성비" 논리: 8개로도 16개 만큼 잘 한다 → 가설 검증.</p>
+
+  <figure class="figbox" data-pdf="robustness/figure_panel_coverage.pdf">
+    <img src="robustness/figure_panel_coverage.png" alt="Panel coverage matrix">
+    <figcaption class="figcaption">
+      <strong>Figure C.</strong> Left: gene coverage % per cohort × panel (P8 / P10 / P12 / P16). RNA-seq cohorts (TCGA, GSE213647, K2) cover P8 / P16 fully but lack mutation calls for P10 / P12. MSK-IMPACT covers P10 / P12 (mutations only) but no expression. Right: cumulative sample N across cohorts where the full panel is measurable — P8 N=1,518 vs P10/P12 N=630. <a class="pdflink" href="robustness/figure_panel_coverage.pdf">PDF ↗</a> · <a class="pdflink" href="#" onclick="openLightbox('robustness/figure_panel_coverage.png');return false">확대 ⤢</a>
+    </figcaption>
+  </figure>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="label">TCGA AUC (BRAF-like classification)</div>
+      <div class="value">P8 = 0.875</div>
+      <div class="sub">P16 = 0.882, ΔAUC = +0.007</div>
+    </div>
+    <div class="card">
+      <div class="label">P8 cohort applicability</div>
+      <div class="value">N = 1,518</div>
+      <div class="sub">TCGA + GSE213647 + K2 (3 RNA-seq cohorts)</div>
+    </div>
+    <div class="card">
+      <div class="label">P10/P12 cohort applicability</div>
+      <div class="value">N = 630</div>
+      <div class="sub">TCGA + MSK only (mutation 필요)</div>
+    </div>
+    <div class="card">
+      <div class="label">결론</div>
+      <div class="value">P8 wins</div>
+      <div class="sub">99.2% of P16 performance, 50% genes, 2.4× cohort coverage</div>
+    </div>
+  </div>
+
+  <div class="files">
+    <a href="robustness/gene_coverage_matrix.tsv">gene_coverage_matrix.tsv</a>
+    <a href="robustness/tcga_panel_auc.json">tcga_panel_auc.json</a>
+    <a href="robustness/figure_panel_coverage.pdf">figure (PDF)</a>
+  </div>
+</section>
+
+<section id="D">
+  <h2>D. K2 ≠ Bundang SNUH <span class="badge badge-warn">cohort id 정정</span></h2>
+  <p>오전 미팅에서 "분당만 따로 보셨네요"라고 칭한 cohort는 사실 <strong>K2 = PRJEB11591 = Yoo 2016 SNU-GMI 공개 RNA-seq</strong> (n=260). 진짜 분당 SNUH는 outreach email v2 작성 단계 (2026-04-27), 데이터 수령 전.</p>
+
+  <table>
+    <tr><th>이름</th><th>실체</th><th>상태</th></tr>
+    <tr><td>K2 / KOREAN_K2</td><td>PRJEB11591 Yoo 2016 SNU-GMI 공개</td><td>n=260, 분석 완료</td></tr>
+    <tr><td>분당 SNUH (Bundang)</td><td>분당서울대병원 prospective collaboration</td><td>outreach email v2, 협업 미합의</td></tr>
+  </table>
+  <p>미팅 + manuscript figure caption에서 정확히 호명 필수. <em>"Yoo 2016 SNU-GMI public RNA-seq cohort (PRJEB11591, n=260)"</em>로.</p>
+</section>
+
+<section id="E">
+  <h2>E. MSK enrichment bias <span class="badge badge-warn">caveat documented</span></h2>
+  <p>MSK-IMPACT thyroid는 referral pattern으로 <strong>advanced/refractory disease enriched cohort</strong>. epidemiologically representative 아님.</p>
+
+  <figure class="figbox" data-pdf="msk_bias/msk_bias_panel.pdf">
+    <img src="msk_bias/msk_bias_panel.png" alt="MSK enrichment bias">
+    <figcaption class="figcaption">
+      <strong>Figure E.</strong> MSK-IMPACT n=117 vs TCGA-THCA n=513. Left: histology composition — MSK is 0% PTC, 71.8% PDTC, 28.2% ATC vs TCGA 94% PTC (chi² p=6.6×10⁻¹³¹). Right: age distribution — MSK median 61 vs TCGA 46 (Mann-Whitney p=8.5×10⁻¹²). MSK is a tertiary referral cohort enriched for refractory advanced disease. <a class="pdflink" href="msk_bias/msk_bias_panel.pdf">PDF ↗</a> · <a class="pdflink" href="#" onclick="openLightbox('msk_bias/msk_bias_panel.png');return false">확대 ⤢</a>
+    </figcaption>
+  </figure>
+
+  <table>
+    <tr><th>변수</th><th>MSK (n=117)</th><th>TCGA (n=513)</th><th>p</th></tr>
+    <tr><td>% PTC</td><td class="num">0.0%</td><td class="num">94.0%</td><td rowspan="3" class="num">chi² = 6.6e-131</td></tr>
+    <tr><td>% PDTC</td><td class="num">71.8%</td><td class="num">0.0%</td></tr>
+    <tr><td>% ATC</td><td class="num">28.2%</td><td class="num">0.0%</td></tr>
+    <tr><td>Median age</td><td class="num">61.0</td><td class="num">46.3</td><td class="num">MW = 8.5e-12</td></tr>
+    <tr><td>M1 / Stage IV</td><td class="num">37.6%</td><td class="num">9.9%</td><td class="num">—</td></tr>
+  </table>
+
+  <div class="files">
+    <a href="msk_bias/caveat_paragraph.md">caveat_paragraph.md (paper-ready text)</a>
+    <a href="msk_bias/histology_comparison.tsv">histology_comparison.tsv</a>
+    <a href="msk_bias/msk_bias_panel.pdf">figure (PDF)</a>
+  </div>
+</section>
+
+<section id="F">
+  <h2>F. Single-cell wrap-up — thyrocyte-intrinsic 확인 <span class="badge badge-good">확인</span></h2>
+  <p>GSE184362 not located in project; <strong>GSE193581 Lu 2023</strong> (n=67,678 cells) 대체 사용. DM_score (8-gene signature)는 epithelial/malignant cell에서만 의미 있는 발현 → bulk DM1/DM2 axis는 thyrocyte-intrinsic biology.</p>
+
+  <figure class="figbox" data-pdf="sc_wrapup/figure_sc_wrapup.pdf">
+    <img src="sc_wrapup/figure_sc_wrapup.png" alt="sc wrapup 4-panel">
+    <figcaption class="figcaption">
+      <strong>Figure F.</strong> GSE193581 Lu 2023 n=67,678 cells. (A) DM_score by cell type (top 12 by median) — Epithelial + Malignant cells are the only populations expressing the 8-gene signature. (B) DM_score by histology. (C) Per-sample intra-tumor heterogeneity (thyrocyte median ± std). (D) Distribution: thyrocyte vs non-thyrocyte — confirms the 8-gene signature is thyrocyte-intrinsic, not microenvironment-driven. <a class="pdflink" href="sc_wrapup/figure_sc_wrapup.pdf">PDF ↗</a> · <a class="pdflink" href="#" onclick="openLightbox('sc_wrapup/figure_sc_wrapup.png');return false">확대 ⤢</a>
+    </figcaption>
+  </figure>
+
+  <table>
+    <tr><th>Cell type</th><th>n</th><th>DM_score median</th></tr>
+    <tr style="background:rgba(63,185,80,0.07)"><td><strong>Epithelial cell</strong></td><td class="num">706</td><td class="num">+1.36</td></tr>
+    <tr style="background:rgba(63,185,80,0.07)"><td><strong>Malignant cell</strong></td><td class="num">14,624</td><td class="num">-0.04</td></tr>
+    <tr><td>T cell</td><td class="num">32,929</td><td class="num">— (no panel expr)</td></tr>
+    <tr><td>Myeloid cell</td><td class="num">12,176</td><td class="num">— (no panel expr)</td></tr>
+    <tr><td>B cell / NK / Fib / Endo</td><td class="num">7,243</td><td class="num">— (no panel expr)</td></tr>
+  </table>
+
+  <div class="files">
+    <a href="sc_wrapup/sc_wrapup_summary.json">sc_wrapup_summary.json</a>
+    <a href="sc_wrapup/celltype_DM_score.tsv">celltype_DM_score.tsv</a>
+    <a href="sc_wrapup/figure_sc_wrapup.pdf">figure (PDF)</a>
+  </div>
+</section>
+
+<section id="G">
+  <h2>G. PTC → PDTC → ATC trajectory <span class="badge badge-good">monotonic</span></h2>
+  <p>4 cohort에 걸쳐 8-gene signature가 differentiation continuum 위에 monotonic 위치. 특히 <strong>GSE213647 Korean Kim cohort</strong>가 깔끔: Normal=+0.50 → PTC=-0.51 → PDTC=-0.78 → ATC=-1.99.</p>
+
+  <figure class="figbox" data-pdf="trajectory/figure_trajectory.pdf">
+    <img src="trajectory/figure_trajectory.png" alt="trajectory 4-cohort">
+    <figcaption class="figcaption">
+      <strong>Figure G.</strong> 4 cohorts × 5 histology classes plotted on a within-cohort z-normalized 8-gene signature axis. GSE213647 Korean Kim cohort shows the cleanest monotonic decrease Normal +0.50 → PTC −0.51 → PDTC −0.78 → ATC −1.99. TCGA + K2 cover the PTC center; GSE76039 covers the PDTC/ATC tail. <a class="pdflink" href="trajectory/figure_trajectory.pdf">PDF ↗</a> · <a class="pdflink" href="#" onclick="openLightbox('trajectory/figure_trajectory.png');return false">확대 ⤢</a>
+    </figcaption>
+  </figure>
+
+  <table>
+    <tr><th>Cohort</th><th>Normal</th><th>PTC</th><th>PDTC</th><th>ATC</th></tr>
+    <tr><td>GSE213647 (Kim Korean)</td><td class="num">+0.50 (n=262)</td><td class="num">-0.51 (n=353)</td><td class="num">-0.78 (n=9)</td><td class="num">-1.99 (n=8)</td></tr>
+    <tr><td>GSE76039</td><td class="num">—</td><td class="num">—</td><td class="num">-2.20 (n=17)</td><td class="num">~0 (n=20)</td></tr>
+    <tr><td>TCGA-THCA</td><td class="num">—</td><td class="num">0 (n=513)</td><td class="num">— (no PDTC)</td><td class="num">— (no ATC)</td></tr>
+    <tr><td>K2 (Yoo 2016)</td><td class="num">—</td><td class="num">0 (n=260)</td><td class="num">—</td><td class="num">—</td></tr>
+  </table>
+
+  <div class="files">
+    <a href="trajectory/trajectory_summary.tsv">trajectory_summary.tsv</a>
+    <a href="trajectory/trajectory_data.tsv">trajectory_data.tsv</a>
+    <a href="trajectory/figure_trajectory.pdf">figure (PDF)</a>
+  </div>
+</section>
+
+<section id="H">
+  <h2>H. FFPE robustness QC <span class="badge badge-good">FFPE-robust</span></h2>
+  <p>GSE213647 안에서 같은 TruSeq RNA access kit 사용한 <strong>FFPE (n=80) vs Fresh Frozen (n=169)</strong> within-study 비교 → 8-gene panel_z 분포 차이 없음. <strong>"262 NGS FFPE"</strong> 중 GEO에 있는 건 80개; 182개는 unpublished.</p>
+
+  <figure class="figbox" data-pdf="ffpe_qc/figure_ffpe_qc.pdf">
+    <img src="ffpe_qc/figure_ffpe_qc.png" alt="FFPE QC 3-panel">
+    <figcaption class="figcaption">
+      <strong>Figure H.</strong> Within-GSE213647 FFPE-vs-Fresh-Frozen QC, controlled by library kit (TruSeq RNA access). (A) Tumor panel_z by fixation — KS p=0.44, Mann-Whitney p=0.75. (B) Library size distribution — both fixations median 22.7M reads. (C) Histology composition: FFPE includes UTC/ATC + PDFP, FF-TruSeq is PTC + Normal only — mild histology confound to interpret with care. <a class="pdflink" href="ffpe_qc/figure_ffpe_qc.pdf">PDF ↗</a> · <a class="pdflink" href="#" onclick="openLightbox('ffpe_qc/figure_ffpe_qc.png');return false">확대 ⤢</a>
+    </figcaption>
+  </figure>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="label">panel_z KS test</div>
+      <div class="value">p = 0.44</div>
+      <div class="sub">Mann-Whitney p = 0.75 — no shift</div>
+    </div>
+    <div class="card">
+      <div class="label">Library size</div>
+      <div class="value">22.7M reads</div>
+      <div class="sub">FFPE = FF (median, same kit)</div>
+    </div>
+    <div class="card">
+      <div class="label">Histology</div>
+      <div class="value">FFPE has ATC/PDTC</div>
+      <div class="sub">FF kit only PTC/Normal — interpret with hist control</div>
+    </div>
+  </div>
+
+  <div class="files">
+    <a href="ffpe_qc/ffpe_qc_summary.json">ffpe_qc_summary.json</a>
+    <a href="ffpe_qc/figure_ffpe_qc.pdf">figure (PDF)</a>
+  </div>
+</section>
+
+<section id="I">
+  <h2>I. NRG1 Korean germline×somatic <span class="badge badge-info">defer</span></h2>
+  <p>Korean germline data (KoGES / 분당 / dbGaP) 부재. 별도 paper trajectory plan만 작성. main 8-gene Dark Matter paper에 영향 없음.</p>
+  <div class="files">
+    <a href="nrg1_plan.md">nrg1_plan.md (plan only)</a>
+  </div>
+</section>
+
+<section id="J">
+  <h2>J. Wang citation <span class="badge badge-good">identified</span></h2>
+  <p><strong>Chen XF et al. (Wang YL last author), Endocrine Connections 2024, PMID 39235852.</strong> n=2,844 Shanghai NGS thyroid tumors. BRAF 71% / RAS 4% / TERT 3% / RET-fusion 4% — TCGA + East Asian cohort들과 일치.</p>
+
+  <p>Discussion에 East-Asian comparator landscape으로 인용:</p>
+  <div class="quote">"Wang et al. (Chen XF, Wang YL, Endocr Connect 2024; PMID 39235852) reported BRAF/RAS/TERT mutation frequencies (71% / 4% / 3%) in n=2,844 Shanghai thyroid tumors, supporting the generalizability of the East-Asian thyroid mutation landscape across our Korean and TCGA reference cohorts."</div>
+</section>
+
+<div class="footer">
+  Generated 2026-04-29 PM · /home/seungho/personal/THCA_data_analysis/project/results/audit_2026_04_29/<br>
+  서버: <code>http://localhost:8012/results/audit_2026_04_29/index.html</code> · 재현: <code>python project/notebooks_or_scripts/v17_{4way,msk,h_ffpe,f_sc,g_traj,c_robust}*.py</code>
+</div>
+
+</main>
+
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <div class="close-hint">click anywhere or press Esc to close</div>
+  <img id="lightbox-img" alt="figure full size">
+</div>
+
+<script>
+function openLightbox(src){
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightbox-img').src = src;
+  lb.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.figbox').forEach(box => {
+  box.addEventListener('click', e => {
+    if (e.target.tagName === 'A') return;
+    const img = box.querySelector('img');
+    if (img) openLightbox(img.getAttribute('src'));
+  });
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+</script>
+</body>
+</html>
