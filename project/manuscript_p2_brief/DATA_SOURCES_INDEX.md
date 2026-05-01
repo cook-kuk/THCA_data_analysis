@@ -45,21 +45,21 @@ verified: "2026-05-01 — 54 hard-coded data points (Figures 2/2b/2c/2d) all mat
 | Fig | Title | Source file |
 |---|---|---|
 | **Fig 12 ★★★** | TLS / IGHV / IGKV clonality + entropy | `results/d5p6_bcr_repertoire/group_comparison.tsv` |
-| Fig 13 | Spearman correlation matrix (8-gene × IGHV × TLS × HLA-II) | `results/d5p6_bcr_repertoire/spearman_matrix.tsv` |
+| Fig 13 | Spearman correlation matrix (8-gene × IGHV × TLS × HLA-II) | `results/d5p6_bcr_repertoire/D5P6_summary.json` (`spearman_clo_g8_tls` key) |
 
 ### A.5 Pillar V — DM1 sub-B = NBNR cluster
 
 | Fig | Title | Source file |
 |---|---|---|
 | **Fig 14 ★★★** | DM1 sub-A vs sub-B mutation landscape | `results/d6p7_dm1_subcluster/dm1_subcluster_labels.tsv` |
-| Fig 15 | Korean GSE213647 sub-B-like rate | `results/d8c_korean_subB/korean_subB_score.tsv` |
+| Fig 15 | Korean GSE213647 sub-B-like rate | `results/d8c_dm1_subB_x_K2_NBNR/korean_subB_score.tsv` |
 
 ### A.6 § 3.6 Mediation
 
 | Fig | Title | Source file |
 |---|---|---|
-| **Fig 16 ★★★** | Mediation % bootstrap (HLA-II 140%) | `results/d3p5_mediation/mediation_results.json` |
-| Fig 17 | Within-PTC severity gradient (g8 vs P_DM1) | `results/d3p5_mediation/within_ptc_severity.json` |
+| **Fig 16 ★★★** | Mediation % bootstrap (HLA-II 140%) | `results/d3p5_pdm1_gradient/mediation_results.json` |
+| Fig 17 | Within-PTC severity gradient (g8 vs P_DM1) | `results/d3p5_pdm1_gradient/within_ptc_severity.json` |
 
 ### A.7 § 6 Timeline
 
@@ -71,7 +71,7 @@ verified: "2026-05-01 — 54 hard-coded data points (Figures 2/2b/2c/2d) all mat
 
 | Table | Title | Source file |
 |---|---|---|
-| Table 1 | Mediation summary bootstrap 5000 iter | `results/d3p5_mediation/mediation_results.json` |
+| Table 1 | Mediation summary bootstrap 5000 iter | `results/d3p5_pdm1_gradient/mediation_results.json` |
 | Table 1.0 (NEW) | Korean sub-cohort heterogeneity | `results/p2_pillar1_forest/korean_subcohort_heterogeneity.tsv` |
 | Table 1.1 (NEW) | 4-scenario sensitivity 6 alleles | `results/p2_pillar1_forest/sensitivity_4scenarios.tsv` |
 | Table 1.2 (NEW) | Pillar I 5-row 한계 disclosure | (수동 정리 — pre-emptive reviewer 답변용) |
@@ -92,9 +92,9 @@ verified: "2026-05-01 — 54 hard-coded data points (Figures 2/2b/2c/2d) all mat
 | Cohort | Description | n | Source |
 |---|---|---|---|
 | TCGA-THCA | Discovery cohort | 500 | TCGA pan-cancer (`results/v17_tcga_*/` 각종) |
-| GSE286332 | Korean Dongguk Univ Lim 2025 | 18 (9 PTC + 9 PTC+HT) | `data/GSE286332/` (BioProject PRJNA1208932) |
-| GSE213647 | Lee 2024 Korean replication | 632 | `data/GSE213647/` |
-| K2 / PRJEB11591 | Yoo 2016 SNU-GMI | 235 typeable (260 manifest) | `data/k2_korean/` |
+| GSE286332 | Korean Dongguk Univ Lim 2025 | 18 (9 PTC + 9 PTC+HT) | GEO BioProject PRJNA1208932 (raw FASTQ download via SRA Toolkit; processed: `results/p3_gse286332/`) |
+| GSE213647 | Lee 2024 Korean replication | 632 | GEO accession GSE213647 (metadata in `metadata/GSE213647_supplementary_data.xlsx`; processed via `notebooks_or_scripts/v17_ULTIMATE_U1C_gse213647.py`) |
+| K2 / PRJEB11591 | Yoo 2016 SNU-GMI | 235 typeable (260 manifest) | ENA accession PRJEB11591 (metadata in `metadata/v3_fusion_anchor_prjeb11591.tsv`; arcasHLA outputs in `results/d4p1_panasian_meta/korean_PTC_pool_n908.tsv`) |
 | Chu 2018 reference | Han Chinese GD vs ctrl | 1,468 GD / 1,490 ctrl | `results/p2_pillar1_forest/chu2018_allele_summary.tsv` (published values verified PMC 6161647) |
 
 ## E. Verification methodology
