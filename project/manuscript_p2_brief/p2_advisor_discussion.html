@@ -36,7 +36,7 @@
 html{scroll-behavior:smooth;}
 
 body{
-  font-family:'Newsreader', Georgia, serif;
+  font-family:'Newsreader', Georgia, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', '맑은 고딕', sans-serif, serif;
   background:var(--paper);
   color:var(--ink);
   line-height:1.65;
@@ -296,17 +296,55 @@ code, .mono{font-family:'JetBrains Mono', monospace; font-size:12px; background:
 }
 
 @media print{
-  body{background:#fff; font-size:11pt; color:#000;}
-  .container{max-width:none; padding:24pt 32pt;}
-  h1.title{font-size:28pt; color:#000;}
-  h2.section-title{font-size:18pt; break-after:avoid;}
-  h3.sub-title, h4.sub-sub{break-after:avoid;}
-  .toc, section, .figure, .gap-card, .scenario, .pillar, .q-card, table, .why-matters, .flow-intro{break-inside:avoid;}
+  body{background:#fff; font-size:10.5pt; color:#000;}
+  .container{max-width:none; padding:18pt 26pt;}
+  h1.title{font-size:26pt; color:#000;}
+  h2.section-title{font-size:17pt; break-after:avoid; margin-top:0;}
+  h3.sub-title, h4.sub-sub{break-after:avoid; page-break-after:avoid;}
+
+  /* Atomic units — never split across pages */
+  .toc, .figure, .gap-card, .scenario, .pillar, .q-card, .why-matters, .flow-intro,
+  .stat, .callout, .mermaid-wrap, .figure-plot, .figure-caption{
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+
+  /* Tables: try not to split, but allow if very long */
+  table{page-break-inside:auto;}
+  table tr{page-break-inside:avoid; page-break-after:auto;}
+  table thead{display:table-header-group;}
+  table tfoot{display:table-footer-group;}
+
+  /* Section: allow split if section content very long */
+  section{break-inside:auto; page-break-inside:auto; margin-bottom:24pt;}
+
+  /* Avoid orphan figure-caption: always pull caption to its figure page */
+  .figure-caption{break-before:avoid;}
+
+  /* Tighter section headings */
+  .section-num{font-size:9pt;}
+  .section-kicker{font-size:11pt; margin-bottom:18pt;}
+
+  /* Compact stat tiles */
+  .stat{padding:14pt 12pt;}
+  .stat-value{font-size:28pt; line-height:1;}
+  .stat-label{font-size:8pt;}
+
+  /* Smaller figure spacing */
+  .figure{margin:18pt 0; padding:14pt 18pt;}
+
+  /* Tight callout */
+  .callout{margin:10pt 0; padding:12pt 16pt;}
+
   .figure-plot{min-height:auto;}
-  .hero{padding:24pt 0; break-after:page;}
-  .stat-grid{grid-template-columns:repeat(4, 1fr);}
-  .pillar-grid{grid-template-columns:repeat(5, 1fr);}
+  .hero{padding:24pt 0; break-after:page; page-break-after:always;}
+  .stat-grid{grid-template-columns:repeat(4, 1fr); gap:8pt;}
+  .pillar-grid{grid-template-columns:repeat(5, 1fr); gap:6pt;}
   .scenario-grid{grid-template-columns:repeat(3, 1fr);}
+
+  /* TOC compact */
+  .toc{padding:14pt 18pt; margin-bottom:24pt;}
+  .toc-grid{font-size:11pt; gap:4pt 22pt;}
   a{color:#000; text-decoration:none;}
   .stat-value, .pillar-roman, .gap-num, .scenario-prob{color:#000;}
   .pillar-status, .severity, .scenario-badge, .paper-defining-banner{print-color-adjust:exact; -webkit-print-color-adjust:exact;}
