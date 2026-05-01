@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Papers Overview — THCA project 6 papers 통합 dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --ink:#0F1A2E; --ink-soft:#3A4658; --paper:#F4EFE6; --paper-soft:#EBE5D8;
+  --accent:#7B1F2A; --accent-soft:#A04451; --gold:#B8893C; --sage:#5C7B6E;
+  --rule:#C9C2B0; --rule-soft:#D9D2BF; --green:#3C6B4F; --amber:#A57215; --red:#962E2E;
+  --paper-defining-bg:#FAEEED;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Newsreader', Georgia, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif, serif;
+  background:var(--paper); color:var(--ink); line-height:1.7; font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+.container{max-width:1200px; margin:0 auto; padding:42px 56px;}
+
+h1.title{font-family:'Cormorant Garamond', 'Noto Sans KR', serif; font-size:48px; line-height:1.05; color:var(--accent); font-weight:600; margin-bottom:10px;}
+h1.subtitle{font-family:'Cormorant Garamond', 'Noto Sans KR', serif; font-size:24px; font-style:italic; font-weight:400; color:var(--ink-soft); margin-bottom:24px; line-height:1.35;}
+
+.byline{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); margin-top:24px; padding-top:18px; border-top:1px solid var(--rule);}
+.byline span{margin-right:22px;}
+
+.hero{padding:36px 0 40px; border-bottom:2px solid var(--ink); margin-bottom:40px;}
+.hero-kicker{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; font-weight:500;}
+
+.summary-bar{
+  display:grid; grid-template-columns:repeat(6, 1fr); gap:12px;
+  margin:28px 0;
+}
+.summary-cell{background:#fff; padding:18px 14px; border-top:3px solid var(--accent); border-left:1px solid var(--rule); border-right:1px solid var(--rule); border-bottom:1px solid var(--rule); text-align:center;}
+.summary-num{font-family:'Cormorant Garamond', serif; font-size:32px; font-weight:600; color:var(--accent); line-height:1;}
+.summary-label{font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft); margin-top:4px;}
+
+section{margin-bottom:48px; scroll-margin-top:24px;}
+.section-num{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.12em; color:var(--gold); text-transform:uppercase; font-weight:500;}
+h2.section-title{font-family:'Cormorant Garamond', 'Noto Sans KR', serif; font-size:32px; line-height:1.15; color:var(--ink); margin:6px 0 6px; padding-bottom:10px; border-bottom:2px solid var(--ink); font-weight:500;}
+.section-kicker{font-style:italic; color:var(--ink-soft); font-size:15px; margin-bottom:24px;}
+
+/* Paper card */
+.paper-card{
+  background:#fff;
+  border:1px solid var(--rule);
+  border-left:6px solid var(--accent);
+  margin-bottom:24px;
+  display:grid;
+  grid-template-columns:80px 1fr;
+}
+.paper-card.shipped{border-left-color:var(--green);}
+.paper-card.drafting{border-left-color:var(--gold);}
+.paper-card.deadline{border-left-color:var(--red); box-shadow:3px 3px 0 var(--red);}
+.paper-card.brief-done{border-left-color:var(--accent);}
+
+.paper-num-cell{
+  background:var(--paper-soft);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:22px 8px; border-right:1px solid var(--rule);
+}
+.paper-num{font-family:'Cormorant Garamond', serif; font-size:42px; font-weight:600; color:var(--gold); line-height:1;}
+.paper-num-label{font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.1em; color:var(--ink-soft); margin-top:6px;}
+
+.paper-body{padding:22px 26px;}
+.paper-title{font-family:'Cormorant Garamond', 'Noto Sans KR', serif; font-size:23px; font-weight:600; color:var(--ink); margin-bottom:6px; line-height:1.3;}
+.paper-subtitle{font-style:italic; color:var(--ink-soft); font-size:14px; margin-bottom:14px;}
+
+.paper-status-row{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px; padding-bottom:12px; border-bottom:1px dotted var(--rule);}
+.status-tag{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em; padding:3px 9px; font-weight:600; text-transform:uppercase;}
+.status-tag.shipped{background:var(--green); color:#fff;}
+.status-tag.drafting{background:var(--gold); color:#fff;}
+.status-tag.brief-done{background:var(--accent); color:#fff;}
+.status-tag.deadline{background:var(--red); color:#fff;}
+.status-tag.target{background:var(--paper-soft); color:var(--ink); border:1px solid var(--rule);}
+
+.paper-grid{display:grid; grid-template-columns:120px 1fr; gap:12px 18px; font-size:13.5px; line-height:1.6;}
+.paper-grid dt{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); font-weight:600; padding-top:2px;}
+.paper-grid dd{color:var(--ink);}
+.paper-grid dd code{font-family:'JetBrains Mono', monospace; font-size:11.5px; background:var(--paper-soft); padding:1px 5px; border-radius:2px;}
+
+.paper-links{margin-top:14px; padding-top:12px; border-top:1px dotted var(--rule); display:flex; flex-wrap:wrap; gap:14px; font-size:13px;}
+.paper-links a{color:var(--accent); text-decoration:none; padding:3px 0; border-bottom:1px solid var(--accent); font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.04em;}
+.paper-links a:hover{background:var(--paper-defining-bg);}
+
+.callout{padding:14px 20px; margin:14px 0; border-left:4px solid var(--ink); background:#fff; font-size:14px;}
+.callout.green{border-color:var(--green); background:#F1F5EE;}
+.callout.amber{border-color:var(--amber); background:#FCF6E5;}
+.callout.red{border-color:var(--red); background:#FAEEED;}
+.callout-label{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; margin-bottom:6px;}
+.callout.green .callout-label{color:var(--green);}
+.callout.amber .callout-label{color:var(--amber);}
+.callout.red .callout-label{color:var(--red);}
+
+table{width:100%; border-collapse:collapse; margin:16px 0; background:#fff; font-size:12.5px; font-variant-numeric:tabular-nums;}
+table caption{caption-side:top; text-align:left; font-family:'Cormorant Garamond', 'Noto Sans KR', serif; font-size:15px; font-style:italic; font-weight:500; color:var(--accent); margin-bottom:6px;}
+th{background:var(--ink); color:#fff; font-family:'JetBrains Mono', monospace; font-size:9.5px; letter-spacing:0.06em; text-transform:uppercase; text-align:left; padding:8px 10px; font-weight:500;}
+td{padding:7px 10px; border-bottom:1px solid var(--rule-soft);}
+td.num{text-align:right; font-family:'JetBrains Mono', monospace; font-size:11.5px;}
+tr.highlight td{background:#FFF8E8;}
+
+footer{margin-top:60px; padding:28px 0 14px; border-top:2px solid var(--ink); font-size:11.5px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace; letter-spacing:0.04em; line-height:1.6;}
+footer a{color:var(--accent); text-decoration:none;}
+
+@media (max-width:900px){
+  .summary-bar{grid-template-columns:repeat(3, 1fr);}
+  .paper-card{grid-template-columns:1fr;}
+  .paper-num-cell{flex-direction:row; padding:12px 18px; gap:14px; border-right:none; border-bottom:1px solid var(--rule);}
+  .paper-grid{grid-template-columns:1fr;}
+}
+
+@media print{
+  body{background:#fff; font-size:10pt;}
+  .container{max-width:none; padding:14pt 22pt;}
+  .summary-bar{grid-template-columns:repeat(6, 1fr); gap:6pt;}
+  .paper-card{break-inside:avoid; page-break-inside:avoid;}
+  table tr{page-break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ============== HERO ============== -->
+<header class="hero">
+  <div class="hero-kicker">THCA project · 6 papers 통합 dashboard · master index</div>
+  <h1 class="title">Papers Overview</h1>
+  <h1 class="subtitle">THCA (갑상선암) project 의 평행 진행 6 papers — claim, status, target, 핵심 figure, advisor 결정 의제, deadline 한 페이지 통합 view</h1>
+
+  <div class="summary-bar">
+    <div class="summary-cell"><div class="summary-num">6</div><div class="summary-label">Papers in flight</div></div>
+    <div class="summary-cell" style="border-top-color:var(--green);"><div class="summary-num" style="color:var(--green);">1</div><div class="summary-label">Ship-ready (npj)</div></div>
+    <div class="summary-cell" style="border-top-color:var(--red);"><div class="summary-num" style="color:var(--red);">1</div><div class="summary-label">Hard deadline (NeurIPS 5/6)</div></div>
+    <div class="summary-cell" style="border-top-color:var(--gold);"><div class="summary-num" style="color:var(--gold);">3</div><div class="summary-label">Drafting / submission prep</div></div>
+    <div class="summary-cell"><div class="summary-num">2</div><div class="summary-label">Story brief 완료</div></div>
+    <div class="summary-cell"><div class="summary-num">~6 mo</div><div class="summary-label">Marathon writing window</div></div>
+  </div>
+
+  <div class="byline">
+    <span>저자 · Seungho Cook (1st across all)</span>
+    <span>지도교수 · Yu Hyeong-won</span>
+    <span>Date · 2026-05-02</span>
+    <span>Memory · v17 marathon mode</span>
+  </div>
+</header>
+
+<!-- ============== § 1 SHIP-READY ============== -->
+<section id="shipped">
+  <div class="section-num">§ 1 · Ship-ready / Submitted</div>
+  <h2 class="section-title">이미 제출 가능 / 제출 임박</h2>
+  <div class="section-kicker">User keyboard 만 기다리는 paper — 자료는 다 됨.</div>
+
+  <!-- Paper 0 — npj -->
+  <div class="paper-card shipped">
+    <div class="paper-num-cell">
+      <div class="paper-num">0</div>
+      <div class="paper-num-label">npj</div>
+    </div>
+    <div class="paper-body">
+      <div class="paper-title">An 8-gene RAI-responsiveness biomarker outperforms BRAF V600E status in PTC</div>
+      <div class="paper-subtitle">v17 KOREAN sprint K2 + Fig 8 Cox-label 정정 완료 manuscript</div>
+      <div class="paper-status-row">
+        <span class="status-tag shipped">✅ Ship-ready</span>
+        <span class="status-tag target">npj Precision Oncology</span>
+        <span class="status-tag">2026-04-27 last update</span>
+      </div>
+      <dl class="paper-grid">
+        <dt>핵심 claim</dt><dd>8-gene RAI panel (SLC5A5/TPO/TG/TSHR/PAX8/NKX2-1/FOXE1/DIO1) 가 BRAF V600E status alone 대비 <strong>ΔAUC = +0.132</strong>. 5-fold CV AUC 0.954.</dd>
+        <dt>Cohort</dt><dd>TCGA-THCA n=504 + MSK-IMPACT n=117 + K2 (PRJEB11591) Korean pilot n=9</dd>
+        <dt>Survival</dt><dd>Lifelines TERT⁺ Cox HR=4.33 (univariate joint 4-group), HR=0.95 multivariate stage·age·sex</dd>
+        <dt>Manuscript</dt><dd><code>manuscript_v6.{md,html,pdf,docx}</code> ~12.9 K words</dd>
+        <dt>위치</dt><dd><code>project/submission/npj/</code></dd>
+        <dt>Outreach</dt><dd>4 outreach drafts NOT sent — user keyboard pending (memory <code>v17_npj_ship_status</code>)</dd>
+      </dl>
+      <div class="paper-links">
+        <a href="../submission/npj/index.html">→ npj dashboard</a>
+        <a href="../submission/npj/START_HERE.html">→ START_HERE</a>
+        <a href="../submission/npj/README.html">→ README</a>
+        <a href="../submission/npj/SUBMISSION_CHECKLIST.html">→ Submission checklist</a>
+        <a href="../submission/npj/easy_explainer.html">→ 일반 explainer</a>
+        <a href="../submission/npj/reviewer_faq.html">→ 20+ reviewer Q&A</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paper NeurIPS — DEADLINE -->
+  <div class="paper-card deadline">
+    <div class="paper-num-cell">
+      <div class="paper-num">N</div>
+      <div class="paper-num-label">NeurIPS</div>
+    </div>
+    <div class="paper-body">
+      <div class="paper-title">DIAL: A post-hoc diagnostic for subspace-aligned conditional shift under linear batch correction</div>
+      <div class="paper-subtitle">v15 NeurIPS 2026 main track submission, double-blind</div>
+      <div class="paper-status-row">
+        <span class="status-tag deadline">🚨 Deadline 5/4 abstract / 5/6 paper</span>
+        <span class="status-tag target">NeurIPS 2026 main</span>
+        <span class="status-tag">12 pages compiled</span>
+      </div>
+      <dl class="paper-grid">
+        <dt>핵심 claim</dt><dd><strong>DIAL framework</strong> (Direction Identifiability After Leave-out) — 1-number AUC-based diagnostic 가 batch correction 의 class signal leak 직접 detect. THCA/ComBat 에서 ΔDIAL=−0.49 leak 자체 detection (v5.1 → v5.2 self-audit).</dd>
+        <dt>Method</dt><dd>Synthetic 4-domain reproduction + 2 lemmas + 1 theorem (Theorem 2 status: 8/8 todos resolved → stays as theorem) + 5 experiments + 52 bibliography entries</dd>
+        <dt>Compile</dt><dd>pdflatex+bibtex clean, anonymisation passed, page count 12 (8 main + 4 appendix; NeurIPS main limit 10)</dd>
+        <dt>위치</dt><dd><code>project/submission/v15_neurips/</code></dd>
+        <dt>Submit ready</dt><dd>GO verdict (submission_metadata.json), remaining: OpenReview profile + anonymous_code.zip URL replacement</dd>
+        <dt>Fallback venue</dt><dd>ICML 2027 / TMLR / AISTATS 2027</dd>
+      </dl>
+      <div class="paper-links">
+        <a href="../submission/v15_neurips/v15_neurips_SUBMIT_FINAL.pdf">→ FINAL PDF (12 pages)</a>
+        <a href="../submission/v15_neurips/audit_report.md">→ Submission audit</a>
+        <a href="../submission/v15_neurips/countdown_apr27_to_may06.md">→ 9-day countdown</a>
+        <a href="../submission/v15_neurips/deadline_calendar.md">→ Deadline calendar</a>
+        <a href="../submission/v15_neurips/v15_NEURIPS_DASHBOARD.html">→ Live dashboard ★ NEW</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== § 2 DRAFTING ============== -->
+<section id="drafting">
+  <div class="section-num">§ 2 · Drafting / Submission prep</div>
+  <h2 class="section-title">작성 진행 중 / submission 준비</h2>
+  <div class="section-kicker">First-pass drafts complete, voice + cite verify 진행 중. Marathon writing 5/4-6/13 6주 window.</div>
+
+  <!-- Paper 1 — Cancer paper / Dark Matter v8 -->
+  <div class="paper-card drafting">
+    <div class="paper-num-cell">
+      <div class="paper-num">1</div>
+      <div class="paper-num-label">v8</div>
+    </div>
+    <div class="paper-body">
+      <div class="paper-title">An 8-gene panel reveals fusion-driven, epigenetically silenced dark matter in BRAF/RAS-negative thyroid cancer</div>
+      <div class="paper-subtitle">Cancer paper / Dark Matter v8 — first-pass drafts complete (00-09 manuscript files)</div>
+      <div class="paper-status-row">
+        <span class="status-tag drafting">⏳ Drafting (W1-W6)</span>
+        <span class="status-tag target">Cell Rep Med 1순위 → JCI Insight + Nat Commun reach → npj Prec Onc fallback</span>
+        <span class="status-tag">~5,514 words v1 compiled</span>
+      </div>
+      <dl class="paper-grid">
+        <dt>핵심 claim</dt><dd>BRAF/RAS-negative dark matter (~23%) 의 8-gene panel 기반 sub-stratification: <strong>DM1 76.8% tyrosine-kinase-fusion+</strong> (RET/NTRK/ALK/BRAF, OR 7.41 vs DM2) + <strong>fusion-independent promoter hypermethylation</strong> (TPO d=2.30, mean β 0.385 vs 0.253). <strong>Pooled OS HR=2.53 [1.31, 4.89]</strong> (TCGA + MSK).</dd>
+        <dt>Cohort</dt><dd>TCGA-THCA n=504 + MSK-IMPACT n=117 + Korean n=874 + cBioPortal SV n=542 + HM450 methylation n=503</dd>
+        <dt>5 Pillars</dt><dd>I HLA forest · II GSE286332 · III Driver mRNA neutrality · IV Pan-genome robustness · V Autoimmune mechanism</dd>
+        <dt>Manuscript files</dt><dd>00 title · 01 abstract (153 w) · 02 outline · 03 intro (715 w) · 04 results (3250 w) · 05 figs · 06 discussion (1380 w) · 07 STAR methods · 08 cover · 09 reviewer Q&A</dd>
+        <dt>위치</dt><dd><code>project/manuscript_v8/</code> + companion <code>references.bib</code> 17 cites</dd>
+        <dt>Voice-protected</dt><dd>Hook / Aim / Disc 3.1 / Limitations / Cover Para 1 / Q9 = user 키보드</dd>
+      </dl>
+      <div class="paper-links">
+        <a href="../manuscript_v8/README.md">→ Paper 1 README</a>
+        <a href="../manuscript_v8/01_abstract.md">→ Abstract (153 w)</a>
+        <a href="../manuscript_v8/02_outline.md">→ Outline</a>
+        <a href="../manuscript_v8/10_full_manuscript_v1.md">→ Compiled v1 manuscript</a>
+        <a href="../reports/yu_review_dashboard/index.html">→ Yu review dashboard (5-pillar)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paper 2 — Autoimmune-overlap PTC -->
+  <div class="paper-card brief-done">
+    <div class="paper-num-cell">
+      <div class="paper-num">2</div>
+      <div class="paper-num-label">Brief</div>
+    </div>
+    <div class="paper-body">
+      <div class="paper-title">자가면역-overlap PTC 의 분자 축 (HLA-II–매개 dedifferentiation)</div>
+      <div class="paper-subtitle">Phase 1 — Korean PTC+HT 의 5-Pillar evidence + § 10 mediation chain</div>
+      <div class="paper-status-row">
+        <span class="status-tag brief-done">✅ Story brief 완료 (paper2_brief 38 pages)</span>
+        <span class="status-tag target">Cell Rep Med / JCI Insight</span>
+        <span class="status-tag">5/4-6/13 writing marathon</span>
+      </div>
+      <dl class="paper-grid">
+        <dt>핵심 claim</dt><dd>한국인 PTC+HT 에서 <strong>HLA-II Cohen d=+3.65</strong> (saturated), 8-gene RAI d=−1.60. TCGA cross-cohort: DM2 가 Hashimoto-overlap home cluster <strong>OR=0.20, p=6.4e−10</strong>. Mediation: <strong>HLA-II 140% mediated</strong> (p=0.023), generic immune 88% NS — confounder vs mediator 정량 분리.</dd>
+        <dt>Cohort</dt><dd>TCGA n=500 + GSE286332 (Lim 2025 Dongguk n=18) + GSE213647 (Lee 2024 n=632) + K2 PRJEB11591 n=235 + Chu 2018 Han Chinese GD n=2,958</dd>
+        <dt>5 Pillars</dt><dd>I HLA susceptibility ★ STRONG (DPB1*05:01 53.2%, pooled OR 2.16) · II in-cohort · III generalize · IV antigen-driven · V DM1 sub-B = NBNR</dd>
+        <dt>Brief deliverables</dt><dd>Story 38 pages + Extended 50 pages + 8 companion docs (DATA_SOURCES, COHORT_ACCESS, PROMPT_DECISION, CHANGELOG, POST_COMMIT, REFERENCES_BIB_AUDIT)</dd>
+        <dt>위치</dt><dd><code>project/manuscript_p2_brief/</code> (manuscript dir 별도 — TBD when writing 시작)</dd>
+        <dt>Manuscript</dt><dd>아직 X — 본 brief 가 advisor 미팅 자료, manuscript 본문은 6/11 W6 end 이후</dd>
+      </dl>
+      <div class="paper-links">
+        <a href="../manuscript_p2_brief/paper2_brief.html">→ Story brief (38 p)</a>
+        <a href="../manuscript_p2_brief/p2_advisor_discussion.html">→ Extended brief (50 p)</a>
+        <a href="../manuscript_p2_brief/README.md">→ Brief README</a>
+        <a href="../manuscript_p2_brief/COHORT_ACCESS_GUIDE.md">→ Cohort access guide</a>
+        <a href="../manuscript_p2_brief/DATA_SOURCES_INDEX.md">→ Data sources (26/26 verified)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paper 4 — Bioinformatics -->
+  <div class="paper-card drafting">
+    <div class="paper-num-cell">
+      <div class="paper-num">B</div>
+      <div class="paper-num-label">Bioinf</div>
+    </div>
+    <div class="paper-body">
+      <div class="paper-title">Recovered external validation and proper GSEA define DM1/DM2 as an actionable thyroid cancer transcriptional axis</div>
+      <div class="paper-subtitle">DIAL framework methods paper — methodology + reproducibility 강조</div>
+      <div class="paper-status-row">
+        <span class="status-tag drafting">⏳ Cover letter + figures + tables + reproducibility 완료</span>
+        <span class="status-tag target">Bioinformatics (Oxford OUP)</span>
+        <span class="status-tag">2026-04-27</span>
+      </div>
+      <dl class="paper-grid">
+        <dt>핵심 claim</dt><dd>(i) <strong>DIAL framework</strong> (leak-detection safeguard for batch-correction protocols) — v5.1 → v5.2 self-audit. (ii) <strong>5-cohort validation pipeline</strong> for DM1/DM2 axis recovery. (iii) Gene-ID recovery + proper preranked GSEA (100% sign-agreement with prior proxy GSEA on overlapping pathways).</dd>
+        <dt>Pipeline</dt><dd>Deterministic seeds (random_state=42), version-pinned (sklearn 1.8.0, gseapy 1.13, scanpy 1.12.1), per-fold ComBat-seq, 8-gene RAI panel ΔAUC=+0.132 vs BRAF V600E (downstream application)</dd>
+        <dt>Suggested reviewers</dt><dd>Aedin Culhane (U Limerick) · Lior Pachter (Caltech) · Casey Greene (UC Boulder) — all reproducibility/integration experts</dd>
+        <dt>위치</dt><dd><code>project/submission/bioinformatics/</code> + cover_letter.md, figures/, tables/, reproducibility/</dd>
+      </dl>
+      <div class="paper-links">
+        <a href="../submission/bioinformatics/cover_letter.md">→ Cover letter</a>
+        <a href="../submission/bioinformatics/README.md">→ README ★ NEW</a>
+        <a href="../submission/bioinformatics/figures/">→ Figures dir</a>
+        <a href="../submission/bioinformatics/tables/">→ Tables dir</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Paper 5 — Genome Medicine -->
+  <div class="paper-card drafting">
+    <div class="paper-num-cell">
+      <div class="paper-num">G</div>
+      <div class="paper-num-label">GenMed</div>
+    </div>
+    <div class="paper-body">
+      <div class="paper-title">A driver-orthogonal transcriptomic axis (DM1/DM2) stratifies thyroid cancer immune state and 8-gene RAI responsiveness</div>
+      <div class="paper-subtitle">DM1/DM2 axis paper — mechanistic depth + cross-cohort validation 강조</div>
+      <div class="paper-status-row">
+        <span class="status-tag drafting">⏳ Cover letter + figures + tables + reproducibility 완료</span>
+        <span class="status-tag target">Genome Medicine</span>
+        <span class="status-tag">2026-04-27</span>
+      </div>
+      <dl class="paper-grid">
+        <dt>핵심 claim</dt><dd>513 TCGA-THCA primary tumor 의 unsupervised 분석으로 DM1/DM2 transcriptomic axis 정의 — <strong>BRAF/RAS mutation 과 statistically orthogonal</strong> (17/335 mutation-carrying tumor 가 canonical map 위반). 8-gene panel 5-fold CV AUC 0.954, ΔAUC=+0.132 vs BRAF V600E.</dd>
+        <dt>Multi-omics</dt><dd>(i) bulk RNA 5 cohorts (TCGA + GSE27155 + GSE33630 + GSE29265 + GSE76039), (ii) sc-RNA 66K cells / 7 patient (GSE184362), (iii) GSEA Hallmark v2024.1.Hs (51 pathways, FDR<1e−15 inflammatory in DM1), (iv) immune-evasion (PD-L1/IDO1/HLA/CTLA-4), (v) PRISM 19Q4 4,517 compounds (MEK + HMGCR DM1-selectivity), (vi) pan-cancer transfer (LUAD/COAD/LGG/SKCM)</dd>
+        <dt>Suggested reviewers</dt><dd>Aleix Prat (Hospital Clínic Barcelona) · Charles Perou (UNC) · Yuri Nikiforov (Pittsburgh)</dd>
+        <dt>위치</dt><dd><code>project/submission/genome_med/</code></dd>
+      </dl>
+      <div class="paper-links">
+        <a href="../submission/genome_med/cover_letter.md">→ Cover letter</a>
+        <a href="../submission/genome_med/README.md">→ README ★ NEW</a>
+        <a href="../submission/genome_med/figures/">→ Figures dir</a>
+        <a href="../submission/genome_med/tables/">→ Tables dir</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== § 3 PAPER MATRIX ============== -->
+<section id="matrix">
+  <div class="section-num">§ 3 · Paper matrix</div>
+  <h2 class="section-title">6 Papers — claim × cohort × venue × deadline 통합 표</h2>
+  <div class="section-kicker">Advisor 미팅에서 한 페이지로 전체 portfolio 확인 가능.</div>
+
+  <table>
+    <caption>Table 1. 6 papers × claim/cohort/venue/timeline 통합. (★ = advisor 핵심 결정 의제)</caption>
+    <thead>
+      <tr><th>#</th><th>Paper</th><th>핵심 claim</th><th>Cohort</th><th>Venue</th><th>Status</th><th>Deadline</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>0</strong></td><td>npj 8-gene RAI</td><td>ΔAUC +0.132 vs BRAF V600E</td><td>TCGA + MSK + K2 pilot</td><td>npj Prec Onc</td><td class="num">✅ Ship-ready</td><td>User send</td></tr>
+      <tr><td><strong>N</strong></td><td>NeurIPS DIAL</td><td>1-number leak diagnostic</td><td>Synthetic + THCA/ComBat</td><td>NeurIPS 2026 main</td><td class="num">✅ Compiled</td><td class="num"><strong>5/4 abstract / 5/6 paper</strong> 🚨</td></tr>
+      <tr class="highlight"><td><strong>1</strong></td><td>Cancer paper v8 (Dark Matter)</td><td>DM1 76.8% fusion+ + epigenetic, HR 2.53</td><td>TCGA + MSK + Korean n=874 + meth + SV</td><td>Cell Rep Med 1순위 → Nat Commun reach</td><td class="num">⏳ Drafting</td><td>W1-W6 (5/4-6/13)</td></tr>
+      <tr class="highlight"><td><strong>2</strong></td><td>Autoimmune-overlap PTC ★</td><td>HLA-II 140% mediation</td><td>TCGA + GSE286332 + Korean</td><td>Cell Rep Med / JCI Insight</td><td class="num">✅ Brief done · ⏳ Manuscript TBD</td><td>6/11 이후</td></tr>
+      <tr><td><strong>B</strong></td><td>Bioinformatics DIAL</td><td>Methodology + reproducibility</td><td>5-cohort thyroid</td><td>Bioinformatics OUP</td><td class="num">⏳ Cover + figs done</td><td>Open</td></tr>
+      <tr><td><strong>G</strong></td><td>Genome Medicine DM1/DM2</td><td>Driver-orthogonal axis + drug</td><td>5-cohort + sc + PRISM + pan-cancer</td><td>Genome Medicine</td><td class="num">⏳ Cover + figs done</td><td>Open</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout amber">
+    <div class="callout-label">Cross-paper boundaries (Discussion Q9 의제)</div>
+    <strong>Paper 0 / 1 / B / G</strong> 가 모두 8-gene panel + DM1/DM2 axis 를 share 하지만 framing 다름:
+    <ul style="margin-left:18px; margin-top:6px;">
+      <li><strong>Paper 0 (npj)</strong>: Clinical biomarker (8-gene > BRAF V600E ΔAUC)</li>
+      <li><strong>Paper 1 (Cancer paper)</strong>: Mechanism (DM1 fusion-driven epigenetic dark matter)</li>
+      <li><strong>Paper B (Bioinformatics)</strong>: Methodology (DIAL framework + reproducibility)</li>
+      <li><strong>Paper G (Genome Medicine)</strong>: Multi-omics integration (driver-orthogonal axis + drug + pan-cancer)</li>
+      <li><strong>Paper 2 (Brief)</strong>: Autoimmune layer (DM2 = Hashimoto home cluster)</li>
+      <li><strong>Paper N (NeurIPS)</strong>: ML methods (DIAL theorem)</li>
+    </ul>
+    <p style="margin-top:8px;"><em>Same reviewer pool risk</em>: Cell Rep Med + Genome Med 같은 venue 가 두 paper 같은 reviewer 보낼 가능성. Cross-paper separation 정당화 framing 필요 (Paper 2 advisor Q07 의제).</p>
+  </div>
+</section>
+
+<!-- ============== § 4 ADVISOR DECISIONS ============== -->
+<section id="decisions">
+  <div class="section-num">§ 4 · Advisor decisions across papers</div>
+  <h2 class="section-title">통합 결정 의제 — 6 papers 전반</h2>
+  <div class="section-kicker">개별 paper Q&A 외에 cross-paper 결정 사항.</div>
+
+  <table>
+    <caption>Table 2. Cross-paper decisions for advisor meeting.</caption>
+    <thead>
+      <tr><th>#</th><th>Question</th><th>관련 paper</th><th>본인 default</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>X1</td><td>Citation correction (Chen → Chu 2018) 모든 paper 일괄 적용?</td><td>0 / 1 / 2 / B / G</td><td>일괄 grep+replace 권장 (Paper 2 Q9)</td></tr>
+      <tr><td>X2</td><td>Same reviewer pool risk — 어떤 venue 분산?</td><td>1 (Cell Rep Med) vs 2 (Cell Rep Med) vs G (Genome Med)</td><td>Sequential submit, Paper 0 npj 먼저 → Paper 1/G 분리</td></tr>
+      <tr><td>X3</td><td>4 paper 동시 submission — author bandwidth?</td><td>0/1/2/B/G/N 6 papers</td><td>Marathon 5/4-6/13 6주, NeurIPS 5/6 deadline 우선</td></tr>
+      <tr><td>X4</td><td>Co-corresponding 분배 — Paper 별 different policy?</td><td>0/1 advisor / 2/B/G 본인 default?</td><td>Phase 0 (Cancer) corresponding=advisor, Phase 1+ 본인 (postdoc transition) — Paper 2 Q05 의제</td></tr>
+      <tr><td>X5</td><td>NeurIPS 5/4 deadline urgency — 다른 paper 작업 중단?</td><td>N (deadline 9 days)</td><td>NeurIPS 우선, 다른 paper 5/6 이후 재개</td></tr>
+      <tr><td>X6</td><td>Bundang outreach — 어느 paper 의 Scenario A 변수?</td><td>1 + 2 + Phase 1 별도 paper</td><td>Bundang Graves' 자료 시 Paper 2 → Nat Commun reach 격상 (Paper 2 Q01)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============== § 5 TIMELINE ============== -->
+<section id="timeline">
+  <div class="section-num">§ 5 · Timeline (next 6 months)</div>
+  <h2 class="section-title">6-month writing marathon (5/4-11/4)</h2>
+  <div class="section-kicker">Marathon mode (메모리 <code>v17_marathon_mode_post_pillar1</code>) — 새 분석 X, manuscript writing 만.</div>
+
+  <table>
+    <caption>Table 3. Marathon timeline — 6 papers parallel.</caption>
+    <thead>
+      <tr><th>Period</th><th>NeurIPS</th><th>npj</th><th>Cancer paper v8</th><th>Paper 2</th><th>Bioinf</th><th>GenMed</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>5/4</strong> (Mon)</td><td class="num" style="background:#FAEEED;"><strong>Abstract submit AOE</strong></td><td>—</td><td>W1 start</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td><strong>5/6</strong> (Wed)</td><td class="num" style="background:#FAEEED;"><strong>Full paper submit AOE</strong></td><td>—</td><td>W1</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td>5/7-5/13 (W1)</td><td>—</td><td>Outreach send</td><td>Methods / Suppl freeze</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td>5/14-5/27 (W2-W3)</td><td>—</td><td>—</td><td>Results draft</td><td>분당 outreach 결과 wait</td><td>—</td><td>—</td></tr>
+      <tr><td>5/28-6/10 (W4-W5)</td><td>—</td><td>Reviewer Q&A 대비</td><td>Discussion + Cover</td><td>Calibration 정리</td><td>Final compile</td><td>Final compile</td></tr>
+      <tr><td><strong>6/11-6/13</strong> (W6 end)</td><td>—</td><td>—</td><td><strong>Submit</strong> Cell Rep Med</td><td>Paper 2 manuscript writing 시작</td><td>Submit OUP</td><td>Submit GenMed</td></tr>
+      <tr><td>7-9월</td><td>Reviewer wait</td><td>Reviewer wait</td><td>Reviewer wait</td><td>Writing M2</td><td>Reviewer wait</td><td>Reviewer wait</td></tr>
+      <tr><td>10-11월</td><td>Decisions / camera-ready</td><td>—</td><td>Revision</td><td>Submit</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer>
+  <p><strong>Papers Overview — THCA project master index.</strong> Generated 2026-05-02.</p>
+  <p style="margin-top:10px;">
+    <strong>Brief deliverables (per paper)</strong>:
+    Paper 0 → <a href="../submission/npj/index.html">npj dashboard</a> ·
+    Paper N → <a href="../submission/v15_neurips/v15_NEURIPS_DASHBOARD.html">NeurIPS dashboard</a> ·
+    Paper 1 → <a href="../reports/yu_review_dashboard/index.html">Yu review dashboard</a> + <code>manuscript_v8/</code> ·
+    Paper 2 → <a href="../manuscript_p2_brief/paper2_brief.html">Story brief</a> + <a href="../manuscript_p2_brief/p2_advisor_discussion.html">Extended</a> ·
+    Paper B → <a href="../submission/bioinformatics/README.md">Bioinf README</a> ·
+    Paper G → <a href="../submission/genome_med/README.md">GenMed README</a>
+  </p>
+  <p style="margin-top:10px;">
+    <strong>Source memory</strong>: <code>~/.claude/.../memory/MEMORY.md</code> (24 entries) · <code>v17_marathon_mode_post_pillar1</code> · <code>v17_npj_ship_status</code> · <code>v17_paper2_pillar1_forest_strong</code>
+  </p>
+  <p style="margin-top:14px; font-size:10.5px; color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:10px;">
+    Author: Seungho Cook (kukshomr@gmail.com). Senior author across all: Yu Hyeong-won.
+    File: <code>project/submission/papers_overview.html</code>
+  </p>
+</footer>
+
+</div>
+</body>
+</html>
