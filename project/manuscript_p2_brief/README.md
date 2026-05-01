@@ -8,14 +8,18 @@ purpose: "advisor 미팅 single-page brief 의 모든 deliverable 와 source 검
 
 `Paper 2 (Autoimmune-overlap PTC)` 의 advisor 미팅용 single-page discussion brief + 보조 자료. **HLA / autoimmune-overlap (DM2) 축만** 다룸. Paper 1 (Dark Matter, DM1) 은 별도 — 본 디렉토리 scope 밖.
 
-## 1. Deliverables (4 files)
+## 1. Deliverables (8 files)
 
 | File | Size | Purpose |
 |---|---|---|
-| **`p2_advisor_discussion.html`** ★ | 128 kB | Plotly interactive single-page brief — main deliverable. Browser 또는 server 로 view. |
-| **`p2_advisor_discussion.pdf`** | 2.6 MB | 56-page printable / email-able PDF version. Headless Chrome rendering — Plotly figures 모두 SVG embed. |
-| `DATA_SOURCES_INDEX.md` | 9 kB | 21 figures + 5 tables → underlying TSV/JSON path mapping. **26/26 source paths verified ✅** |
-| `PROMPT_DECISION_LOG.md` | 12 kB | Audit log — v4 audit 통합 작업 중 scope 오판단 → HLA-only 정정 trace + 5 자율 작업 propagation checklist |
+| **`p2_advisor_discussion.html`** ★ | 130 kB | Plotly interactive single-page brief — main deliverable. 21 figures (6 paper-defining), 5 tables, 12 advisor questions. 8 sub-section anchors (s311–s318). Browser 또는 server 로 view. |
+| **`p2_advisor_discussion.pdf`** | 2.6 MB | 56-page printable / email-able PDF version. Headless Chrome rendering — Plotly figures 모두 SVG embed. Korean glyphs intact (0 replacement chars). |
+| `DATA_SOURCES_INDEX.md` | 11 kB | 21 figures + 5 tables → underlying TSV/JSON path mapping. **26/26 source paths verified ✅**. § C.2 verbatim ratio (Methods 99.78%, Discussion 97.81%). § E.0 Figure# ↔ Plotly id mapping table. |
+| `COHORT_ACCESS_GUIDE.md` | 7 kB | 5 cohorts (TCGA/GSE286332/GSE213647/K2/Chu 2018) raw data accession + download method + processing script + IRB. ~600 MB 처리된 자료로 brief 전체 reproduce 가능. |
+| `PROMPT_DECISION_LOG.md` | 12 kB | Audit log — v4 audit 통합 작업 중 scope 오판단 → HLA-only 정정 trace + 16-row propagation checklist |
+| `CHANGELOG.md` | 5 kB | Version history — pre-2026-05-01 baseline + 2026-05-01 자율 infra batch + companion infra changes |
+| `POST_COMMIT_STATUS.md` | 5 kB | Post-commit infra audit — 4 commits 자율 작업 통합 + pillar 폴더 reorganization 발견 + working tree clean verification |
+| `REFERENCES_BIB_AUDIT.md` | 3 kB | manuscript_v8/03_intro_references.bib 의 6/17 incomplete entries 보고. Chu 2018 정확 entry 제안 (voice-protected 영역, content 변경 X) |
 | `README.md` | this file | Directory navigation |
 
 ## 2. Quick start

@@ -106,6 +106,36 @@ Brief 의 paste-ready paragraphs 는 source 대비 두 가지 enhancement 가 �
 | K2 / PRJEB11591 | Yoo 2016 SNU-GMI | 235 typeable (260 manifest) | ENA accession PRJEB11591 (metadata in `metadata/v3_fusion_anchor_prjeb11591.tsv`; arcasHLA outputs in `results/d4p1_panasian_meta/korean_PTC_pool_n908.tsv`) |
 | Chu 2018 reference | Han Chinese GD vs ctrl | 1,468 GD / 1,490 ctrl | `results/p2_pillar1_forest/chu2018_allele_summary.tsv` (published values verified PMC 6161647) |
 
+## E.0 Figure number ↔ Plotly div id mapping (insertion 역사)
+
+브리프 Figure 번호 (사용자 본 번호) 와 내부 Plotly `<div id>` 가 1:1 mapping 아님 (figure 들이 시간 순으로 추가/삽입되며 id 가 보존된 결과). 21 figures 모두 div id ↔ Plotly call paired ✅:
+
+| Figure 번호 | Plotly div id |
+|---|---|
+| 1 | fig1 |
+| 2 ★★★ (NEW) | fig2 |
+| 2b (NEW) | fig2b |
+| 2c (NEW) | fig2c |
+| 2d (NEW) | fig2d |
+| 3 | fig3 |
+| 4 | fig4 |
+| 5 | fig_topdeg |
+| 6 ★★★ | fig5 |
+| 7 | fig_metaforest |
+| 8 | fig6 |
+| 9 ★★★ | fig7 |
+| 10 | fig8 |
+| 11 | fig_hlasat |
+| 12 ★★★ | fig9 |
+| 13 | fig10 |
+| 14 ★★★ | fig11 |
+| 15 | fig12 |
+| 16 ★★★ | fig13 |
+| 17 | fig_severity |
+| 18 | fig14 |
+
+Note: 향후 figure 추가 시 새 div id 사용 권장 (기존 id renaming 은 invalid Plotly state 위험).
+
 ## E. Verification methodology
 
 본 index 의 ✅ 표시 항목은 다음 sanity check 으로 검증:
