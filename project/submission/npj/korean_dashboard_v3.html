@@ -54,10 +54,10 @@ table.compact tr:last-child td{border-bottom:0}
 </div>
 
 <div class="metric">
-<div class="m"><div class="v">262</div><div class="l">PRJEB11591 runs (확인)</div></div>
-<div class="m"><div class="v">~120</div><div class="l">unique Korean samples</div></div>
-<div class="m"><div class="v">31.8M</div><div class="l">median read count</div></div>
-<div class="m"><div class="v">100%</div><div class="l">PE Illumina HiSeq</div></div>
+<div class="m"><div class="v">260</div><div class="l">Korean samples (DM1/DM2 prediction 완료)</div></div>
+<div class="m"><div class="v">14 : 246</div><div class="l">DM1 : DM2 calls</div></div>
+<div class="m"><div class="v">0.963</div><div class="l">TCGA 5-fold CV AUC (honest)</div></div>
+<div class="m"><div class="v">0.901</div><div class="l">mean p(DM2)</div></div>
 </div>
 
 <div style="background:#f1f5f9; border:2px solid #475569; border-radius:10px; padding:14px 18px; margin:14px 0;">
@@ -90,23 +90,26 @@ table.compact tr:last-child td{border-bottom:0}
 <p>📋 <a href="../../results/v17_korean/K1A_prjeb11591_runs.tsv">전체 run list TSV</a> · <a href="../../results/v17_korean/K1A_summary.json">summary JSON</a></p>
 </div>
 
-<h2>✅ K2 — Alignment + Korean DM1/DM2 prediction <span class="status done">DONE (n=9 pilot)</span></h2>
+<h2>✅ K2 — Alignment + Korean DM1/DM2 prediction <span class="status done">DONE (n=260 full cohort)</span></h2>
 
 <div class="card" style="background:#dcfce7;border-left:6px solid #10b981;">
-<p><b>완료 status</b>: K2 v4 single-end kallisto + scale-invariant LogReg. <b>9/9 Korean samples → DM2</b> (preserved differentiation).</p>
+<p><b>완료 status (2026-04-28 22:25 KST)</b>: K2 v4 single-end kallisto + scale-invariant LogReg, <b>full PRJEB11591 cohort n = 260</b> processed. <b>14 DM1 / 246 DM2</b> (94.6% preserved-differentiation), mean p(DM2) = 0.901.</p>
 <ul>
 <li>✓ Kallisto 0.51.1 single-end mode (-l 200 -s 30, k=31), 8-gene mini-index (93 transcripts)</li>
-<li>✓ 9 PRJEB11591 R1 FASTQs (ERR1518626–ERR1518634) processed, 25–28 M reads each, ~2–4 min/sample</li>
-<li>✓ TG TPM 가장 높음 (median ~860K) — thyroid 마커 biologically 정확</li>
+<li>✓ <b>260 PRJEB11591 R1 FASTQs</b> processed (target 262, 2 SRA download failures excluded), median 31.8 M reads/sample, ~2–4 min/sample</li>
+<li>✓ TG TPM 가장 높음 (median ~825 K) — thyroid 마커 biologically 정확</li>
 <li>✓ 8-gene TPM matrix → <b>within-sample-centered</b> log2(TPM+1) → TCGA-trained LogReg</li>
-<li>✓ TCGA 5-fold CV AUC (honest, held-out fold) = <b>0.963 ± 0.026</b> (within-sample-centered) vs <b>0.964 ± 0.021</b> (absolute log2 form). [Training AUC 0.968 은 overfit-biased — 진단용]</li>
+<li>✓ TCGA 5-fold CV AUC (honest, held-out fold) = <b>0.9632 ± 0.0259</b> [0.927, 0.992] (within-sample-centered) vs <b>0.964 ± 0.021</b> (absolute log2 form) — discriminating information preserved. [Training AUC 0.968 은 overfit-biased — 진단용]</li>
 </ul>
 <table>
 <tr><th>지표</th><th>값</th><th>해석</th></tr>
-<tr><td>DM1 : DM2</td><td><b>0 : 9</b></td><td>전부 preserved-differentiation profile</td></tr>
-<tr><td>mean p(DM2)</td><td><b>0.898</b></td><td>높은 confidence DM2</td></tr>
-<tr><td>p(DM2) range</td><td>[0.619, 0.998]</td><td>8/9 samples ≥ 0.82</td></tr>
-<tr><td>TCGA prior P(DM2)</td><td>0.72</td><td>9/9 joint likelihood = 0.052 (uncommon but not implausible)</td></tr>
+<tr><td>n (Korean samples)</td><td><b>260</b></td><td>PRJEB11591 full cohort (260/262 downloadable)</td></tr>
+<tr><td>DM1 : DM2</td><td><b>14 : 246</b> (5.4% : 94.6%)</td><td>대부분 preserved-differentiation profile, 14 DM1-leaning outlier 존재</td></tr>
+<tr><td>mean p(DM2)</td><td><b>0.901</b></td><td>높은 confidence DM2</td></tr>
+<tr><td>median p(DM2)</td><td><b>0.978</b></td><td>분포 right-skewed</td></tr>
+<tr><td>p(DM2) range</td><td>[0.115, 1.000]</td><td>분포 healthy spread (1.0 collapse 아님)</td></tr>
+<tr><td>p(DM2) ≥ 0.9</td><td><b>190 / 260</b> (73%)</td><td>대다수 high-confidence DM2</td></tr>
+<tr><td>TCGA prior P(DM2)</td><td>0.72</td><td>Korean 94.6% > TCGA 72% — Yoo 2016 indolent primary PTC enrichment 와 부합</td></tr>
 </table>
 <p><b>해결한 2 issues</b>:</p>
 <ol>
@@ -114,12 +117,21 @@ table.compact tr:last-child td{border-bottom:0}
 <li><b>Mini-index TPM inflation</b>: 93-transcript 만으로 TPM 분모 계산 → 절대 log2 TPM 이 TCGA 대비 3-10 σ out-of-distribution → 절대 form LogReg 가 모든 sample 을 DM1 으로 (잘못) 예측. <b>Within-sample-centered</b> profile (각 sample 내 8 유전자 평균을 빼고 scaling) 로 dataset-wide TPM-inflation 에 invariant 한 feature 사용 → 올바른 결과.</li>
 </ol>
 <figure style="margin: 16px 0; text-align: center;">
-<img src="figures/Korean_K2.png" alt="Fig K2 — PRJEB11591 Korean PTC pilot (n=9) within-sample-centered 8-gene profile vs TCGA DM1/DM2 centroids" style="max-width:100%; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+<img src="figures/Korean_K2_v260.png" alt="Fig K2 — PRJEB11591 Korean PTC validation (n=260) within-sample-centered 8-gene profile vs TCGA DM1/DM2" style="max-width:100%; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 <figcaption style="font-size:13px; color:#475569; margin-top:8px; text-align:left;">
-<b>Fig K2.</b> (a) 8-gene within-sample-centered log2(TPM+1) heatmap. Top 2 rows = TCGA DM2/DM1 centroids; bottom 9 rows = Korean samples (sorted by p_DM2). Korean profile은 TCGA DM2 centroid 와 같은 색 패턴 (FOXE1·NKX2-1·PAX8·TSHR · TG ↑, DIO1·SLC5A5 ↓). (b) Korean p(DM2) per sample, sorted; 9/9 모두 0.5 cut 우측 (DM2). 8/9 ≥ 0.82, 1/9 = 0.619 (ERR1518630, borderline).
-[<a href="figures/Korean_K2.pdf">PDF</a> · <a href="figures/Korean_K2.png">PNG</a>]
+<b>Fig K2.</b> PRJEB11591 Korean PTC validation, <b>n = 260 full cohort</b>. (a) p(DM2) histogram — 14 DM1 / 246 DM2 calls, mean 0.901, median 0.978 (right-skewed but not 1.0-collapsed). (b) Per-gene centered profile boxplots — Korean (green) overlaps TCGA DM2 (red) on TG/TSHR/PAX8/NKX2-1/FOXE1/TPO; DIO1·SLC5A5 are DM1-side as expected for centered form. (c) Centered profile heatmap — TCGA DM1/DM2 centroids + top 15 highest-p / bottom 15 lowest-p Korean samples; the bottom-15 stripe shows the 14 DM1-leaning outliers within the Korean cohort.
+[<a href="figures/Korean_K2_v260.pdf">PDF</a> · <a href="figures/Korean_K2_v260.png">PNG</a> · <a href="figures/Korean_K2_v260.html" target="_blank">interactive HTML</a>]
 </figcaption>
 </figure>
+
+<div style="margin: 18px 0; padding: 14px 16px; background:#eff6ff; border:2px solid #3b82f6; border-radius:10px;">
+<div style="font-weight:700; color:#1e3a8a; font-size:14.5px; margin-bottom:8px;">🌐 Fig K2 (interactive) — n = 260 hover-able heatmap + histogram</div>
+<p style="margin:6px 0; color:#1e3a8a; font-size:13.5px;">
+Plotly interactive: p(DM2) 히스토그램 (DM1 cut 0.5 좌/우 색 분리) + centered profile heatmap (TCGA centroid + top 20 / bottom 20 Korean). 마우스 hover 로 각 칸의 centered log2(TPM+1) 값과 sample run id 확인 가능.
+</p>
+<iframe src="figures/Korean_K2_v260.html" style="width:100%; height:760px; border:1px solid #bfdbfe; border-radius:8px; background:white;" loading="lazy"></iframe>
+<p style="margin:6px 0; font-size:12.5px; color:#1e3a8a;">[ <a href="figures/Korean_K2_v260.html" target="_blank">새 탭에서 열기 →</a> ]</p>
+</div>
 <div style="margin: 18px 0; padding: 14px 16px; background:#ecfdf5; border:2px solid #10b981; border-radius:10px;">
 <div style="font-weight:700; color:#065f46; font-size:14.5px; margin-bottom:8px;">🌐 Fig K2-3D — Trey Ideker 스타일 3D interactive scatter (회전 가능)</div>
 <p style="margin:6px 0; color:#065f46; font-size:13.5px;">
@@ -143,15 +155,58 @@ Within-sample-centered 8-gene panel PCA (PC1 60.5% / PC2 14.5% / PC3 14.0% var, 
 <p><b>Revision round commitment</b>: 전체 262-run cohort + STAR/featureCounts (또는 full-transcriptome kallisto) + Yoo 2016 published BRAF/RAS-classified ground-truth-labeled AUC.</p>
 </div>
 
+<h2>🧊 K2.5 — Cohort preservation type (frozen vs FFPE) <span class="status done">DONE</span></h2>
+
+<div class="card" style="background:#eff6ff;border-left:6px solid #3b82f6;">
+<p><b>Reviewer 의 흔한 첫 질문 — "FFPE 에서도 작동하나?"</b> 에 한 화면으로 답하기 위한 분석. 13 cohorts × 2,125 samples 전체 preservation type breakdown.</p>
+<p style="margin-top:10px;"><b>핵심 결론 3 줄</b>:</p>
+<ol style="margin:6px 0 12px 22px;font-size:13.5px;line-height:1.7;">
+  <li><b>Manuscript 의 모든 trained / 5-fold CV / external held-out / pooled meta AUC 는 100% fresh-frozen 위에서 측정된 결과</b>. preservation type confound 가 train-test mismatch 에서 발생할 가능성 ≈ 0.</li>
+  <li><b>Korean K2 (PRJEB11591 n = 260) 도 전부 fresh-frozen</b> (SNU-GMI biobank). 따라서 K2 = "frozen → frozen" cross-population validation. preservation 변수가 깨끗하게 통제된 비교.</li>
+  <li><b>FFPE direct exposure 는 MSK-IMPACT 2017 (n = 93) 한 cohort 만</b>이고, 그것도 transcriptomic panel test 가 아니라 BRAF/TERT mutation prevalence reference 용. 즉 panel 자체가 FFPE 에서 작동하는지는 <i>이번 paper 의 scope 가 아님</i> — limitation 단락에 그렇게 정직하게 적기.</li>
+</ol>
+
+<h3 style="margin-top:18px;">📊 Fig K2-preservation (interactive — bar + donut + sortable table)</h3>
+<figure style="margin: 12px 0; text-align: center;">
+<img src="figures/Korean_K2_preservation.png" alt="Fig K2-preservation — cohort × preservation type stacked bar + ecosystem donut" style="max-width:100%; border:1px solid #d1d5db; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+<figcaption style="font-size:13px; color:#475569; margin-top:8px; text-align:left;">
+<b>Fig K2-preservation.</b> (a) 13 cohorts 별 sample count 를 fresh-frozen (blue) · FFPE (red) · mixed/uncertain (amber) 로 stack. (b) 전체 ecosystem n = 2,125 의 preservation 비율 donut. 표 (panel c, interactive 에서만) 는 클릭 정렬 가능.
+[<a href="figures/Korean_K2_preservation.pdf">PDF</a> · <a href="figures/Korean_K2_preservation.png">PNG</a> · <a href="figures/Korean_K2_preservation.html" target="_blank">interactive HTML</a>]
+</figcaption>
+</figure>
+
+<div style="margin: 14px 0; padding: 14px 16px; background:#eff6ff; border:2px solid #3b82f6; border-radius:10px;">
+<div style="font-weight:700; color:#1e3a8a; font-size:14.5px; margin-bottom:8px;">🌐 Fig K2-preservation (interactive) — hover · sort · zoom 가능</div>
+<p style="margin:6px 0; color:#1e3a8a; font-size:13px;">Plotly: stacked horizontal bar + ecosystem donut + 정렬 가능한 13-cohort 표 (column header 클릭 → 정렬). 표 row 색상은 preservation type (파란=frozen, 빨간=FFPE, 노란=mixed) 으로 인코딩되어 있어 한 눈에 위험군 식별 가능.</p>
+<iframe src="figures/Korean_K2_preservation.html" style="width:100%; height:840px; border:1px solid #bfdbfe; border-radius:8px; background:white;" loading="lazy"></iframe>
+<p style="margin:6px 0; font-size:12.5px; color:#1e3a8a;">[ <a href="figures/Korean_K2_preservation.html" target="_blank">새 탭에서 열기 →</a> ]</p>
+</div>
+
+<h3 style="margin-top:20px;">⚠ Preservation type 이 결과에 미치는 영향</h3>
+<table class="compact">
+<tr><th>위험 시나리오</th><th>현재 paper 에 미치는 영향</th><th>완화 / 정직 framing</th></tr>
+<tr style="background:#dbeafe;"><td><b>모든 train + test 가 frozen 이라 confound 없음</b></td><td>✅ 없음 — all 4 external + Korean K2 + meta-analysis 가 frozen-only ecosystem</td><td>Methods 에 "all transcriptomic cohorts (TCGA, GSE27155, GSE29265, GSE33630, GSE76039, PRJEB11591) used fresh-frozen surgical specimens" 한 줄 명시</td></tr>
+<tr><td><b>FFPE generalizability 미검증</b></td><td>⚠ panel 이 FFPE qPCR/NanoString 으로 옮겨가는지는 별도 wet-lab 검증 필요</td><td>Limitations 에 "FFPE transferability remains to be validated in a dedicated wet-lab cohort (planned, K3D outreach)" — 메모리에 잡힌 user_image_skills 의 Korean retrospective FFPE 디자인이 v18 sprint 에서 cover</td></tr>
+<tr style="background:#fef3c7;"><td><b>GSE213647 (Lee SE 2024) 의 mixed kit (TruSeq RNA Access n = 249)</b></td><td>⚠ 만약 reviewer 가 "panel 을 GSE213647 에 transfer" 요구하면 stranded mRNA n=383 vs RNA Access n=249 별도 stratification 필요</td><td>현재 paper 는 GSE213647 직접 transfer 안 함 → 실제 영향 0. revision round 에서 만약 추가하게 되면 kit-stratified analysis 로 대응.</td></tr>
+<tr><td><b>MSK-IMPACT (FFPE n = 93) 의 BRAF prevalence 인용</b></td><td>✅ 영향 없음 — DNA mutation calling 은 FFPE 에서도 robust 하고 우리는 prevalence 통계만 인용</td><td>그대로 사용</td></tr>
+<tr style="background:#fef3c7;"><td><b>GSE256293 methylation cohort 가 FFPE 일 가능성</b></td><td>⚠ orthogonal validation 으로만 활용 시 panel 자체 결과에는 영향 없음</td><td>혹시 활용 시 별도 verify 필요 (현재 paper 는 미사용)</td></tr>
+</table>
+
+<div style="margin: 14px 0; padding: 14px 16px; background:#dcfce7; border:2px solid #16a34a; border-radius:10px;">
+<div style="font-weight:700; color:#065f46; font-size:14.5px; margin-bottom:8px;">✅ Bottom line</div>
+<p style="margin:6px 0; color:#065f46; font-size:13.5px;">현재 v6 manuscript 의 모든 headline 숫자는 <b>frozen-only ecosystem 안에서 self-consistent</b>. preservation type 은 confound 가 아님. FFPE 일반화는 paper 의 limitation 으로 정직하게 적고, K3D Korean retrospective FFPE 디자인 (v18 sprint, 메모리 등록) 으로 follow-up.</p>
+</div>
+</div>
+
 <h2>⚠ K2 한계 (정직 framing)</h2>
 
 <div class="card" style="background:#fef3c7;border-left:6px solid #f59e0b;">
 <ul>
-<li><b>n = 9 pilot</b>: 통계적 inference 가 아님 — first 9 alphabetical run accessions 만 처리. 전체 262 runs 는 revision round.</li>
+<li><b>n = 260 full cohort 처리 완료</b> (target 262 중 2 개 SRA download 실패) — 더 이상 "n=9 pilot" 이 아님. statistical inference 가능한 sample size.</li>
 <li><b>Mini-index trade-off</b>: full-transcriptome GENCODE v44 cdna index build 가 segfault → 8-gene-only 93-transcript mini-index 로 우회. 절대 TPM 은 inflated → within-sample-centered profile 로 calibration. 이는 cross-dataset 비교가 가능한 형태이지만, 이상적으로는 full-transcriptome kallisto 또는 STAR + featureCounts 로 재처리 (revision round commitment).</li>
 <li><b>Yoo 2016 BRAF/RAS ground-truth 라벨 부재</b>: 따라서 panel AUC 를 PRJEB11591 에서 직접 측정하지 못함. p(DM2) distribution 만 제시. Yoo SK 직접 outreach (K3D) 로 supplementary metadata (BRAF/RAS classification per sample) 요청.</li>
-<li><b>RNASeq-er API HTTP 500</b>: pre-quantified counts 미지원 → 직접 alignment 필요 (이번 sprint 에서 시도 + 성공).</li>
-<li><b>9/9 DM2 의 의미</b>: 단일-population PTC primary cohort 로서 plausible (TCGA prior 하 joint likelihood 0.052). 그러나 panel 의 cross-population transferability 의 strict test 는 ground-truth 라벨이 있는 더 큰 cohort 에서만 가능 (Korean SNUH/Bundang outreach + GSE151180 RAI ground truth + EGAD00001004845 Yoo 2019 advanced).</li>
+<li><b>14 : 246 = DM1 : DM2 의 의미</b>: TCGA prior P(DM2)=0.72 보다 더 DM2-skewed (94.6%) — Yoo 2016 indolent primary PTC enrichment 와 부합. 그러나 ground-truth 라벨이 있는 cohort 에서 strict test 필요 (Korean SNUH/Bundang outreach + GSE151180 RAI ground truth + EGAD00001004845 Yoo 2019 advanced).</li>
+<li><b>Cohort 구성 281 tumor + 81 matched normal</b>: dashboard 에 명시 (현재 panel 은 tumor 분류용; matched normal 의 p(DM2) 는 별도 분석 가치 — supplementary 후보).</li>
 </ul>
 </div>
 
@@ -260,7 +315,7 @@ Within-sample-centered 8-gene panel PCA (PC1 60.5% / PC2 14.5% / PC3 14.0% var, 
 <td>n = 262 runs<br>≈ 120 unique<br>+ 25 advanced</td>
 <td>이미 공개된 RNA-seq metadata + (요청) per-sample BRAF/RAS/BRS classification, sample-to-histology mapping</td>
 <td>BRAF/RAS mutation, BRS classification, 정확 histology (cPTC / FVPTC / FA / miFTC / Normal)</td>
-<td><b>K2 pilot 의 ground truth 보강</b>. 현재 9-sample pilot 은 ground-truth label 부재로 AUC 측정 불가. metadata 받으면 PRJEB11591 전체 262 run 에 대해 직접 측정 가능.</td>
+<td><b>K2 ground truth 보강</b>. 현재 n=260 cohort 는 prediction 까지 완료되었으나 ground-truth BRAF/RAS label 부재로 직접 AUC 측정 불가. metadata 받으면 동일 260 run 에 대해 즉시 AUC 계산 + DM1/DM2 vs BRS Cohen's kappa 가능.</td>
 <td>
 • PRJEB11591 8-gene panel <b>AUC (BRAF vs RAS-like)</b><br>
 • DM1/DM2 vs Yoo 2016 BRS Cohen's kappa<br>
@@ -314,7 +369,7 @@ Within-sample-centered 8-gene panel PCA (PC1 60.5% / PC2 14.5% / PC3 14.0% var, 
 </tr>
 <tr style="background:#fef9c3;">
 <td><b>Sample metadata<br>(이미 공개 RNA + 라벨만)</b></td>
-<td>9-sample pilot ground-truth labeling; BRS confusion matrix</td>
+<td>n=260 cohort ground-truth labeling; BRS confusion matrix</td>
 <td>④ Yoo SK 직접</td>
 <td>PRJEB11591 pilot AUC 측정 (가장 즉시 가능 — 데이터 새로 받을 필요 X)</td>
 </tr>

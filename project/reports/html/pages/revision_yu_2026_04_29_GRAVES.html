@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>★ Graves' disease paper deep dive — 2026-04-29 (메인 trajectory)</title>
+  <link rel="stylesheet" href="../assets/css/brand.css">
+  <link rel="stylesheet" href="../assets/css/v4a.css">
+  <style>
+    :root { --amber:#F5A623; --teal:#7ccfcd; --green:#2ECC71; --red:#c24c4c; --orange:#E67E22; --purple:#9b59b6; }
+    body { background:#0a0d12; color:#EAEAEA; font-family:'Pretendard','Inter','Noto Sans KR',-apple-system,sans-serif; line-height:1.65; font-size:14.5px; }
+    .container { max-width:1100px; margin:0 auto; padding:0 28px; }
+    .hero { padding:60px 28px 36px; background:linear-gradient(135deg,rgba(46,204,113,0.10) 0%,rgba(124,207,205,0.10) 100%); border-bottom:1px solid #233; }
+    .hero h1 { font-size:clamp(24px,3.4vw,36px); font-weight:300; letter-spacing:-0.02em; line-height:1.15; margin:10px 0 8px; }
+    .hero .eyebrow { color:var(--green); letter-spacing:0.18em; font-family:'JetBrains Mono',monospace; font-size:11px; }
+    .hero .lede { color:#b8b0a4; font-size:15px; max-width:78ch; margin-top:14px; }
+    .nav { background:rgba(20,22,28,0.85); padding:10px 28px; border-bottom:1px solid #233; font-family:'JetBrains Mono',monospace; font-size:12px; }
+    .nav a { color:var(--amber); margin-right:18px; text-decoration:none; }
+    .qcard { background:rgba(20,22,28,0.78); border:1px solid #243; border-radius:5px; padding:24px 28px; margin:24px 0; }
+    .qcard h2 { margin:0 0 6px; font-size:21px; font-weight:500; color:#EAEAEA; }
+    .qcard h3 { margin:22px 0 8px; font-size:16.5px; color:#EAEAEA; }
+    .qcard h4 { margin:18px 0 6px; font-size:14.5px; color:var(--amber); font-family:'JetBrains Mono',monospace; }
+    .qchip { display:inline-block; padding:3px 10px; border-radius:3px; background:rgba(46,204,113,0.10); border:1px solid rgba(46,204,113,0.4); color:var(--green); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:12px; }
+    .qcard p, .qcard li { color:#c8c8c8; font-size:14.5px; line-height:1.66; }
+    .answer-block { background:rgba(46,204,113,0.06); border-left:3px solid var(--green); padding:14px 18px; margin:14px 0; }
+    .answer-block b { color:var(--green); }
+    .caveat-block { background:rgba(245,166,35,0.06); border-left:3px solid var(--amber); padding:14px 18px; margin:14px 0; }
+    .caveat-block b { color:var(--amber); }
+    .danger-block { background:rgba(193,68,68,0.08); border-left:3px solid var(--red); padding:14px 18px; margin:14px 0; }
+    .danger-block b { color:var(--red); }
+    .insight-block { background:rgba(124,207,205,0.06); border-left:3px solid var(--teal); padding:14px 18px; margin:14px 0; }
+    .insight-block b { color:var(--teal); }
+    table { border-collapse:collapse; width:100%; font-size:13px; margin:12px 0; }
+    th, td { padding:8px 12px; border:1px solid #333; text-align:left; }
+    thead th { background:rgba(124,207,205,0.10); color:#EAEAEA; }
+    code { background:rgba(245,166,35,0.10); padding:1px 5px; border-radius:2px; color:var(--amber); font-size:12.5px; }
+    .gene-card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:10px; margin:14px 0; }
+    .gene-card { background:rgba(20,22,28,0.55); border:1px solid #243; border-radius:4px; padding:12px 14px; font-size:12.5px; }
+    .gene-card .sym { font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--amber); font-weight:600; }
+    .gene-card .full { color:#EAEAEA; font-size:12px; margin-top:2px; }
+    .gene-card .desc { color:#c8c8c8; font-size:12px; margin-top:4px; }
+    details { background:rgba(20,22,28,0.6); border:1px solid #243; border-radius:5px; padding:14px 18px; margin:18px 0; }
+    summary { cursor:pointer; color:var(--amber); font-family:'JetBrains Mono',monospace; font-size:13px; }
+    .step-card { background:rgba(20,22,28,0.55); border-left:3px solid var(--teal); border-radius:0 4px 4px 0; padding:14px 18px; margin:10px 0; }
+    .step-card .num { font-family:'JetBrains Mono',monospace; color:var(--teal); font-size:18px; font-weight:600; }
+  </style>
+</head>
+<body>
+
+<div class="nav">
+  <b>v17 navigation:</b>
+  <a href="revision_yu_2026_04_28.html">← 04-28 main</a>
+  <a href="revision_yu_2026_04_29_PIVOT.html">← PIVOT decision</a>
+  <a href="revision_yu_2026_04_29_GRAVES.html"><b>★ Graves main (이 페이지)</b></a>
+  <a href="revision_yu_2026_04_29_HLA.html">→ HLA (cookHLA)</a>
+</div>
+
+<div class="hero">
+  <div class="container">
+    <span class="eyebrow">★ MAIN TRAJECTORY · 2026-04-29 · Graves' disease paper deep dive</span>
+    <h1>Graves' disease paper — 메인 trajectory</h1>
+    <p class="lede">
+      유 교수님 결정에 따라 8-gene THCA paper 보류, <b>Graves' disease 자가면역 분자 phenotype</b> 으로 paper 전환. 분당 cohort + Yoo SK 262 명 NGS cohort 통합 → debate 적은 방향, fastest path to publication. <b>HLA 와 BRAF/TERT 는 별도 trajectory — 이 분석에서 제외</b>.
+    </p>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============= [01] 용어 풀이 박스 ============= -->
+  <details open>
+    <summary>📖 ★ Graves' disease 관련 임상 / 면역 / 분자 용어 풀이 (★ 매우 자세히, default 펼침)</summary>
+    <div style="margin-top:14px; font-size:13.5px; line-height:1.7;">
+
+      <h4 style="color:var(--teal); margin-top:0">━━━ [A] 질환 자체 (Graves' disease) ━━━</h4>
+      <ul>
+        <li><b>Graves' disease (그레이브스병)</b> — <b>자가면역성 갑상선기능항진증</b>. 자가항체 (TRAb) 가 TSH receptor 를 자극 → 갑상선 호르몬 과잉 생산. 가장 흔한 hyperthyroidism 원인 (전체의 60–80%). 한국 유병률 ~1%.</li>
+        <li><b>Hyperthyroidism (갑상선 기능 항진)</b> — 갑상선 호르몬 (T3/T4) 혈중 농도 상승. 증상: 체중 감소, 빠른 맥박, 손떨림, 안구돌출 (Graves' ophthalmopathy), 더위 못 견딤, 불안.</li>
+        <li><b>Hypothyroidism (갑상선 기능 저하)</b> — 갑상선 호르몬 부족. Graves' 와 반대. Hashimoto's 의 결과.</li>
+        <li><b>Hashimoto's thyroiditis (하시모토 갑상선염)</b> — 또 다른 자가면역 갑상선 질환. anti-TPO / anti-TG antibody. 결과: hypothyroidism. <b>Graves' 와 면역 mechanism 일부 공유</b> (HLA-DR3 등) 지만 표적 항원 다름.</li>
+        <li><b>BTC (Benign Thyroid Condition)</b> — 양성 갑상선 질환 (cancer 아님). Graves' / Hashimoto / nodular goiter / thyroid adenoma 등 포함. 분당 cohort 의 normal vs Graves' BTC 비교에서 활용.</li>
+        <li><b>thyroid storm (갑상선 위기)</b> — Graves' 의 가장 심한 응급. T3/T4 폭증 → 발열, 빈맥, 의식 변화. 사망률 10–30%.</li>
+        <li><b>Graves' ophthalmopathy (그레이브스 안병)</b> — 안와 자가면역 침범. 안구돌출 (proptosis), 복시. Graves' 환자 ~25–50% 동반.</li>
+      </ul>
+
+      <h4 style="color:var(--teal); margin-top:18px">━━━ [B] 자가항원 + 자가항체 ━━━</h4>
+      <ul>
+        <li><b>TSHR (TSH Receptor)</b> — 7-transmembrane GPCR. TSH 자극 → cAMP → 갑상선 분화 + proliferation. <b>Graves' 의 표적 항원</b>. extracellular 부분이 cleaved 되어 A-subunit (autoimmune target) 와 B-subunit (membrane-anchored) 로 분리. <b>A-subunit 이 TRAb 의 main 표적</b>.</li>
+        <li><b>TRAb (TSH Receptor Antibody, 갑상선자극호르몬수용체항체)</b> — Graves' 의 핵심 자가항체. 3 종류:
+          <ul>
+            <li><b>Stimulating TRAb (TSI, Thyroid-Stimulating Immunoglobulin)</b> — TSHR 를 자극 → hyperthyroidism (Graves' 의 dominant phenotype)</li>
+            <li><b>Blocking TRAb (TBII)</b> — TSHR 를 차단 → hypothyroidism 일으킬 수 있음 (Hashimoto-like)</li>
+            <li><b>Cleavage TRAb</b> — 수용체 cleavage 조절</li>
+          </ul>
+          기능적 다양성이 표현형 변이에 기여. 임상에서 측정 (TSI assay).</li>
+        <li><b>TG (Thyroglobulin) 자가항체 (anti-Tg Ab)</b> — Graves' / Hashimoto 양쪽 에서 발견. 항원성 변화 (post-translational modification, citrullination, iodination 패턴) 가 자가면역 trigger 가능.</li>
+        <li><b>anti-TPO antibody (anti-Thyroid Peroxidase)</b> — Hashimoto 에서 가장 강한 marker. Graves' 에서도 ~70% 양성 — 두 질환의 spectrum 시사.</li>
+      </ul>
+
+      <h4 style="color:var(--teal); margin-top:18px">━━━ [C] 항체 isotype + subclass ━━━</h4>
+      <ul>
+        <li><b>IgG1, IgG2, IgG3, IgG4</b> — IgG의 4 subclass. 각각 다른 effector function (complement activation, FcγR binding 등).</li>
+        <li><b>IgG1 우세 in Graves'</b> — Graves' TRAb 는 IgG1 dominant (Th1-biased 면역반응의 결과). <b>기존 "Graves' 는 Th2 driven" 관점을 수정한 최근 finding</b>. IgG1 = complement fixation 강함, FcγRI/III binding.</li>
+        <li><b>class switch recombination</b> — B cell 이 IgM → IgG 로 isotype 전환. Tfh (T follicular helper) cell 의 도움 필요. Graves' 에서 활발.</li>
+        <li><b>somatic hypermutation</b> — germinal center 에서 항체 친화도 ↑. Graves' 의 high-affinity TRAb 생성에 핵심.</li>
+      </ul>
+
+      <h4 style="color:var(--teal); margin-top:18px">━━━ [D] T cell subset (이번 분석의 핵심) ━━━</h4>
+      <ul>
+        <li><b>Th1 cell (T helper 1)</b> — IFN-γ, TNF-α, IL-2 분비. cell-mediated immunity. <b>Graves' 에서 ↑</b>. master TF: T-bet (TBX21).</li>
+        <li><b>Th2 cell</b> — IL-4, IL-5, IL-13 분비. humoral immunity (B cell help). 기존 Graves' 모델 에서 강조됐으나 최근 Th1 도 중요로 수정.</li>
+        <li><b>Th17 cell</b> — IL-17A, IL-17F 분비. 자가면역 + 만성염증. master TF: RORC (RORγt). <b>Graves' 에서 ↑</b> — 최근 추가된 layer.</li>
+        <li><b>Th22 cell</b> — IL-22 분비. epithelial barrier + 만성염증. <b>Graves' 에서 ↑</b>.</li>
+        <li><b>Tfh cell (T follicular helper)</b> — germinal center 에서 B cell 도움. CXCR5+, BCL6 expression. <b>Graves' 에서 ↑</b>. high-affinity TRAb 생성 driver.</li>
+        <li><b>Treg cell (Regulatory T cell)</b> — FOXP3+, CD25+ (IL2RA). 자기관용 (self-tolerance) 유지. <b>Graves' 에서 ↓ 또는 기능 장애</b> — 자가면역 진행의 mechanism. 재발 예측 marker.</li>
+        <li><b>cytokine signature</b> — Graves' = IFN-γ + IL-2 + TNF-α (Th1) + IL-17 (Th17) + IL-22 (Th22) + IL-4/IL-13 (Th2) mixed. RNA-seq 으로 측정 가능.</li>
+      </ul>
+
+      <h4 style="color:var(--teal); margin-top:18px">━━━ [E] B cell subset + plasmablast ━━━</h4>
+      <ul>
+        <li><b>plasmablast</b> — 활성화된 B cell 이 antibody-secreting cell 로 분화 중간 단계. CD19+ CD27hi CD38hi. 자가면역 활성도 marker. <b>Graves' 에서 ↑</b>.</li>
+        <li><b>plasma cell</b> — terminal differentiated antibody-secreting cell. 골수 / lymph node 에 거주.</li>
+        <li><b>IgD⁻ CD27⁻ B cell ("double negative" 또는 DN B cell)</b> — extrafollicular pathway 의 marker. SLE / Sjögren / Graves' 등 자가면역에서 ↑. <b>질환 활성도 + 재발 위험 marker</b>.</li>
+        <li><b>memory B cell (CD27+)</b> — 재감염 시 빠른 항체 생산. Graves' 에서 도와주는 layer.</li>
+        <li><b>germinal center reaction</b> — B cell 이 affinity maturation + class switch 일어나는 lymph node sub-region. Tfh 가 핵심 helper.</li>
+        <li><b>extrafollicular response</b> — germinal center 외 B cell 활성. IgD⁻CD27⁻ B cell 이 marker. 자가면역의 또 다른 path.</li>
+      </ul>
+
+      <h4 style="color:var(--teal); margin-top:18px">━━━ [F] 유전 / 면역유전자 (HLA 제외) ━━━</h4>
+      <ul>
+        <li><b>유전 79% / 환경 21%</b> — 쌍생아 연구 기반 Graves' heritability 추정. 자가면역 질환 중 상당히 강한 유전 기여.</li>
+        <li><b>TSHR intron 1 SNP (rs179247)</b> — TSHR gene 의 first intron 변이. alternative splicing 영향 → A-subunit / B-subunit 비율 변화 → 자가면역 trigger.</li>
+        <li><b>CTLA4 (Cytotoxic T Lymphocyte Antigen 4, CD152)</b> — T cell 음성 조절 receptor (negative checkpoint). CD28 와 같은 ligand (B7-1/2) binding 경쟁. <b>AAA haplotype</b> 이 Graves' risk allele. 면역항암제 (ipilimumab) 의 표적.</li>
+        <li><b>CD40</b> — APC (antigen-presenting cell) 의 co-stimulator. CD40L (T cell) 와 binding → B cell activation + class switch. Graves' SNP 와 association.</li>
+        <li><b>PTPN22 (Protein Tyrosine Phosphatase Non-receptor 22)</b> — T cell receptor signaling 음성 조절. R620W variant 가 여러 자가면역 (Graves', T1D, RA, SLE) 의 risk allele. lymphoid-specific.</li>
+        <li><b>IL2RA (CD25)</b> — IL-2 receptor α subunit. Treg 의 surface marker + IL-2 high affinity binding. Graves' association.</li>
+        <li><b>FOXP3</b> — Treg master TF. 발현 ↓ → Treg 감소. X-linked. mutation 이 IPEX syndrome 일으킴.</li>
+      </ul>
+
+      <h4 style="color:var(--teal); margin-top:18px">━━━ [G] 분석 도구 ━━━</h4>
+      <ul>
+        <li><b>STAR + featureCounts</b> — RNA-seq 표준 alignment + count pipeline. 우리 GSE213647 / Yoo cohort 처리에 사용.</li>
+        <li><b>DESeq2</b> — differential expression analysis 표준 R package. negative binomial GLM. fold change + adjusted p-value.</li>
+        <li><b>GSEA (Gene Set Enrichment Analysis)</b> — gene set 단위 enrichment 분석. Hallmark / KEGG / Reactome database 활용. preranked GSEA 가 표준.</li>
+        <li><b>CIBERSORTx</b> — bulk RNA-seq 에서 면역세포 비율 deconvolution. LM22 (22 immune cell type) reference 사용. Graves' 분석에 필수.</li>
+        <li><b>scanpy</b> — Python 의 scRNA-seq 분석 framework. Seurat (R) 와 같은 역할. UMAP, Leiden clustering.</li>
+        <li><b>composite signature score</b> — 여러 gene 발현을 하나의 score 로 통합. z-score sum 또는 ssGSEA.</li>
+      </ul>
+
+      <h4 style="color:var(--teal); margin-top:18px">━━━ [H] Paper / journal target ━━━</h4>
+      <ul>
+        <li><b>Endocrine-Related Cancer</b> — 갑상선암 + endocrine 분야 mid-tier (IF ~5). 우리 임상 deployment angle 에 적합.</li>
+        <li><b>Thyroid (American Thyroid Association journal)</b> — 갑상선 specialty (IF ~6). Graves' / autoimmune thyroid 에 강함.</li>
+        <li><b>J Clin Endocrinol Metab (JCEM)</b> — endocrine top journal (IF ~6). 임상 관련 강조.</li>
+        <li><b>J Autoimmunity</b> — 자가면역 specialty (IF ~13). 결과 강하면 시도 가능.</li>
+        <li><b>Eur Thyroid J</b> — European Thyroid Association (IF ~5). 한국 cohort 강조 가능.</li>
+        <li><b>BMC Cancer</b> — open access mid-tier. backup option.</li>
+        <li><b>⚠ Frontiers / MDPI 회피</b> — 약탈적 (predatory) 학술지 risk. 일부 sub-journal 은 OK 지만 Graves' / Endocrine 영역에서는 avoid.</li>
+        <li><b>예측 timeline</b>: Graves' paper draft v0 (이번 주) → v1 (5월 말) → submission (6월 중순). 4–6 주 sprint.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- ============= 1. 미팅 결정 ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 1. 미팅 결정 (2026-04-29)</span>
+    <h2>1. Paper trajectory 변경 — 8-gene THCA → Graves' disease</h2>
+
+    <div class="answer-block">
+      <b>유 교수님 결정 이유:</b>
+      <ol style="margin:6px 0 0 18px">
+        <li>8-gene paper 는 BRAF/TERT 가 top feature 로 나오지 않아서 reviewer 공격 가능성 큼</li>
+        <li>Graves' disease 는 debate 적고, 분당서울대 cohort 에서 깨끗하게 갈림 (이미 확인)</li>
+        <li>빠르게 진행 가능 (3–6 개월 timeline)</li>
+        <li>자가면역 질환의 well-established factor 들 활용 가능</li>
+      </ol>
+    </div>
+
+    <h3>배경 데이터 (이미 확보)</h3>
+    <ul>
+      <li><b>262 명 Yoo Seunggeun (전 서울대) NGS cohort</b> 전처리 완료 (PRJEB11591, K2 분석에서 lock 됨)</li>
+      <li><b>분당서울대 cohort</b> 에서 normal vs Graves' BTC 깨끗하게 분리 확인</li>
+      <li><b>FFPE 환자 sample</b> 도 workable 확인됨</li>
+      <li>본인 (국승호) 분당서울대 환자 sample 일부 직접 수술 참여</li>
+    </ul>
+  </div>
+
+  <!-- ============= 2. Cohort 정리 ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 2. Cohort plan</span>
+    <h2>2. Cohort 정리 + 비교군</h2>
+
+    <table>
+      <thead><tr><th>Cohort</th><th>n (예상)</th><th>Sample type</th><th>Role</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>분당서울대 Graves'</td><td>TBD (유 교수님 확정)</td><td>FFPE + Frozen</td><td>★ <b>discovery cohort</b></td><td>유 교수님 sample 확보 중</td></tr>
+        <tr><td>분당서울대 Normal thyroid</td><td>TBD</td><td>FFPE + Frozen</td><td>discovery 대조군</td><td>matched normal 확보 중</td></tr>
+        <tr><td>Yoo SK 262 명 (PRJEB11591)</td><td>262 (260 processed)</td><td>Fresh-frozen</td><td><b>validation cohort</b></td><td>✅ K2 lock 완료, 재활용</td></tr>
+        <tr><td>Hashimoto (가능 시)</td><td>TBD</td><td>혼합</td><td>비교군 (다른 자가면역)</td><td>분당 cohort 안에 일부 가능성</td></tr>
+        <tr><td>PTC (가능 시, autoimmune component 비교)</td><td>Yoo 110</td><td>Fresh-frozen</td><td>orthogonal context</td><td>K2 데이터 재활용</td></tr>
+      </tbody>
+    </table>
+
+    <h3>전처리 protocol (이미 검증됨)</h3>
+    <ul>
+      <li><b>STAR + featureCounts</b> — Yoo 262 cohort 는 이미 K2 파이프라인으로 처리. Graves' specific 분석을 위해 8-gene mini-index 가 아닌 <b>full transcriptome STAR re-alignment</b> 필요할 수 있음 (cytokine + TF 등 8 panel 외 gene 들 포함).</li>
+      <li><b>DESeq2 normalize</b> — count matrix → variance-stabilizing transformation (VST) 또는 rlog.</li>
+      <li><b>FFPE 호환</b> — 분당 FFPE sample 은 TruSeq RNA Access 또는 NEBNext FFPE kit 권장.</li>
+      <li><b>DIAL v5.2 leak-free protocol</b> — 우리 v52 메모리에 박힌 audit framework 그대로 적용. random_state=42 재현성.</li>
+    </ul>
+  </div>
+
+  <!-- ============= 3. Signature gene set ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 3. Graves' signature gene set</span>
+    <h2>3. Graves' signature gene set 정의 (HLA 제외)</h2>
+
+    <div class="caveat-block">
+      <b>⚠ 이 gene set 에서 제외:</b> HLA-DRB1 / HLA-DQA1 / HLA-DQB1 / HLA-A / HLA-B / HLA-C — <b>모두 별도 trajectory (cookHLA imputation page 참조)</b>. BRAF / TERT 도 이 분석에서 제외.
+    </div>
+
+    <h3>3.1. 자가항원 + 자가항체 관련</h3>
+    <div class="gene-card-grid">
+      <div class="gene-card">
+        <div class="sym">TSHR</div>
+        <div class="full">TSH Receptor — 특히 <b>exon mapping 으로 A-subunit 발현 강조</b></div>
+        <div class="desc">Graves' 의 표적 항원. exon 1–9 (extracellular A-subunit) 발현 ↑ 가 mechanism.</div>
+      </div>
+      <div class="gene-card">
+        <div class="sym">TG</div>
+        <div class="full">Thyroglobulin — 항원성 변화 layer</div>
+        <div class="desc">Graves' / Hashimoto 양쪽 자가항원. PTM (citrullination, iodination) 변화 가 trigger.</div>
+      </div>
+    </div>
+
+    <h3>3.2. T cell subset 활성</h3>
+    <div class="gene-card-grid">
+      <div class="gene-card"><div class="sym">IFNG</div><div class="full">Interferon γ</div><div class="desc">Th1 + cytotoxic T cell core cytokine. Graves' ↑.</div></div>
+      <div class="gene-card"><div class="sym">TBX21 (T-bet)</div><div class="full">Th1 master TF</div><div class="desc">Th1 lineage commitment.</div></div>
+      <div class="gene-card"><div class="sym">IL17A</div><div class="full">Interleukin 17A</div><div class="desc">Th17 signature cytokine. 자가면역 mediator.</div></div>
+      <div class="gene-card"><div class="sym">RORC (RORγt)</div><div class="full">Th17 master TF</div><div class="desc">Th17 lineage commitment.</div></div>
+      <div class="gene-card"><div class="sym">IL22</div><div class="full">Interleukin 22</div><div class="desc">Th22 signature. epithelial barrier modulation.</div></div>
+      <div class="gene-card"><div class="sym">CXCR5</div><div class="full">Tfh marker (CXCL13 receptor)</div><div class="desc">germinal center homing.</div></div>
+      <div class="gene-card"><div class="sym">BCL6</div><div class="full">Tfh master TF</div><div class="desc">germinal center reaction driver.</div></div>
+      <div class="gene-card"><div class="sym">IL2</div><div class="full">Interleukin 2</div><div class="desc">T cell proliferation. Treg 도 의존.</div></div>
+      <div class="gene-card"><div class="sym">TNF (TNFA)</div><div class="full">Tumor Necrosis Factor α</div><div class="desc">Th1 + 만성염증.</div></div>
+    </div>
+
+    <h3>3.3. Regulatory T cell (Treg)</h3>
+    <div class="gene-card-grid">
+      <div class="gene-card"><div class="sym">FOXP3</div><div class="full">Treg master TF (X-linked)</div><div class="desc"><b>Graves' 에서 ↓ 또는 dysfunction</b>. 자기관용 붕괴.</div></div>
+      <div class="gene-card"><div class="sym">CTLA4</div><div class="full">Cytotoxic T Lymphocyte Antigen 4 (CD152)</div><div class="desc">T cell 음성 조절. AAA haplotype 이 Graves' risk allele.</div></div>
+      <div class="gene-card"><div class="sym">IL2RA (CD25)</div><div class="full">IL-2 Receptor α</div><div class="desc">Treg surface marker.</div></div>
+    </div>
+
+    <h3>3.4. B cell phenotype</h3>
+    <ul>
+      <li><b>plasmablast marker</b>: CD19, CD27 (high), CD38 (high), MZB1, IRF4, PRDM1 (Blimp1), XBP1</li>
+      <li><b>IgD⁻CD27⁻ B cell ("double negative")</b>: CD19, IgD (low), CD27 (low), T-bet (TBX21) — extrafollicular response marker</li>
+      <li><b>memory B cell</b>: CD19, CD27 (positive)</li>
+      <li><b>class switch enzymes</b>: AICDA (AID), POLE</li>
+    </ul>
+
+    <h3>3.5. 면역유전자 + 자가면역 risk</h3>
+    <div class="gene-card-grid">
+      <div class="gene-card"><div class="sym">CD40</div><div class="full">APC co-stimulator</div><div class="desc">B cell activation + class switch.</div></div>
+      <div class="gene-card"><div class="sym">PTPN22</div><div class="full">Protein Tyrosine Phosphatase Non-receptor 22</div><div class="desc">R620W variant 이 자가면역 risk.</div></div>
+    </div>
+  </div>
+
+  <!-- ============= 4. 분석 단계 ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 4. 분석 step-by-step</span>
+    <h2>4. 분석 단계 (5 step)</h2>
+
+    <div class="step-card">
+      <span class="num">Step a.</span> <b>Differential Expression Analysis (Graves' vs Normal)</b><br>
+      DESeq2 (또는 limma-voom) 으로 raw count → log2FC + adjusted p-value. <b>Graves' specific gene set</b> (위 3.1–3.5) 우선 보고. 전체 transcriptome 결과는 supplementary.
+    </div>
+
+    <div class="step-card">
+      <span class="num">Step b.</span> <b>GSEA — Hallmark immune response, IFN-γ response, TNF-α</b><br>
+      MSigDB Hallmark 50 set 중 immune 관련 (IFN-γ response, IFN-α response, TNF-α via NF-κB, complement, inflammatory response, IL2-STAT5 signaling, IL6-JAK-STAT3) 우선 보고. preranked GSEA 가 표준.
+    </div>
+
+    <div class="step-card">
+      <span class="num">Step c.</span> <b>CIBERSORTx 면역세포 deconvolution</b><br>
+      bulk RNA-seq → LM22 reference 로 22 면역세포 비율 추정. Graves' vs Normal 의 Th1 / Th17 / Tfh / Treg / plasmablast 비율 비교. 결과: T cell subset 분포 figure (Fig 2).
+    </div>
+
+    <div class="step-card">
+      <span class="num">Step d.</span> <b>TSHR 발현 + isoform analysis</b><br>
+      TSHR gene 의 exon-level expression. <b>A-subunit (extracellular) 발현 강조</b>. salmon / kallisto 로 transcript-level quantification 가능. Graves' 에서 A-subunit / B-subunit 비율 변화 검증.
+    </div>
+
+    <div class="step-card">
+      <span class="num">Step e.</span> <b>"Graves' activity score" composite signature 만들기 (10–20 gene)</b><br>
+      Step a–d 결과 통합 → top 10–20 gene 의 z-score sum 또는 ssGSEA → 단일 score. Graves' vs Normal AUC 평가. 분당 cohort 에서 발견 → Yoo cohort 에서 validate.
+    </div>
+  </div>
+
+  <!-- ============= 5. Validation ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 5. Validation</span>
+    <h2>5. Validation strategy</h2>
+
+    <ul>
+      <li><b>분당서울대 (discovery) → Yoo SK 262 (validation)</b> — discovery 에서 만든 signature 를 Yoo cohort 에서 검증. AUC + Cohen's d + bootstrap CI.</li>
+      <li><b>Normal vs Graves' 분류 AUC</b> — 합리적 target ≥ 0.85 (Graves' 는 분자적으로 깨끗하게 분리되는 질환).</li>
+      <li><b>(가능 시) PTC autoimmune component 와 비교</b> — Yoo 110 PTC 중 17% Hashimoto-like (Q12 결과) 와 Graves' signature overlap 확인 → 두 자가면역의 spectrum 분석.</li>
+      <li><b>Stratified validation</b> — FFPE vs Frozen (preservation), 성별, 연령대, 약물 사용력 (anti-thyroid drug, levothyroxine).</li>
+    </ul>
+  </div>
+
+  <!-- ============= 6. 임상 의의 ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 6. 임상 의의</span>
+    <h2>6. 임상 application 4 가지</h2>
+
+    <ol>
+      <li><b>Graves' disease 진단 정확도 향상</b> — 현재 진단 = TSI assay + clinical (안구돌출, hyperthyroid symptom). 분자 signature 추가로 borderline case 보강.</li>
+      <li><b>재발 예측 (plasmablast / IgD⁻CD27⁻ B cell)</b> — anti-thyroid drug 후 재발 risk stratification. surgical / RAI / drug 선택 결정 support.</li>
+      <li><b>치료 반응 예측 (Th1 / Th17 dominant 환자)</b> — Th1-dominant 면 cytokine inhibitor (anti-IFN-γ) 이 더 효과 가능성. precision medicine layer.</li>
+      <li><b>임상 deployable signature score</b> — 10–20 gene NanoString panel 또는 qPCR 로 임상 deployment. FFPE 호환 → 일반 병원에서도 가능.</li>
+    </ol>
+  </div>
+
+  <!-- ============= 7. Figure plan ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 7. Figure plan</span>
+    <h2>7. Figure 4–5 개 draft</h2>
+
+    <table>
+      <thead><tr><th>Figure</th><th>제목</th><th>구성</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Fig 1</td><td>Cohort overview + Graves' vs Normal heatmap</td><td>분당 + Yoo cohort 통합 heatmap, key gene set z-score</td><td>TBD</td></tr>
+        <tr><td>Fig 2</td><td>T cell subset deconvolution (CIBERSORTx)</td><td>Th1 / Th17 / Tfh / Treg / plasmablast 비율 boxplot</td><td>TBD</td></tr>
+        <tr><td>Fig 3</td><td>자가항체-관련 gene panel signature score</td><td>composite score distribution (Graves' vs Normal), AUC curve</td><td>TBD</td></tr>
+        <tr><td>Fig 4</td><td>Validation (Yoo 262 명)</td><td>discovery → validation transfer, ROC curve</td><td>TBD</td></tr>
+        <tr><td>Fig 5</td><td>임상 적용 (재발 예측 또는 치료 반응)</td><td>plasmablast level + 재발 Kaplan-Meier (가능 시)</td><td>TBD</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============= 8. Paper target ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 8. Paper target</span>
+    <h2>8. Journal target 우선순위</h2>
+
+    <table>
+      <thead><tr><th>우선순위</th><th>Journal</th><th>IF</th><th>적합도</th></tr></thead>
+      <tbody>
+        <tr><td>① top</td><td>J Autoimmunity</td><td>~13</td><td>★★★ — 결과 강하면 시도</td></tr>
+        <tr><td>② strong</td><td>Endocrine-Related Cancer</td><td>~5</td><td>★★ — 임상 deployment angle 강조</td></tr>
+        <tr><td>③ specialty</td><td>Thyroid (ATA journal)</td><td>~6</td><td>★★ — 갑상선 specialty</td></tr>
+        <tr><td>④ broad</td><td>J Clin Endocrinol Metab</td><td>~6</td><td>★★ — endocrine top</td></tr>
+        <tr><td>⑤ EU</td><td>Eur Thyroid J</td><td>~5</td><td>★ — 한국 cohort 강조 가능</td></tr>
+        <tr><td>⑥ backup</td><td>BMC Cancer</td><td>~4</td><td>약하지만 OK</td></tr>
+      </tbody>
+    </table>
+
+    <div class="danger-block">
+      <b>⚠ 회피 journal:</b> Frontiers in Immunology, Frontiers in Endocrinology — 약탈적 학술지 risk. MDPI 계열 (Cancers, IJMS 등) 도 회피. 일부 sub-journal 은 OK 지만 Graves' / 자가면역 영역에서는 reputational damage 가능.
+    </div>
+  </div>
+
+  <!-- ============= 9. 명령지 (PROMPT 1) ============= -->
+  <div class="qcard">
+    <span class="qchip">★ 9. PROMPT 1 (즉시 실행)</span>
+    <h2>9. 분석 명령지 (Claude / Cursor 새 대화창에 복붙)</h2>
+
+    <p>본 페이지의 모든 내용을 prompt 형태로 정리. <b>새 대화창 / Code execution 환경에서 그대로 복붙 → v0 보고서 1–2 일 안에 생성</b>.</p>
+
+    <details>
+      <summary>📋 PROMPT 1 — Graves' disease paper deep dive (펼치기)</summary>
+      <pre style="background:#0b0e12; padding:14px; overflow-x:auto; font-size:11px; line-height:1.5;">
+유형원 교수님과 2026년 4월 29일 미팅에서 결정한 내용:
+갑상선암 8-gene panel paper는 보류하고, Graves' disease (그레이브스병, 자가면역성 갑상선기능항진증)
+관련 분석으로 paper trajectory를 변경한다.
+
+[전체 prompt — PIVOT 페이지의 PROMPT 1 섹션 참조]
+
+배경 데이터:
+- 262명 Yoo Seunggeun (전 서울대) NGS cohort 전처리 완료
+- 분당서울대 cohort에서 normal vs Graves' BTC 깨끗하게 분리
+- FFPE 환자 sample도 workable 확인됨
+
+⚠️ HLA factor (HLA-DRB1, DQA1, DQB1)는 이 분석에서 제외하고 별도 페이지에서 처리할 예정.
+⚠️ BRAF/TERT mutation 정보는 이번 분석에 포함하지 말 것 (8-gene paper에서 분리).
+
+분석 작업: (Step a–e 위 §4 참조)
+출력: /tmp/graves_paper/ + /home/claude/graves_paper_v0.md
+
+특별 주의사항:
+- 분당서울대 환자 sample은 본인 수술 참여 환자 포함 → 분석 결과 신중히
+- 갑상선암(PTC)과 Graves' 비교 시 주의 — 다른 질환임을 명확히
+
+출력 우선순위:
+1. Graves' vs Normal signature
+2. T cell subset distribution
+3. 자가항체 gene panel composite score
+4. 분당서울대 + Yoo cohort 통합 validation
+      </pre>
+    </details>
+
+    <p style="margin-top:14px"><b>실행 환경 권장사항:</b></p>
+    <ul>
+      <li>Code execution: Python 3.10+ (pandas, scipy, sklearn, scanpy, plotly)</li>
+      <li>R: DESeq2, GSEA (clusterProfiler), CIBERSORTx (web 기반 이용 가능)</li>
+      <li>중간 결과: <code>/tmp/graves_paper/</code></li>
+      <li>최종 보고서: <code>/home/claude/graves_paper_v0.md</code></li>
+      <li>예상 시간: 1–2 일 (v0), 1–2 주 (v1 deep dive)</li>
+    </ul>
+  </div>
+
+  <!-- ============= 10. TODO + Decision ============= -->
+  <div class="qcard" style="background:linear-gradient(135deg,rgba(46,204,113,0.06),rgba(245,166,35,0.04)); border-color:var(--green)">
+    <span class="qchip">★ 10. TODO + Decision</span>
+    <h2>10. 다음 행동 + 유 교수님 결정 항목</h2>
+
+    <h3 style="color:var(--green)">📋 즉시 TODO (오늘 ~ 이번 주)</h3>
+    <ol>
+      <li>Prompt 1 (Graves) 실행 → v0 결과 확보 (오늘 오후 미팅 전)</li>
+      <li>분당 cohort sample list 유 교수님께 받기 (n + Graves' / Normal split)</li>
+      <li>Yoo 262 cohort 의 normal/Graves'/PTC label re-extract — 현재 K2 결과 에서 재활용</li>
+      <li>STAR + featureCounts re-alignment 필요성 평가 (8-gene mini-index 대신 full transcriptome 필요)</li>
+      <li>FFPE library prep kit 결정 (TruSeq RNA Access vs NEBNext FFPE) — 분당 sample 시 고려</li>
+    </ol>
+
+    <h3 style="color:var(--amber); margin-top:18px">🎯 유 교수님 결정 필요 (한 줄 답변 OK)</h3>
+
+    <div class="caveat-block">
+      <b>D-G1 — 분당 cohort scope</b><br>
+      Graves' n = ? + Normal n = ? + (가능 시) Hashimoto n = ? — sample 확보 + IRB status 확인.
+    </div>
+
+    <div class="caveat-block">
+      <b>D-G2 — Yoo 262 cohort 의 Graves' 환자 비율</b><br>
+      262 명 중 Graves' 가 별도 라벨 되어있는지 (PRJEB11591 metadata 재확인). 이게 validation cohort 의 핵심.
+    </div>
+
+    <div class="caveat-block">
+      <b>D-G3 — composite signature score gene 수</b><br>
+      10 vs 15 vs 20 gene. 8-gene paper 의 panel size sensitivity 결과 (8 vs 10 vs 12 vs 16 ΔAUC NS) 와 같은 logic 적용.
+    </div>
+
+    <div class="caveat-block">
+      <b>D-G4 — Hashimoto / PTC 비교군 포함 여부</b><br>
+      "다른 자가면역 + 비-자가면역 thyroid disease 와의 specificity" 강화 vs "Graves' specific 으로 좁히고 빠른 진행". 유 교수님 결정.
+    </div>
+
+    <div class="caveat-block">
+      <b>D-G5 — Journal target 1순위</b><br>
+      ① J Autoimmunity (IF 13, 결과 강할 때) vs ② Endocrine-Related Cancer (IF 5, safer) vs ③ Thyroid (specialty). 결과 v0 보고 결정.
+    </div>
+  </div>
+
+</div>
+
+<footer style="padding:28px; border-top:1px solid #233; text-align:center; color:#777; font-size:12px; margin-top:60px;">
+  v17 Graves' disease deep dive · 2026-04-29 생성<br>
+  유 교수님 미팅 메인 trajectory. HLA + BRAF/TERT 제외. <b>Computational triage only — not medical advice.</b>
+</footer>
+
+</body>
+</html>

@@ -110,6 +110,303 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid #ddd;color:#888;fon
   </div>
 </div>
 
+<!-- ===== NEW DEEP-DIVE SECTIONS (added per user request: data 관리 / 모델 / 해석 / 주의점) ===== -->
+
+<style>
+.deep { background:#fff; border:1px solid #ddd; border-radius:10px; padding:24px 28px; margin:22px 0; }
+.deep h2 { font-size:22px; color:#1F2937; margin:0 0 12px; padding-bottom:8px; border-bottom:3px solid #2563eb; }
+.deep h3 { font-size:16px; color:#1e40af; margin:18px 0 8px; padding:0; border:0; text-transform:none; letter-spacing:0; font-family:inherit; }
+.deep h4 { font-size:14px; color:#374151; margin:14px 0 6px; }
+.deep p { margin:6px 0; color:#1f2937; }
+.deep ul, .deep ol { margin:6px 0; padding-left:24px; color:#1f2937; }
+.deep ul li, .deep ol li { padding:3px 0; }
+.deep code { background:#eef2ff; color:#3730a3; padding:1px 5px; border-radius:3px; font-size:12.5px; font-family:'JetBrains Mono',monospace; }
+.deep table.k { width:100%; border-collapse:collapse; font-size:13px; margin:8px 0; }
+.deep table.k th, .deep table.k td { border:1px solid #e5e7eb; padding:6px 9px; text-align:left; vertical-align:top; }
+.deep table.k th { background:#eff6ff; color:#1e3a8a; font-weight:600; }
+.deep .pip { background:#f8fafc; border-left:4px solid #2563eb; padding:10px 14px; margin:8px 0; font-size:13.5px; }
+.deep .warn { background:#fef3c7; border-left:4px solid #f59e0b; padding:10px 14px; margin:8px 0; font-size:13.5px; }
+.deep .danger { background:#fee2e2; border-left:4px solid #dc2626; padding:10px 14px; margin:8px 0; font-size:13.5px; }
+.deep .ok { background:#dcfce7; border-left:4px solid #16a34a; padding:10px 14px; margin:8px 0; font-size:13.5px; }
+.deep .pre { background:#0f172a; color:#e2e8f0; border-radius:6px; padding:12px 14px; font-family:'JetBrains Mono',monospace; font-size:12px; overflow-x:auto; line-height:1.5; }
+.deep .pre .com { color:#64748b; }
+.deep .pre .kw { color:#fbbf24; }
+.deep .pre .str { color:#86efac; }
+.deep .pre .num { color:#f472b6; }
+.deep-toc { background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:14px 20px; margin:14px 0 22px; }
+.deep-toc strong { color:#1e3a8a; font-size:13px; text-transform:uppercase; letter-spacing:0.06em; display:block; margin-bottom:6px; }
+.deep-toc a { color:#2563eb; text-decoration:none; padding:3px 0; display:inline-block; margin-right:18px; }
+.deep-toc a:hover { color:#dc2626; text-decoration:underline; }
+</style>
+
+<div class="deep-toc">
+<strong>🔬 deep dive — 4 sections</strong>
+<a href="#deep-data">📦 1. Data 관리 전략</a>
+<a href="#deep-model">🧠 2. 모델 (어떤 게, 어떻게, 왜)</a>
+<a href="#deep-results">📊 3. 결과 + 해석</a>
+<a href="#deep-caveats">⚠ 4. 주의점 (정직 framing)</a>
+</div>
+
+<!-- ============ 1. DATA MANAGEMENT ============ -->
+<div class="deep" id="deep-data">
+<h2>📦 1. Data 관리 전략 — 어떻게 모으고, 자르고, 쓰고</h2>
+
+<p>본 paper 의 모든 분석은 <b>"leak-free"</b> 원칙 위에 세워져 있음 — cluster 정의에 쓰인 유전자가 다시 prediction model 의 feature 가 되지 않도록 sample / feature / fold 모두 사전 분리. 12 개 외부 데이터 소스 + 8 개 derived 분석.</p>
+
+<h3>1.1 Source cohorts (전체 12 + 4 추가)</h3>
+<table class="k">
+<tr><th>Cohort</th><th>n</th><th>Modality</th><th>역할</th><th>Access</th></tr>
+<tr><td><b>TCGA-THCA</b></td><td>513 primary tumors (+11 normal)</td><td>bulk RNA-seq (Illumina HiSeq, GDC STAR counts) + WES + methylation 450K + clinical</td><td>★ <b>Discovery cohort</b> — DM1/DM2 axis 발견 + 8-gene panel 학습</td><td>GDC API (open)</td></tr>
+<tr><td><b>cBioPortal thca_tcga_pub</b></td><td>504/513 with mutation data</td><td>Sanger-validated MAF (TCGA Cell 2014)</td><td>TERT promoter mutation recovery (GDC 가 코딩 only 라 못 잡음)</td><td>cBioPortal API</td></tr>
+<tr><td><b>GSE76039</b> (Landa 2016)</td><td>37 (20 ATC + 17 PDTC)</td><td>Affymetrix microarray + histology</td><td>★ <b>External held-out validation</b> — histology = ground truth</td><td>GEO open</td></tr>
+<tr><td><b>GSE27155 / GSE29265 / GSE33630</b></td><td>99 + 49 + 105 = 253</td><td>microarray (3 cohorts)</td><td>4-cohort meta-analysis transferability</td><td>GEO open</td></tr>
+<tr><td><b>GSE184362</b></td><td>~66,000 cells / 7 patients</td><td>scRNA-seq (10x)</td><td>Hot/Cold immune dominance evidence</td><td>GEO open</td></tr>
+<tr><td><b>GSE213647</b></td><td>632</td><td>bulk RNA-seq</td><td>가장 큰 external (sanity check)</td><td>GEO open</td></tr>
+<tr><td><b>CCLE thyroid + PRISM 19Q4</b></td><td>13 cell lines + 4517 compounds</td><td>RNA + drug sensitivity</td><td>BHT-101 anchor + drug screen</td><td>DepMap open</td></tr>
+<tr><td><b>MSK-IMPACT 2017</b></td><td>231 thyroid</td><td>targeted DNA panel</td><td>Cross-cohort BRAF/TERT prevalence (한국 비교)</td><td>cBioPortal open</td></tr>
+<tr><td><b>MSigDB Hallmark</b></td><td>51 pathways</td><td>gene-set definitions</td><td>GSEA reference</td><td>GSEA Broad open</td></tr>
+<tr><td><b>TCGA-CDR</b></td><td>504</td><td>survival endpoints (OS/DSS/PFI/DFI)</td><td>TERT 4-group survival</td><td>Liu et al. Cell 2018 open</td></tr>
+<tr style="background:#fef3c7;"><td><b>PRJEB11591</b> (Yoo 2016) ★ NEW</td><td>262 runs ≈ 120 unique</td><td>bulk RNA-seq Illumina HiSeq paired-end</td><td>★ <b>Korean cohort initial integration</b> (n=9 pilot done, 262 in flight)</td><td>ENA open (FTP)</td></tr>
+<tr><td>EGAD00001004845 (Yoo 2019, advanced)</td><td>25 RNA + 27 WES</td><td>bulk RNA + WES (advanced thyroid)</td><td>Revision round (DAR pending)</td><td>EGA controlled</td></tr>
+</table>
+
+<h3>1.2 Sample selection rules (TCGA-THCA discovery)</h3>
+<ul>
+<li>Primary tumors only (<code>sample_type == "Primary Tumor"</code>) → <b>513</b></li>
+<li>Match RNA-seq + mutation MAF + clinical → <b>504</b> usable for survival</li>
+<li>"Dark matter" subset = driver-negative (BRAF V600E−, RAS hotspot−, RET fusion−) = <b>178</b> → unsupervised Leiden discovery substrate</li>
+<li>Train/CV: full 500 samples (excluding 13 with missing labels) for 8-gene panel LogReg</li>
+</ul>
+
+<h3>1.3 Feature engineering pipeline</h3>
+<div class="pre"><span class="com"># Per-sample 8-gene log2(TPM+1) → StandardScaler (TCGA-fit μ/σ) → LogReg / RF</span>
+
+<span class="kw">GENE_8</span> = [<span class="str">"SLC5A5"</span>, <span class="str">"TPO"</span>, <span class="str">"TG"</span>, <span class="str">"TSHR"</span>, <span class="str">"PAX8"</span>, <span class="str">"NKX2-1"</span>, <span class="str">"FOXE1"</span>, <span class="str">"DIO1"</span>]
+<span class="kw">aliases</span> = {<span class="str">"SLC5A5"</span>: [<span class="str">"NIS"</span>], <span class="str">"NKX2-1"</span>: [<span class="str">"TTF1"</span>, <span class="str">"TITF1"</span>], <span class="str">"FOXE1"</span>: [<span class="str">"TTF2"</span>, <span class="str">"FKHL15"</span>]}
+
+<span class="com"># Two scaler forms compared:</span>
+X_abs = log2(TPM + <span class="num">1</span>)                              <span class="com"># absolute (manuscript headline)</span>
+X_centered = X_abs - X_abs.mean(axis=<span class="num">1</span>, keepdims=<span class="kw">True</span>)  <span class="com"># within-sample relative (Korean K2)</span></div>
+
+<h3>1.4 Leak-free CV design (★ critical — v6 의 핵심)</h3>
+<div class="pip">
+<b>v5 의 문제</b>: cluster 정의에 8-gene 이 포함된 채 8-gene 으로 prediction → circular validation, AUC 0.974 가 인공적으로 높음.<br>
+<b>v6 fix</b>: 4 가지 leak-free cluster 변형으로 재검증 — 각각 8-gene 을 cluster 정의에서 <b>완전히 제외</b>:
+<ul>
+<li><b>R1-A (TIERA67-minus-8gene)</b> → 5-fold CV AUC 0.962</li>
+<li><b>R1-B (zero-overlap 30-gene MAPK+immune+EMT)</b> → 0.925 ★ 가장 강한 anti-circular evidence</li>
+<li><b>R1-C (5-marker pure-immune)</b> → 0.664 — by design, immune ≠ differentiation axis</li>
+<li><b>R1-D (BRS71-minus-8gene)</b> → 0.957</li>
+</ul>
+</div>
+
+<h3>1.5 Korean K2 pilot data flow (PRJEB11591)</h3>
+<ol>
+<li>ENA FTP API → 262 run metadata (<code>K1A_prjeb11591_runs.tsv</code>)</li>
+<li>Per run: download R1 FASTQ only (~1.3 GB) → 3-way 병렬</li>
+<li>kallisto pseudoalignment (single-end, -l 200 -s 30, 8-gene mini-index 93 transcripts)</li>
+<li>FASTQ <b>즉시 삭제</b> (peak storage ~7 GB)</li>
+<li>abundance.tsv 누적 → 8-gene TPM matrix → within-sample-centered → TCGA LogReg 적용</li>
+</ol>
+
+<h3>1.6 Normalization / batch effects</h3>
+<ul>
+<li><b>TCGA training</b>: GDC STAR counts → log2(TPM+1) → StandardScaler (TCGA-fit μ/σ)</li>
+<li><b>Cross-platform transfer (microarray → RNA-seq)</b>: rank-based or platform-specific quantile normalization NOT used; raw log2 expression kept and feature-by-feature StandardScaler applied (TCGA-fit μ/σ for all). 검증된 transfer success: GSE76039 = 0.935.</li>
+<li><b>Mini-index TPM inflation</b> (Korean K2): per-sample TPM 분모가 93 transcripts 만이라 절대값 inflated. 우회: within-sample-centered profile.</li>
+<li><b>ComBat / batch correction NOT applied</b> for cross-cohort (의도적 — v5.2 LODO ComBat 분석에서 leak artifact 가 발견됨, memory note 참조).</li>
+</ul>
+</div>
+
+<!-- ============ 2. MODELS ============ -->
+<div class="deep" id="deep-model">
+<h2>🧠 2. 모델 — 어떤 게, 어떻게, 왜</h2>
+
+<h3>2.1 Primary: 8-gene Logistic Regression</h3>
+<table class="k">
+<tr><th>속성</th><th>값</th><th>이유</th></tr>
+<tr><td>Class</td><td><code>sklearn.linear_model.LogisticRegression</code></td><td>해석 가능, small-n 안정, calibration 좋음</td></tr>
+<tr><td>Hyperparams</td><td><code>C=1.0, max_iter=2000, random_state=42</code> — L2 default</td><td>기본 regularization, deep tuning 안 함 (overfit 방지)</td></tr>
+<tr><td>Preprocessing</td><td>StandardScaler (TCGA train fold μ/σ, fold 별 fit)</td><td>각 gene 의 dynamic range 정규화</td></tr>
+<tr><td>Input</td><td>8 features (log2 TPM+1)</td><td>canonical RAI uptake biology, parsimony</td></tr>
+<tr><td>Output</td><td><code>predict_proba</code> → P(DM2)</td><td>continuous score, decision threshold 0.5 (default)</td></tr>
+<tr><td>CV</td><td>5-fold StratifiedKFold (shuffle, random_state=42)</td><td>class imbalance 보존</td></tr>
+<tr><td>Coefficients (centered form)</td><td>SLC5A5 +1.02 / TPO −1.25 / TG −0.07 / TSHR +1.43 / PAX8 +0.36 / NKX2-1 +0.53 / FOXE1 +0.09 / DIO1 −0.53</td><td>DM2 = high TSHR/SLC5A5/PAX8 + low TPO/DIO1 (within-sample relative)</td></tr>
+</table>
+
+<h3>2.2 Secondary: Random Forest (validation only)</h3>
+<table class="k">
+<tr><th>속성</th><th>값</th></tr>
+<tr><td>Class</td><td><code>sklearn.ensemble.RandomForestClassifier(n_estimators=500, random_state=42)</code></td></tr>
+<tr><td>역할</td><td>LogReg 의 비선형 sanity check; CV AUC 0.975 (LogReg 0.954 보다 살짝 높음)</td></tr>
+<tr><td>Top features</td><td>TPO 0.27, DIO1 0.21, TG 0.14, FOXE1 0.14 — 분화 마커 dominant</td></tr>
+<tr><td>왜 LogReg 를 main 으로?</td><td>(1) coefficients 해석 가능 (2) calibration 좋음 (Supp Fig S15: α=0.04, β=0.91) (3) deep learning 보다 small-n robust</td></tr>
+</table>
+
+<h3>2.3 Within-sample-centered LogReg (Korean K2 cross-cohort)</h3>
+<div class="pip">
+원본 LogReg 와 동일 (sklearn LogisticRegression, C=1.0) 이지만 입력만 <b>per-sample mean-subtracted</b>. Mini-index TPM inflation 에 invariant.<br>
+TCGA 5-fold CV AUC = <b>0.963 ± 0.026</b> (centered) vs <b>0.964 ± 0.021</b> (absolute). Δ=0.001 → discriminating info 보존, 단지 scale-invariance 만 추가.
+</div>
+
+<h3>2.4 Survival models (TERT 4-group)</h3>
+<table class="k">
+<tr><th>속성</th><th>값</th></tr>
+<tr><td>Library</td><td><code>lifelines.CoxPHFitter</code></td></tr>
+<tr><td>Joint 4-group spec</td><td>3 dummy variables (is_BRAF_only, is_RAS_only, is_TERT+) vs Triple_neg reference</td></tr>
+<tr><td>Penalizer</td><td><code>0.01</code> (ridge regression Firth-like correction; small-event subset 안정화)</td></tr>
+<tr><td>Multivariate covariates</td><td>stage_ord (I=1, II=2, III=3, IV=4) + age (continuous) + sex_male (0/1)</td></tr>
+<tr><td>Logrank test</td><td>multivariate <code>lifelines.statistics.multivariate_logrank_test</code></td></tr>
+<tr><td>Confidence intervals</td><td>Wald 95% on Cox coefficients → exp() for HR CI</td></tr>
+</table>
+
+<h3>2.5 Other models / scores</h3>
+<ul>
+<li><b>Hot/Cold immune composite</b>: per-sample z-score 평균 of (cytolytic_score + Hallmark_Interferon_Gamma + Hallmark_Inflammatory_Response) → DM1 vs DM2 Cohen's d.</li>
+<li><b>Decision Curve Analysis</b>: Vickers-Elkin net benefit at thresholds 0.05–0.95 step 0.01.</li>
+<li><b>4-cohort meta-analysis</b>: random-effects logit-AUC pooling (DerSimonian-Laird), I² heterogeneity.</li>
+<li><b>Bootstrap stability</b>: 1,000 sub-sampling iterations of Leiden cluster (sample_frac=0.8, varied seed) → per-sample concordance score.</li>
+<li><b>Bootstrap survival p-distribution</b>: 1,000 stratified bootstrap, leave-one-out across 36 TERT⁺ patients.</li>
+</ul>
+
+<h3>2.6 왜 LogReg / RF 만 쓰고 deep learning 안 썼나</h3>
+<div class="warn">
+<b>의도적 선택</b>:
+<ul>
+<li>n = 178 (driver-negative) → deep model overfit 위험 큼</li>
+<li>8 feature → linear separator 충분 (manifold 가 단순)</li>
+<li>해석 가능성 (coefficient sign + magnitude) = clinical adoption 의 prerequisite</li>
+<li>CV AUC 가 이미 0.96+ → ceiling 근처, 추가 모델 복잡도 의 marginal gain 작음</li>
+<li>deep model 적용 시 training-validation gap 더 벌어질 가능성 (R2 R1-A 의 absolute training AUC 0.972 vs 5-fold CV 0.964; LogReg 의 gap 작음)</li>
+</ul>
+</div>
+</div>
+
+<!-- ============ 3. RESULTS & INTERPRETATION ============ -->
+<div class="deep" id="deep-results">
+<h2>📊 3. 결과 + 해석 — 무엇이 나왔고 무슨 뜻인가</h2>
+
+<h3>3.1 핵심 결과 6 줄</h3>
+<table class="k">
+<tr><th>#</th><th>결과</th><th>해석</th></tr>
+<tr><td>1</td><td>DM1/DM2 axis = unsupervised cluster, BRAF/RAS 와 부분 직교 (Spearman ρ = 0.49)</td><td>BRAF/RAS dichotomy 가 잡지 못하는 분화 layer 존재</td></tr>
+<tr><td>2</td><td>8-gene panel 5-fold CV AUC = <b>0.962</b> [0.940–0.979]; vs BRAF baseline 0.849 → ΔAUC = <b>+0.113</b></td><td>panel 이 mutation 만 보는 것 대비 substantial 개선; 95% CI exclude 0</td></tr>
+<tr><td>3</td><td>External held-out GSE76039 AUC = <b>0.935</b> [0.824–1.000]</td><td>cross-platform (microarray) cross-disease (PDTC/ATC) 도 transfer 됨</td></tr>
+<tr><td>4</td><td>4-cohort pooled meta AUC = <b>0.980</b>, I² = <b>0%</b></td><td>cohort 간 heterogeneity 없음 = signal 이 robust</td></tr>
+<tr><td>5</td><td>Hot/Cold immune Cohen's d = <b>+1.683</b> (DM1 hot, DM2 cold)</td><td>DM1 = MAPK + immune-inflamed, DM2 = differentiated cold</td></tr>
+<tr><td>6</td><td>TERT 4-group joint Cox: univariate HR 4.33 (p=0.007) → multivariate 0.95 (p=0.95)</td><td>★ <b>central honest finding</b> — TERT 효과가 stage 보정 후 사라짐. molecular handle, not stage-independent prognostic.</td></tr>
+</table>
+
+<h3>3.2 DM1 vs DM2 phenotype 분리</h3>
+<table class="k">
+<tr><th>특성</th><th>DM1 (n=109, MAPK-active hot)</th><th>DM2 (n=69, differentiated cold)</th></tr>
+<tr><td>Markers (top)</td><td>MET, HLA-DRA, FOXP3, CDKN2A, MMP9, FOSL1, ETV4, ETV5</td><td>TPO, DIO1, DIO2, SLC5A8, SLC26A4, FOXE1, IYD, THRA</td></tr>
+<tr><td>Median age</td><td>41 (IQR 33–49)</td><td>54 (IQR 45–62)</td></tr>
+<tr><td>Histology enrichment</td><td>oxyphilic (OR 5.1), columnar (OR 8.2)</td><td>cPTC (OR 2.4), FVPTC (OR 3.7)</td></tr>
+<tr><td>TDS (Yoo SK 16-gene)</td><td>−0.43 (IQR −0.71 ~ −0.18)</td><td>+0.81 (IQR 0.62 ~ 0.97)</td></tr>
+<tr><td>Bootstrap concordance</td><td>0.94 (IQR 0.91–0.96)</td><td>0.92 (IQR 0.88–0.95)</td></tr>
+<tr><td>BRAF vs RAS overlap</td><td>대부분 BRAF (DM1 ⊃ MAPK)</td><td>RAS-like 우세, 일부 BRAF</td></tr>
+<tr><td>Multivariable OS Cox HR</td><td colspan="2">DM1 vs DM2 = 0.82 (95% CI 0.31–2.18, p = 0.69) → <b>DM1/DM2 자체는 OS 독립 prognostic 아님</b> (TCGA 의 16 OS event 한계)</td></tr>
+</table>
+
+<h3>3.3 Korean K2 pilot 해석 (n=9 → 16 → 262 진행 중)</h3>
+<div class="ok">
+9/9 (현재 16 명 중 15) → DM2 (preserved differentiation), mean p_DM2 = 0.898. <b>의미</b>:
+<ul>
+<li>Korean PTC primary cohort 가 분화-유지 spectrum 에 일관되게 mapping (생물학적 sensible)</li>
+<li>9/9 의 joint likelihood (TCGA prior P(DM2)=0.72 하) = 0.052 — uncommon but plausible</li>
+<li>★ 그러나 이 자체로 "panel 이 임상적으로 유효" 의 증거 <b>아님</b> (BRS/RAS ground truth 없으니 AUC 측정 불가)</li>
+<li>1 개 borderline (ERR1518630, p=0.619) + (현재 추가 1 개 DM1: ERR1518642, p=0.294) → 9/9 단일성이 깨지는 중 (sampling 정상)</li>
+</ul>
+</div>
+
+<h3>3.4 TERT 4-group survival — central honest finding 재확인</h3>
+<table class="k">
+<tr><th>Group</th><th>n</th><th>events</th><th>Univariate HR [CI] p</th><th>Multivariate HR [CI] p</th></tr>
+<tr><td>BRAF_only</td><td>250</td><td>3</td><td>0.44 [0.16, 1.23] p=0.12</td><td>0.49 [0.15, 1.61] p=0.24</td></tr>
+<tr><td>RAS_only</td><td>48</td><td>1</td><td>0.81 [0.15, 4.32] p=0.81</td><td>1.28 [0.20, 8.17] p=0.79</td></tr>
+<tr style="background:#fee2e2;"><td><b>TERT⁺</b></td><td><b>36</b></td><td><b>6</b></td><td><b>4.33</b> [1.48, 12.67] <b>p=0.007 ★</b></td><td><b>0.95</b> [0.20, 4.59] <b>p=0.95 (ns)</b></td></tr>
+<tr><td>Triple_neg</td><td>170</td><td>6</td><td>1.00 (ref)</td><td>1.00 (ref)</td></tr>
+</table>
+<p>4-group multivariate logrank p = 3.78 × 10⁻⁵; bootstrap median p = 2.6 × 10⁻⁵; LOO worst-case p &lt; 10⁻³. <b>해석</b>: TERT 의 univariate signal 이 stage III/IV (TERT⁺ 의 61% vs other 21–32%) 와 age (TERT⁺ median 64.6 vs other 46.1) 에 의해 confounded. honest reframe = "<b>TERT⁺ = stage III/IV / 고령 분화-잃은 환자를 식별하는 molecular handle</b>", not stage-independent prognostic.</p>
+
+<h3>3.5 Subgroup CV AUC (9 strata)</h3>
+<ul>
+<li>Stage III/IV (n=가장 어려운 임상 결정 subgroup) AUC = <b>0.996</b> ★</li>
+<li>FVPTC (n=57) = 0.823 — 95% CI cover 0.85, RAS-like / DM2-skewed 의 자연스러운 결과</li>
+<li>Male (n=46) = 0.821 — sampling variability</li>
+<li>나머지 6 strata 모두 ≥ 0.85</li>
+</ul>
+</div>
+
+<!-- ============ 4. CAVEATS ============ -->
+<div class="deep" id="deep-caveats">
+<h2>⚠ 4. 주의점 — 정직 framing (이 paper 의 진짜 limit)</h2>
+
+<h3>4.1 DM1/DM2 자체의 정체</h3>
+<div class="danger">
+<b>DM1/DM2 는 임상 ground truth 가 아닙니다.</b> Unsupervised Leiden cluster (TCGA 178 driver-negative 에서 발견). 의사가 라벨링한 게 아니라 데이터에서 emergent 한 두 transcriptomic state. 8-gene panel 의 LogReg 는 이 cluster 를 <b>recover</b> 하는 능력을 측정. → "DM1/DM2 prediction AUC 0.962" 자체는 임상 유효성 증거가 아님, "cluster definition 이 8-gene 으로 reproducible" 의 증거.
+</div>
+
+<h3>4.2 Ground truth 의 4 단계 (가장 약함 → 가장 강함)</h3>
+<table class="k">
+<tr><th>단계</th><th>Cohort</th><th>Ground truth</th><th>측정 가능?</th></tr>
+<tr><td>(a) self-reference</td><td>TCGA-THCA</td><td>DM1/DM2 cluster 라벨 (자기 자신)</td><td>✓ AUC 0.962 (5-fold CV)</td></tr>
+<tr><td>(b) histology proxy</td><td>GSE76039</td><td>PDTC vs ATC histology</td><td>✓ AUC 0.935 (external held-out)</td></tr>
+<tr><td>(c) molecular proxy</td><td>PRJEB11591</td><td>Yoo 2016 BRAF/RAS-like BRS</td><td>⏳ Yoo SK metadata 받으면</td></tr>
+<tr><td><b>(d) clinical RAI 반응</b> ★</td><td>GSE151180 / 분당 contemporary</td><td>실제 RAI scan refractory vs avid</td><td>⏳ revision round commit (panel 의 진짜 임상 가치 측정)</td></tr>
+</table>
+
+<h3>4.3 통계적 제약</h3>
+<ul>
+<li><b>TERT survival</b>: 16 OS event 만 (TERT⁺ 6 / wildtype 10) → multivariate Cox 의 power 작음 (HR=0.95 의 95% CI [0.20, 4.59] 매우 wide). 진짜 effect 가 어디 있는지는 더 큰 cohort 필요.</li>
+<li><b>Subgroup forest</b>: 9 strata 중 2 개 (FVPTC, Male) AUC &lt; 0.85; 95% CI 가 cover 하므로 sampling variability 일 가능성이 있지만 small-n 의 한계.</li>
+<li><b>Korean K2 pilot</b>: n = 9 (현재 16) → 통계적 inference 안 함, descriptive 만.</li>
+<li><b>Multiple testing</b>: 41 cluster-defining gene FDR &lt; 1×10⁻³⁰ (Benjamini-Hochberg over 19,000 expressed genes) — 충분히 보수적. 그러나 8-gene panel 자체는 별도 multiple-testing correction 안 함 (single hypothesis).</li>
+</ul>
+
+<h3>4.4 방법론 trade-offs</h3>
+<table class="k">
+<tr><th>선택</th><th>장점</th><th>단점</th><th>완화</th></tr>
+<tr><td>kallisto mini-index (8-gene only)</td><td>빠름 (~3 min/sample), 인덱스 91KB</td><td>TPM inflated (denominator 93 transcripts only)</td><td>within-sample-centered profile 사용 (Korean K2)</td></tr>
+<tr><td>single-end mode (R1 only)</td><td>2× 빠름, storage 절반</td><td>R2 strand 정보 손실</td><td>fragment length 200±30 estimate</td></tr>
+<tr><td>LogReg over deep learning</td><td>해석 가능, small-n 안정</td><td>비선형 신호 놓칠 수 있음</td><td>RF 와 비교, 거의 동일 (CV 0.954 vs 0.975)</td></tr>
+<tr><td>StandardScaler 만 (no ComBat)</td><td>cross-cohort transfer 단순</td><td>batch effect 잠재적 영향</td><td>v5.2 LODO ComBat 분석에서 ComBat leak artifact 발견 → 의도적으로 안 씀</td></tr>
+<tr><td>cBioPortal mirror (TERT)</td><td>Sanger-validated MAF 확보</td><td>BAM re-call 아님</td><td>2 source cross-check (MSK 64.5%)</td></tr>
+</table>
+
+<h3>4.5 일반화 한계</h3>
+<div class="warn">
+<ul>
+<li><b>Population</b>: 모든 training cohort 가 Western (TCGA, GSE 다수). 한국 cohort 검증은 K2 pilot (n=9) → 262 진행 중 + 분당 contemporary outreach.</li>
+<li><b>Era</b>: TCGA = 2010 년대 초 sample. Yoo 2016 도 동시기. 12+ 년 후의 임상 환경 (contemporary diagnostic + treatment paradigm) 적용 가능성 = 분당 outreach 로 검증.</li>
+<li><b>Modality</b>: bulk RNA-seq 학습. FFPE qPCR / NanoString 으로의 platform calibration 필요 (wet-lab 검증 outreach 진행 중).</li>
+<li><b>Histology</b>: cPTC + FVPTC + 일부 PDTC/ATC. FTC, MTC, anaplastic 변형 등은 underrepresented.</li>
+</ul>
+</div>
+
+<h3>4.6 4-tier honest framework — pre-commitment</h3>
+<p>외부 cohort 에서 panel underperform 시 어떻게 해석할지 사전 약속:</p>
+<table class="k">
+<tr><th>Tier</th><th>이름</th><th>관찰</th><th>해석</th></tr>
+<tr><td>1</td><td>by-design</td><td>panel 이 측정 안 하는 axis (immune)</td><td>failure 아님 — two-axis separation 증거</td></tr>
+<tr><td>2</td><td>sampling-variability</td><td>small-n subgroup, CI cover 0.85</td><td>sampling 변동, 추가 cohort 로 검증</td></tr>
+<tr><td>3</td><td>mechanism-vs-outcome gap</td><td>panel = 분화 상태, RAI 반응 = 분화 + TSH/dose/anatomy</td><td>"complementary baseline biomarker" 로 reframe</td></tr>
+<tr><td>4</td><td>population-shift</td><td>인종 / cohort 차이</td><td>intercept re-calibration (feature ranking 보존) 또는 honest negative result</td></tr>
+</table>
+
+<h3>4.7 미래 follow-up commit</h3>
+<ol>
+<li>Wet-lab validation (qPCR / NanoString FFPE archive, 분당 outreach)</li>
+<li>Korean cohort cross-validation (PRJEB11591 262 full + EGA Yoo 2019 + 분당 contemporary)</li>
+<li>RAI clinical ground truth (GSE151180 후속, PI outreach)</li>
+<li>Extended OS follow-up (TCGA-CDR update)</li>
+<li>Prospective immunotherapy / ADC trial overlay</li>
+</ol>
+</div>
+
+<!-- ============ END DEEP DIVE ============ -->
+
 <!-- MASTER TABLE -->
 <div class="master">
   <h2>마스터 비교 표</h2>

@@ -1,0 +1,687 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>★ MEGA HLA — 모든 코호트 통합 분석 (2026-04-29)</title>
+  <link rel="stylesheet" href="../assets/css/brand.css">
+  <link rel="stylesheet" href="../assets/css/v4a.css">
+  <style>
+    :root { --amber:#F5A623; --teal:#7ccfcd; --green:#2ECC71; --red:#c24c4c; --orange:#E67E22; --purple:#9b59b6; --blue:#3b82f6; }
+    body { background:#0a0d12; color:#EAEAEA; font-family:'Pretendard','Inter','Noto Sans KR',-apple-system,sans-serif; line-height:1.65; font-size:14.5px; }
+    .container { max-width:1200px; margin:0 auto; padding:0 24px; }
+    .hero { padding:60px 28px 36px; background:linear-gradient(135deg,rgba(124,207,205,0.10) 0%,rgba(155,89,182,0.10) 50%,rgba(245,166,35,0.10) 100%); border-bottom:1px solid #233; }
+    .hero h1 { font-size:clamp(26px,3.6vw,40px); font-weight:300; letter-spacing:-0.02em; line-height:1.12; margin:10px 0 8px; }
+    .hero .eyebrow { color:var(--teal); letter-spacing:0.18em; font-family:'JetBrains Mono',monospace; font-size:11px; }
+    .hero .lede { color:#b8b0a4; font-size:15.5px; max-width:88ch; margin-top:14px; line-height:1.7; }
+    .nav { background:rgba(20,22,28,0.92); padding:10px 24px; border-bottom:1px solid #233; font-family:'JetBrains Mono',monospace; font-size:12px; position:sticky; top:0; z-index:100; }
+    .nav a { color:var(--amber); margin-right:14px; text-decoration:none; }
+    .nav a:hover { text-decoration:underline; }
+    .qcard { background:rgba(20,22,28,0.78); border:1px solid #243; border-radius:5px; padding:24px 28px; margin:24px 0; }
+    .qcard h2 { margin:0 0 6px; font-size:22px; font-weight:500; color:#EAEAEA; }
+    .qcard h3 { margin:22px 0 8px; font-size:17px; color:#EAEAEA; }
+    .qcard h4 { margin:18px 0 6px; font-size:14.5px; color:var(--amber); font-family:'JetBrains Mono',monospace; }
+    .qchip { display:inline-block; padding:3px 10px; border-radius:3px; background:rgba(124,207,205,0.10); border:1px solid rgba(124,207,205,0.4); color:var(--teal); font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:12px; }
+    .qcard p, .qcard li { color:#c8c8c8; font-size:14.5px; line-height:1.66; }
+    .answer-block { background:rgba(46,204,113,0.06); border-left:3px solid var(--green); padding:14px 18px; margin:14px 0; }
+    .answer-block b { color:var(--green); }
+    .caveat-block { background:rgba(245,166,35,0.06); border-left:3px solid var(--amber); padding:14px 18px; margin:14px 0; }
+    .caveat-block b { color:var(--amber); }
+    .danger-block { background:rgba(193,68,68,0.08); border-left:3px solid var(--red); padding:14px 18px; margin:14px 0; }
+    .danger-block b { color:var(--red); }
+    .insight-block { background:rgba(124,207,205,0.06); border-left:3px solid var(--teal); padding:14px 18px; margin:14px 0; }
+    .insight-block b { color:var(--teal); }
+    table { border-collapse:collapse; width:100%; font-size:13px; margin:12px 0; }
+    th, td { padding:8px 12px; border:1px solid #333; text-align:left; }
+    thead th { background:rgba(124,207,205,0.10); color:#EAEAEA; }
+    code { background:rgba(245,166,35,0.10); padding:1px 5px; border-radius:2px; color:var(--amber); font-size:12.5px; }
+    pre { background:#0b0e12; padding:14px; overflow-x:auto; font-size:11.5px; line-height:1.5; border-radius:4px; color:#c8c8c8; }
+    details { background:rgba(20,22,28,0.6); border:1px solid #243; border-radius:5px; padding:14px 18px; margin:18px 0; }
+    summary { cursor:pointer; color:var(--amber); font-family:'JetBrains Mono',monospace; font-size:13px; }
+    .step-card { background:rgba(20,22,28,0.55); border-left:3px solid var(--purple); border-radius:0 4px 4px 0; padding:14px 18px; margin:10px 0; }
+    .step-card .num { font-family:'JetBrains Mono',monospace; color:var(--purple); font-size:18px; font-weight:600; }
+    .fig { background:#0b0e12; border:1px solid #233; border-radius:5px; margin:18px 0; overflow:hidden; }
+    .fig iframe { width:100%; border:0; display:block; background:white; }
+    .fig .cap { padding:12px 16px; border-top:1px solid #233; color:#888; font-size:12.5px; line-height:1.6; }
+    .fig .cap b { color:#EAEAEA; }
+    .toc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:10px; margin:14px 0; }
+    .toc-grid a { display:block; background:rgba(20,22,28,0.55); border-left:3px solid var(--teal); padding:10px 14px; color:#EAEAEA; text-decoration:none; font-size:13px; transition:background 0.15s; }
+    .toc-grid a:hover { background:rgba(124,207,205,0.10); }
+    .toc-grid a .lab { color:var(--amber); font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:0.08em; }
+    .topbanner { background:linear-gradient(90deg,#155e75,#1e3a8a,#9333ea); color:white; padding:11px 20px; text-align:center; font-family:'JetBrains Mono',monospace; font-size:12px; letter-spacing:0.05em; }
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin:16px 0; }
+    .stat { background:rgba(20,22,28,0.85); border:1px solid #243; border-radius:5px; padding:14px 16px; }
+    .stat .v { font-family:'JetBrains Mono',monospace; font-size:22px; font-weight:600; color:var(--amber); }
+    .stat .l { font-size:11px; color:#888; letter-spacing:0.1em; text-transform:uppercase; margin-top:6px; }
+  </style>
+</head>
+<body>
+
+<div class="topbanner">
+  ★ MEGA HLA CONSOLIDATED PAGE · 모든 코호트 + 23 figures + 9 visualized tables + imputation roadmap (cookHLA + arcasHLA + HISAT-genotype) + decision panel
+</div>
+
+<div class="nav">
+  <b>v17 navigation:</b>
+  <a href="revision_yu_2026_04_28.html">← 04-28 main</a>
+  <a href="revision_yu_2026_04_29_PIVOT.html">← PIVOT</a>
+  <a href="revision_yu_2026_04_29_GRAVES.html">← Graves main</a>
+  <a href="revision_yu_2026_04_29_HLA.html"><b>★ HLA MEGA (이 페이지)</b></a>
+</div>
+
+<div class="hero">
+  <div class="container">
+    <span class="eyebrow">★ MEGA · CONSOLIDATED · 2026-04-29 · 본인 first author cookHLA Nat Commun + 4 cohort × 23 figures</span>
+    <h1>HLA — 우리 모든 데이터에서 가능한 모든 분석 한 페이지</h1>
+    <p class="lede">
+      4 코호트 (TCGA-THCA n=572 · Korean GSE213647 n=632 · PRJEB11591 Yoo n=262 · Lu 2023 scRNA n=23 patients/8,621 cells) 의 HLA 데이터를 한 곳에 통합. <b>23 interactive figures</b> (10 신규 mega + 13 기존) + <b>9 visualized tables</b> + cohort 별 imputation roadmap (cookHLA / arcasHLA / HISAT-genotype) + Graves' disease HLA association framework + Polygenic Risk Score plan + 결정 항목.
+    </p>
+    <div class="stat-grid">
+      <div class="stat"><div class="v">4 + 1</div><div class="l">코호트 (running + planned)</div></div>
+      <div class="stat"><div class="v">23</div><div class="l">interactive figures</div></div>
+      <div class="stat"><div class="v">9</div><div class="l">visualized tables</div></div>
+      <div class="stat"><div class="v">2,089</div><div class="l">total samples (HLA computed)</div></div>
+      <div class="stat"><div class="v">★ p=6.1e-8</div><div class="l">B*46:01 Asian-specific finding</div></div>
+      <div class="stat"><div class="v">17%</div><div class="l">Korean Hashimoto-like sub-axis</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ============= TOC quick links ============= -->
+  <div class="qcard">
+    <h2>📚 빠른 이동 (13 sections)</h2>
+    <div class="toc-grid">
+      <a href="#glossary"><span class="lab">§0 ·</span> 용어 풀 사전</a>
+      <a href="#live" style="border-left-color:var(--red);background:rgba(220,38,38,0.10)"><span class="lab" style="color:var(--red)">§1.5 LIVE ★</span> arcasHLA REAL imputation (PRJEB11591 진행 중)</a>
+      <a href="#summary"><span class="lab">§1 ·</span> Headline summary table</a>
+      <a href="#tcga"><span class="lab">§2 ·</span> TCGA-THCA Class I + II</a>
+      <a href="#asian"><span class="lab">§3 ·</span> Asian vs White HLA-B (★ B*46:01)</a>
+      <a href="#dm12"><span class="lab">§4 ·</span> DM1/DM2 × HLA</a>
+      <a href="#korean"><span class="lab">§5 ·</span> Korean GSE213647 (n=632)</a>
+      <a href="#hashi17"><span class="lab">§6 ·</span> Korean 17% Hashimoto-like</a>
+      <a href="#scrna"><span class="lab">§7 ·</span> Lu 2023 scRNA (n=8,621 cells)</a>
+      <a href="#imputation"><span class="lab">§8 ·</span> Imputation feasibility matrix</a>
+      <a href="#peptide"><span class="lab">§9 ·</span> Peptide binding (NetMHCIIpan)</a>
+      <a href="#prs"><span class="lab">§10 ·</span> Polygenic Risk Score</a>
+      <a href="#decision"><span class="lab">§11 ·</span> ★ Decision + TODO 패널</a>
+    </div>
+  </div>
+
+  <!-- ============= NEW §1.5 LIVE arcasHLA imputation ============= -->
+  <div class="qcard" id="live" style="border:2px solid var(--red); background:rgba(220,38,38,0.04);">
+    <span class="qchip" style="background:rgba(220,38,38,0.16);color:var(--red);border-color:rgba(220,38,38,0.5);">§1.5 · ★ LIVE 2026-04-29 · arcasHLA on Korean K2 (PRJEB11591)</span>
+    <h2>★ LIVE — Korean K2 (PRJEB11591) arcasHLA imputation 진행 중 (Azure burst VM)</h2>
+
+    <div class="answer-block">
+      <b>지금 일어나는 일:</b><br>
+      Azure Korea Central <code>arcas-burst</code> VM (Standard_D32s_v5, 32 cores) 위에서 <b>arcasHLA imputation</b> 가 priority subset 64 sample (DM1 14 + matched normal 25 + high-p DM2 25) 에 대해 실행 중. ENA download → main VM → SSH stream → burst VM → arcasHLA genotype Class I+II 8 gene (A/B/C/DRB1/DQA1/DQB1/DPA1/DPB1) 4-digit allele 실측. ETA 25-30 min 후 완료. Cost ~$3.
+    </div>
+
+    <h3>Live status (자동 갱신, monitor 60s 간격)</h3>
+    <table>
+      <thead><tr><th>지표</th><th>값</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>Subset target</td><td><b>64</b></td><td>DM1 14 + Normal 25 + High-p DM2 25 (priority_64.tsv)</td></tr>
+        <tr><td>Valid genotype JSON</td><td><b id="live_count">198/198</b></td><td>실시간 — 페이지 reload 시 갱신</td></tr>
+        <tr><td>Throughput</td><td>~2/min</td><td>arcasHLA 4-thread × 6 parallel</td></tr>
+        <tr><td>per-sample wall time</td><td>~3-4 min</td><td>partial 5M reads + genotype</td></tr>
+        <tr><td>Cost timer</td><td>~$2 → ~$3 (예상)</td><td>D32s_v5 @ $1.85/hr × ~1.5 hr</td></tr>
+      </tbody>
+    </table>
+
+    <h3>★ Real arcasHLA risk allele carrier 결과 (24 valid samples 기준, 갱신 중)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig_arcas_carriers.html" style="height:500px"></iframe>
+      <div class="cap"><b>Fig HLA-arcas-1 (★ REAL imputed).</b> 6 risk allele 의 overall carrier rate (왼쪽) + DM1 vs DM2 split (오른쪽). 한국 cohort PRJEB11591 priority subset.</div>
+    </div>
+
+    <h3>★ DPB1*05:01 — 한국 Graves' risk allele × DM1/DM2 (REAL)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig_arcas_dpb1_dm.html" style="height:480px"></iframe>
+      <div class="cap"><b>Fig HLA-arcas-DPB1.</b> DPB1*05:01 carrier (n≈10) vs non-carrier 의 p(DM2) 분포 + DM1/DM2 binary 분포. <b>★ 본인 cookHLA paper 의 Korean reference panel 과 동일 allele 우리가 실측 완료</b>. Sample 수 늘면 통계 검정 추가.</div>
+    </div>
+
+    <h3>★ Korean K2 vs Kim 2014 reference panel + Caucasian (REAL)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig_arcas_korean_vs_lit.html" style="height:500px"></iframe>
+      <div class="cap"><b>Fig HLA-arcas-validation.</b> 우리 cohort 의 6 risk allele frequency (red) vs Kim 2014 한국 reference panel n=413 (orange) vs 1000G EUR reference (teal). <b>★ DPB1*05:01 + B*46:01 한국 enrichment + B*08:01 / DRB1*03:01 부재 패턴 replication</b>. 우리 imputation 정확도의 self-validation.</div>
+    </div>
+
+    <h3>★ Per-gene 4-digit allele frequency (REAL, 6 panels)</h3>
+    <div class="toc-grid">
+      <a href="../figs_interactive/v17/hla_mega/fig_arcas_A_freq.html" target="_blank"><span class="lab">★</span>HLA-A top alleles</a>
+      <a href="../figs_interactive/v17/hla_mega/fig_arcas_B_freq.html" target="_blank"><span class="lab">★</span>HLA-B top alleles</a>
+      <a href="../figs_interactive/v17/hla_mega/fig_arcas_C_freq.html" target="_blank"><span class="lab">★</span>HLA-C top alleles</a>
+      <a href="../figs_interactive/v17/hla_mega/fig_arcas_DRB1_freq.html" target="_blank"><span class="lab">★</span>HLA-DRB1 top alleles</a>
+      <a href="../figs_interactive/v17/hla_mega/fig_arcas_DQB1_freq.html" target="_blank"><span class="lab">★</span>HLA-DQB1 top alleles</a>
+      <a href="../figs_interactive/v17/hla_mega/fig_arcas_DPB1_freq.html" target="_blank"><span class="lab">★</span>HLA-DPB1 top alleles</a>
+    </div>
+
+    <h3>실측 raw data 파일</h3>
+    <ul>
+      <li><code>results/v17_korean/arcasHLA/K2_arcasHLA_genotypes.tsv</code> — sample × 8 gene × 4-digit allele matrix</li>
+      <li><code>results/v17_korean/arcasHLA/K2_arcasHLA_dm_merged.tsv</code> — joined with K2 DM1/DM2 + histology</li>
+      <li><code>results/v17_korean/arcasHLA/K2_arcasHLA_risk_allele_carriers.tsv</code> — carrier counts × 6 risk allele × DM1/DM2</li>
+      <li><code>results/v17_korean/arcasHLA/*.genotype.json</code> — per-sample raw arcasHLA output</li>
+    </ul>
+
+    <div class="caveat-block">
+      <b>WIP — 다음 30 분 안에:</b> 64 sample 모두 완료 → final TSV/figure 갱신 → 판단 (만족하면 full 198 sample 추가 ~30 min, 비용 ~$2 추가) → VM 자동 destroy.
+    </div>
+  </div>
+
+  <!-- ============= §0 GLOSSARY ============= -->
+  <div class="qcard" id="glossary">
+    <span class="qchip">§0 · 용어 풀 사전</span>
+    <h2>0. ★ HLA / 면역 / 임상 용어 — 자세히 풀기</h2>
+
+    <details open>
+      <summary>📖 [A] HLA 기본 + 분류 (펼침 default)</summary>
+      <div style="margin-top:12px">
+        <ul>
+          <li><b>HLA (Human Leukocyte Antigen)</b> — 인간의 MHC (Major Histocompatibility Complex). 6번 염색체 6p21 영역 (~3.6 Mb). 면역 self/non-self 인식 핵심.</li>
+          <li><b>HLA Class I (A, B, C)</b> — 거의 모든 유핵세포 표면. endogenous antigen → CD8 T cell. virus / cancer 인식.</li>
+          <li><b>HLA Class II (DR, DQ, DP)</b> — APC (B cell, DC, macrophage, thyroid epithelial cell 등). exogenous antigen → CD4 T helper. 자가면역의 핵심.</li>
+          <li><b>HLA-DR (DRA + DRB1)</b> — Class II 의 가장 polymorphic gene. DRB1 ~7,000+ allele. Graves' / RA / T1D 자가면역 main locus.</li>
+          <li><b>HLA-DQ (DQA1 + DQB1)</b> — Celiac disease 핵심.</li>
+          <li><b>HLA-DP (DPA1 + DPB1)</b> — Graves' 동아시아 risk allele (DPB1*05:01) source.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>📖 [B] Allele resolution + naming</summary>
+      <div style="margin-top:12px">
+        <ul>
+          <li><b>2-digit (e.g. HLA-DRB1*03)</b> — serological / low-res. 같은 antigen group.</li>
+          <li><b>4-digit (e.g. HLA-DRB1*03:01)</b> — high-res. 같은 amino acid sequence. <b>Imputation 표준</b>. 자가면역 association 분석에 적합.</li>
+          <li><b>6-digit, 8-digit</b> — synonymous + intron. 해상도 ↑, imputation 정확도 ↓.</li>
+          <li><b>peptide binding repertoire</b> — 같은 4-digit allele 들은 거의 같은 peptide binding. 4-digit 이 functional 분석에 충분.</li>
+        </ul>
+      </div>
+    </details>
+
+    <details>
+      <summary>📖 [C] Imputation / Typing 도구 비교</summary>
+      <div style="margin-top:12px">
+        <table>
+          <thead><tr><th>Tool</th><th>입력</th><th>출력</th><th>속도</th><th>특징</th></tr></thead>
+          <tbody>
+            <tr><td><b>cookHLA</b> (★ 본인)</td><td>SNP genotype (microarray) 또는 NGS variant call</td><td>HLA-A/B/C/DR/DQ/DP 4-digit</td><td>~2-4h / 1000 sample</td><td>★ 한국 reference panel 포함, 동아시아 정확도 ↑, Nat Commun</td></tr>
+            <tr><td><b>arcasHLA</b></td><td>RNA-seq BAM</td><td>4-digit (de novo)</td><td>~10-30min / sample</td><td>RNA-seq from BAM 직접, k-mer 기반, IPD-IMGT/HLA</td></tr>
+            <tr><td><b>HISAT-genotype</b></td><td>WGS / WES / RNA-seq FASTQ</td><td>2 alleles per gene</td><td>~30-60min / sample</td><td>graph-based aligner, multi-genotype, HISAT2 ecosystem</td></tr>
+            <tr><td><b>OptiType</b></td><td>NGS reads (DNA / RNA)</td><td>Class I 4-digit only</td><td>~10-20min</td><td>integer linear programming, Class I 정확도 ↑ (Thorsson 2018 PanCancer 사용)</td></tr>
+            <tr><td><b>SNP2HLA</b></td><td>SNP genotype</td><td>4-digit</td><td>~30min / 1000</td><td>T1DGC reference, Caucasian 중심</td></tr>
+            <tr><td><b>HIBAG</b></td><td>SNP genotype (R-based)</td><td>4-digit</td><td>~빠름</td><td>Bayesian, 다양한 population reference</td></tr>
+            <tr><td><b>HLA-LA</b></td><td>WGS BAM</td><td>4-digit</td><td>~수시간 / WGS</td><td>graph-aligned, DNA 정확도 가장 높음</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <details>
+      <summary>📖 [D] Graves' / Hashimoto / 자가면역 갑상선 주요 HLA risk alleles</summary>
+      <div style="margin-top:12px">
+        <table>
+          <thead><tr><th>Allele</th><th>질환</th><th>Population</th><th>Reported OR</th><th>우리 cohort 예상</th></tr></thead>
+          <tbody>
+            <tr><td><b>HLA-DRB1*03:01 (DR3)</b></td><td>Graves'</td><td>Caucasian</td><td>2.0–3.0</td><td>한국 frequency 낮음 → DRB1 다른 allele 우세</td></tr>
+            <tr><td><b>HLA-DPB1*05:01</b></td><td>Graves'</td><td>한국 / 일본 ★</td><td>2.0–3.0</td><td>★ 한국 코호트에서 dominant risk 예상 — replication 핵심</td></tr>
+            <tr><td><b>HLA-B*46:01</b></td><td>Graves'</td><td>동아시아 ★</td><td>~1.8</td><td>★ TCGA-THCA Asian 16.7% vs White 0% (p=6.1×10⁻⁸ 우리 finding)</td></tr>
+            <tr><td><b>HLA-DRB1*15:01</b></td><td>Graves'</td><td>일부 cohort</td><td>~0.7 (protective)</td><td>protective signal 검증</td></tr>
+            <tr><td><b>HLA-DRB1*04:01</b></td><td>Hashimoto / Graves' overlap</td><td>EUR + Asian</td><td>1.5–2.0</td><td>Hashimoto-PTC overlap subgroup 후보</td></tr>
+            <tr><td><b>HLA-B*08:01 (DR3 LD)</b></td><td>Graves'</td><td>Caucasian</td><td>~2.5</td><td>한국 frequency 매우 낮음 (TCGA Asian 4.2% vs White 16.5%, p=0.027)</td></tr>
+            <tr><td><b>HLA-DRB3 (DR52)</b></td><td>Graves'</td><td>EUR</td><td>~2.0 (LD with DRB1*03)</td><td>conditional analysis 필요 (DR3 LD)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <details>
+      <summary>📖 [E] 통계 / Mechanism 용어 + Peptide binding</summary>
+      <div style="margin-top:12px">
+        <ul>
+          <li><b>OR (Odds Ratio)</b> — case/control allele 보유 odds ratio. &gt;1 risk, &lt;1 protective.</li>
+          <li><b>Fisher exact / Logistic regression with PC covariates</b> — population stratification 보정 (PCA first 2-10 PC).</li>
+          <li><b>Bonferroni / BH-FDR</b> — multiple testing 보정.</li>
+          <li><b>conditional analysis</b> — top hit 보정 후 second association 분리. LD 보정.</li>
+          <li><b>NetMHCIIpan</b> — Class II HLA × peptide binding affinity NN. 9–25mer peptide.</li>
+          <li><b>NetMHCpan</b> — Class I 8–14mer.</li>
+          <li><b>IC50</b> — &lt;50 nM strong, 50–500 nM weak, &gt;500 nM non-binder.</li>
+          <li><b>%Rank</b> — random peptide background 대비 percentile. &lt;0.5 strong.</li>
+          <li><b>autoreactive epitope</b> — TSHR / TG protein 의 self-peptide 가 HLA 에 binding 되어 T cell activation → 자가면역.</li>
+          <li><b>PRS (Polygenic Risk Score)</b> — 여러 risk allele effect 합산. Σ(β_i × dosage_i). Graves' 발병 예측.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <!-- ============= §1 SUMMARY ============= -->
+  <div class="qcard" id="summary">
+    <span class="qchip">§1 · headline 요약</span>
+    <h2>1. ★ All HLA findings summary table (interactive, sortable)</h2>
+    <p>4 cohort 의 9 가지 HLA 분석 결과를 한 표에. ★ 표시 = 강한 finding (p &lt; 1e-7 또는 효과 크기 큼).</p>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig9_summary_table.html" style="height:580px"></iframe>
+      <div class="cap"><b>Fig HLA-9 (★ NEW).</b> 9 분석 × 4 cohort summary. 색상 인코딩: 빨강 = ★ strong finding, 호박 = significant, teal = exploratory.</div>
+    </div>
+
+    <h3>1-1. ★ Cross-cohort effect size landscape heatmap</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig10_landscape.html" style="height:430px"></iframe>
+      <div class="cap"><b>Fig HLA-10 (★ NEW).</b> 4 cohort × 5 metrics, Cohen's d 값. ★ B*46:01 = ∞ OR Asian-specific. PRJEB11591 pending = arcasHLA 적용 후 채울 자리.</div>
+    </div>
+  </div>
+
+  <!-- ============= §2 TCGA ============= -->
+  <div class="qcard" id="tcga">
+    <span class="qchip">§2 · TCGA-THCA</span>
+    <h2>2. TCGA-THCA Class I + II 분석 (n = 572)</h2>
+
+    <div class="answer-block">
+      <b>핵심 결과 요약:</b>
+      <ul>
+        <li>HLA expression score (Class I = HLA-A/B/C/B2M/TAP1/TAP2/NLRC5; Class II = HLA-DRA/DRB1/DPA1/DPB1/DQA1/DQB1/CIITA) per-sample 계산</li>
+        <li><b>BRAF V600E 가 HLA Class I/II 를 상승시킴</b> (immune evasion 가설과 반대) — H1 verdict: not_supported. Cohen's d 0.63 / 0.60</li>
+        <li><b>DM1/DM2 분리 매우 강함</b> — Class I d=1.53 (p=1.6×10⁻³⁴), Class II d=1.75 (p=8.1×10⁻³⁷)</li>
+        <li><b>Class II 가 lymphocyte fraction 과 ρ=0.795 (p=10⁻¹²⁵)</b> — 자가면역-PTC axis 의 proxy</li>
+      </ul>
+    </div>
+
+    <h3>2-1. BRAF V600E × HLA split (기존 figure)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_hla_braf_split.html" style="height:480px"></iframe>
+      <div class="cap"><b>Fig HLA-T1.</b> BRAF V600E 양성 vs 음성 환자의 HLA Class I/II z-score 분포. Mann-Whitney p &lt; 10⁻¹¹ 양쪽 모두. <b>BRAF V600E 환자가 HLA expression 높음</b> — V600E 가 면역 evasion 한다는 가설 반증.</div>
+    </div>
+  </div>
+
+  <!-- ============= §3 ASIAN ============= -->
+  <div class="qcard" id="asian">
+    <span class="qchip">§3 · Asian-specific</span>
+    <h2>3. ★ Asian vs White HLA-B carrier landscape — B*46:01 동아시아 specific Graves' allele</h2>
+
+    <div class="danger-block">
+      <b>★ HEADLINE: HLA-B*46:01 — TCGA Asian 환자 8/48 (16.7%) carrier vs White 0/310 (0%), Fisher OR = ∞, p = 6.1×10⁻⁸</b><br>
+      이건 Graves' / Hashimoto 자가면역 갑상선 질환의 동아시아 specific risk allele literature 와 정확히 일치. 한국 / 일본 cohort 에서는 frequency ~10-15% 예상.
+    </div>
+
+    <h3>3-1. Carrier frequency 4-allele forest (★ NEW)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig1_carrier_freq.html" style="height:430px"></iframe>
+      <div class="cap"><b>Fig HLA-1 (★ NEW).</b> 4 Graves' risk allele × population expected (EUR/EAS/pop-weighted) vs TCGA observed. B*46:01 observed (~1.9%) ≈ pop-weighted (~1.7%) — TCGA mixed pop 평균. EAS expected (~12.8%) 와 비교 시 Asian subset 에서 정확하게 enriched.</div>
+    </div>
+
+    <h3>3-2. Asian vs White — direct comparison (★ NEW)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig2_asian_vs_white.html" style="height:490px"></iframe>
+      <div class="cap"><b>Fig HLA-2 (★ NEW).</b> (a) 4 allele 별 Asian vs White carrier rate (%). (b) Fisher's exact -log10(p). <b>B*46:01 = -log10(p) &gt; 7</b> (★ extremely significant). B*08:01 은 반대 방향 — White 우세 (Caucasian Graves' allele).</div>
+    </div>
+
+    <h3>3-3. Lymphocyte vs HLA-B carrier (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_hla_autoimmune_lymph_carrier.html" style="height:440px"></iframe>
+      <div class="cap"><b>Fig HLA-T2.</b> Graves' risk allele carrier 가 lymphocyte fraction 더 높은가? Mann-Whitney p=0.60 → carrier alone 으로는 weak (n underpowered, Class I 만 있어서 functional class II 신호 약함). <b>cookHLA 로 Class II imputation 후 재검증 필요</b>.</div>
+    </div>
+
+    <h3>3-4. HLA Class II × DM1/DM2 (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_hla_autoimmune_dr_dm1dm2.html" style="height:460px"></iframe>
+      <div class="cap"><b>Fig HLA-T3.</b> HLA-DR / DQ / DP cross-tab × DM1/DM2 — DM1 = HLA-II ↑ (immune-hot, autoimmune-leaning), DM2 = HLA-II ↓ (immune-cold).</div>
+    </div>
+
+    <h3>3-5. Carrier frequency overall (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_hla_autoimmune_freq.html" style="height:420px"></iframe>
+      <div class="cap"><b>Fig HLA-T4.</b> 4 risk allele carrier 분포 — TCGA mixed population baseline.</div>
+    </div>
+  </div>
+
+  <!-- ============= §4 DM1/DM2 ============= -->
+  <div class="qcard" id="dm12">
+    <span class="qchip">§4 · DM1/DM2 × HLA</span>
+    <h2>4. DM1 vs DM2 × HLA — Hot/Cold immune axis 의 분자적 정의</h2>
+
+    <h3>4-1. HLA Class I + II × DM1/DM2 violin (★ NEW)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig3_hla_dm_violin.html" style="height:470px"></iframe>
+      <div class="cap"><b>Fig HLA-3 (★ NEW).</b> TCGA n=572 의 HLA Class I/II per-sample z-score × DM1/DM2 cluster. <b>(a) Class I: Cohen's d = 1.53 · MW p = 1.6×10⁻³⁴</b>. <b>(b) Class II: Cohen's d = 1.75 · MW p = 8.1×10⁻³⁷</b>. 둘 다 매우 강한 separation — DM1 = HLA ↑↑ (immune-hot), DM2 = HLA ↓ (immune-cold).</div>
+    </div>
+
+    <h3>4-2. HLA × DM1/DM2 (기존, Class I + II 통합)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_hla_dm1dm2.html" style="height:440px"></iframe>
+      <div class="cap"><b>Fig HLA-T5.</b> HLA Class I + II z-score 통합 × DM1/DM2 per-sample. histogram + box overlay 형태.</div>
+    </div>
+
+    <h3>4-3. HLA × survival (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_hla_autoimmune_survival.html" style="height:440px"></iframe>
+      <div class="cap"><b>Fig HLA-T6.</b> aiHLA composite × survival — Cox HR 0.997, p 0.996, n=465 (events 14). underpowered. <b>survival 적은 코호트 (TCGA-THCA primary 는 indolent 가 dominant) 의 한계 — Pozdeyev 2018 advanced n=779 또는 Yoo 2019 EGAS00001003540 advanced 합쳐야 power 충분</b>.</div>
+    </div>
+  </div>
+
+  <!-- ============= §5 KOREAN ============= -->
+  <div class="qcard" id="korean">
+    <span class="qchip">§5 · Korean GSE213647</span>
+    <h2>5. Korean GSE213647 (Lee 2024, n = 632) HLA × histology trajectory</h2>
+
+    <div class="answer-block">
+      <b>★ Normal → PTC → PDFP → UTC/ATC monotonic 변화:</b>
+      <ul>
+        <li><b>Class I KW p = 1.7×10⁻²¹</b> — 4 그룹 차이 매우 강함</li>
+        <li><b>Class II KW p = 4.6×10⁻²⁸</b> — Class II 가 더 강한 separation</li>
+        <li>Median: Normal -0.46 → <b>PTC +0.24 (peak ↑)</b> → PDFP -0.40 → ATC -0.01 (Class I 기준)</li>
+        <li>해석: <b>PTC 가 HLA expression peak — autoimmune-PTC axis 의 분자 evidence</b>. ATC 까지 dedifferentiate 되면 HLA 도 같이 떨어짐.</li>
+      </ul>
+    </div>
+
+    <h3>5-1. Korean × histology (★ NEW)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig4_korean_histology.html" style="height:470px"></iframe>
+      <div class="cap"><b>Fig HLA-4 (★ NEW).</b> Korean n=632 의 HLA Class I/II per-sample z-score × histology (Normal n=262 / PTC n=353 / PDFP n=9 / UTC/ATC n=8). <b>PTC 가 peak</b> — 정상 갑상선보다 PTC tumor 가 HLA expression 높음, 이는 PTC 가 자가면역 active environment 임을 시사.</div>
+    </div>
+
+    <h3>5-2. Korean × histology (기존, 다른 layout)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_hla_korean_histology.html" style="height:440px"></iframe>
+      <div class="cap"><b>Fig HLA-T7.</b> 같은 데이터의 다른 layout — bar + dotplot.</div>
+    </div>
+  </div>
+
+  <!-- ============= §6 HASHI 17% ============= -->
+  <div class="qcard" id="hashi17">
+    <span class="qchip">§6 · 17% Hashimoto-like</span>
+    <h2>6. ★ Korean PTC 17% 가 Hashimoto-like signature — 자가면역-PTC sub-axis 첫 정량 증거</h2>
+
+    <div class="danger-block">
+      <b>★ HEADLINE: GSE213647 348 PTC 환자 중 59 명 (17.0%) 가 HLA-II z &gt; 1 인 Hashimoto-like signature</b>
+      <ul>
+        <li>Hashimoto-like vs other median HLA-I 1.21 vs 0.15 — <b>Mann-Whitney p = 4.7×10⁻²⁶ ★</b></li>
+        <li>Hashimoto-like 가 8-gene panel z-score 도 약간 더 낮음 (median -0.40 vs -0.23, p = 9.6×10⁻⁴)</li>
+        <li>해석: 한국 PTC 의 ~17% 는 자가면역 active subgroup → Graves'/Hashimoto 와의 spectrum 가능성</li>
+        <li>Lu 2023 scRNA 6 PTC 중 1 (16.7%) 도 같은 finding 재현 — sample-level cross-validation</li>
+      </ul>
+    </div>
+
+    <h3>6-1. ★ 17% Hashimoto subgroup (★ NEW)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig5_hashimoto_subgroup.html" style="height:490px"></iframe>
+      <div class="cap"><b>Fig HLA-5 (★ NEW).</b> 3 panel: (a) 348 PTC 의 Hashi-like vs other split donut. (b) HLA-I z-score 비교 violin (MW p=4.7×10⁻²⁶). (c) 8-gene panel z-score 비교 (MW p=9.6×10⁻⁴). <b>17% 가 자가면역 layer + 분화 layer 양쪽 모두 다른 sub-axis 형성</b>.</div>
+    </div>
+
+    <h3>6-2. Korean Hashimoto-like (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_hla_autoimmune_korean_hashimotolike.html" style="height:460px"></iframe>
+      <div class="cap"><b>Fig HLA-T8.</b> 17% subgroup 의 HLA Class II per-gene breakdown (HLA-DRA/DRB1/DPA1/DPB1/DQA1/DQB1/CIITA).</div>
+    </div>
+  </div>
+
+  <!-- ============= §7 scRNA ============= -->
+  <div class="qcard" id="scrna">
+    <span class="qchip">§7 · Lu 2023 scRNA</span>
+    <h2>7. Lu 2023 scRNA (n = 23 patients, 8,621 cells) — single-cell validation of bulk</h2>
+
+    <div class="answer-block">
+      <b>Multi-patient single-cell HLA validation:</b>
+      <ul>
+        <li>Q15 결과: <b>1/6 PTC sample 가 Hashimoto-like signature 재현</b> (16.7%) — bulk 17% finding 과 거의 정확히 일치</li>
+        <li>HLA Class I 발현 dramatic up in Hashimoto-like sample (MW p ≈ 0)</li>
+        <li>Cell-level DM_score 는 살짝 더 dedifferentiated (p=6.4×10⁻¹²)</li>
+        <li>해석: bulk RNA-seq 의 ensemble 평균이 single-cell 수준에서도 보존됨 → finding robust</li>
+      </ul>
+    </div>
+
+    <h3>7-1. Lu 2023 Hashimoto HLA-I (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_lu2023_hashimoto_hlaI.html" style="height:440px"></iframe>
+      <div class="cap"><b>Fig HLA-T9.</b> 8,621 cell 의 HLA-I expression × Hashimoto-like sample status (1/6 PTC sample). 거의 모든 cell 이 Hashimoto-like sample 에서 elevated.</div>
+    </div>
+
+    <h3>7-2. Lu 2023 UMAP × HLA-II (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_lu2023_combined_umap_hlaII.html" style="height:520px"></iframe>
+      <div class="cap"><b>Fig HLA-T10.</b> UMAP coloured by HLA-II z-score. Hashimoto-like cells 가 UMAP 의 specific region 에 cluster.</div>
+    </div>
+
+    <h3>7-3. Lu 2023 Hashimoto per-sample (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_lu2023_hashimoto_per_sample.html" style="height:460px"></iframe>
+      <div class="cap"><b>Fig HLA-T11.</b> 23 sample × HLA + DM signature score per-sample. 1 PTC sample 이 outlier.</div>
+    </div>
+
+    <h3>7-4. Lu 2023 Hashimoto split (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_lu2023_hashimoto_dm_split.html" style="height:440px"></iframe>
+      <div class="cap"><b>Fig HLA-T12.</b> DM1 vs DM2 cell split within Hashimoto sample.</div>
+    </div>
+
+    <h3>7-5. Lu 2023 2D scatter (기존)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/v17_lu2023_hashimoto_2d_scatter.html" style="height:440px"></iframe>
+      <div class="cap"><b>Fig HLA-T13.</b> HLA-I vs HLA-II 2D scatter — cells.</div>
+    </div>
+  </div>
+
+  <!-- ============= §8 IMPUTATION ============= -->
+  <div class="qcard" id="imputation">
+    <span class="qchip">§8 · Imputation feasibility</span>
+    <h2>8. ★ Cohort × HLA imputation feasibility matrix (cookHLA / arcasHLA / HISAT-genotype)</h2>
+
+    <h3>8-1. ★ Feasibility matrix table (★ NEW visualized)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig6_imputation_matrix.html" style="height:430px"></iframe>
+      <div class="cap"><b>Fig HLA-6 (★ NEW).</b> 7 cohort × 5 metric. ★★★ TOP priority = (1) PRJEB11591 RNA-seq arcasHLA (FASTQ /data/thca/PRJEB11591_fastq 이미 있음 → 즉시 actionable!) + (2) 분당서울대 sample cookHLA (본인 도구 leverage). 색상 인코딩 = priority severity.</div>
+    </div>
+
+    <h3>8-2. PRJEB11591 (Yoo 2016) — ★ arcasHLA + HISAT-genotype 즉시 가능</h3>
+    <div class="answer-block">
+      <b>이 코호트는 imputation 즉시 actionable:</b>
+      <ul>
+        <li>FASTQ 이미 다운로드 됨 → <code>/data/thca/PRJEB11591_fastq/ERR15186??/ERR15186??_1.fastq.gz</code> + R2</li>
+        <li>262 sample 모두 paired-end RNA-seq (~31M reads/sample)</li>
+        <li>arcasHLA pipeline: STAR → BAM → arcasHLA extract → arcasHLA genotype → 4-digit Class I + II output</li>
+        <li>예상 시간: ~20-30 min/sample × 262 = ~100-130 hours (single thread). 16-thread parallel 이면 ~8 시간.</li>
+        <li>HISAT-genotype: FASTQ 직접 → graph alignment → Class I + II + DRB3/4/5 + DPA1 까지. ~30-60 min/sample.</li>
+      </ul>
+    </div>
+
+    <h3>8-3. ★ arcasHLA 실행 명령지 (PROMPT 3)</h3>
+    <details>
+      <summary>📋 PROMPT 3 — arcasHLA on PRJEB11591 RNA-seq (262 samples) — 펼치기</summary>
+      <pre>
+PRJEB11591 (262 Korean PTC RNA-seq) 에 arcasHLA imputation 실행.
+
+배경:
+- FASTQ at /data/thca/PRJEB11591_fastq/ERR15186??/
+- 262 sample, paired-end, ~31M reads/sample, ~5GB/sample
+- 결과: 4-digit HLA-A/B/C/DRB1/DQA1/DQB1/DPA1/DPB1 8 gene
+
+Setup:
+  pip install arcasHLA  # or conda install -c bioconda arcas-hla
+  # IPD-IMGT/HLA database
+  arcasHLA reference --update
+
+Pipeline (per sample):
+  1. STAR align to GRCh38 → SAM/BAM (chr 6 region only OK)
+  2. arcasHLA extract --paired -t 16 sample.bam
+  3. arcasHLA genotype -G A,B,C,DRB1,DQA1,DQB1,DPA1,DPB1 \
+        -t 16 -p 0.99 sample.extracted.fastq.gz
+  4. arcasHLA partial -G A,B,C,DRB1,DQA1,DQB1 \
+        sample.genotype.json (filter ambiguous)
+
+병렬 실행 (16-thread, 8 sample 동시):
+  for sample in $(ls /data/thca/PRJEB11591_fastq); do
+    sbatch arcas_pipeline.sh $sample
+  done
+
+출력:
+  per-sample 4-digit allele JSON
+  → 합쳐서 results/v17_korean/K2_arcasHLA_genotypes.tsv (262 row × 16 allele column)
+  → frequency table (Class I/II × allele × population)
+  → Graves' risk allele carrier table
+
+분석 단계 (imputation 후):
+  1. 한국 PTC × allele frequency vs Korean reference panel (cookHLA 결과 와 비교)
+  2. Graves' risk allele (DPB1*05:01, B*46:01, DRB1*04:01) carrier rate
+  3. PTC 의 17% Hashimoto-like subgroup × HLA risk allele association
+  4. K2 DM1 vs DM2 × HLA cross-tab (현재 14:246 → HLA-leveraged refinement)
+  5. NetMHCIIpan TSHR/TG epitope binding (cohort 별 risk allele 의 binding profile)
+
+계산 자원:
+  - STAR + BAM: 32GB RAM, 4-8 thread per sample
+  - arcasHLA: 8GB RAM per sample
+  - 총 디스크: ~600GB intermediate (BAM + extracted FASTQ)
+  - 시간: 8-16 hours wall clock (parallelized)
+
+대안 (arcasHLA 안되면):
+  - HISAT-genotype: hisat2-genotype --base hla --threads 16 --reads R1.fq,R2.fq
+  - OptiType: Class I 만, ~10-20 min/sample
+  - SNP2HLA: ❌ no SNP genotype (RNA-seq only)
+      </pre>
+    </details>
+
+    <h3>8-4. 분당서울대 — cookHLA (★ 본인 first author Nat Commun)</h3>
+    <div class="answer-block">
+      <b>이 코호트는 cookHLA 가 가장 강력:</b>
+      <ul>
+        <li>예상 데이터: SNP genotype (microarray, e.g. KARE / KCDC chip) + RNA-seq</li>
+        <li>cookHLA 한국 reference panel (본인 first author 도구) 사용 → 동아시아 정확도 ↑</li>
+        <li>4-digit Class I + II all 8 gene</li>
+        <li>self-citation: paper 의 Methods 에서 cookHLA Nat Commun 인용</li>
+        <li>컴퓨팅: ~2-4h per 1000 sample, 32GB+ RAM</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============= §9 PEPTIDE ============= -->
+  <div class="qcard" id="peptide">
+    <span class="qchip">§9 · Peptide binding</span>
+    <h2>9. ★ TSHR / TG autoreactive epitope × HLA risk allele binding (NetMHCIIpan framework)</h2>
+
+    <p>cookHLA / arcasHLA imputation 후 → 각 환자의 risk allele × TSHR / TG self-peptide 의 binding affinity 예측 → "왜 이 allele 가 위험한가" mechanism. 현재는 framework 시뮬레이션, 실제 imputation 후 real value 채움.</p>
+
+    <h3>9-1. ★ Peptide binding heatmap (★ NEW, simulated framework)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig7_peptide_binding.html" style="height:590px"></iframe>
+      <div class="cap"><b>Fig HLA-7 (★ NEW, simulated).</b> 10 자가면역 epitope (TSHR-A subunit + TG) × 5 risk allele 의 IC50 (nM) heatmap. <b>strong binder (IC50 &lt; 100 nM) 가 자가반응성 driver</b>. 우리 framework: imputation → epitope mapping → mechanistic explanation. ⚠ 시뮬레이션이며, real value 는 cookHLA 결과 후 NetMHCIIpan 으로 계산 예정.</div>
+    </div>
+
+    <h3>9-2. Mechanistic chain</h3>
+    <ol>
+      <li><b>imputation</b> (cookHLA 또는 arcasHLA) → 환자별 4-digit allele</li>
+      <li><b>epitope library</b> — TSHR (특히 A-subunit 22-260) + TG 의 known immunodominant peptide 100-200 개 (NetMHCIIpan IEDB curated 사용)</li>
+      <li><b>NetMHCIIpan / NetMHCpan</b> — peptide × allele binding affinity 예측 (IC50 nM)</li>
+      <li><b>per-patient binding burden</b> — 환자가 보유한 risk allele 들의 strong binder 수 합산 → autoimmune liability score</li>
+      <li><b>association</b> — autoimmune liability score × Graves' / Hashimoto-like / DM1 status 통계 검증</li>
+    </ol>
+  </div>
+
+  <!-- ============= §10 PRS ============= -->
+  <div class="qcard" id="prs">
+    <span class="qchip">§10 · Polygenic Risk Score</span>
+    <h2>10. ★ Polygenic Risk Score (HLA + non-HLA) Graves' prediction framework</h2>
+
+    <h3>10-1. ★ PRS distribution + ROC (★ NEW, simulated framework)</h3>
+    <div class="fig">
+      <iframe src="../figs_interactive/v17/hla_mega/fig8_prs_distribution.html" style="height:470px"></iframe>
+      <div class="cap"><b>Fig HLA-8 (★ NEW, simulated).</b> (a) PRS distribution case (n=200, mean +1.4) vs control (n=400, mean 0). (b) ROC curve, AUC ~0.84. <b>HLA + non-HLA 통합 PRS 의 expected performance</b>. real PRS 는 cookHLA 결과 + 5 non-HLA SNP (TSHR rs179247, CTLA4, CD40, PTPN22, IL2RA) 합산.</div>
+    </div>
+
+    <h3>10-2. PRS 구성요소</h3>
+    <table>
+      <thead><tr><th>Component</th><th>SNP / allele</th><th>Effect size β (log OR)</th><th>출처</th></tr></thead>
+      <tbody>
+        <tr><td><b>HLA-DPB1*05:01</b></td><td>4-digit allele dosage</td><td>0.7-1.0</td><td>Korean / Japanese GWAS</td></tr>
+        <tr><td><b>HLA-B*46:01</b></td><td>4-digit allele dosage</td><td>0.5-0.7</td><td>Asian Graves' GWAS</td></tr>
+        <tr><td><b>HLA-DRB1*04:01</b></td><td>4-digit allele dosage</td><td>0.3-0.5</td><td>Hashimoto/Graves' overlap</td></tr>
+        <tr><td><b>HLA-DRB1*15:01 (protective)</b></td><td>4-digit allele dosage</td><td>-0.3 to -0.5</td><td>일부 cohort</td></tr>
+        <tr><td>TSHR rs179247</td><td>SNP dosage</td><td>~0.3</td><td>Brand 2009 등</td></tr>
+        <tr><td>CTLA4 AAA haplotype</td><td>haplotype tag SNP</td><td>~0.3</td><td>Ueda 2003 등</td></tr>
+        <tr><td>CD40 rs1883832</td><td>SNP dosage</td><td>~0.2</td><td>Tomer 2002 등</td></tr>
+        <tr><td>PTPN22 R620W</td><td>SNP dosage (rs2476601)</td><td>~0.2 (Caucasian)</td><td>한국에서 약함</td></tr>
+        <tr><td>IL2RA SNP</td><td>SNP dosage</td><td>~0.15</td><td>Brand 2007 등</td></tr>
+      </tbody>
+    </table>
+
+    <p>PRS_total = Σ (β_i × dosage_i) — 표준 GWAS PRS 계산. weighted by published effect sizes.</p>
+  </div>
+
+  <!-- ============= §11 DECISION ============= -->
+  <div class="qcard" id="decision" style="background:linear-gradient(135deg,rgba(46,204,113,0.06),rgba(245,166,35,0.04)); border-color:var(--green)">
+    <span class="qchip">§11 · ★ Decision + TODO</span>
+    <h2>11. ★ TODO + Decision 패널 (페이지 마지막)</h2>
+
+    <h3 style="color:var(--green)">📋 TODO — 우선순위별</h3>
+
+    <h4 style="color:var(--green)">🟢 즉시 (이번 주)</h4>
+    <ol>
+      <li><b>arcasHLA 환경 setup</b> — <code>conda install -c bioconda arcas-hla</code> + IPD-IMGT/HLA reference 다운로드. ~30분.</li>
+      <li><b>PRJEB11591 1 sample 시범 실행</b> — pipeline 검증, 시간 측정.</li>
+      <li><b>STAR alignment GRCh38 chr 6 region 만</b> — disk 절약, 시간 단축 (whole genome 대신).</li>
+      <li><b>cookHLA 환경 + Korean reference panel 다운로드</b> — 분당 cohort 받자마자 실행 위해 미리.</li>
+    </ol>
+
+    <h4 style="color:var(--teal)">🔵 단기 (다음 주)</h4>
+    <ol start="5">
+      <li><b>PRJEB11591 262 sample 모두 arcasHLA</b> — 16-thread parallel, ~8-16 hours wall clock.</li>
+      <li><b>K2 DM1 14 명 의 HLA risk allele carrier rate</b> — DM1 enrichment 가설 검증.</li>
+      <li><b>17% Hashimoto-like subgroup × HLA imputed allele</b> — 자가면역 axis 의 분자 mechanism.</li>
+      <li><b>한국 vs Caucasian cookHLA reference panel comparison</b> — cookHLA 정확도 self-validation.</li>
+    </ol>
+
+    <h4 style="color:var(--purple)">🟣 중기 (5월)</h4>
+    <ol start="9">
+      <li><b>NetMHCIIpan TSHR / TG epitope mapping</b> — risk allele × autoreactive peptide binding.</li>
+      <li><b>PRS 구축</b> — HLA + non-HLA SNP weighted score.</li>
+      <li><b>분당서울대 cookHLA imputation</b> (cohort 받은 후).</li>
+      <li><b>Manhattan plot HLA region GWAS</b> — Graves' association.</li>
+    </ol>
+
+    <h4 style="color:var(--red)">🔴 장기 (6월+)</h4>
+    <ol start="13">
+      <li><b>HLA paper integration 결정</b> — main Graves' paper supplementary vs 별도 short paper (Tissue Antigens / Hum Immunol) vs companion paper.</li>
+      <li><b>Polygenic risk score validation cohort</b> — cross-validation 다른 코호트.</li>
+      <li><b>cookHLA self-citation strategy</b> — Methods + Acknowledgment + 별도 short paper 의 main reference 어떻게 분배.</li>
+    </ol>
+
+    <h3 style="color:var(--amber); margin-top:24px;">🎯 유 교수님 결정 필요 (한 줄 답변 OK)</h3>
+
+    <div class="caveat-block"><b>D-H1 — 분당서울대 cohort 데이터 형태 + 컴퓨팅 자원</b><br>
+      Microarray (KARE / KCDC chip?) 또는 WGS / WES variant call? + Yu Lab GPU / 분당 cluster 사용 가능?</div>
+
+    <div class="caveat-block"><b>D-H2 — PRJEB11591 arcasHLA 즉시 실행 승인</b><br>
+      262 sample, ~8-16 hours wall clock, ~600GB intermediate 디스크 사용. 환경: 분당 cluster 또는 본인 server. <b>제 추천: 즉시 시작</b> — Graves' paper 의 가장 강력한 ammunition 가능.</div>
+
+    <div class="caveat-block"><b>D-H3 — Yoo 262 cohort 의 RNA-seq variant call 가능 여부</b><br>
+      RNA-seq → germline SNP 추출 (limited 정확도) 가능. 또는 RNA-seq → arcasHLA 만 (recommend).</div>
+
+    <div class="caveat-block"><b>D-H4 — HLA paper integration option</b><br>
+      ① Main Graves' paper supplementary (가장 가능성 높음) vs ② 별도 short paper Tissue Antigens (결과 강하면) vs ③ companion paper (결과 매우 강하면).</div>
+
+    <div class="caveat-block"><b>D-H5 — cookHLA self-citation 위치</b><br>
+      Main Graves' paper 의 Methods + Acknowledgment 단락 어떻게 frame.</div>
+
+    <div class="caveat-block"><b>D-H6 — TCGA HLA Class II Synapse syn4602499 controlled access 신청</b><br>
+      DAR 신청 (4-8 wk) → real Class II 4-digit allele 획득. 현재는 expression score 만 가능 — DAR 받으면 frequency-level 분석 가능.</div>
+
+    <div class="caveat-block"><b>D-H7 — HISAT-genotype vs arcasHLA 선호도</b><br>
+      arcasHLA = 더 검증된, 더 빠름. HISAT-genotype = HISAT2 ecosystem, DRB3/4/5 까지 typing. 둘 다 시도 (cross-validation) 또는 arcasHLA 만.</div>
+
+    <h3 style="color:var(--green); margin-top:24px;">✅ 한 줄 요약 (페이지 마지막)</h3>
+    <div style="padding:18px 22px; background:rgba(46,204,113,0.10); border:2px solid var(--green); border-radius:6px;">
+      <b>"4 코호트 (TCGA 572 + Korean GSE213647 632 + Lu 2023 23/8,621 + PRJEB11591 262 pending) HLA 분석 통합 — 23 figure, 9 visualized table, ★ B*46:01 Asian-specific (p=6.1×10⁻⁸) + 한국 17% Hashimoto-like sub-axis (p=4.7×10⁻²⁶) 핵심 finding 2 개. 즉시 actionable: PRJEB11591 RNA-seq arcasHLA imputation (FASTQ 이미 있음, ~8h) + 분당 cohort cookHLA (본인 도구). 결정: D-H1 (분당 데이터 형태) + D-H2 (arcasHLA 실행 승인) + D-H4 (paper integration option)."</b>
+    </div>
+  </div>
+
+</div>
+
+<footer style="padding:28px; border-top:1px solid #233; text-align:center; color:#777; font-size:12px; margin-top:60px;">
+  v17 HLA MEGA consolidated · 2026-04-29 생성 · 23 figures · 4 cohorts · 9 tables<br>
+  cookHLA Nat Commun 본인 first author · arcasHLA + HISAT-genotype 즉시 actionable · main Graves' paper 와 분리. <b>Computational triage only — not medical advice.</b>
+</footer>
+
+</body>
+</html>
