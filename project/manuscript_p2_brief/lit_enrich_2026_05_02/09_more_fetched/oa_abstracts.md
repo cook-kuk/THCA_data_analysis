@@ -2,6 +2,10 @@
 
 _10/10 OA papers with abstract retrieved._
 
+_Note: Yoo2016 + Pu2021 PMC IDs corrected 2026-05-02 — original v1 Unpaywall fetch_
+_returned wrong PMCs (off-by-N collision: PMC4986964 was a Vedelek V testis paper,_
+_PMC8523608 was a Dev SA ayurvedic drugs paper). Corrections verified via DOI lookup._
+
 ## Haugen2016
 
 - Journal: Thyroid : official journal of the American Thyroid Association (2016)
@@ -43,14 +47,14 @@ _10/10 OA papers with abstract retrieved._
 
 ## Yoo2016
 
-- Journal: PloS one (2016)
-- Authors: Vedelek V et al. (n=5)
-- DOI: `10.1371/journal.pone.0161289`
-- PMCID: `PMC4986964` / PMID: `27529784`
+- Journal: PLoS genetics (2016)
+- Authors: Yoo SK et al. (n=15)
+- DOI: `10.1371/journal.pgen.1006239`
+- PMCID: `PMC4975456` / PMID: `27494611`
 
-**Title:** Testis-Specific Bb8 Is Essential in the Development of Spermatid Mitochondria.
+**Title:** Comprehensive Analysis of the Transcriptional and Mutational Landscape of Follicular and Papillary Thyroid Cancers.
 
-**Abstract:** Mitochondria are essential organelles of developing spermatids in Drosophila, which undergo dramatic changes in size and shape after meiotic division, where mitochondria localized in the cytoplasm, migrate near the nucleus, aggregate, fuse and create the Nebenkern. During spermatid elongation the two similar mitochondrial derivatives of the Nebenkern start to elongate parallel to the axoneme. One of the elongated mitochondrial derivatives starts to lose volume and becomes the minor mitochondrial derivative, while the other one accumulates paracrystalline and becomes the major mitochondrial derivative. Proteins and intracellular environment that are responsible for cyst elongation and paracrystalline formation in the major mitochondrial derivative need to be identified. In this work we investigate the function of the testis specific big bubble 8 (bb8) gene during spermatogenesis. We show that a Minos element insertion in bb8 gene, a predicted glutamate dehydrogenase, causes recessive male sterility. We demonstrate bb8 mRNA enrichment in spermatids and the mitochondrial localisation of Bb8 protein during spermatogenesis. We report that megamitochondria develop in the homozygous mutant testes, in elongating spermatids. Ultrastructural analysis of the cross section of elongated spermatids shows enlarged mitochondria and the production of paracrystalline in both major and minor mitochondrial derivatives. Our results suggest that the Bb8 protein and presumably glutamate metabolism has a crucial role in the normal development and establishment of the identity of the mitochondrial derivatives during spermatid elongation.
+**Abstract:** Follicular thyroid carcinoma (FTC) and benign follicular adenoma (FA) are indistinguishable by preoperative diagnosis due to their similar histological features. Here we report the first RNA sequencing study of these tumors, with data for 30 minimally invasive FTCs (miFTCs) and 25 FAs. We also compared 77 classical papillary thyroid carcinomas (cPTCs) and 48 follicular variant of PTCs (FVPTCs) to observe the differences in their molecular properties. Mutations in H/K/NRAS, DICER1, EIF1AX, IDH1, PTEN, SOS1, and SPOP were identified in miFTC or FA. We identified a low frequency of fusion genes in miFTC (only one, PAX8-PPARG), but a high frequency of that in PTC (17.60%). The frequencies of BRAFV600E and H/K/NRAS mutations were substantially different in miFTC and cPTC, and those of FVPTC were intermediate between miFTC and cPTC. Gene expression analysis demonstrated three molecular subtypes regardless of their histological features, including Non-BRAF-Non-RAS (NBNR), as well as BRAF-like and RAS-like. The novel molecular subtype, NBNR, was associated with DICER1, EIF1AX, IDH1, PTEN, SOS1, SPOP, and PAX8-PPARG. The transcriptome of miFTC or encapsulated FVPTC was indistinguishable from that of FA, providing a molecular explanation for the similarly indolent behavior of these tumors. We identified upregulation of genes that are related to mitochondrial biogenesis including ESRRA and PPARGC1A in oncocytic follicular thyroid neoplasm. Arm-level copy number variations were correlated to histological and molecular characteristics. These results expanded the current molecular understanding of thyroid cancer and may lead to new diagnostic and therapeutic approaches to the disease.
 
 ---
 
@@ -69,14 +73,14 @@ _10/10 OA papers with abstract retrieved._
 
 ## Pu2021
 
-- Journal: 3 Biotech (2021)
-- Authors: Dev SA et al. (n=5)
-- DOI: `10.1007/s13205-021-03001-5`
-- PMCID: `PMC8523608` / PMID: `34745814`
+- Journal: Nature communications (2021)
+- Authors: Pu W et al. (n=21)
+- DOI: `10.1038/s41467-021-26343-3`
+- PMCID: `PMC8523550` / PMID: `34663816`
 
-**Title:** Quantification of adulteration in traded ayurvedic raw drugs employing machine learning approaches with DNA barcode database.
+**Title:** Single-cell transcriptomic analysis of the tumor ecosystems underlying initiation and progression of papillary thyroid carcinoma.
 
-**Abstract:** Adulteration of expensive raw drugs with inferior taxa has become a routine practice, conceding the quality and safety of derived herbal products. In this regard, the study addresses the development of an integrated approach encompassing DNA barcode and HPTLC fingerprinting to authenticate chiefly traded ayurvedic raw drugs in south India [viz. <i>Saraca asoca</i> (Roxb.) Willd., <i>Terminalia arjuna</i> (Roxb. ex DC.) Wight and Arn., <i>Sida alnifolia</i> L. and <i>Desmodium gangeticum</i> (L.) DC.] from its adulterants. Consortium of Barcode of Life (CBOL) recommended DNA barcode gene regions viz. nuclear ribosomal-Internal Transcribed Spacer (nrDNA-ITS), maturase K (<i>mat</i>K), ribulose-1,5-bisphosphate carboxylase/oxygenase large subunit (<i>rbc</i>L) and <i>psb</i>A-<i>trn</i>H spacer regions along with HPTLC profiling were experimented and a reference database was created. Further, an integrated analytical approach employing genetic distance-based Maximum Likelihood phylogenetic tree and Artificial Intelligence (AI)based Machine Learning Algorithms (MLA)-Waikato Environment for Knowledge Analysis (WEKA) and Barcoding with Logic (BLOG) were employed to prove efficacy of DNA barcode tool. Even though, among the four barcodes, <i>psb</i>A-<i>trn</i>H (<i>S. alnifolia</i> and its adulterants, <i>T. arjuna</i> and its adulterants) or ITS region (<i>S. asoca</i> and its adulterants, <i>D. gangeticum</i> and its adulterants) showed highest inter specific divergences in the selected Biological Reference Materials (BRMs), <i>rbc</i>L or <i>mat</i>K barcode regions alone were successful for authentication of traded samples. The automated species identification techniques, WEKA and BLOG, experimented for the first time in India for raw drug validation, could achieve rapid and precise identification. A national certification agency for raw drug authentication employing an integrated approach involving a DNA barcoding tool along with standard organoleptic and analytical methods can strengthen and ensure safety and quality of herbal medicines in India.<h4>Supplementary information</h4>The online version contains supplementary material available at 10.1007/s13205-021-03001-5.
+**Abstract:** The tumor ecosystem of papillary thyroid carcinoma (PTC) is poorly characterized. Using single-cell RNA sequencing, we profile transcriptomes of 158,577 cells from 11 patients' paratumors, localized/advanced tumors, initially-treated/recurrent lymph nodes and radioactive iodine (RAI)-refractory distant metastases, covering comprehensive clinical courses of PTC. Our data identifies a "cancer-primed" premalignant thyrocyte population with normal morphology but altered transcriptomes. Along the developmental trajectory, we also discover three phenotypes of malignant thyrocytes (follicular-like, partial-epithelial-mesenchymal-transition-like, dedifferentiation-like), whose composition shapes bulk molecular subtypes, tumor characteristics and RAI responses. Furthermore, we uncover a distinct BRAF-like-B subtype with predominant dedifferentiation-like thyrocytes, enriched cancer-associated fibroblasts, worse prognosis and promising prospect of immunotherapy. Moreover, potential vascular-immune crosstalk in PTC provides theoretical basis for combined anti-angiogenic and immunotherapy. Together, our findings provide insight into the PTC ecosystem that suggests potential prognostic and therapeutic implications.
 
 ---
 
