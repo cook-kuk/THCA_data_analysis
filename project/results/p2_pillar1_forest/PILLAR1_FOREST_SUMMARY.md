@@ -1,11 +1,13 @@
 # Paper 2 Pillar 1 Forest Meta — Status: PARTIAL → STRONG
 
-**Date:** 2026-05-03
+> ⚠️ **DEPRECATED 2026-05-04** — Advisor scope (Yu, 2026-05-04): Paper 2 = Hashimoto-overlap PTC only (HT destructive infiltration → dedifferentiation). The "autoimmune-thyroid continuum" framing and Chu 2018 GD comparison conflate Paper 2 (HT) with Paper 3 (GD). Pillar I is being reformulated in Task A as **Korean PTC vs Korean baseline (HT context)**; Chu 2018 GD reduced to a one-line Discussion mention. See `project/results/p2_pillar1_forest_v2/` for the v2 forest. This v1 summary is preserved for record only.
+
+**Date:** 2026-05-03 (v1) · audit 2026-05-04
 **Source:** Chu X et al. 2018 J Med Genet 55:685–692, doi:10.1136/jmedgenet-2017-105146 (PMC 6161647)
 
-## ★ One-line conclusion
+## ★ One-line conclusion (v1, deprecated)
 
-**Pan-Asian autoimmune-thyroid susceptibility allele continuum.** Korean PTC pool (n=874) sits between Han Chinese ctrl and GD for principal risk alleles (DPB1*05:01 53% vs ctrl 31% vs GD 44%, p_kr_vs_ctrl=0; B*46:01 10% vs 7% vs 14%, p_kr_vs_ctrl=0.00109).
+**Pan-Asian thyroid HLA susceptibility (HT context).** Korean PTC pool (n=874) sits above Han Chinese ctrl baseline for principal risk alleles (DPB1*05:01 53% vs ctrl 31%, p_kr_vs_ctrl=0; B*46:01 10% vs ctrl 7%, p_kr_vs_ctrl=0.00109). [v1 also compared to Chu 2018 GD 44%/14% — that arm now lives in Paper 3 reserve.]
 
 ## Per-allele 3-arm forest
 

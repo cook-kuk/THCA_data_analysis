@@ -1,5 +1,13 @@
 #!/usr/bin/env python3
-"""Paper 2 Pillar 1 — Pan-Asian HLA Forest Meta-Analysis.
+"""Paper 2 Pillar 1 — Pan-Asian HLA Forest Meta-Analysis (v1, DEPRECATED 2026-05-04).
+
+⚠️ DEPRECATED — Advisor scope (Yu, 2026-05-04): Paper 2 = Hashimoto-overlap PTC only.
+The "Pan-Asian autoimmune-thyroid continuum" framing in v1 conflates HT (Paper 2)
+with Graves' disease (Paper 3). Pillar I is being reformulated as
+    Korean PTC vs Korean baseline (HT context)
+in `project/notebooks_or_scripts/v17_paper2_pillar1_forest_v2.py`.
+This v1 script is preserved for reproducibility of v1 outputs only — do NOT re-run
+for Paper 2 manuscript figures; use the v2 script.
 
 5-phase: (1) Chu 2018 Han Chinese GD parse (2) Korean cohort recompute
 (3) random-effects DerSimonian-Laird meta (4) sensitivity (5) figures + reports.
@@ -337,7 +345,7 @@ ax.bar(x + width, focus_for_fig["chen_GD_freq"] * 100, width, label="Chen GD (n=
 ax.set_xticks(x)
 ax.set_xticklabels(focus_for_fig["allele"], rotation=20, ha="right")
 ax.set_ylabel("Carrier frequency (%)")
-ax.set_title("Pan-Asian autoimmune-thyroid HLA allele continuum\n(Chu et al. 2018 Han Chinese GD vs Korean PTC pool)", fontsize=12)
+ax.set_title("Pan-Asian thyroid HLA susceptibility (HT context)\n(Chu et al. 2018 Han Chinese vs Korean PTC pool — GD arm in Paper 3 reserve)", fontsize=12)
 ax.legend(loc="upper right")
 ax.grid(axis="y", alpha=0.3)
 plt.tight_layout()
@@ -434,7 +442,7 @@ the meta-analysis under four scenarios: full pool (n=874), excluding GSE286332-P
 # Discussion paragraph
 discussion_text = f"""## Discussion (Pillar 1 — paste-ready, Cell Press style)
 
-The Korean PTC HLA cohort positions Pan-Asian autoimmune-thyroid risk alleles
+The Korean PTC HLA cohort positions Pan-Asian thyroid HLA susceptibility (HT context) risk alleles
 along a continuum that extends classical Graves' disease genetics into thyroid
 neoplasia. The principal Asian Graves' risk allele DPB1*05:01 (Chu 2018 OR=1.90,
 p=1.7×10⁻²⁶ in Han Chinese GD vs control) shows a Korean PTC pool carrier
@@ -443,7 +451,7 @@ frequency of 53.2% — intermediate above the Han Chinese control frequency of
 risk allele HLA-B*46:01 (Chu OR=2.38) follows the same direction (Korean PTC
 10.3% vs Chu ctrl 6.5% vs GD 14.1%). Both alleles' direction-of-effect remained
 robust under sensitivity analysis (Korean PTC pool with and without GSE286332,
-Lee 2024 alone, K2 alone). These findings support a Pan-Asian autoimmune-thyroid
+Lee 2024 alone, K2 alone). These findings support a Pan-Asian thyroid HLA susceptibility (HT context)
 susceptibility allele continuum hypothesis: PTC ≈ control + autoimmune background;
 PTC+HT ≈ Graves'-adjacent. This extends our prior cookHLA Nat Commun work in
 rheumatoid arthritis, type 1 diabetes, and Crohn's disease to thyroid disease,
@@ -470,7 +478,7 @@ summary_md = f"""# Paper 2 Pillar 1 Forest Meta — Status: PARTIAL → {decisio
 
 ## ★ One-line conclusion
 
-**Pan-Asian autoimmune-thyroid susceptibility allele continuum.** Korean PTC pool (n=874) sits between Han Chinese ctrl and GD for principal risk alleles (DPB1*05:01 53% vs ctrl 31% vs GD 44%, p_kr_vs_ctrl={korean_dpb['p_kr_vs_ctrl']:.3g}; B*46:01 10% vs 7% vs 14%, p_kr_vs_ctrl={korean_b46['p_kr_vs_ctrl']:.3g}).
+**Pan-Asian thyroid HLA susceptibility (HT context) susceptibility allele continuum.** Korean PTC pool (n=874) sits between Han Chinese ctrl and GD for principal risk alleles (DPB1*05:01 53% vs ctrl 31% vs GD 44%, p_kr_vs_ctrl={korean_dpb['p_kr_vs_ctrl']:.3g}; B*46:01 10% vs 7% vs 14%, p_kr_vs_ctrl={korean_b46['p_kr_vs_ctrl']:.3g}).
 
 ## Per-allele 3-arm forest
 
