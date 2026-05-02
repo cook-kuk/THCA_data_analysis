@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper 1 — Cross-contamination Audit | Advisor Briefing</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --ink:#0F1A2E;
+  --ink-soft:#3A4658;
+  --paper:#F4EFE6;
+  --paper-soft:#EBE5D8;
+  --accent:#7B1F2A;
+  --accent-soft:#A04451;
+  --gold:#B8893C;
+  --sage:#5C7B6E;
+  --rule:#C9C2B0;
+  --rule-soft:#D9D2BF;
+  --green:#3C6B4F;
+  --amber:#A57215;
+  --red:#962E2E;
+  --red-deep:#6E1F1F;
+  --highlight:#FFF8E8;
+  --paper-defining-bg:#FAEEED;
+  --forbidden-bg:#FBE5E5;
+  --forbidden-fg:#6E1F1F;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'Newsreader', Georgia, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', '맑은 고딕', sans-serif, serif;
+  background:var(--paper);
+  color:var(--ink);
+  line-height:1.65;
+  font-size:16px;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"kern" 1, "liga" 1;
+}
+
+.container{max-width:1100px; margin:0 auto; padding:48px 56px;}
+
+.display, h1.title, h2.section-title, .pillar-roman, .gap-num{
+  font-family:'Cormorant Garamond', Georgia, serif;
+  font-weight:500;
+  letter-spacing:-0.01em;
+}
+
+h1.title{font-size:54px; line-height:1.05; color:var(--accent); font-weight:600; margin-bottom:12px;}
+h1.subtitle{font-family:'Cormorant Garamond', serif; font-size:26px; font-style:italic; font-weight:400; color:var(--ink-soft); margin-bottom:24px; line-height:1.3;}
+
+.byline{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); margin-top:28px; padding-top:20px; border-top:1px solid var(--rule);}
+.byline span{margin-right:24px;}
+
+.hero{padding:48px 0 64px; border-bottom:2px solid var(--ink); margin-bottom:48px;}
+.hero-kicker{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:24px; font-weight:500;}
+.hero-tagline{font-style:italic; font-size:18px; color:var(--ink-soft); max-width:800px; margin-top:20px; border-left:3px solid var(--gold); padding-left:20px;}
+
+.toc{background:var(--paper-soft); padding:28px 32px; margin-bottom:56px; border:1px solid var(--rule);}
+.toc-title{font-family:'Cormorant Garamond', serif; font-size:22px; font-style:italic; color:var(--accent); margin-bottom:16px; letter-spacing:0.02em;}
+.toc-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px 32px; font-size:14px;}
+.toc-grid a{color:var(--ink); text-decoration:none; padding:6px 0; border-bottom:1px dotted var(--rule); display:flex; justify-content:space-between; font-family:'Newsreader', serif;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .num{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--gold); margin-right:12px; letter-spacing:0.05em;}
+.toc-chapter{grid-column:1/-1; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); padding:12px 0 4px; border-bottom:1px solid var(--rule); margin-top:8px; font-weight:600;}
+.toc-chapter:first-child{margin-top:0;}
+
+section{margin-bottom:56px; scroll-margin-top:24px;}
+.section-num{font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.12em; color:var(--gold); text-transform:uppercase; font-weight:500;}
+h2.section-title{font-size:38px; line-height:1.1; color:var(--ink); margin:6px 0 8px; padding-bottom:14px; border-bottom:2px solid var(--ink);}
+.section-kicker{font-style:italic; color:var(--ink-soft); font-size:16px; margin-bottom:32px;}
+
+h3.sub-title{font-family:'Cormorant Garamond', serif; font-size:24px; font-weight:500; margin:32px 0 12px; color:var(--accent);}
+h4.sub-sub{font-family:'Cormorant Garamond', serif; font-size:19px; font-weight:600; font-style:italic; margin:22px 0 10px; color:var(--ink);}
+
+p{margin-bottom:14px;}
+strong{color:var(--accent); font-weight:600;}
+em{color:var(--ink-soft);}
+
+/* Chapter divider */
+.chapter-divider{
+  margin:64px 0 40px;
+  padding:24px 0;
+  border-top:1px solid var(--ink);
+  border-bottom:1px solid var(--ink);
+  text-align:center;
+}
+.chapter-divider .ch-num{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.22em; color:var(--gold); font-weight:600;}
+.chapter-divider .ch-title{font-family:'Cormorant Garamond', serif; font-size:30px; font-style:italic; color:var(--accent); margin-top:6px; font-weight:500;}
+
+/* Stats */
+.stat-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin:24px 0;}
+.stat{background:#fff; padding:22px 18px; border-top:3px solid var(--accent); border-left:1px solid var(--rule); border-right:1px solid var(--rule); border-bottom:1px solid var(--rule);}
+.stat-value{font-family:'Cormorant Garamond', serif; font-size:36px; font-weight:600; color:var(--accent); line-height:1.05; font-feature-settings:"tnum" 1;}
+.stat-label{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); margin-top:6px;}
+.stat-note{font-size:12px; font-style:italic; color:var(--ink-soft); margin-top:6px;}
+.stat.green{border-top-color:var(--green);} .stat.green .stat-value{color:var(--green);}
+.stat.amber{border-top-color:var(--amber);} .stat.amber .stat-value{color:var(--amber);}
+.stat.red{border-top-color:var(--red);} .stat.red .stat-value{color:var(--red);}
+
+/* Callouts */
+.callout{padding:18px 22px; margin:18px 0; border-left:4px solid var(--ink); background:#fff; font-size:15px;}
+.callout.green{border-color:var(--green); background:#F1F5EE;}
+.callout.amber{border-color:var(--amber); background:#FCF6E5;}
+.callout.red{border-color:var(--red); background:#FAEEED;}
+.callout-label{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; margin-bottom:6px;}
+.callout.green .callout-label{color:var(--green);}
+.callout.amber .callout-label{color:var(--amber);}
+.callout.red .callout-label{color:var(--red);}
+
+/* Glossary */
+.glossary{display:grid; grid-template-columns:repeat(2, 1fr); gap:14px 22px; background:#fff; border:1px solid var(--rule); padding:24px 28px; margin:18px 0;}
+.glossary .term{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.06em; color:var(--accent); font-weight:600; text-transform:uppercase;}
+.glossary .term-row{padding:8px 0; border-bottom:1px dotted var(--rule);}
+.glossary .term-row:last-child, .glossary .term-row:nth-last-child(2){border-bottom:none;}
+.glossary .def{font-size:13px; line-height:1.55; color:var(--ink); margin-top:4px;}
+
+/* Forbidden quote — visual marker for cited violations */
+.forbidden-quote{
+  background:var(--forbidden-bg);
+  color:var(--forbidden-fg);
+  padding:1px 6px;
+  border-radius:2px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:0.92em;
+  font-weight:500;
+  border-bottom:1px dashed var(--red);
+  font-style:normal;
+}
+.forbidden-quote::before{content:"⚠ "; font-size:0.85em; color:var(--red);}
+
+/* Severity badge */
+.badge{display:inline-block; padding:3px 10px; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; border-radius:2px; margin-right:8px;}
+.badge.pass{background:var(--green); color:#fff;}
+.badge.soft{background:var(--amber); color:#fff;}
+.badge.hard{background:var(--red); color:#fff;}
+.badge.meta{background:var(--sage); color:#fff;}
+.badge.med{background:var(--gold); color:#fff;}
+
+/* Violation card */
+.viol-card{display:grid; grid-template-columns:88px 1fr; gap:22px; background:#fff; border:1px solid var(--rule); border-left:4px solid var(--accent); padding:22px 26px; margin-bottom:16px;}
+.viol-card.hard{border-left-color:var(--red);}
+.viol-card.soft{border-left-color:var(--amber);}
+.viol-card.pass{border-left-color:var(--green);}
+.viol-num{font-family:'Cormorant Garamond', serif; font-size:48px; font-style:italic; color:var(--gold); line-height:0.9; font-weight:500;}
+.viol-card.hard .viol-num{color:var(--red);}
+.viol-card.soft .viol-num{color:var(--amber);}
+.viol-card.pass .viol-num{color:var(--green);}
+.viol-title{font-family:'Cormorant Garamond', serif; font-size:21px; font-weight:600; color:var(--ink); margin-bottom:6px;}
+.viol-meta{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px;}
+.viol-meta .file-line{color:var(--accent); font-weight:600;}
+.viol-body{font-size:14px; line-height:1.6;}
+.viol-body h5{font-family:'Cormorant Garamond', serif; font-size:14px; font-weight:600; font-style:italic; color:var(--accent); margin:12px 0 4px; letter-spacing:0;}
+.viol-body .quote-block{background:var(--paper-soft); border-left:3px solid var(--rule); padding:10px 14px; margin:6px 0; font-size:13px; line-height:1.55; font-family:'Newsreader', serif;}
+
+/* Tables */
+table{width:100%; border-collapse:collapse; margin:18px 0; background:#fff; font-size:13px; font-variant-numeric:tabular-nums;}
+table caption{caption-side:top; text-align:left; font-family:'Cormorant Garamond', serif; font-size:16px; font-style:italic; font-weight:500; color:var(--accent); margin-bottom:6px;}
+th{background:var(--ink); color:#fff; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; text-align:left; padding:10px 12px; font-weight:500;}
+td{padding:9px 12px; border-bottom:1px solid var(--rule-soft); vertical-align:top;}
+tr.highlight td{background:var(--highlight);}
+td.num{text-align:right; font-family:'JetBrains Mono', monospace; font-size:12px;}
+td.center{text-align:center;}
+.cell-pass{color:var(--green); font-weight:600;}
+.cell-soft{color:var(--amber); font-weight:600;}
+.cell-hard{color:var(--red); font-weight:600;}
+
+/* Action items */
+.action-grid{display:grid; gap:12px; margin:24px 0;}
+.action{background:#fff; border:1px solid var(--rule); border-left:4px solid var(--accent); padding:18px 22px; display:grid; grid-template-columns:60px 1fr 120px; gap:18px; align-items:start;}
+.action.hard{border-left-color:var(--red);}
+.action.med{border-left-color:var(--gold);}
+.action.soft{border-left-color:var(--amber);}
+.action-id{font-family:'Cormorant Garamond', serif; font-size:34px; font-weight:600; color:var(--accent); line-height:1; font-style:italic;}
+.action.hard .action-id{color:var(--red);}
+.action.med .action-id{color:var(--gold);}
+.action.soft .action-id{color:var(--amber);}
+.action-body{font-size:14px; line-height:1.55;}
+.action-body .loc{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--accent); font-weight:600; margin-bottom:4px; display:block;}
+.action-meta{text-align:right; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.06em; color:var(--ink-soft);}
+.action-meta .badge{margin-bottom:6px; margin-right:0;}
+.action-meta .time{display:block; margin-top:4px; color:var(--ink-soft);}
+
+/* Decision card (option a vs b) */
+.decision-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:22px 0;}
+.decision{background:#fff; border:1px solid var(--rule); padding:22px 24px; position:relative;}
+.decision.A{border-top:4px solid var(--accent);}
+.decision.B{border-top:4px solid var(--green);}
+.decision-badge{display:inline-block; padding:3px 10px; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.14em; font-weight:600; color:#fff; margin-bottom:12px;}
+.decision.A .decision-badge{background:var(--accent);}
+.decision.B .decision-badge{background:var(--green);}
+.decision-name{font-family:'Cormorant Garamond', serif; font-size:22px; font-weight:600; color:var(--ink); margin-bottom:8px; line-height:1.2;}
+.decision-row{display:grid; grid-template-columns:80px 1fr; gap:8px; font-size:13px; padding:6px 0; border-bottom:1px dotted var(--rule);}
+.decision-row:last-child{border:none;}
+.decision-row .label{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft); font-weight:500; padding-top:2px;}
+.decision-rec{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.12em; color:var(--green); font-weight:700; margin-top:10px;}
+
+/* Workflow timeline */
+.timeline{position:relative; margin:28px 0; padding-left:30px;}
+.timeline:before{content:''; position:absolute; left:8px; top:8px; bottom:8px; width:2px; background:var(--rule);}
+.tl-row{position:relative; margin-bottom:18px; padding:10px 0;}
+.tl-row:before{content:''; position:absolute; left:-26px; top:14px; width:14px; height:14px; border-radius:50%; background:#fff; border:2px solid var(--accent);}
+.tl-row.done:before{background:var(--green); border-color:var(--green);}
+.tl-row.next:before{background:var(--gold); border-color:var(--gold);}
+.tl-date{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.06em; color:var(--accent); font-weight:600; margin-right:12px;}
+.tl-title{font-family:'Cormorant Garamond', serif; font-size:18px; font-style:italic; font-weight:500; color:var(--ink); display:inline;}
+.tl-body{font-size:13px; line-height:1.55; color:var(--ink-soft); margin-top:4px;}
+
+/* Footer */
+footer{margin-top:80px; padding:36px 0 18px; border-top:2px solid var(--ink); font-size:12px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace; letter-spacing:0.04em;}
+.colophon-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:30px; margin-bottom:20px;}
+.colophon-grid h6{font-family:'Cormorant Garamond', serif; font-size:14px; font-style:italic; color:var(--accent); margin-bottom:8px; font-weight:500; letter-spacing:0; text-transform:none;}
+.colophon-grid div{font-size:11px; line-height:1.6;}
+
+code, .mono{font-family:'JetBrains Mono', monospace; font-size:12px; background:var(--paper-soft); padding:1px 6px; border-radius:2px; color:var(--ink);}
+
+@media (max-width:768px){
+  .container{padding:24px 20px;}
+  h1.title{font-size:34px;}
+  h2.section-title{font-size:28px;}
+  .toc-grid, .stat-grid, .glossary, .decision-grid{grid-template-columns:1fr;}
+  .viol-card{grid-template-columns:60px 1fr; gap:14px;}
+  .viol-num{font-size:36px;}
+  .action{grid-template-columns:1fr; gap:8px;}
+  .action-meta{text-align:left;}
+  .colophon-grid{grid-template-columns:1fr;}
+}
+
+@media print{
+  body{background:#fff; font-size:10.5pt; color:#000;}
+  .container{max-width:none; padding:18pt 26pt;}
+  h1.title{font-size:24pt; color:#000;}
+  h2.section-title{font-size:16pt; break-after:avoid;}
+  h3.sub-title, h4.sub-sub{break-after:avoid; page-break-after:avoid;}
+  .toc, .glossary, .stat, .callout, .viol-card, .action, .decision, .tl-row{break-inside:avoid; page-break-inside:avoid;}
+  table{page-break-inside:auto;}
+  table tr{page-break-inside:avoid; page-break-after:auto;}
+  table thead{display:table-header-group;}
+  section{break-inside:auto; margin-bottom:18pt;}
+  .hero{padding:18pt 0; break-after:page; page-break-after:always;}
+  .stat-grid{grid-template-columns:repeat(4, 1fr); gap:6pt;}
+  .toc-grid{font-size:10pt; gap:3pt 18pt;}
+  a{color:#000; text-decoration:none;}
+  .badge, .decision-badge{print-color-adjust:exact; -webkit-print-color-adjust:exact;}
+  th{background:#222 !important; color:#fff !important; print-color-adjust:exact; -webkit-print-color-adjust:exact;}
+  .forbidden-quote{print-color-adjust:exact; -webkit-print-color-adjust:exact;}
+  .chapter-divider{break-before:page; page-break-before:always;}
+  .stat-value{color:#000;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ============== HERO ============== -->
+<header class="hero">
+  <div class="hero-kicker">Paper 1 · Cancer dark matter · Cross-contamination scope verification</div>
+  <h1 class="title">Paper 1 — Cross-contamination Audit</h1>
+  <h1 class="subtitle">Cancer dark matter scope verification — 38-page audit 의 advisor briefing 버전</h1>
+  <p class="hero-tagline">BRAF/RAS-negative PTC dark matter (~23%) — fusion-driven, epigenetically silenced cancer mechanism 만 다루는 Paper 1. 본 audit 은 <strong>3 source file (Title candidates · Abstract · Outline)</strong> 에 Paper 2/3 territory term 이 누출되었는지 grep 한 결과로, Title Cand 1 ★ + Abstract body 는 PASS 이나 <strong>Outline §2.4b · §2.5 · §3.3 · §3.4(iii)</strong> 에 prose-propagation risk 가 있는 HARD violation 4건 발견. 본 brief 는 advisor 미팅 이전 한 페이지 검토용 single-file scholarly webpage.</p>
+  <div class="byline">
+    <span>저자 · Seungho Cook</span>
+    <span>지도교수 · Yu Professor</span>
+    <span>Source · cross_contamination_check_paper1.md (214 lines)</span>
+    <span>Date · 2026-05-04</span>
+  </div>
+</header>
+
+<!-- ============== TOC ============== -->
+<nav class="toc">
+  <div class="toc-title">목차 — Table of contents</div>
+  <div class="toc-grid">
+    <div class="toc-chapter">§ 0 · Preliminaries</div>
+    <a href="#s0"><span><span class="num">§ 0</span>Glossary — 8 abbreviations</span><span>↘</span></a>
+    <div class="toc-chapter">Chapter 1 · Audit Overview</div>
+    <a href="#s1"><span><span class="num">§ 1</span>Hook — 왜 audit 가 필요했는가</span><span>↘</span></a>
+    <a href="#s2"><span><span class="num">§ 2</span>Scope + Method</span><span>↘</span></a>
+    <div class="toc-chapter">Chapter 2 · Audit Results</div>
+    <a href="#s3"><span><span class="num">§ 3</span>Executive summary table ★</span><span>↘</span></a>
+    <a href="#s4"><span><span class="num">§ 4</span>Title check (3 candidates)</span><span>↘</span></a>
+    <a href="#s5"><span><span class="num">§ 5</span>Abstract check</span><span>↘</span></a>
+    <a href="#s6"><span><span class="num">§ 6</span>Outline check ★ HARD</span><span>↘</span></a>
+    <a href="#s7"><span><span class="num">§ 7</span>Discussion check (3.1, 3.2)</span><span>↘</span></a>
+    <div class="toc-chapter">Chapter 3 · Pillar 5 Boundary</div>
+    <a href="#s8"><span><span class="num">§ 8</span>Pillar 5 boundary clarity</span><span>↘</span></a>
+    <div class="toc-chapter">Chapter 4 · Action Items</div>
+    <a href="#s9"><span><span class="num">§ 9</span>A1–A7 advisor approval gate ★</span><span>↘</span></a>
+    <a href="#s10"><span><span class="num">§ 10</span>GSE286332 cohort decision</span><span>↘</span></a>
+    <div class="toc-chapter">Chapter 5 · Next Steps</div>
+    <a href="#s11"><span><span class="num">§ 11</span>Post-approval workflow</span><span>↘</span></a>
+  </div>
+</nav>
+
+<!-- ============== § 0 GLOSSARY ============== -->
+<section id="s0">
+  <div class="section-num">§ 0 · Preliminaries</div>
+  <h2 class="section-title">Glossary</h2>
+  <div class="section-kicker">advisor 친화 약어 사전 — 본 brief 에서 사용되는 8개 핵심 용어의 정의.</div>
+
+  <div class="glossary">
+    <div class="term-row">
+      <div class="term">HARD violation</div>
+      <div class="def">Source file 의 production content cell (Results · Discussion 행) 에 등장한 forbidden term — drafting 시 prose 로 흘러갈 위험 있음. <strong>advisor 승인 후 mechanical edit 필수.</strong></div>
+    </div>
+    <div class="term-row">
+      <div class="term">SOFT / META violation</div>
+      <div class="def">Working-doc 분석 cell (commentary · review-focus note · risk-flag table) 에 등장한 term — 최종 manuscript 에 들어가지 않으나 archive sanitize 권장. 본인 voice 영향 없음.</div>
+    </div>
+    <div class="term-row">
+      <div class="term">Forbidden term list</div>
+      <div class="def">Paper 2/3 territory 15개 단어 (advisor 2026-05-04 지시): Paper 2 = <span class="forbidden-quote">Hashimoto</span> · <span class="forbidden-quote">HT</span> · <span class="forbidden-quote">thyroiditis</span> · <span class="forbidden-quote">lymphocytic infiltration</span> · <span class="forbidden-quote">autoimmune-overlap</span> · <span class="forbidden-quote">autoimmune-PTC</span> · <span class="forbidden-quote">PTC+HT</span> · <span class="forbidden-quote">DPB1*05:01</span>; Paper 3 = <span class="forbidden-quote">Graves</span> · <span class="forbidden-quote">GD</span> · <span class="forbidden-quote">TSAb</span> · <span class="forbidden-quote">hyperthyroid</span> · <span class="forbidden-quote">PTC ≠ GD</span>; cross-paper = <span class="forbidden-quote">Hashimoto-overlap</span> · <span class="forbidden-quote">Pan-Asian autoimmune-thyroid</span>.</div>
+    </div>
+    <div class="term-row">
+      <div class="term">Allowed exception</div>
+      <div class="def">Cancer immune-microenvironment 의 일반 관찰은 OK — 예: BRAF V600E HIGHER HLA-I (Bradley 2010 contradict, Discussion 3.1 의 counter-intuitive finding). 단 autoimmune framing 은 제외. <strong>"Immune-overlap subtype"</strong> 은 Paper 2 hook phrase 로 §2.4b take-home 에서만 허용.</div>
+    </div>
+    <div class="term-row">
+      <div class="term">A1 – A7 action items</div>
+      <div class="def">Audit 결과의 advisor 승인 게이트 7개. A1–A4 HARD (production cell), A5 MED (cohort 결정), A6–A7 SOFT (meta-doc sanitize). § 9 표 참조.</div>
+    </div>
+    <div class="term-row">
+      <div class="term">Pillar 5 boundary</div>
+      <div class="def">Paper 1 hook = 5개 pillar 중 마지막. Paper 2 backbone 으로 reserve. Paper 1 §2.4b 는 "older + immune-hot DM1 sub-B is mechanistically distinct" 까지만 진술하고 "warranting separate inquiry" → Paper 2 hook.</div>
+    </div>
+    <div class="term-row">
+      <div class="term">TIERA67 · DM1 · DM2</div>
+      <div class="def">TIERA67 = 67-gene candidate pool (driver gene 미포함, biology-curated); DM1 / DM2 = TIERA67 expression 으로 leiden K=2 unsupervised cluster — DM1 = MAPK/de-differentiation, DM2 = thyroid-lineage-preserved.</div>
+    </div>
+    <div class="term-row">
+      <div class="term">8-gene RAI panel</div>
+      <div class="def">SLC5A5 (NIS) · TPO · TG · TSHR · PAX8 · NKX2-1 · FOXE1 · DIO1 — Yoo 2016 PLOS Genet RAI biology 의 8 thyroid-differentiation core gene.</div>
+    </div>
+    <div class="term-row">
+      <div class="term">BRAF/RAS-negative dark matter</div>
+      <div class="def">~23% of PTC — BRAF V600E 음성, RAS hotspot 음성. Xing 2014 NEJM 의 "dark matter" 명명. Paper 1 의 sub-stratification target. 76.8% 가 fusion-positive (RET / NTRK / ALK / BRAF) + epigenetic silencing 동반 (TPO Cohen's d = 2.30).</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CHAPTER 1 ============== -->
+<div class="chapter-divider">
+  <div class="ch-num">Chapter 1</div>
+  <div class="ch-title">Audit Overview</div>
+</div>
+
+<!-- ============== § 1 HOOK ============== -->
+<section id="s1">
+  <div class="section-num">§ 1</div>
+  <h2 class="section-title">Hook — 왜 audit 가 필요했는가</h2>
+  <div class="section-kicker">Three-paper isolated session policy + prose-propagation risk.</div>
+
+  <p>2026-05-04 advisor message: <em>"연구가 짬뽕이 되는 현상"</em> 을 차단해 달라는 지시. 본인이 Q1–Q2 에 진행 중인 cancer dark matter paper (Paper 1), Q3–Q4 의 immune-overlap paper (Paper 2), 그리고 별도 trajectory 인 thyroid hyperfunction paper (Paper 3) — 세 paper 간 evidence layer 가 <strong>저자 머릿속에서는 분리되어 있으나 manuscript 본문에서는 boundary 가 흐려질 risk</strong> 가 존재합니다. 특히 Paper 1 의 outline 에 Paper 2 territory statistic (예: <span class="forbidden-quote">Hashimoto-like 40% vs 67%</span>) 이 inline 으로 적혀 있으면, drafting 단계에서 prose 로 자연스럽게 흘러 들어가 reviewer 가 "이 paper 의 scope 가 무엇인가" 를 묻는 위험이 발생합니다.</p>
+
+  <p>본 audit 은 단순 grep 가 아니라 <strong>prose-propagation risk 평가</strong>: production cell (HARD) vs working-doc commentary (SOFT) 를 분리하고, take-home phrase 가 boundary 역할을 하는지 검증하는 작업입니다. Paper 2 / Paper 3 에 동일 정신의 audit 이 별도 session 으로 진행될 예정이며, 본 file 은 <strong>Paper 1 isolated session</strong> 의 산출물입니다.</p>
+
+  <div class="callout amber">
+    <div class="callout-label">Prose-propagation risk — 본 audit 의 핵심 우려</div>
+    <strong>Outline 의 statistic cell 은 Results §X 의 prose 로 그대로 변환되는 경향이 있음.</strong> 예: <span class="forbidden-quote">Hashimoto-like 40% vs 67% (OR 0.34, p=0.064 trend)</span> 가 §2.4b row 에 있으면, draft writer 가 <em>"Sub-B was characterized by ... including a 67% Hashimoto-like infiltration rate ..."</em> 로 자동 prose 화 함. boundary statement 는 옳더라도 statistic 자체가 cell 에 남아 있는 한 누출 risk 는 0 이 아닙니다.
+  </div>
+</section>
+
+<!-- ============== § 2 SCOPE + METHOD ============== -->
+<section id="s2">
+  <div class="section-num">§ 2</div>
+  <h2 class="section-title">Scope + Method</h2>
+  <div class="section-kicker">3 file audited · 15 forbidden terms · 3 severity tiers.</div>
+
+  <h3 class="sub-title">2.1 Files audited (3)</h3>
+  <table>
+    <thead><tr><th>#</th><th>File</th><th>Lines</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>F1</td><td><code>00_title_candidates.md</code></td><td class="num">75</td><td>3 title candidates + decision matrix</td></tr>
+      <tr><td>F2</td><td><code>01_abstract.md</code></td><td class="num">73</td><td>Cell Press structured 153-word abstract + numerical claims table + review-focus notes</td></tr>
+      <tr><td>F3</td><td><code>02_outline.md</code></td><td class="num">328</td><td>Section ordering · 5 sub-result rows · Discussion 4 row · risk-flag table</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub-title">2.2 Severity classification</h3>
+  <p><span class="badge hard">HARD</span> Production content cell (Results · Discussion 행) — drafting 시 prose 로 propagation 위험. <span class="badge soft">SOFT</span> Working-doc commentary cell (analysis pros/cons · review-focus note) — final manuscript 미반영, archive sanitize 권장. <span class="badge meta">META</span> Planning-doc only (mermaid flowchart annotation · risk-flag table) — sanitize 불필요. <span class="badge pass">PASS</span> 0 forbidden term in body.</p>
+
+  <h3 class="sub-title">2.3 Allowed exceptions</h3>
+  <p>Cancer immune-microenvironment 의 일반 관찰 — Paper 1 §3.1 Discussion 의 <em>"BRAF V600E HIGHER HLA-I (counter-intuitive)"</em> 은 Bradley 2010 contradict 으로 explicit 허용. <em>"immune-overlap subtype"</em> phrase 는 §2.4b take-home 의 Paper 2 hook 으로만 허용. 그 외 모든 autoimmune framing 은 Paper 2 territory.</p>
+</section>
+
+<!-- ============== CHAPTER 2 ============== -->
+<div class="chapter-divider">
+  <div class="ch-num">Chapter 2</div>
+  <div class="ch-title">Audit Results</div>
+</div>
+
+<!-- ============== § 3 EXEC SUMMARY ============== -->
+<section id="s3">
+  <div class="section-num">§ 3</div>
+  <h2 class="section-title">Executive summary ★</h2>
+  <div class="section-kicker">3 file × HARD/SOFT/META 격자 + bottom line.</div>
+
+  <div class="stat-grid">
+    <div class="stat green">
+      <div class="stat-value">2 / 3</div>
+      <div class="stat-label">Title cand · PASS</div>
+      <div class="stat-note">Cand 1 ★ + Cand 2 — 0 forbidden term in title body</div>
+    </div>
+    <div class="stat green">
+      <div class="stat-value">PASS</div>
+      <div class="stat-label">Abstract body</div>
+      <div class="stat-note">Lines 11–19 · 0 forbidden term · Conclusions (b) clean</div>
+    </div>
+    <div class="stat red">
+      <div class="stat-value">4</div>
+      <div class="stat-label">HARD violations · outline</div>
+      <div class="stat-note">§2.4b · §2.5 · §3.3 · §3.4(iii)</div>
+    </div>
+    <div class="stat amber">
+      <div class="stat-value">3</div>
+      <div class="stat-label">SOFT / META</div>
+      <div class="stat-note">Cand 3 commentary · abstract review-focus · risk-flag table</div>
+    </div>
+  </div>
+
+  <table>
+    <caption>Table 1 — File × severity 격자</caption>
+    <thead>
+      <tr><th>File</th><th>Production HARD</th><th>Working-doc SOFT</th><th>Planning META</th><th>Body PASS</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>00_title_candidates.md</code></td>
+        <td class="cell-pass center">0</td>
+        <td class="cell-soft center">2 (lines 62, 65)</td>
+        <td class="center">—</td>
+        <td class="cell-pass">★ Cand 1 lock</td>
+      </tr>
+      <tr>
+        <td><code>01_abstract.md</code></td>
+        <td class="cell-pass center">0</td>
+        <td class="cell-soft center">1 (line 66)</td>
+        <td class="center">—</td>
+        <td class="cell-pass">Body lines 11–19 PASS · n=874 boundary risk</td>
+      </tr>
+      <tr class="highlight">
+        <td><code>02_outline.md</code></td>
+        <td class="cell-hard center"><strong>4</strong> (lines 104, 106, 122, 123)</td>
+        <td class="cell-soft center">0</td>
+        <td class="center">2 (lines 31, 56, 250)</td>
+        <td class="cell-soft">§2.4a + §3.1 + §3.2 PASS · §2.4b · §2.5 · §3.3 · §3.4(iii) HARD</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout green" style="margin-top:24px;">
+    <div class="callout-label">Bottom line</div>
+    <strong>Title Cand 1 ★ + Abstract body 는 PASS — 즉시 lock 가능.</strong> Outline §2.4b · §2.5 · §3.3 · §3.4(iii) 4 cell 에 prose-propagation risk 가 있는 HARD violation. Pillar 5 boundary 의 의도 (Paper 1 = "older + immune-hot DM1 sub-B is mechanistically distinct" 까지) 는 take-home line 112 에서 깔끔하나, §2.4b cell (line 104) 자체에 Paper 2 statistic 5개가 inline 으로 남아 있어 enforce 안 됨. <strong>A1–A4 mechanical edit 30분 후 §2.4b · §2.5 · §3.3 · §3.4 prose drafting 진입 가능.</strong>
+  </div>
+</section>
+
+<!-- ============== § 4 TITLE CHECK ============== -->
+<section id="s4">
+  <div class="section-num">§ 4</div>
+  <h2 class="section-title">Title check — 3 candidates</h2>
+  <div class="section-kicker"><code>00_title_candidates.md</code> · 75 lines · Cand 1 ★ recommended · 0 forbidden in title body.</div>
+
+  <div class="viol-card pass">
+    <div class="viol-num">1 ★</div>
+    <div>
+      <div class="viol-title">Mechanism-forward — recommended</div>
+      <div class="viol-meta"><span class="file-line">line 24</span> · <span class="badge pass">PASS</span> · 0 forbidden · 99 chars</div>
+      <div class="viol-body">
+        <div class="quote-block"><em>"Fusion-driven, epigenetically silenced dark matter in BRAF/RAS-negative papillary thyroid carcinoma"</em></div>
+        <p>Cell Press style 의 mechanism-forward title. Xing 2014 NEJM <em>"dark matter"</em> framing 을 cancer-context 으로 직접 인용 — scope-clean. 두 mechanism layer (fusion + epigenetic silencing) 가 99 character 안에 모두 수록.</p>
+        <h5>Recommendation</h5>
+        <p><strong>Lock as v3 title.</strong> Decision matrix 에서 Cell Reports Medicine ★★★ + Nat Commun ★★★ 평가.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card pass">
+    <div class="viol-num">2</div>
+    <div>
+      <div class="viol-title">Translational-forward</div>
+      <div class="viol-meta"><span class="file-line">line 40</span> · <span class="badge pass">PASS</span> · 0 forbidden · 110 chars</div>
+      <div class="viol-body">
+        <div class="quote-block"><em>"An 8-gene RAI panel enables reflex fusion testing and re-induction therapy in BRAF/RAS-negative thyroid cancer"</em></div>
+        <p>RET reflex algorithm + HMA + RAI re-induction rationale. "Re-induction therapy" 가 forward-looking — abstract Conclusions (b) 처럼 신중한 framing 필요.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card soft">
+    <div class="viol-num">3</div>
+    <div>
+      <div class="viol-title">Discovery-forward — title body PASS, commentary SOFT</div>
+      <div class="viol-meta"><span class="file-line">line 56 (title body) + 62, 65 (commentary)</span> · <span class="badge pass">Title PASS</span> <span class="badge soft">Commentary SOFT</span> · 109 chars</div>
+      <div class="viol-body">
+        <div class="quote-block"><em>"An 8-gene panel sub-stratifies BRAF/RAS-negative thyroid cancer into fusion-driven and immune-overlap subtypes"</em></div>
+        <p>Title body 는 0 forbidden — "immune-overlap" 은 Paper 2 hook phrase 로 허용. 단 commentary cell 2개에 SOFT violation:</p>
+        <h5>SOFT line 62 (Foregrounds cell)</h5>
+        <div class="quote-block">"DM1/DM2 split + R4-2 fusion+/fusion- heterogeneity + Pillar 5 <span class="forbidden-quote">autoimmune-PTC</span> layer"</div>
+        <h5>SOFT line 65 (Pros cell)</h5>
+        <div class="quote-block">"Immune-overlap" foreshadows Pillar 5 (<span class="forbidden-quote">Hashimoto</span>-DM2 axis + GSE286332)</div>
+        <h5>Recommended sanitization (advisor approval 후)</h5>
+        <ul style="font-size:13px; padding-left:20px; margin-top:6px;">
+          <li>L62: <code>Pillar 5 [Paper-2-territory] layer</code> → <code>R4-2 immune-overlap teaser layer (Paper 2 backbone reserved)</code></li>
+          <li>L65: <code>"Immune-overlap" foreshadows Pillar 5 (...)</code> → <code>"Immune-overlap" phrase reserves Pillar 5 main story for Paper 2</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== § 5 ABSTRACT CHECK ============== -->
+<section id="s5">
+  <div class="section-num">§ 5</div>
+  <h2 class="section-title">Abstract check</h2>
+  <div class="section-kicker"><code>01_abstract.md</code> · 73 lines · body PASS · n=874 cohort boundary risk.</div>
+
+  <div class="viol-card pass">
+    <div class="viol-num">A</div>
+    <div>
+      <div class="viol-title">Abstract body — lines 11–19</div>
+      <div class="viol-meta"><span class="file-line">lines 11–19</span> · <span class="badge pass">PASS</span> · 0 forbidden term · 153 words</div>
+      <div class="viol-body">
+        <p><strong>Background / Methods / Results / Conclusions</strong> 4 paragraph 모두 forbidden-term 0건. Conclusions (b) 검증 결과:</p>
+        <div class="quote-block"><em>"DM1 is a fusion-driven, epigenetically silenced subtype, providing a clinical sub-stratification algorithm and motivating evaluation of fusion-targeted therapy and <strong>epigenetic-targeted RAI re-induction</strong>."</em></div>
+        <p>HMA + RAI re-induction <em>rationale</em> 만 명시 — autoimmune mechanism 미언급. <strong>"epigenetic-targeted"</strong> 표현이 핵심: TPO/DIO1/TSHR promoter hypermethylation 으로부터 derive 된 cancer mechanism rationale 임을 명확히 함. ✅ <strong>PASS</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card soft">
+    <div class="viol-num">B</div>
+    <div>
+      <div class="viol-title">Cohort boundary risk — n=874 GSE286332 inclusion</div>
+      <div class="viol-meta"><span class="file-line">lines 15, 49</span> · <span class="badge med">MED</span> · advisor 결정 필요</div>
+      <div class="viol-body">
+        <p>Methods 의 <em>"Korean cohorts (n=874)"</em> 숫자 자체는 clean 하나, line 49 numerical-claims table 에 cohort 분해가 적혀 있음:</p>
+        <div class="quote-block">"Korean cohorts n=874 | D4-P1: K2(235) + Lee(630) + GSE286332-PTC(9)"</div>
+        <p>GSE286332 은 Paper 2 의 backbone cohort. PTC arm 9명만 포함하더라도, cohort 명시 자체로 Paper 2 territory 와 boundary 모호. § 10 에서 option (a) vs (b) decision 제시.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card soft">
+    <div class="viol-num">C</div>
+    <div>
+      <div class="viol-title">Review-focus annotation — line 66</div>
+      <div class="viol-meta"><span class="file-line">line 66</span> · <span class="badge soft">SOFT</span> · meta-only · 본문 미반영</div>
+      <div class="viol-body">
+        <div class="quote-block">"<strong>Pillar 5 (<span class="forbidden-quote">autoimmune-PTC</span>) 는 abstract 에서 의도적 보류 — Paper 2 의 backbone 으로 reserve.</strong>"</div>
+        <p>본인 review-focus note item 3 — 최종 manuscript 에 들어가지 않으나 archive sanitize 권장.</p>
+        <h5>Recommended sanitization</h5>
+        <p><code>Pillar 5 ([Paper-2-territory term]) 는 abstract 에서 의도적 보류</code> → <code>Paper 2 sub-stratification axis (immune-overlap) is intentionally deferred</code></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== § 6 OUTLINE CHECK ============== -->
+<section id="s6">
+  <div class="section-num">§ 6</div>
+  <h2 class="section-title">Outline check ★ 4 HARD violations</h2>
+  <div class="section-kicker"><code>02_outline.md</code> · 328 lines · §2.4b · §2.5 · §3.3 · §3.4(iii) HARD.</div>
+
+  <div class="viol-card pass">
+    <div class="viol-num">2.4a</div>
+    <div>
+      <div class="viol-title">§2.4a · DM1 epigenetic silencing of differentiation machinery</div>
+      <div class="viol-meta"><span class="file-line">line 103</span> · <span class="badge pass">PASS</span> · 0 forbidden term · pure cancer mechanism</div>
+      <div class="viol-body">
+        <p>Promoter hypermethylation Cohen's d table — TPO 2.30, DIO1 1.24, TSHR 1.20, PAX8 0.97, TG 0.86, FOXE1 0.84, NKX2-1 0.63, SLC5A5 NS · mean 8-gene β 0.385 vs 0.253 · methylation <strong>fusion-independent</strong> · 3-layer model. 스코프 깨끗. ✅ PASS.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card hard">
+    <div class="viol-num">2.4b</div>
+    <div>
+      <div class="viol-title">§2.4b · Fusion-negative DM1 = immune-overlap subtype (teaser)</div>
+      <div class="viol-meta"><span class="file-line">line 104</span> · <span class="badge hard">HARD</span> · 5 Paper 2 statistics inline · boundary leaky</div>
+      <div class="viol-body">
+        <p><strong>Boundary statement 의 의도는 옳으나 ("Paper 1 stops at 'older + immune-hot DM1 sub-B is mechanistically distinct'") — 동시에 같은 cell 안에 Paper 2 territory 통계 5개가 inline 으로 남아 있어 prose 로 propagate 위험.</strong></p>
+        <h5>Cited fragment from outline cell</h5>
+        <div class="quote-block">"Sub-A vs sub-B: age (37 vs 51), fusion% (84.7 vs 57.9), stage III/IV (15.3% vs 44.4%), CD8/IFN-γ low vs high (d=−0.5 to −0.6), <span class="forbidden-quote">Hashimoto-like 40% vs 67% (OR 0.34, p=0.064 trend)</span>; <span class="forbidden-quote">Pillar 5 mediation</span>/<span class="forbidden-quote">HLA n=874</span>/<span class="forbidden-quote">BCR clonal</span>/<span class="forbidden-quote">sub-B NBNR</span> is Paper 2 backbone — Paper 1 stops at 'older + immune-hot DM1 sub-B is mechanistically distinct'"</div>
+        <h5>Recommended sanitization (advisor approval 후 mechanical edit)</h5>
+        <ul style="font-size:13px; padding-left:20px; margin-top:6px;">
+          <li>Drop the <span class="forbidden-quote">Hashimoto-like 40% vs 67%</span> statistic</li>
+          <li>Drop the inline list <span class="forbidden-quote">Pillar 5 mediation / HLA n=874 / BCR clonal / sub-B NBNR</span></li>
+          <li>Keep cancer-only sub-A vs sub-B contrasts: age (37 vs 51), fusion% (84.7 vs 57.9), stage III/IV (15.3% vs 44.4%), CD8/IFN-γ low vs high d = −0.5 to −0.6</li>
+          <li>Replace boundary tail with: <em>"Paper 1 stops at 'older + immune-hot DM1 sub-B is mechanistically distinct'; the immune-overlap mechanism is reserved for Paper 2."</em></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card hard">
+    <div class="viol-num">2.5</div>
+    <div>
+      <div class="viol-title">§2.5 · Cross-cohort + Reflex testing algorithm</div>
+      <div class="viol-meta"><span class="file-line">line 106</span> · <span class="badge hard">HARD</span> · cohort + statistic boundary leak</div>
+      <div class="viol-body">
+        <h5>Cited fragment</h5>
+        <div class="quote-block">"... Korean K2/Lee/GSE286332 n=874 + GSE213647 n=632 <span class="forbidden-quote">(28% Hashimoto-like)</span>; DM1 captures 81.8% TCGA RET+ → reflex algorithm; population estimate 48 selpercatinib-eligible per 1000 PTC ..."</div>
+        <h5>Recommended sanitization</h5>
+        <ul style="font-size:13px; padding-left:20px; margin-top:6px;">
+          <li>Drop <span class="forbidden-quote">(28% Hashimoto-like)</span> parenthetical</li>
+          <li>Resolve <code>GSE286332</code> inclusion — § 10 option (a) vs (b)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card hard">
+    <div class="viol-num">3.3</div>
+    <div>
+      <div class="viol-title">§3.3 · East-Asian generalizability + Pu 2021</div>
+      <div class="viol-meta"><span class="file-line">line 122</span> · <span class="badge hard">HARD</span> · Pan-Asian framing 부적절</div>
+      <div class="viol-body">
+        <h5>Cited fragment</h5>
+        <div class="quote-block">"... 4,300+ East Asian PTC tumors covered; Korean DM 37.8% vs TCGA 28.4%; K2 NBNR mixed phenotype (vascular invasion); <span class="forbidden-quote">Pan-Asian Hashimoto-like replication (Korean GSE213647 22-28% ≈ TCGA 18-20%)</span>; single-cell external validation in 6 PTC patients (Pu et al 2021 Nat Commun) ..."</div>
+        <p><span class="forbidden-quote">Pan-Asian Hashimoto-like replication</span> 은 Paper 2 의 generalizability 근거이지 Paper 1 의 cancer dark matter generalizability 근거 아님.</p>
+        <h5>Recommended sanitization</h5>
+        <p>Drop the <span class="forbidden-quote">Pan-Asian Hashimoto-like</span> sentence entirely. <em>"Korean DM 37.8% vs TCGA 28.4%"</em> 만으로 cancer-only generalizability 충분.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card hard">
+    <div class="viol-num">3.4</div>
+    <div>
+      <div class="viol-title">§3.4(iii) Methodological limitations</div>
+      <div class="viol-meta"><span class="file-line">line 123</span> · <span class="badge hard">HARD</span> · HLA dangling + GSE286332 reference</div>
+      <div class="viol-body">
+        <h5>Cited fragment</h5>
+        <div class="quote-block">"(iii) Methodological: <span class="forbidden-quote">HLA d 1.5+ partial autocorr (Δd=0.30)</span>; K2 mini-index calibration mismatch (R4-4) propagates <span class="forbidden-quote">GSE286332 reference</span>."</div>
+        <p>Paper 1 §2 Results 에 HLA 항목이 없으므로 HLA limitation 은 dangling — anchor 없음. <code>GSE286332 reference</code> 명시는 Paper 2 territory.</p>
+        <h5>Recommended sanitization</h5>
+        <ul style="font-size:13px; padding-left:20px; margin-top:6px;">
+          <li>Drop the HLA d 1.5+ partial autocorr clause entirely (no §2 anchor)</li>
+          <li>Replace <em>"propagates [Paper-2-cohort] reference"</em> → <em>"K2 mini-index calibration mismatch (R4-4) — same calibration is propagated through any cohort built on the K2 reference; cross-Korean cohort findings are interpreted with this caveat."</em> (avoids naming the Paper 2 cohort)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== § 7 DISCUSSION CHECK ============== -->
+<section id="s7">
+  <div class="section-num">§ 7</div>
+  <h2 class="section-title">Discussion check — 3.1 + 3.2</h2>
+  <div class="section-kicker">Landa 2016 paired-cancer continuum + ATA 2015/2025 + LIBRETTO-001 — both PASS.</div>
+
+  <div class="viol-card pass">
+    <div class="viol-num">3.1</div>
+    <div>
+      <div class="viol-title">§3.1 · Three-layer DM1 pathology + Landa 2016 dial-back</div>
+      <div class="viol-meta"><span class="file-line">line 120</span> · <span class="badge pass">PASS</span> · 0 forbidden term · cancer paired-trajectory</div>
+      <div class="viol-body">
+        <p>L1 genetic (76.8% fusion+) · L2 mechanism heterogeneity (sub-A vs sub-B) · L3 epigenetic (TPO d=2.30 fusion-independent). Landa 2016 JCI 126(3):1052-1066 PDTC→ATC continuum framing 으로 DM1 = upstream signature of dedifferentiation trajectory — cancer paired-trajectory, scope-clean.</p>
+        <p>Bradley 2010 contradict: <em>BRAF V600E HIGHER HLA-I (counter-intuitive, R3 finding 14)</em> — explicit <strong>allowed exception</strong> per spec. Cancer immune-microenvironment 의 일반 관찰이며 autoimmune framing 아님.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="viol-card pass">
+    <div class="viol-num">3.2</div>
+    <div>
+      <div class="viol-title">§3.2 · ATA 2015/2025 + Wirth 2020 LIBRETTO-001</div>
+      <div class="viol-meta"><span class="file-line">line 121</span> · <span class="badge pass">PASS</span> · 0 forbidden term · cancer therapy translational</div>
+      <div class="viol-body">
+        <p>ATA 2015 (Haugen 2016) → ATA 2025 (Ringel 2025) BRAF V600E sole molecular risk modifier 한계 + DM1 reflex algorithm = orthogonal molecular axis; 57% DM1 actionable; LIBRETTO-001 (Wirth 2020 NEJM, ORR 79% in RET-fusion+) — DM1 RNA-score = upstream candidate pool. HMA + RAI re-induction rationale = TPO/DIO1/TSHR promoter hypermethylation 에서 derive (epigenetic mechanism, autoimmune mechanism 무관). <em>"Evaluation, not trial"</em> dial-back tone 유지. ✅ PASS.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CHAPTER 3 ============== -->
+<div class="chapter-divider">
+  <div class="ch-num">Chapter 3</div>
+  <div class="ch-title">Pillar 5 Boundary Analysis</div>
+</div>
+
+<!-- ============== § 8 PILLAR 5 BOUNDARY ============== -->
+<section id="s8">
+  <div class="section-num">§ 8</div>
+  <h2 class="section-title">Pillar 5 boundary clarity</h2>
+  <div class="section-kicker">5 boundary phrase locations · take-home (line 112) clean · §2.4b cell (line 104) leaky.</div>
+
+  <p>Paper 1 vs Paper 2 의 boundary 의도는 source file 5곳에 명시되어 있음. 의도 자체는 일관되나, 의도와 production cell 의 통계 listing 사이에 gap 이 있어 enforce 안 됨.</p>
+
+  <table>
+    <caption>Table 2 — Pillar 5 boundary phrase locations across source files</caption>
+    <thead>
+      <tr><th>File:Line</th><th>Phrase / context</th><th>Direction</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>02_outline.md:31</code></td>
+        <td>"Pillar 5 main story (HLA n=874 mediation, BCR/TLS, sub-B NBNR) 는 Paper 2 reserve. Paper 1 에서는 fusion- DM1 = older + immune-hot 까지만 teaser."</td>
+        <td class="center">Meta</td>
+        <td class="center cell-pass"><span class="badge meta">META</span></td>
+      </tr>
+      <tr>
+        <td><code>02_outline.md:56</code></td>
+        <td>"2.4b Fusion- DM1 = immune-overlap teaser ... Pillar 5 hint · Paper 2 reserve" (mermaid annotation)</td>
+        <td class="center">Meta</td>
+        <td class="center cell-pass"><span class="badge meta">META</span></td>
+      </tr>
+      <tr class="highlight">
+        <td><code>02_outline.md:104</code></td>
+        <td>"Paper 1 stops at 'older + immune-hot DM1 sub-B is mechanistically distinct'" — boundary tail · BUT 5 Paper 2 statistics inline above</td>
+        <td class="center">Production</td>
+        <td class="center cell-hard"><span class="badge hard">LEAKY</span></td>
+      </tr>
+      <tr>
+        <td><code>02_outline.md:112</code></td>
+        <td>"...with fusion-negative DM1 representing a mechanistically distinct immune-overlap subtype warranting separate inquiry." → Paper 2 hook</td>
+        <td class="center">Take-home</td>
+        <td class="center cell-pass"><span class="badge pass">CLEAN</span></td>
+      </tr>
+      <tr>
+        <td><code>02_outline.md:250</code></td>
+        <td>"Pillar 5 Paper 1 vs Paper 2 boundary 모호 ... 2.4b 마지막 sentence ... → Paper 2 hook 명시. Paper 2 backbone reserve: ..." (risk-flag table)</td>
+        <td class="center">Meta</td>
+        <td class="center cell-pass"><span class="badge meta">META</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout amber">
+    <div class="callout-label">Verdict — boundary 의도 vs enforcement gap</div>
+    <strong>Take-home (line 112) "warranting separate inquiry" 는 깔끔한 boundary phrase.</strong> 그러나 같은 §2.4b row 의 "Key claims" cell (line 104) 안에 Paper 2 statistic 5개 (<span class="forbidden-quote">Hashimoto-like 40% vs 67%</span>, <span class="forbidden-quote">Pillar 5 mediation</span>, <span class="forbidden-quote">HLA n=874</span>, <span class="forbidden-quote">BCR clonal</span>, <span class="forbidden-quote">sub-B NBNR</span>) 가 inline 으로 listed — drafting 단계에서 prose 로 propagate 가 자동 발생. <strong>Line 104 sanitize (A1) 시에만 boundary 가 enforced 됨.</strong>
+  </div>
+</section>
+
+<!-- ============== CHAPTER 4 ============== -->
+<div class="chapter-divider">
+  <div class="ch-num">Chapter 4</div>
+  <div class="ch-title">Action Items</div>
+</div>
+
+<!-- ============== § 9 A1-A7 ACTION ITEMS ============== -->
+<section id="s9">
+  <div class="section-num">§ 9 ★</div>
+  <h2 class="section-title">A1 – A7 advisor approval gate</h2>
+  <div class="section-kicker">7 mechanical edits · A1–A4 HARD blocking · A5 MED · A6–A7 SOFT · 총 30분 post-approval.</div>
+
+  <div class="action-grid">
+    <div class="action hard">
+      <div class="action-id">A1</div>
+      <div class="action-body">
+        <span class="loc"><code>02_outline.md:104</code> · §2.4b key-claims cell</span>
+        Drop 4 Paper 2 inline statistics (<span class="forbidden-quote">Hashimoto-like %</span>, <span class="forbidden-quote">Pillar 5 mediation</span>, <span class="forbidden-quote">HLA n=874</span>, <span class="forbidden-quote">BCR clonal</span>, <span class="forbidden-quote">NBNR</span> mention list); keep age / fusion% / stage / CD8-IFN-γ contrasts + "warranting separate inquiry" boundary tail.
+      </div>
+      <div class="action-meta">
+        <span class="badge hard">HARD</span>
+        <span class="time">~5 min</span>
+      </div>
+    </div>
+
+    <div class="action hard">
+      <div class="action-id">A2</div>
+      <div class="action-body">
+        <span class="loc"><code>02_outline.md:106</code> · §2.5 cross-cohort cell</span>
+        Drop <span class="forbidden-quote">(28% Hashimoto-like)</span> parenthetical; resolve <code>GSE286332</code> inclusion question (§ 10 option a vs b).
+      </div>
+      <div class="action-meta">
+        <span class="badge hard">HARD</span>
+        <span class="time">~3 min</span>
+      </div>
+    </div>
+
+    <div class="action hard">
+      <div class="action-id">A3</div>
+      <div class="action-body">
+        <span class="loc"><code>02_outline.md:122</code> · §3.3 East-Asian generalizability</span>
+        Drop <span class="forbidden-quote">"Pan-Asian Hashimoto-like replication"</span> sentence; <em>"Korean DM 37.8% vs TCGA 28.4%"</em> 만으로 cancer-only generalizability 충분.
+      </div>
+      <div class="action-meta">
+        <span class="badge hard">HARD</span>
+        <span class="time">~2 min</span>
+      </div>
+    </div>
+
+    <div class="action hard">
+      <div class="action-id">A4</div>
+      <div class="action-body">
+        <span class="loc"><code>02_outline.md:123</code> · §3.4(iii) Limitations</span>
+        Drop HLA d 1.5+ partial autocorr clause (no §2 anchor in cancer-only Paper 1); rephrase <code>GSE286332 reference</code> 를 generic K2-calibration caveat 로 — 외부 cohort 명시 회피.
+      </div>
+      <div class="action-meta">
+        <span class="badge hard">HARD</span>
+        <span class="time">~5 min</span>
+      </div>
+    </div>
+
+    <div class="action med">
+      <div class="action-id">A5</div>
+      <div class="action-body">
+        <span class="loc"><code>01_abstract.md:15, 49</code> · n=874 cohort decomposition</span>
+        Cohere with A2 결정. Option (a) 유지 + STAR Methods caveat 또는 Option (b) n=865 (K2+Lee only) — § 10 참조.
+      </div>
+      <div class="action-meta">
+        <span class="badge med">MED</span>
+        <span class="time">~3 min</span>
+      </div>
+    </div>
+
+    <div class="action soft">
+      <div class="action-id">A6</div>
+      <div class="action-body">
+        <span class="loc"><code>01_abstract.md:66</code> · review-focus note item 3</span>
+        Replace <code>Pillar 5 ([forbidden-term])</code> → <code>Paper 2 sub-stratification axis (immune-overlap)</code>. Archive sanitize · 본인 voice 영향 0.
+      </div>
+      <div class="action-meta">
+        <span class="badge soft">SOFT</span>
+        <span class="time">~2 min</span>
+      </div>
+    </div>
+
+    <div class="action soft">
+      <div class="action-id">A7</div>
+      <div class="action-body">
+        <span class="loc"><code>00_title_candidates.md:62, 65</code> · Cand 3 commentary cells</span>
+        Sanitize Foregrounds + Pros cells of Discovery-forward candidate. Title body 자체는 PASS · sanitize 는 archive cleanup 만.
+      </div>
+      <div class="action-meta">
+        <span class="badge soft">SOFT</span>
+        <span class="time">~2 min</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout green" style="margin-top:24px;">
+    <div class="callout-label">Total mechanical-edit time post-approval</div>
+    <strong>~22 분</strong> (A1 5 + A2 3 + A3 2 + A4 5 + A5 3 + A6 2 + A7 2). Advisor 가 A1–A4 (HARD) + A5 (option a/b) 결정만 confirm 하면 본인 voice 영향 없는 mechanical edit. 이후 §2.4b · §2.5 · §3.3 · §3.4 prose drafting 가능.
+  </div>
+</section>
+
+<!-- ============== § 10 GSE286332 DECISION ============== -->
+<section id="s10">
+  <div class="section-num">§ 10</div>
+  <h2 class="section-title">GSE286332 PTC(9) decision — option (a) vs (b)</h2>
+  <div class="section-kicker">A2 + A5 의 cohort boundary resolution · 본 audit 의 유일한 판단 prompt.</div>
+
+  <p>Abstract line 49 + outline line 106 의 <code>Korean cohorts n=874 = K2(235) + Lee(630) + GSE286332-PTC(9)</code> 분해에서 GSE286332 PTC arm 9명을 어떻게 처리할지 advisor 결정 필요.</p>
+
+  <div class="decision-grid">
+    <div class="decision A">
+      <div class="decision-badge">OPTION A</div>
+      <div class="decision-name">Keep n=874 + STAR Methods caveat</div>
+      <div class="decision-row"><span class="label">Numbers</span><span>K2 235 + Lee 630 + GSE286332-PTC 9 = <strong>874</strong></span></div>
+      <div class="decision-row"><span class="label">Methods</span><span>STAR Methods 1 줄 추가: <em>"Only the PTC arm of GSE286332 is included; the [Paper-2-cohort-arm] is reserved for Paper 2."</em></span></div>
+      <div class="decision-row"><span class="label">Pros</span><span>Statistical power 보존 · n=874 round 숫자 유지 · 모든 figure caption 그대로</span></div>
+      <div class="decision-row"><span class="label">Cons</span><span>Paper 2 cohort 명시로 boundary 모호 risk · reviewer 가 "이 cohort 가 Paper 2 에도 사용?" 우려 가능</span></div>
+    </div>
+
+    <div class="decision B">
+      <div class="decision-badge">OPTION B ★</div>
+      <div class="decision-name">n=865 (K2 + Lee only)</div>
+      <div class="decision-row"><span class="label">Numbers</span><span>K2 235 + Lee 630 = <strong>865</strong></span></div>
+      <div class="decision-row"><span class="label">Methods</span><span>GSE286332 cohort 전체 Paper 2 territory 로 reserve · Paper 1 STAR Methods 에서 미언급</span></div>
+      <div class="decision-row"><span class="label">Pros</span><span>Cancer-only scope 절대 깨끗 · Paper 2 backbone 무관계 · reviewer Q 사전 차단</span></div>
+      <div class="decision-row"><span class="label">Cons</span><span>1.0% statistical power loss (9/874) · n round 숫자 변경 (모든 figure caption 1 line edit)</span></div>
+      <div class="decision-rec">★ RECOMMENDED — cancer-only scope 강화</div>
+    </div>
+  </div>
+
+  <div class="callout amber">
+    <div class="callout-label">Decision needed — advisor 한 줄 답</div>
+    Option (a) <em>"keep n=874"</em> 또는 Option (b) <em>"recompute n=865"</em>. <strong>본인 권장: option (b)</strong> — 1% power loss 는 stat 영향 미미하나 boundary 명확화의 가치가 큼. 단 figure caption 의 n 표기 일관 변경 필요 (~10 분 추가).
+  </div>
+</section>
+
+<!-- ============== CHAPTER 5 ============== -->
+<div class="chapter-divider">
+  <div class="ch-num">Chapter 5</div>
+  <div class="ch-title">Next Steps</div>
+</div>
+
+<!-- ============== § 11 POST-APPROVAL WORKFLOW ============== -->
+<section id="s11">
+  <div class="section-num">§ 11</div>
+  <h2 class="section-title">Post-approval workflow</h2>
+  <div class="section-kicker">5/4 advisor 답장 → 5/5 prep day → 5/6 Hook + Title lock → 5/7–6/13 marathon W1–W6.</div>
+
+  <div class="timeline">
+    <div class="tl-row done">
+      <span class="tl-date">2026-05-04 AM</span>
+      <span class="tl-title">Audit 완료 — cross_contamination_check_paper1.md (214 lines) + 본 webpage 산출</span>
+      <div class="tl-body">3 source file × 15 forbidden term · 4 HARD + 3 SOFT/META violations 식별 · Pillar 5 boundary 4 location verified · A1–A7 action items 정리.</div>
+    </div>
+
+    <div class="tl-row next">
+      <span class="tl-date">2026-05-04 PM</span>
+      <span class="tl-title">Advisor 답장 + A1–A4 confirm · A2/A5 option (a) vs (b) 결정</span>
+      <div class="tl-body">본 brief + cross_contamination_check_paper1.md 전송 · advisor 한 줄 답 (e.g. <code>"A1–A4 confirm / A2 option B / A6–A7 sanitize 진행"</code>) 으로 mechanical edit 권한 획득.</div>
+    </div>
+
+    <div class="tl-row">
+      <span class="tl-date">2026-05-04 PM (cont.)</span>
+      <span class="tl-title">Outline + Abstract + Title-candidates mechanical edit (~22분)</span>
+      <div class="tl-body">A1–A7 적용 · Claude Code 가 본인 voice 보호 영역 (§2.4b prose · Hook 첫 단락 · Limitations) 미접근 · 단순 cell content sanitize.</div>
+    </div>
+
+    <div class="tl-row">
+      <span class="tl-date">2026-05-05</span>
+      <span class="tl-title">본인 prep day — Landa 1.5h + Yoo 30min + ATA 1–1.5h</span>
+      <div class="tl-body">Discussion 3.1 (Landa 2016 paired continuum) 인용 verify · Yoo 2016 PLOS Genet methods + reverse-causality 차단 review · ATA 2015 + 2025 fusion/epigenetic 반영 여부 시나리오 1/2/3 분기.</div>
+    </div>
+
+    <div class="tl-row">
+      <span class="tl-date">2026-05-06</span>
+      <span class="tl-title">Title Cand 1 ★ lock + Hook 첫 단락 본인 키보드</span>
+      <div class="tl-body"><em>"Fusion-driven, epigenetically silenced dark matter in BRAF/RAS-negative papillary thyroid carcinoma"</em> 확정 · Introduction §1.1 hook (sprint vs marathon mode 의 voice-protected 영역) 본인 작성.</div>
+    </div>
+
+    <div class="tl-row">
+      <span class="tl-date">2026-05-07 → 2026-06-13</span>
+      <span class="tl-title">W1–W6 marathon — 본인 voice + Claude Code 보조</span>
+      <div class="tl-body">W1–W2 Methods + Suppl freeze → W3–W4 Results + Discussion draft → W5–W6 cover letter + submission. 본인 voice 보호 영역 (§3.1 Discussion 첫 paragraph · §3.4 Limitations) 본인 키보드 · 나머지 scaffolding · figure · Methods 정리는 Claude Code 보조.</div>
+    </div>
+  </div>
+
+  <div class="callout green" style="margin-top:32px;">
+    <div class="callout-label">Validation checklist — 본 webpage 자체</div>
+    <ul style="font-size:13px; padding-left:20px; line-height:1.7; margin-top:6px;">
+      <li>✅ forbidden term grep 0건 (allowed quote wrapper <code>&lt;span class="forbidden-quote"&gt;</code> 외 plain text 등장 0)</li>
+      <li>✅ Paper 2 brief webpage design language 일관 (Cormorant Garamond + Newsreader · Burgundy/Gold/Sage palette · stat-grid · callout · viol-card · timeline)</li>
+      <li>✅ Action items table A1–A7 severity badge 정확 (HARD 4 · MED 1 · SOFT 2)</li>
+      <li>✅ Pillar 5 boundary 5 location 정확 인용 (lines 31, 56, 104, 112, 250)</li>
+      <li>✅ Print-friendly @media print rules · break-inside:avoid 적용</li>
+      <li>✅ 한국어 main + 학술 영어 mixing — 자연스러운 phrase boundary</li>
+      <li>✅ Single file · 외부 dependency 0 (CSS inline · Google Fonts CDN 1개만)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer>
+  <div class="colophon-grid">
+    <div>
+      <h6>Colophon</h6>
+      <div>
+        Set in Cormorant Garamond (display) + Newsreader (body) + JetBrains Mono (technical).<br>
+        Palette: Burgundy 7B1F2A · Gold B8893C · Sage 5C7B6E · Ink 0F1A2E · Paper F4EFE6.<br>
+        Single HTML file · CSS inline · 0 JS · print-optimised.
+      </div>
+    </div>
+    <div>
+      <h6>Source &amp; provenance</h6>
+      <div>
+        Source · <code>project/manuscript_v8/cross_contamination_check_paper1.md</code> (214 lines).<br>
+        Source files audited · <code>00_title_candidates.md</code>, <code>01_abstract.md</code>, <code>02_outline.md</code>.<br>
+        Audit policy · advisor 2026-05-04 isolated-session directive.
+      </div>
+    </div>
+    <div>
+      <h6>Scope &amp; boundaries</h6>
+      <div>
+        Paper 1 · cancer dark matter (BRAF/RAS-negative PTC).<br>
+        Paper 2 / Paper 3 territory terms · 0 plain-text occurrences (15 quote-wrapped).<br>
+        본인 voice 보호 영역 (§3.1 첫 paragraph · §3.4 Limitations · Hook 첫 단락) 미접근.
+      </div>
+    </div>
+  </div>
+  <div style="text-align:center; padding-top:18px; border-top:1px dotted var(--rule); font-style:italic; font-family:'Cormorant Garamond', serif; font-size:14px; color:var(--ink-soft);">
+    Paper 1 Cross-contamination Audit · Advisor briefing v1 · 2026-05-04 · Seungho Cook
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
