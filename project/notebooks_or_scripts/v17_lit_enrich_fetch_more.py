@@ -87,7 +87,9 @@ oa_entries = [e for e in unpaywall if e.get("is_oa") and (e.get("pmcid") or e.ge
 
 def fetch_epmc(pmcid: str | None, doi: str | None):
     if pmcid:
-        url = f"https://www.ebi.ac.uk/europepmc/webservices/rest/article/PMC/{pmcid.replace('PMC','')}?resultType=core&format=json"
+        # IMPORTANT: Europe PMC requires the "PMC" prefix in the path component
+        pmc_norm = pmcid if pmcid.startswith("PMC") else f"PMC{pmcid}"
+        url = f"https://www.ebi.ac.uk/europepmc/webservices/rest/article/PMC/{pmc_norm}?resultType=core&format=json"
     elif doi:
         url = f"https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=DOI:{doi}&resultType=core&format=json"
     else:
