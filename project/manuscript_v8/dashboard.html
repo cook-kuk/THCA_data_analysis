@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper 1 (Cancer v8) — manuscript dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Newsreader:ital,wght@0,400;0,500;0,600&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --ink:#0F1A2E; --ink-soft:#3A4658; --paper:#F4EFE6; --paper-soft:#EBE5D8;
+  --accent:#7B1F2A; --gold:#B8893C; --sage:#5C7B6E; --rule:#C9C2B0;
+  --green:#3C6B4F; --amber:#A57215; --red:#962E2E;
+  --highlight:#FFF8E8; --paper-defining-bg:#FAEEED;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Newsreader', Georgia, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif, serif;
+  background:var(--paper); color:var(--ink); line-height:1.7; font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+.container{max-width:1100px; margin:0 auto; padding:42px 56px;}
+
+.hero{padding:36px 0 36px; border-bottom:2px solid var(--ink); margin-bottom:36px;}
+.hero-kicker{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:14px; font-weight:500;}
+h1.title{font-family:'Cormorant Garamond', 'Noto Sans KR', serif; font-size:42px; line-height:1.1; color:var(--accent); font-weight:600; margin-bottom:8px;}
+h1.subtitle{font-family:'Cormorant Garamond', 'Noto Sans KR', serif; font-size:22px; font-style:italic; font-weight:400; color:var(--ink-soft); margin-bottom:18px; line-height:1.35;}
+
+.byline{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); margin-top:18px; padding-top:14px; border-top:1px solid var(--rule);}
+.byline span{margin-right:20px;}
+
+section{margin-bottom:48px;}
+.section-num{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.12em; color:var(--gold); text-transform:uppercase; font-weight:500;}
+h2.section-title{font-family:'Cormorant Garamond', serif; font-size:30px; line-height:1.15; color:var(--ink); margin:6px 0 6px; padding-bottom:10px; border-bottom:2px solid var(--ink); font-weight:500;}
+.section-kicker{font-style:italic; color:var(--ink-soft); font-size:15px; margin-bottom:22px;}
+
+.stat-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin:22px 0;}
+.stat{background:#fff; padding:18px 16px; border-top:3px solid var(--accent); border:1px solid var(--rule);}
+.stat-value{font-family:'Cormorant Garamond', serif; font-size:30px; font-weight:600; color:var(--accent); line-height:1;}
+.stat-label{font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); margin-top:6px;}
+.stat-note{font-size:12px; font-style:italic; color:var(--ink-soft); margin-top:6px; line-height:1.4;}
+
+table{width:100%; border-collapse:collapse; margin:16px 0; background:#fff; font-size:13px; font-variant-numeric:tabular-nums;}
+table caption{caption-side:top; text-align:left; font-family:'Cormorant Garamond', serif; font-size:15px; font-style:italic; font-weight:500; color:var(--accent); margin-bottom:6px;}
+th{background:var(--ink); color:#fff; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; text-align:left; padding:8px 10px; font-weight:500;}
+td{padding:7px 10px; border-bottom:1px solid var(--rule);}
+tr.highlight td{background:var(--highlight);}
+td.num{text-align:right; font-family:'JetBrains Mono', monospace; font-size:11.5px;}
+
+.callout{padding:14px 20px; margin:14px 0; border-left:4px solid var(--ink); background:#fff; font-size:14.5px;}
+.callout.green{border-color:var(--green); background:#F1F5EE;}
+.callout.amber{border-color:var(--amber); background:#FCF6E5;}
+.callout.red{border-color:var(--red); background:#FAEEED;}
+.callout-label{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; margin-bottom:6px;}
+.callout.green .callout-label{color:var(--green);}
+.callout.amber .callout-label{color:var(--amber);}
+.callout.red .callout-label{color:var(--red);}
+
+.pillar-grid{display:grid; grid-template-columns:repeat(5, 1fr); gap:12px; margin:22px 0;}
+.pillar{background:#fff; padding:18px 14px; border:1px solid var(--rule); border-top:3px solid var(--accent);}
+.pillar-roman{font-family:'Cormorant Garamond', serif; font-size:36px; font-style:italic; font-weight:500; color:var(--gold); line-height:1; margin-bottom:6px;}
+.pillar-name{font-family:'Cormorant Garamond', serif; font-size:15px; font-weight:600; color:var(--ink); margin-bottom:8px; line-height:1.25;}
+.pillar-stat{font-size:12px; color:var(--ink-soft); line-height:1.4;}
+.pillar-status{margin-top:10px; display:inline-block; padding:3px 8px; font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; font-weight:600;}
+.pillar-status.strong{background:var(--green); color:#fff;}
+
+.file-row{display:grid; grid-template-columns:60px 1fr 100px 80px 110px; gap:14px; padding:11px 18px; border-bottom:1px solid var(--rule-soft); background:#fff; font-size:13.5px; align-items:center;}
+.file-row:nth-child(even){background:#F9F6EE;}
+.file-row.protected{background:#FAEEED;}
+.file-num{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--gold); font-weight:700;}
+.file-name{font-family:'Cormorant Garamond', serif; font-size:15px; font-weight:600; color:var(--ink);}
+.file-name a{color:var(--accent); text-decoration:none;}
+.file-name a:hover{text-decoration:underline;}
+.file-name code{font-family:'JetBrains Mono', monospace; font-size:10.5px; color:var(--ink-soft); display:block; margin-top:2px;}
+.file-words{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--ink-soft); text-align:right;}
+.file-status{font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.08em; text-transform:uppercase; padding:2px 7px; text-align:center; font-weight:600;}
+.file-status.draft{background:var(--gold); color:#fff;}
+.file-status.protected{background:var(--red); color:#fff;}
+.file-status.script{background:var(--sage); color:#fff;}
+
+footer{margin-top:48px; padding:24px 0 14px; border-top:2px solid var(--ink); font-size:11.5px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace; letter-spacing:0.04em; line-height:1.6;}
+footer a{color:var(--accent); text-decoration:none;}
+
+@media print{
+  body{background:#fff; font-size:10pt;}
+  .container{max-width:none; padding:14pt 22pt;}
+  table tr{page-break-inside:avoid;}
+  .stat-grid{grid-template-columns:repeat(4,1fr); gap:6pt;}
+  .pillar-grid{grid-template-columns:repeat(5,1fr); gap:5pt;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="hero">
+  <div class="hero-kicker">Paper 1 · Cancer paper v8 · manuscript dashboard</div>
+  <h1 class="title">Fusion-driven, epigenetically silenced dark matter</h1>
+  <h1 class="subtitle">in BRAF/RAS-negative thyroid cancer — Paper 1 manuscript v8 navigation hub. 5 Pillars + 11 manuscript files + 8 figures captioned + 17 references + 6-week marathon writing window.</h1>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="stat-value">76.8%</div>
+      <div class="stat-label">DM1 fusion+ ★</div>
+      <div class="stat-note">RET/NTRK/ALK/BRAF · OR 7.41 vs DM2</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">2.30</div>
+      <div class="stat-label">TPO promoter d ★</div>
+      <div class="stat-note">DM1 epigenetic silencing, fusion-independent</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">2.53</div>
+      <div class="stat-label">Pooled OS HR</div>
+      <div class="stat-note">[1.31, 4.89] TCGA + MSK meta, I²=0%</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">+0.132</div>
+      <div class="stat-label">ΔAUC vs BRAF</div>
+      <div class="stat-note">8-gene panel 5-fold CV AUC 0.954</div>
+    </div>
+  </div>
+
+  <div class="byline">
+    <span>저자 · Seungho Cook (1st)</span>
+    <span>Corresponding · Yu Hyeong-won</span>
+    <span>Target · Cell Rep Med 1순위 → JCI Insight + Nat Commun reach</span>
+    <span>Date · 2026-05-02</span>
+  </div>
+</header>
+
+<!-- ============== § 1 PILLAR STATUS ============== -->
+<section id="pillars">
+  <div class="section-num">§ 1 · 5-Pillar status</div>
+  <h2 class="section-title">5 pillars all STRONG</h2>
+  <div class="section-kicker">전체 pillar STRONG 격상 — Cell Rep Med reach 의 reviewer 위험 요소 모두 제거.</div>
+
+  <div class="pillar-grid">
+    <div class="pillar">
+      <div class="pillar-roman">i</div>
+      <div class="pillar-name">Korean HLA n=874</div>
+      <div class="pillar-stat">DPB1*05:01 53.2% > Chu GD 44.0% · pooled OR 2.16 · 6/6 alleles direction-consistent</div>
+      <div class="pillar-status strong">★ Strong (격상 5/3)</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-roman">ii</div>
+      <div class="pillar-name">GSE286332 mechanism</div>
+      <div class="pillar-stat">10,380 DEGs · 8-gene d=−1.60 · HLA-II d=+3.65 · IFN-γ FDR=2e−4</div>
+      <div class="pillar-status strong">Strong</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-roman">iii</div>
+      <div class="pillar-name">Driver mRNA neutrality</div>
+      <div class="pillar-stat">BRAF mRNA d=−0.04 (NS, V600E vs WT) · all driver AUC <0.61 · Driver_anchor ARI=0</div>
+      <div class="pillar-status strong">Strong</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-roman">iv</div>
+      <div class="pillar-name">Pan-genome robustness</div>
+      <div class="pillar-stat">TIERA67 ARI=0.90 ≈ pan-genome top-5000 ARI=0.92 · 8-gene alone 0.49 (honest)</div>
+      <div class="pillar-status strong">Strong</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-roman">v</div>
+      <div class="pillar-name">Autoimmune-PTC</div>
+      <div class="pillar-stat">HLA-II 140% mediation · TCGA Hashi-DM2 OR=0.20 p=6e−10 · TLS d=+1.96 · sub-B = NBNR</div>
+      <div class="pillar-status strong">Strong</div>
+    </div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">Three-layer DM1 mechanism (R5 v4 통합)</div>
+    DM1 (cPTC-architectured BRAF/RAS-neg) 은 (L1) <strong>genetic</strong> — 76.8% tyrosine kinase fusion (RET/NTRK/ALK/BRAF) + (L2) <strong>mechanism heterogeneity</strong> — fusion+ young/well-diff vs fusion- older/immune-hot/Hashimoto-overlap + (L3) <strong>epigenetic</strong> — promoter HYPERMETHYLATION of differentiation machinery (TPO d=2.30, DIO1 d=1.24, TSHR d=1.20, fusion-independent).
+  </div>
+</section>
+
+<!-- ============== § 2 MANUSCRIPT FILES ============== -->
+<section id="files">
+  <div class="section-num">§ 2 · Manuscript files (11)</div>
+  <h2 class="section-title">11 manuscript files · ~19,117 words total</h2>
+  <div class="section-kicker">First-pass drafts complete. Voice-protected sections (Hook/Aim/Disc 3.1/Limitations/Cover Para 1/Q9) = user 키보드.</div>
+
+  <div style="background:#fff; border:1px solid var(--rule);">
+    <div class="file-row" style="background:var(--ink); color:#fff; font-weight:600;">
+      <div class="file-num" style="color:var(--gold);">#</div>
+      <div class="file-name" style="color:#fff;">File</div>
+      <div class="file-words" style="color:#fff;">Words</div>
+      <div class="file-status">Status</div>
+      <div class="file-status">Voice</div>
+    </div>
+    <div class="file-row">
+      <div class="file-num">00</div>
+      <div class="file-name"><a href="00_title_candidates.md">Title candidates</a><code>00_title_candidates.md</code></div>
+      <div class="file-words">1,074</div>
+      <div class="file-status draft">Draft v3</div>
+      <div></div>
+    </div>
+    <div class="file-row protected">
+      <div class="file-num">01</div>
+      <div class="file-name"><a href="01_abstract.md">Abstract (Cell Press structured)</a><code>01_abstract.md · 153 words target</code></div>
+      <div class="file-words">804</div>
+      <div class="file-status draft">v2</div>
+      <div class="file-status protected">Protected</div>
+    </div>
+    <div class="file-row">
+      <div class="file-num">02</div>
+      <div class="file-name"><a href="02_outline.md">Single-page outline (Mermaid + bullets)</a><code>02_outline.md · 5/4-6/13 schedule</code></div>
+      <div class="file-words">4,805</div>
+      <div class="file-status draft">v3</div>
+      <div></div>
+    </div>
+    <div class="file-row protected">
+      <div class="file-num">03</div>
+      <div class="file-name"><a href="03_introduction.md">Introduction (1.1-1.4)</a><code>03_introduction.md · 715 w target</code></div>
+      <div class="file-words">1,368</div>
+      <div class="file-status draft">v2</div>
+      <div class="file-status protected">Hook protected</div>
+    </div>
+    <div class="file-row protected">
+      <div class="file-num">04</div>
+      <div class="file-name"><a href="04_intro_1_1_hook.md">Intro 1.1 Hook standalone</a><code>04_intro_1_1_hook.md</code></div>
+      <div class="file-words">0</div>
+      <div class="file-status protected">User keyboard</div>
+      <div class="file-status protected">Protected</div>
+    </div>
+    <div class="file-row">
+      <div class="file-num">04</div>
+      <div class="file-name"><a href="04_results.md">Results (5 sub-results)</a><code>04_results.md · 3,250 w target</code></div>
+      <div class="file-words">2,760</div>
+      <div class="file-status draft">v3</div>
+      <div></div>
+    </div>
+    <div class="file-row">
+      <div class="file-num">05</div>
+      <div class="file-name"><a href="05_figure_captions.md">Figure 1-8 + Suppl S1-S9 captions</a><code>05_figure_captions.md</code></div>
+      <div class="file-words">1,678</div>
+      <div class="file-status draft">v2</div>
+      <div></div>
+    </div>
+    <div class="file-row protected">
+      <div class="file-num">06</div>
+      <div class="file-name"><a href="06_discussion.md">Discussion (3.1-3.4) + Limitations</a><code>06_discussion.md · 1,380 w target</code></div>
+      <div class="file-words">1,756</div>
+      <div class="file-status draft">v2</div>
+      <div class="file-status protected">3.1 + Limit protected</div>
+    </div>
+    <div class="file-row">
+      <div class="file-num">07</div>
+      <div class="file-name"><a href="07_star_methods.md">STAR Methods (5 sub-sections)</a><code>07_star_methods.md</code></div>
+      <div class="file-words">1,624</div>
+      <div class="file-status draft">v2</div>
+      <div></div>
+    </div>
+    <div class="file-row protected">
+      <div class="file-num">08</div>
+      <div class="file-name"><a href="08_cover_letter.md">Cover letter + 5 suggested reviewers</a><code>08_cover_letter.md</code></div>
+      <div class="file-words">909</div>
+      <div class="file-status draft">v2</div>
+      <div class="file-status protected">Para 1 protected</div>
+    </div>
+    <div class="file-row protected">
+      <div class="file-num">09</div>
+      <div class="file-name"><a href="09_reviewer_qa.md">12 Reviewer Q&amp;A pre-empt</a><code>09_reviewer_qa.md · Q9 voice</code></div>
+      <div class="file-words">1,401</div>
+      <div class="file-status draft">v2</div>
+      <div class="file-status protected">Q9 protected</div>
+    </div>
+    <div class="file-row">
+      <div class="file-num">11</div>
+      <div class="file-name"><a href="11_fig7_dm1_mechanism.py">Fig 7 (DM1 mechanism)</a><code>11_fig7_dm1_mechanism.py</code></div>
+      <div class="file-words">script</div>
+      <div class="file-status script">Python</div>
+      <div></div>
+    </div>
+    <div class="file-row">
+      <div class="file-num">12</div>
+      <div class="file-name"><a href="12_fig8_epigenetic.py">Fig 8 (Epigenetic methylation)</a><code>12_fig8_epigenetic.py</code></div>
+      <div class="file-words">script</div>
+      <div class="file-status script">Python</div>
+      <div></div>
+    </div>
+    <div class="file-row">
+      <div class="file-num">13</div>
+      <div class="file-name"><a href="13_supplementary_tables.md">Supplementary tables S1-S9</a><code>13_supplementary_tables.md</code></div>
+      <div class="file-words">938</div>
+      <div class="file-status draft">v2</div>
+      <div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== § 3 ABSTRACT KEY ============== -->
+<section id="abstract-key">
+  <div class="section-num">§ 3 · Abstract key claims (153 words target)</div>
+  <h2 class="section-title">4-section structured abstract</h2>
+  <div class="section-kicker">Cell Press 표준 — Background / Methods / Results / Conclusions.</div>
+
+  <table>
+    <caption>Table 1. Abstract section breakdown (v2, 2026-04-30 — Conclusions (b) 채택, "dark matter" 따옴표 제거).</caption>
+    <thead><tr><th>Section</th><th>Words v1</th><th>Words v2 ★</th><th>Cell Press standard</th></tr></thead>
+    <tbody>
+      <tr><td>Background</td><td class="num">20</td><td class="num">22</td><td>20-30</td></tr>
+      <tr><td>Methods</td><td class="num">42</td><td class="num">40</td><td>35-40 (web Claude rec)</td></tr>
+      <tr><td>Results</td><td class="num">60</td><td class="num">66</td><td>60-70 (R5-2 보강)</td></tr>
+      <tr><td>Conclusions</td><td class="num">25</td><td class="num">25</td><td>20-30</td></tr>
+      <tr class="highlight"><td><strong>Total</strong></td><td class="num">147</td><td class="num"><strong>153</strong></td><td>150 ± 5</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <div class="callout-label">Cohorts (cover letter level)</div>
+    TCGA-THCA n=504 + MSK-IMPACT n=117 + Korean cohorts n=874 + cBioPortal SV n=542 + HM450 methylation n=503. External sc validation: Pu 2021 (n=7) + Lu 2023 (n=23).
+  </div>
+</section>
+
+<!-- ============== § 4 SUGGESTED REVIEWERS ============== -->
+<section id="reviewers">
+  <div class="section-num">§ 4 · Cover letter — 5 suggested reviewers</div>
+  <h2 class="section-title">No conflicts of interest declared</h2>
+  <div class="section-kicker">Cover letter 의 reviewer suggestion (Cell Rep Med standard 5명).</div>
+
+  <table>
+    <caption>Table 2. Suggested reviewers from cover letter.</caption>
+    <thead><tr><th>Name</th><th>Affiliation</th><th>Expertise</th></tr></thead>
+    <tbody>
+      <tr><td>(content from <code>08_cover_letter.md</code> — voice-protected)</td><td colspan="2">Cover letter Paragraph 1 = user 키보드. 본 dashboard 는 navigation only.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============== § 5 NAVIGATION ============== -->
+<section id="nav">
+  <div class="section-num">§ 5 · External navigation</div>
+  <h2 class="section-title">Companion 자료</h2>
+
+  <table>
+    <caption>Table 3. Paper 1 dashboard navigation.</caption>
+    <thead><tr><th>Resource</th><th>Path</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Yu review dashboard (5-pillar visual)</td><td><code><a href="../reports/yu_review_dashboard/index.html">../reports/yu_review_dashboard/</a></code></td><td>Phase 0 Cancer paper review dashboard, Pillar 별 figure embed</td></tr>
+      <tr><td>References.bib (17 cites)</td><td><code><a href="03_intro_references.bib">03_intro_references.bib</a></code></td><td>Chu 2018 entry placeholder ⚠️ user verify (REFERENCES_BIB_AUDIT)</td></tr>
+      <tr><td>Master papers index</td><td><code><a href="../submission/papers_overview.html">../submission/papers_overview.html</a></code></td><td>6 papers 통합 dashboard</td></tr>
+      <tr><td>Paper 2 brief (autoimmune layer)</td><td><code><a href="../manuscript_p2_brief/paper2_brief.html">../manuscript_p2_brief/paper2_brief.html</a></code></td><td>Sister paper — DM2 autoimmune-overlap brief</td></tr>
+      <tr><td>R5 audit summary v9</td><td><code>../results/audit_2026_04_30/FINAL_COMPREHENSIVE_SUMMARY_v9.md</code></td><td>6-session audit (R1-R5) integration, 31 paper-shaping findings</td></tr>
+      <tr><td>Paper 1 README</td><td><code><a href="README.md">README.md</a></code></td><td>Original directory navigation</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============== § 6 TIMELINE ============== -->
+<section id="timeline">
+  <div class="section-num">§ 6 · 6-week marathon (5/4-6/13)</div>
+  <h2 class="section-title">Writing schedule + submission target 6/13</h2>
+  <div class="section-kicker">Pillar 1 STRONG = 분석 끝. 5/4-6/13 6주 manuscript writing marathon (메모리 <code>v17_marathon_mode_post_pillar1</code>).</div>
+
+  <table>
+    <caption>Table 4. Paper 1 (Cancer v8) 6-week marathon schedule.</caption>
+    <thead><tr><th>Week</th><th>Period</th><th>Focus</th><th>Deliverable</th></tr></thead>
+    <tbody>
+      <tr><td>W1</td><td>5/4 — 5/10</td><td>Methods + Suppl freeze</td><td>STAR Methods (5 subsections) + Suppl tables S1-S9</td></tr>
+      <tr><td>W2</td><td>5/11 — 5/17</td><td>Results section completion</td><td>5 sub-results final, Fig 1-8 captions sync</td></tr>
+      <tr><td>W3</td><td>5/18 — 5/24</td><td>Discussion 3.1 voice (user)</td><td>3.1 mechanism + 3.2 clinical + 3.3 limitations + 3.4 future</td></tr>
+      <tr><td>W4</td><td>5/25 — 5/31</td><td>Cover letter + reviewer Q&amp;A</td><td>Cover Para 1 voice + 12 Q&amp;A pre-empt</td></tr>
+      <tr><td>W5</td><td>6/1 — 6/7</td><td>Figure final + reference verify</td><td>Fig 7 + Fig 8 Python, references.bib Chu 2018 verify</td></tr>
+      <tr><td>W6</td><td>6/8 — 6/13</td><td>Final compile + submit</td><td>Cell Rep Med submission package, bioRxiv preprint</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <p><strong>Paper 1 (Cancer v8) — manuscript dashboard.</strong> Generated 2026-05-02. Source: Paper 1 README + manuscript file inventory.</p>
+  <p style="margin-top:10px;">
+    <strong>Voice-protected sections</strong> (user 키보드): Hook (04_intro_1_1_hook) · Aim · Disc 3.1 (06_discussion) · Limitations · Cover Para 1 (08_cover_letter) · Q9 (09_reviewer_qa)
+  </p>
+  <p style="margin-top:10px;">
+    <strong>Master index</strong>: <a href="../submission/papers_overview.html">../submission/papers_overview.html</a> (6 papers 통합)
+  </p>
+  <p style="margin-top:14px; font-size:10.5px; color:var(--ink-soft); border-top:1px solid var(--rule); padding-top:10px;">
+    Author: Seungho Cook (kukshomr@gmail.com) · Senior author: Yu Hyeong-won
+    File: <code>project/manuscript_v8/dashboard.html</code>
+  </p>
+</footer>
+
+</div>
+</body>
+</html>
