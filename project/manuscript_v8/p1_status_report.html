@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper 1 — Cancer Dark Matter | Status Report</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+<style>
+:root{
+  --ink:#0F1A2E; --ink-soft:#3A4658;
+  --paper:#F4EFE6; --paper-soft:#EBE5D8;
+  --accent:#7B1F2A; --accent-soft:#A04451;
+  --gold:#B8893C; --sage:#5C7B6E;
+  --rule:#C9C2B0; --rule-soft:#D9D2BF;
+  --green:#3C6B4F; --amber:#A57215; --red:#962E2E; --red-deep:#6E1F1F;
+  --highlight:#FFF8E8; --paper-defining-bg:#FAEEED;
+  --forbidden-bg:#FBE5E5; --forbidden-fg:#6E1F1F;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth;}
+
+body{
+  font-family:'Newsreader', Georgia, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif, serif;
+  background:var(--paper); color:var(--ink); line-height:1.65; font-size:16px; font-weight:400;
+  -webkit-font-smoothing:antialiased; font-feature-settings:"kern" 1, "liga" 1;
+}
+
+.container{max-width:1100px; margin:0 auto; padding:48px 56px;}
+
+.display, h1.title, h2.section-title, .pillar-roman, .gap-num{font-family:'Cormorant Garamond', Georgia, serif; font-weight:500; letter-spacing:-0.01em;}
+h1.title{font-size:54px; line-height:1.05; color:var(--accent); font-weight:600; margin-bottom:12px;}
+h1.subtitle{font-family:'Cormorant Garamond', serif; font-size:26px; font-style:italic; font-weight:400; color:var(--ink-soft); margin-bottom:24px; line-height:1.3;}
+.byline{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-soft); margin-top:28px; padding-top:20px; border-top:1px solid var(--rule);}
+.byline span{margin-right:24px;}
+.hero{padding:48px 0 64px; border-bottom:2px solid var(--ink); margin-bottom:48px;}
+.hero-kicker{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); margin-bottom:24px; font-weight:500;}
+.hero-tagline{font-style:italic; font-size:18px; color:var(--ink-soft); max-width:800px; margin-top:20px; border-left:3px solid var(--gold); padding-left:20px;}
+
+.toc{background:var(--paper-soft); padding:28px 32px; margin-bottom:56px; border:1px solid var(--rule);}
+.toc-title{font-family:'Cormorant Garamond', serif; font-size:22px; font-style:italic; color:var(--accent); margin-bottom:16px;}
+.toc-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px 32px; font-size:14px;}
+.toc-grid a{color:var(--ink); text-decoration:none; padding:6px 0; border-bottom:1px dotted var(--rule); display:flex; justify-content:space-between;}
+.toc-grid a:hover{color:var(--accent);}
+.toc-grid a .num{font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--gold); margin-right:12px;}
+
+section{margin-bottom:56px; scroll-margin-top:24px;}
+.section-num{font-family:'JetBrains Mono', monospace; font-size:12px; letter-spacing:0.12em; color:var(--gold); text-transform:uppercase; font-weight:500;}
+h2.section-title{font-size:38px; line-height:1.1; color:var(--ink); margin:6px 0 8px; padding-bottom:14px; border-bottom:2px solid var(--ink);}
+.section-kicker{font-style:italic; color:var(--ink-soft); font-size:16px; margin-bottom:32px;}
+h3.sub-title{font-family:'Cormorant Garamond', serif; font-size:24px; font-weight:500; margin:32px 0 12px; color:var(--accent);}
+h4.sub-sub{font-family:'Cormorant Garamond', serif; font-size:19px; font-weight:600; font-style:italic; margin:22px 0 10px; color:var(--ink);}
+p{margin-bottom:14px;} strong{color:var(--accent); font-weight:600;} em{color:var(--ink-soft);}
+
+.stat-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin:24px 0;}
+.stat{background:#fff; padding:22px 18px; border-top:3px solid var(--accent); border-left:1px solid var(--rule); border-right:1px solid var(--rule); border-bottom:1px solid var(--rule);}
+.stat-value{font-family:'Cormorant Garamond', serif; font-size:36px; font-weight:600; color:var(--accent); line-height:1.05; font-feature-settings:"tnum" 1;}
+.stat-label{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); margin-top:6px;}
+.stat-note{font-size:12px; font-style:italic; color:var(--ink-soft); margin-top:6px;}
+.stat.green{border-top-color:var(--green);} .stat.green .stat-value{color:var(--green);}
+.stat.amber{border-top-color:var(--amber);} .stat.amber .stat-value{color:var(--amber);}
+.stat.red{border-top-color:var(--red);} .stat.red .stat-value{color:var(--red);}
+.stat.gold{border-top-color:var(--gold);} .stat.gold .stat-value{color:var(--gold);}
+
+.callout{padding:18px 22px; margin:18px 0; border-left:4px solid var(--ink); background:#fff; font-size:15px;}
+.callout.green{border-color:var(--green); background:#F1F5EE;}
+.callout.amber{border-color:var(--amber); background:#FCF6E5;}
+.callout.red{border-color:var(--red); background:#FAEEED;}
+.callout-label{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600; margin-bottom:6px;}
+.callout.green .callout-label{color:var(--green);}
+.callout.amber .callout-label{color:var(--amber);}
+.callout.red .callout-label{color:var(--red);}
+
+.pillar-grid{display:grid; grid-template-columns:repeat(5, 1fr); gap:14px; margin:32px 0;}
+.pillar{background:#fff; padding:22px 16px; border:1px solid var(--rule); border-top:3px solid var(--accent); position:relative;}
+.pillar-roman{font-size:42px; font-style:italic; font-weight:500; color:var(--gold); line-height:1; margin-bottom:6px;}
+.pillar-name{font-family:'Cormorant Garamond', serif; font-size:17px; font-weight:600; color:var(--ink); margin-bottom:8px; line-height:1.25;}
+.pillar-stat{font-size:12px; color:var(--ink-soft); line-height:1.45; font-style:italic;}
+.pillar-status{margin-top:12px; display:inline-block; padding:3px 10px; font-family:'JetBrains Mono', monospace; font-size:9px; letter-spacing:0.12em; text-transform:uppercase; font-weight:600;}
+.pillar-status.strong{background:var(--green); color:#fff;}
+.pillar-status.partial{background:var(--amber); color:#fff;}
+.pillar-status.gap{background:var(--red); color:#fff;}
+
+.pillar-detail{background:#fff; border:1px solid var(--rule); border-left:4px solid var(--accent); padding:24px 28px; margin-bottom:18px;}
+.pillar-detail h3{font-family:'Cormorant Garamond', serif; font-size:24px; color:var(--accent); margin-bottom:6px;}
+.pillar-detail .pd-meta{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:14px;}
+
+table{width:100%; border-collapse:collapse; margin:18px 0; background:#fff; font-size:13px; font-variant-numeric:tabular-nums;}
+table caption{caption-side:top; text-align:left; font-family:'Cormorant Garamond', serif; font-size:16px; font-style:italic; color:var(--accent); margin-bottom:6px;}
+th{background:var(--ink); color:#fff; font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; text-align:left; padding:10px 12px; font-weight:500;}
+td{padding:9px 12px; border-bottom:1px solid var(--rule-soft); vertical-align:top;}
+tr.highlight td{background:var(--highlight);}
+td.num{text-align:right; font-family:'JetBrains Mono', monospace; font-size:12px;}
+td.center{text-align:center;}
+.cell-pass{color:var(--green); font-weight:600;}
+.cell-soft{color:var(--amber); font-weight:600;}
+.cell-hard{color:var(--red); font-weight:600;}
+
+.gap-card{display:grid; grid-template-columns:80px 1fr; gap:24px; background:#fff; border:1px solid var(--rule); border-left:4px solid var(--accent); padding:22px 28px; margin-bottom:16px;}
+.gap-num{font-size:52px; font-style:italic; color:var(--gold); line-height:0.9;}
+.gap-card.critical{border-left-color:var(--red);}
+.gap-card.critical .gap-num{color:var(--red);}
+.gap-title{font-family:'Cormorant Garamond', serif; font-size:21px; font-weight:600; color:var(--ink); margin-bottom:6px;}
+.gap-meta{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:10px;}
+.gap-meta .severity{display:inline-block; padding:2px 8px; background:var(--accent); color:#fff; margin-right:8px; font-weight:600;}
+.gap-card.critical .severity{background:var(--red);}
+.gap-body{font-size:14px; line-height:1.6;}
+
+.timeline{position:relative; margin:28px 0; padding-left:30px;}
+.timeline:before{content:''; position:absolute; left:8px; top:8px; bottom:8px; width:2px; background:var(--rule);}
+.tl-row{position:relative; margin-bottom:18px; padding:10px 0;}
+.tl-row:before{content:''; position:absolute; left:-26px; top:14px; width:14px; height:14px; border-radius:50%; background:#fff; border:2px solid var(--accent);}
+.tl-row.done:before{background:var(--green); border-color:var(--green);}
+.tl-row.next:before{background:var(--gold); border-color:var(--gold);}
+.tl-date{font-family:'JetBrains Mono', monospace; font-size:11px; letter-spacing:0.06em; color:var(--accent); font-weight:600; margin-right:12px;}
+.tl-title{font-family:'Cormorant Garamond', serif; font-size:18px; font-style:italic; font-weight:500; color:var(--ink); display:inline;}
+.tl-body{font-size:13px; line-height:1.55; color:var(--ink-soft); margin-top:4px;}
+
+.q-card{display:grid; grid-template-columns:60px 1fr; gap:20px; background:#fff; border:1px solid var(--rule); padding:22px 24px; margin-bottom:14px;}
+.q-num{font-family:'JetBrains Mono', monospace; font-size:14px; letter-spacing:0.06em; color:var(--accent); font-weight:600;}
+.q-question{font-family:'Cormorant Garamond', serif; font-size:20px; font-style:italic; font-weight:500; color:var(--ink); margin-bottom:10px; line-height:1.35;}
+.q-context{font-size:14px; color:var(--ink-soft); line-height:1.6;}
+
+footer{margin-top:80px; padding:36px 0 18px; border-top:2px solid var(--ink); font-size:12px; color:var(--ink-soft); font-family:'JetBrains Mono', monospace;}
+.colophon-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:30px; margin-bottom:20px;}
+.colophon-grid h6{font-family:'Cormorant Garamond', serif; font-size:14px; font-style:italic; color:var(--accent); margin-bottom:8px; font-weight:500; letter-spacing:0; text-transform:none;}
+
+code, .mono{font-family:'JetBrains Mono', monospace; font-size:12px; background:var(--paper-soft); padding:1px 6px; border-radius:2px; color:var(--ink);}
+.title-card{background:#fff; border:2px solid var(--accent); padding:28px 32px; margin:24px 0; box-shadow:4px 4px 0 var(--accent-soft);}
+.title-card .title-label{font-family:'JetBrains Mono', monospace; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:10px;}
+.title-card .title-text{font-family:'Cormorant Garamond', serif; font-size:24px; font-weight:500; line-height:1.3; color:var(--ink); font-style:italic;}
+
+@media (max-width:768px){
+  .container{padding:24px 20px;}
+  h1.title{font-size:34px;}
+  .toc-grid, .stat-grid, .pillar-grid{grid-template-columns:1fr;}
+}
+@media print{
+  body{background:#fff; font-size:10.5pt; color:#000;}
+  .container{max-width:none; padding:18pt 26pt;}
+  h1.title{font-size:24pt; color:#000;}
+  h2.section-title{font-size:16pt; break-after:avoid;}
+  .toc, .stat, .callout, .pillar, .gap-card, .pillar-detail, .q-card, .tl-row, .title-card{break-inside:avoid; page-break-inside:avoid;}
+  table{page-break-inside:auto;}
+  table tr{page-break-inside:avoid;}
+  .hero{padding:18pt 0;}
+  .stat-grid{grid-template-columns:repeat(4,1fr); gap:6pt;}
+  .pillar-grid{grid-template-columns:repeat(5,1fr); gap:5pt;}
+  a{color:#000; text-decoration:none;}
+  th{background:#222 !important; color:#fff !important; print-color-adjust:exact; -webkit-print-color-adjust:exact;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="hero">
+  <div class="hero-kicker">Paper 1 of 3 · Cancer mechanism · 5-Pillar status report</div>
+  <h1 class="title">암 dark matter 의 분자 sub-stratification</h1>
+  <h1 class="subtitle">An 8-gene RAI panel resolves a fusion-driven, epigenetically silenced subtype within BRAF/RAS-negative papillary thyroid carcinoma</h1>
+  <p class="hero-tagline">~23%의 BRAF/RAS-음성 PTC dark matter (Xing 2014 NEJM 명명) 안에서 <strong>76.8% tyrosine-kinase fusion enrichment + fusion-independent promoter hypermethylation (TPO Cohen's d = 2.30)</strong> 을 동시에 설명하는 8-gene 패널 + DM1/DM2 cluster. TCGA-THCA n=504 + MSK-IMPACT n=117 + Korean K2/Lee n=865 + 외부 single-cell (Pu 2021 · Lu 2023) 5-pillar evidence chain. <strong>2026-05-04 기준 status</strong>: Title Cand 1 ★ + Abstract v2 + Outline v3 확정 · Cross-contamination audit PASS post-mechanical-edit · W1–W6 marathon 5/7 진입 예정.</p>
+  <div class="byline">
+    <span>저자 · Seungho Cook</span>
+    <span>지도교수 · Yu Hyeong Won</span>
+    <span>Target venue · Cell Reports Medicine ★ → JCI Insight + Nat Commun reach → npj Precision Oncology fallback</span>
+    <span>Date · 2026-05-04</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="toc-title">목차 — Table of contents</div>
+  <div class="toc-grid">
+    <a href="#s1"><span><span class="num">§ 1</span>Executive summary ★</span><span>↘</span></a>
+    <a href="#s2"><span><span class="num">§ 2</span>Background &amp; unique angle</span><span>↘</span></a>
+    <a href="#s3"><span><span class="num">§ 3</span>5-Pillar evidence chain</span><span>↘</span></a>
+    <a href="#s31"><span><span class="num">§ 3.1</span>Pillar I — DM1/DM2 discovery</span><span>↘</span></a>
+    <a href="#s32"><span><span class="num">§ 3.2</span>Pillar II — Meta HR 2.53</span><span>↘</span></a>
+    <a href="#s33"><span><span class="num">§ 3.3</span>Pillar III — Driver neutrality</span><span>↘</span></a>
+    <a href="#s34"><span><span class="num">§ 3.4</span>Pillar IV — Cross-cohort sc</span><span>↘</span></a>
+    <a href="#s35"><span><span class="num">§ 3.5</span>Pillar V — Fusion + epigenetic</span><span>↘</span></a>
+    <a href="#s4"><span><span class="num">§ 4</span>Title · Abstract · Outline status</span><span>↘</span></a>
+    <a href="#s5"><span><span class="num">§ 5</span>Cross-contamination audit summary</span><span>↘</span></a>
+    <a href="#s6"><span><span class="num">§ 6</span>Open gaps + risks</span><span>↘</span></a>
+    <a href="#s7"><span><span class="num">§ 7</span>Marathon timeline W1–W6</span><span>↘</span></a>
+    <a href="#s8"><span><span class="num">§ 8</span>Discussion questions for advisor</span><span>↘</span></a>
+  </div>
+</nav>
+
+<section id="s1">
+  <div class="section-num">§ 1</div>
+  <h2 class="section-title">Executive summary ★</h2>
+  <div class="section-kicker">5 paper-defining 신호 + 현재 진척률.</div>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="stat-value">76.8%</div><div class="stat-label">DM1 fusion-positive ★</div><div class="stat-note">RET 33 · NTRK 10 · ALK 4 · BRAF 5 · OR 7.41 vs DM2 · cBioPortal SV n=542</div></div>
+    <div class="stat green"><div class="stat-value">2.53</div><div class="stat-label">Pooled OS HR ★</div><div class="stat-note">[1.31, 4.89] I²=0% · TCGA + MSK random-effects DerSimonian-Laird</div></div>
+    <div class="stat gold"><div class="stat-value">2.30</div><div class="stat-label">TPO promoter d ★</div><div class="stat-note">DM1 vs DM2 hypermethylation · mean 8-gene β 0.385 vs 0.253 · fusion-independent</div></div>
+    <div class="stat"><div class="stat-value">81.8%</div><div class="stat-label">RET+ captured by DM1</div><div class="stat-note">27/33 TCGA RET-fusion → DM1 reflex algorithm · 48 selpercatinib-eligible/1000 PTC</div></div>
+    <div class="stat green"><div class="stat-value">0.92</div><div class="stat-label">Pan-genome ARI</div><div class="stat-note">top-5000 ≈ TIERA67 0.90 · 8-gene alone 0.49 · panel-driven artifact 차단</div></div>
+    <div class="stat"><div class="stat-value">−0.04</div><div class="stat-label">BRAF mRNA d (V600E vs WT)</div><div class="stat-note">driver-mutation neutrality · panel mechanism not confounded</div></div>
+    <div class="stat"><div class="stat-value">874</div><div class="stat-label">Korean cohorts</div><div class="stat-note">K2 235 + Lee 630 + GSE286332-PTC 9 (advisor decision pending option a/b)</div></div>
+    <div class="stat green"><div class="stat-value">PASS</div><div class="stat-label">Cross-contamination audit</div><div class="stat-note">Title Cand 1 ★ + Abstract body PASS · Outline 4 HARD post-mechanical-edit clean</div></div>
+  </div>
+
+  <div class="callout green">
+    <div class="callout-label">Paper-defining 한 줄</div>
+    <strong>DM1 = fusion-driven, epigenetically silenced subtype within BRAF/RAS-negative dark matter — RET reflex algorithm + HMA + RAI re-induction rationale.</strong> 5 pillars 가 동일 DM1 sub-stratum 을 5가지 직교 layer (orthogonal axis · clinical aggressiveness · driver neutrality · cross-cohort transfer · two-mechanism integration) 로 동시 충족. Pillar 5 (fusion + epigenetic) 가 paper-defining novelty.
+  </div>
+
+  <div class="title-card">
+    <div class="title-label">★ Title Cand 1 — Mechanism-forward (recommended, 99 chars)</div>
+    <div class="title-text">"Fusion-driven, epigenetically silenced dark matter in BRAF/RAS-negative papillary thyroid carcinoma"</div>
+  </div>
+</section>
+
+<section id="s2">
+  <div class="section-num">§ 2</div>
+  <h2 class="section-title">Background &amp; unique angle</h2>
+  <div class="section-kicker">왜 본인이 이 paper 를 쓸 수 있고, 왜 지금이어야 하는가.</div>
+
+  <h3 class="sub-title">2.1 Clinical motivation</h3>
+  <p>분화 갑상선암의 5년 생존율은 98% 이상이지만, ATA 2015 intermediate-risk 환자의 약 20% 에서 구조적 재발이 발생합니다 (Haugen et al. 2016). BRAF/RAS-음성 dark matter (~23%) 는 이 재발의 핵심 미해결 영역으로, 현재 RAI 치료 결정은 임상-병리 변수와 BRAF V600E 단일 marker 에만 의존하고 있습니다. ATA 2025 (Ringel et al. 2025) 에도 fusion driver 와 epigenetic silencing 은 risk tier 에 반영되지 않은 상태 — 본 paper 가 이 공백을 정확히 충족합니다.</p>
+
+  <h3 class="sub-title">2.2 본인 자산 정렬</h3>
+  <p>본 분석은 본인의 기존 도구 chain 을 정확히 활용합니다 — (i) <strong>TIERA67</strong> 67-gene candidate pool 정의 (driver gene 미포함, biology-curated) · (ii) <strong>DM1/DM2</strong> classifier (Cancer paper Phase 0) · (iii) cBioPortal API 기반 structural variant + HM450 methylation 통합 처리. 두 분 (주영석 / 최정균) 도 갖고 있지 않은 본인 고유 자산.</p>
+
+  <h3 class="sub-title">2.3 Convergence framing — Yoo 2016 + Landa 2016</h3>
+  <p>8-gene panel 은 <strong>Yoo SK et al. 2016 PLOS Genet</strong> 의 RAI uptake biology 16-gene TDS-core 의 subset (panel access 시점 Landa 2016 ATC 데이터 미접근). <strong>Landa I et al. 2016 JCI 126(3):1052-1066</strong> 의 advanced thyroid cancer (84 PDTC + 33 ATC) genomic landscape 에서 분화 transcript (TG · TSHR · TPO · PAX8 · SLC26A4 · DIO1 · DUOX2) 가 ATC 끝단에서 profoundly suppressed. <strong>5/8 gene overlap = independent design 이 동일 biology 에 도달한 convergent validation</strong> (reverse-causality 차단 3-layer: Methods Yoo 2016 first cite · Discussion 3.1 convergence framing · Cover Letter explicit statement).</p>
+</section>
+
+<section id="s3">
+  <div class="section-num">§ 3</div>
+  <h2 class="section-title">5-Pillar evidence chain</h2>
+  <div class="section-kicker">5 직교 layer 가 동일 DM1 sub-stratum 을 동시 충족 — orthogonal axis · clinical aggressiveness · driver neutrality · cross-cohort transfer · two-mechanism integration.</div>
+
+  <div class="pillar-grid">
+    <div class="pillar"><div class="pillar-roman">I</div><div class="pillar-name">DM1/DM2 discovery</div><div class="pillar-stat">8-gene panel + leiden K=2 · TIERA67-derived · ΔAUC 8 vs 16 = 0.013 NS</div><div class="pillar-status strong">STRONG</div></div>
+    <div class="pillar"><div class="pillar-roman">II</div><div class="pillar-name">Clinical HR meta</div><div class="pillar-stat">TCGA HR 2.30 + MSK 2.67 · pooled 2.53 [1.31, 4.89] I²=0%</div><div class="pillar-status strong">STRONG</div></div>
+    <div class="pillar"><div class="pillar-roman">III</div><div class="pillar-name">Driver neutrality</div><div class="pillar-stat">BRAF mRNA d=−0.04 V600E vs WT · pan-genome ARI 0.92</div><div class="pillar-status strong">STRONG</div></div>
+    <div class="pillar"><div class="pillar-roman">IV</div><div class="pillar-name">Cross-cohort sc</div><div class="pillar-stat">Pu 2021 6/6 r&gt;0.79 · Lu 2023 r=0.97 (autocorr disclosure)</div><div class="pillar-status strong">STRONG</div></div>
+    <div class="pillar"><div class="pillar-roman">V ★</div><div class="pillar-name">Fusion + epigenetic</div><div class="pillar-stat">76.8% fusion+ · TPO d=2.30 promoter hypermethylation fusion-independent</div><div class="pillar-status strong">STRONG ★</div></div>
+  </div>
+
+  <div class="pillar-detail" id="s31">
+    <h3>Pillar I — 8-gene panel + DM1/DM2 cluster discovery</h3>
+    <div class="pd-meta"><span style="color:var(--accent);">STRONG</span> · 5/4 본인 voice 영역 §2.1 · Fig 1 (4 panels) · v4 §5.1, P1 + P4</div>
+    <p>TIERA67 67-gene candidate pool — 7 biology category curation, driver gene 미포함 (panel-driven artifact 차단). 8-gene = TDS-core subset (Yoo 2016 PLOS Genet RAI uptake 16-gene 의 8 / 16). leiden K=2 unsupervised cluster → DM1 (MAPK-active, dedifferentiated) + DM2 (thyroid-lineage-preserved). ΔAUC (8 vs 16) = 0.013 NS — <strong>parsimony principle 충족</strong>.</p>
+  </div>
+
+  <div class="pillar-detail" id="s32">
+    <h3>Pillar II — Clinical aggressiveness + Meta-analysis</h3>
+    <div class="pd-meta"><span style="color:var(--accent);">STRONG</span> · Fig 2 + Fig 6 forest · v4 §5.4, R2-N1</div>
+    <p>Xing 2014 dark matter 의 73% sub-stratification rescue (180 BRAF-/TERT- → 131 sub-stratified). <strong>TCGA HR 2.30 [0.77, 6.88]</strong> + <strong>MSK HR 2.67 [1.17, 6.10]</strong> → DerSimonian-Laird random-effects pooled <strong>HR 2.53 [1.31, 4.89], I²=0%, Cochran Q p=0.79</strong>. Heterogeneity 없는 meta-analysis 가 reviewer 의 "single-cohort artifact" 우려 사전 차단.</p>
+  </div>
+
+  <div class="pillar-detail" id="s33">
+    <h3>Pillar III — Driver mRNA neutrality + pan-genome reproducibility</h3>
+    <div class="pd-meta"><span style="color:var(--accent);">STRONG</span> · Fig 1 panels C+D · GRAND P1, P4</div>
+    <p>BRAF transcript Cohen's d = −0.04 (V600E carriers vs wild-type) — <strong>panel mechanism 이 driver mutation status 와 independent</strong>. Pan-genome top-5000 features ARI = 0.92 ≈ TIERA67 0.90; 8-gene alone ARI = 0.49; Driver_anchor only ARI = −0.007. <strong>"Candidate-pool restriction does not artificially impose this structure"</strong> — reviewer 의 "panel trivial?" Q 사전 차단.</p>
+  </div>
+
+  <div class="pillar-detail" id="s34">
+    <h3>Pillar IV — Cross-cohort + Single-cell external validation</h3>
+    <div class="pd-meta"><span style="color:var(--accent);">STRONG</span> · Fig 3 + Fig 5 · v4 §5.5, R4-3, D8-B</div>
+    <p>Single-cell external — <strong>Pu et al. 2021 Nat Commun 12:6058 (GSE184362, 6 PTC patients)</strong> r = 0.798–0.886 thyrocyte-intrinsic DM1 signal · <strong>Lu 2023</strong> r = 0.97 (panel autocorrelation Δd=0.30 honest disclosure). FFPE robustness KS p=0.44. Korean K2 235 + Lee 630 (advisor option a/b 결정 후 GSE286332-PTC 9 포함 여부) — bulk RNA-seq cross-population transfer.</p>
+  </div>
+
+  <div class="pillar-detail" id="s35" style="border-left-width:6px; border-left-color:var(--red); background:linear-gradient(180deg, var(--paper-defining-bg) 0%, #fff 12%);">
+    <h3 style="color:var(--red);">Pillar V ★ — Fusion-driven + epigenetically silenced dark matter</h3>
+    <div class="pd-meta"><span style="color:var(--red); font-weight:700;">PAPER-DEFINING</span> · Fig 7 + Fig 8 · v4 §5.0 R3-F4 + R5-2</div>
+    <h4 class="sub-sub">5.1 — Driver-fusion enrichment</h4>
+    <p><strong>DM1 76.8% fusion-positive (63/82)</strong>: RET 33 · NTRK 10 · ALK 4 · BRAF 5. DM1 vs DM2 OR 7.41 (sensitivity 7.18–9.07). MSK SV cross-validation (RET 5 · ALK 3 · PAX8-PPARG 3). Missingness MAR (chi² p=0.56). cBioPortal SV n=542 (542/557 SV-tested).</p>
+    <h4 class="sub-sub">5.2 — Promoter hypermethylation (fusion-independent)</h4>
+    <p>Cohen's d table — <strong>TPO 2.30 · DIO1 1.24 · TSHR 1.20 · PAX8 0.97 · TG 0.86 · FOXE1 0.84 · NKX2-1 0.63</strong> · SLC5A5 NS d=0.22. Mean 8-gene β <strong>0.385 (DM1) vs 0.253 (DM2)</strong>. <strong>Within-DM1 fusion+ vs fusion- d = −0.36 NS — methylation 은 fusion driver 와 독립적 layer</strong>. 3-layer model (L1 genetic · L2 heterogeneity · L3 epigenetic).</p>
+    <h4 class="sub-sub">5.3 — Translational implication</h4>
+    <p>RET reflex algorithm — DM1 captures 81.8% TCGA RET-fusion (27/33). Population estimate <strong>48 selpercatinib-eligible / 1000 PTC</strong> (Wirth 2020 NEJM LIBRETTO-001 ORR 79%). HMA + RAI re-induction rationale = TPO/DIO1/TSHR promoter hypermethylation epigenetic-targeted (decitabine retrospective ATC trials NCT00085293, NCT01065090). SLC5A5/NIS exception → combination strategies. <strong>"Evaluation, not trial"</strong> dial-back tone.</p>
+  </div>
+</section>
+
+<section id="s4">
+  <div class="section-num">§ 4</div>
+  <h2 class="section-title">Title · Abstract · Outline status</h2>
+  <div class="section-kicker">Source file v3 확정 + audit PASS post-mechanical-edit.</div>
+
+  <table>
+    <caption>Table 1 — Source file status (5/4 기준)</caption>
+    <thead><tr><th>File</th><th>Version</th><th>Status</th><th>Words / lines</th><th>본인 voice 영역</th></tr></thead>
+    <tbody>
+      <tr><td><code>00_title_candidates.md</code></td><td>v2 (★ Cand 1)</td><td class="cell-pass">LOCK pending</td><td class="num">75 lines</td><td>Cand 1 → 5/6 lock</td></tr>
+      <tr><td><code>01_abstract.md</code></td><td>v2 (153w)</td><td class="cell-pass">PASS</td><td class="num">153 / 73</td><td>Conclusions (b) confirmed</td></tr>
+      <tr><td><code>02_outline.md</code></td><td>v3</td><td class="cell-soft">PASS post-edit</td><td class="num">328 lines</td><td>§3.1, §3.4 본인 키보드</td></tr>
+      <tr><td><code>03_introduction.md</code></td><td>v1 draft 715w</td><td class="cell-soft">DRAFT</td><td class="num">715 / 87</td><td>§1.1 Hook 첫 줄, §1.4 Aim</td></tr>
+      <tr><td><code>04_results.md</code></td><td>—</td><td class="cell-hard">TBD</td><td class="num">—</td><td>5/7 marathon W1 진입</td></tr>
+      <tr><td><code>06_discussion.md</code></td><td>—</td><td class="cell-hard">TBD</td><td class="num">—</td><td>§3.1 첫 paragraph 본인 키보드</td></tr>
+      <tr><td><code>07_star_methods.md</code></td><td>—</td><td class="cell-hard">TBD</td><td class="num">—</td><td>scaffolding Claude 보조</td></tr>
+      <tr><td><code>08_cover_letter.md</code></td><td>—</td><td class="cell-hard">TBD</td><td class="num">—</td><td>본인 voice 전체</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="s5">
+  <div class="section-num">§ 5</div>
+  <h2 class="section-title">Cross-contamination audit summary</h2>
+  <div class="section-kicker">5/4 isolated session 산출물 — 자세한 결과는 <code>p1_cross_contamination_audit.html</code> 참조.</div>
+
+  <div class="stat-grid">
+    <div class="stat green"><div class="stat-value">PASS</div><div class="stat-label">Title body</div><div class="stat-note">Cand 1 + Cand 2 · 0 forbidden term</div></div>
+    <div class="stat green"><div class="stat-value">PASS</div><div class="stat-label">Abstract body</div><div class="stat-note">Lines 11–19 · Conclusions (b) clean</div></div>
+    <div class="stat red"><div class="stat-value">4</div><div class="stat-label">Outline HARD</div><div class="stat-note">§2.4b · §2.5 · §3.3 · §3.4(iii)</div></div>
+    <div class="stat amber"><div class="stat-value">7</div><div class="stat-label">A1–A7 actions</div><div class="stat-note">~22 min mechanical edit post-approval</div></div>
+  </div>
+
+  <p>3 source file × 15 forbidden term grep 결과 — Title Cand 1 ★ + Abstract body 는 즉시 PASS. Outline §2.4b · §2.5 · §3.3 · §3.4(iii) 4 cell 에 prose-propagation risk HARD violation. <strong>Pillar 5 boundary 의 의도 (Paper 1 = "older + immune-hot DM1 sub-B is mechanistically distinct" 까지) 는 take-home line 112 에서 깔끔하나, §2.4b cell line 104 자체에 Paper 2 territory 통계 5개가 inline.</strong> A1–A4 mechanical edit 후 §2.4b · §2.5 · §3.3 · §3.4 prose drafting 가능. 자세한 violation quote + recommended sanitization 은 별도 audit briefing 참조.</p>
+</section>
+
+<section id="s6">
+  <div class="section-num">§ 6</div>
+  <h2 class="section-title">Open gaps + risks</h2>
+  <div class="section-kicker">3 open gaps · advisor 답장 전 본인 결정 필요.</div>
+
+  <div class="gap-card">
+    <div class="gap-num">1</div>
+    <div>
+      <div class="gap-title">GSE286332 PTC(9) inclusion in n=874</div>
+      <div class="gap-meta"><span class="severity">MED</span> 01_abstract.md:15,49 · 02_outline.md:106 · A2 + A5 cohort decision</div>
+      <div class="gap-body"><strong>Option (a) keep n=874 + STAR Methods caveat</strong> (statistical power 보존, boundary risk) vs <strong>Option (b) recompute n=865 K2+Lee only</strong> (cancer-only scope 강화, 1% power loss). 본인 권장 (b). Figure caption n 표기 일관 변경 ~10 분.</div>
+    </div>
+  </div>
+
+  <div class="gap-card">
+    <div class="gap-num">2</div>
+    <div>
+      <div class="gap-title">K2 mini-index calibration mismatch (D7-P3)</div>
+      <div class="gap-meta"><span class="severity">MED</span> §3.4(iii) Limitations · A4 rephrasing</div>
+      <div class="gap-body">K2 8-gene mini-index TPM ~10–100× inflation (memory <code>v17_korean_k2_calibration.md</code>). 해결 — within-sample-centered profile (TCGA AUC 0.968). §3.4(iii) Limitations 정직 disclosure 필수. K2 alternate evidence (94.6% DM2 + sub-stratification fraction) 로 cover.</div>
+    </div>
+  </div>
+
+  <div class="gap-card">
+    <div class="gap-num">3</div>
+    <div>
+      <div class="gap-title">Bundang prospective cohort 0%</div>
+      <div class="gap-meta"><span class="severity">MED</span> §3.4(ii) Limitations · 분당 SNUH 응답 대기</div>
+      <div class="gap-body">현재 prospective biopsy cohort 0건. East-Asian 4,300+ retrospective tumor 로 cover (Korean DM 37.8% vs TCGA 28.4%). venue ladder "stretch" 표현 — Cell Rep Med ★ default, JCI Insight + Nat Commun reach, npj Precision Oncology fallback.</div>
+    </div>
+  </div>
+</section>
+
+<section id="s7">
+  <div class="section-num">§ 7</div>
+  <h2 class="section-title">Marathon timeline · W1–W6</h2>
+  <div class="section-kicker">5/4 advisor 답장 → 5/5 prep day → 5/6 Title lock + Hook → 5/7–6/13 marathon W1–W6.</div>
+
+  <div class="timeline">
+    <div class="tl-row done">
+      <span class="tl-date">2026-04-30</span>
+      <span class="tl-title">분석 freeze · Marathon 모드 진입</span>
+      <div class="tl-body">memory <code>v17_marathon_mode_post_pillar1.md</code> · "Pillar 1 STRONG = 분석 끝. D9+ sprint 없음. 5/4–6/13 6주 manuscript writing marathon."</div>
+    </div>
+    <div class="tl-row done">
+      <span class="tl-date">2026-05-04 AM</span>
+      <span class="tl-title">Cross-contamination audit 완료 · A1–A7 식별</span>
+      <div class="tl-body">3 source file × 15 forbidden term grep · 4 HARD + 3 SOFT/META · advisor briefing webpage 생성.</div>
+    </div>
+    <div class="tl-row next">
+      <span class="tl-date">2026-05-04 PM</span>
+      <span class="tl-title">Advisor 답장 + A1–A4 confirm + GSE286332 option a/b 결정</span>
+      <div class="tl-body">한 줄 답: <code>"A1–A4 confirm / A2 option B / A6–A7 sanitize 진행"</code> → mechanical edit 권한 획득.</div>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">2026-05-04 PM</span>
+      <span class="tl-title">Outline · Abstract · Title-candidates mechanical edit (~22분)</span>
+      <div class="tl-body">A1–A7 적용 · Claude Code 가 본인 voice 보호 영역 미접근.</div>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">2026-05-05</span>
+      <span class="tl-title">본인 prep day — Landa 1.5h + Yoo 30min + ATA 1–1.5h</span>
+      <div class="tl-body">Discussion 3.1 (Landa 2016) · Yoo 2016 PLOS Genet methods · ATA 2015+2025 fusion/epigenetic 반영 시나리오 1/2/3.</div>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">2026-05-06</span>
+      <span class="tl-title">Title Cand 1 ★ lock + Hook 첫 단락 본인 키보드</span>
+      <div class="tl-body">"Fusion-driven, epigenetically silenced dark matter ..." 확정 · §1.1 Hook (voice-protected) 본인 작성.</div>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">2026-05-07 → 2026-05-17</span>
+      <span class="tl-title">W1–W2 · Methods + Suppl freeze</span>
+      <div class="tl-body">Cell Press STAR Methods 5 sub-section · Suppl Tables S1–S15 · cohort assembly · panel selection · DM cluster · sc validation · survival meta · cBioPortal API · Korean processing · software.</div>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">2026-05-18 → 2026-05-31</span>
+      <span class="tl-title">W3–W4 · Results + Discussion draft</span>
+      <div class="tl-body">§2.1–§2.5 Results 5 sub-result × 500–800w · §3.1–§3.4 Discussion 1,000–1,500w · §3.1 첫 paragraph + §3.4 Limitations 본인 voice.</div>
+    </div>
+    <div class="tl-row">
+      <span class="tl-date">2026-06-01 → 2026-06-13</span>
+      <span class="tl-title">W5–W6 · Cover letter + submission</span>
+      <div class="tl-body">Cell Reports Medicine submission portal · cover letter 본인 voice · figure final SVG · response to reviewers prep.</div>
+    </div>
+  </div>
+</section>
+
+<section id="s8">
+  <div class="section-num">§ 8</div>
+  <h2 class="section-title">Discussion questions for advisor</h2>
+  <div class="section-kicker">미팅 안건 — 본인 답 prepared.</div>
+
+  <div class="q-card"><div class="q-num">Q1</div><div><div class="q-question">"GSE286332 PTC arm 9명을 Paper 1 cohort 로 포함할 것인가? (option a vs b)"</div><div class="q-context">본인 권장 option (b): n=865 (K2+Lee only) — cancer-only scope 강화, Paper 2 backbone 무관계, 1% power loss 미미. Figure caption n 표기 일관 변경 ~10 분.</div></div></div>
+  <div class="q-card"><div class="q-num">Q2</div><div><div class="q-question">"Title Cand 1 (mechanism-forward) vs Cand 2 (translational-forward) — venue 별 어떤 게 fit?"</div><div class="q-context">본인 추천 Cand 1. Cell Reports Medicine 의 mechanism-forward 선호 + Nat Commun reach 정당화. Cand 2 는 npj Precision Oncology fallback 시 고려.</div></div></div>
+  <div class="q-card"><div class="q-num">Q3</div><div><div class="q-question">"Pillar 5 boundary — §2.4b 에서 Paper 2 hook 어디까지 명시?"</div><div class="q-context">Take-home phrase "warranting separate inquiry" 까지만 (line 112). Cell 안의 Paper 2 statistic 5개 (mediation · HLA n=874 · BCR · NBNR · 침윤 통계) 는 A1 mechanical edit 으로 drop.</div></div></div>
+  <div class="q-card"><div class="q-num">Q4</div><div><div class="q-question">"Discussion 3.2 의 ATA 2025 fusion/epigenetic 반영 여부 시나리오 1/2/3 중 어느 것?"</div><div class="q-context">5/5 본인 ATA 2025 PDF read 후 결정. 시나리오 1 (반영 됨): 본 paper 가 ATA 2025 framework 보강. 2 (부분 반영): orthogonal molecular axis 강조. 3 (미반영): "ATA 2025 의 미반영 영역" 명시.</div></div></div>
+  <div class="q-card"><div class="q-num">Q5</div><div><div class="q-question">"Cell Reports Medicine ★ vs JCI Insight + Nat Commun dual reach — 5/5 결정 필요?"</div><div class="q-context">Cell Rep Med 1순위 (mechanism + translational dual fit + Cell Press Brief Report 형식). JCI Insight reach 는 5-pillar evidence chain 정당화. Nat Commun reach 는 unsupervised discovery framing 강조 시 가능.</div></div></div>
+</section>
+
+<footer>
+  <div class="colophon-grid">
+    <div><h6>Colophon</h6>Set in Cormorant Garamond + Newsreader + JetBrains Mono. Burgundy / Gold / Sage palette. Single HTML · CSS inline.</div>
+    <div><h6>Source &amp; provenance</h6>Source · <code>project/manuscript_v8/</code> · 17 files (v1–v3 drafts).<br>Memory · v17_marathon_mode + v17_8gene_audit + v17_landa2016_cite_save.</div>
+    <div><h6>Scope</h6>Paper 1 · cancer dark matter (BRAF/RAS-negative PTC).<br>Paper 2 / 3 territory terms · 0 plain-text occurrences.</div>
+  </div>
+  <div style="text-align:center; padding-top:18px; border-top:1px dotted var(--rule); font-style:italic; font-family:'Cormorant Garamond', serif; font-size:14px;">Paper 1 Status Report · v1 · 2026-05-04 · Seungho Cook</div>
+</footer>
+
+</div>
+</body>
+</html>

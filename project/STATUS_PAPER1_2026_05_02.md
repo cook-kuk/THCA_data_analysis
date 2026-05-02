@@ -19,7 +19,7 @@
 
 ## Venue ladder
 - Base: Sci Rep
-- Reach: Cell Rep Med / JCI Insight (gated by GSE286332 PTC+HT signature → TCGA DM2 enrichment OR up to 5×, p=6e-10 — already STRONG)
+- Reach: Cell Rep Med / JCI Insight — **post-5/4 Yu split 재검토 필요**. GSE286332 PTC+HT signature 는 Paper 2 (HT-overlap) 영역으로 이동. Paper 1 reach 정당화는 8-gene driver-excluded sub-stratifier framing + DM1 sub-B NBNR bridge + TERT recovery v2 에서 다시 확보해야 함. Yu 미팅에서 reach 확정.
 
 ## Open risks
 - 4 outreach drafts NOT sent (npj_ship_status memory) — user decides timing
