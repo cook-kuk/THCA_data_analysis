@@ -15,13 +15,13 @@
 | **Biological samples** | | |
 | TCGA-THCA tissue samples (n=500) | TCGA Genomic Data Commons | dbGaP: phs000178; GDC project: TCGA-THCA |
 | K2 PTC tissue (n=260) | Yoo SK 2016 Mol Cell Biol; SNU-GMI | ENA: PRJEB11591 |
-| Lee 2024 PTC tissue (n=632) | Lee Y et al. 2024; GEO | GEO: GSE213647 |
+| Lee 2024 PTC tissue (n=632) | Lee SE et al. 2024; GEO | GEO: GSE213647 |
 | GSE286332 PTC + PTC+HT tissue (n=18) | Lim DW 2025; Dongguk Univ; PMID 41113708 | GEO: GSE286332; SRA: PRJNA1208932 |
 | **Chemicals, peptides, recombinant proteins** | N/A | N/A |
 | **Critical commercial assays** | (none — secondary analysis) | N/A |
 | **Deposited data** | | |
 | TCGA-THCA RNA-seq (log2 expression matrix) | Cancer Genome Atlas | https://portal.gdc.cancer.gov/projects/TCGA-THCA |
-| GSE213647 RNA-seq | Lee Y et al. 2024 | GEO: GSE213647 |
+| GSE213647 RNA-seq | Lee SE et al. 2024 | GEO: GSE213647 |
 | GSE286332 RNA-seq raw counts + FPKM | Lim DW et al. 2025 | GEO: GSE286332 |
 | PRJEB11591 RNA-seq | Yoo SK 2016 | ENA: PRJEB11591 |
 | Chu 2018 Han Chinese Graves' HLA summary statistics | Chu X et al. 2018 J Med Genet | PMC: PMC6161647; doi: 10.1136/jmedgenet-2017-105146 |

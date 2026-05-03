@@ -231,7 +231,7 @@ Thyroid cancer epidemiology + ATA 2015 risk stratification gap (3-5% to 50-75% r
 ## Acknowledgments
 - ARIA project allocation
 - TCGA Research Network for thyroid cancer dataset
-- Yoo SK / SNU-GMI (PRJEB11591), Lee Y / Macrogen (GSE213647), Lim DW / Dongguk (GSE286332)
+- Yoo SK / SNU-GMI (PRJEB11591), Lee SE / Macrogen (GSE213647), Lim DW / Dongguk (GSE286332)
 - cookHLA / arcasHLA tool maintainers
 - Computing: Azure Korea Central burst pattern (~$5.80 total)
 

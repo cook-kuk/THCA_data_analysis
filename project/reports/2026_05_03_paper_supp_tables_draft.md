@@ -11,7 +11,7 @@
 |---|---|---|---|---|---|---|---|
 | TCGA-THCA | TCGA-Cancer Network 2014 | 500 | RNA-seq Illumina | EUR-dominant | DM1=140, DM2=360 | 4-digit imputed (HLA-LA) | Discovery, classifier training |
 | K2 (PRJEB11591) | Yoo SK 2016 SNU-GMI | 260 (235 valid HLA) | RNA-seq Illumina | Korean | DM1=14, DM2=246 | arcasHLA 4-digit (5/2) | Korean PTC validation |
-| Lee 2024 (GSE213647) | Lee Y et al. 2024 Macrogen | 632 (630 valid HLA) | RNA-seq Illumina | Korean | DM proxy via 8-gene | arcasHLA 4-digit | Korean PTC replication |
+| Lee 2024 (GSE213647) | Lee SE et al. 2024 Macrogen | 632 (630 valid HLA) | RNA-seq Illumina | Korean | DM proxy via 8-gene | arcasHLA 4-digit | Korean PTC replication |
 | GSE286332 | Lim DW 2025 Dongguk Univ | 18 (9 PTC + 9 PTC+HT) | RNA-seq NovaSeq X | Korean | DM2 100% (all 18) | arcasHLA 4-digit (5/2) | PTC vs PTC+HT discovery |
 | Chu 2018 J Med Genet | Chu X et al. 2018 | 2,958 (1,468 GD / 1,490 ctrl) | SNP2HLA Pan-Asian panel | Han Chinese | NA | summary stats published | Pan-Asian forest replication |
 
