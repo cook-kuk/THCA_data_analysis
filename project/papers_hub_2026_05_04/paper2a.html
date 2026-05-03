@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper #2A — H&E → DM1 finding | THCA Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head><body>
+<div class="container">
+
+<nav class="topnav">
+  <a href="paper1.html">← Paper #1</a>
+  <a class="home" href="index.html">🏠 8-Papers Hub</a>
+  <span class="center">Paper #2A of 8 — H&amp;E → DM1 image projection</span>
+  <a href="paper2b.html">Next → Paper #2B</a>
+</nav>
+
+<header class="hero">
+  <h1><span class="num">#2A</span>H&amp;E → DM1 image projection — <em style="font-style:italic; color:var(--ink-soft); font-weight:500; font-size:30px;">negative-feasibility finding</em> <span class="badge b-finding" style="margin-left:10px; vertical-align:middle;">Finding (formerly "failure")</span></h1>
+  <div class="sub">"Tile-level H&amp;E prediction of depth-residualized 8-gene DM1 score is bounded below random — a pre-registered failed hypothesis as methods supplement"</div>
+  <div class="meta">
+    <span>📅 NO-GO 확정 2026-05-04</span>
+    <span>⏱ ~85 min CPU + RunPod ~$30 sunk</span>
+    <span>🔁 Re-entry 5/5 conditions 必</span>
+    <span>📦 closure battery + Phase A NO-GO + decision memo</span>
+  </div>
+</header>
+
+<div class="stat-hero">
+  <div>
+    <div class="big">r = 0.022</div>
+    <div class="big-label">DM1_resid LOSO · ResNet50 224 px</div>
+  </div>
+  <div class="narrative">실측 신호가 <strong>50개 random gene panel 의 max (r = 0.062)</strong> 보다도 낮음 — 즉 <strong>chance below random</strong>. Foundation model 업그레이드 projected gain (+0.05 ~ +0.15) 도 GO threshold (+0.28) 미달. 다음 스튜디오에 "이 dataset 으로 같은 시도 하지 말라" 라는 <strong>actionable upper bound</strong> 를 제공.</div>
+</div>
+
+<div class="finding-box">
+  <span class="stamp">FAILURE → FINDING</span>
+  <h4>왜 이 NO-GO 가 "발견" 인가</h4>
+  <p><strong>Visium ST 의 spot-level molecular label</strong> 과 <strong>tile-level H&amp;E content</strong> 사이에 <strong>fundamental mismatch</strong> 가 존재한다는 것을 정량적으로 BOUND 했다. 이 결과는 다음을 알려준다:</p>
+  <ol>
+    <li>ResNet50 ImageNet 224 px DM1_resid Spearman r = 0.022 (chance).</li>
+    <li>50 random gene panels 의 max = 0.062 — real RAI_8 raw = 0.067 ≈ random max.</li>
+    <li>Foundation-model (UNI / CONCH / Virchow2) projected gain +0.05 ~ +0.15 도 GO threshold (+0.28) 미달.</li>
+    <li>→ 다음 스튜디오가 같은 dataset 으로 같은 시도 하기 전에 알아야 할 <strong>경계선</strong>.</li>
+    <li>→ Methods supplement / pre-registered failed hypothesis 로 <strong>negative result publication 가치</strong>.</li>
+  </ol>
+</div>
+
+<div class="kvgrid">
+  <div class="k">Status</div><div>NO-GO 확정 2026-05-04 (closure battery, ~85 min CPU + RunPod ~$30 sunk cost)</div>
+  <div class="k">Pivot</div><div><a href="paper2b.html">Paper 2B</a> (Hashimoto-overlap mechanism, molecular-only) 로 scope 이동 — image-axis dropped from Paper 1/2 entirely</div>
+  <div class="k">Re-entry</div><div>5/5 conditions 모두 충족 시 only (현재 0/5 — full-res WSI / external molecular label / post-marathon / foundation model access / pre-registered hypothesis)</div>
+  <div class="k">Memory</div><div>v52_lodo_finding (관련) · "고고"/"faster"/"다 해줘" override NOT 적용</div>
+</div>
+
+<h2>Hypothesis (rejected)</h2>
+<p>Paper 1's depth-residualized 8-gene <code>DM1_like_score_resid</code> can be predicted from spot-aligned H&amp;E tiles in Visium ST data (28 slides, GSE250521 + 4 GSE230424 + 8 GSE248205).</p>
+
+<h3>Closure battery — 5-failure-mode dissection</h3>
+<table>
+  <thead><tr><th>Phase</th><th>Test</th><th>Outcome</th><th>What it bounds</th></tr></thead>
+  <tbody>
+    <tr><td>A</td><td>raw DM1/RAI/TDS @ 224 px ResNet50 (6 metrics × 2 models)</td><td>r ≤ 0.08</td><td>baseline molecular target weak</td></tr>
+    <tr><td>B</td><td>5 residualization variants (log_counts / log_ngenes / no_resid / rank_norm / epi-top50)</td><td>all r ≤ 0.06</td><td>residualization choice 도 못 살림</td></tr>
+    <tr><td>C</td><td>tile size 448 px sweep</td><td>r = 0.017 (worse than 224)</td><td>scale 도 핵심 아님</td></tr>
+    <tr><td>D</td><td>stage ordinal / ATC binary / epithelial / proliferation</td><td>stage r=−0.05 / ATC AUROC 0.689 BORDERLINE</td><td>ATC만 잡힘 (gross anaplastic morphology, prior art 풍부)</td></tr>
+    <tr><td>E</td><td>slide-level aggregation (mean / top25 / highrisk_frac)</td><td>top25_mean 0.209</td><td>aggregation 으로도 floor 못 넘김</td></tr>
+    <tr><td>F</td><td>simple RGB 9-dim baseline vs ResNet50</td><td>raw DM1 r=0.224 &gt;&gt; ResNet50 0.061</td><td><strong>stain↔depth artifact</strong> 가 raw 신호의 정체 — morphology 아님</td></tr>
+    <tr><td>G</td><td>HF foundation model access</td><td>blocked (RunPod stuck)</td><td>upgrade 가능성도 +0.05–0.15 만 — threshold 미달</td></tr>
+    <tr><td>neg ctrl</td><td>30 random panels (resid) + 50 random (raw) + housekeeping</td><td>real ≤ random max 양쪽 mode</td><td>real 신호 가 random 대비 우위 없음</td></tr>
+  </tbody>
+</table>
+
+<figure>
+  <img src="../../project/results/03_pathology_poc/closure_battery_summary.png" alt="Closure battery composite" />
+  <figcaption><strong>Closure battery composite</strong> — 모든 molecular target r ≤ 0.08; ATC binary 만 BORDERLINE 0.689 (anaplastic gross morphology 의 self-evident 신호). residualization은 정당 (stain artifact 차단), 그러나 그 결과 <strong>spot-level ST label과 tile content는 fundamentally mismatched</strong>.</figcaption>
+</figure>
+<div class="figgrid">
+  <figure><img src="../../project/results/03_pathology_poc/pred_vs_obs_resnet50.png" alt="pred vs obs" /><figcaption><strong>pred vs obs ResNet50</strong> — observation 과 prediction 의 scatter. 실측 분포가 prediction 에 의해 분리되지 않음 (random distribution 과 구별 불가).</figcaption></figure>
+  <figure><img src="../../project/results/03_pathology_poc/pred_vs_obs_resnet50_per_slide.png" alt="pred vs obs per slide" /><figcaption><strong>pred vs obs per slide</strong> — slide-by-slide breakdown. 어떤 slide 에서도 consistent prediction signal 없음.</figcaption></figure>
+</div>
+
+<h3>Dominant failure cause (verdict D = full 폐기)</h3>
+<ol>
+  <li>Depth-residualization removes morphology-visible signal → 신호 자체가 stain↔depth artifact 였음 (residualization 정당화)</li>
+  <li><strong>Spot-level ST molecular label과 tile-level H&amp;E 의 본질적 mismatch</strong> at hires-Visium (224–672 px) resolution. Foundation model upgrade 도 (1)+(2) 못 풂.</li>
+</ol>
+
+<h3>Methods supplement 의 자산 가치</h3>
+<p>이 NO-GO 는 다음 스튜디오에게 <strong>"같은 dataset 으로 같은 시도 하지 말라"</strong> 라는 actionable upper bound 를 제공한다.</p>
+<p><a href="paper1.html">Paper 1</a> / <a href="paper2b.html">Paper 2B</a> Methods Supplement 에 <em>pre-registered failed hypothesis</em> 한 페이지로 박제:</p>
+<div class="notice info">"We pre-tested H&amp;E-based prediction of the depth-residualized DM1 axis at GSE250521 hires Visium resolution and found no learnable signal beyond random panels (closure battery, Methods Supplementary X)."</div>
+<p>→ 이건 <strong>negative result publication</strong> 의 가치. <a href="paper7.html">Paper 7 (v18 agentic_research framework)</a> Pattern 4 = "Pre-registered failed hypothesis as methods supplement" 의 case study 로 채택.</p>
+
+<h3>Re-entry conditions (5/5 모두 필요)</h3>
+<ol>
+  <li>Full-resolution scanner WSI for ≥1 cohort + paired bulk RNA-seq</li>
+  <li>External molecular labels (not ST surrogate)</li>
+  <li>Post-marathon explicit decision (after Paper 1 bioRxiv 6/13)</li>
+  <li>Foundation model access (UNI / CONCH / Virchow2) acquired + validated on non-thyroid benchmark</li>
+  <li>Pre-registered hypothesis for re-test</li>
+</ol>
+<div class="notice danger">현재 0/5. Until all five hold: <strong>no retry.</strong> "TCGA WSI download" + "RunPod G1/G2/G3" 모두 차단.</div>
+
+<h3>What this kills</h3>
+<ul>
+  <li>Image-DM1 Paper 2 active pillar (replaced by <a href="paper2b.html">Paper 2B</a>)</li>
+  <li>TCGA WSI Phase C external validation (~500 GB download blocked)</li>
+  <li>Multi-cohort LODO Phase B for image-DM1 purpose</li>
+  <li>RunPod / Azure GPU spend toward image-axis</li>
+  <li>HF UNI / CONCH / Virchow2 foundation model access for this purpose</li>
+  <li>Paper 2 H&amp;E IP claim (color artifact unpatentable; ATC classifier prior art dense)</li>
+</ul>
+
+<h2>Anchor files</h2>
+<div class="evgrid">
+  <div class="card"><strong>Final decision</strong> <code>CLOSURE_BATTERY_2026_05_04.md</code> (root, 1-page)</div>
+  <div class="card"><strong>Forensic battery</strong> <code>project/reports/pathology_dm1_closure_battery_2026_05_04.md</code> (5-failure-mode)</div>
+  <div class="card"><strong>Decision memo</strong> <code>project/reports/2026_05_04_image_dm1_final_nogo_decision.md</code></div>
+  <div class="card"><strong>Phase A baseline</strong> <code>PHASE_A_NOGO_REPORT_2026_05_04.md</code></div>
+  <div class="card"><strong>Result data</strong> <code>project/results/03_pathology_poc/</code> (closure_battery_metrics, negative_controls_raw_summary, tile_metadata, predictions)</div>
+  <div class="card"><strong>Paper 2 scope cleanup</strong> <code>project/reports/2026_05_04_paper2_post_image_dm1_nogo_status.md</code></div>
+</div>
+
+<div class="cross"><strong>Cross-paper bridges:</strong>
+  <a href="paper7.html">Paper 7</a> (v18 agentic_research framework) Pattern 4 = "Pre-registered failed hypothesis as methods supplement" 의 case study source.
+  <a href="paper1.html">Paper 1</a> + <a href="paper2b.html">Paper 2B</a> Methods Supplement 에 negative-feasibility 1-pager.
+</div>
+
+<nav class="topnav" style="margin-top:48px;">
+  <a href="paper1.html">← Paper #1 (DM1 molecular)</a>
+  <a class="home" href="index.html">🏠 8-Papers Hub</a>
+  <a href="paper2b.html">Next → Paper #2B (HT-overlap)</a>
+</nav>
+
+<footer>
+  <p>Paper 2A — H&amp;E → DM1 image projection · NO-GO 2026-05-04 · Methods supplement 자산.</p>
+  <p>"Failure 가 아니라 finding" — actionable upper bound 를 다음 스튜디오에 제공.</p>
+</footer>
+
+</div></body></html>
