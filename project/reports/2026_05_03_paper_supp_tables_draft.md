@@ -15,7 +15,7 @@
 | GSE286332 | Lim DW 2025 Dongguk Univ | 18 (9 PTC + 9 PTC+HT) | RNA-seq NovaSeq X | Korean | DM2 100% (all 18) | arcasHLA 4-digit (5/2) | PTC vs PTC+HT discovery |
 | Chu 2018 J Med Genet | Chu X et al. 2018 | 2,958 (1,468 GD / 1,490 ctrl) | SNP2HLA Pan-Asian panel | Han Chinese | NA | summary stats published | Pan-Asian forest replication |
 
-**Source file:** `project/results/p2_pillar1_forest/cohort_assembly.tsv` (build TBD)
+**Source file:** `project/results/p2_pillar1_forest/cohort_assembly.tsv` (built 2026-05-04, 5 cohorts × 10 columns)
 
 ---
 
@@ -54,7 +54,9 @@ Top 25 up:
 
 (full table 200+100 in supplementary `.xlsx`)
 
-**Source file:** `project/results/p3_gse286332/deg_ptcht_vs_ptc.tsv`
+**Source files:**
+- `project/results/p3_gse286332/deg_ptcht_vs_ptc.tsv` (29,672 genes, TSV)
+- `project/results/p3_gse286332/SuppTable_S3_GSE286332_DEGs.xlsx` (built 2026-05-04, single-sheet, sorted by padj asc)
 
 ---
 
@@ -146,10 +148,15 @@ HLA-II Cohen d residualization:
 | **sub-A** | 84 | 1 (1%) | 51 (61%) | 32 (38%) | 3 (3.6%) | +0.03 |
 | **sub-B** | 56 | 1 (2%) | 2 (4%) | 53 (94%) | 7 (12.5%) | +0.25 |
 
-Top 15 sub-B vs sub-A DEGs (full 8,935 in main suppl table):
-[populated from `project/results/d6p7_dm1_subcluster/dm1_subBvA_deg.tsv`]
+Top 15 sub-B vs sub-A DEGs (full 8,935 sig at padj<0.05 from 51,711 tested):
+populated from `project/results/d6p7_dm1_subcluster/dm1_subBvA_deg.tsv` (TSV) and packaged as Sheet S8d in the multi-sheet XLSX.
 
-**Source file:** `project/results/d6p7_dm1_subcluster/`
+**Source files:**
+- `project/results/d6p7_dm1_subcluster/subcluster_score_profile.tsv` → S8a
+- `project/results/d6p7_dm1_subcluster/subcluster_clinical.tsv` → S8b
+- (S8c hardcoded from SUPP T8 reconciliation; mutation × Hashimoto cross-tab)
+- `project/results/d6p7_dm1_subcluster/dm1_subBvA_deg.tsv` → S8d
+- `project/results/d6p7_dm1_subcluster/SuppTable_S8_DM1_subcluster.xlsx` (built 2026-05-04, 4 sheets)
 
 ---
 

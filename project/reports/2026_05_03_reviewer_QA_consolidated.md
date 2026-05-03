@@ -151,18 +151,18 @@ Each Q has:
 
 ---
 
-## Q12 — Why is sub-B 96% mutation-negative?
+## Q12 — Why is sub-B 94.6% (53/56) mutation-negative?
 
 **Anticipated framing:** "Your sub-B is just driver-negative bystanders. Biological meaning?"
 
 **Source evidence:**
 - `results/d6p7_dm1_subcluster/D6P7_summary.json`
-- sub-A: 51/74 RAS+, 1/74 BRAF+ (69% RAS+ FVPTC core)
-- sub-B: 2/49 RAS+, 1/49 BRAF+ (96% mutation-negative)
+- sub-A: 51/74 mutation-tested RAS+, 1/74 BRAF+ (69% of mutation-tested; 51/84 = 61% of total sub-A; FVPTC core)
+- sub-B: 2/56 RAS+, 1/56 BRAF+, 53/56 mutation-negative (94.6%)
 - sub-B Hashimoto-like 12.5% vs sub-A 3.6%
 - Korean GSE213647 sub-B-like rate 47-53%
 
-**Answer:** Sub-B (n=56) represents the unsupervised TCGA equivalent of the BRAF-/RAS- NBNR (no-BRAF-no-RAS) cluster — 96% mutation-negative, with 4× higher Hashimoto-like rate (12.5% vs sub-A 3.6%) and direct mapping to the K2 NBNR cohort with elevated extrathyroidal extension phenotype (Yu professor's K2 finding). Korean GSE213647 (n=632) replication: 47-53% of Korean PTC samples carry the sub-B signature — substantially elevated vs TCGA's ~40%, consistent with elevated Korean autoimmune-thyroid background. Sub-B is therefore not a "driver-negative bystander" sub-population but a distinct autoimmune-driven differentiated PTC subtype with epidemiological footprint.
+**Answer:** Sub-B (n=56) represents the unsupervised TCGA equivalent of the BRAF-/RAS- NBNR (no-BRAF-no-RAS) cluster — 53/56 (94.6%) mutation-negative, with 4× higher Hashimoto-like rate (12.5% vs sub-A 3.6%) and direct mapping to the K2 NBNR cohort with elevated extrathyroidal extension phenotype (Yu professor's K2 finding). Korean GSE213647 (n=632) replication: 47-53% of Korean PTC samples carry the sub-B signature — substantially elevated vs TCGA's ~40%, consistent with elevated Korean autoimmune-thyroid background. Sub-B is therefore not a "driver-negative bystander" sub-population but a distinct autoimmune-driven differentiated PTC subtype with epidemiological footprint.
 
 ---
 

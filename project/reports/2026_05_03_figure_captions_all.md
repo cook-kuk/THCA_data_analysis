@@ -149,9 +149,9 @@ hypermutation enzyme) consistent with antigen-driven clonal B-cell
 response.
 
 (D) DM1 sub-A vs sub-B mutation status stacked bar (n=84 vs n=56). 
-sub-A: 51 RAS+ (69%), 1 BRAF+; sub-B: 1 BRAF+, 2 RAS+, 53 mutation-
-negative (96%). Hashimoto-like overlap (red bar): sub-B 12.5% vs 
-sub-A 3.6% (4× higher).
+sub-A: 51 RAS+ (69% of mutation-tested; 61% of total n=84), 1 BRAF+; 
+sub-B: 1 BRAF+, 2 RAS+, 53 mutation-negative (53/56, 94.6%). 
+Hashimoto-like overlap (red bar): sub-B 12.5% vs sub-A 3.6% (4× higher).
 
 Source data: results/d3p5_pdm1_gradient/{D3P5_summary.json, 
 mediation_results.json}; results/d4p2_tcga_hashimoto_signature/
@@ -185,8 +185,9 @@ results/d8b_korean_replication/.
 Figure 7. The DM1 sub-B sub-cluster represents the Korean BRAF-/RAS- 
 NBNR (no-BRAF-no-RAS) population.
 
-(A) Mutation breakdown stacked bar: sub-A (n=84) 69% RAS+ classical 
-FVPTC; sub-B (n=56) 96% mutation-negative.
+(A) Mutation breakdown stacked bar: sub-A (n=84) 51 RAS+ (69% of 
+mutation-tested; 61% of total n=84) classical FVPTC; sub-B (n=56) 
+53 mutation-negative (53/56, 94.6%).
 
 (B) Hashimoto-like positive rate: sub-A 3.6% vs sub-B 12.5% (4× higher 
 in sub-B, Fisher OR=0.26, p=0.09).

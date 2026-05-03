@@ -21,7 +21,7 @@
 
 **Methods:** TCGA-THCA n=500 dynamic-risk-stratified into DM1/DM2 by 8-gene panel (SLC5A5/TPO/TG/TSHR/PAX8/NKX2-1/FOXE1/DIO1, anchored in canonical RAI biology). Integrated with K2 (PRJEB11591 n=260) + Lee 2024 (GSE213647 n=632) + GSE286332 (n=18) Korean RNA-seq cohorts and Chu et al. 2018 Han Chinese GD HLA summary statistics (n=2,958).
 
-**Results:** (1) **Pan-Asian HLA cohort n=874** with DPB1\*05:01 53.2% replicates Korean Graves' risk continuum (vs Chu Han Chinese GD 44%, ctrl 31%). (2) **GSE286332 PTC+HT** (n=18) shows 10,380 DEGs, 8-gene RAI Cohen d=−1.60, HLA-II d=+3.65, GSEA Hallmark IFN-γ FDR=2e-4 + KEGG Type I diabetes FDR=0. (3) **Driver mRNA neutrality**: BRAF transcript Cohen d=−0.04 vs WT (n=273 vs 182, p=0.57); driver_anchor cluster ARI=0. (4) **Pan-genome cluster robustness**: TIERA67 ARI=0.90 ≈ unrestricted top-5000 MAD ARI=0.92. (5) **★ Autoimmune-PTC mechanism**: TCGA Hashimoto-like signature DM2-enriched (OR up to 5×, p=6e-10); HLA-II 140% mediation of PTC+HT → P(DM1) ↓ pathway; antigen-driven BCR clonal expansion (TLS d=+1.96, AICDA up); DM1 sub-B = 96% mutation-negative NBNR cluster.
+**Results:** (1) **Pan-Asian HLA cohort n=874** with DPB1\*05:01 53.2% replicates Korean Graves' risk continuum (vs Chu Han Chinese GD 44%, ctrl 31%). (2) **GSE286332 PTC+HT** (n=18) shows 10,380 DEGs, 8-gene RAI Cohen d=−1.60, HLA-II d=+3.65, GSEA Hallmark IFN-γ FDR=2e-4 + KEGG Type I diabetes FDR=0. (3) **Driver mRNA neutrality**: BRAF transcript Cohen d=−0.04 vs WT (n=273 vs 182, p=0.57); driver_anchor cluster ARI=0. (4) **Pan-genome cluster robustness**: TIERA67 ARI=0.90 ≈ unrestricted top-5000 MAD ARI=0.92. (5) **★ Autoimmune-PTC mechanism**: TCGA Hashimoto-like signature DM2-enriched (OR up to 5×, p=6e-10); HLA-II 140% mediation of PTC+HT → P(DM1) ↓ pathway; antigen-driven BCR clonal expansion (TLS d=+1.96, AICDA up); DM1 sub-B = 53/56 (94.6%) mutation-negative NBNR cluster.
 
 **Conclusion:** A transcriptional axis (DM1/DM2) anchored in canonical thyroid differentiation biology stratifies PTC orthogonally to driver mutation status, with autoimmune-overlap defining a mechanistically distinct DM2 sub-population. Independent Korean replication (GSE213647 n=632, Hashimoto-like 22.8%; sub-B-like 47-53%) confirms generalizability.
 
@@ -167,7 +167,7 @@ Thyroid cancer epidemiology + ATA 2015 risk stratification gap (3-5% to 50-75% r
 - ρ(IGHV clonality, 8-gene RAI) = −0.67 (p=0.002)
 
 #### 5d. DM1 sub-B = NBNR cluster
-- KMeans k=2 on DM1 (n=140) → sub-A (n=84, 69% RAS+) + sub-B (n=56, 96% mut-neg)
+- KMeans k=2 on DM1 (n=140) → sub-A (n=84; 51/74 mut-tested RAS+ = 69%, 51/84 = 61% of total) + sub-B (n=56; 53/56 mut-neg = 94.6%)
 - sub-B Hashimoto-like 12.5% vs sub-A 3.6%
 - Korean GSE213647 sub-B-like rate 47-53%
 
