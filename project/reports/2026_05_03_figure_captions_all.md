@@ -136,7 +136,7 @@ mediates 140% (over-mediation/full-pathway, bootstrap 95% CI
 
 (B) TCGA-THCA Hashimoto-like signature × DM cluster forest plot. 
 Five thresholds (GMM, Otsu, top-20%, top-30%, residualized Otsu) all 
-show DM2 enrichment with OR ranging 0.20-0.29 and Fisher p=6e-10 
+show DM2 enrichment with OR ranging 0.20-0.29 and Fisher p=6.4×10⁻¹⁰ 
 to 8e-9. Hashimoto-like prevalence: 18-30% across thresholds. Vertical 
 dashed line: OR=1 (no enrichment).
 
