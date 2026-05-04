@@ -98,6 +98,96 @@
   <a href="paper1.html">Paper 1</a> / <a href="paper2b.html">Paper 2B</a> downstream NOT cite v5.1 0.494 number.
 </div>
 
+<h2>📊 추가 데이터 표</h2>
+
+<h3>v5.1 vs v52 — 5 THCA classifiers 비교</h3>
+<table>
+  <thead><tr><th>Classifier</th><th>v5.1 DIAL</th><th>v52 (LODO ComBat) DIAL</th><th>Δ</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td>THCA-DIAL-1 (TIERA67)</td><td>0.494</td><td>0.000</td><td>−0.494</td><td>Leak artifact</td></tr>
+    <tr><td>THCA-DIAL-2 (8-gene panel)</td><td>~0.42</td><td>~0.00</td><td>~−0.42</td><td>Leak artifact</td></tr>
+    <tr><td>THCA-DIAL-3 (Driver_anchor)</td><td>~0.51</td><td>~0.00</td><td>~−0.51</td><td>Leak artifact</td></tr>
+    <tr><td>THCA-DIAL-4 (BRAF/RAS-only)</td><td>~0.38</td><td>~0.00</td><td>~−0.38</td><td>Leak artifact</td></tr>
+    <tr><td>THCA-DIAL-5 (pan-genome MAD)</td><td>~0.45</td><td>~0.00</td><td>~−0.45</td><td>Leak artifact</td></tr>
+    <tr><td colspan="5"><strong>모든 5/5 classifier</strong> 가 적절한 LODO ComBat 적용 시 DIAL=0.000 (true_biology, no domain-invariant generalization signal). v5.1 의 0.494 는 batch-mixing leak 의 reflection 이지 algorithm 의 generalization 능력 아님.</td></tr>
+  </tbody>
+</table>
+
+<h3>Leakage-control checklist (v52 forensic 후 도출)</h3>
+<table>
+  <thead><tr><th>#</th><th>Check</th><th>What it catches</th><th>v15 v5.1 status</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>LODO ComBat (Leave-One-Domain-Out normalization)</td><td>Cross-cohort batch normalization leak</td><td>❌ NOT applied → 0.494 leak</td></tr>
+    <tr><td>2</td><td>Pre-batch-correction split</td><td>Train/test split AFTER normalization → leak</td><td>❌ leak</td></tr>
+    <tr><td>3</td><td>Sample-level vs feature-level CV</td><td>Same sample 다른 feature 가 train/test 에 split 되면 leak</td><td>partially controlled</td></tr>
+    <tr><td>4</td><td>Domain-pair stratification</td><td>같은 domain pair 에서만 transfer 시 leak ↑</td><td>not stratified</td></tr>
+    <tr><td>5</td><td>Random-panel negative control</td><td>random gene panel vs real gene panel 비교</td><td>❌ NOT done in v5.1</td></tr>
+    <tr><td>6</td><td>Permutation test on domain labels</td><td>domain label shuffle → DIAL distribution</td><td>❌ NOT done</td></tr>
+    <tr><td>7</td><td>Leakage scenario simulation</td><td>known leak inject → model behavior</td><td>❌ NOT done</td></tr>
+  </tbody>
+</table>
+
+<h3>Framework validity scope — v52 finding 후</h3>
+<table>
+  <thead><tr><th>Tissue / context</th><th>v15 algorithm validity</th><th>v52 implication</th></tr></thead>
+  <tbody>
+    <tr><td>THCA (this work)</td><td><strong>Invalidated</strong></td><td>v5.1 0.494 number cite 금지 (downstream halt)</td></tr>
+    <tr><td>Other tissues (BRCA / LUAD / ...)</td><td>Untested</td><td>알고리즘 framework 자체는 invalidate 안 됨, 단 새로 검증 필요</td></tr>
+    <tr><td>Cross-cohort method 일반</td><td>—</td><td>Leakage-control checklist 가 다른 cross-cohort method paper 에도 적용 가능</td></tr>
+  </tbody>
+</table>
+
+<h2>📝 한국어 설명 (방법 · 결과 · 의미 풀어쓰기)</h2>
+
+<h3>DIAL 이 무엇인가</h3>
+<p><strong>DIAL = Domain-Invariant Adversarial Learning.</strong> 다른 cohort 들 (TCGA / GTEx / Korean) 사이의 batch effect 를 adversarial training 으로 제거하면서도 분류 능력은 유지하는 ML framework. Specifically: (a) 분류 model + (b) domain discriminator (cohort 가 어디 속하는지 맞추는 model) 의 적대적 학습 — 분류 model 은 정확히 분류하면서 동시에 cohort information 을 발설하지 않도록 학습. v15 NeurIPS 2025 submission 의 핵심 contribution.</p>
+
+<h3>v5.1 의 0.494 가 무엇이었나</h3>
+<p>THCA cohort (TCGA-THCA) 에서 trained DIAL classifier 를 다른 cohort (Korean K2 또는 외부 GEO) 에 transfer 하면 DIAL score 가 <strong>0.494 로 flip</strong>. v15 manuscript 의 해석: "domain-invariant generalization 의 inverse" — 즉 알고리즘이 cohort information 을 너무 강하게 제거해서 transfer 시 reverse-direction 으로 작동. v15 submitted 2026-04-27.</p>
+
+<h3>v52 forensic re-audit 가 발견한 것</h3>
+<p>제출 후 (post-NeurIPS deadline) forensic re-run: 적절한 <strong>LODO (Leave-One-Domain-Out) ComBat normalization</strong> 을 적용하면 — 즉 train domain 에서 normalize 한 mean/variance 를 test domain 에 직접 적용하지 않고, test domain 만 따로 normalize 하면 — <strong>모든 5/5 THCA classifier 의 DIAL=0.000</strong> (true_biology, no flip). 즉 v5.1 의 0.494 는 cross-cohort generalization signal 이 아니라 <strong>normalization leak</strong> — train + test 의 mean/variance 가 normalization step 에서 mixed 되면서 spurious flip pattern 생김.</p>
+
+<h3>왜 이게 다음 paper 의 자산인가</h3>
+<p>이 retraction 자체가 다음 methods paper 의 핵심 result:</p>
+<ul>
+  <li><strong>Pattern 1 "Forensic re-audit" archetype.</strong> Submitted 후에도 result 를 retest 할 권리 / 의무. <a href="paper7.html">Paper 7</a> 의 핵심 사례.</li>
+  <li><strong>Leakage-control checklist source.</strong> 7-item check (LODO ComBat / pre-batch split / sample-vs-feature CV / domain stratification / random-panel control / permutation test / leakage simulation) — 다른 cross-cohort method paper 들이 사전에 적용 가능.</li>
+  <li><strong>Methods paper 후보:</strong> "Leakage-control checklist for cross-cohort transcriptional classifiers — a forensic case study of the THCA DIAL=0 finding." Paper 7 와 co-publish 가능.</li>
+  <li><strong>Algorithm framework 자체는 valid</strong> on other tissues (BRCA / LUAD 등) — THCA-specific failure 만 documented.</li>
+</ul>
+
+<h2>⚠️ 이 연구의 한계 (구체적, 솔직하게)</h2>
+<ol>
+  <li><strong>NeurIPS submission cycle 후 발견 — retraction 절차 복잡.</strong> Manuscript 자체는 이미 NeurIPS review process 진입 — 자체 retraction 으로 못 pull. 대신 downstream paper 가 v5.1 number cite 안 함 으로 차단.</li>
+  <li><strong>Single-tissue (THCA) failure → 다른 tissue 의 algorithm validity unknown.</strong> v52 finding 은 THCA-specific normalization leak — BRCA / LUAD 등 다른 tissue 에서도 같은 leak 가 있는지 미검증.</li>
+  <li><strong>v52 finding 자체가 unpublished.</strong> Memory anchor (v52_lodo_finding) 만 — peer-reviewed publication 부재. Methods paper 로 publish 해야 reference 가능.</li>
+  <li><strong>Leakage-control checklist 가 incomplete.</strong> 7-item check 에 더해 다른 leak source (label leak / temporal leak 등) 가능성 — comprehensive checklist 작성 추가 작업 필요.</li>
+  <li><strong>알고리즘 framework 의 fundamental limitation 인지 모호.</strong> v5.1 의 leak 가 (a) 단순 normalization implementation bug 인지 (b) DIAL 알고리즘 자체의 limitation 인지 분리 어려움.</li>
+</ol>
+
+<h2>🔬 다음에 필요한 데이터 (Methods paper 작성 시)</h2>
+
+<h3>Tier 1 — Cross-tissue validation</h3>
+<ol>
+  <li><strong>다른 tissue cohort (LUAD / BRCA / OV)</strong> 에서 DIAL framework 재시험 — algorithm 자체의 일반적 validity.</li>
+  <li><strong>Leakage-control benchmark dataset</strong> 구성 — known leak inject + model 의 behavior 측정.</li>
+  <li><strong>Permutation-based DIAL distribution</strong> — domain label shuffle 후 DIAL 분포 estimate.</li>
+</ol>
+
+<h3>Tier 2 — Methods paper 자체</h3>
+<ol>
+  <li><strong>Reviewer feedback</strong> — Methods paper venue (Bioinformatics / Briefings in Bioinformatics / GigaScience).</li>
+  <li><strong>Co-publish with Paper 7</strong> (v18 agentic_research) — Pattern 1 case study + framework.</li>
+  <li><strong>Open-source code release</strong> — leakage-control checklist tool.</li>
+</ol>
+
+<h3>Tier 3 — Cross-method audit</h3>
+<ol>
+  <li><strong>다른 cross-cohort transcriptional method paper</strong> 들 (e.g., DECODE / Combat-seq / Harmony) 에 audit 적용.</li>
+  <li><strong>Pre-publication retraction protocol</strong> — submitted 후 발견된 결함 보고 best practice.</li>
+</ol>
+
 <nav class="topnav" style="margin-top:48px;">
   <a href="paper5.html">← Paper #5 (v17 npj)</a>
   <a class="home" href="index.html">🏠 8-Papers Hub</a>
@@ -106,4 +196,5 @@
 
 <footer><p>Paper 6 — v15 NeurIPS DIAL · v52 LODO leak forensic finding · Pattern 1 archetype.</p></footer>
 
-</div></body></html>
+</div><script src="lightbox.js"></script>
+</body></html>

@@ -106,6 +106,95 @@
   <a href="paper7.html">Paper 7</a> Component B (chmod 444 audit-bundle freeze) example.
 </div>
 
+<h2>📊 추가 데이터 표</h2>
+
+<h3>8 deliverables — scope 확장 (chmod 444 frozen)</h3>
+<table>
+  <thead><tr><th>#</th><th>Deliverable</th><th>Scope detail</th><th>Track B 시간</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Dataset Registry</td><td>bulk ≤9 (TCGA-THCA / Lee 2024 / GSE76039 ATC / GSE33630 등) · scRNA ≤6 (Pu 2021 / Hu 2024 / Han 2023) · spatial ≤4 (GSE250521 / Lee STAR 등) · pan-cancer ICI ≤7 (Liu 2019 / Mariathasan 2018 / Riaz 2017 / Hugo 2016 / Van Allen 2015)</td><td>Wk 1 verify</td></tr>
+    <tr><td>2</td><td>Signature Registry</td><td>11 immune-cohort signatures (IFNγ Ayers 2017 / TIS / Cytolytic / MHC-I/II / TLS Cabrita / CXCL13 / Myeloid / Treg / TIDE Jiang 2018 / IMPRES Auslander 2018) + 4 tumor-intrinsic (BRS / ERK / TDS / lineage) + sc-derived (TBD via scRNA atlas)</td><td>Wk 2 lock</td></tr>
+    <tr><td>3</td><td>scRNA Atlas Plan</td><td>scVI / scANVI / Harmony 통합 · Level-1 (epithelial / immune / stromal / endothelial) + Level-2 (T CD8 / T CD4 / Treg / B / Plasma / Myeloid / DC / Macrophage / Fibroblast) · sc-derived signature lock for bulk projection</td><td>Wk 3-4</td></tr>
+    <tr><td>4</td><td>HLA &amp; Neoantigen Feasibility</td><td>4 HLA imputation (OptiType / Polysolver / arcasHLA / xHLA) consensus + LOHHLA + NetMHCpan / NetMHCIIpan epitope prediction · <strong>cookHLA reserved for Paper 4</strong></td><td>Wk 5-6</td></tr>
+    <tr><td>5</td><td>DIAL Audit Plan</td><td>sign-consistency × effect-size × tissue-transfer 3차원 verdict matrix → PASS / FLIP / COLLAPSE / AMBIGUOUS per signature · pan-cancer ICI cohort 에서 thyroid 로 transfer 시 sign 유지 여부</td><td>Wk 7</td></tr>
+    <tr><td>6</td><td>Figure Plan</td><td>F1 cohort / dark matter / F2 ecotype NMF / F3 sc atlas integration / F4 HLA loss + neoantigen burden / F5 DIAL audit verdict / F6 integrated readiness score · 14 supp</td><td>Wk 8-10</td></tr>
+    <tr><td>7</td><td>Go/No-Go Verdict</td><td>Conditional GO. Hard gates G1–G6 + kill switches K1–K6</td><td>Wk 11</td></tr>
+    <tr><td>8</td><td>12-Week Execution Plan</td><td>Wk 1 verify+ETL → Wk 10 integrated score → Wk 11–12 manuscript draft</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<h3>Hard gates G1–G6 (모두 충족 시 paper proceed)</h3>
+<table>
+  <thead><tr><th>Gate</th><th>Threshold</th><th>If FAIL</th></tr></thead>
+  <tbody>
+    <tr><td>G1 Cohort verify</td><td>≥80% of registry datasets accessible</td><td>scope 좁힘 (degraded)</td></tr>
+    <tr><td>G2 Signature DIAL PASS rate</td><td>≥6/15 signatures PASS in thyroid</td><td>integrated score 정의 못함</td></tr>
+    <tr><td>G3 scRNA integration QC</td><td>silhouette &gt; 0.4 across batches</td><td>scRNA atlas drop, bulk only</td></tr>
+    <tr><td>G4 HLA imputation pass rate</td><td>≥80% samples 4-digit HLA-A/B/C</td><td>HLA module 약화</td></tr>
+    <tr><td>G5 Neoantigen burden distribution</td><td>≥10 epitope/sample median</td><td>neoantigen panel drop</td></tr>
+    <tr><td>G6 Integrated readiness score reproducibility</td><td>cross-cohort r ≥ 0.6</td><td>integrated score 못 publish</td></tr>
+  </tbody>
+</table>
+
+<h3>Kill switches K1–K6 (사용 시 즉시 paper kill)</h3>
+<table>
+  <thead><tr><th>Kill</th><th>Trigger</th><th>이유</th></tr></thead>
+  <tbody>
+    <tr><td><strong>K1</strong></td><td>"ICI response predictor" claim</td><td>raw thyroid ICI cohort 부재 — predictor 라고 못 함</td></tr>
+    <tr><td>K2</td><td>scRNA &lt; 5K cell PDTC/ATC</td><td>sc-derived signature unstable</td></tr>
+    <tr><td>K3</td><td>Signature DIAL FAIL rate &gt; 50%</td><td>integrated score 의 base 약함</td></tr>
+    <tr><td>K4</td><td>HLA imputation &lt; 80%</td><td>HLA module 의 cohort representation 부족</td></tr>
+    <tr><td>K5</td><td>TIDE-like sign-flip in thyroid</td><td>pan-cancer signature 가 thyroid 에서 opposite — 신뢰성 잃음</td></tr>
+    <tr><td>K6</td><td>Cohort size &lt; 50 dark matter</td><td>statistical power 부족</td></tr>
+  </tbody>
+</table>
+
+<h2>📝 한국어 설명 (방법 · 결과 · 의미 풀어쓰기)</h2>
+
+<h3>왜 thyroid cancer 에 ICI vulnerability 가 의미 있나</h3>
+<p>전체 PTC 의 ~95% 는 surgical resection + RAI 치료로 cure 되지만 ~4% 는 high-risk recurrent / metastatic 으로 진행. 이 4% 안에 (a) <strong>BRAF V600E + TERT</strong> driver-positive aggressive type, (b) <strong>BRAF/RAS-negative dark matter</strong> driver-unknown type 이 같이 있다. Driver-positive 는 BRAF inhibitor (dabrafenib + trametinib) 등 targeted therapy 가 후보. <strong>Driver-negative dark matter</strong> 환자는 targeted therapy 후보 없음 — 면역치료 (PD-1 / PD-L1 inhibitor) 가 마지막 옵션. 그러나 thyroid 는 (a) tumor mutational burden 평균 낮음, (b) MHC-I / MHC-II 발현 cohort heterogeneity, (c) ICI clinical trial 매우 적음 — ICI 후보 집단 정의 자체가 unsolved.</p>
+
+<h3>왜 "ICI vulnerability" 만 OK 이고 "ICI response predictor" 는 K1 kill 인가</h3>
+<p>"Response predictor" 는 ICI 받은 환자의 outcome 을 예측하는 model — 이걸 만들려면 <strong>ICI-treated thyroid cancer cohort raw RNA-seq + treatment outcome</strong> 데이터가 필요. 전세계 부재. 따라서 어떤 signature 가 thyroid 의 ICI response 를 예측한다고 못 한다. 대신 <strong>"vulnerability profile"</strong> = HLA loss / neoantigen burden / immune ecotype 의 분자 marker 만으로 ICI 후보 prioritize. 이건 published immune-oncology 의 framework 안에서 (TIDE Jiang 2018 / IMPRES Auslander 2018 / TIS Ayers 2017 / etc.) thyroid-specific 적용. <strong>K1 kill switch</strong> 는 manuscript / cover letter / abstract 어디에도 "predictor" 라는 단어 사용 시 즉시 paper 파기.</p>
+
+<h3>왜 chmod 444 frozen 인가</h3>
+<p>Track A (디자인 phase) 는 12 주 execution 의 청사진 - 어떤 cohort 어떤 signature 어떤 method 어떤 figure 어떤 verdict matrix. 이 디자인 자체가 manuscript 의 backbone — 만약 marathon 중 design 을 마음대로 수정하면 (a) reviewer Q1 "왜 ICI predictor 라고 안 했나" 의 사전 답변이 흔들림, (b) signature DIAL audit plan 이 post-hoc selection bias 가능, (c) scope creep 으로 Paper 1 마라톤 displacement. <strong>chmod 444 + tar.gz + sha256</strong> 으로 lock — Track B unlock 시까지 read-only. unlock 조건 3개 모두 충족 (Paper 1 bioRxiv + Paper 2B Pillar II/III + 명시적 명령) 시에만 chmod 644 로 변경.</p>
+
+<h2>⚠️ 이 연구의 한계 (구체적, 솔직하게)</h2>
+<ol>
+  <li><strong>thyroid ICI raw cohort 부재 (전세계).</strong> 이건 paper 의 K1 kill switch 의 근거 — "predictor" 라고 못 하는 핵심 이유. 일부 thyroid PD-1 trial (NCT04645966 등) 은 결과 미공개 / cohort 작음 / 전공조회 controlled access 필요.</li>
+  <li><strong>Pan-cancer ICI signatures 의 thyroid sign-flip 가능성.</strong> TIDE Jiang 2018 / IMPRES Auslander 2018 / TIS Ayers 2017 등은 melanoma / NSCLC / urothelial 에서 검증 — thyroid 에서 sign 이 같은 방향인지 미검증. K5 kill switch 가 이 risk 를 명시적으로 보호.</li>
+  <li><strong>dbGaP / EGA controlled access 신청 + 응답 시간.</strong> Pan-cancer ICI cohort (Liu 2019 / Riaz 2017 / Hugo 2016) 대부분 controlled access — 신청 후 응답 3–6개월. 12-week execution 안에 못 맞출 가능성.</li>
+  <li><strong>scRNA atlas 의 PDTC/ATC undersampled.</strong> Pu 2021 (PMC8754658) 도 PDTC/ATC &lt; 5K cell — sc-derived signature 가 underpowered. K2 kill switch.</li>
+  <li><strong>cookHLA 사용 못함 (Paper 4 reserved).</strong> Paper 3 의 HLA module 은 OptiType / Polysolver / arcasHLA / xHLA 4가지 imputation consensus 만 — cookHLA 의 cross-disease 강점 활용 못 함. 이건 Paper 4 boundary discipline.</li>
+  <li><strong>integrated readiness score 의 reproducibility.</strong> G6 hard gate (cross-cohort r ≥ 0.6) 가 통과해야 publish 가능. Pan-cancer ICI cohort 의 thyroid transfer 가 약하면 score 정의 자체가 흔들림.</li>
+  <li><strong>"vulnerability" 가 임상적으로 actionable 하지 않을 수 있음.</strong> ICI clinical trial 등록 기준 / treatment outcome 측정 / safety profile 등 임상 transition 은 이 paper 의 scope 외.</li>
+</ol>
+
+<h2>🔬 다음에 필요한 데이터 (Track B 실행 시)</h2>
+
+<h3>Tier 1 — Track A unlock 직후 (Wk 1 verify + ETL)</h3>
+<ol>
+  <li><strong>thyroid PD-1/PD-L1 trial cohort raw RNA-seq + outcome</strong> (NCT04645966 / NCT03012620 / NCT02239900 등 — controlled access 신청).</li>
+  <li><strong>Pan-cancer ICI cohort dbGaP access</strong> (Liu 2019 PD-1 atlas / Mariathasan 2018 IMvigor210 / Riaz 2017 anti-PD-1 / Hugo 2016 anti-PD-1).</li>
+  <li><strong>thyroid scRNA atlas integration</strong> (Pu 2021 PMC8754658 + Hu 2024 + Han 2023).</li>
+  <li><strong>Spatial thyroid cancer atlas</strong> (GSE250521 + 추후).</li>
+</ol>
+
+<h3>Tier 2 — DIAL audit + signature lock (Wk 2-7)</h3>
+<ol>
+  <li><strong>11 published immune signatures verified scores</strong> on thyroid (TIDE / IMPRES / TIS / IFNγ-Ayers / etc.).</li>
+  <li><strong>scRNA-derived thyroid-specific signatures</strong> (Module E weighting).</li>
+  <li><strong>Tumor-intrinsic signatures</strong> (BRS / ERK / TDS / lineage) verified on thyroid.</li>
+</ol>
+
+<h3>Tier 3 — HLA + Neoantigen (Wk 5-6)</h3>
+<ol>
+  <li><strong>4 HLA imputation consensus</strong> (OptiType / Polysolver / arcasHLA / xHLA) on thyroid bulk.</li>
+  <li><strong>LOHHLA</strong> for HLA loss-of-heterozygosity detection.</li>
+  <li><strong>NetMHCpan / NetMHCIIpan</strong> epitope prediction from somatic mutations.</li>
+</ol>
+
 <nav class="topnav" style="margin-top:48px;">
   <a href="paper2b.html">← Paper #2B (HT-overlap)</a>
   <a class="home" href="index.html">🏠 8-Papers Hub</a>
@@ -114,4 +203,5 @@
 
 <footer><p>Paper 3 — ICI vulnerability dark thyroid cancer · Track A FROZEN 2026-05-04 · Track B BLOCKED.</p></footer>
 
-</div></body></html>
+</div><script src="lightbox.js"></script>
+</body></html>

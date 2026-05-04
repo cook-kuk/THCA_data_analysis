@@ -128,6 +128,105 @@
   <a href="paper1.html">Paper 1</a> + <a href="paper2b.html">Paper 2B</a> Methods Supplement 에 negative-feasibility 1-pager.
 </div>
 
+<h2>📊 추가 데이터 표</h2>
+
+<h3>5-Phase closure battery — 측정값 풀버전</h3>
+<table>
+  <thead><tr><th>Phase</th><th>Test</th><th>Spearman r</th><th>AUROC</th><th>Random max</th><th>Bound</th></tr></thead>
+  <tbody>
+    <tr><td>Phase A</td><td>raw DM1 / RAI / TDS @ 224 px ResNet50</td><td>0.022 ~ 0.067</td><td>0.511 ~ 0.533</td><td>0.062</td><td>real ≤ random</td></tr>
+    <tr><td>Phase B</td><td>5 residualization (log_counts / log_ngenes / no_resid / rank / epi)</td><td>≤ 0.06</td><td>—</td><td>—</td><td>모든 variant 약함</td></tr>
+    <tr><td>Phase C</td><td>Tile size 448 px sweep</td><td>0.017</td><td>—</td><td>—</td><td>worse than 224 (672 cancelled)</td></tr>
+    <tr><td>Phase D</td><td>stage ordinal (1 → 4)</td><td>−0.05</td><td>—</td><td>—</td><td>random</td></tr>
+    <tr><td>Phase D</td><td>ATC binary</td><td>—</td><td>0.689</td><td>—</td><td>BORDERLINE (anaplastic gross morphology)</td></tr>
+    <tr><td>Phase D</td><td>epithelial fraction raw</td><td>0.04 ~ 0.08</td><td>—</td><td>—</td><td>weak</td></tr>
+    <tr><td>Phase E</td><td>slide aggregation top25_mean DM1_resid</td><td>0.209</td><td>—</td><td>—</td><td>floor 못 넘김</td></tr>
+    <tr><td>Phase F</td><td>simple RGB 9-dim baseline (DM1 raw)</td><td>0.224</td><td>0.702</td><td>—</td><td><strong>stain↔depth artifact</strong> (생물학 신호 X)</td></tr>
+    <tr><td>Phase G</td><td>HF foundation model (UNI / CONCH / Virchow2)</td><td>blocked</td><td>blocked</td><td>—</td><td>+0.05–0.15 projected gain (불충분)</td></tr>
+    <tr><td>neg ctrl</td><td>30 random panels (resid)</td><td>0.005 ~ 0.031</td><td>—</td><td>0.031</td><td>real ≤ random</td></tr>
+    <tr><td>neg ctrl</td><td>50 random panels (raw)</td><td>0.006 ~ 0.062</td><td>—</td><td>0.062</td><td>real ≤ random</td></tr>
+    <tr><td>neg ctrl</td><td>housekeeping_raw (8 genes)</td><td>0.013</td><td>0.494</td><td>—</td><td>random level</td></tr>
+  </tbody>
+</table>
+
+<h3>Foundation model 후보 + projected gain (시도 못함)</h3>
+<table>
+  <thead><tr><th>Model</th><th>Source</th><th>Domain</th><th>Pre-train</th><th>Projected DM1_resid gain</th><th>이유 못 시도</th></tr></thead>
+  <tbody>
+    <tr><td>UNI</td><td>HF / Mahmoodlab</td><td>Pathology general</td><td>100K WSI</td><td>~+0.10</td><td>HF gated access blocked</td></tr>
+    <tr><td>CONCH</td><td>HF / Mahmoodlab</td><td>Vision-language pathology</td><td>1.17M image-text</td><td>~+0.12</td><td>HF gated access blocked</td></tr>
+    <tr><td>Virchow2</td><td>HF / Paige</td><td>Pathology general</td><td>3.1M WSI</td><td>~+0.15</td><td>HF gated access blocked</td></tr>
+    <tr><td>Phikon</td><td>HF / Owkin</td><td>Pathology histology</td><td>40M tile</td><td>~+0.05</td><td>RunPod stuck pulling image</td></tr>
+    <tr><td colspan="6"><strong>GO threshold</strong> = +0.28 (필요 r ≥ 0.30 또는 AUROC ≥ 0.70). 모든 후보 model projection 미달 → upgrade 무효.</td></tr>
+  </tbody>
+</table>
+
+<h3>Re-entry 5/5 conditions — 현재 상태</h3>
+<table>
+  <thead><tr><th>#</th><th>Condition</th><th>Current</th><th>What's needed</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Full-resolution scanner WSI cohort + paired bulk RNA-seq</td><td>❌ 0/1</td><td>40× / 80× WSI cohort + RNA-seq 매칭 (Visium 아닌 진정한 WSI)</td></tr>
+    <tr><td>2</td><td>External molecular labels (not ST surrogate)</td><td>❌ 0/1</td><td>RNA-seq matched bulk label (TCGA WSI 다운로드 금지 상태)</td></tr>
+    <tr><td>3</td><td>Post-marathon explicit decision (after Paper 1 bioRxiv)</td><td>❌ pre-marathon</td><td>2026-06-13 후</td></tr>
+    <tr><td>4</td><td>Foundation model access (UNI / CONCH / Virchow2) + non-thyroid 벤치 검증</td><td>❌ 0/1</td><td>HF gated access + 다른 cancer type 에서 model performance 검증 (validation that model works on something)</td></tr>
+    <tr><td>5</td><td>Pre-registered hypothesis</td><td>❌ 0/1</td><td>OSF / AsPredicted 에 hypothesis + analysis plan 등록 (post-hoc analysis 차단)</td></tr>
+  </tbody>
+</table>
+
+<h2>📝 한국어 설명 (방법 · 결과 · 의미 풀어쓰기)</h2>
+
+<h3>가설이 무엇이었나</h3>
+<p>Visium spatial transcriptomics (Visium) 는 <strong>한 spot 마다 (한 spot ≈ 50 μm × 50 μm)</strong> 의 mRNA 측정 + 같은 spot 위에 매칭된 <strong>H&amp;E 영상 tile (224 × 224 px)</strong> 을 동시에 보유. 즉 분자 (RNA) 와 형태 (H&amp;E) 가 <strong>1:1 spatial alignment</strong> 로 paired. <strong>가설:</strong> H&amp;E tile 의 morphology 만 보고 → 그 spot 의 8-gene RAI 점수 (depth-residualized DM1_like_score_resid) 를 예측 가능하다. 이게 됐으면 routine H&amp;E (sequencing 없이) 만으로 RAI loss 를 진단 가능 — 임상 application 의 dream scenario.</p>
+
+<h3>5-failure-mode 분석 — 어디서 막혔나</h3>
+<p>실패 가능 원인을 5개로 가정하고 하나씩 disprove:</p>
+<ol>
+  <li><strong>(1) 모델이 약해서?</strong> ResNet50 ImageNet pretrained 가 그래도 약하지 않은 baseline. 또 raw 9-dim RGB 가 ResNet50 (r=0.061) 보다 더 잘 (r=0.224) → 모델 약함은 아닌 듯.</li>
+  <li><strong>(2) Tile size 가 작아서?</strong> 224 → 448 swap 시 r 0.022 → 0.017 (worse). 672 cancelled. Scale 도 핵심 아님.</li>
+  <li><strong>(3) Depth-residualization 이 morphology-visible signal 을 제거?</strong> raw 9-dim RGB r=0.224 vs resid r=0.080 — 그렇다. 그러나 raw 신호의 정체는 <strong>stain darkness ↔ sequencing depth</strong> artifact (염색 진한 spot 에서 RNA 도 더 많이 잡힘). residualization 이 정당한 step. 즉 <strong>residualize 안 하면 spurious correlation</strong>, residualize 하면 morphology signal 약해짐 — 이게 (3)+(4) 의 fundamental coupling.</li>
+  <li><strong>(4) Spot-level ST molecular label 과 H&amp;E tile content 의 fundamental mismatch?</strong> Stage ordinal (PT/PTC/LPTC/ATC) r = −0.05, ATC binary AUROC = 0.689 (BORDERLINE) — gross morphology 만 잡힘. ATC 의 anaplastic morphology 는 self-evidently visible 하므로 새 발견 아님. <strong>분자 (transcriptional) 단위 의 신호는 H&amp;E tile 에 fundamentally encoded 안 되어 있음 at hires Visium resolution</strong>.</li>
+  <li><strong>(5) Foundation model 업그레이드?</strong> UNI / CONCH / Virchow2 의 projected gain (+0.05 ~ +0.15) 도 GO threshold (+0.28) 미달. (3)+(4) 가 dominant 라서 모델 강화로 못 풂.</li>
+</ol>
+<p>→ <strong>Verdict D (full 폐기).</strong> 이 dataset (Visium hires) + 이 task (depth-residualized DM1 axis prediction) 의 조합은 안 풀린다 — 다른 dataset (full-res WSI + matched RNA-seq) + 다른 task (population-level only, not spot-level) 까지 가야 시도 의미가 있다.</p>
+
+<h3>왜 이 NO-GO 가 "발견" 인가 (negative result publication)</h3>
+<p>이 결과는 다음 스튜디오 / 다음 paper 에게 <strong>actionable upper bound</strong> 를 제공:</p>
+<ul>
+  <li>"Visium hires (~50 μm spot) 에서 H&amp;E tile 만으로 spot-level transcriptional axis 를 predict 하려는 시도는 sample-level 에서 정량화된 r ≤ 0.08 의 floor 가 있다."</li>
+  <li>"Foundation model upgrade 만으로 이 floor 를 못 넘긴다 (projected +0.05 ~ +0.15 < threshold +0.28)."</li>
+  <li>"Stain↔depth artifact 가 raw signal 의 dominant 원인 — residualization 정당."</li>
+  <li>"ATC vs non-ATC binary 만 H&amp;E tile 로 잡힘 — anaplastic morphology 의 self-evident 신호이지 새 발견 아님."</li>
+</ul>
+<p>이 정보를 manuscript supplement (Methods Supplementary X) 로 박제 → <a href="paper1.html">Paper 1</a> / <a href="paper2b.html">Paper 2B</a> 가 image-DM1 가설을 reviewer 가 묻기 전에 사전에 차단. 또 <a href="paper7.html">Paper 7 (v18 agentic_research)</a> 의 Pattern 4 = "Pre-registered failed hypothesis as supplement" 의 case study.</p>
+
+<h2>⚠️ 이 연구의 한계 (구체적, 솔직하게)</h2>
+<ol>
+  <li><strong>단일 cohort 만 테스트.</strong> GSE250521 (28 slides) + GSE230424 (4 slides) + GSE248205 (8 slides) = 모두 Visium hires (~50 μm spot). Scanner-level WSI (40× / 80×) 는 시도 못함 (TCGA WSI 다운로드 marathon 동안 차단). 따라서 결론은 <strong>"Visium hires 에서"</strong> 의 한정.</li>
+  <li><strong>Foundation model (UNI / CONCH / Virchow2) 직접 시도 못함.</strong> HF gated access blocked + RunPod stuck pulling image. Projected gain (+0.05 ~ +0.15) 은 publication baseline 에서 추정 — 직접 실측 아님. UNI 가 +0.20 까지 갈 가능성도 배제 못 함 (단, 그래도 GO threshold +0.28 미달).</li>
+  <li><strong>Residualization variants 5개 만.</strong> log_counts / log_ngenes / no_resid / rank_norm / epi-top50 — 다른 normalization (per-slide standardization / spot-neighbor smoothing 등) 미시도.</li>
+  <li><strong>Tile size 224 / 448 / 672 만.</strong> 더 큰 tile (1024 / 2048) 또는 multi-scale fusion 미시도. 단 spot 자체가 ~50 μm 라 큰 tile 은 spot 외 영역 포함 = label noise.</li>
+  <li><strong>Aggregation strategy 3개 만.</strong> mean / top25%mean / highrisk_frac — slide-level top25 0.209 가 가장 나음. attention-pooling / MIL 미시도.</li>
+  <li><strong>"Pre-registered failed hypothesis" 자체가 unpublished.</strong> 이 NO-GO 가 manuscript supplement 으로만 박힐 예정 — 별도 negative-result paper 로 못 publish (single-cohort, single-task 라 venue 부족).</li>
+</ol>
+
+<h2>🔬 다음에 필요한 데이터 (Re-entry 5/5 조건 외 부수 자료)</h2>
+
+<h3>Tier 1 — Re-entry 핵심</h3>
+<ol>
+  <li><strong>Full-resolution scanner WSI cohort + paired bulk RNA-seq.</strong> 40× / 80× scanner WSI (Visium 아닌 진정한 H&amp;E) + sample-level RNA-seq label. Korean cohort 가능성 — TCGA WSI 는 marathon 차단.</li>
+  <li><strong>External molecular labels (not ST surrogate).</strong> RNA-seq matched bulk label.</li>
+  <li><strong>Foundation model API access.</strong> HF UNI / CONCH / Virchow2 — gated access 신청.</li>
+  <li><strong>Foundation model 의 non-thyroid 벤치 검증.</strong> e.g., LUAD / BRCA / OV 에서 작동 확인 (validation that model works on something).</li>
+  <li><strong>Pre-registered hypothesis at OSF / AsPredicted.</strong> Post-hoc analysis 차단.</li>
+</ol>
+
+<h3>Tier 2 — Methods supplement 강화</h3>
+<ol>
+  <li><strong>Multi-resolution aggregation</strong> — attention-pooling / MIL / multi-scale fusion.</li>
+  <li><strong>Spot-neighbor smoothing</strong> — 인접 spot 정보 통합 (spatial autoregressive label denoising).</li>
+  <li><strong>Per-slide vs cross-slide normalization variants.</strong></li>
+</ol>
+
 <nav class="topnav" style="margin-top:48px;">
   <a href="paper1.html">← Paper #1 (DM1 molecular)</a>
   <a class="home" href="index.html">🏠 8-Papers Hub</a>
@@ -139,4 +238,5 @@
   <p>"Failure 가 아니라 finding" — actionable upper bound 를 다음 스튜디오에 제공.</p>
 </footer>
 
-</div></body></html>
+</div><script src="lightbox.js"></script>
+</body></html>
