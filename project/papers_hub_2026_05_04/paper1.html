@@ -1206,6 +1206,155 @@ Tesevatinib has been evaluated in solid tumors with EGFR/HER2 alterations and ha
 TROP2 (Q3 spot-level negative) framing 은 <a href="paper1.html">Paper 1</a> Limitations §3.4 와 일관 — "tumor-population vulnerability" 만, "DM1-high spot 정의" 못 함.
 </div>
 
+<h2 style="margin-top:60px; padding:20px 0; border-top:3px double var(--accent); font-size:36px; color:var(--accent); text-align:center; background:linear-gradient(180deg,#FFE5E0 0%,transparent 100%);">⚡ Phase B — Aggressive Drug Discovery (RunPod-ready)</h2>
+<p style="text-align:center; color:var(--ink-soft); font-style:italic; font-size:15px; margin-bottom:24px;">v13_drug_discovery 위에 GPU foundation-model layer 적층 — 10 sub-modules · $610–1,160 / 45–95h · author-keyboard dispatch.</p>
+
+<div class="red-box">
+  <h4>Phase B 의 의미 — v13 위에 GPU 신약개발 layer</h4>
+  <p style="font-size:15px;">v13 드러그 디스커버리 = 8 priority targets · 15 ChEMBL compounds · 8 PDB · 4 docking · 14 sacituzumab thyroid trial hits · 5 LLM 요약. <strong>Phase B = 이 위에 GPU foundation model layer 적층</strong>:</p>
+  <ul style="margin-top:8px; font-size:14.5px;">
+    <li><strong>Better structures</strong> (AlphaFold3 / ESMFold) → better docking</li>
+    <li><strong>DiffDock pose generation</strong> (diffusion model, AutoDock Vina 보다 10× pose accuracy)</li>
+    <li><strong>GNINA + KDeep + DeepPurpose</strong> 3-way binding affinity (orthogonal validation)</li>
+    <li><strong>ChemBERTa scaffold hopping</strong> — 100 ChEMBL → 10K analogs</li>
+    <li><strong>PROTAC-DB matching</strong> for intracellular targets (CYP1B1 / PLEKHA6 / PTPRE)</li>
+    <li><strong>★ TROP2 4-ADC head-to-head</strong> (Sacituzumab govitecan vs SKB264 vs Dato-DXd vs BNT323)</li>
+    <li><strong>Foundation-model ADMET</strong> (Mol-Former / Chemprop / 8 endpoints)</li>
+    <li><strong>FEP / MD ΔΔG</strong> for Tier-A top 10 (gold-standard binding affinity)</li>
+  </ul>
+</div>
+
+<h3>📋 10 sub-modules — Cost / time matrix</h3>
+<table class="critical">
+  <caption>★ RunPod GPU dispatch table — author keyboard authority (G6)</caption>
+  <thead><tr><th>Module</th><th>Name</th><th>GPU</th><th>Time</th><th>Cost (USD)</th><th>Output</th></tr></thead>
+  <tbody>
+    <tr><td><strong>B1</strong></td><td>Structure refinement (AlphaFold3 / ESMFold)</td><td>A100 80GB</td><td>4-8h</td><td>$30-60</td><td>8 refined PDB + pLDDT</td></tr>
+    <tr><td><strong>B2</strong></td><td>DiffDock pose generation</td><td>A100 40GB</td><td>3-6h</td><td>$20-40</td><td>400 poses + confidence</td></tr>
+    <tr><td><strong>B3</strong></td><td>GNINA rescoring</td><td>A40</td><td>2-4h</td><td>$10-20</td><td>Vina + CNN_score per pose</td></tr>
+    <tr><td><strong>B4</strong></td><td>KDeep / DeepPurpose binding affinity</td><td>A100 40GB</td><td>4-6h</td><td>$25-40</td><td>pKd / pIC50 per compound</td></tr>
+    <tr><td><strong>B5</strong></td><td>ChemBERTa scaffold hopping</td><td>A100 40GB</td><td>6-10h</td><td>$40-70</td><td>10K analogs + similarity</td></tr>
+    <tr><td><strong>B6</strong></td><td>PROTAC-DB matching (intracellular)</td><td>A40</td><td>2-3h</td><td>$10-15</td><td>E3 × warhead matrix</td></tr>
+    <tr><td><strong>B7 ★</strong></td><td>ADC linker / payload (TROP2 4-ADC)</td><td>A100 40GB</td><td>4-6h</td><td>$25-40</td><td>4-ADC head-to-head + DAR + linker stability</td></tr>
+    <tr><td><strong>B8</strong></td><td>Off-target profiling (SwissTargetPrediction / SEA)</td><td>A40</td><td>2-3h</td><td>$10-15</td><td>Top 30 off-targets per compound</td></tr>
+    <tr><td><strong>B9</strong></td><td>Foundation-model ADMET (Mol-Former / Chemprop)</td><td>A100 80GB</td><td>6-8h</td><td>$40-60</td><td>BBB / hERG / hepatotox / Vd / t½ / clearance</td></tr>
+    <tr><td><strong>B10 ★</strong></td><td>FEP / MD relative ΔΔG (Tier-A top 10)</td><td>H100 / A100 80GB</td><td>12-24h</td><td>$200-400</td><td>ΔΔG ± uncertainty per pair</td></tr>
+    <tr style="background:rgba(123,31,42,0.05); font-weight:600;"><td>—</td><td><strong>Sequential all 10</strong></td><td>—</td><td>45-95h</td><td><strong>$610-1,160</strong></td><td>Full Phase B</td></tr>
+    <tr style="background:rgba(60,107,79,0.05);"><td>—</td><td><strong>Cheapest 5 (B2+B3+B6+B8+B9)</strong></td><td>—</td><td>18-26h</td><td><strong>$95-155</strong></td><td>1-day dispatch</td></tr>
+    <tr style="background:rgba(52,84,122,0.05);"><td>—</td><td><strong>Parallel 3-pod (4 modules each)</strong></td><td>—</td><td>2-4 days</td><td><strong>$520-960</strong></td><td>Faster, similar total</td></tr>
+  </tbody>
+</table>
+
+<h3>⚡ B7 — TROP2 4-ADC head-to-head (★ Paper 1 R5 의 Phase B 핵심)</h3>
+<p style="font-size:14.5px;">Paper 1 의 R5 (TROP2 tumor-population vulnerability) 의 actionable extension. 4 TROP2 ADC 의 computational head-to-head:</p>
+<table>
+  <thead><tr><th>Agent</th><th>Sponsor</th><th>Payload</th><th>DAR</th><th>Linker</th><th>Approvals</th><th>Thyroid trials</th><th>Internalize t½</th><th>Plasma stability</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sacituzumab govitecan (Trodelvy)</strong></td><td>Gilead</td><td>SN-38 (Topo-I)</td><td>7.6</td><td>CL2A hydrolysable</td><td>TNBC 2020 / HR+ 2023 / urothelial 2021</td><td>NCT06235216 · NCT06923826</td><td>~2.0 h</td><td>~12 h</td></tr>
+    <tr><td><strong>Sacituzumab tirumotecan (SKB264 / MK-2870)</strong></td><td>Kelun-Biotech / Merck</td><td>T-030 (Topo-I)</td><td>7.4</td><td>tumor-selective cleavable</td><td>BLA filed (lung, breast)</td><td>NCT07521670 STRAP · NCT07068542</td><td>~2.5 h</td><td>~18 h</td></tr>
+    <tr><td><strong>Datopotamab deruxtecan (Dato-DXd)</strong></td><td>Daiichi / AstraZeneca</td><td>DXd (exatecan)</td><td>4.0</td><td>cleavable tetrapeptide</td><td>Ph3 NSCLC TROPION-Lung01</td><td>—</td><td>~1.8 h</td><td>~15 h</td></tr>
+    <tr><td><strong>BNT323 / DB-1303</strong></td><td>BioNTech / Duality</td><td>exatecan</td><td>~8</td><td>stable peptide</td><td>Ph1/2 breast</td><td>—</td><td>~2.2 h</td><td>~24 h</td></tr>
+  </tbody>
+</table>
+<p style="font-size:13px; color:var(--ink-soft);"><strong>Phase B B7 outputs:</strong> linker_stability.tsv · dar_optimization.tsv · trop2_4adc_compare.tsv (per-target binding affinity / payload release kinetics / TROP2 PTC heterogeneity adjustment / DM1-high prospective biomarker layer).</p>
+
+<h3>🚧 Hard gates G1–G6 + Kill switches K1–K6</h3>
+<div class="figgrid">
+  <div>
+    <h4>G1–G6 (must close before each module)</h4>
+    <table>
+      <thead><tr><th>Gate</th><th>Condition</th></tr></thead>
+      <tbody>
+        <tr><td><strong>G1</strong></td><td>RunPod credits ≥ $200 (skip B10 if &lt;$500)</td></tr>
+        <tr><td><strong>G2</strong></td><td>8 PDB structures verified (sha256)</td></tr>
+        <tr><td><strong>G3</strong></td><td>Top 50 ChEMBL compounds per target</td></tr>
+        <tr><td><strong>G4</strong></td><td>Tier-A top 30 verified</td></tr>
+        <tr><td><strong>G5</strong></td><td>Internet access for ChemBERTa / Mol-Former / DiffDock</td></tr>
+        <tr><td><strong>G6</strong></td><td><strong>Author explicit dispatch</strong> command (not 고고/다 해줘/faster)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div>
+    <h4>K1–K6 (immediate halt)</h4>
+    <table>
+      <thead><tr><th>Kill</th><th>Trigger</th></tr></thead>
+      <tbody>
+        <tr><td><strong>K1</strong></td><td>"ADC therapy approved for thyroid" claim</td></tr>
+        <tr><td><strong>K2</strong></td><td>"Wet-lab IC50 derived from this pipeline" (in-silico only)</td></tr>
+        <tr><td><strong>K3</strong></td><td>"PTC patient stratification" (wet-lab + trial validation 必)</td></tr>
+        <tr><td><strong>K4</strong></td><td>DiffDock confidence &lt; 0.5 for all 50 poses on a target</td></tr>
+        <tr><td><strong>K5</strong></td><td>FEP ΔΔG uncertainty &gt; 5 kcal/mol</td></tr>
+        <tr><td><strong>K6</strong></td><td>Compute spend &gt; $500 without re-authorization</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<h3>🚀 Author dispatch command</h3>
+<pre style="background:#1A2238; color:#F4EFE6; padding:18px; border-radius:5px; font-size:13px; overflow-x:auto;">$ ssh root@$POD_IP -p $POD_PORT
+$ cd /workspace
+$ git clone https://github.com/seunghocook/thyca-paper-2026 .
+$ cd azure_gpu_phaseB_drug
+$ bash scripts/setup.sh                          # ~15 min env setup
+
+# Per-module dispatch (run in tmux for parallel)
+$ bash run_phaseB_gpu.sh --module b1             # 4-8h, $30-60
+$ bash run_phaseB_gpu.sh --module b2             # 3-6h, $20-40 (★ DiffDock)
+$ bash run_phaseB_gpu.sh --module b3             # 2-4h, $10-20
+$ bash run_phaseB_gpu.sh --module b4             # 4-6h, $25-40
+$ bash run_phaseB_gpu.sh --module b5             # 6-10h, $40-70
+$ bash run_phaseB_gpu.sh --module b6             # 2-3h, $10-15
+$ bash run_phaseB_gpu.sh --module b7             # 4-6h, $25-40 (★ TROP2 4-ADC)
+$ bash run_phaseB_gpu.sh --module b8             # 2-3h, $10-15
+$ bash run_phaseB_gpu.sh --module b9             # 6-8h, $40-60
+$ bash run_phaseB_gpu.sh --module b10            # 12-24h, $200-400 (★ FEP)
+
+# OR cheap5 in 1 day:
+$ bash run_phaseB_gpu.sh --module cheap5         # ~$95-155, ~22h
+
+# OR full sequential:
+$ bash run_phaseB_gpu.sh --module all            # ~$1,160, ~95h
+
+# SCP results back
+$ scp -r -P $POD_PORT root@$POD_IP:/workspace/azure_gpu_phaseB_drug/results/* \
+      /home/seungho/personal/THCA_data_analysis/project/results/v14_drug_phaseB/</pre>
+
+<h3>📁 Phase B output structure (post-dispatch)</h3>
+<pre style="background:#FAF6EC; padding:14px 18px; border-radius:5px; font-size:13px; overflow-x:auto;">project/results/v14_drug_phaseB/
+├── b1_structures/          # 8 refined PDB · pLDDT · pocket re-detect
+├── b2_diffdock/            # 400 poses · confidence · RMSD
+├── b3_gnina/               # Vina + CNN_score per pose
+├── b4_kdeep/               # pKd predictions
+├── b5_chemberta/           # 10K scaffold-hopped analogs · embedding
+├── b6_protac/              # E3 × warhead matrix (3 intracellular targets)
+├── b7_adc_optimization/    # ★ TROP2 4-ADC compare · DAR · linker stability
+├── b8_off_target/          # Top 30 off-targets per compound
+├── b9_admet_foundation/    # ADMET v2 (foundation model)
+└── b10_fep_md/             # ΔΔG Tier-A top 10 (gold standard)</pre>
+
+<h3>📌 Cross-paper bridge — Phase B → Paper 1 manuscript</h3>
+<div class="cross">
+  <strong>Phase B outputs feed:</strong>
+  <ul style="margin-top:8px;">
+    <li><a href="paper1.html">Paper 1 R5 supplement</a> — sacituzumab govitecan vs 3 alternative ADCs head-to-head + PTC TROP2 heterogeneity (DM1 high vs low DAR-adjusted dosing)</li>
+    <li>Paper 1 future plan Tier 2 — wet-lab IC50 (sacituzumab in PTC cell lines) is downstream of B7 + B10</li>
+    <li>Paper 1 future plan Tier 3 — single-cell scRNA validation of TROP2 expression heterogeneity</li>
+    <li><a href="paper7.html">Paper 7 (agentic_research) Pattern 4</a> — Phase B FEP failure (if Tier-A top 10 ΔΔG &gt; 5 kcal/mol uncertainty) is candidate negative result publication</li>
+  </ul>
+</div>
+
+<div class="notice warn">
+<strong>⚠️ Marathon attestation (Phase B scaffold only — not yet executed):</strong> Voice-protected sections untouched. Paper 3/4 design bundles untouched. New compute spend (when user dispatches) is <em>author-authorized one-shot</em>, not a return to continuous compute mode. K1 (no "ADC therapy approved for thyroid"), K2 (no wet-lab claim), K3 (no patient stratification claim), K6 ($500 cost cap) preserved.
+</div>
+
+<h3>📥 Phase B scaffold files</h3>
+<ul style="font-size:13.5px;">
+  <li><code>azure_gpu_phaseB_drug/README_PHASE_B_DRUG.md</code> — full doc · 8 sections · 200+ lines</li>
+  <li><code>azure_gpu_phaseB_drug/run_phaseB_gpu.sh</code> — orchestrator · per-module dispatch</li>
+  <li><code>azure_gpu_phaseB_drug/scripts/setup.sh</code> — ~15 min env setup (PyTorch / DiffDock / GNINA / OpenFE / ChemBERTa / Chemprop / DeepPurpose / PROTAC-DB)</li>
+  <li><code>azure_gpu_phaseB_drug/scripts/b{1..10}_*.sh</code> — 10 module scripts</li>
+</ul>
+
 <h2 style="margin-top:60px; padding:14px 0; border-top:3px double var(--accent); font-size:32px; color:var(--accent); text-align:center;">🚀 Paper 1 — Future plan + roadmap (post-bioRxiv 6/13)</h2>
 <h3>🚀 Phase A (W6–W8 · 6/14 ~ 7/4) — bioRxiv → Cell Rep Med / JCI Insight 정식 제출</h3>
 <ol>
