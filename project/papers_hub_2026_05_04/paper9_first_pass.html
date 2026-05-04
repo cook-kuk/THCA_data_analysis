@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper 9 — First-Pass Results | Synthetic-lethal vulnerability map</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<style>
+.plan-doc h1{font-family:'Cormorant Garamond',serif;color:var(--accent);font-size:36px;line-height:1.15;margin:18px 0 10px}
+.plan-doc h2{font-family:'Cormorant Garamond',serif;color:var(--ink);font-size:26px;margin:32px 0 10px;border-bottom:2px solid var(--rule);padding-bottom:6px}
+.plan-doc h3{font-family:'Cormorant Garamond',serif;color:var(--ink-soft);font-size:19px;margin:22px 0 8px}
+.plan-doc h4{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);text-transform:uppercase;margin:18px 0 6px}
+.plan-doc p{margin:0 0 12px;line-height:1.7;font-size:15.5px}
+.plan-doc strong{color:var(--accent)}
+.plan-doc em{color:var(--ink-soft);font-style:italic}
+.plan-doc ul,.plan-doc ol{margin:0 0 14px 24px}
+.plan-doc li{margin-bottom:5px;line-height:1.65}
+.plan-doc table{border-collapse:collapse;margin:14px 0;width:100%;font-size:13.5px}
+.plan-doc th,.plan-doc td{border:1px solid var(--rule);padding:7px 11px;text-align:left;vertical-align:top}
+.plan-doc th{background:#F4EFE6;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase}
+.plan-doc code{font-family:'JetBrains Mono',monospace;font-size:13px;background:#F4EFE6;padding:1px 6px;border-radius:3px}
+.plan-doc pre{background:#F4EFE6;padding:10px 14px;border-radius:4px;overflow-x:auto;font-size:13px;font-family:'JetBrains Mono',monospace;margin:10px 0}
+.plan-doc hr{border:0;border-top:1px solid var(--rule);margin:30px 0}
+.figure-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}
+.figure-strip figure{margin:0}
+.figure-strip img{width:100%;border:1px solid var(--rule);border-radius:4px;background:#fff;padding:6px}
+.figure-strip figcaption{font-size:12px;color:var(--ink-soft);font-style:italic;margin-top:5px}
+.print-btn{position:fixed;top:16px;right:16px;z-index:9999;padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+.print-btn:hover{background:#000}
+@media print{
+  .print-btn,.topnav{display:none}
+  body{background:#fff;color:#000}
+  .container{max-width:100%;padding:0;margin:0}
+  table,figure{page-break-inside:avoid}
+  h1,h2,h3{page-break-after:avoid}
+  a{color:#000;text-decoration:none}
+}
+</style>
+</head><body>
+<button class="print-btn" onclick="window.print()" title="이 페이지를 PDF로 인쇄/저장">📄 PDF로 저장 (Ctrl+P)</button>
+<div class="container">
+<nav class="topnav">
+  <a href="paper9_plan.html">← Paper #9 (plan)</a>
+  <a class="home" href="index.html">🏠 8-Papers Hub</a>
+  <span class="center">Paper #9 — First-Pass Results</span>
+  <a href="portfolio_paper9.html">Next → Paper #9 (detail card)</a>
+</nav>
+<div class="figure-strip">
+  <figure><img src="../results/paper9_sl_first_pass/figures/F2_ccle_dm1_target_corr.png" alt="F2 CCLE DM1 corr"/><figcaption>F2 — CCLE DM1 × candidate target Pearson r (n=13)</figcaption></figure>
+  <figure><img src="../results/paper9_sl_first_pass/figures/F3_dge_candidate_ranking.png" alt="F3 DGE ranking"/><figcaption>F3 — DM1-vs-DM2 DGE candidate ranking (TCGA-THCA bulk, q-corrected)</figcaption></figure>
+  <figure><img src="../results/paper9_sl_first_pass/figures/F6_tcga_target_survival.png" alt="F6 Cox HR forest"/><figcaption>F6 — TCGA-THCA univariate Cox HR per candidate (whole + DM1-high)</figcaption></figure>
+</div>
+<div class="plan-doc">
+<h1 id="paper-9-sl-first-pass-results-local-data-only-honest-scope">Paper 9 — SL first-pass results (local-data-only, honest scope)</h1>
+<p>Date: 2026-05-04
+Author: Seungho Cook
+Anchor doc: <code>2026_05_04_paper9_synthetic_lethality_ruppin_style_plan.md</code>
+Scope: real first-pass analysis using <strong>only locally available</strong> data. No DepMap/PRISM/GDSC/CTRP download. No GPU. No wet-lab. No Paper 1/2/3/4 manuscript touch. No voice-protected prose.</p>
+<hr />
+<h2 id="0-executive-snapshot">0. Executive snapshot</h2>
+<p>Three independent local data layers were cross-checked for the Paper 9 candidate panel (36 genes, 8 target classes):</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>n / scope</th>
+<th>What we asked</th>
+<th>Headline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CCLE thyroid</td>
+<td>13 lines</td>
+<td>DM1_like score × candidate-gene Pearson r</td>
+<td>Only 8/36 candidates in this small expression matrix; NAMPT, TACSTD2, KCNN4, LYN positive r; OSMR negative</td>
+</tr>
+<tr>
+<td>DM1 vs DM2 DGE (TCGA-THCA bulk)</td>
+<td>51,711 genes, all 36 candidates found</td>
+<td>log2(DM1/DM2) effect size</td>
+<td>KCNN4, TACSTD2, OSMR, IL6R, MYC, SRC, LYN, FYN all DM1-enriched at q&lt;&lt;0.05; lineage TFs FOXE1/HHEX/PAX8 strongly DM2-enriched (sanity ✓)</td>
+</tr>
+<tr>
+<td>TCGA-THCA OS Cox HR</td>
+<td>n=560, ~18 events (event rate 3.2%)</td>
+<td>per-target univariate Cox</td>
+<td>TYK2 (HR=0.15, p=0.006), ATR (HR=6.88, p=0.024), CHEK2 (HR=0.48, p=0.040); DM1-high subset (n=280) underpowered</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Triangulated provisional top tier</strong> (DGE-strong + at least one corroborating layer):
+- <strong>KCNN4</strong> — DGE log2FC −4.00 (DM1 ↑), CCLE r=+0.29, Cox NS. KCa3.1 channel; senicapoc / TRAM-34 candidate.
+- <strong>OSMR + IL6R (JAK/STAT upstream cytokine receptors)</strong> — DGE log2FC −1.4 (DM1 ↑), q&lt;1e-13. Strong receptor-level signal even though STAT3/JAK1/JAK2 themselves were not in the small CCLE panel.
+- <strong>SFK (LYN, SRC, FYN)</strong> — DGE log2FC ≈ −0.6 to −0.9 (DM1 ↑), q&lt;&lt;0.05. Dasatinib-class candidate.
+- <strong>MYC</strong> — DGE log2FC −1.29 (DM1 ↑), q=2e-9; Cox HR=1.50 (p=0.07 trend). Master regulator anchor for metabolic SL pairs.
+- <strong>TYK2</strong> — Cox HR=0.15 (p=0.006). Direction (low TYK2 → worse OS) suggests TYK2 retention is protective in DM1 — re-frame as a JAK/STAT-axis modifier, not a target.
+- <strong>ATR</strong> — Cox HR=6.88 (p=0.024). High ATR expression → worse OS. Fits replication-stress hypothesis (DM1 may be ATR-addicted).</p>
+<p><strong>Carved-out non-SL:</strong> TACSTD2 (TROP2). Strong DGE DM1 enrichment (log2FC −4.14, q=8e-24) and CCLE r=+0.29 — but framed as ADC-delivery vulnerability, not synthetic lethality. Already in Phase B drug platform.</p>
+<p><strong>Sanity floor:</strong> Lineage TFs (FOXE1, HHEX, PAX8) are all DM2-enriched (FOXE1 log2FC=+1.04 q=8e-8; FOXE1 CCLE r=−0.91 p=1.5e-5). Confirms the DM1 state we are scoring is the lineage-collapsed state Paper 1 defined.</p>
+<hr />
+<h2 id="1-what-was-actually-run-and-what-was-not">1. What was actually run (and what was not)</h2>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Define DM1-like state in CCLE thyroid</td>
+<td>✓ done</td>
+<td>n=13 lines; 8 RAI genes within-sample-z; DM1_like = -RAI_8</td>
+</tr>
+<tr>
+<td>Genome-wide CRISPR dependency contrast (DepMap)</td>
+<td>✗ deferred</td>
+<td>Genome-wide CRISPR matrix not on this host. Disk budget 4.7 GB free at start; not pulled.</td>
+</tr>
+<tr>
+<td>SL / SR pair inference</td>
+<td>✗ deferred</td>
+<td>requires DepMap dependency contrast first</td>
+</tr>
+<tr>
+<td>PRISM IC50 stratification</td>
+<td>✗ deferred</td>
+<td>Raw PRISM cache lives on <code>/opt/thyroid-dash</code> dashboard host (per <code>v14_02_prism.py:23-25</code>); not on this dev box</td>
+</tr>
+<tr>
+<td>DM1 vs DM2 DGE candidate ranking (TCGA-THCA bulk)</td>
+<td>✓ done</td>
+<td>Used existing <code>dge_dm1_vs_dm2.tsv</code> (51,711 genes, t-test)</td>
+</tr>
+<tr>
+<td>TCGA-THCA per-target Cox HR (whole + DM1-high)</td>
+<td>✓ done</td>
+<td>UCSC pancan log2(norm+1) expression × OS; lifelines CoxPHFitter</td>
+</tr>
+<tr>
+<td>GSE76039 replication</td>
+<td>✗ deferred</td>
+<td>Existing GSE76039 predictions (DM1 score) on disk but no per-gene expression matrix already extracted; defer to full execution phase</td>
+</tr>
+<tr>
+<td>Wet-lab Tier 1 (siRNA / drug viability)</td>
+<td>✗ deferred</td>
+<td>Out of scope for first-pass</td>
+</tr>
+</tbody>
+</table>
+<p>Disk impact this session: zero new downloads. All output written under <code>project/results/paper9_sl_first_pass/</code> (~few MB).</p>
+<p>Voice-protected prose: not written.</p>
+<hr />
+<h2 id="2-outputs-file-list">2. Outputs (file list)</h2>
+<p><code>project/results/paper9_sl_first_pass/</code></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>candidate_targets.tsv</code></td>
+<td>36-gene candidate panel + class tag</td>
+</tr>
+<tr>
+<td><code>ccle_dm1_state.tsv</code></td>
+<td>CCLE n=13 DM1_like + TF_collapse z-scores + DM1_high label</td>
+</tr>
+<tr>
+<td><code>ccle_dm1_target_corr.tsv</code></td>
+<td>Per-candidate Pearson r vs DM1_like in CCLE thyroid</td>
+</tr>
+<tr>
+<td><code>dge_candidate_ranking.tsv</code></td>
+<td>log2FC(DM2/DM1) and t/q for each candidate</td>
+</tr>
+<tr>
+<td><code>tcga_thca_target_cox.tsv</code></td>
+<td>univariate Cox HR per target (whole TCGA-THCA n=560)</td>
+</tr>
+<tr>
+<td><code>tcga_thca_dm1_target_cox.tsv</code></td>
+<td>same, restricted to DM1-high subset (n=280)</td>
+</tr>
+<tr>
+<td><code>summary.json</code></td>
+<td>machine-readable run summary</td>
+</tr>
+<tr>
+<td><code>figures/F2_ccle_dm1_target_corr.png</code></td>
+<td>candidate Pearson r barplot</td>
+</tr>
+<tr>
+<td><code>figures/F3_dge_candidate_ranking.png</code></td>
+<td>log2(DM1/DM2) candidate ranking</td>
+</tr>
+<tr>
+<td><code>figures/F6_tcga_target_survival.png</code></td>
+<td>per-target Cox HR forest, whole + DM1-high</td>
+</tr>
+<tr>
+<td><code>run.log</code></td>
+<td>full stdout from analysis</td>
+</tr>
+</tbody>
+</table>
+<p>Analysis script: <code>project/scripts/p9_sl_first_pass.py</code> (369 lines).</p>
+<hr />
+<h2 id="3-ccle-n13-layer-what-it-shows-and-what-it-does-not">3. CCLE n=13 layer — what it shows and what it does not</h2>
+<pre><code>DM1-high CCLE lines (top 6 by score):
+  ML1_THYROID, MB1_THYROID, S117_SOFT_TISSUE, TT_THYROID,
+  FTC238_THYROID, CAL62_THYROID
+  (mostly anaplastic/follicular dedifferentiated)
+
+DM1-low CCLE lines (bottom 7):
+  ML1_THYROID's opposite end → BCPAP, CGTH-W-1, FTC133, etc.
+</code></pre>
+<p>8 of 36 candidates were measurable in the CCLE thyroid expression file (the file is a thyroid-only 4007-gene panel, not full transcriptome). For these 8:</p>
+<p>| Direction | Genes (sorted by |r|) |
+|---|---|
+| Up in DM1 (r&gt;0) | NAMPT (r=+0.36), TACSTD2 (+0.29), KCNN4 (+0.29), LYN (+0.28) |
+| Down in DM1 (r&lt;0) | OSMR (r=−0.32), PAX8 (−0.41), NKX2-1 (−0.58, p=0.04), FOXE1 (−0.91, p=1.5e-5) |</p>
+<p>Caveats:
+- n=13 is too small for any single-gene Pearson r to reach significance for non-anchor genes; all candidate p &gt; 0.2.
+- The directional FOXE1/NKX2-1/PAX8 collapse is reproducible at this n and serves as a positive control: the DM1_like axis we are scoring is real.
+- Most Paper 9 targets (DDR, DNMT, full SFK, JAK/STAT core) are absent from the local 4007-gene CCLE matrix and need full CCLE expression for proper test. Deferred.</p>
+<hr />
+<h2 id="4-dge-layer-strongest-signal-all-36-candidates-measured">4. DGE layer — strongest signal, all 36 candidates measured</h2>
+<p>Source: <code>project/results/dark_matter_phase2/web/data/dge_dm1_vs_dm2.tsv</code>. 51,711 genes; mean expression per state + log2FC + t + qBH.</p>
+<p><strong>Top DM1-enriched candidates</strong> (log2FC &lt; 0 means DM1 &gt; DM2):</p>
+<table>
+<thead>
+<tr>
+<th>Gene</th>
+<th>Class</th>
+<th style="text-align: right;">log2FC(DM2/DM1)</th>
+<th style="text-align: right;">t</th>
+<th style="text-align: right;">q_BH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TACSTD2</td>
+<td>TROP2 ADC (non-SL)</td>
+<td style="text-align: right;">−4.14</td>
+<td style="text-align: right;">13.78</td>
+<td style="text-align: right;">8.2e−24</td>
+</tr>
+<tr>
+<td>KCNN4</td>
+<td>Ion channel</td>
+<td style="text-align: right;">−4.00</td>
+<td style="text-align: right;">19.60</td>
+<td style="text-align: right;">3.8e−32</td>
+</tr>
+<tr>
+<td>OSMR</td>
+<td>JAK/STAT upstream</td>
+<td style="text-align: right;">−1.44</td>
+<td style="text-align: right;">9.92</td>
+<td style="text-align: right;">1.6e−15</td>
+</tr>
+<tr>
+<td>IL6R</td>
+<td>JAK/STAT upstream</td>
+<td style="text-align: right;">−1.34</td>
+<td style="text-align: right;">9.17</td>
+<td style="text-align: right;">5.3e−14</td>
+</tr>
+<tr>
+<td>MYC</td>
+<td>Metabolism (master)</td>
+<td style="text-align: right;">−1.29</td>
+<td style="text-align: right;">7.11</td>
+<td style="text-align: right;">2.1e−09</td>
+</tr>
+<tr>
+<td>SRC</td>
+<td>SFK</td>
+<td style="text-align: right;">−0.89</td>
+<td style="text-align: right;">8.54</td>
+<td style="text-align: right;">6.7e−12</td>
+</tr>
+<tr>
+<td>LYN</td>
+<td>SFK</td>
+<td style="text-align: right;">−0.88</td>
+<td style="text-align: right;">9.72</td>
+<td style="text-align: right;">3.2e−15</td>
+</tr>
+<tr>
+<td>FYN</td>
+<td>SFK</td>
+<td style="text-align: right;">−0.63</td>
+<td style="text-align: right;">5.12</td>
+<td style="text-align: right;">1.4e−05</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Top DM2-enriched candidates</strong> (DM1-down):</p>
+<table>
+<thead>
+<tr>
+<th>Gene</th>
+<th>Class</th>
+<th style="text-align: right;">log2FC(DM2/DM1)</th>
+<th style="text-align: right;">t</th>
+<th style="text-align: right;">q_BH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FOXE1</td>
+<td>Lineage TF anchor</td>
+<td style="text-align: right;">+1.04</td>
+<td style="text-align: right;">−6.32</td>
+<td style="text-align: right;">8.0e−08</td>
+</tr>
+<tr>
+<td>HHEX</td>
+<td>Lineage TF anchor</td>
+<td style="text-align: right;">+0.73</td>
+<td style="text-align: right;">−4.48</td>
+<td style="text-align: right;">1.3e−04</td>
+</tr>
+<tr>
+<td>PAX8</td>
+<td>Lineage TF anchor</td>
+<td style="text-align: right;">+0.64</td>
+<td style="text-align: right;">−4.41</td>
+<td style="text-align: right;">1.9e−04</td>
+</tr>
+<tr>
+<td>DNMT3B</td>
+<td>Epigenetic</td>
+<td style="text-align: right;">+0.31</td>
+<td style="text-align: right;">−2.62</td>
+<td style="text-align: right;">3.4e−02</td>
+</tr>
+<tr>
+<td>IDH2</td>
+<td>Metabolism</td>
+<td style="text-align: right;">+0.29</td>
+<td style="text-align: right;">−2.25</td>
+<td style="text-align: right;">7.6e−02</td>
+</tr>
+<tr>
+<td>YES1</td>
+<td>SFK</td>
+<td style="text-align: right;">+0.21</td>
+<td style="text-align: right;">−3.07</td>
+<td style="text-align: right;">1.1e−02</td>
+</tr>
+<tr>
+<td>PARP1</td>
+<td>DDR</td>
+<td style="text-align: right;">+0.08</td>
+<td style="text-align: right;">−0.95</td>
+<td style="text-align: right;">0.50</td>
+</tr>
+<tr>
+<td>ATR</td>
+<td>DDR</td>
+<td style="text-align: right;">+0.08</td>
+<td style="text-align: right;">−1.04</td>
+<td style="text-align: right;">0.46</td>
+</tr>
+</tbody>
+</table>
+<p>Reading:
+- <strong>JAK/STAT upstream receptors (OSMR, IL6R)</strong> are the strongest druggable JAK-axis signal — stronger than STAT3 / JAK1/2 / TYK2 themselves at the bulk level. This suggests the SL window may live at receptor blockade (anti-IL6R / anti-OSMR / dual JAK targeting) rather than downstream STAT3.
+- <strong>SFK (LYN, SRC, FYN)</strong> is consistently DM1-up and consistent in CCLE direction — a coherent class signal.
+- <strong>DDR (ATR, PARP1)</strong> is essentially flat at bulk DGE level — the ATR Cox HR signal in section 5 likely reflects state-conditional dependency, not bulk over-expression. Frame ATR as a vulnerability <em>given</em> DM1 state, not a DM1 marker.
+- <strong>Lineage TF DM2-enrichment (FOXE1, HHEX, PAX8)</strong> is the floor sanity check: the axis we are calling "DM1" is the lineage-collapsed state.</p>
+<hr />
+<h2 id="5-tcga-thca-cox-layer-strong-powered-cohort-but-very-low-event-rate">5. TCGA-THCA Cox layer — strong powered cohort but very low event rate</h2>
+<p><strong>n=560 patients, ~18 OS events, event rate 3.2%.</strong> TCGA-THCA's well-known issue: small number of OS events. Cox is therefore <strong>underpowered</strong> for most genes; nominal p&lt;0.05 hits are suggestive, not definitive.</p>
+<h3 id="51-whole-cohort-top-hits-univariate-cox-per-gene">5.1 Whole-cohort top hits (univariate Cox per gene)</h3>
+<table>
+<thead>
+<tr>
+<th>Gene</th>
+<th>Class</th>
+<th style="text-align: right;">HR</th>
+<th>95% CI</th>
+<th style="text-align: right;">p</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TYK2</td>
+<td>JAK/STAT</td>
+<td style="text-align: right;">0.15</td>
+<td>0.04–0.59</td>
+<td style="text-align: right;">0.006</td>
+</tr>
+<tr>
+<td>ATR</td>
+<td>DDR</td>
+<td style="text-align: right;">6.88</td>
+<td>1.28–36.83</td>
+<td style="text-align: right;">0.024</td>
+</tr>
+<tr>
+<td>CHEK2</td>
+<td>DDR</td>
+<td style="text-align: right;">0.48</td>
+<td>0.24–0.97</td>
+<td style="text-align: right;">0.040</td>
+</tr>
+<tr>
+<td>YES1</td>
+<td>SFK</td>
+<td style="text-align: right;">3.63</td>
+<td>0.97–13.57</td>
+<td style="text-align: right;">0.055</td>
+</tr>
+<tr>
+<td>HDAC1</td>
+<td>Epigenetic</td>
+<td style="text-align: right;">0.33</td>
+<td>0.10–1.04</td>
+<td style="text-align: right;">0.058</td>
+</tr>
+<tr>
+<td>MYC</td>
+<td>Metabolism</td>
+<td style="text-align: right;">1.50</td>
+<td>0.97–2.32</td>
+<td style="text-align: right;">0.070</td>
+</tr>
+<tr>
+<td>GLS</td>
+<td>Metabolism</td>
+<td style="text-align: right;">1.82</td>
+<td>0.93–3.57</td>
+<td style="text-align: right;">0.080</td>
+</tr>
+</tbody>
+</table>
+<p>Reading:
+- <strong>ATR HR=6.88, p=0.024</strong>: high ATR expression → worse OS. Together with the flat DGE direction, this is consistent with DM1 / advanced thyroid being <strong>state-conditionally addicted</strong> to ATR / replication-stress response. Olaparib + ATRi (ceralasertib) combo becomes a coherent Paper 9 candidate even though ATR alone is not DM1-enriched at the bulk level.
+- <strong>TYK2 HR=0.15, p=0.006</strong>: low TYK2 → worse OS. Not a target — re-frame as a protective modifier of the JAK/STAT axis. Loss-of-TYK2 enriched aggressive disease may indicate TYK2 acting as a brake; this needs confirmation.
+- <strong>CHEK2 HR=0.48, p=0.040</strong>: protective. DDR loss (low CHEK2) → worse OS. Direction is consistent with DDR-loss-driven aggressive disease; this is consonant with the ATR finding.</p>
+<h3 id="52-dm1-high-subset-n280-underpowered">5.2 DM1-high subset (n=280) — underpowered</h3>
+<p>No gene reaches p&lt;0.05 in the DM1-high subset Cox. Top hits at p&lt;0.20 are MYC (1.87, p=0.05), HHEX (0.67, p=0.10), LDHA (3.68, p=0.10), GLS (2.19, p=0.15), IDH2 (0.43, p=0.17), HDAC1 (0.32, p=0.17). Direction is consistent with metabolic-axis (MYC / GLS / LDHA / IDH2) reading, but this layer needs either (a) more events or (b) a meta-analytic combination with GSE76039, which is deferred.</p>
+<h3 id="53-honest-power-statement">5.3 Honest power statement</h3>
+<p>With ~18 events, a univariate Cox at α=0.05 has roughly 80% power to detect HR ≥ ~3.5 (per +1 SD of expression). Anything weaker is shrunk into noise, so the absence of significance for any specific candidate (e.g., NAMPT p=0.38) is <strong>not evidence of irrelevance</strong> — it is a power statement.</p>
+<hr />
+<h2 id="6-triangulation-provisional-paper-9-priority-list">6. Triangulation — provisional Paper 9 priority list</h2>
+<p>Combining the three layers (DGE strong, CCLE direction, Cox direction-or-magnitude), we arrive at a <em>provisional</em> priority for the deferred full-execution phase:</p>
+<table>
+<thead>
+<tr>
+<th>Rank</th>
+<th>Target / class</th>
+<th>Why it survives triangulation</th>
+<th>Open work needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>KCNN4</strong></td>
+<td>DGE q=4e−32 (DM1 ↑), CCLE r=+0.29, well-characterized channel</td>
+<td>DepMap CRISPR contrast; senicapoc IC50 in DM1 lines</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>OSMR + IL6R (JAK/STAT upstream)</strong></td>
+<td>DGE q&lt;1e−13 each (DM1 ↑); cytokine-receptor SL window</td>
+<td>Antibody / soluble-receptor screen; ruxolitinib-class drug response</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>SFK (LYN, SRC, FYN)</strong></td>
+<td>All three DGE-up at q&lt;&lt;0.05; DGE coherent across class</td>
+<td>Dasatinib IC50 in DM1 lines; CRISPR LYN/SRC/FYN dependency</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>ATR + CHEK2 axis (DDR)</strong></td>
+<td>Cox HR strong (ATR p=0.024, CHEK2 p=0.040) despite flat bulk DGE — state-conditional</td>
+<td>ATRi (ceralasertib) and PARPi combo IC50 in DM1 lines</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>MYC + metabolic (GLS, LDHA, IDH2)</strong></td>
+<td>DGE q=2e−9 (MYC), DM1-high Cox trends; classical SL pair logic</td>
+<td>GLS1i (CB-839) IC50 + MYC-knockdown in DM1 lines</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>NAMPT / NAPRT (NAD)</strong></td>
+<td>CCLE r=+0.36 (DM1 ↑) but DGE NS; partner NAPRT not yet measurable here</td>
+<td>DepMap NAMPT dependency × NAPRT expression</td>
+</tr>
+<tr>
+<td>7 (carve-out)</td>
+<td><strong>TACSTD2 (TROP2 ADC, non-SL)</strong></td>
+<td>DGE q=8e−24 (DM1 ↑), CCLE r=+0.29 — strongest DM1 surface marker after KCNN4</td>
+<td>Already in Phase B — keep separate from SL framing</td>
+</tr>
+</tbody>
+</table>
+<p>Drop / re-frame:
+- <strong>STAT3 itself</strong> as a single-agent target — DGE log2FC small (q NS); JAK/STAT signal lives at the receptor level (rank 2), not at STAT3.
+- <strong>TYK2</strong> — flip from "target" to "protective modifier" pending replication.
+- <strong>KDM1A, HDAC6, EZH2, DNMT3B</strong> — no signal in any of the three layers at this first pass. Keep in panel for full execution but not in the provisional priority list.</p>
+<hr />
+<h2 id="7-caveats-and-what-this-first-pass-does-not-prove">7. Caveats and what this first-pass does NOT prove</h2>
+<ol>
+<li>CCLE n=13 with a thyroid-only 4007-gene matrix is <strong>not</strong> a synthetic-lethality test — it is a state-axis sanity check. The full DepMap CRISPR contrast remains the gating analysis for Paper 9.</li>
+<li>TCGA-THCA Cox is <strong>underpowered</strong> at 18 events. Effect sizes from this cohort should be treated as directional priors for GSE76039 + (eventually) Korean K2 + Bundang replication, not standalone evidence.</li>
+<li>PRISM drug-response stratification is <strong>not</strong> in this first pass. Any drug-class claim is hypothesis-level.</li>
+<li>SL / SR pair inference is <strong>not</strong> in this first pass. ATR's signal in section 5 is a Cox correlation, not an SL-pair claim.</li>
+<li>Wet-lab Tier 1 (siRNA / IC50) has not run.</li>
+<li>None of this overrides the <strong>scope rule</strong>: full execution is gated on Paper 1 in print + marathon close (≥ 2026-06-13) + Yu sign-off.</li>
+</ol>
+<hr />
+<h2 id="8-reproducibility">8. Reproducibility</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Script</td>
+<td><code>project/scripts/p9_sl_first_pass.py</code></td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.12 (project/.venv)</td>
+</tr>
+<tr>
+<td>Key libs</td>
+<td>pandas 2.3, scipy, lifelines 0.30, matplotlib</td>
+</tr>
+<tr>
+<td>CCLE source</td>
+<td><code>project/results/v8p1_rigor/f_ccle_validation/{ccle_thyroid_expression,ccle_brs_labels,ccle_thyroid_metadata}.tsv</code></td>
+</tr>
+<tr>
+<td>DGE source</td>
+<td><code>project/results/dark_matter_phase2/web/data/dge_dm1_vs_dm2.tsv</code></td>
+</tr>
+<tr>
+<td>TCGA expr</td>
+<td><code>project/data/raw/TCGA_pancan/pancan_geneExp.gz</code> (UCSC pancan log2(norm+1))</td>
+</tr>
+<tr>
+<td>TCGA scored</td>
+<td><code>project_external_st/results/extra/s_tcga_thca_scored.tsv</code></td>
+</tr>
+<tr>
+<td>Random seeds</td>
+<td>none required (analytic statistics only)</td>
+</tr>
+</tbody>
+</table>
+<p>Re-run: <code>source project/.venv/bin/activate &amp;&amp; python project/scripts/p9_sl_first_pass.py</code>.</p>
+<p>Run summary written to <code>project/results/paper9_sl_first_pass/summary.json</code>.</p>
+<hr />
+<h2 id="9-what-changes-for-the-strategic-plan-as-a-result-of-this-first-pass">9. What changes for the strategic plan as a result of this first pass</h2>
+<ul>
+<li><strong>F2 / F3 / F6</strong> sketches now have local-data drafts; replace placeholder schematics with current PNGs as the working figure baseline.</li>
+<li><strong>Section 6 (candidate target classes)</strong> of the strategic plan should reflect the triangulation: KCNN4, OSMR/IL6R, SFK, ATR/CHEK2 promoted; NAMPT and pure STAT3 demoted; TYK2 reframed; TROP2 confirmed as carved-out non-SL.</li>
+<li><strong>Section 8 (analysis plan)</strong> Step A is now demonstrably executable on local data; Step B (DepMap genome-wide CRISPR) remains the first paper-blocking step in the post-marathon execution phase.</li>
+</ul>
+<p>The strategic plan document itself is <strong>not edited in this turn</strong>. Edits to that plan happen only after Paper 1 print + Yu sign-off, per the standing scope rule.</p>
+</div>
+</div>
+</body></html>
