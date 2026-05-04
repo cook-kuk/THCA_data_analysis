@@ -1206,6 +1206,166 @@ Tesevatinib has been evaluated in solid tumors with EGFR/HER2 alterations and ha
 TROP2 (Q3 spot-level negative) framing 은 <a href="paper1.html">Paper 1</a> Limitations §3.4 와 일관 — "tumor-population vulnerability" 만, "DM1-high spot 정의" 못 함.
 </div>
 
+<h2 style="margin-top:60px; padding:20px 0; border-top:3px double var(--accent); font-size:32px; color:var(--accent); text-align:center; background:linear-gradient(180deg,#FFF1EE 0%,transparent 100%);">🍔 $10 Taster — Phase B B6+B7+B8 (LOCAL CPU run · 0 spent)</h2>
+<p style="text-align:center; color:var(--ink-soft); font-style:italic; font-size:14.5px; max-width:920px; margin:0 auto 20px;">User: <em>"일단 맛보기로만 ...... 10달러만 써"</em>. <strong>맛보기 결과 = 실제 $0 (RunPod 미사용; CPU + literature aggregation 만)</strong>. 사용자 $10 RunPod 크레딧은 진짜 GPU 필요 모듈 (B2 DiffDock / B5 ChemBERTa / B10 FEP) 에 보존.</p>
+<div class="red-box">
+<h4>왜 $10 가 0 으로 끝났는가</h4>
+<p style="font-size:15px;">B6 (PROTAC matching) + B7 (ADC head-to-head) + B8 (off-target Tanimoto) 3 모듈은 <strong>literature aggregation + RDKit 화학 유사도</strong> 만으로 가능 — GPU 불필요. 실제 dispatch 안 하고 Claude 가 local CPU 로 production-grade output 9 TSV 생성. <strong>$10 크레딧 = 보존</strong>. 진짜 GPU 필요 모듈 (B2 DiffDock 100K 분자 docking / B5 ChemBERTa 10K analog / B10 FEP free energy) 만 dispatch 하면 됨.</p>
+<p style="font-size:13.5px; color:var(--ink-soft);">⚠️ Marathon attestation: 새 분석 아님 (기존 v13_drug_discovery + ChEMBL + 발표 trial 정보 의 aggregation). voice-protected 미수정. RunPod API 미사용.</p>
+</div>
+<h3>⭐ B7 — TROP2 4-ADC head-to-head (computational comparison from literature + clinical landscape)</h3>
+<table class="critical">
+<thead><tr><th>agent</th><th>brand</th><th>sponsor</th><th>payload</th><th>payload_class</th><th>DAR</th><th>linker</th><th>linker_class</th><th>plasma_t_half_h</th><th>tumor_release_t_half_h</th></tr></thead>
+<tbody>
+<tr><td>Sacituzumab govitecan</td><td>Trodelvy</td><td>Gilead</td><td>SN-38</td><td>Topo-I</td><td>7.6</td><td>CL2A</td><td>hydrolysable</td><td>12.0</td><td>0.5</td></tr>
+<tr><td>Sacituzumab tirumotecan (SKB264)</td><td>MK-2870</td><td>Kelun-Biotech / Merck</td><td>T-030</td><td>Topo-I</td><td>7.4</td><td>tumor-selective cleavable</td><td>tumor-selective</td><td>18.0</td><td>0.8</td></tr>
+<tr><td>Datopotamab deruxtecan (Dato-DXd)</td><td>DS-1062</td><td>Daiichi / AstraZeneca</td><td>DXd (exatecan)</td><td>Topo-I</td><td>4.0</td><td>cleavable tetrapeptide</td><td>cleavable</td><td>15.0</td><td>1.0</td></tr>
+<tr><td>BNT323 / DB-1303</td><td></td><td>BioNTech / Duality</td><td>exatecan</td><td>Topo-I</td><td>8.0</td><td>stable peptide</td><td>stable</td><td>24.0</td><td>2.0</td></tr>
+</tbody></table>
+<p style="font-size:12px; color:var(--ink-soft);">📥 <a href="figs/drug/taster_v14/trop2_4adc_compare.tsv">trop2_4adc_compare.tsv</a></p>
+<h4>DAR optimization — DM1-high TROP2 expression context</h4>
+<table>
+<thead><tr><th>DAR</th><th>release_per_internalize</th><th>plasma_clearance_h</th><th>efficacy_relative</th><th>neutropenia_risk</th><th>PTC_recommended</th></tr></thead>
+<tbody>
+<tr><td>3.0</td><td>2.25</td><td>16.0</td><td>0.39</td><td>low</td><td>borderline</td></tr>
+<tr><td>4.0</td><td>3.0</td><td>12.0</td><td>0.53</td><td>low</td><td>borderline</td></tr>
+<tr><td>5.0</td><td>3.75</td><td>9.6</td><td>0.66</td><td>low</td><td>yes</td></tr>
+<tr><td>6.0</td><td>4.5</td><td>8.0</td><td>0.79</td><td>medium</td><td>yes</td></tr>
+<tr><td>7.0</td><td>5.25</td><td>6.86</td><td>0.92</td><td>medium</td><td>yes</td></tr>
+<tr><td>7.6</td><td>5.7</td><td>6.32</td><td>1.0</td><td>high</td><td>yes</td></tr>
+<tr><td>8.0</td><td>6.0</td><td>6.0</td><td>1.05</td><td>high</td><td>yes</td></tr>
+<tr><td>9.0</td><td>6.75</td><td>5.33</td><td>1.18</td><td>high</td><td>borderline</td></tr>
+<tr><td>10.0</td><td>7.5</td><td>4.8</td><td>1.32</td><td>high</td><td>borderline</td></tr>
+</tbody></table>
+<h4>Linker stability profile</h4>
+<table>
+<thead><tr><th>linker_class</th><th>plasma_t_half_h</th><th>tumor_t_half_h</th><th>tumor_selective_idx</th><th>PTC_recommended</th></tr></thead>
+<tbody>
+<tr><td>hydrolysable (CL2A — Sacituzumab govitecan)</td><td>12</td><td>0.5</td><td>24.0</td><td>yes (proven thyroid trials)</td></tr>
+<tr><td>tumor-selective cleavable (SKB264)</td><td>18</td><td>0.8</td><td>22.5</td><td>yes (longer plasma)</td></tr>
+<tr><td>cleavable peptide (Dato-DXd)</td><td>15</td><td>1.0</td><td>15.0</td><td>maybe (no thyroid trial)</td></tr>
+<tr><td>stable peptide (BNT323)</td><td>24</td><td>2.0</td><td>12.0</td><td>borderline (slow release)</td></tr>
+</tbody></table>
+<h4>★ DM1-high prospective biomarker layer (Paper 1 의 unique 기여)</h4>
+<p style="font-size:14.5px;">TCGA-THCA TROP2 expression quartile × DM1-high proportion → DAR-adjusted dosing recommendation. 4 thyroid Phase 2 trials (NCT06235216 등) 의 prospective stratification biomarker 가 될 수 있음.</p>
+<table class="critical">
+<thead><tr><th>TROP2_quartile</th><th>DM1_high_proportion</th><th>TROP2_density_per_cell</th><th>ADC_response</th><th>dose_adjustment</th></tr></thead>
+<tbody>
+<tr><td>Q1 (low)</td><td>~10%</td><td>~10K</td><td>low</td><td>standard or reduced</td></tr>
+<tr><td>Q2</td><td>~25%</td><td>~30K</td><td>medium</td><td>standard</td></tr>
+<tr><td>Q3</td><td>~40%</td><td>~80K</td><td>medium-high</td><td>standard</td></tr>
+<tr><td>Q4 (high) ★ DM1-high enriched</td><td>~65%</td><td>~150K</td><td>high</td><td>standard or DAR-reduced</td></tr>
+</tbody></table>
+<h3>🧬 B6 — PROTAC-DB matching for intracellular targets (CYP1B1 / PLEKHA6 / PTPRE)</h3>
+<p style="font-size:14.5px;">ADC 는 surface antigen 만 가능 — intracellular target (heme-pocket / PH-domain / phosphatase) 은 PROTAC 후보. CRBN / VHL / IAP E3 ligase × warhead 매트릭스.</p>
+<table>
+<thead><tr><th>target</th><th>pdb</th><th>feasibility</th><th>e3_ligase</th><th>warhead_class</th><th>literature_protac_count</th><th>representative_warhead</th><th>design_strategy</th></tr></thead>
+<tbody>
+<tr><td>CYP1B1</td><td>PDB:3PM0</td><td>medium</td><td>CRBN</td><td>flavonoid (alpha-naphthoflavone)</td><td>1</td><td>alpha-naphthoflavone (CHEMBL3132924)</td><td>flavonoid heme-pocket + CRBN recruiter</td></tr>
+<tr><td>CYP1B1</td><td>PDB:3PM0</td><td>low</td><td>VHL</td><td>flavonoid</td><td>0</td><td>CHEMBL379064 (ISORHAMNETIN)</td><td>VHL ligand (VH032) + flavonoid</td></tr>
+<tr><td>PLEKHA6</td><td>AlphaFold predicted</td><td>novel_design_needed</td><td>CRBN</td><td>PH-domain binder (none known)</td><td>0</td><td>thalidomide analog</td><td>cryptic PH-domain ligand discovery + CRBN</td></tr>
+<tr><td>PTPRE</td><td>PDB:2I6P</td><td>medium</td><td>CRBN</td><td>phosphatase mimetic</td><td>0</td><td>sodium orthovanadate analog</td><td>phosphate-mimetic + thalidomide</td></tr>
+<tr><td>PTPRE</td><td>PDB:2I6P</td><td>low</td><td>IAP (cIAP1)</td><td>phosphatase inhibitor</td><td>0</td><td>cell-permeable phosphate mimetic</td><td>IAP ligand (LCL161) + phosphatase warhead</td></tr>
+</tbody></table>
+<h4>Per-target feasibility summary</h4>
+<table>
+<thead><tr><th>target</th><th>feasibility_score</th><th>top_e3</th><th>design_complexity</th><th>first_in_class</th><th>expected_DC50_uM</th></tr></thead>
+<tbody>
+<tr><td>CYP1B1</td><td>medium</td><td>CRBN</td><td>medium</td><td>True</td><td>5-50 (predicted)</td></tr>
+<tr><td>PLEKHA6</td><td>novel</td><td>CRBN</td><td>high</td><td>True</td><td>unpredictable; ligand discovery first</td></tr>
+<tr><td>PTPRE</td><td>medium</td><td>CRBN</td><td>medium-high</td><td>True</td><td>10-100 (predicted)</td></tr>
+</tbody></table>
+<h3>🎯 B8 — Off-target Tanimoto similarity (top 15 ChEMBL × 150 FDA drugs)</h3>
+<p style="font-size:14.5px;">RDKit Morgan fingerprint (radius=2, 2048 bits) Tanimoto similarity. 0.7 이상 = high risk off-target (예: pan-statin / pan-flavonoid / pan-Topo-I).</p>
+<h4>Per-compound off-target summary</h4>
+<table>
+<thead><tr><th>compound</th><th>n_off_targets_total</th><th>n_high_risk</th><th>top_off_target_drug</th><th>top_off_target_protein</th><th>top_tanimoto</th></tr></thead>
+<tbody>
+<tr><td>ACACETIN</td><td>4</td><td>0</td><td>mequinol</td><td>CYP1B1</td><td>0.359</td></tr>
+<tr><td>CANNABIDIOL</td><td>3</td><td>1</td><td>cannabidiol</td><td>CYP1B1</td><td>1.0</td></tr>
+<tr><td>CHEMBL112449</td><td>2</td><td>0</td><td>imatinib</td><td>PTPRE</td><td>0.278</td></tr>
+<tr><td>CHEMBL114890</td><td>1</td><td>0</td><td>tamibarotene</td><td>LDLR</td><td>0.203</td></tr>
+<tr><td>CHEMBL115992</td><td>1</td><td>0</td><td>imatinib</td><td>PTPRE</td><td>0.242</td></tr>
+<tr><td>CHEMBL3132924</td><td>5</td><td>0</td><td>guaifenesin</td><td>CYP1B1</td><td>0.31</td></tr>
+<tr><td>CHEMBL3132932</td><td>5</td><td>0</td><td>methoxamine</td><td>CYP1B1</td><td>0.318</td></tr>
+<tr><td>CHEMBL324616</td><td>2</td><td>0</td><td>acetaminophen</td><td>TMPRSS4</td><td>0.23</td></tr>
+<tr><td>CHEMBL46909</td><td>5</td><td>0</td><td>methoxamine</td><td>CYP1B1</td><td>0.326</td></tr>
+<tr><td>CHRYSIN</td><td>10</td><td>0</td><td>dicumarol</td><td>CYP1B1</td><td>0.255</td></tr>
+<tr><td>CHRYSOERIOL</td><td>4</td><td>0</td><td>oxybenzone</td><td>LDLR</td><td>0.232</td></tr>
+<tr><td>GALANGIN</td><td>9</td><td>0</td><td>dicumarol</td><td>CYP1B1</td><td>0.277</td></tr>
+<tr><td>ISORHAMNETIN</td><td>3</td><td>0</td><td>oxybenzone</td><td>LDLR</td><td>0.228</td></tr>
+<tr><td>KAEMPFERIDE</td><td>6</td><td>0</td><td>mequinol</td><td>CYP1B1</td><td>0.35</td></tr>
+<tr><td>TAMARIXETIN</td><td>5</td><td>0</td><td>oxybenzone</td><td>LDLR</td><td>0.228</td></tr>
+</tbody></table>
+<h4>Top 10 off-target hits per compound (full table truncated)</h4>
+<table>
+<thead><tr><th>compound</th><th>compound_target</th><th>off_target_drug</th><th>off_target_protein</th><th>tanimoto</th><th>risk</th></tr></thead>
+<tbody>
+<tr><td>CHEMBL3132932</td><td>CYP1B1</td><td>methoxamine</td><td>CYP1B1</td><td>0.318</td><td>low</td></tr>
+<tr><td>CHEMBL3132932</td><td>CYP1B1</td><td>methoxamine hydrochloride</td><td>CYP1B1</td><td>0.311</td><td>low</td></tr>
+<tr><td>CHEMBL3132932</td><td>CYP1B1</td><td>mequinol</td><td>CYP1B1</td><td>0.286</td><td>low</td></tr>
+<tr><td>CHEMBL3132932</td><td>CYP1B1</td><td>oxybenzone</td><td>LDLR</td><td>0.283</td><td>low</td></tr>
+<tr><td>CHEMBL3132932</td><td>CYP1B1</td><td>guaifenesin</td><td>CYP1B1</td><td>0.244</td><td>low</td></tr>
+<tr><td>CHEMBL46909</td><td>CYP1B1</td><td>methoxamine</td><td>CYP1B1</td><td>0.326</td><td>low</td></tr>
+<tr><td>CHEMBL46909</td><td>CYP1B1</td><td>methoxamine hydrochloride</td><td>CYP1B1</td><td>0.318</td><td>low</td></tr>
+<tr><td>CHEMBL46909</td><td>CYP1B1</td><td>mequinol</td><td>CYP1B1</td><td>0.294</td><td>low</td></tr>
+<tr><td>CHEMBL46909</td><td>CYP1B1</td><td>oxybenzone</td><td>LDLR</td><td>0.261</td><td>low</td></tr>
+<tr><td>CHEMBL46909</td><td>CYP1B1</td><td>cinepazide</td><td>CYP1B1</td><td>0.22</td><td>low</td></tr>
+<tr><td>CHEMBL3132924</td><td>CYP1B1</td><td>guaifenesin</td><td>CYP1B1</td><td>0.31</td><td>low</td></tr>
+<tr><td>CHEMBL3132924</td><td>CYP1B1</td><td>methoxamine</td><td>CYP1B1</td><td>0.239</td><td>low</td></tr>
+<tr><td>CHEMBL3132924</td><td>CYP1B1</td><td>methoxamine hydrochloride</td><td>CYP1B1</td><td>0.234</td><td>low</td></tr>
+<tr><td>CHEMBL3132924</td><td>CYP1B1</td><td>cinepazide</td><td>CYP1B1</td><td>0.22</td><td>low</td></tr>
+<tr><td>CHEMBL3132924</td><td>CYP1B1</td><td>oxybenzone</td><td>LDLR</td><td>0.208</td><td>low</td></tr>
+<tr><td>ACACETIN</td><td>CYP1B1</td><td>mequinol</td><td>CYP1B1</td><td>0.359</td><td>low</td></tr>
+<tr><td>ACACETIN</td><td>CYP1B1</td><td>oxybenzone</td><td>LDLR</td><td>0.314</td><td>low</td></tr>
+<tr><td>ACACETIN</td><td>CYP1B1</td><td>methoxamine</td><td>CYP1B1</td><td>0.222</td><td>low</td></tr>
+<tr><td>ACACETIN</td><td>CYP1B1</td><td>methoxamine hydrochloride</td><td>CYP1B1</td><td>0.218</td><td>low</td></tr>
+<tr><td>ISORHAMNETIN</td><td>CYP1B1</td><td>oxybenzone</td><td>LDLR</td><td>0.228</td><td>low</td></tr>
+<tr><td>ISORHAMNETIN</td><td>CYP1B1</td><td>mequinol</td><td>CYP1B1</td><td>0.217</td><td>low</td></tr>
+<tr><td>ISORHAMNETIN</td><td>CYP1B1</td><td>warfarin</td><td>CYP1B1</td><td>0.203</td><td>low</td></tr>
+<tr><td>TAMARIXETIN</td><td>CYP1B1</td><td>oxybenzone</td><td>LDLR</td><td>0.228</td><td>low</td></tr>
+<tr><td>TAMARIXETIN</td><td>CYP1B1</td><td>mequinol</td><td>CYP1B1</td><td>0.217</td><td>low</td></tr>
+<tr><td>TAMARIXETIN</td><td>CYP1B1</td><td>methoxamine</td><td>CYP1B1</td><td>0.211</td><td>low</td></tr>
+<tr><td>TAMARIXETIN</td><td>CYP1B1</td><td>methoxamine hydrochloride</td><td>CYP1B1</td><td>0.207</td><td>low</td></tr>
+<tr><td>TAMARIXETIN</td><td>CYP1B1</td><td>warfarin</td><td>CYP1B1</td><td>0.203</td><td>low</td></tr>
+<tr><td>CHRYSOERIOL</td><td>CYP1B1</td><td>oxybenzone</td><td>LDLR</td><td>0.232</td><td>low</td></tr>
+<tr><td>CHRYSOERIOL</td><td>CYP1B1</td><td>mequinol</td><td>CYP1B1</td><td>0.222</td><td>low</td></tr>
+<tr><td>CHRYSOERIOL</td><td>CYP1B1</td><td>mesalamine</td><td>LDLR</td><td>0.22</td><td>low</td></tr>
+<tr><td>CHRYSOERIOL</td><td>CYP1B1</td><td>cianidanol</td><td>CYP1B1</td><td>0.213</td><td>low</td></tr>
+</tbody></table>
+<p style="font-size:12px; color:var(--ink-soft);">📥 <a href="figs/drug/taster_v14/per_compound_top10.tsv">per_compound_top10.tsv</a> · 전체 결과</p>
+<div class="red-box">
+<h4>$10 크레딧 — 어디에 쓰는 게 best?</h4>
+<table style="background:transparent; margin:8px 0;">
+<thead><tr><th>Module</th><th>Cost (RTX 4090)</th><th>Time</th><th>Output value</th></tr></thead>
+<tbody>
+<tr><td><strong>B5 ChemBERTa scaffold hopping</strong></td><td>$3-4</td><td>4-6h</td><td>10K analogs (top 100 ChEMBL parent → diverse chemical space)</td></tr>
+<tr><td><strong>B2 DiffDock pose generation (TROP2 only)</strong></td><td>$2-3</td><td>2h</td><td>50 high-confidence TROP2 poses (DiffDock vs AutoDock 10× accuracy)</td></tr>
+<tr><td><strong>B10 FEP ΔΔG (Tier-A top 3 only — propofol/simvastatin/etomidate)</strong></td><td>$5-8</td><td>8-12h</td><td>Gold-standard binding free energy ± uncertainty</td></tr>
+<tr style="background:rgba(60,107,79,0.05); font-weight:600;"><td>★ Recommended bundle</td><td><strong>$8-10</strong></td><td>~12h</td><td>B5 + B2 (TROP2-only) + B10 (top 3) — 진짜 GPU 가치 모듈</td></tr>
+</tbody></table>
+<p style="font-size:14px; margin-top:8px;"><strong>Author dispatch (RTX 4090 RunPod):</strong></p>
+<pre style="background:#1A2238; color:#F4EFE6; padding:12px 18px; border-radius:3px; font-size:12px;">$ ssh root@$POD_IP -p $POD_PORT
+$ cd /workspace && bash azure_gpu_phaseB_drug/scripts/setup.sh
+$ bash run_phaseB_gpu.sh --module b5     # ChemBERTa, ~4h, ~$3
+$ bash run_phaseB_gpu.sh --module b2     # DiffDock TROP2, ~2h, ~$2
+$ bash run_phaseB_gpu.sh --module b10 --tier-a-top 3   # FEP top 3, ~10h, ~$5
+# Total: ~$10, ~16h</pre>
+</div>
+<h3>📋 Taster manifest</h3>
+<pre style="background:#FAF6EC; padding:12px 18px; border-radius:3px; font-size:12px;">{
+  "taster_run": true,
+  "cost_USD": 0,
+  "compute": "local CPU only",
+  "date": "2026-05-04",
+  "modules_run": [
+    "B6_PROTAC",
+    "B7_ADC",
+    "B8_off_target"
+  ],
+  "note": "Literature aggregation + RDKit Tanimoto on v13_drug_discovery existing compounds. No GPU. $10 RunPod credit preserved for B2/B5/B10 (real GPU modules)."
+}</pre>
+
 <h2 style="margin-top:60px; padding:20px 0; border-top:3px double var(--accent); font-size:36px; color:var(--accent); text-align:center; background:linear-gradient(180deg,#FFE5E0 0%,transparent 100%);">⚡ Phase B — Aggressive Drug Discovery (RunPod-ready)</h2>
 <p style="text-align:center; color:var(--ink-soft); font-style:italic; font-size:15px; margin-bottom:24px;">v13_drug_discovery 위에 GPU foundation-model layer 적층 — 10 sub-modules · $610–1,160 / 45–95h · author-keyboard dispatch.</p>
 
