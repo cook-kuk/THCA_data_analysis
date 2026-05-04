@@ -261,6 +261,47 @@
   </tbody>
 </table>
 
+<h3>5 THCA classifier per-fold DIAL detail (v5.1 vs v52)</h3>
+<table>
+  <thead><tr><th>Classifier</th><th>Feature space</th><th>Sample n</th><th>Train:test split</th><th>v5.1 (NO LODO ComBat) DIAL</th><th>v52 (LODO ComBat) DIAL</th><th>Δ</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td>THCA-DIAL-1 (TIERA67)</td><td>67-gene curated panel</td><td>~500</td><td>3-fold CV</td><td><strong>0.494</strong></td><td><strong>0.000</strong></td><td>−0.494</td><td>Leak artifact (full)</td></tr>
+    <tr><td>THCA-DIAL-2 (8-gene panel)</td><td>RAI 8-gene</td><td>~500</td><td>3-fold CV</td><td>~0.42</td><td>~0.00</td><td>~−0.42</td><td>Leak artifact (full)</td></tr>
+    <tr><td>THCA-DIAL-3 (Driver_anchor)</td><td>BRAF/RAS/TERT 12-gene</td><td>~500</td><td>3-fold CV</td><td>~0.51</td><td>~0.00</td><td>~−0.51</td><td>Leak artifact (full)</td></tr>
+    <tr><td>THCA-DIAL-4 (BRAF/RAS-only)</td><td>2-gene minimal</td><td>~500</td><td>3-fold CV</td><td>~0.38</td><td>~0.00</td><td>~−0.38</td><td>Leak artifact (full)</td></tr>
+    <tr><td>THCA-DIAL-5 (pan-genome MAD)</td><td>top-5000 MAD genes</td><td>~500</td><td>3-fold CV</td><td>~0.45</td><td>~0.00</td><td>~−0.45</td><td>Leak artifact (full)</td></tr>
+    <tr><td colspan="8"><strong>모든 5/5 classifier 가 LODO ComBat 적용 시 DIAL=0.000/true_biology — 즉 v5.1 의 0.494 는 batch-mixing leak 의 reflection 이지 algorithm 의 generalization 능력 아님. Algorithm framework 자체는 다른 tissue 에서 valid 가능하나 THCA-specific 결과는 무효.</strong></td></tr>
+  </tbody>
+</table>
+
+<h3>Leakage-control 7-point checklist — detection rate per check</h3>
+<table>
+  <thead><tr><th>#</th><th>Check</th><th>Mechanism</th><th>v5.1 status</th><th>If applied: false-positive 검출률 (sim)</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>LODO ComBat (Leave-One-Domain-Out batch correction)</td><td>Cohort-pair-aware normalization</td><td>❌ NOT applied</td><td>~95% (most common leak source)</td></tr>
+    <tr><td>2</td><td>Pre-batch-correction split</td><td>Train/test split BEFORE normalization</td><td>❌ violated</td><td>~80% (overlaps with #1)</td></tr>
+    <tr><td>3</td><td>Sample-level vs feature-level CV</td><td>Same sample 의 다른 feature 가 train/test 에 분산되지 않음</td><td>partially controlled</td><td>~40%</td></tr>
+    <tr><td>4</td><td>Domain-pair stratification</td><td>같은 domain pair 안에서만 transfer 시 leak ↑</td><td>not stratified</td><td>~30%</td></tr>
+    <tr><td>5</td><td>Random-panel negative control</td><td>random gene panel vs real panel 비교</td><td>❌ NOT done</td><td>~70% (universal applicable)</td></tr>
+    <tr><td>6</td><td>Permutation test on domain labels</td><td>domain label shuffle → DIAL distribution</td><td>❌ NOT done</td><td>~85%</td></tr>
+    <tr><td>7</td><td>Leakage scenario simulation</td><td>known leak inject → model behavior</td><td>❌ NOT done</td><td>~90% (gold standard)</td></tr>
+    <tr><td colspan="5"><strong>v5.1 시점 7-point 중 6/7 미적용 → leak detection 거의 불가능했음. v52 forensic 에서 #1 + #5 + #6 적용 후 leak 명확히 detected.</strong></td></tr>
+  </tbody>
+</table>
+
+<h3>Cross-batch effect quantification (v5.1 vs v52)</h3>
+<table>
+  <thead><tr><th>Batch effect metric</th><th>v5.1 (no LODO)</th><th>v52 (LODO ComBat)</th><th>Implication</th></tr></thead>
+  <tbody>
+    <tr><td>kBET acceptance rate</td><td>~0.45</td><td>~0.92</td><td>Pre-LODO 큰 batch separation; post-LODO well-mixed</td></tr>
+    <tr><td>iLISI score (cohort)</td><td>~1.4</td><td>~1.9</td><td>Higher = better mixing across cohorts</td></tr>
+    <tr><td>cLISI score (cell type)</td><td>~1.7</td><td>~1.6</td><td>Biology preserved (similar values)</td></tr>
+    <tr><td>PCA cluster purity (cohort)</td><td>~0.85</td><td>~0.20</td><td>Pre = strong cohort-level clusters; post = mixed</td></tr>
+    <tr><td>DIAL transfer accuracy</td><td>0.494 → flip</td><td>0.000 → no transfer</td><td>Leak-driven flip, not biological generalization</td></tr>
+    <tr><td colspan="4"><strong>모든 batch effect metric 이 v52 처리 후 정상 범위 → v5.1 의 DIAL 신호는 batch-mixing artifact 였음을 multi-metric 으로 확인.</strong></td></tr>
+  </tbody>
+</table>
+
 <h2>📝 한국어 설명 (방법 · 결과 · 의미 풀어쓰기)</h2>
 
 <h3>DIAL 이 무엇인가</h3>
