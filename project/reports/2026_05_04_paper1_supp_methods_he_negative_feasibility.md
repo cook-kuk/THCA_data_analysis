@@ -60,14 +60,28 @@ hires resolution under the tested model class. The Hashimoto-resolution
 limit is consistent with a published expected gain of +0.05–0.15
 Spearman for histology foundation models (UNI, CONCH, Virchow2) over
 ResNet50 ImageNet on tile-level molecular tasks, which falls short of
-the +0.28 gap to our pre-specified GO threshold (Spearman ≥ 0.30).
-H&E-based triage of the molecular subtype is therefore not pursued in
-this work. All numerical results, per-fold tables, negative-control
-panels, and pre-registered gates are archived under
-`project/results/03_pathology_poc/` (closure_battery_metrics.tsv,
-loso_metrics_resnet50.tsv, negative_controls_summary.tsv,
-negative_controls_raw_summary.tsv, closure_battery_summary.png,
-pred_vs_obs_resnet50.png).
+the +0.28 gap to our pre-specified GO threshold (Spearman ≥ 0.30). The
+state-of-the-art for population-scale H&E + tumor biology multimodal AI
+(GigaTIME; Valanarasu et al., 2026) achieves protein-level inference
+via cross-modal H&E → virtual multiplex-IF translation trained on
+~40 × 10⁶ paired cells across 14,256 patients and 24 cancer types,
+demonstrating that H&E carries substantial information when paired
+with molecular ground-truth at scale; our pre-registered test, by
+contrast, asks a frozen ImageNet ResNet50 to recover a depth-
+residualized 8-gene transcriptional axis from spot-aligned hires
+Visium tiles — a different task class (continuous molecular
+regression rather than image-to-image protein translation) at
+radically smaller scale (3,200 tiles). The negative result therefore
+bounds what is recoverable from H&E **alone** for this transcriptional
+axis at our resolution, and motivates RNA-paired H&E training at
+scale (rather than ImageNet-frozen tile embedding) as the only
+realistic path to image-DM1 inference. H&E-based triage of the
+molecular subtype is therefore not pursued in this work. All numerical
+results, per-fold tables, negative-control panels, and pre-registered
+gates are archived under `project/results/03_pathology_poc/`
+(closure_battery_metrics.tsv, loso_metrics_resnet50.tsv,
+negative_controls_summary.tsv, negative_controls_raw_summary.tsv,
+closure_battery_summary.png, pred_vs_obs_resnet50.png).
 ```
 
 ---
@@ -91,6 +105,7 @@ pred_vs_obs_resnet50.png).
   - UNI: Chen et al. 2024 Nat Med (foundation model)
   - CONCH: Lu et al. 2024 Nat Med
   - Virchow2: Vorontsov et al. 2024 (paige-ai)
+  - **GigaTIME / multimodal AI upper bound**: Valanarasu et al. 2026 Cell 189(2), DOI 10.1016/j.cell.2025.11.016 — already added to `project/manuscript_v8/03_intro_references.bib` as `@Valanarasu2026`
   - Visium platform: 10x Genomics SOP
   - GSE250521: Lu et al. spatial thyroid progression dataset
 
