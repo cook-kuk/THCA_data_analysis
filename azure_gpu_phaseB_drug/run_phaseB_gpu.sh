@@ -8,6 +8,9 @@ MODULE=""
 POD_ID=""
 DRY_RUN=false
 COST_CAP=500   # USD per K6 kill switch
+TIER_A_TOP=10           # B10 default; --tier-a-top N to scope down
+TARGETS=""              # B2 default = all 8; --targets TACSTD2 to scope to one
+COMPOUNDS_TOP=""        # B2/B5 per-target compound cap; default = script-internal
 
 # Parse args
 while [[ $# -gt 0 ]]; do
@@ -16,14 +19,20 @@ while [[ $# -gt 0 ]]; do
     --pod) POD_ID="$2"; shift 2 ;;
     --dry-run) DRY_RUN=true; shift ;;
     --cost-cap) COST_CAP="$2"; shift 2 ;;
+    --tier-a-top) TIER_A_TOP="$2"; shift 2 ;;
+    --targets) TARGETS="$2"; shift 2 ;;
+    --compounds-top) COMPOUNDS_TOP="$2"; shift 2 ;;
     *) echo "Unknown: $1"; exit 1 ;;
   esac
 done
+export TIER_A_TOP TARGETS COMPOUNDS_TOP
 
 if [ -z "$MODULE" ]; then
   echo "Available modules:"
   echo "  b1   Structure refinement (AlphaFold3 / ESMFold) · 4-8h · \$30-60"
   echo "  b2   DiffDock pose generation (8 targets × 50 cmpds) · 3-6h · \$20-40"
+  echo "       Override with --targets TACSTD2 (1 target) → ~2h · ~\$2 for taster"
+  echo "       Add --compounds-top N to scope per-target compounds (default 50)"
   echo "  b3   GNINA rescoring · 2-4h · \$10-20"
   echo "  b4   KDeep / DeepPurpose binding affinity · 4-6h · \$25-40"
   echo "  b5   ChemBERTa scaffold hopping · 6-10h · \$40-70"
@@ -31,7 +40,8 @@ if [ -z "$MODULE" ]; then
   echo "  b7   ADC linker / payload optimization · 4-6h · \$25-40"
   echo "  b8   Off-target profiling · 2-3h · \$10-15"
   echo "  b9   Foundation-model ADMET · 6-8h · \$40-60"
-  echo "  b10  FEP / MD relative ΔΔG (Tier-A top 10) · 12-24h · \$200-400"
+  echo "  b10  FEP / MD relative ΔΔG (Tier-A top N, default 10) · 12-24h · \$200-400"
+  echo "       Override with --tier-a-top N (e.g. N=3 → ~10h · ~\$5 for taster)"
   echo "  all  Run all 10 sequentially (~ 45-95h, \$610-1160)"
   echo "  cheap5  Run B2+B3+B6+B8+B9 (~ 18-26h, \$95-155)"
   echo ""
