@@ -4,9 +4,20 @@
 **Format:** Cell Press caption format — paste-ready for v8 manuscript figure legends section
 **Voice-protected:** Caption verb tone borderline (user may polish "establishes" / "reveals" / "identifies" verb consistency). All numerical content fact-only.
 
+> **Scope status (2026-05-04 update).** This caption file was authored 2026-05-03 for the v8 5-pillar mega-paper.
+> Captions for **F1 (HLA forest)** = Paper 4; **F2 (GSE286332)**, **F5 (autoimmune-PTC 4-panel)**, **F6 (TCGA Hashimoto)**,
+> **F7 (sub-A vs sub-B)** = Paper 2. Only **F3 (driver neutrality)** and **F4 (pan-genome ARI)** of the legacy F1–F7 set
+> belong to Paper 1.
+> Paper 1 v8 has been re-figured per `2026_05_04_8gene_curated_vs_denovo_final_strategy.md` §9 and
+> `2026_05_03_manuscript_v8_OUTLINE.md` §Figures (updated 2026-05-04). The new Paper 1 figures
+> are F1 (driver orthogonality) / F2 (axis robustness) / F3 (axis anchor) / F4 (mechanism + TROP2) /
+> F5 (outcome) / F6-Supp (spatial). Captions for these new Paper 1 figures will be drafted in a separate
+> caption pass; they are NOT in this file yet. Existing F1–F7 captions below are retained for Paper 2 / Paper 4
+> future use; do not delete.
+
 ---
 
-## Main Figures (F1-F7)
+## Main Figures (F1-F7) — `[LEGACY 5-pillar v8; carved per Paper 1 / 2 / 4 split, see banner above]`
 
 ### Figure 1 — Pan-Asian HLA forest meta (Pillar 1)
 
@@ -364,7 +375,7 @@ cross-tabulation. Six threshold methods (GMM 2-component, Otsu,
 top-10%, top-20%, top-30%, residualized Otsu after Stromal+immune 
 residualization) with per-method n_hashi positive, DM1/DM2 hashi 
 positive percentage, Fisher exact OR, and Fisher p-value. Top-30% 
-threshold yields strongest DM2 enrichment (OR=0.20, Fisher p=6×10⁻¹⁰).
+threshold yields strongest DM2 enrichment (OR=0.20, Fisher p=6.4×10⁻¹⁰).
 ```
 
 ### S7 — Cross-cohort generalization
