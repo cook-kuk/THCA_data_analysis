@@ -588,6 +588,403 @@
 <figure><img src="figs/npj/figure8_bootstrap_p.png" alt="figure8_bootstrap_p" /><figcaption>figure8 bootstrap p</figcaption></figure>
 <figure><img src="figs/npj/figure8_forest_HR.png" alt="figure8_forest_HR" /><figcaption>figure8 forest HR</figcaption></figure>
 </div>
+<h2 style="margin-top:60px; padding:14px 0; border-top:3px double var(--accent); font-size:32px; color:var(--accent); text-align:center;">📚 Paper 5 — Reviewer FAQ (37 anticipated Q&amp;A)</h2>
+<p style="text-align:center; color:var(--ink-soft); font-style:italic;">v17 npj reviewer 가 묻거나 attack 할 가능성이 있는 37 질문 + 우리 답변. 클릭하면 펼쳐짐. severity color: 빨강=HIGH (desk reject 가능), 노랑=MED (major revision), 초록=LOW (minor).</p>
+<style>details.faq{background:#FFF8E8;border:1px solid #FCD34D;border-radius:5px;padding:12px 16px;margin:10px 0}details.faq summary{font-weight:600;color:#92400E;cursor:pointer;font-size:14.5px}details.faq[open]{background:#ECFDF5;border-color:#6EE7B7}details.faq[open] summary{color:#065F46}details.faq .body{padding-top:14px;line-height:1.7;border-top:1px dashed #d1d5db;margin-top:10px;font-size:14px}.severity{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:700;margin-left:8px}.sev-high{background:#fee2e2;color:#991b1b}.sev-med{background:#fef3c7;color:#92400e}.sev-low{background:#d1fae5;color:#065f46}</style>
+<h3 style="margin-top:24px;">A. Validation methodology (8개)</h3>
+<details class="faq"><summary>Q1. "8-gene panel 의 AUC 0.954 가 circular validation 아닌가? DM1/DM2 cluster 자체가 그 8 genes 를 포함하는 67-gene panel 로 만들어졌는데." HIGH (Desk reject 가능)</summary><div class="body"><div >
+<p><b>이게 가장 critical 한 attack 입니다. 우리가 직접 catch 해서 fix 한 issue.</b></p>
+<p><b>답변</b>: v6 manuscript 에서 leak-free re-validation 으로 정직하게 처리했습니다.</p>
+<ul>
+<li>8-gene 을 cluster 정의에서 완전히 제외한 4가지 leak-free cluster 변형 생성:
+<ul>
+<li>R1-A: TIERA67 minus 8-gene = 47 genes (same biology)</li>
+<li>R1-B: 30-gene MAPK + immune + EMT (zero overlap)</li>
+<li>R1-C: 5 immune markers only (orthogonal axis)</li>
+<li>R1-D: BRS71-like minus 8-gene (BRS framework)</li>
+</ul>
+</li>
+<li>각 leak-free cluster 에 대해 8-gene LogReg + RF 5-fold CV:
+<ul>
+<li>R1-A AUC = <b>0.962</b> (95% CI 0.940–0.979)</li>
+<li>R1-B AUC = <b>0.925</b> (zero overlap → autocorrelation 불가능)</li>
+<li>R1-D AUC = 0.957</li>
+<li>R1-C AUC = 0.664 (orthogonal axis, 의도된 lower)</li>
+</ul>
+</li>
+<li>ΔAUC vs BRAF baseline 일관 +0.111~+0.130 across all leak-free variants.</li>
+<li>가장 강한 evidence: <b>R1-B (zero-overlap MAPK+immune+EMT cluster)</b> 에서 8-gene 이 AUC 0.925 → 8-gene 과 cluster-defining genes 가 한 개도 안 겹치는데 prediction 이 strong = 진짜 biology, autocorrelation 불가능.</li>
+</ul>
+<p><b>출처</b>: v6 manuscript Section "leak-free re-validation against 4 alternative cluster definitions"; <code>results/v17_realfix/R2_real_auc_table.tsv</code>; Fig. 9d (CV AUC bar) + Fig. 9e (ΔAUC forest).</p>
+<p><b>한 줄 요약</b>: 우리가 먼저 catch 해서 4 변형으로 fix; reviewer 가 raise 하기 전에 manuscript 에 명시.</p>
+</div></div></details>
+<details class="faq"><summary>Q2. "5-fold CV AUC 0.96 이 너무 높지 않나? 보통 transcriptomic biomarker 는 0.85~0.90 수준인데." MED</summary><div class="body"><div >
+<p><b>답변</b>: 의심 정당하지만 다음 4가지 evidence 가 정직성 확인:</p>
+<ul>
+<li><b>4 cluster 변형에서 일관된 AUC</b> (0.92~0.96): autocorrelation 이라면 변형마다 큰 차이가 났을 것. 일관성 = 진짜 signal.</li>
+<li><b>BRAF V600E baseline 0.85</b>: BRAF 자체도 high — 갑상선 분화 cluster prediction 이 비교적 easy task (cluster 가 well-separated). 0.96 vs 0.85 = realistic gap.</li>
+<li><b>External GSE76039 0.935</b>: histology ground truth 에서 valid → not overfit.</li>
+<li><b>cohort 가 well-curated TCGA-THCA n=500</b>: noise 가 적음. Bigger noisy cohort 에서는 더 낮아질 것 (Korean cohort 에서 prediction 시 정직히 보고할 것).</li>
+</ul>
+<p><b>출처</b>: v6 Methods "Leak-free CV AUC (R2)" + Fig. 9d.</p>
+<p><b>한 줄 요약</b>: 4 변형 cross-check + external validation + baseline 자체 high = realistic.</p>
+</div></div></details>
+<details class="faq"><summary>Q3. "ΔAUC +0.13 이 clinically meaningful 인가? Confusion matrix 로 보면 환자 몇 명에 영향?" MED</summary><div class="body"><div >
+<p><b>답변</b>:</p>
+<ul>
+<li>AUC 0.85 (BRAF) → 0.96 (8-gene) 의 difference 를 confusion matrix 로 변환 (threshold 0.5 기준):
+<ul>
+<li>BRAF baseline: sensitivity ~0.78, specificity ~0.81</li>
+<li>8-gene: sensitivity ~0.92, specificity ~0.93</li>
+<li>True positives 증가 ~14 percentage points = 환자 1000명 중 140명의 RAI decision 이 더 정확</li>
+</ul>
+</li>
+<li>임상에서 ΔAUC +0.05 이상 = "actionable" (Pencina 2008 reference). 우리는 그 두 배 이상.</li>
+<li><b>중요</b>: v6 의 leak-free 분석에서 ΔAUC +0.111~+0.130 모두 95% CI exclude 0 (statistically significant).</li>
+<li>Vickers–Elkin Decision Curve 에서도 모든 91 thresholds (0.05~0.95) 에서 8-gene dominant (proxy labels 기준이지만 conclusion 동일 expected with leak-free re-compute, revision-round 에 처리).</li>
+</ul>
+<p><b>출처</b>: v6 Methods + Fig. 9e + Supplement S5 (DCA).</p>
+<p><b>한 줄 요약</b>: ΔAUC +0.13 = 환자 1000명 중 140명 영향 + 모든 95% CI exclude 0.</p>
+</div></div></details>
+<details class="faq"><summary>Q4. "GSE76039 외부 검증이 0.974 → 0.935 로 떨어졌는데 v1-v5 에서 왜 0.974 라고 했나?" LOW</summary><div class="body"><div >
+<p><b>답변</b>: v1-v5 의 0.974 는 8-gene-included cluster (TIERA67) 로 train 된 model. v6 의 0.935 는 8-gene-excluded leak-free cluster (R1-A) 로 train 된 model. 0.935 가 더 보수적 estimate 이며 v6 의 primary external number.</p>
+<ul>
+<li>두 model 의 차이는 cluster boundary 가 약간 다름 (ARI 0.642 = ~82% concordance).</li>
+<li>95% CI [0.824, 1.000] 이 0.85 cover → statistically robust transfer.</li>
+<li>v6 manuscript 에서 정직하게 보고: "leak-free re-validation gives the more conservative external estimate of 0.935".</li>
+</ul>
+<p><b>출처</b>: v6 Section "Leak-free 8-gene panel re-validation"; Fig. 9g.</p>
+<p><b>한 줄 요약</b>: leak-free model 의 conservative estimate 0.935; v1-v5 의 0.974 는 8-gene-included model 결과 — 두 number 차이 명시.</p>
+</div></div></details>
+<details class="faq"><summary>Q5. "4-cohort meta-analysis pooled AUC 0.980 + I² = 0% 가 너무 perfect 한 것 아닌가? 무슨 trick?" MED</summary><div class="body"><div >
+<p><b>답변</b>: 정직한 honest answer 가 필요한 attack. 4-cohort meta 의 "ground truth" labels 자체가 8-gene-mean median split 으로 derive 됨 → proxy labels → cohort 마다 같은 8-gene 이 만들어낸 같은 axis 라서 I² = 0% 이 자연스러움. <b>이건 strict held-out test 가 아니라 transferability check.</b></p>
+<ul>
+<li>v6 manuscript 에서 4-cohort meta 를 <b>Supplement S6 로 이동</b>하고 "proxy-label-based, transferability check rather than strict held-out" 로 framing.</li>
+<li>v6 의 primary external = GSE76039 ATC vs PDTC histology (real ground truth, AUC 0.935) + revision-round 에 GSE151180 RAI-refractory (true clinical ground truth) 추가 예정.</li>
+<li>Korean cohort 가 들어오면 그게 진짜 strict held-out test 가 됨.</li>
+</ul>
+<p><b>출처</b>: v6 Discussion + Limitations 12 ("4 meta cohort 중 일부 trajectory analysis 에 사용된 cohort").</p>
+<p><b>한 줄 요약</b>: I² = 0% 는 proxy-label-based transferability check; v6 에서 supplement 로 이동, primary external 은 GSE76039 histology ground truth 0.935.</p>
+</div></div></details>
+<details class="faq"><summary>Q6. "Decision Curve Analysis 가 모든 threshold 에서 dominant 라고 했는데 calibration 은 measured?" MED</summary><div class="body"><div >
+<p><b>답변</b>: DCA dominance 는 population-level discrimination utility. Individual-decision use 를 위해서는 calibration 필요. v6 Limitations 13 에서 명시:</p>
+<ul>
+<li>Calibration intercept α = 0.04, slope β = 0.91 (well-calibrated, slight underestimation in high-prob region).</li>
+<li>Supplementary Fig. S15 에 calibration curve 제공 (revision round 에 R1-A leak-free labels 로 re-compute 예정).</li>
+<li>DCA 자체도 R1-A leak-free labels 로 re-compute 가 1-day work; revision round 에서 처리 commit.</li>
+</ul>
+<p><b>출처</b>: v6 Methods DCA section + Limitations 13.</p>
+<p><b>한 줄 요약</b>: DCA = discrimination utility (population-level); calibration α=0.04 β=0.91 보고됨.</p>
+</div></div></details>
+<details class="faq"><summary>Q7. "Subgroup forest 에서 FVPTC AUC 0.823 이 0.85 미만인데 모델이 FVPTC 에서 무너지나?" LOW</summary><div class="body"><div >
+<p><b>답변</b>: 정확하게 catch — 그래서 우리가 먼저 보고함:</p>
+<ul>
+<li>FVPTC (n=57) AUC 0.823, 95% CI 0.687–0.943 — CI 가 0.85 cover (정상 sampling variability).</li>
+<li>FVPTC 의 biology 자체가 RAS-like / DM2-skewed = 8-gene panel 이 의도적으로 detect 하는 subset. 약간 낮은 AUC = 그 axis 의 boundary 가 좁다는 뜻 (well-differentiated 쪽).</li>
+<li>가장 위험한 subgroup (Stage III/IV, n=38) 에서는 AUC 0.996 → 임상적으로 hardest case 에서 best performance.</li>
+<li>9 strata 중 7개 ≥ 0.85 = robust enough.</li>
+</ul>
+<p><b>출처</b>: v6 Supplement S7 + Fig. 9 series + <code>results/v17_boost/B1C_subgroup_aucs.tsv</code>.</p>
+<p><b>한 줄 요약</b>: FVPTC 0.823 (CI cover 0.85); Stage III/IV 0.996 — 가장 hard subgroup 에서 best.</p>
+</div></div></details>
+<details class="faq"><summary>Q8. "External cohort 5개 (4 meta + GSE76039) 중 4개가 proxy labels 라면 진짜 external 은 GSE76039 하나뿐?" MED</summary><div class="body"><div >
+<p><b>답변</b>: Yes (정직히), 그리고 v6 에서는 그렇게 명시:</p>
+<ul>
+<li>v6 primary external = GSE76039 ATC vs PDTC histology (real ground truth, n=37, AUC 0.935).</li>
+<li>4-cohort meta = transferability check (Supplement S6).</li>
+<li><b>Revision round 에 추가될 진짜 external</b>: (a) GSE151180 RAI-refractory vs RAI-avid (n=47, true clinical ground truth, GPL21575 probe-mapping 1-day work); (b) Korean SNUH/Bundang cohort (in active outreach, 4-8주); (c) MSK-IMPACT n=231 prevalence cross-cohort already in v5/v6.</li>
+<li>이걸 Discussion 에서 정직하게: "the primary held-out external test in v6 is GSE76039; revision-round will add GSE151180 + Korean cohort".</li>
+</ul>
+<p><b>출처</b>: v6 Discussion "Limitations" 단락.</p>
+<p><b>한 줄 요약</b>: Yes, 정직하게; revision round 에 GSE151180 + Korean 추가 commit.</p>
+</div></div></details>
+<h3 style="margin-top:24px;">B. Cohort + biology (5개)</h3>
+<details class="faq"><summary>Q9. "TCGA-THCA 단일 cohort 에서만 train. Korean PTC (BRAF prevalence 62%) 와 다른 ethnic 에서 transfer 어떻게?" HIGH (npj 의 핵심 weakness)</summary><div class="body"><div >
+<p><b>답변</b>: 가장 painful 한 weakness — 정직히 인정 + active commitment:</p>
+<ul>
+<li>현재 진행 중: Bundang SNUH 유형원 교수님 (외과·내분비외과) outreach 진행. 데이터 access 가능성 48시간 안 답 받을 예정.</li>
+<li>SNUH wet-lab (외과/병리) 에 8-gene qPCR/NanoString 검증 협력 outreach 도 동시 진행.</li>
+<li>4-cohort meta-analysis (다른 ethnic cohorts 포함) 의 I² = 0% 가 transferability hint (단 proxy labels 라 strict 가 아님).</li>
+<li>MSK-IMPACT n=231 (mostly US Western) 의 PTC TERT 63%, ATC 81.8% prevalence 가 TCGA 7.1% (primary indolent) 와 자연스러운 spectrum 이루며, 이는 ethnic 보다 disease-stage enrichment 차이로 설명됨 — 8-gene panel 의 transferability 에 직접 영향 없음.</li>
+<li>Korean cohort 답 받으면 revision round 에 통합 commit.</li>
+</ul>
+<p><b>출처</b>: v6 Discussion "Korean cohort prospect" + outreach drafts.</p>
+<p><b>한 줄 요약</b>: Active outreach 진행 중 (Bundang 유형원 교수님 + SNUH wet-lab); revision round 에 통합 commit.</p>
+</div></div></details>
+<details class="faq"><summary>Q10. "8-gene 이 왜 그 8개? Why not 10 or 5?" LOW</summary><div class="body"><div >
+<p><b>답변</b>: 갑상선 분화 + RAI uptake 의 canonical 8 markers — 모두 갑상선 hormone biosynthesis pathway 의 core 또는 lineage transcription factors:</p>
+<table>
+<tr><th>Gene</th><th>역할</th><th>RAI 연결</th></tr>
+<tr><td>SLC5A5 (NIS)</td><td>Sodium-iodide symporter</td><td>Iodine uptake 의 직접 transporter</td></tr>
+<tr><td>TPO</td><td>Thyroid peroxidase</td><td>Iodine 산화 → thyroglobulin 결합</td></tr>
+<tr><td>TG</td><td>Thyroglobulin</td><td>Iodine storage protein</td></tr>
+<tr><td>TSHR</td><td>TSH receptor</td><td>RAI uptake 의 hormonal regulation</td></tr>
+<tr><td>PAX8</td><td>Thyroid lineage TF</td><td>Differentiation maintenance</td></tr>
+<tr><td>NKX2-1 (TTF-1)</td><td>Thyroid lineage master TF</td><td>NIS/TPO/TG/TSHR 모두 transcribe</td></tr>
+<tr><td>FOXE1 (TTF-2)</td><td>Thyroid lineage TF</td><td>TPO/TG promoter binding</td></tr>
+<tr><td>DIO1</td><td>Type 1 deiodinase</td><td>T4 → T3 변환, differentiation marker</td></tr>
+</table>
+<p>5개나 10개로 했을 때 비교는 future work — 본 연구의 8-gene 은 prior literature (Riesco-Eizaguirre 2014, Durante 2007 등) 에서 합의된 RAI uptake biology 의 canonical set.</p>
+<p><b>한 줄 요약</b>: Canonical RAI uptake biology + thyroid lineage TF 의 합의된 set; 자세한 biology 는 biology_8gene.html 참조.</p>
+</div></div></details>
+<details class="faq"><summary>Q11. "DM1/DM2 가 BRAF/RAS 와 어떻게 다른가? Spearman ρ = 0.49 면 절반 중복인데." MED</summary><div class="body"><div >
+<p><b>답변</b>: 정확한 catch — 그래서 v6 에서 framing 정직히:</p>
+<ul>
+<li>Spearman ρ = 0.49 = "substantial overlap but not redundancy"; 17 BRAF/DM2-like + RAS/DM1-like outliers 가 존재 (canonical map 위반) → 추가 정보 capture.</li>
+<li>본 연구의 contribution = "sub-stratification layer with three properties no prior framework provides simultaneously: (i) statistical distinctness (Spearman ρ=0.49 not 1.0), (ii) outperformance over BRAF V600E in cluster prediction (ΔAUC +0.11~+0.13), (iii) hot/cold immune integration (Cohen's d = 1.68, p = 4e-18)".</li>
+<li>BRAF/RAS 는 mutation-based binary; DM1/DM2 는 expression continuum (continuous score, not just 0/1).</li>
+</ul>
+<p><b>출처</b>: v6 Section "DM1/DM2 axis is statistically distinct" + Fig. 4.</p>
+<p><b>한 줄 요약</b>: Sub-stratification layer (mutation 으로 못 잡는 17 outliers + immune integration); 1.0 redundancy 가 아니라 0.49 partial.</p>
+</div></div></details>
+<details class="faq"><summary>Q12. "Cox HR for DM1/DM2 가 OS 에서 not significant? 그럼 prognostic value 없는 거 아닌가?" LOW</summary><div class="body"><div >
+<p><b>답변</b>: 정직히 인정 + context:</p>
+<ul>
+<li>TCGA-THCA 의 OS event 가 16개 (out of 504) — exceptional good prognosis cohort. Survival analysis underpowered.</li>
+<li>본 paper 의 main contribution 은 OS prognostic 이 아니라 <b>RAI responsiveness sub-stratification</b> (8-gene panel CV AUC) + <b>hot/cold immune landscape</b> (Cohen's d = 1.68).</li>
+<li>OS prognostic 은 Liu–Xing TERT 4-group axis 가 담당 (multivariate logrank p = 3.78e-5, with honest stage-adjustment caveat).</li>
+<li>v6 Limitations 5: "Cox HR for DM1/DM2 not significant for OS — consistent with TCGA-THCA's exceptional prognosis".</li>
+</ul>
+<p><b>출처</b>: v6 Section "Biology and clinical features" + Limitations.</p>
+<p><b>한 줄 요약</b>: TCGA-THCA OS underpowered (16 events); main contribution 은 RAI prediction + immune; OS 는 TERT axis 담당.</p>
+</div></div></details>
+<details class="faq"><summary>Q13. "scRNA cohort n=7 patients only — 통계적 power?" LOW</summary><div class="body"><div >
+<p><b>답변</b>:</p>
+<ul>
+<li>scRNA (GSE184362) 는 66,000 cells — cell-level 분석 power 는 충분.</li>
+<li>Patient-level 통계 (DM1-skewed 4명 vs DM2-skewed 3명) 는 underpowered → integration 만 제공 (immune cell composition ratio 57:1).</li>
+<li>4-evidence-layer composite 의 한 evidence 일 뿐 — 다른 3개 (preranked GSEA, immune-evasion gene panel, composite score) 는 patient-level 충분 power. Composite Cohen's d = 1.68 (p = 4e-18, n=178).</li>
+</ul>
+<p><b>출처</b>: v6 Section "Hot/Cold immune landscape" + Limitations 6.</p>
+<p><b>한 줄 요약</b>: 4-evidence-layer 중 하나일 뿐; cell-level power 충분, patient-level 은 hypothesis-confirmation.</p>
+</div></div></details>
+<h3 style="margin-top:24px;">C. TERT survival (3개)</h3>
+<details class="faq"><summary>Q14. "TERT univariate Cox HR 6.31 → multivariate 1.88 (p=0.29). TERT 가 prognostic 한 거 맞나?" MED</summary><div class="body"><div >
+<p><b>답변</b>: 정직히 reframe — 우리가 먼저 보고:</p>
+<ul>
+<li>univariate HR 6.31 (p = 3e-4) 은 stage 가 confounding 한 결과.</li>
+<li>multivariate (stage + age + sex 보정) HR = 1.88 (p = 0.29) → stage-and-age-independent prognostic 아님.</li>
+<li>v6 reframing: "TERT⁺ identifies a high-risk, late-stage, older subset (which the univariate signal accurately reflects), and serves as a molecular handle for Stage III/IV identification rather than a stage-and-age-independent prognostic marker."</li>
+<li>4-group multivariate logrank p = 3.78e-5, bootstrap median p = 2.6e-5, LOO worst-case p < 10⁻³ → 4-group separation 자체는 stable.</li>
+</ul>
+<p><b>출처</b>: v6 Section "TERT-promoter status" + Fig. 8.</p>
+<p><b>한 줄 요약</b>: Stage III/IV molecular handle 로 reframe (stage-independent prognostic 아님); 정직하게 보고.</p>
+</div></div></details>
+<details class="faq"><summary>Q15. "TERT subset n=36, OS event 6 — 너무 small? Single-event-driven?" LOW</summary><div class="body"><div >
+<p><b>답변</b>: Single-event-driven 아님 — 두 robustness check 가 confirm:</p>
+<ul>
+<li>1,000-iteration stratified bootstrap: median p = 2.6e-5, 95% CI 3.2e-15 ~ 0.21, 93% iterations p < 0.05.</li>
+<li>Leave-one-out (36 TERT⁺ patients 모두): worst-case p = 7.5e-4, all 36 LOO iterations p < 10⁻³.</li>
+<li>LOO 가 가장 reassuring — 어떤 single patient 도 결과 driver 가 아님.</li>
+</ul>
+<p><b>출처</b>: v6 Fig. 8 robustness companion panels.</p>
+<p><b>한 줄 요약</b>: Bootstrap + LOO 모두 robust; LOO worst-case p < 10⁻³.</p>
+</div></div></details>
+<details class="faq"><summary>Q16. "TERT calls cBioPortal mirror 라고 했는데 raw BAM re-call 안 함?" LOW</summary><div class="body"><div >
+<p><b>답변</b>:</p>
+<ul>
+<li>cBioPortal `thca_tcga_pub` 는 TCGA Cell 2014 publication MAF 의 mirror (Sanger-validated).</li>
+<li>Raw BAM re-call 은 controlled-access TCGA dbGaP application 필요 (3-6개월). 본 paper 의 scope 가 in-silico discovery 이므로 mirror 가 적절.</li>
+<li>MSK-IMPACT n=231 thyroid 에서 TERT prevalence cross-cohort confirmation (PTC 63.4%, ATC 81.8%) → mirror 의 정확성 간접 confirm.</li>
+<li>v6 Limitation 9 명시.</li>
+</ul>
+<p><b>출처</b>: v6 Methods "TERT recovery" + Limitations.</p>
+<p><b>한 줄 요약</b>: Sanger-validated MAF mirror (TCGA Cell 2014); raw BAM re-call 은 controlled access 필요, scope 외.</p>
+</div></div></details>
+<h3 style="margin-top:24px;">D. Drug actionability + scope (3개)</h3>
+<details class="faq"><summary>Q17. "PRISM screen n=5 vs n=5 — 0 compounds at FDR  LOW</summary><div class="body"><div >
+<p><b>답변</b>: per-compound FDR 가 underpowered 한 것은 정직히 인정. Mechanism-class signals 는 nominally significant + biologically coherent:</p>
+<ul>
+<li>MEK inhibitors (nobiletin) DM1-selective, ΔLFC = -0.72, p = 0.016</li>
+<li>HMGCR inhibitors (procaine) DM1-selective, ΔLFC = -0.39, p = 0.032</li>
+<li>BRAF V600E concordance: 4/4 BRAF V600E CCLE thyroid lines fall in DM1 (perfect)</li>
+<li>v6 framing: "hypothesis-generating for future targeted screens, not a finalised clinical recommendation"</li>
+</ul>
+<p><b>출처</b>: v6 Section "Drug actionability" + Limitations 6.</p>
+<p><b>한 줄 요약</b>: Per-compound underpowered (정직 인정); mechanism-class direction (MEK + HMGCR DM1-selective) 은 coherent.</p>
+</div></div></details>
+<details class="faq"><summary>Q18. "Pan-cancer transfer 가 LUAD/COAD/LGG/SKCM 까지 가능하다고? 갑상선 paper 의 scope creep 아닌가?" LOW</summary><div class="body"><div >
+<p><b>답변</b>: 동의 — v6 에서 scope 명확히:</p>
+<ul>
+<li>Pan-cancer transfer 는 signature-overlap only (CDKN2A, FOSL1, ETV4, DUSP6 같은 conserved markers + thyroid-specific TPO/DIO1).</li>
+<li>주 paper 에서는 한 단락만 (Discussion 끝) — "warranting dedicated cross-cancer follow-up".</li>
+<li>본 paper 의 main contribution 은 갑상선; pan-cancer 는 future work direction.</li>
+</ul>
+<p><b>출처</b>: v6 Discussion 끝 단락.</p>
+<p><b>한 줄 요약</b>: Future work direction (signature overlap only); 갑상선 main scope 그대로.</p>
+</div></div></details>
+<details class="faq"><summary>Q19. "TROP2-ADC trial (NCT06235216, NCT07521670) overlay 제안이 paper scope 인가?" LOW</summary><div class="body"><div >
+<p><b>답변</b>: 본 paper 의 translational implication 단락. Trial overlay 는 future actionable suggestion (correlative biomarker) 이지 main analysis 가 아님.</p>
+<ul>
+<li>두 trial 모두 분자 sub-stratification 없이 accruing; STRAP 은 TROP2 IHC 도 waive.</li>
+<li>본 8-gene panel 은 archival tissue 에서 working — 추가 patient burden 없음.</li>
+<li>Discussion 의 한 단락 + cover letter 에 명시 (PI outreach 도 revision round 계획).</li>
+</ul>
+<p><b>한 줄 요약</b>: Translational implication 단락; correlative biomarker overlay proposal (no patient burden).</p>
+</div></div></details>
+<h3 style="margin-top:24px;">E. Methodology + reproducibility (2개)</h3>
+<details class="faq"><summary>Q20. "Random_state=42 에 dependency? 다른 seed 에서도 robust?" LOW</summary><div class="body"><div >
+<p><b>답변</b>:</p>
+<ul>
+<li>random_state=42 는 Leiden + StratifiedKFold + RandomForest + bootstrap 모두에 사용.</li>
+<li>seed sensitivity check: Leiden 의 1000-bootstrap consensus matrix concordance > 0.92 (= seed 무관 cluster stability).</li>
+<li>5-fold StratifiedKFold AUC variance: fold AUCs (R1-A) = [0.953, 0.962, 0.974, 0.957, 0.963] → std 0.008, 매우 stable.</li>
+<li>v6 Methods 에 명시 + reproducibility log.</li>
+</ul>
+<p><b>한 줄 요약</b>: 1000-bootstrap consensus 0.92+, 5-fold std 0.008 — seed 무관 robust.</p>
+</div></div></details>
+<details class="faq"><summary>Q21. "Code availability 가 anonymous_code.zip 에 있다고 했는데 실행 가능한가?" LOW</summary><div class="body"><div >
+<p><b>답변</b>:</p>
+<ul>
+<li><code>anonymous_code.zip</code> 안에 v17p35_*.py, v17_FINAL_*.py, v17_ACTUAL_*.py, v17_BOOST_*.py, v17_REALFIX_*.py 모두 포함.</li>
+<li>모든 random_state=42, np.random.seed(42) → deterministic.</li>
+<li>requirements.txt 에 scanpy 1.12, sklearn 1.8, leidenalg 0.11, lifelines 0.30 명시.</li>
+<li>Reproducibility log: <code>reports/v17_realfix/v17_REALFIX_DUMP.md</code> + per-script README.</li>
+<li>본인 (post-acceptance) GitHub release 예정.</li>
+</ul>
+<p><b>출처</b>: v6 Code availability + reproducibility section.</p>
+<p><b>한 줄 요약</b>: Deterministic + 환경 명시 + post-accept GitHub release; reproducible.</p>
+</div></div></details>
+<h3 style="margin-top:24px;">★ E2. "겁나 성능 안 나오는 cohort 어떻게 설명?" — 핵심 FAQ</h3>
+<details class="faq"><summary>Q-LOWAUC2. "R1-C 가 0.664 인 게 'by design' 이라 하지만 0.664 = 33% above random 이네. 0.5 random 이 아니면 무엇이 capture 됐나?" MED (interesting Q)</summary><div class="body"><div >
+<p><b>답변</b>: 정확한 catch. R1-C 가 random (AUC 0.5) 이 아니라 0.664 = differentiation 과 immune 가 partial coupling (correlated, not collapsed) 의 quantitative 증거.</p>
+
+<p><b>Biological reason for partial coupling</b>:</p>
+<ul>
+<li>잘 분화된 갑상선 cell (DM2) → thyroglobulin/thyroid peroxidase 등 hormone biosynthesis enzyme 풍부 → less inflammatory infiltrate (cold)</li>
+<li>De-differentiated cell (DM1) → MAPK active → chemokine/cytokine production → immune infiltrate (hot)</li>
+<li>= differentiation 과 immune state 가 mechanistically 연결 (one downstream of the other)</li>
+<li>그러나 100% collapse 안 됨 — DM1 의 일부 sample 은 cold 이고 (immune-evading), DM2 의 일부는 hot (vitiligo-like)</li>
+</ul>
+
+<p><b>AUC 0.664 의 정확한 해석</b>:</p>
+<ul>
+<li>0.5 = random (independent axes)</li>
+<li>1.0 = perfect correlation (collapsed axes)</li>
+<li>0.664 = 두 axis 사이 약 33% 의 information 공유</li>
+<li>Hallmark Inflammatory Response NES = +1.93 in DM1 vs DM2 = MAPK→inflammatory pathway 활성화 의 biological signal</li>
+</ul>
+
+<p><b>Paper 에 미치는 영향</b>: positive — two-axis model (DM1/DM2 = differentiation; hot/cold = immune) 의 정확한 quantitative description. 두 axis 가 mechanistically related but functionally distinct → integration 한 paper 에 두 axis 별도 보고하는 게 정당화됨.</p>
+</div></div></details>
+<details class="faq"><summary>Q-LOWAUC3. "GSE151180 (RAI clinical ground truth) 결과 0.6 나오면 paper 어떻게?" MED (worst case scenario)</summary><div class="body"><div >
+<p><b>답변</b>: Tier 3 (mechanism-vs-outcome gap) 으로 framing.</p>
+
+<p><b>Detailed reasoning</b>:</p>
+<ul>
+<li>본 8-gene panel = "differentiation molecular state" classifier (NIS, TPO, TG 등의 expression 측정)</li>
+<li>Clinical RAI uptake = differentiation × TSH stimulation protocol × ¹³¹I dose × anatomic uptake × scan timing × patient compliance</li>
+<li>이 multi-factor outcome 을 panel 만으로 0.85+ predict 못 하는 게 자연스러움</li>
+<li>0.6-0.7 = panel 이 clinical outcome 의 일부분 (differentiation-mediated portion) 을 capture, 나머지는 non-transcriptomic factors</li>
+</ul>
+
+<p><b>Paper 에 추가될 framing</b> (revision-round):</p>
+<blockquote>"On GSE151180 (n = 47, RAI-refractory vs RAI-avid PTC) the 8-gene panel achieves AUC = 0.X (95% CI ...). Whereas this is below the headline 0.96 of the differentiation-axis classification, the result is consistent with the panel's intended scope — the panel captures the molecular differentiation state that is one (of several) determinants of clinical RAI uptake. Other determinants (TSH stimulation protocol, ¹³¹I dose-response, anatomic factor) are not measurable from transcriptomic data alone. We position the 8-gene panel as a molecular baseline biomarker that complements rather than replaces the clinical RAI uptake measurement, useful for pre-RAI risk stratification but not a sole determinant of RAI response."</blockquote>
+
+<p><b>Reviewer attack 사전 차단</b>: 우리가 먼저 honest 하게 framing 하면 reviewer 가 "your panel does not predict actual clinical outcome" 공격 약함.</p>
+</div></div></details>
+<details class="faq"><summary>Q-LOWAUC4. "Korean cohort 0.6 나오면? Ethnic 차이 reveal?" MED</summary><div class="body"><div >
+<p><b>답변</b>: Tier 4 (population shift) 으로 framing + re-calibration.</p>
+
+<p><b>Possible causes (hypothesis order)</b>:</p>
+<ol>
+<li><b>BRAF prevalence 차이</b> (Korean 62% vs TCGA 56%) → cluster boundary 가 약간 shift; LogReg intercept re-fit 으로 해결 가능</li>
+<li><b>Sample preparation 차이</b> (Korean cohort 가 FFPE 면 RNA degradation; TCGA 는 fresh frozen)</li>
+<li><b>Platform 차이</b> (Korean RNA-seq vs TCGA STAR aligner)</li>
+<li><b>Korean PTC 의 bona fide biology 차이</b> (less likely; Korean PTC 의 이전 reports 에서 fundamental difference 보고된 바 없음)</li>
+</ol>
+
+<p><b>Re-calibration approach</b> (revision-round): Korean cohort 의 일부 (n=20-30) 로 LogReg intercept 만 re-fit, feature coefficient 는 frozen → 본 paper 의 "8-gene panel" identity 유지 + Korean population specification.</p>
+
+<p><b>Worst case (0.5-0.6)</b>: ethnic biology 차이 reveal 가능 → 별도 paper "Korean PTC molecular substructure" 로 진행. 본 submission 은 TCGA + Western validation 만으로 publishable; Korean 은 future work.</p>
+</div></div></details>
+<details class="faq"><summary>Q-LOWAUC5. "그러면 만약 5개 다른 cohort 에서 AUC 0.6 나오면 panel 폐기?" LOW (hypothetical)</summary><div class="body"><div >
+<p><b>답변</b>: Tier 5 (true panel failure) 정의: <b>5 unrelated cohort + diverse ground truth + after re-calibration → consistent < 0.7</b>.</p>
+
+<p>이 조건 충족 시:</p>
+<ol>
+<li><b>Retract 안 함</b> — 본 paper 의 finding (8-gene 의 TCGA 내 valid prediction) 은 reproducible</li>
+<li>Negative result 별도 paper 로 publish — "8-gene panel transferability has limits in [specific contexts]"</li>
+<li>Panel 자체는 "TCGA-context biomarker" 로 positioned; cross-context transfer 는 추가 research 필요</li>
+</ol>
+
+<p><b>현재 상태</b>: Tier 5 미해당. R1-A/B/D 3 independent cluster + GSE76039 histology ground truth 가 panel 의 internal validity + 1 external validity 입증.</p>
+</div></div></details>
+<h3 style="margin-top:24px;">F. 통계/방법론 attack (Q22-Q26)</h3>
+<details class="faq"><summary>Q22. "Bootstrap percentile 만 사용; BCa 안 한 이유?" LOW</summary><div class="body"><div >
+<p>Percentile bootstrap = large-n regime (n=500) 에서 BCa 와 거의 동일. 1000-iter 가 second-decimal stable. methods J 참조.</p>
+</div></div></details>
+<details class="faq"><summary>Q23. "Multiple testing (4 variants × 2 models = 8) 미보정?" LOW</summary><div class="body"><div >
+<p>Bonferroni p threshold 0.00625 적용 시도 모든 ΔAUC 95% CI 0 exclude → all 8 pass. FDR (BH) 동일.</p>
+</div></div></details>
+<details class="faq"><summary>Q24. "Cox proportional hazards assumption 검증?" LOW</summary><div class="body"><div >
+<p>Schoenfeld residuals + KM cross-over check; 16 events 로 power 한계지만 가정 충족. Penalty 0.01 (L2) 가 low-event 안정화 (Firth-like).</p>
+</div></div></details>
+<details class="faq"><summary>Q25. "Hyperparameter 안 tune?" LOW</summary><div class="body"><div >
+<p>Default C=1.0 + sensitivity sweep C ∈ {0.01-100} 모두 AUC > 0.94 → tuning marginal. Default + bootstrap 가 가장 conservative.</p>
+</div></div></details>
+<details class="faq"><summary>Q26. "Deep learning 안 썼는가? CNN/transformer?" LOW</summary><div class="body"><div >
+<p>Main contribution = clinical deployable (LogReg interpretable). 8 features × 500 samples 에서 DL over-parameterized. v15 NeurIPS 가 별도 methodology paper.</p>
+</div></div></details>
+<h3 style="margin-top:24px;">G. Pan-cancer + scope (Q27-Q30)</h3>
+<details class="faq"><summary>Q27. "TROP2-ADC trial overlay speculative?" LOW</summary><div class="body"><div >
+<p>Translational implication 단락; archival tissue 작동 → 추가 patient burden 없음. PI outreach revision-round 계획 명시.</p>
+</div></div></details>
+<details class="faq"><summary>Q28. "Pan-cancer claim 너무 과한가?" LOW</summary><div class="body"><div >
+<p>Discussion 끝 한 단락; signature-overlap only. CDKN2A/FOSL1/ETV4 conserved + TPO/DIO1 thyroid-specific. "warranting cross-cancer follow-up" — future work 만.</p>
+</div></div></details>
+<details class="faq"><summary>Q29. "PRISM 결과 약함 (0 compounds at FDR MED</summary><div class="body"><div >
+<p>Per-compound underpowered 정직 인정. 4/4 BRAF V600E CCLE 모두 DM1 = perfect concordance (mutation truth). MEK/HMGCR DM1-selective 가 biologically coherent. v6 framing: "hypothesis-generating".</p>
+</div></div></details>
+<details class="faq"><summary>Q30. "Korean PTC BRAF 62% vs TCGA 56% transferability 영향?" MED</summary><div class="body"><div >
+<p>BRAF prevalence 차이 ≠ transferability 약점. 본 panel = expression cluster (DM1/DM2) train, BRAF mutation train 아님. 99% BRAF V600E 가 DM1 (TCGA + MSK 동일) → cluster 비율만 약간 변경. 분당 cohort 검증 → revision round.</p>
+</div></div></details>
+<p style="font-size:13px; color:var(--ink-soft); margin-top:20px;">📥 Source: <code>project/submission/npj/reviewer_faq.html</code> (659 lines, full HTML form 보존)</p>
+<h2 style="margin-top:60px; padding:14px 0; border-top:3px double var(--accent); font-size:32px; color:var(--accent); text-align:center;">🇰🇷 Paper 5 — Korean K2 Dashboard 통합</h2>
+<p style="text-align:center; color:var(--ink-soft); font-style:italic;">v17 KOREAN sprint dashboard (2026-04-27 KST) 핵심 metric — PRJEB11591 Yoo 2016 Korean validation + 4-outreach + EGA DAR.</p>
+<div class="dashboard">
+<div class="stat"><div class="num">260</div><div class="lbl">Korean samples</div><div class="sub">PRJEB11591 (Yoo 2016) DM1/DM2 prediction 완료</div></div>
+<div class="stat"><div class="num">14 : 246</div><div class="lbl">DM1 : DM2 calls</div><div class="sub">centered-profile classifier 결과</div></div>
+<div class="stat"><div class="num">0.963</div><div class="lbl">TCGA 5-fold CV AUC</div><div class="sub">honest CV (within-sample-centered)</div></div>
+<div class="stat"><div class="num">0.901</div><div class="lbl">mean p(DM2)</div><div class="sub">Korean cohort overall</div></div>
+</div>
+<h3>📧 4-Outreach drafts (NOT sent)</h3>
+<table><thead><tr><th>Recipient</th><th>Affiliation</th><th>Status</th><th>Subject</th></tr></thead><tbody>
+<tr><td><strong>분당서울대 (유형원 교수님)</strong></td><td>SNUH Bundang</td><td><span style="color:var(--gold)">⏳ pending</span></td><td>Korean PTC HLA cohort 협업</td></tr>
+<tr><td>Park lab</td><td>SNU</td><td><span style="color:var(--gold)">⏳ pending</span></td><td>scRNA collab (PDTC/ATC)</td></tr>
+<tr><td>Yoo SK</td><td>SNU-GMI (PRJEB11591 owner)</td><td><span style="color:var(--gold)">⏳ pending</span></td><td>K2 데이터 use 확인</td></tr>
+<tr><td>EGA DAR</td><td>—</td><td><span style="color:var(--gold)">⏳ pending</span></td><td>controlled access 신청</td></tr>
+</tbody></table>
+<p style="font-size:13.5px; color:var(--ink-soft); margin-top:20px;">📥 Full dashboard: <code>project/submission/npj/korean_dashboard_v3.html</code></p>
+<h2 style="margin-top:60px; padding:14px 0; border-top:3px double var(--accent); font-size:32px; color:var(--accent); text-align:center;">🚀 Paper 5 — Future plan (a / b / c decision)</h2>
+<h3>🎯 Decision flow (Paper 1 ship 후)</h3>
+<table style="margin:10px 0;"><thead><tr><th>Option</th><th>Path</th><th>Time</th><th>Action items</th></tr></thead><tbody>
+<tr><td><strong>(a) Resume npj submission</strong></td><td>v6 그대로 npj Precision Oncology 제출</td><td>+4 weeks</td><td>4 outreach 발송 (Landa / Xing / Yu / Bundang) → reviewer 의견 수렴 → 정식 제출</td></tr>
+<tr><td><strong>(b) Subsume to Paper 1</strong></td><td>v17 npj R1-R5 + reviewer FAQ 를 Paper 1 v9 에 흡수</td><td>+2 weeks</td><td>v17 npj submission 무산 · Paper 1 manuscript 풍성해짐</td></tr>
+<tr><td><strong>(c) 별도 venue</strong></td><td>npj 외 (Modern Pathology / Endocrine Pathology) 재제출</td><td>+6 weeks</td><td>cover letter 재작성 + scope 재조정</td></tr>
+</tbody></table>
+<h3>📋 (a) 선택 시 — Resume npj Phase A</h3>
+<ol>
+<li><strong>Pre-submission (W14–W16)</strong>: Yu 교수님 manuscript_v6 review feedback 반영</li>
+<li><strong>Outreach (W14)</strong>: Landa Iñigo (MSKCC) + Xing Mingzhao (Hopkins) + 2 more drafts 발송</li>
+<li><strong>Reviewer FAQ check</strong>: 37 anticipated Q&amp;A 의 답변 정제</li>
+<li><strong>npj 제출 (W17)</strong>: SUBMIT_INSTRUCTIONS_v7.md 따라 EM upload</li>
+</ol>
+<h3>📋 (b) 선택 시 — Subsume to Paper 1</h3>
+<ol>
+<li>Paper 1 v9 outline 에 v17 npj R1-R5 narrative 흡수</li>
+<li>TERT recovery (HR=4.33) → Paper 1 main figure 추가</li>
+<li>Korean K2 pilot (n=9) → Paper 1 supplement</li>
+<li>Reviewer FAQ 37 → Paper 1 reviewer Q&amp;A consolidated 에 통합</li>
+</ol>
+<h3>📋 (c) 선택 시 — Alternative venue</h3>
+<ol>
+<li>Modern Pathology (IF ~8) — 8-gene biomarker FFPE deployment 강조 framing</li>
+<li>Endocrine Pathology (IF ~5) — thyroid pathology specialty</li>
+<li>cover letter / scope 재조정 (NanoString FFPE clinical translation 강조)</li>
+</ol>
+<h3>📌 Recommendation (post-marathon)</h3>
+<p>Paper 1 ship 후 evolved scope 보고 결정. (a) 와 (b) 는 mutually exclusive — 같이 못 함.</p>
 <footer><p>Paper 5 — v17 npj 8-gene RAI biomarker · Ship-ready 2026-04-27 · Paused (Paper 1 marathon pivot) · 재개 결정 본인.</p></footer>
 
 </div><script src="lightbox.js"></script>

@@ -272,6 +272,467 @@
 <tr><td>tumor-intrinsic</td><td>TDS</td><td>Thyroid differentiation score</td><td>16 genes</td><td>to_audit</td></tr>
 <tr><td>tumor-intrinsic</td><td>lineage</td><td>8-gene RAI panel (Paper 1)</td><td>8 genes</td><td>to_audit</td></tr>
 </tbody></table>
+<h2 style="margin-top:60px; padding:14px 0; border-top:3px double var(--accent); font-size:32px; color:var(--accent); text-align:center;">📚 Paper 3 — Track A 8 Deliverables Excerpts (chmod 444 read-only)</h2>
+<p style="text-align:center; color:var(--ink-soft); font-style:italic;">Frozen design bundle 의 8 deliverables 각각의 핵심 발췌. 원본은 chmod 444 read-only.</p>
+<details class="faq"><summary><strong>1. Dataset Registry</strong> · <code>paper3_ici_dataset_registry.md</code></summary><pre style="background:#FAF6EC; padding:14px 18px; border-radius:4px; font-size:12px; line-height:1.5; white-space:pre-wrap; max-height:600px; overflow-y:auto;"># Paper 3 ICI — Dataset Registry
+
+**Working title:** HLA loss, neoantigen architecture, and immune ecotypes define ICI vulnerability in molecularly dark thyroid cancer
+**Track:** A — design only. No download, no analysis. All accessions marked `to_verify` until Track B kickoff.
+**Author:** Seungho Cook
+**Status date:** 2026-05-04
+
+**Claim guard:** Datasets are catalogued for ICI vulnerability / immunogenomic prioritization, never for "ICI response prediction" in thyroid unless thyroid ICI-treated raw RNA-seq is acquired.
+
+---
+
+## 0. Verification policy
+
+For each accession:
+- **`to_verify`** — accession string is from prior literature / user input; existence, version, file types, and access conditions must be checked at Track B kickoff via GEO/SRA/EGA/dbGaP web UI (not by Claude during Track A).
+- **`internal`** — already on local mirror or processed for Paper 1/2; reuse read-only with paper-boundary discipline.
+- **`controlled`** — known to be controlled-access (dbGaP / EGA / institutional). Application timing must be added to the 12-week plan.
+- **`tier_x`** — see priority tiers below.
+
+Priority tiers:
+- **Tier 1** — required for headline figure. Track B blocks if unavailable.
+- **Tier 2** — replication / cross-platform. Track B proceeds if at least 50% of Tier 2 are usable.
+- **Tier 3** — supplementary / sensitivity. Loss tolerable.
+
+---
+
+## 1. Bulk RNA-seq ± WES — discovery & dedifferentiation cohorts
+
+| Accession | Modality | n (claimed) | Subtype | Role | Tier | Status | Notes |
+|---|---|---|---|---|---|---|---|
+| TCGA-THCA | RNA-seq + WES + clinical | ~500 | PTC, FVPTC, TCV; ATC limited | Primary discovery: ecotype NMF, HLA LOH, neoantigen, dark-matter stratification | 1 | internal | Driver/fusion calls already curated in Paper 1 ETL. WES BAM available via GDC; LOHHLA needs raw BAM not just MAF. |
+| GSE76039 | RNA-seq | ~37 (PDTC + ATC; Landa 2016) | PDTC, ATC | Dedifferentiation axis anchor | 1 | to_verify | Landa 2016 JCI (cite already saved in `v17_landa2016_cite_save`). Small n — pair with TCGA aggressive subset for power. |
+| GSE33630 | microarray (Affy U133 Plus 2) | ~105 | PTC, ATC, normal | Cross-platform replication | 2 | to_verify | Microarray, so signature scoring only — no neoantigen, no HLA LOH. |
+| GSE65144 | microarray | ~13 | ATC + normal | ATC enrichment | 2 | to_verify | Tiny n; suitable as ATC-vs-normal contrast in figure inset. |
+| GSE54958 | microarray | small | PTC stages | Stage-axis sensitivity | 3 | to_verify | |
+| GSE53157 | microarray | ~27 | PTC | Replication | 3 | to_verify | |
+| GSE29265 | microarray | ~49 | PTC, ATC, normal | Cross-platform | 2 | to_verify | |
+| Yoo SK et al. 2019 *Nat Commun* | RNA-seq | Korean ATC + advanced DTC | ATC, advanced DTC | Asian dedifferentiation generalization | 1 | to_verify | Accession not yet pinned; check supp; may be EGA-controlled. If controlled, add EGA application to Wk 1. |
+| PRJKA210106 | RNA-seq | n=282 Korean PTC | PTC | Asian baseline | 2 | to_verify | Cross-paper care — already touched by Paper 1/2 lineage. Use for HLA-typing reference, not for ecotype discovery, to keep Paper 3 distinct. |
+| PRJEB11591 (Yoo 2016 SNU-GMI) | RNA-seq | n=260 Korean PTC | PTC | HLA-typing reference (arcasHLA already done) | 3 | internal (read-only) | Per `v17_arcasHLA_korean_k2`. Do not re-run; do not duplicate Paper 1/2 analyses. Use only as Korean HLA-frequency anchor. |
+
+---
+
+## 2. Single-cell RNA-seq — atlas construction
+
+| Accession | Platform | n samples (claimed) | Sub...</pre><p style="font-size:11px; color:var(--ink-soft);">📥 Full file: chmod 444 frozen, <code>project/reports/paper3_ici/paper3_ici_dataset_registry.md</code></p></details>
+<details class="faq"><summary><strong>2. Signature Registry</strong> · <code>paper3_ici_signature_registry.md</code></summary><pre style="background:#FAF6EC; padding:14px 18px; border-radius:4px; font-size:12px; line-height:1.5; white-space:pre-wrap; max-height:600px; overflow-y:auto;"># Paper 3 ICI — Signature Registry
+
+**Working title:** HLA loss, neoantigen architecture, and immune ecotypes define ICI vulnerability in molecularly dark thyroid cancer
+**Track:** A — design only. No scoring runs. Gene members are listed for reference; final operational gene lists will be locked at Track B kickoff after intersection with each cohort's expression matrix.
+**Author:** Seungho Cook
+**Status date:** 2026-05-04
+
+**Claim guard:** Signatures are computed for ecotype discovery and DIAL audit, not as standalone "ICI response classifiers". Interpretation in thyroid is conditional on DIAL audit results (`paper3_ici_DIAL_audit_plan.md`).
+
+---
+
+## 0. Scoring conventions (locked at design)
+
+- **Bulk scoring method:** ssGSEA (GSVA package) as default. Singscore as sensitivity (rank-based, sample-independent). Both reported in Supp.
+- **Single-cell scoring method:** UCell (rank-based, robust to dropout) as default. AUCell as sensitivity.
+- **Normalization input:** log2(TPM+1) for bulk RNA-seq; log-normalized counts (Seurat / scanpy default) for scRNA. Microarray cohorts use RMA-normalized log-intensity.
+- **Score sign convention:** higher = more of the named feature. Direction-flips revealed by DIAL audit are documented per signature, never silently corrected.
+- **Cohort-level z-score:** all signatures z-scored within cohort before cross-cohort comparison, to avoid platform-mean confounding. Pan-cohort scaling only applied after batch evaluation.
+- **Validation across platforms:** any signature dropped if <50% gene members measurable on a microarray cohort; flagged in `paper3_ici_signature_registry_VERIFIED.tsv` at kickoff.
+
+---
+
+## 1. T-cell inflammation / IFNγ axis
+
+| Signature ID | Source | Members (representative) | Role | Notes |
+|---|---|---|---|---|
+| `IFNG_AYERS6` | Ayers et al. *JCI* 2017 | IFNG, CXCL9, CXCL10, IDO1, HLA-DRA, STAT1 | Core IFNγ axis | Used in pembrolizumab IFNγ-signature studies. |
+| `IFNG_AYERS18` (TIS, Tumor Inflammation Signature) | Ayers 2017 | 18 genes incl. CD8A, GZMK, CD27, LAG3, TIGIT, CXCL9, etc. | T-cell-inflamed phenotype | Dako commercial as nCounter; we re-implement as ssGSEA. |
+| `CYTOLYTIC_ROONEY` | Rooney et al. *Cell* 2015 | GZMA, PRF1 (geometric mean) | Cytolytic activity | 2-gene; very platform-stable. |
+| `EFFECTOR_T` | Tirosh / Sade-Feldman composite | CD8A, CD8B, GZMB, GZMK, IFNG, NKG7, PRF1 | Effector CD8 | Bulk + scRNA. |
+| `EXHAUSTED_T` | Tirosh / Wherry composite | PDCD1, CTLA4, LAG3, TIGIT, HAVCR2, TOX, TOX2, EOMES | Exhausted CD8 | Co-occurs with IFNG axis; DIAL-flag candidate. |
+
+---
+
+## 2. Antigen presentation machinery
+
+| Signature ID | Source | Members | Role | Notes |
+|---|---|---|---|---|
+| `MHC1_CORE` | composite | HLA-A, HLA-B, HLA-C, B2M, TAP1, TAP2, TAPBP, NLRC5, ERAP1 | Class I machinery | Loss = immune escape. |
+| `MHC2_CORE` | composite | HLA-DRA, HLA-DRB1, HLA-DPA1, HLA-DPB1, HLA-DQA1, HLA-DQB1, CIITA | Class II machinery | Tumor-intrinsic Class II expression in PTC is documented (HT-overlap signal in Paper 2). Important DIAL candidate. |
+| `IFNG_RESPONSE_HALLMARK` | MSigDB Hallmark | hallmark IFNG_RESPONSE | Upstream context | Used as IFNγ-response sanity check. |
+
+---
+
+## 3. TLS / B-cell / plasma niche
+
+| Signature ID | Source | Members | Role | Notes |
+|---|---|---|---|---|
+| `TLS_CABRITA9` | Cabrita et al. *Nature* 2020 | CCL19, CCL21, CXCL13, CCR7, CD79B, MS4A1, BCL6, LAMP3, SELL | TLS hallmark | Core TLS signature. |
+| `TLS_MEYLAN` | Meylan et al. *Immunity* 2022 ...</pre><p style="font-size:11px; color:var(--ink-soft);">📥 Full file: chmod 444 frozen, <code>project/reports/paper3_ici/paper3_ici_signature_registry.md</code></p></details>
+<details class="faq"><summary><strong>3. scRNA Atlas Plan</strong> · <code>paper3_ici_scRNA_reference_atlas_summary.md</code></summary><pre style="background:#FAF6EC; padding:14px 18px; border-radius:4px; font-size:12px; line-height:1.5; white-space:pre-wrap; max-height:600px; overflow-y:auto;"># Paper 3 ICI — scRNA Reference Atlas Plan
+
+**Working title:** HLA loss, neoantigen architecture, and immune ecotypes define ICI vulnerability in molecularly dark thyroid cancer
+**Track:** A — design only. No integration runs. No Seurat / scanpy / scVI / scANVI / Harmony invocation.
+**Author:** Seungho Cook
+**Status date:** 2026-05-04
+
+**Claim guard:** Atlas defines cell states for *signature derivation* and bulk projection. State frequencies in patients are descriptive, not predictive of ICI response in thyroid until DIAL audit + (where possible) thyroid ICI raw RNA-seq supports such a claim.
+
+---
+
+## 1. Cohorts & expected scale
+
+Per dataset registry (`paper3_ici_dataset_registry.md` §2):
+
+| Accession | Subtype skew | Expected cells (rough order) | Atlas role |
+|---|---|---|---|
+| GSE184362 | PTC + ATC | 30–80K | Anchor — broadest cell-type coverage |
+| GSE193581 | PTC | 20–60K | Immune sub-states |
+| GSE232237 | mixed | 20–50K | Integration validation |
+| GSE191288 | PTC | 10–40K | Replication |
+| GSE148673 | mixed | 10–30K | Replication |
+| Han 2024 JCI Insight | dedifferentiation | 10–40K | Dedifferentiation anchor |
+
+**Total estimate:** 100–300K cells after QC. Of these, PDTC + ATC fraction is expected to be small (<5K) — a critical caveat.
+
+**Atlas-side risk register:**
+- **R1.** PDTC/ATC scRNA cells <5K total → de novo dedifferentiation trajectory inference is underpowered. Mitigation: project pseudobulk-derived dedifferentiation signature from `paper3_ici_signature_registry` Module 7 onto epithelial cells; do not run Slingshot/Monocle3 on ATC alone.
+- **R2.** Sample-level batch effects dominate disease-level effects in thyroid scRNA. Mitigation: scVI with `batch_key=sample_id`, treat patient-level as donor-level; never use disease as integration covariate.
+- **R3.** Thyrocyte epithelial cells often contaminated by adjacent normal in surgical specimens. Mitigation: copy-number-based malignant-cell calling (inferCNV / CopyKAT) before downstream epithelial-state analysis.
+
+---
+
+## 2. Reference atlas dependencies (citation only — no runs)
+
+Cell-type annotation will lean on published reference atlases via **transfer learning, not de novo discovery**. Each is referenced read-only — no re-derivation.
+
+| Reference | Use | Tool |
+|---|---|---|
+| Zheng et al. 2021 (pan-cancer T-cell atlas) | T-cell sub-state labels | scANVI/celltypist |
+| Andreatta et al. 2022 ProjecTILs | T-cell sub-state QC | ProjecTILs |
+| Mulder et al. 2021 (myeloid pan-tissue) | Myeloid sub-state labels | celltypist |
+| Lambrechts / Salcher pan-cancer NSCLC | Stromal CAF sub-states | celltypist |
+| HCA thyroid (if available) | Thyrocyte normal reference | scANVI |
+
+If HCA thyroid is unavailable, normal-thyroid cells from each cohort serve as the within-study normal reference.
+
+---
+
+## 3. Integration strategy
+
+**Default:** scVI → scANVI (label-aware fine-tune for cell types) → Harmony as cross-check.
+
+Sequence:
+1. Per-cohort QC (scanpy default + `scrublet` doublet removal).
+2. Concatenate raw counts; subset to top-3000 highly variable genes per cohort, take union (~5–8K HVGs).
+3. scVI training — `n_layers=2`, `n_latent=30`, `batch_key=sample_id`. Single seed first; replicate with 3 seeds for stability.
+4. scANVI fine-tune with reference cell-type labels from celltypist seeded annotation.
+5. Harmony on the same HVG matrix as alternative integration; UMAP-level concordance reported.
+6. Cluster (Leiden, multiple resolutions 0.3 / 0.6 / 1.0); pick resolution by silhouette...</pre><p style="font-size:11px; color:var(--ink-soft);">📥 Full file: chmod 444 frozen, <code>project/reports/paper3_ici/paper3_ici_scRNA_reference_atlas_summary.md</code></p></details>
+<details class="faq"><summary><strong>4. HLA & Neoantigen Feasibility</strong> · <code>paper3_ici_HLA_neoantigen_feasibility.md</code></summary><pre style="background:#FAF6EC; padding:14px 18px; border-radius:4px; font-size:12px; line-height:1.5; white-space:pre-wrap; max-height:600px; overflow-y:auto;"># Paper 3 ICI — HLA & Neoantigen Feasibility
+
+**Working title:** HLA loss, neoantigen architecture, and immune ecotypes define ICI vulnerability in molecularly dark thyroid cancer
+**Track:** A — design only. No HLA typing runs, no LOHHLA execution, no NetMHCpan invocation. arcasHLA results from `v17_arcasHLA_korean_k2` are referenced read-only and **not** re-run.
+**Author:** Seungho Cook
+**Status date:** 2026-05-04
+
+**Claim guard:** HLA loss + neoantigen load are reported as *immunogenomic features*, not as standalone "ICI response signals". Combined into the integrated readiness score (`paper3_ici_signature_registry.md` §9) only after DIAL audit.
+
+---
+
+## 1. Per-cohort feasibility matrix
+
+| Cohort | RNA-seq | WES / WGS | HLA Class I | HLA Class II | LOHHLA-feasible | Neoantigen-feasible | Notes |
+|---|---|---|---|---|---|---|---|
+| TCGA-THCA | yes | yes (BAM via GDC) | OptiType / Polysolver from BAM | arcasHLA from RNA BAM | yes (paired tumor-normal BAM) | yes (MAF + RNA expression filter) | Primary neoantigen + HLA LOH cohort. |
+| GSE76039 PDTC/ATC (Landa 2016) | yes | yes (Landa 2016 published WES) | OptiType from RNA BAM (no germline normal) | arcasHLA | partial — paired normal availability per-sample needed | yes if MAF + paired normal | Verify normal availability; without it, somatic calls less reliable. |
+| GSE33630 / GSE65144 / GSE54958 / GSE53157 / GSE29265 | microarray | no | no | no | no | no | Microarray — no HLA, no neoantigen. Excluded from Module C. |
+| Yoo SK 2019 Korean ATC | yes (RNA-seq) | likely yes (matched WES) | arcasHLA | arcasHLA | conditional on access mode | yes | EGA-controlled candidate; verify at Track B kickoff. |
+| PRJKA210106 Korean PTC n=282 | yes (RNA-seq) | unclear | arcasHLA | arcasHLA | likely no (no paired normal) | no (no MAF) | HLA frequency anchor only; cross-paper boundary care. |
+| PRJEB11591 Korean PTC n=260 | yes | no | arcasHLA already done | arcasHLA already done | no | no | Read-only reference per `v17_arcasHLA_korean_k2`. **Do not re-run.** |
+| Pan-cancer ICI cohorts (DIAL audit set) | yes | partial | per-cohort published HLA | per-cohort | per-cohort | per-cohort | Used as DIAL anchors, not as thyroid HLA evidence. |
+
+**Effective Module C cohort = TCGA-THCA + GSE76039 + (Yoo 2019 if accessible).**
+
+---
+
+## 2. Tool selection (locked at design)
+
+| Step | Primary | Sensitivity / fallback | Why |
+|---|---|---|---|
+| HLA Class I from WES/WGS BAM | OptiType (paired-end exome) | Polysolver | OptiType is high-accuracy on Class I; Polysolver published for cancer cohorts. |
+| HLA Class II from WES | xHLA / HLA*LA | — | WES Class II coverage is uneven; require ≥30× over HLA-DRB1, HLA-DPB1, HLA-DQB1 exons. |
+| HLA from RNA-seq | arcasHLA | seq2HLA | arcasHLA already validated by us on PRJEB11591 (`v17_arcasHLA_korean_k2`). Default for cohorts without WES. |
+| HLA SNP-imputed 4-digit | cookHLA (Cook et al. *Nat Commun*) | — | Reserved for cohorts with SNP arrays. **Cookhla scope is Paper 4 (GD HLA backlog).** Do not introduce here unless absolutely necessary. |
+| HLA LOH | LOHHLA | HLAthena (rare) | Requires paired tumor-normal BAM, allele-specific. |
+| Somatic mutation calling | Mutect2 (single-sample mode if no normal); paired Mutect2 if normal exists | Strelka2 | Single-sample mode flagged; PoN required. |
+| Variant filtering | dbSNP common-variant filter + gnomAD AF<1e-4 | — | |
+| Neoantigen prediction (MHC-I) | NetMHCpan 4.1 | MHCflurry 2.0 | Standard. |
+| Neoantigen prediction (MHC-II) | NetMH...</pre><p style="font-size:11px; color:var(--ink-soft);">📥 Full file: chmod 444 frozen, <code>project/reports/paper3_ici/paper3_ici_HLA_neoantigen_feasibility.md</code></p></details>
+<details class="faq"><summary><strong>5. DIAL Audit Plan</strong> · <code>paper3_ici_DIAL_audit_plan.md</code></summary><pre style="background:#FAF6EC; padding:14px 18px; border-radius:4px; font-size:12px; line-height:1.5; white-space:pre-wrap; max-height:600px; overflow-y:auto;"># Paper 3 ICI — DIAL Audit Plan
+
+**Working title:** HLA loss, neoantigen architecture, and immune ecotypes define ICI vulnerability in molecularly dark thyroid cancer
+**Track:** A — design only. No DIAL execution. No bootstrap, no permutation, no Cox fitting.
+**Author:** Seungho Cook
+**Status date:** 2026-05-04
+
+**Claim guard:** DIAL audit is the *gating step* that decides which pan-cancer ICI signatures are allowed to enter Paper 3's integrated readiness score in thyroid. Without DIAL, the integrated score has no validity argument.
+
+---
+
+## 1. Context — DIAL framework lineage
+
+- DIAL = Direction-Invariance ALgorithm. Originated in `v52_lodo_finding`: under proper LODO ComBat, all 5 THCA classifiers returned DIAL=0.000 / true biology, falsifying the v5.1 DIAL=0.494 flip artifact.
+- Codified into `v18_agentic_research framework` (5 patterns + 6 components).
+- Applied in Paper 3 to **pan-cancer ICI signatures** rather than to THCA classifiers — same algebra, different inputs.
+
+**Definition for Paper 3 use.** A signature S is *direction-invariant* across context set C if its sign of association with the chosen endpoint (ICI response or T-cell-inflamed phenotype) is preserved across all leave-one-out subsets of C, with effect size > minimum. Failure modes:
+- **Flip** — sign reverses in ≥1 leave-one-out fold.
+- **Collapse** — effect size shrinks to noise (|t| < 1) in ≥1 fold.
+- **Tissue-flip** — sign holds within trained tissue (e.g., melanoma) but reverses in held-out tissue (here: thyroid).
+
+Only signatures that pass DIAL on the pan-cancer reference set are eligible to enter Paper 3's integrated score in thyroid.
+
+---
+
+## 2. Reference set & endpoints
+
+**Pan-cancer ICI reference (per `paper3_ici_dataset_registry.md` §4):**
+- IMvigor210 (UC, atezolizumab) — Tier 1
+- Hugo GSE78220 (melanoma, anti-PD-1) — Tier 1
+- Riaz GSE91061 (melanoma, nivolumab; pre-treatment only) — Tier 1
+- Gide melanoma (PRJEB23709) — Tier 2
+- Liu melanoma (dbGaP) — Tier 2 if access granted
+- Kim gastric (PRJEB25780) — Tier 3
+- Cho NSCLC — Tier 3
+
+**Endpoints:**
+- Primary — RECIST objective response (CR/PR vs SD/PD).
+- Secondary — PFS (Cox HR).
+- Tertiary — T-cell-inflamed phenotype (TIS-positive vs negative) as a *biological* anchor independent of clinical response.
+
+**Held-out tissue = thyroid:**
+- TCGA-THCA aggressive subset (PDTC/ATC + Stage IV PTC + dedifferentiated) as proxy for "ICI-eligible thyroid".
+- GSE76039 (PDTC + ATC) as second held-out cohort.
+- No clinical ICI response endpoint in thyroid — endpoint in held-out is *T-cell-inflamed phenotype* (TIS) as proxy. Direction-invariance from response → TIS is checked first within reference cohorts; only signatures invariant under both are claimed.
+
+---
+
+## 3. Audit pipeline (defined; NOT executed)
+
+```
+For each signature S in pan-cancer registry:
+    For each cohort c in reference set:
+        Compute S on c (ssGSEA / IMPRES rules / Cytolytic GM)
+        Fit logistic regression: response ~ S + clinical_covariates
+        Record beta_S, se, p
+
+    Direction-invariance check 1 (within-reference, response endpoint):
+        sign_consistent = all(sign(beta_S, c) == majority_sign across c)
+        effect_size_min  = min(|beta_S, c| > threshold)
+        DIAL_response    = sign_consistent AND effect_size_min
+
+    Direction-invariance check 2 (within-reference, TIS endpoint):
+        Repeat with TIS_18 score as endpoint
+        DIAL_TIS = sign_consistent AND effect_size_min
+
+    Tissue-transfer check (held-out thyroid, T...</pre><p style="font-size:11px; color:var(--ink-soft);">📥 Full file: chmod 444 frozen, <code>project/reports/paper3_ici/paper3_ici_DIAL_audit_plan.md</code></p></details>
+<details class="faq"><summary><strong>6. Figure Plan</strong> · <code>paper3_ici_figure_plan.md</code></summary><pre style="background:#FAF6EC; padding:14px 18px; border-radius:4px; font-size:12px; line-height:1.5; white-space:pre-wrap; max-height:600px; overflow-y:auto;"># Paper 3 ICI — Figure Plan
+
+**Working title:** HLA loss, neoantigen architecture, and immune ecotypes define ICI vulnerability in molecularly dark thyroid cancer
+**Track:** A — design only. All figures are layout schematics. No real-data rendering. Captions are placeholder; final captions written during Wk 11.
+**Author:** Seungho Cook
+**Status date:** 2026-05-04
+
+**Claim guard:** Each figure caption ends with a thyroid-ICI-vulnerability framing, never an "ICI response prediction" claim. Discrepancy between visualization and claim is a stop-the-press reviewer trigger; designer enforces this at draft.
+
+---
+
+## 1. Main figures (target = 6, ≤7)
+
+### Figure 1 — Cohort landscape & dark-matter framing
+
+Panels:
+- **1A** Schematic — PTC → PDTC → ATC dedifferentiation continuum; BRAF / RAS / fusion / dark-matter color key; immune-rich (HT-overlap, dark matter immune) overlay.
+- **1B** Sample count matrix across cohorts × subtype (TCGA-THCA, GSE76039, others) with modality availability (RNA / WES / scRNA / spatial).
+- **1C** TDS distribution by subtype + driver.
+- **1D** Dark-matter (BRAF/RAS/fusion-negative) prevalence by subtype.
+- **1E** Cross-paper diagram showing Paper 1 / Paper 2 / Paper 3 / Paper 4 scope boundaries — defensive against reviewer scope-confusion.
+
+Headline: dark matter exists across the differentiation spectrum and is the analytical target.
+
+### Figure 2 — Bulk immune ecotype discovery (Module A)
+
+- **2A** Heatmap of standardized signature scores across pooled bulk samples (rows = signatures from registry §1–§5, cols = samples), NMF-derived ecotype labels.
+- **2B** NMF rank selection (cophenetic correlation, dispersion).
+- **2C** Ecotype × subtype (PTC / PDTC / ATC) Sankey or stacked bar.
+- **2D** Ecotype × driver group (BRAF / RAS / fusion / dark matter) stacked bar with chi-square.
+- **2E** Ecotype × TDS tertile.
+- **2F** Survival KM (PFS or DSS) by ecotype within aggressive subset (TCGA-THCA stage III/IV + PDTC + ATC).
+
+Headline: thyroid immune ecotypes are non-uniform across dedifferentiation and dark-matter axes.
+
+### Figure 3 — scRNA atlas & sub-state map (Module B)
+
+- **3A** Integrated UMAP, Level 1 cell types.
+- **3B** Level 2 sub-state UMAP for T cell / myeloid / B cell.
+- **3C** Marker dot-plot for Level 2 states (top 5 markers per state).
+- **3D** State frequency per patient × bulk-ecotype (link to Fig 2) — uses pseudobulk → ecotype mapping.
+- **3E** CXCL13+ exhausted CD8 (`scCXCL13_CD8`) frequency vs TDS tertile.
+- **3F** TLS-like B/Tfh co-occurrence per patient.
+
+Headline: dedifferentiated and dark-matter subgroups carry distinct sub-state architectures, with CXCL13+ exhausted CD8 enriched at the dedifferentiated end.
+
+### Figure 4 — HLA loss & neoantigen architecture (Module C)
+
+- **4A** HLA Class I / II calls — allele-frequency comparison (TCGA-THCA Caucasian vs Asian; vs PRJEB11591 Korean baseline).
+- **4B** HLA LOH frequency — overall, then stratified by BRAF / RAS / fusion / dark matter and PTC vs PDTC vs ATC.
+- **4C** Neoantigen burden (Class I) — Poisson-modeled rate by subtype × driver.
+- **4D** Quadrant plot — HLA-intactness (x) vs neoantigen presented (y), colored by ecotype (Fig 2).
+- **4E** Cohort labeled "HLA-intact + neo-positive + dedifferentiated" — sample list / count by cohort.
+
+Headline: an HLA-intact + neoantigen-positive + dedifferentiated subgroup exists and overlaps the inflamed ecotype.
+
+### Figure 5 — DIAL audit (Module D)
+
+- **5A** Pan-cancer reference matrix — signatures (rows) × cohort...</pre><p style="font-size:11px; color:var(--ink-soft);">📥 Full file: chmod 444 frozen, <code>project/reports/paper3_ici/paper3_ici_figure_plan.md</code></p></details>
+<details class="faq"><summary><strong>7. Go / No-Go Verdict</strong> · <code>paper3_ici_go_no_go_verdict.md</code></summary><pre style="background:#FAF6EC; padding:14px 18px; border-radius:4px; font-size:12px; line-height:1.5; white-space:pre-wrap; max-height:600px; overflow-y:auto;"># Paper 3 ICI — Go / No-Go Verdict
+
+**Working title:** HLA loss, neoantigen architecture, and immune ecotypes define ICI vulnerability in molecularly dark thyroid cancer
+**Track:** A — design only. Verdict below is **conditional GO** for Track B execution at the post-marathon entry point.
+**Author:** Seungho Cook
+**Status date:** 2026-05-04
+
+**Claim guard:** Below verdict assumes Paper 3 is framed as ICI vulnerability / readiness / immunogenomic prioritization. If the user later wants to claim "ICI response prediction" without thyroid ICI-treated raw RNA-seq, verdict drops to NO-GO and must be re-decided.
+
+---
+
+## 1. Module-level verdicts
+
+| Module | Verdict | Rationale | Critical dependency |
+|---|---|---|---|
+| **A — Bulk immune ecotype** | **GO** | TCGA-THCA + GSE76039 + microarray cohorts give ≥600 samples after pooling; ssGSEA + NMF mature; thyroid ecotypes literature-supported. | None blocking. |
+| **B — scRNA atlas** | **CONDITIONAL GO** | 6 candidate cohorts, total ~100–300K cells. PDTC/ATC scRNA <5K — atlas viable for state annotation, not for de novo dedifferentiation trajectory. Mitigation framed in atlas plan §1. | At least 3 of 6 cohorts must be accessible at Wk 5. |
+| **C — HLA & neoantigen** | **GO (degraded scope)** | TCGA-THCA paired BAM + GDC MC3 MAF available; LOHHLA + NetMHCpan well-established; GSE76039 paired-normal access uncertain per sample; Yoo 2019 may be EGA-controlled. | TCGA-THCA dbGaP controlled-access for paired BAM by Wk 1 of Track B. |
+| **D — DIAL audit** | **GO** | Pan-cancer ICI cohorts mostly accessible (IMvigor210 R-package; Hugo / Riaz / Gide GEO; Liu / Cho controlled). Statistical machinery already in `v18_agentic_research framework`. | At least 3 of 5 Tier 1/2 melanoma + UC cohorts accessible by Wk 7. |
+| **E — Integrated readiness score** | **GO conditional on D** | Score is well-defined; weighting calibration deferred. | DIAL audit must produce ≥4 PASS signatures for the score to be meaningful. |
+
+**Overall verdict — CONDITIONAL GO.** Paper 3 is feasible. The conditions are dataset-access events that map to the 12-week plan's Wk 1 / Wk 5 / Wk 7 gates, not analytical uncertainties.
+
+---
+
+## 2. Hard gates (must close before any Track B compute spend)
+
+| Gate | Condition | Action if not met |
+|---|---|---|
+| **G1** | Paper 1 bioRxiv submitted | Track B blocked. Marathon mode preserved per `v17_marathon_mode_post_pillar1`. |
+| **G2** | Paper 2 Task A/B/C closure | Track B blocked. |
+| **G3** | TCGA dbGaP access (or confirmation that GDC open access is sufficient for our scope) | Module C drops to "RNA-seq HLA only via arcasHLA + MAF-based neoantigen using MC3 SNV calls without LOHHLA". Headline figure 4B (HLA LOH) downgraded to "future-work" if G3 fails. |
+| **G4** | At least 3 of 6 scRNA cohorts accessible | Module B drops to "single-cohort sub-state map" with reduced replication; figure 3 panels narrow. |
+| **G5** | At least 3 of 5 Tier 1/2 pan-cancer ICI cohorts accessible | Module D narrows; if <3, DIAL is reported as plan-only and Module E uses unaudited signatures with explicit caveat. |
+| **G6** | User explicit "Track B 시작" — not "고고" / "다 해줘" | Per `v17_sprint_vs_marathon_violation.md`. |
+
+---
+
+## 3. Risks that DO NOT trigger NO-GO
+
+- Yoo 2019 inaccessible — replace with TCGA aggressive subset; degrade Asian-validation claim, do not block.
+- Cho NSCLC / Kim gastric inaccessible — drop, retain Tier 1 melanoma + UC anchors, do not block.
+- HCA thyroid reference unavailable — use within-study...</pre><p style="font-size:11px; color:var(--ink-soft);">📥 Full file: chmod 444 frozen, <code>project/reports/paper3_ici/paper3_ici_go_no_go_verdict.md</code></p></details>
+<details class="faq"><summary><strong>8. 12-Week Execution Plan</strong> · <code>paper3_ici_12week_execution_plan.md</code></summary><pre style="background:#FAF6EC; padding:14px 18px; border-radius:4px; font-size:12px; line-height:1.5; white-space:pre-wrap; max-height:600px; overflow-y:auto;"># Paper 3 ICI — 12-Week Execution Plan
+
+**Working title:** HLA loss, neoantigen architecture, and immune ecotypes define ICI vulnerability in molecularly dark thyroid cancer
+**Track:** A (this document) — design only. Plan below describes Track B execution; Track B starts only after entry gates G1–G6 close.
+**Author:** Seungho Cook
+**Status date:** 2026-05-04
+
+**Claim guard:** All weeks below assume "ICI vulnerability / readiness / immunogenomic prioritization" framing. If thyroid ICI-treated raw RNA-seq is acquired during the plan, framing may upgrade — only after re-decision with user, never silently.
+
+---
+
+## 0. Entry preconditions (G1–G6)
+
+Plan does not start until:
+- G1 Paper 1 bioRxiv submitted (target 2026-06-13)
+- G2 Paper 2 Task A/B/C closed
+- G3 TCGA dbGaP access decided
+- G4 ≥3 of 6 scRNA cohorts accessible
+- G5 ≥3 of 5 Tier 1/2 pan-cancer ICI cohorts accessible
+- G6 User explicit "Track B 시작"
+
+If G1/G2 not closed, the plan re-baselines its Wk 1 day to the post-ship date.
+
+---
+
+## 1. Week-by-week schedule
+
+### Wk 1 — Dataset acquisition & ETL scaffolding
+
+- Verify all `to_verify` accessions in `paper3_ici_dataset_registry.md` §1–§4. Produce `paper3_ici_dataset_registry_VERIFIED.tsv`.
+- Submit dbGaP / EGA applications in parallel (Liu melanoma, Yoo 2019 if EGA, TCGA paired-BAM controlled if needed).
+- Stand up `project/results/paper3_ici/` directory tree per registry / atlas / hla / neo / dial / integrated outputs.
+- Reuse Paper 1 ETL outputs as read-only inputs (driver / fusion calls, BRS, TDS).
+- Lock signature gene lists to actually-measurable subset per cohort. Produce `paper3_ici_signature_registry_VERIFIED.tsv`.
+
+Deliverables: verified registries, directory scaffolding, dbGaP/EGA applications submitted.
+
+### Wk 2 — Bulk preprocessing & cohort harmonization
+
+- Re-pull / re-normalize bulk cohorts to a common log2(TPM+1) baseline (RNA-seq) and RMA log-intensity (microarray). Reuse Paper 1 pipelines where applicable; do not re-run if no scope difference.
+- ComBat / ComBat-seq batch correction per cohort family with subtype as protected covariate; LODO sensitivity per `v52_lodo_finding`.
+- QC pass: read count, mapping rate, dropout, gene detection.
+- Compute all bulk signatures from `paper3_ici_signature_registry.md` §1–§7 on harmonized matrix; lock `paper3_ici_bulk_signature_scores.parquet`.
+
+Deliverables: harmonized bulk matrix, QC tables, all-signature score matrix.
+
+### Wk 3 — Bulk immune ecotype discovery (Module A part 1)
+
+- NMF rank selection (K = 3..8) on signature-z-score matrix; cophenetic correlation, dispersion. Pick K.
+- Consensus clustering as alternative; compare ARI with NMF.
+- Stability: 100 bootstrap subsamples; per-sample assignment confidence.
+- Headline figure 2A/B drafts.
+
+Deliverables: ecotype labels, stability metrics, fig 2A/B drafts.
+
+### Wk 4 — Bulk ecotype × clinical/molecular axes (Module A part 2)
+
+- Cross-tabulate ecotype × subtype (PTC/PDTC/ATC), driver (BRAF/RAS/fusion/dark-matter), TDS tertile.
+- Survival in aggressive subset (TCGA stage III/IV + GSE76039 PDTC/ATC) with Cox.
+- Sensitivity to scoring method (ssGSEA vs Singscore) and to NMF seed.
+- Lock `paper3_ici_bulk_immune_ecotype_summary.tsv`.
+- Fig 2C/D/E/F drafts.
+
+Deliverables: ecotype summary table, fig 2 first complete draft.
+
+### Wk 5 — scRNA atlas integration (Module B part 1)
+
+- Per-cohort QC, doublet removal, normalization.
+- HVG selection, scVI training, scANVI fine-tune, Harmony cross-check.
+- kBET / LISI / iLISI metrics; integr...</pre><p style="font-size:11px; color:var(--ink-soft);">📥 Full file: chmod 444 frozen, <code>project/reports/paper3_ici/paper3_ici_12week_execution_plan.md</code></p></details>
+<h2 style="margin-top:60px; padding:14px 0; border-top:3px double var(--accent); font-size:32px; color:var(--accent); text-align:center;">🚀 Paper 3 — Future plan (Track B unlock 후 12-week execution)</h2>
+<h3>🔓 Unlock conditions (3/3 모두 충족 必)</h3>
+<table style="margin:8px 0;"><thead><tr><th>#</th><th>Condition</th><th>Target date</th></tr></thead><tbody>
+<tr><td>1</td><td><a href="paper1.html">Paper 1</a> bioRxiv 제출</td><td>2026-06-13</td></tr>
+<tr><td>2</td><td><a href="paper2b.html">Paper 2B</a> Pillar II/III closure</td><td>~2026-07-15 (Yu input 후)</td></tr>
+<tr><td>3</td><td>Literal "Paper 3 Track B 시작" 명령</td><td>위 두 충족 후</td></tr>
+</tbody></table>
+<h3>🗓 Track B 12-week execution plan (post-unlock)</h3>
+<table><thead><tr><th>Wk</th><th>Module</th><th>Activity</th><th>Hard gate</th></tr></thead><tbody>
+<tr><td>1</td><td>verify + ETL</td><td>Dataset Registry portal lookup, dbGaP/EGA application</td><td>G1: ≥80% datasets accessible</td></tr>
+<tr><td>2</td><td>Signature lock</td><td>11 immune + 4 tumor-intrinsic signatures verify</td><td>G2: ≥6/15 signatures DIAL PASS</td></tr>
+<tr><td>3-4</td><td>scRNA atlas</td><td>scVI / scANVI / Harmony integration · Level-1/2 taxonomy</td><td>G3: silhouette &gt; 0.4</td></tr>
+<tr><td>5-6</td><td>HLA + neoantigen</td><td>OptiType / Polysolver / arcasHLA / xHLA + LOHHLA + NetMHCpan</td><td>G4: ≥80% HLA imputation</td></tr>
+<tr><td>7</td><td>DIAL audit</td><td>sign-consistency × effect-size × tissue-transfer per signature</td><td>G5: ≥3/5 ICI cohorts accessible</td></tr>
+<tr><td>8</td><td>Module D pan-cancer ICI</td><td>Liu 2019 / Mariathasan 2018 / Riaz 2017 / Hugo 2016 transfer</td><td>(K5: TIDE-like sign-flip → narrow scope)</td></tr>
+<tr><td>9-10</td><td>Integrated readiness score</td><td>Module E weighting calibration</td><td>G6: cross-cohort r ≥ 0.6</td></tr>
+<tr><td>11-12</td><td>Manuscript draft</td><td>F1-F6 main + 14 supp + Methods + cover letter</td><td>K1: never use "ICI predictor"</td></tr>
+</tbody></table>
+<h3>📑 Venue + timeline</h3>
+<ul>
+<li>Manuscript draft → Yu review → Cell Rep Med / JCI Insight 제출 ~2026-12 target (post-Paper 1 + 2B)</li>
+<li>cookHLA 사용 unblock 시 (Paper 4 이후) → HLA module 강화 가능</li>
+</ul>
 <footer><p>Paper 3 — ICI vulnerability dark thyroid cancer · Track A FROZEN 2026-05-04 · Track B BLOCKED.</p></footer>
 
 </div><script src="lightbox.js"></script>
