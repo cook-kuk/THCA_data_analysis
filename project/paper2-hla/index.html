@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper 2 HLA Pillar I: 6-Allele Exploratory OR/Fisher Forest</title>
+<style>
+:root{
+  --ink:#102033;--muted:#52606f;--paper:#f7efe4;--card:#fffaf2;--line:#d8c8b4;
+  --red:#8f2d25;--red2:#fff0ed;--blue:#244e73;--blue2:#e9f1f8;--green:#426b50;
+  --green2:#edf6ed;--gold:#b58534;--gold2:#fff4dc;--coal:#17212f;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(135deg,#fbf6ed 0%,#efe2cf 58%,#f8f1e5 100%);color:var(--ink);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.64}
+a{color:var(--red);text-decoration:none}.wrap{max-width:1220px;margin:0 auto;padding:28px 24px 76px}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,250,242,.94);border:1px solid var(--line);border-radius:0 0 12px 12px;padding:10px 14px;margin:-28px 0 24px;display:flex;gap:10px;align-items:center;justify-content:space-between;backdrop-filter:blur(8px)}
+.mini-nav{display:flex;flex-wrap:wrap;gap:8px}.mini-nav a,.home{font-size:12px;border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:999px;color:var(--ink)}
+.hero{background:linear-gradient(145deg,#fffaf2 0%,#f1dec5 100%);border:2px solid var(--coal);border-top:10px solid var(--red);border-radius:14px;padding:42px;box-shadow:10px 10px 0 rgba(23,33,47,.14)}
+.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);font-weight:800}.hero h1{font-size:46px;line-height:1.05;margin:10px 0 12px;max-width:980px}.subtitle{font-size:20px;color:var(--muted);max-width:980px}
+.badge{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--red);color:#fff;font-weight:800;border-radius:999px;padding:9px 14px;font-size:13px}
+section{background:rgba(255,250,242,.92);border:1px solid var(--line);border-radius:14px;padding:28px;margin-top:24px}
+h2{font-size:30px;line-height:1.14;margin:0 0 14px;color:var(--coal)}h3{font-size:19px;margin:20px 0 8px;color:var(--red)}
+.verdict{border-left:7px solid var(--blue);background:#fff;padding:22px;border-radius:0 12px 12px 0;font-size:18px}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}.card h3{margin-top:0}.card.red{border-top:5px solid var(--red)}.card.green{border-top:5px solid var(--green)}.card.blue{border-top:5px solid var(--blue)}
+.callout{border:2px solid var(--red);background:var(--red2);border-radius:14px;padding:22px;margin-top:18px}.callout h2{color:var(--red)}.callout .icon{font-size:28px;margin-right:8px}.callout strong{color:var(--red)}
+.okbox{border-left:6px solid var(--green);background:var(--green2);padding:18px;border-radius:0 12px 12px 0}.warnbox{border-left:6px solid var(--gold);background:var(--gold2);padding:18px;border-radius:0 12px 12px 0}.redbox{border-left:6px solid var(--red);background:var(--red2);padding:18px;border-radius:0 12px 12px 0}
+.stepper{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}.step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;position:relative}.step b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--coal);color:#fff;margin-bottom:8px}.step strong{display:block;color:var(--blue)}
+figure{margin:20px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 6px 18px rgba(23,33,47,.07)}figure img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid #eee;cursor:zoom-in}figcaption{font-size:14px;color:var(--muted);padding:10px 4px 0}
+.result-calls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.result-calls .redbox,.result-calls .warnbox{margin:0}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);font-size:14px}th{background:var(--coal);color:#fff;text-align:left;padding:10px;font-size:12px;letter-spacing:.04em;text-transform:uppercase}td{border-top:1px solid #eadfcc;padding:10px;vertical-align:top}.enriched td{background:#fff0ed}.depleted td{background:#e9f1f8}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.caution{color:var(--red);font-weight:900}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}.allowed{border-top:6px solid var(--green)}.forbidden{border-top:6px solid var(--red)}
+ul{padding-left:20px}li{margin:7px 0}.prof{background:#fff;border:2px solid var(--blue);border-radius:14px;padding:24px;font-size:18px}.next-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.lightbox{position:fixed;inset:0;background:rgba(10,16,24,.9);z-index:9999;display:none;align-items:center;justify-content:center;padding:28px}.lightbox.show{display:flex}.lightbox img{max-width:96vw;max-height:90vh;background:#fff;border-radius:10px;box-shadow:0 20px 80px rgba(0,0,0,.5)}.lightbox button{position:fixed;top:18px;right:22px;background:#fff;border:0;border-radius:999px;width:42px;height:42px;font-size:24px;cursor:pointer}
+@media(max-width:900px){.hero{padding:28px 20px}.hero h1{font-size:32px}.g2,.g3,.stepper,.result-calls,.split,.next-grid{grid-template-columns:1fr}.topbar{position:relative;margin-top:0}.wrap{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar">
+    <a class="home" href="/papers_hub_2026_05_04/index.html">8-Papers Hub</a>
+    <div class="mini-nav">
+      <a href="/paper4-hla/">Paper 4 GD page</a>
+      <a href="#verdict">Executive verdict</a>
+      <a href="#figure">Figure</a>
+      <a href="#table">Table</a>
+      <a href="#caveat">Caveat</a>
+      <a href="#missing">Missing</a>
+      <a href="#validation">Validation</a>
+      <a href="#kim-control">Kim control</a>
+      <a href="#ngs-control">NGS controls</a>
+      <a href="#allele-fix">Allele-vs-allele fix</a>
+      <a href="#next">Next steps</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="kicker">Paper 2 HLA Pillar I · professor-facing exploratory figure explanation</div>
+    <h1>Korean PTC HLA signal beyond a simple mutation-only story</h1>
+    <p class="subtitle">Six HLA alleles show exploratory enrichment or depletion when Korean PTC carrier counts are compared against Korean baseline allele-frequency references.</p>
+    <div class="badge">⚠ Exploratory only — metric-mismatched carrier vs allele comparison</div>
+  </header>
+
+  <section id="verdict">
+    <h2>Executive Verdict</h2>
+    <div class="verdict">
+      Paper 2 HLA 6-allele exploratory statistics suggest that several HLA alleles may be enriched in Korean papillary thyroid cancer compared with Korean baseline references. However, this is not yet a clean population-genetic case-control estimate, because the PTC dataset uses carrier frequency over individuals, while the baseline references provide allele frequency over 2n chromosomes. Therefore, this figure is important as a prioritization and visualization layer, not as final evidence of genetic association.
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card red"><h3>What this figure shows</h3><ul><li>A*02:07, B*46:01, C*01:02, DPB1*05:01, and DRB1*07:01 show elevated exploratory ORs.</li><li>DQB1*02:01 shows apparent depletion in PTC.</li><li>The forest plot visualizes direction and uncertainty for the six alleles.</li></ul></div>
+      <div class="card green"><h3>Why it matters</h3><ul><li>It provides a concrete HLA candidate list for Paper 2.</li><li>It moves the project beyond generic thyroid cancer mutation analysis.</li><li>It supports the idea that immune/genetic background may contribute to Korean PTC susceptibility or tumor context.</li><li>It creates a bridge from Korean PTC signals to HLA/AITD/immune predisposition literature.</li></ul></div>
+      <div class="card blue"><h3>What it does NOT prove</h3><ul><li>It does not prove causal HLA risk.</li><li>It does not prove clinical prediction.</li><li>It does not prove population-level association because the comparison mixes carrier frequency and allele frequency.</li><li>It requires validation using matched control carrier frequencies or individual-level HLA genotype data.</li></ul></div>
+    </div>
+  </section>
+
+  <section id="caveat" class="callout">
+    <h2><span class="icon">⚠</span>Critical Caveat: Metric Mismatch</h2>
+    <p><strong>Korean PTC values are carrier counts over individuals, while Korean baseline values are published allele frequencies reconstructed as allele counts over 2n.</strong> No carrier-to-allele or allele-to-carrier conversion was performed. Therefore, these OR/Fisher results are exploratory and should be used for prioritization, figure building, and hypothesis generation only.</p>
+  </section>
+
+  <section>
+    <h2>Where This Came From</h2>
+    <div class="stepper">
+      <div class="step"><b>1</b><strong>Korean PTC HLA pool</strong><p>n = 874 individuals<br />metric = carrier frequency</p></div>
+      <div class="step"><b>2</b><strong>Korean baseline references</strong><p>IN2015 for A, B, C, DQB1, DRB1<br />AFND South Korea pool for DPB1<br />metric = allele frequency over 2n</p></div>
+      <div class="step"><b>3</b><strong>Reconstructed baseline allele counts</strong><p>allele frequency × 2n</p></div>
+      <div class="step"><b>4</b><strong>Fisher exact / Haldane OR</strong><p>exploratory comparison</p></div>
+      <div class="step"><b>5</b><strong>Forest plot</strong><p>figure for prioritization and professor discussion</p></div>
+    </div>
+  </section>
+
+  <section id="figure">
+    <h2>Figure F13. Exploratory OR/Fisher Forest</h2>
+    <figure>
+      <img src="/papers_hub_2026_05_04/assets/paper2_hla/F13_exploratory_or_fisher_forest.png" alt="Figure F13 exploratory OR/Fisher forest" />
+      <figcaption>Click to enlarge. This is the professor-facing candidate-prioritization map for the six Paper 2 HLA alleles.</figcaption>
+    </figure>
+    <div class="okbox">
+      This forest plot ranks six HLA alleles by exploratory odds ratio. Alleles to the right of OR=1 are more frequent in Korean PTC carrier counts than expected from the baseline allele-frequency reference. DQB1*02:01 is the only allele showing apparent depletion. Because the input metrics are not identical, the figure should be interpreted as a signal-prioritization forest, not as a definitive case-control association forest.
+    </div>
+    <div class="result-calls" style="margin-top:14px">
+      <div class="redbox"><strong>DPB1*05:01:</strong> strongest visual signal; OR 1.96, p=1.65e-14, but baseline source differs from IN2015.</div>
+      <div class="redbox"><strong>A*02:07 and B*46:01:</strong> high exploratory ORs above 2.</div>
+      <div class="warnbox"><strong>DQB1*02:01:</strong> apparent protective/depleted signal, but zero PTC carriers requires extra caution.</div>
+      <div class="warnbox"><strong>C*01:02 and DRB1*07:01:</strong> moderate enrichment.</div>
+    </div>
+  </section>
+
+  <section id="table">
+    <h2>Primary Exploratory Statistics</h2>
+    <table>
+      <thead><tr><th>Allele</th><th>PTC</th><th>Baseline</th><th>OR</th><th>CI</th><th>p</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr class="enriched"><td class="mono">A*02:07</td><td>71/874</td><td>43/1226</td><td>2.43</td><td>1.65-3.59</td><td>5.58e-06</td><td>IN2015</td></tr>
+        <tr class="enriched"><td class="mono">B*46:01</td><td>90/874</td><td>62/1226</td><td>2.16</td><td>1.54-3.02</td><td>7.38e-06</td><td>IN2015</td></tr>
+        <tr class="enriched"><td class="mono">C*01:02</td><td>211/874</td><td>218/1226</td><td>1.47</td><td>1.19-1.82</td><td>0.000435</td><td>IN2015</td></tr>
+        <tr class="enriched"><td class="mono">DPB1*05:01</td><td>465/874</td><td>499/1360</td><td>1.96</td><td>1.65-2.33</td><td>1.65e-14</td><td>AFND South Korea</td></tr>
+        <tr class="depleted"><td class="mono"><span class="caution">⚠</span> DQB1*02:01</td><td>0/874</td><td>26/1226</td><td>0.0259</td><td>0.00158-0.426</td><td>8.22e-07</td><td>IN2015</td></tr>
+        <tr class="enriched"><td class="mono">DRB1*07:01</td><td>100/874</td><td>85/1226</td><td>1.73</td><td>1.28-2.35</td><td>0.000418</td><td>IN2015</td></tr>
+      </tbody>
+    </table>
+    <p class="warnbox"><strong>DQB1*02:01 caution:</strong> the zero PTC-carrier row requires Haldane correction for CI display and should be rechecked against typing/provenance and matched control data.</p>
+  </section>
+
+  <section>
+    <h2>Figure F14. Table Snapshot</h2>
+    <figure><img src="/papers_hub_2026_05_04/assets/paper2_hla/F14_exploratory_stats_table.png" alt="Figure F14 exploratory table snapshot" /></figure>
+    <h2>Figure F15. Input Metric Comparison</h2>
+    <figure><img src="/papers_hub_2026_05_04/assets/paper2_hla/F15_exploratory_metric_inputs.png" alt="Figure F15 input metric comparison" /></figure>
+    <div class="warnbox">This figure is important because it makes the metric mismatch visible instead of hiding it. The red bars represent PTC carrier frequency, while the green bars represent Korean baseline allele frequency. They are shown side-by-side but were not converted into the same biological metric.</div>
+  </section>
+
+  <section>
+    <h2>Why This Figure Is Important in the Paper 2 Story</h2>
+    <div class="grid g3">
+      <div class="card">It creates a concrete 6-allele HLA candidate panel.</div>
+      <div class="card">It gives Paper 2 a visual anchor, not just literature discussion.</div>
+      <div class="card">It shows Korean-specific immune-genetic signals that may complement thyroid cancer mutation biology.</div>
+      <div class="card">It identifies which alleles deserve follow-up with better-matched control data.</div>
+      <div class="card">It clarifies the boundary between exploratory signal and publishable association.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Paper 2 vs Paper 4: 같은 allele, 다른 질문</h2>
+    <div class="callout">
+      <h2><span class="icon">⚠</span>중요한 빨간 박스: Paper 2 결과를 Paper 4처럼 읽으면 안 됩니다</h2>
+      <p><strong>Paper 2는 Korean PTC carrier signal을 보는 질문이고, Paper 4는 GD/Graves disease association을 보는 질문입니다.</strong> DPB1*05:01, B*46:01, C*01:02, A*02:07 같은 allele 이름이 겹쳐도 disease label, denominator, control source, interpretation이 다릅니다. 따라서 Paper 2 F13은 PTC 후보 우선순위 그림이고, Paper 4 P4-F11은 GD disease-association anchor figure입니다.</p>
+    </div>
+    <div class="grid g2">
+      <div class="card green"><h3>Paper 2에서의 의미</h3><ul><li>Korean PTC n=874 carrier count 기반.</li><li>Hashimoto-overlap PTC / HLA-II mediated dedifferentiation story에 연결.</li><li>최종 association이 아니라 후보 우선순위화.</li><li>필요한 다음 단계: matched Korean control carrier data.</li></ul></div>
+      <div class="card blue"><h3>Paper 4에서의 의미</h3><ul><li>GD/Graves case-control literature 기반.</li><li>Chu 2018, Liao 2022, Shin 2019, Park 2005 등 Pan-Asian source extraction이 중심.</li><li>필요한 다음 단계: source-level OR/SE/count harmonization 후 meta-analysis.</li><li><a href="/paper4-hla/">Paper 4 GD HLA page로 이동</a></li></ul></div>
+    </div>
+  </section>
+
+  <section id="missing">
+    <h2>What Is Still Missing?</h2>
+    <div class="callout" style="border-color:var(--gold);background:var(--gold2)">
+      <ol>
+        <li>Matched Korean control carrier-frequency data.</li>
+        <li>Individual-level HLA genotype data for baseline controls.</li>
+        <li>Consistent metric comparison: carrier vs carrier or allele vs allele.</li>
+        <li>Multiple-testing correction across full HLA search space.</li>
+        <li>Independent Korean PTC validation cohort.</li>
+        <li>HLA imputation or typing QC details.</li>
+        <li>LD/haplotype analysis across A/B/C/DRB1/DQB1/DPB1.</li>
+        <li>Clinical correlation: age, sex, tumor stage, multifocality, recurrence, AITD background.</li>
+        <li>Subcohort heterogeneity check within the Korean PTC pool.</li>
+        <li>Source harmonization, especially DPB1*05:01 because its baseline comes from AFND rather than IN2015.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <h2>Allowed vs Forbidden Interpretation</h2>
+    <div class="split">
+      <div class="card allowed"><h3>Allowed</h3><ul><li>Exploratory prioritization.</li><li>Visual evidence that six HLA alleles deserve follow-up.</li><li>Hypothesis that Korean PTC may have immune-genetic background signals.</li><li>Decision support for Paper 2 HLA Pillar I.</li></ul></div>
+      <div class="card forbidden"><h3>Forbidden</h3><ul><li>Final case-control association claim.</li><li>Clinical risk prediction.</li><li>Causal HLA susceptibility claim.</li><li>Patient selection.</li><li>Claim that carrier frequency and allele frequency are interchangeable.</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>교수님 보고용 요약</h2>
+    <div class="prof">
+      교수님, Paper 2 HLA 분석에서는 한국 PTC 874명에서 관찰된 HLA carrier frequency를 한국 일반인 baseline HLA allele frequency 자료와 비교하여 6개 후보 allele에 대한 exploratory OR/Fisher forest를 만들었습니다. A*02:07, B*46:01, C*01:02, DPB1*05:01, DRB1*07:01은 PTC에서 높게 보였고, DQB1*02:01은 낮게 보였습니다. 다만 PTC는 개인 단위 carrier frequency이고 baseline은 2n 기준 allele frequency이기 때문에, 이 결과는 최종 case-control association이 아니라 후보 우선순위화 및 시각화 자료로 해석해야 합니다. 다음 단계는 carrier-frequency 기준의 matched Korean control 또는 individual-level HLA genotype data로 검증하는 것입니다.
+    </div>
+  </section>
+
+  <section id="validation">
+    <h2>Matched-Control Validation: 이걸 하면 되는가?</h2>
+    <div class="callout">
+      <h2><span class="icon">⚠</span>결론: 맞습니다. 단, 독립 Korean control carrier data가 필요합니다.</h2>
+      <p><strong>현재 F13의 약점은 통계 방법 자체가 아니라 입력 metric입니다.</strong> PTC는 개인 단위 carrier frequency이고 baseline은 published allele frequency이므로, 다음 단계는 같은 개인 단위 carrier-frequency control로 다시 계산하는 것입니다. 그 데이터가 확보되면 Paper 2 HLA는 exploratory figure에서 훨씬 더 강한 case-control validation figure로 올라갈 수 있습니다.</p>
+    </div>
+    <figure>
+      <img src="/papers_hub_2026_05_04/assets/paper2_hla/F16_paper2_matched_control_validation_gate.png" alt="Paper 2 matched control validation gate" />
+      <figcaption><strong>F16. Paper 2 matched-control validation gate.</strong> 이 그림은 왜 지금 결과가 “최종 association”이 아닌지, 그리고 어떤 데이터가 들어오면 바로 강한 validation으로 바뀌는지를 보여줍니다. 핵심은 carrier vs carrier 또는 allele vs allele로 metric을 맞추는 것입니다.</figcaption>
+    </figure>
+    <div class="grid g2">
+      <div class="card green"><h3>하면 강해지는 것</h3><ul><li>PTC n=874 carrier counts와 독립 Korean control carrier counts를 직접 비교할 수 있습니다.</li><li>OR/Fisher/forest가 metric-matched association figure가 됩니다.</li><li>A*02:07, B*46:01, DPB1*05:01 상위 후보를 제대로 검증할 수 있습니다.</li><li>DQB1*02:01 zero-carrier signal도 technical artifact인지 biology인지 재확인할 수 있습니다.</li></ul></div>
+      <div class="card red"><h3>아직 부족한 것</h3><ul><li>현재 로컬의 GSE213647 adjacent-normal HLA calls는 cancer-patient paired normal tissue라서 독립 healthy population control이 아닙니다.</li><li>Published Korean baseline allele frequency는 좋지만 carrier-frequency control이 아닙니다.</li><li>따라서 최종 claim에는 independent Korean healthy/control individual-level HLA genotype이 필요합니다.</li></ul></div>
+    </div>
+    <div class="warnbox" style="margin-top:16px"><strong>실행 규칙:</strong> independent matched control genotype table이 들어오면 carrier vs carrier로 OR/Fisher/forest를 다시 실행합니다. adjacent-normal calls는 QC/sanity check로만 쓰고, 최종 population association control로 쓰지 않습니다.</div>
+  </section>
+
+  <section id="kim-control">
+    <h2>Kwangwoo Kim Korean HLA Reference Panel Control Check</h2>
+    <div class="callout">
+      <h2><span class="icon">⚠</span>중요한 업데이트: Kim panel은 control로 쓸 수 있지만, 결과 해석이 바뀝니다</h2>
+      <p><strong>Kim et al. Korean HLA Reference Panel v1.0은 413 unrelated Koreans의 phased HLA reference panel이고, six target loci를 모두 포함합니다.</strong> 이 panel에서는 개인 단위 carrier count를 직접 뽑을 수 있기 때문에 기존 F13의 carrier-vs-allele mismatch를 피할 수 있습니다. 그런데 carrier-vs-carrier로 다시 보면 A*02:07과 B*46:01은 유의하지 않고, C*01:02와 DPB1*05:01은 오히려 Kim reference panel 쪽 carrier frequency가 더 높습니다. 따라서 이 결과는 Paper 2 HLA signal을 “확정 강화”하기보다, 과잉해석을 막고 DQB1*02:01 같은 robust depletion 후보를 우선 재검증하게 만드는 중요한 validation gate입니다.</p>
+    </div>
+    <figure>
+      <img src="/papers_hub_2026_05_04/assets/paper2_hla/F17_kim2014_reference_panel_carrier_validation_forest.png" alt="Kim 2014 Korean HLA reference-panel carrier validation forest" />
+      <figcaption><strong>F17. Kim 2014 carrier-vs-carrier validation candidate forest.</strong> 이 그림은 PTC carrier frequency와 Kim reference-panel carrier frequency를 같은 metric으로 비교한 결과입니다. 기존 F13보다 통계적으로 더 정직한 비교지만, Kim panel이 임상적으로 matched healthy-control cohort는 아니라는 caveat가 남습니다.</figcaption>
+    </figure>
+    <figure>
+      <img src="/papers_hub_2026_05_04/assets/paper2_hla/F18_kim2014_metric_matched_carrier_inputs.png" alt="Kim 2014 metric matched carrier inputs" />
+      <figcaption><strong>F18. Metric-matched carrier inputs.</strong> 빨간 bar는 Korean PTC carrier frequency, 초록 bar는 Kim reference-panel carrier frequency입니다. 이 그림이 중요한 이유는 baseline allele frequency가 아니라 실제 carrier frequency control을 쓰면 방향성이 어떻게 바뀌는지 보여주기 때문입니다.</figcaption>
+    </figure>
+    <h3>Kim Reference-Panel Carrier Validation Table</h3>
+    <table>
+      <thead><tr><th>Allele</th><th>PTC carriers</th><th>Kim carriers</th><th>Carrier OR</th><th>95% CI</th><th>Fisher p</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">A*02:07</td><td>71/874</td><td>26/413</td><td>1.32</td><td>0.83-2.10</td><td>0.260</td><td>Weak/non-significant after metric-matched control.</td></tr>
+        <tr><td class="mono">B*46:01</td><td>90/874</td><td>45/413</td><td>0.94</td><td>0.64-1.37</td><td>0.770</td><td>No enrichment versus Kim carrier baseline.</td></tr>
+        <tr class="depleted"><td class="mono">C*01:02</td><td>211/874</td><td>127/413</td><td>0.72</td><td>0.55-0.93</td><td>0.0145</td><td>Direction reverses compared with carrier-vs-allele exploratory view.</td></tr>
+        <tr class="depleted"><td class="mono">DPB1*05:01</td><td>465/874</td><td>251/413</td><td>0.73</td><td>0.58-0.93</td><td>0.0116</td><td>Kim carrier baseline is very high; PTC is not enriched here.</td></tr>
+        <tr class="depleted"><td class="mono"><span class="caution">⚠</span> DQB1*02:01</td><td>0/874</td><td>20/413</td><td>0.011</td><td>0.00066-0.182</td><td>9.75e-11</td><td>Strong depletion remains; must recheck PTC typing/provenance because PTC has zero carriers.</td></tr>
+        <tr><td class="mono">DRB1*07:01</td><td>100/874</td><td>58/413</td><td>0.79</td><td>0.56-1.12</td><td>0.203</td><td>No clear enrichment versus Kim carrier baseline.</td></tr>
+      </tbody>
+    </table>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card green"><h3>왜 중요?</h3><ul><li>처음으로 six allele 모두를 carrier-vs-carrier로 비교했습니다.</li><li>metric mismatch caveat를 실제로 해결하는 control 후보입니다.</li><li>DQB1*02:01 zero-carrier signal이 계속 살아남는지 우선 확인하게 해줍니다.</li></ul></div>
+      <div class="card gold"><h3>어떤 의미?</h3><ul><li>기존 F13 enrichment는 baseline allele-frequency 때문에 과장됐을 가능성이 큽니다.</li><li>A/B/C/DPB1 enrichment claim은 Kim control에서는 약해집니다.</li><li>Paper 2 HLA는 더 엄격한 validation 중심으로 재정렬해야 합니다.</li></ul></div>
+      <div class="card red"><h3>부족한 점</h3><ul><li>Kim panel은 imputation reference panel이지 phenotype-matched healthy cohort는 아닙니다.</li><li>PTC HLA call과 Kim typed/phased reference panel의 platform 차이가 있습니다.</li><li>Yu 승인 전에는 primary final claim이 아니라 validation/sensitivity result로 두는 것이 안전합니다.</li></ul></div>
+    </div>
+  </section>
+
+  <section id="ngs-control">
+    <h2>Korean NGS Healthy Controls: Kim 말고도 있습니다</h2>
+    <div class="callout">
+      <h2><span class="icon">⚠</span>중요한 구분: NGS control은 찾았지만 대부분 allele frequency입니다</h2>
+      <p><strong>Baek 2021 PLOS ONE은 173 healthy South Koreans를 11 HLA loci NGS로 typed했고, supporting table이 공개되어 있습니다.</strong> 이 source는 A/B/C/DRB1/DQB1/DPB1 target allele 모두를 직접 확인할 수 있는 open Korean NGS healthy baseline입니다. Jung 2023 HLA는 n=339 unrelated healthy Koreans의 11-locus NGS source로 더 크지만, 현재는 PubMed abstract에서 C*01:02와 DPB1*05:01 값이 확인된 상태입니다.</p>
+      <p><strong>단, 이 값들은 carrier count가 아니라 allele frequency입니다.</strong> 그래서 PTC carrier frequency와 직접 최종 OR로 섞으면 다시 metric mismatch가 생깁니다. 그래도 사용자가 source table을 직접 확인하고 baseline pool을 다시 짤 수 있는 가장 좋은 공개 NGS evidence pack입니다.</p>
+    </div>
+    <h3>Open Korean NGS Baseline Table</h3>
+    <table>
+      <thead><tr><th>Allele</th><th>Baek 2021 PLOS NGS</th><th>Jung 2023 HLA NGS</th><th>Use</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">A*02:07</td><td>18/346, 5.20%</td><td>full table needed</td><td>NGS allele-frequency baseline</td><td>Modern NGS baseline; not carrier count.</td></tr>
+        <tr><td class="mono">B*46:01</td><td>21/346, 6.07%</td><td>full table needed</td><td>NGS allele-frequency baseline</td><td>Modern NGS baseline; checks In 2015 value.</td></tr>
+        <tr><td class="mono">C*01:02</td><td>72/346, 20.81%</td><td>18.44% in abstract</td><td>strong NGS cross-check</td><td>Confirms C*01:02 is common in Korean controls.</td></tr>
+        <tr><td class="mono">DRB1*07:01</td><td>27/346, 7.80%</td><td>full table needed</td><td>NGS allele-frequency baseline</td><td>Modern DRB1 baseline; still allele-frequency metric.</td></tr>
+        <tr><td class="mono">DQB1*02:01</td><td>8/346, 2.31%</td><td>full table needed</td><td>NGS allele-frequency baseline</td><td>Supports that DQB1*02:01 exists in Korean baseline while PTC has zero carriers.</td></tr>
+        <tr><td class="mono">DPB1*05:01</td><td>118/346, 34.10%</td><td>35.10% in abstract</td><td>strong NGS cross-check</td><td>Modern NGS sources agree DPB1*05:01 is common in Korean controls.</td></tr>
+      </tbody>
+    </table>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card green"><h3>가져온 파일</h3><ul><li><span class="mono">project/external_refs/korean_ngs_hla_controls/baek2021_plos/S9_HLA_A_B_C_freq.docx</span></li><li><span class="mono">project/external_refs/korean_ngs_hla_controls/baek2021_plos/S10_HLA_classII_freq.docx</span></li><li><span class="mono">project/external_refs/korean_ngs_hla_controls/baek2021_plos/parsed/S9.txt</span></li><li><span class="mono">project/external_refs/korean_ngs_hla_controls/baek2021_plos/parsed/S10.txt</span></li></ul></div>
+      <div class="card gold"><h3>왜 중요?</h3><ul><li>Kim reference panel 말고 open NGS healthy Korean baseline입니다.</li><li>11 loci라 DPB1/DQB1까지 같이 볼 수 있습니다.</li><li>사용자가 직접 source table을 확인할 수 있습니다.</li></ul></div>
+      <div class="card red"><h3>남는 문제</h3><ul><li>carrier count가 아니라 allele frequency입니다.</li><li>PTC carrier와 OR 계산하면 metric mismatch caveat가 다시 생깁니다.</li><li>Jung 2023 full table은 아직 별도 retrieval이 필요합니다.</li></ul></div>
+    </div>
+  </section>
+
+  <section id="allele-fix">
+    <h2>Statistical Fix: PTC Allele Dosage vs Baek 2021 NGS Allele Frequency</h2>
+    <div class="callout">
+      <h2><span class="icon">⚠</span>가장 중요한 업데이트: mismatch는 통계적으로 해결했지만, enrichment story는 약해졌습니다</h2>
+      <p><strong>해결 방법은 PTC를 carrier frequency로 쓰지 않고, PTC HLA genotype의 a1/a2 columns에서 target allele copies를 직접 세는 것입니다.</strong> 이렇게 하면 PTC도 allele count / called alleles가 되고, Baek 2021 NGS healthy Korean baseline도 allele count / 346이므로 allele-vs-allele 비교가 됩니다. 즉, 기존 F13의 가장 큰 caveat였던 carrier-vs-allele mismatch는 이 분석에서 제거됩니다.</p>
+      <p><strong>하지만 결과 해석은 더 엄격해집니다.</strong> Baek 2021 NGS baseline으로 맞추면 A*02:07, B*46:01, DPB1*05:01, DRB1*07:01은 더 이상 명확한 PTC enrichment가 아닙니다. C*01:02는 오히려 PTC에서 낮고, DQB1*02:01 zero signal은 depletion으로 계속 남습니다. 따라서 이 분석은 “HLA enrichment 확정”이 아니라 “후보를 더 정직하게 줄이는 validation gate”입니다.</p>
+    </div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card green"><h3>왜 이 분석을 했나?</h3><ul><li>교수님이 지적할 수 있는 carrier-vs-allele caveat를 정면으로 처리하기 위해서입니다.</li><li>PTC쪽도 allele denominator로 바꾸면 baseline NGS table과 같은 metric이 됩니다.</li><li>강한 후보와 약한 후보를 분리해 Paper 2 HLA를 과장 없이 정리할 수 있습니다.</li></ul></div>
+      <div class="card blue"><h3>무엇이 좋아졌나?</h3><ul><li>metric compatibility가 carrier-vs-allele에서 allele-vs-allele로 바뀌었습니다.</li><li>Baek 2021은 open supporting table이 있는 Korean healthy NGS source입니다.</li><li>DQB1*02:01 depletion은 carrier-based Kim panel과 allele-based Baek NGS에서 모두 주목됩니다.</li></ul></div>
+      <div class="card red"><h3>무엇이 나빠졌나?</h3><ul><li>초기 F13의 A/B/DPB enrichment는 Baek NGS allele baseline에서 유지되지 않습니다.</li><li>C*01:02는 enrichment가 아니라 depletion 방향으로 바뀝니다.</li><li>따라서 top-line message는 “enrichment forest”가 아니라 “metric-fixed validation/sensitivity”로 낮춰야 합니다.</li></ul></div>
+    </div>
+
+    <figure>
+      <img src="/papers_hub_2026_05_04/assets/paper2_hla/F21_metric_fix_flow_allele_vs_allele.png" alt="Metric fix flow for PTC allele dosage versus Baek NGS controls" />
+      <figcaption><strong>F21. Statistical fix flow.</strong> 이 그림은 문제 해결의 핵심을 보여줍니다. PTC를 개인 carrier count로 두지 않고 allele copies로 다시 세면, Baek 2021 NGS control allele count와 같은 구조의 2x2 table을 만들 수 있습니다. 이것이 지금 가능한 가장 정직한 published-control 통계 해결책입니다.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="/papers_hub_2026_05_04/assets/paper2_hla/F19_allele_vs_baek2021_ngs_forest.png" alt="Allele-vs-allele forest against Baek 2021 Korean NGS controls" />
+      <figcaption><strong>F19. Metric-fixed allele-vs-allele validation forest.</strong> 이 forest는 기존 F13과 다르게 PTC와 control 모두 allele-count denominator를 사용합니다. 결과적으로 A*02:07, B*46:01, DPB1*05:01, DRB1*07:01은 no clear difference이고, C*01:02와 DQB1*02:01만 depletion 방향으로 남습니다.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="/papers_hub_2026_05_04/assets/paper2_hla/F20_allele_frequency_inputs_baek2021.png" alt="Allele frequency inputs after metric fix" />
+      <figcaption><strong>F20. Input values after metric fix.</strong> 빨간 bar는 Korean PTC allele frequency, 초록 bar는 Baek 2021 healthy Korean NGS allele frequency입니다. F15와 달리 두 bar 모두 allele frequency입니다. 그래서 이 그림은 “비교 metric을 맞췄을 때 신호가 어떻게 재정렬되는지”를 보여줍니다.</figcaption>
+    </figure>
+
+    <h3>Metric-Fixed Primary Table</h3>
+    <table>
+      <thead><tr><th>Allele</th><th>PTC allele count</th><th>Baek 2021 NGS control</th><th>OR</th><th>95% CI</th><th>Fisher p</th><th>Interpretation</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">A*02:07</td><td>77/1748, 4.41%</td><td>18/346, 5.20%</td><td>0.84</td><td>0.50-1.42</td><td>0.482</td><td>No clear enrichment after allele-vs-allele fix.</td></tr>
+        <tr><td class="mono">B*46:01</td><td>93/1748, 5.32%</td><td>21/346, 6.07%</td><td>0.87</td><td>0.53-1.42</td><td>0.603</td><td>No clear enrichment after allele-vs-allele fix.</td></tr>
+        <tr class="depleted"><td class="mono">C*01:02</td><td>225/1746, 12.89%</td><td>72/346, 20.81%</td><td>0.56</td><td>0.42-0.76</td><td>0.000200</td><td>Direction flips versus F13; PTC is lower than Baek NGS control.</td></tr>
+        <tr><td class="mono">DPB1*05:01</td><td>564/1558, 36.20%</td><td>118/346, 34.10%</td><td>1.10</td><td>0.86-1.40</td><td>0.495</td><td>No clear enrichment; Baek/Jung controls show DPB1*05:01 is common in Koreans.</td></tr>
+        <tr class="depleted"><td class="mono"><span class="caution">⚠</span> DQB1*02:01</td><td>0/1262, 0.00%</td><td>8/346, 2.31%</td><td>0.0158</td><td>0.00091-0.274</td><td>4.31e-06</td><td>Strong depletion remains; zero PTC allele copies requires technical recheck.</td></tr>
+        <tr><td class="mono">DRB1*07:01</td><td>102/1722, 5.92%</td><td>27/346, 7.80%</td><td>0.74</td><td>0.48-1.16</td><td>0.182</td><td>No clear enrichment after allele-vs-allele fix.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="split" style="margin-top:16px">
+      <div class="card allowed"><h3>Allowed Interpretation Now</h3><ul><li>“Carrier-vs-allele mismatch” 문제는 PTC allele-dosage recount로 통계적으로 해결했습니다.</li><li>Baek 2021 NGS baseline에서는 broad enrichment가 아니라 C*01:02 / DQB1*02:01 depletion 중심으로 신호가 재정렬됩니다.</li><li>DQB1*02:01은 Kim carrier control과 Baek NGS allele control 모두에서 follow-up priority입니다.</li><li>F13은 교수님 discussion용 exploratory map으로 유지하고, F19를 더 엄격한 validation/sensitivity figure로 둡니다.</li></ul></div>
+      <div class="card forbidden"><h3>Forbidden Interpretation Still</h3><ul><li>최종 Korean PTC HLA association claim.</li><li>임상 risk prediction.</li><li>Baek 2021 healthy cohort가 PTC와 완전히 matched control이라는 주장.</li><li>RNA-derived PTC HLA calls와 blood-derived NGS HLA typing이 기술적으로 동일하다는 주장.</li><li>DQB1*02:01 zero가 biology라고 단정하는 주장.</li></ul></div>
+    </div>
+
+    <div class="callout" style="margin-top:16px">
+      <h2><span class="icon">⚠</span>교수님께 말할 핵심 한 문장</h2>
+      <p><strong>“교수님, mismatch 문제를 피하려고 PTC도 allele count로 다시 세서 Baek 2021 Korean NGS control과 allele-vs-allele로 맞춰 봤더니, 초기 enrichment 후보들은 대부분 약해지고 DQB1*02:01 depletion과 C*01:02 depletion이 남았습니다. 따라서 Paper 2 HLA는 과장된 risk-allele claim보다 validation-gated immune-genetic signal로 가는 것이 안전합니다.”</strong></p>
+    </div>
+
+    <h3>What Is Still Missing After the Statistical Fix?</h3>
+    <div class="grid g2">
+      <div class="card red"><h3>데이터 쪽 부족</h3><ul><li>Baek 2021 n=173이라 control size가 작습니다.</li><li>PTC는 cohort-pooled HLA calls이고 Baek은 healthy NGS typing입니다.</li><li>DQB1/DPB1은 PTC callable denominator가 A/B/C보다 낮습니다.</li><li>age/sex/region/technical platform matching이 없습니다.</li></ul></div>
+      <div class="card gold"><h3>다음에 해야 할 것</h3><ul><li>Jung 2023 / Baek 2023 full table을 확보해 NGS allele baseline을 늘립니다.</li><li>가능하면 individual-level Korean healthy HLA genotype을 확보해 carrier-vs-carrier를 다시 실행합니다.</li><li>DQB1*02:01 zero call을 raw call/provenance/QC 수준에서 재확인합니다.</li><li>HT/AITD stratification이 있으면 DQB1/C signal이 Hashimoto-overlap PTC와 연결되는지 봅니다.</li></ul></div>
+    </div>
+  </section>
+
+  <section id="next">
+    <h2>Next Action</h2>
+    <div class="next-grid">
+      <div class="card green"><h3>Short-term</h3><ol><li>Keep this as exploratory Figure F13/F14/F15.</li><li>Use it in professor discussion.</li><li>Do not overclaim association.</li></ol></div>
+      <div class="card blue"><h3>Medium-term</h3><ol><li>Obtain matched Korean control carrier data.</li><li>Validate top candidates A*02:07, B*46:01, DPB1*05:01.</li><li>Recheck DQB1*02:01 zero-carrier result.</li><li>Add AITD/Hashimoto stratification if available.</li></ol></div>
+      <div class="card red"><h3>Long-term</h3><ol><li>Build Paper 2 HLA immune-genetic susceptibility model.</li><li>Integrate HLA with thyroid differentiation/immune state where appropriate.</li><li>Keep Paper 1 separate.</li></ol></div>
+    </div>
+  </section>
+</div>
+<div class="lightbox" id="lightbox"><button type="button" aria-label="close">×</button><img alt="expanded figure" /></div>
+<script>
+const lb=document.getElementById('lightbox');const lbImg=lb.querySelector('img');
+document.querySelectorAll('figure img').forEach(img=>img.addEventListener('click',()=>{lbImg.src=img.src;lbImg.alt=img.alt;lb.classList.add('show');}));
+lb.addEventListener('click',()=>lb.classList.remove('show'));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')lb.classList.remove('show');});
+</script>
+</body>
+</html>
