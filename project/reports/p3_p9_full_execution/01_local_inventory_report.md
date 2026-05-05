@@ -1,0 +1,222 @@
+# Local Inventory Report
+
+- Inventory file: `/home/seungho/personal/THCA_data_analysis/project/reports/p3_p9_full_execution/local_inventory_files.txt`
+- Matching files found: 4006
+- Protected/raw WES/BAM/FASTQ are not executed from this inventory.
+
+## A. Paper 1 lineage-state files
+- Count: 174
+- `project/results/01_spatial_score/per_sample/GSM7980860_N-1_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980861_N-2_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980862_N-3_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980863_N-4_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980864_PTC-1_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980865_PTC-2_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980866_PTC-3_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980867_PTC-4_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980868_LPTC-1_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980869_LPTC-2_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980870_LPTC-3_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980871_LPTC-4_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980872_ATC-1_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980873_ATC-2_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980874_ATC-3_spatial_RAI_DM1_TDS.png`
+- `project/results/01_spatial_score/per_sample/GSM7980875_ATC-4_spatial_RAI_DM1_TDS.png`
+- `project/results/audit_2026_04_30/p2_hla_external_validation.tsv`
+- `project/results/audit_2026_04_30/p4_dm1_partial_summary.json`
+- `project/results/audit_2026_04_30/p4_dm1_subclustering.tsv`
+- `project/results/audit_2026_04_30/round2/n2_dm1_subcluster_characterization.tsv`
+- `project/results/audit_2026_04_30/round2/n2_dm1_summary.json`
+- `project/results/audit_2026_04_30/round3/f3_dm1_subcluster_mechanism.tsv`
+- `project/results/audit_2026_04_30/round4/r4_2_dm1_fusion_pos_neg.tsv`
+- `project/results/audit_2026_04_30/round4/r4_3_dm1_RET.json`
+- `project/results/audit_2026_04_30/round4/r4_3_dm1_RET_pos_neg_clinical.tsv`
+- `project/results/audit_2026_04_30/round5/r5_3_dm1_fusion_survival.json`
+- `project/results/audit_2026_04_30/round8/r8_1_dm1_vs_notDM_arm_enrichment.tsv`
+- `project/results/audit_2026_04_30/round8/r8_2_dm1_ret_partners.tsv`
+- `project/results/audit_2026_04_30/round8/r8_3_clinical_rai_summary.json`
+- `project/results/audit_2026_04_30/round8/r8_3_clinical_rai_values.tsv`
+- `project/results/audit_2026_04_30/round9/r9_1_master_with_rai.tsv`
+- `project/results/d3p5_pdm1_gradient/D3P5_summary.json`
+- `project/results/d3p5_pdm1_gradient/README.md`
+- `project/results/d3p5_pdm1_gradient/decomposition.json`
+- `project/results/d3p5_pdm1_gradient/mediation_results.json`
+- `project/results/d3p5_pdm1_gradient/merged_18sample.tsv`
+- `project/results/d3p5_pdm1_gradient/spearman_pdm1_vs_covariates.tsv`
+- `project/results/d3p5_pdm1_gradient/within_ptc_severity.json`
+- `project/results/d6p7_dm1_subcluster/D6P7_summary.json`
+- `project/results/d6p7_dm1_subcluster/README.md`
+- ... 134 more listed in `local_inventory_files.txt`
+
+## B. TCGA expression / clinical / mutation files
+- Count: 103
+- `project/results/audit_2026_04_29/robustness/tcga_panel_auc.json`
+- `project/results/audit_2026_04_30/round10/r10_5_tcga_tls_per_sample.tsv`
+- `project/results/audit_2026_04_30/round3/cbio_sv_thca.json`
+- `project/results/audit_2026_04_30/round3/cbio_sv_thca.tsv`
+- `project/results/audit_2026_04_30/round3/f2_tcga_hashimoto_generalization.json`
+- `project/results/audit_2026_04_30/round4/r4_3_dm1_RET_pos_neg_clinical.tsv`
+- `project/results/audit_2026_04_30/round4/r4_4_tcga_hashi_severity_x_dm.tsv`
+- `project/results/audit_2026_04_30/round5/msk_sv_thca.tsv`
+- `project/results/audit_2026_04_30/round8/r8_3_clinical_rai_summary.json`
+- `project/results/audit_2026_04_30/round8/r8_3_clinical_rai_values.tsv`
+- `project/results/d4p2_tcga_hashimoto_signature/D4P2_summary.json`
+- `project/results/d4p2_tcga_hashimoto_signature/README.md`
+- `project/results/d4p2_tcga_hashimoto_signature/tcga_signature_scores.tsv`
+- `project/results/d4p2_tcga_hashimoto_signature/tcga_with_clinical_mutations.tsv`
+- `project/results/d6p7_dm1_subcluster/subcluster_clinical.tsv`
+- `project/results/dark_matter_phase1/tcga_cdr.xlsx`
+- `project/results/dark_matter_phase1/tcga_dark_matter_master.tsv`
+- `project/results/dark_matter_phase1/tcga_dm_master_with_pfi.tsv`
+- `project/results/dark_matter_phase2/k2_mutation_summary.json`
+- `project/results/dark_matter_phase2/k2_yoo2016_mutations_parsed.tsv`
+- `project/results/dark_matter_phase2/web/data/k2_yoo2016_mutations_parsed.tsv`
+- `project/results/dark_matter_phase2/web/data/tcga_dm_master_with_pfi.tsv`
+- `project/results/dark_matter_phase2/web/figures/figE5_mutation_gene_freq.png`
+- `project/results/dark_matter_phase2/yoo2016_S6_clinical.xlsx`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TDS16_GradientBoosting.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TDS16_LogReg_elasticnet.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TDS16_LogReg_l2.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TDS16_RandomForest.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TDS16_XGBoost.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_GradientBoosting.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_LogReg_elasticnet.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_LogReg_l2.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_RandomForest.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_XGBoost.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_clean_GradientBoosting.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_clean_LogReg_elasticnet.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_clean_LogReg_l2.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_clean_RandomForest.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_TierA67_clean_XGBoost.html`
+- `project/results/figs/roc_braf_like_vs_ras_like_TCGA-THCA_variance_top50_GradientBoosting.html`
+- ... 63 more listed in `local_inventory_files.txt`
+
+## C. external expression validation files
+- Count: 2657
+- `project/results/d4p1_panasian_meta/GSE286332_arcasHLA_genotypes.tsv`
+- `project/results/d8b_korean_replication/korean_GSE213647_hashimoto_scores.tsv`
+- `project/results/p3_gse286332/dm12_predictions.tsv`
+- `project/results/p3_gse286332/hla_module_scores.tsv`
+- `project/results/p5_8gene_vs_hla_autocorr/residualization_GSE286332.tsv`
+- `project/results/p5_8gene_vs_hla_autocorr/scores_GSE286332.tsv`
+- `project/results/p_external_expression_validation/GSE29265_expression_gene_log.tsv.gz`
+- `project/results/p_external_expression_validation/GSE33630_expression_gene_log.tsv.gz`
+- `project/results/p_external_expression_validation/GSE53157_expression_gene_log.tsv.gz`
+- `project/results/p_external_expression_validation/GSE65144_expression_gene_log.tsv.gz`
+- `project/results/p_external_expression_validation/external_dataset_qc_heatmap.png`
+- `project/results/p_external_expression_validation/external_direction_consistency.tsv`
+- `project/results/p_external_expression_validation/external_direction_consistency_forest.png`
+- `project/results/p_external_expression_validation/external_dm1_nonoverlap_scatter_grid.png`
+- `project/results/p_external_expression_validation/external_gene_coverage.tsv`
+- `project/results/p_external_expression_validation/external_rai_lineage_boxplots.png`
+- `project/results/p_external_expression_validation/external_sample_scores.tsv.gz`
+- `project/results/p_external_expression_validation/external_score_tests.tsv`
+- `project/results/p_external_expression_validation/external_spearman.tsv`
+- `project/results/p_external_expression_validation/raw/GPL570/GPL570.annot.gz`
+- `project/results/p_external_expression_validation/raw/GSE126698/GSE126698_series_matrix.txt.gz`
+- `project/results/p_external_expression_validation/raw/GSE29265/GSE29265_series_matrix.txt.gz`
+- `project/results/p_external_expression_validation/raw/GSE33630/GSE33630_series_matrix.txt.gz`
+- `project/results/p_external_expression_validation/raw/GSE53157/GSE53157_series_matrix.txt.gz`
+- `project/results/p_external_expression_validation/raw/GSE65144/GSE65144_series_matrix.txt.gz`
+- `project/results/p_external_expression_validation/sample_metadata.tsv`
+- `project/results/p_external_expression_validation/scripts/make_figures.py`
+- `project/results/p_external_expression_validation/scripts/run_external_validation.py`
+- `project/results/p_gpl570_validation/GSE29265_expression_gene_log.tsv.gz`
+- `project/results/p_gpl570_validation/GSE29265_scores.tsv`
+- `project/results/p_gpl570_validation/GSE33630_expression_gene_log.tsv.gz`
+- `project/results/p_gpl570_validation/GSE33630_scores.tsv`
+- `project/results/p_gpl570_validation/GSE65144_expression_gene_log.tsv.gz`
+- `project/results/p_gpl570_validation/GSE65144_scores.tsv`
+- `project/results/p_gpl570_validation/gpl570_direction_consistency_forest.png`
+- `project/results/p_gpl570_validation/gpl570_dm1_nonoverlap_scatter_grid.png`
+- `project/results/p_gpl570_validation/gpl570_meta_effect_summary.tsv`
+- `project/results/p_gpl570_validation/gpl570_rai_lineage_boxplots.png`
+- `project/results/p_gpl570_validation/gpl570_score_tests.tsv`
+- `project/results/p_gpl570_validation/probe_to_gene_panel.tsv`
+- ... 2617 more listed in `local_inventory_files.txt`
+
+## D. immune / HLA / TLS / BCR files
+- Count: 3693
+- `project/results/audit_2026_04_30/p2_hla_external_validation.tsv`
+- `project/results/audit_2026_04_30/round10/r10_5_tcga_tls_per_sample.tsv`
+- `project/results/audit_2026_04_30/round10/r10_5_tls_by_dm.tsv`
+- `project/results/audit_2026_04_30/round6/r6_1_TLS_BCR.tsv`
+- `project/results/d4p1_panasian_meta/GSE286332_arcasHLA_genotypes.tsv`
+- `project/results/d5p6_bcr_repertoire/D5P6_summary.json`
+- `project/results/d5p6_bcr_repertoire/README.md`
+- `project/results/d5p6_bcr_repertoire/group_comparison.tsv`
+- `project/results/d5p6_bcr_repertoire/per_sample_diversity.tsv`
+- `project/results/d5p6_bcr_repertoire/tls_score_per_sample.tsv`
+- `project/results/dark_matter_phase2/web/data/bulk_immune_dm1_dm2.tsv`
+- `project/results/dark_matter_phase2/web/figures/figE21_bulk_immune_dm1_dm2.png`
+- `project/results/figures/F1_panasian_HLA_forest/allele_freq_3cohort.pdf`
+- `project/results/figures/F1_panasian_HLA_forest/allele_freq_3cohort.png`
+- `project/results/figures/F1_panasian_HLA_forest/forest_panasian_HLA.pdf`
+- `project/results/figures/F1_panasian_HLA_forest/forest_panasian_HLA.png`
+- `project/results/figures/F5_autoimmune_PTC_mechanism/F5_autoimmune_PTC_mechanism.pdf`
+- `project/results/figures/F5_autoimmune_PTC_mechanism/F5_autoimmune_PTC_mechanism.png`
+- `project/results/figures/suppl/SF4_BCR_detail.pdf`
+- `project/results/figures/suppl/SF4_BCR_detail.png`
+- `project/results/p2_pillar1_forest/forest_panasian_HLA.pdf`
+- `project/results/p2_pillar1_forest/forest_panasian_HLA.png`
+- `project/results/p3_gse286332/hla_module_scores.tsv`
+- `project/results/p5_8gene_vs_hla_autocorr/K2_calibration_note.json`
+- `project/results/p5_8gene_vs_hla_autocorr/P5_summary.json`
+- `project/results/p5_8gene_vs_hla_autocorr/meta_3cohort.tsv`
+- `project/results/p5_8gene_vs_hla_autocorr/residualization_GSE286332.tsv`
+- `project/results/p5_8gene_vs_hla_autocorr/residualization_TCGA.tsv`
+- `project/results/p5_8gene_vs_hla_autocorr/scores_GSE286332.tsv`
+- `project/results/p5_8gene_vs_hla_autocorr/scores_TCGA.tsv`
+- `project/results/tables/immune_signatures_contrast.tsv`
+- `project/results/tables/immune_signatures_tcga.tsv`
+- `project/results/v17_hla/korean_GSE213647_hla_per_sample.tsv`
+- `project/results/v17_hla/tcga_thca_hla_lymph.tsv`
+- `project/results/v17_hla/tcga_thca_hla_per_sample.tsv`
+- `project/results/v17_hla/v17_hla_summary.json`
+- `project/results/v17_hla_autoimmune/HA1_carrier_freq_vs_population.tsv`
+- `project/results/v17_hla_autoimmune/HA2_lymph_per_allele.tsv`
+- `project/results/v17_hla_autoimmune/HA3_DM_per_allele.tsv`
+- `project/results/v17_hla_autoimmune/HA3_aiHLA_DM_crosstab.tsv`
+- ... 3653 more listed in `local_inventory_files.txt`
+
+## E. scRNA files
+- Count: 10
+- `project/results/v12_literature/crosscheck/reference_gene_lists/Pu_2021_scRNA.tsv`
+- `project/results/v17_lu2023/GSE193581_hvg_adata.h5ad`
+- `project/results/v17p2/figs/scrna_dm_signature_umap.html`
+- `project/results/v17p2/figs/scrna_per_patient_heterogeneity.html`
+- `project/results/v17p2/tables/scrna_cell_dm_score.tsv`
+- `project/results/v17p3/figs/A1_scrna_celltype_dm_overlap.html`
+- `project/results/v17p35/figs/FIX5_single_cell_dm_score_umap.html`
+- `project/results/v6_scrna/DATA_PROVENANCE.md`
+- `project/results/v6_scrna/dial_scrna/multi_resolution_dial.tsv`
+- `project/results/v6_scrna/dial_scrna/v6_F12_pseudobulk_dial.tsv`
+
+## F. dependency / drug-response files
+- Count: 20
+- `project/results/paper10_atlas/figures/F02_ccle_dm1_distribution.png`
+- `project/results/paper10_atlas/figures/F03_ccle_corr_class_facet.png`
+- `project/results/paper9_sl_first_pass/ccle_dm1_state.tsv`
+- `project/results/paper9_sl_first_pass/ccle_dm1_target_corr.tsv`
+- `project/results/paper9_sl_first_pass/figures/F2_ccle_dm1_target_corr.png`
+- `project/results/paper9_sl_first_pass/figures/F6_tcga_target_survival.png`
+- `project/results/paper9_sl_first_pass/tcga_thca_dm1_target_cox.tsv`
+- `project/results/paper9_sl_first_pass/tcga_thca_target_cox.tsv`
+- `project/results/v14_drug_phaseB/b7_adc_optimization/dm1_prospective_biomarker_layer.tsv`
+- `project/results/v17p3/tables/A3_top_drugs_dm1_selective.tsv`
+- `project/results/v17p35/tables/FIX1_top_drugs_dm1_selective.tsv`
+- `project/results/v17p35/tables/FIX1_top_drugs_dm1_selective_v2.tsv`
+- `project/results/v8p1_rigor/f_ccle_validation/ccle_brs_labels.tsv`
+- `project/results/v8p1_rigor/f_ccle_validation/ccle_brs_vs_mutation.tsv`
+- `project/results/v8p1_rigor/f_ccle_validation/ccle_concordance.tsv`
+- `project/results/v8p1_rigor/f_ccle_validation/ccle_thyroid_expression.tsv`
+- `project/results/v8p1_rigor/f_ccle_validation/ccle_thyroid_metadata.tsv`
+- `project/results/v8p1_rigor/f_ccle_validation/ccle_thyroid_mutation_truth.tsv`
+- `project/results/v8p1_rigor/f_ccle_validation/ccle_validation_analysis.md`
+- `project/results/v8p1_rigor/f_ccle_validation/four_cohort_per_gene_consensus.tsv`
+
+## G. missing files
+- Protected HLA LOH inputs: local BAM/WES plus matched normal metadata not identified for execution.
+- Neoantigen execution inputs: local HLA genotypes plus VCF/peptide binding outputs not identified as a complete runnable set.
+- Full public DepMap/PRISM/GDSC/CTRP files: checked in Paper 9 acquisition step and downloaded if absent.
