@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Lumenix · Thyroid Cancer Vaccine-to-Drug Discovery Platform</title>
+<meta name="description" content="Subtype-aware AI platform for thyroid cancer immunogenomics, neoantigen prioritization, HLA-bias audit, vaccine candidate ranking, and translational validation planning." />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        ink: { 950: '#05070d', 900: '#080b14', 850: '#0b1020', 800: '#0e1426', 700: '#131b32', 600: '#1a2340' },
+        ember: { 300: '#ffb38a', 400: '#ff9866', 500: '#ff7c3e', 600: '#ff6420', 700: '#e84e0a' },
+        teal: { 300: '#5eead4', 400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e' },
+        slate2: { 50: '#e6ebf5', 100: '#c8d2e6', 200: '#94a3c4', 300: '#6e7ea8', 400: '#4d5d85', 500: '#33405e' }
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        display: ['Space Grotesk', 'Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
+      },
+      boxShadow: {
+        glow: '0 0 0 1px rgba(255,124,62,.18), 0 18px 50px -10px rgba(255,124,62,.20)',
+        teal: '0 0 0 1px rgba(20,184,166,.18), 0 18px 50px -10px rgba(20,184,166,.20)'
+      }
+    }
+  }
+}
+</script>
+
+<style>
+  html, body { background: #05070d; color: #c8d2e6; }
+  body {
+    background-image:
+      radial-gradient(60rem 40rem at 18% -10%, rgba(255,124,62,.10), transparent 60%),
+      radial-gradient(50rem 40rem at 110% 10%, rgba(20,184,166,.10), transparent 55%),
+      radial-gradient(40rem 30rem at 50% 110%, rgba(20,184,166,.06), transparent 60%),
+      linear-gradient(180deg, #05070d 0%, #07091a 50%, #05070d 100%);
+    background-attachment: fixed;
+  }
+  .grid-bg {
+    background-image:
+      linear-gradient(rgba(148,163,196,.045) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148,163,196,.045) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .glass { background: linear-gradient(180deg, rgba(19,27,50,.55), rgba(11,16,32,.65)); border: 1px solid rgba(120,140,180,.10); backdrop-filter: blur(8px); }
+  .glass-strong { background: linear-gradient(180deg, rgba(26,35,64,.85), rgba(14,20,38,.85)); border: 1px solid rgba(120,140,180,.14); backdrop-filter: blur(10px); }
+  .hairline { border: 1px solid rgba(120,140,180,.10); }
+  .text-gradient-em { background: linear-gradient(90deg,#ff9866 0%,#ff6420 60%,#ff7c3e 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .text-gradient-tl { background: linear-gradient(90deg,#5eead4 0%,#14b8a6 60%,#2dd4bf 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .scrollx::-webkit-scrollbar { height: 8px; } .scrollx::-webkit-scrollbar-thumb { background: rgba(120,140,180,.18); border-radius: 8px; }
+  .scrolly::-webkit-scrollbar { width: 6px; } .scrolly::-webkit-scrollbar-thumb { background: rgba(120,140,180,.18); border-radius: 8px; }
+  .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #2dd4bf; box-shadow: 0 0 0 0 rgba(45,212,191,.6); animation: pulseDot 1.6s infinite; }
+  @keyframes pulseDot { 0% { box-shadow: 0 0 0 0 rgba(45,212,191,.55) } 70% { box-shadow: 0 0 0 14px rgba(45,212,191,0) } 100% { box-shadow: 0 0 0 0 rgba(45,212,191,0) } }
+  .stage-dot { width: 14px; height: 14px; border-radius: 50%; }
+  .blink { animation: blink 1s steps(2) infinite; } @keyframes blink { 50% { opacity: 0 } }
+  .row-hover:hover { background: rgba(255,124,62,.05); }
+  .chip { display:inline-flex; align-items:center; gap:.4rem; padding:.18rem .55rem; font-size:11px; letter-spacing:.04em; border-radius:9999px; border:1px solid; }
+  .chip-em { background: rgba(255,124,62,.08); border-color: rgba(255,124,62,.30); color:#ffb38a; }
+  .chip-tl { background: rgba(20,184,166,.08); border-color: rgba(20,184,166,.30); color:#5eead4; }
+  .chip-mute { background: rgba(120,140,180,.08); border-color: rgba(120,140,180,.20); color:#94a3c4; }
+  .ring-em { box-shadow: inset 0 0 0 1px rgba(255,124,62,.30); }
+  .ring-tl { box-shadow: inset 0 0 0 1px rgba(20,184,166,.30); }
+  .micro { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .02em; color: #6e7ea8; text-transform: uppercase; }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display:none; }
+</style>
+</head>
+
+<body class="font-sans antialiased">
+
+<div id="app"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useRef, useMemo } = React;
+
+/* ----------------------------- DATA --------------------------------- */
+
+const SUBTYPES = [
+  {
+    id: 'PTC',
+    label: 'PTC / DTC',
+    pct: '~85% of thyroid cancer',
+    tone: 'em',
+    clinical: '2025 ATA 4-tier risk stratification; lobectomy default for cT1 ≤2cm; molecular testing (Afirma GSC, ThyroSeq v3) drives Bethesda III/IV management.',
+    immune: 'Median TMB ≈ 0.4 mut/Mb. Largely "cold" tumor; PTC + Hashimoto subset shows HLA-II / IFN-γ enrichment (GSE286332 d=+3.65) and ectopic TLS biology.',
+    data: 'TCGA-THCA n=496, GSE184362 (158k cells, 11 PTC), GSE191288 (PTC+HT), GSE250521 ST atlas. Korean public cohort PRJEB11591 n=260.',
+    opportunity: 'BRAF-anchored differentiation-state vaccine + ICI in adjuvant / MRD setting. HLA-II–biased PTC+HT subgroup is the most antigen-presenting niche.',
+    tmb: '0.4', presentation: 'Cold→Warm', precedent: 'KEYNOTE-158 ORR 6.8%'
+  },
+  {
+    id: 'RAIR',
+    label: 'RAI-refractory DTC',
+    pct: '~5–15% of DTC',
+    tone: 'em',
+    clinical: 'Lenvatinib (SELECT mPFS 18.3 vs 3.6 mo), sorafenib (DECISION), cabozantinib (COSMIC-311 HR 0.22). NTRK→larotrectinib; RET→selpercatinib. Redifferentiation: trametinib + ¹³¹I (MERAIODE).',
+    immune: 'Heterogeneous; subset acquires BRAF/RAS-driven dedifferentiation transcriptional programs with rising MHC-I but exhausted T-cell signatures post-MKI exposure.',
+    data: 'GSE76039 (Landa MSK n=84 PDTC + 33 ATC), thca_mskcc_2016, COSMIC-021 cohort 18 RNA-seq, ITOG NCT02973997 translational samples.',
+    opportunity: 'Post-redifferentiation iodine-uptake recovery + vaccine prime + anti-PD-1 maintenance is the most defensible MRD design after lenvatinib.',
+    tmb: '1.2', presentation: 'Variable', precedent: 'Lenva+Pembro ITOG ORR 65.5%'
+  },
+  {
+    id: 'ATC',
+    label: 'ATC / PDTC',
+    pct: '~1–2% (90%+ mortality)',
+    tone: 'em',
+    clinical: 'BRAF V600E within days → dabrafenib + trametinib (ROAR 12-mo OS 51.7%). Neoadjuvant DTP (pembro+D+T) at MDACC: mOS 17 mo, surgical subset 63 mo. ATLEP: lenva+pembro ATC ORR 51.9%.',
+    immune: 'Highest TMB in thyroid (~6 mut/Mb), inflammatory infiltrate, T-cell exclusion reversible by MAPK inhibition. CT-antigens MAGE-A 62%, MAGE-C1 57%, GAGE 67%, NY-ESO-1 14%.',
+    data: 'GSE76039 (33 ATC), GSE33630 (11 ATC), GSE232237 (50 thyroid cancers + ATC), MDACC FAST registry-linked NGS.',
+    opportunity: 'Highest-priority histology for personalized neoantigen mRNA + MAGE-A4 TCR-T + checkpoint backbone. BRAF/MEK inhibition opens the immunopeptidome window.',
+    tmb: '6.1', presentation: 'Hot', precedent: 'Spartalizumab ORR 19% (PD-L1+ 35%)'
+  },
+  {
+    id: 'MTC',
+    label: 'MTC',
+    pct: '~2–3% (75% sporadic, 25% MEN2)',
+    tone: 'em',
+    clinical: 'RET-driven biology. LIBRETTO-531: selpercatinib first-line vs cabo/vand HR 0.28 — new SoC. Calcitonin/CEA biomarkers; MEN2B M918T thyroidectomy in first 6 months of life.',
+    immune: 'Immune-excluded "cold" microenvironment (Pozdeyev 2021), low TMB, but lineage antigens (calcitonin, CEA, GFRA4) are restricted and tractable. CGRP shapes suppressive niche.',
+    data: 'TCGA-MTC fragments, Agrawal Cell 2013, Ji Nat Commun 2015, MSK-MetTropism MTC subset, ARROW + LIBRETTO-001 translational.',
+    opportunity: 'GFRA4 CAR-T (Bhoj 2021) + selpercatinib priming + yeast-CEA / calcitonin DC vaccine prime → anti-PD-L1 release. Lineage-target stack with PD readouts (Ctn, CEA).',
+    tmb: '0.7', presentation: 'Cold', precedent: 'GI-6207 phase II (negative on Ctn slope, 58% T-cell expansion)'
+  }
+];
+
+const DATA_MATRIX = [
+  { name: 'TCGA-THCA',          accession: 'phs000178',      type: 'Bulk RNA-seq · WES · meth · miRNA · RPPA', subtype: 'PTC (n=496) + 59 N',           scale: '496',     use: 'Reference cohort; subtyping; HLA imputation; bulk neoantigen', readiness: 'R/C', tag: 'GDC' },
+  { name: 'cBioPortal THCA',    accession: 'thca_tcga_pub',  type: 'Mutations · CNA · clinical',              subtype: 'PTC',                            scale: '496',     use: 'Driver landscape; TERT recovery (n=36); cohort filters',       readiness: 'P',   tag: 'cBioPortal' },
+  { name: 'thca_mskcc_2016',    accession: 'GSE76039',       type: 'Targeted panel + RNA-seq',                subtype: 'PDTC (84) + ATC (33)',           scale: '117',     use: 'Advanced-disease landscape; TP53/SWI-SNF burden',              readiness: 'R',   tag: 'cBioPortal/SRA' },
+  { name: 'GSE184362',          accession: 'GSE184362',      type: '10x scRNA-seq',                           subtype: 'PTC (paratumor → met)',          scale: '158,577', use: 'Premalignant cell-state mapping; dedifferentiation programs', readiness: 'R',   tag: 'GEO' },
+  { name: 'GSE232237',          accession: 'GSE232237',      type: '10x scRNA-seq atlas',                     subtype: 'PTC + ATC + mets + N',           scale: '405,077', use: 'Cross-subtype heterogeneity reference; TME stratification',     readiness: 'R',   tag: 'GEO' },
+  { name: 'GSE191288',          accession: 'GSE191288',      type: '10x scRNA-seq',                           subtype: 'PTC + Hashimoto overlap',        scale: '24,805',  use: 'PTC+HT immune axis; HLA-II / B / TLS modules',                 readiness: 'R',   tag: 'GEO' },
+  { name: 'GSE250521',          accession: 'GSE250521',      type: 'Spatial transcriptomics',                  subtype: 'PT · PTC · LPTC · ATC',          scale: '17 / 57,997 spots', use: 'Progression-stage HLA-DR⁺ cancerous niche; SERPINE1⁺ stroma', readiness: 'R', tag: 'Cell Rep Med 2025' },
+  { name: 'GSE286332',          accession: 'GSE286332',      type: 'Bulk RNA-seq',                            subtype: 'Korean PTC ± Hashimoto',         scale: '18',      use: 'HLA-II d=+3.65 antigen-presentation hot subset',               readiness: 'R',   tag: 'GEO' },
+  { name: 'PRJEB11591 / K2',    accession: 'PRJEB11591',     type: 'Bulk RNA-seq',                            subtype: 'Korean PTC',                     scale: '260',     use: 'Korean validation; arcasHLA imputation (DPB1*05:01 56%)',     readiness: 'R',   tag: 'ENA' },
+  { name: 'IEDB',               accession: 'iedb.org',       type: 'Epitope DB',                              subtype: 'pan-disease',                    scale: '1.6M ep · 6.8M assays', use: 'HLA-peptide ground truth; predictor training',         readiness: 'P',   tag: 'IEDB 2024' },
+  { name: 'CEDAR',              accession: 'cedar.iedb.org', type: 'Cancer epitope DB',                       subtype: 'pan-cancer (incl. thyroid)',     scale: '289k ep · 36.9k receptors', use: 'Cancer-specific epitope literature curation',          readiness: 'P',   tag: 'CEDAR 2024' },
+  { name: 'HLA Ligand Atlas',   accession: 'hla-ligand-atlas.org / PXD019643', type: 'Benign-tissue MS immunopeptidome', subtype: 'incl. thyroid',         scale: '227 samp · 90k I + 142k II', use: 'Self-peptide safety filter for vaccine antigens',     readiness: 'R',   tag: 'JITC 2021' },
+  { name: 'VDJdb',              accession: 'vdjdb.cdr3.net', type: 'TCR-pMHC pairs',                          subtype: 'pan-disease',                    scale: '~30k',    use: 'TCR specificity priors; pMTnet / NetTCR training',             readiness: 'P',   tag: 'VDJdb' },
+  { name: 'McPAS-TCR',          accession: 'friedmanlab',    type: 'Curated pathology TCRs',                  subtype: 'autoimmune + cancer (incl. Hashimoto, Graves)', scale: 'curated', use: 'Autoreactivity neighbor search vs candidate TCRs',       readiness: 'P',   tag: 'McPAS' },
+  { name: 'TCRdb 2.0',          accession: 'TCRdb 2.0',      type: 'Repertoire aggregation',                  subtype: 'pan-cancer + αβ + γδ',          scale: '~700M seq', use: 'Repertoire breadth context; ICI cohort priors',              readiness: 'P',   tag: 'NAR 2025' },
+  { name: 'WSI / Pathology',    accession: 'TCGA DX + private', type: 'H&E whole-slide images',                subtype: 'PTC · ATC · MTC',                scale: 'TBD',     use: 'UNI / Virchow / GigaPath embeddings → DM1 projection',       readiness: 'P/C', tag: 'Foundation models' }
+];
+
+const STAGES = [
+  { n: 0, label: 'Clinical Intake',           tone: 'em', detail: 'Subtype (WHO 2022) · AJCC 8th stage · Bethesda 2023 · ATA 2025 risk · prior RAI/MKI/ICI exposure', icon: '◷' },
+  { n: 1, label: 'Multi-omics Ingestion',      tone: 'em', detail: 'WES + RNA-seq + scRNA + ST + methylation + WSI · QC · sample-tracker · LODO-aware batch design',  icon: '◇' },
+  { n: 2, label: 'Molecular Subtyping',        tone: 'em', detail: 'BRAF/RAS-like score · DM1 projection · differentiation-state inference · dark-matter sub-classifier', icon: '◆' },
+  { n: 3, label: 'TME Mapping',                tone: 'em', detail: 'CIBERSORTx · scVI label-transfer · cell2location ST decomposition · TLS / IFN-γ / exhaustion modules', icon: '☷' },
+  { n: 4, label: 'HLA Typing + Bias Audit',    tone: 'tl', detail: 'arcasHLA · OptiType · CookHLA · xHLA → AFND Korean / pan-Asian frequency audit · DIAL (HLA bias)', icon: '⌬' },
+  { n: 5, label: 'Neoantigen Discovery',       tone: 'tl', detail: 'pVACtools · OpenVax · Vaxrank · NeoPredPipe · MHCflurry · NetMHCpan · PRIME · BigMHC · agretopicity', icon: '⌗' },
+  { n: 6, label: 'Vaccine Candidate Ranking',  tone: 'tl', detail: 'pMTnet · NetTCR · DeepImmuno · TITAN · ImRex · self-peptide safety vs HLA Ligand Atlas + GTEx',  icon: '✦' },
+  { n: 7, label: 'Combination Strategy',       tone: 'tl', detail: 'Backbone selection: BRAFi/MEKi · MKI · RET-i · anti-PD-1/PD-L1 · DC/mRNA/peptide/CAR-T module', icon: '✚' },
+  { n: 8, label: 'Wetlab Validation Plan',     tone: 'em', detail: 'Tetramer + ELISpot + IFN-γ release · co-culture · MS confirmation · PDX/orthotopic · CRISPR screen', icon: '⚗' },
+  { n: 9, label: 'Drug Discovery Extension',   tone: 'em', detail: 'Target nomination · scaffolds · structure-aware ligand design · TCR-T / mRNA / TCE / CAR triage', icon: '✪' }
+];
+
+const TOOLS = [
+  { cat: 'Genomics',           tone: 'em', items: ['GATK4', 'MuTect2', 'Strelka2', 'DeepVariant', 'VEP', 'ANNOVAR', 'vcf2maf'] },
+  { cat: 'Transcriptomics',    tone: 'em', items: ['STAR', 'salmon', 'kallisto', 'DESeq2', 'limma-voom', 'Arriba', 'STAR-Fusion'] },
+  { cat: 'HLA',                tone: 'tl', items: ['CookHLA', 'OptiType', 'arcasHLA', 'xHLA', 'seq2HLA', 'HLA-LA'] },
+  { cat: 'Neoantigen',         tone: 'tl', items: ['pVACtools', 'pVACview', 'OpenVax', 'Vaxrank', 'NeoPredPipe', 'NeoFox'] },
+  { cat: 'MHC / Immunogenicity', tone: 'tl', items: ['MHCflurry 2.0', 'MHCnuggets', 'NetMHCpan 4.1', 'NetMHCIIpan', 'PRIME', 'BigMHC', 'DeepImmuno', 'TransPHLA'] },
+  { cat: 'TCR / pMHC',         tone: 'tl', items: ['pMTnet', 'NetTCR', 'DeepTCR', 'TITAN', 'ImRex', 'ERGO-II'] },
+  { cat: 'Single-cell / Spatial', tone: 'em', items: ['Scanpy', 'Seurat', 'scVI / scANVI', 'Squidpy', 'cell2location', 'NicheNet', 'CellPhoneDB', 'STaligner'] },
+  { cat: 'Pathology AI',       tone: 'em', items: ['UNI', 'Virchow / Virchow2', 'GigaPath', 'CHIEF', 'Phikon-v2', 'HoVer-Net', 'CellViT'] },
+  { cat: 'Lumenix-native',     tone: 'tl', items: ['CookHLA-Korean', 'DIAL-U HLA bias audit', 'DM1 dark-matter sub-classifier', 'Feynman-style research agent', '3+ yr thyroid+omics execution stack'] }
+];
+
+const VACCINE_EVIDENCE = [
+  { t: 'DC + Calcitonin/CEA peptides (MTC)',     who: 'Schott 2001 · JCEM',                level: 'phase I',           n: 'n=7',  signal: '3/7 marker decline; 1 hepatic regression', cite: 'PMID 11600571' },
+  { t: 'DC + tumor lysate + IL-2 (MTC)',         who: 'Stift 2004 · Clin Cancer Res',      level: 'phase I/II',        n: 'n=10', signal: 'PR + SD; safety established',             cite: 'PMID 15131029' },
+  { t: 'DC tumor lysate (PTC/FTC)',              who: 'Kuwabara 2007 · Thyroid',           level: 'phase I',           n: 'n=6',  signal: '2 SD / 4 PD — feasibility only',          cite: 'DOI 10.1089/thy.2006.0178' },
+  { t: 'GI-6207 yeast-CEA (MTC)',                who: 'Del Rivero 2025 · Oncologist',      level: 'phase II rand.',    n: 'n=34', signal: 'Negative Ctn slope; 58% CEA T-cell expansion', cite: 'DOI 10.1093/oncolo/oyaf429' },
+  { t: 'GI-6207 → avelumab seq (MTC)',           who: 'Del Rivero 2020 · Front Endocrinol',level: 'case report',       n: 'n=1',  signal: 'Ctn doubling 135→530d; >40% drop on avelumab', cite: 'PMID 32849281' },
+  { t: 'Spartalizumab (ATC)',                    who: 'Capdevila 2020 · JCO',              level: 'phase I/II',        n: 'n=42', signal: 'ORR 19% (PD-L1≥50%: 35%)',                cite: 'DOI 10.1200/JCO.19.02727' },
+  { t: 'Pembrolizumab (DTC, KEYNOTE-158)',       who: 'Oh 2023 · Cancer',                  level: 'phase II',          n: 'n=103',signal: 'ORR 6.8%; mDoR 18.4 mo',                  cite: 'DOI 10.1002/cncr.34657' },
+  { t: 'Lenva + Pembro (ATC, ATLEP)',            who: 'Dierks 2021/2022 · Thyroid',        level: 'phase II',          n: 'n=35', signal: 'ATC ORR 51.9%',                            cite: 'PMID 33509020' },
+  { t: 'Lenva + Pembro (RAIR DTC)',              who: 'Haugen/Bible 2024 · CCR · ITOG',    level: 'phase II',          n: 'n=30', signal: 'ORR 65.5% lenva-naïve',                    cite: 'NCT02973997' },
+  { t: 'Atezo + Vem + Cobi (BRAFm ATC)',         who: 'Iyer/Cabanillas 2024 · JAMA Oncol', level: 'phase II',          n: 'n=18', signal: 'mOS 43.2 mo; ORR 50%',                     cite: 'PMID 39446377' },
+  { t: 'Neoadjuvant DTP (BRAFm ATC)',            who: 'Wang/Cabanillas 2025 · ASCO',       level: 'phase II',          n: 'n=36', signal: 'mOS 20 mo; surgical subset 63 mo',         cite: 'NCT04675710' },
+  { t: 'Nivo + Ipi (ATC/MTC/RAIR)',              who: 'Sehgal/Lorch 2024 · JAMA Oncol',    level: 'phase II',          n: 'n=49', signal: 'ATC ORR 30%; CB 50%',                      cite: 'PMID 39446365' },
+  { t: 'Cabo + Atezo (CABATEN)',                 who: 'Capdevila 2025 · CCR',              level: 'phase II',          n: 'multi',signal: 'Disease control across DTC/MTC/ATC',       cite: 'NCT04400474' },
+  { t: 'Personalized neoantigen mRNA',           who: 'KEYNOTE-942 · Lancet 2024',         level: 'phase IIb (melanoma)', n: 'n=157', signal: 'RFS HR 0.561 — adjuvant proof-of-concept', cite: 'PMID 38246194' },
+  { t: 'Autogene cevumeran (mRNA)',              who: 'Rojas/Balachandran 2023 · Nature',  level: 'phase I (PDAC)',    n: 'n=16', signal: 'CD8+ persistence at 3y; mRFS extended',    cite: 'PMID 37165196' },
+  { t: 'GFRA4 CAR-T (MTC)',                      who: 'Bhoj 2021 · Mol Ther Oncolytics',   level: 'preclinical → ph I open', n: 'IND', signal: 'Tumor eradication in xenograft',     cite: 'PMID 33614919' },
+  { t: 'TSHR CAR-T (DTC)',                       who: 'Li 2022 · JCEM',                    level: 'preclinical',       n: 'in vivo', signal: 'TSHR⁺ in 91%/89% PTC/FTC',              cite: 'PMID 34751400' }
+];
+
+const ANTIGEN_CLASSES = [
+  { c: 'Lineage / TAA',     items: ['Calcitonin (MTC)', 'CEA (MTC)', 'TSHR', 'TPO', 'NIS', 'Pendrin', 'Thyroglobulin'], note: 'Tolerance breakable post-TT; cross-reactivity audit required' },
+  { c: 'Driver neoantigen', items: ['BRAF V600E (HLA-DQ; class-I uncertain)', 'RET fusion junctions', 'TP53 R175H/R273H', 'TERT promoter (cis, non-coding)'], note: 'Class-I A*02:01 BRAF presentation NOT robustly validated — re-derive from MS' },
+  { c: 'Cancer-testis',     items: ['MAGE-A (62% ATC)', 'MAGE-C1 (57%)', 'GAGE (67%)', 'NY-ESO-1 (14%)'], note: 'ATC/PDTC-restricted; pharmacologically inducible by 5-aza-CdR' },
+  { c: 'HERV / cryptic',    items: ['HERV-K HML-2 Env', 'HERV-E', 'cryptic ORFs', 'splice neoantigens'], note: 'Hypothesis stage; CancerHERVdb lookup' },
+  { c: 'Subtype-specific lineage CAR-T target', items: ['GFRA4 (MTC)', 'TSHR-blocking scFv (DTC)', 'DLL3 (NEN-overlap)'], note: 'Functional epitope hazard (Graves-like) on TSHR' }
+];
+
+const DELIVERABLES = [
+  { t: 'Dataset-Ready Report',          d: 'Cohort manifest, QC dashboard, batch / LODO design, sample-tracker. Reproducible with Docker + Snakemake.' },
+  { t: 'Ranked Vaccine Candidate Table',d: 'Per-patient peptide × HLA matrix with MHCflurry / NetMHCpan / PRIME / BigMHC scores, agretopicity, self-peptide flag.' },
+  { t: 'Subtype-Specific Vaccine Rationale', d: 'Subtype card → antigen class → backbone → expected immune readout (Ctn / CEA / Tg / IFN-γ).' },
+  { t: 'Wetlab Validation Protocol',    d: 'Tetramer + ELISpot + IFN-γ release + MS confirmation + PDX / orthotopic model recommendation.' },
+  { t: 'Combination Therapy Hypothesis',d: 'BRAFi/MEKi · MKI · RET-i · anti-PD-1/PD-L1 + vaccine modality, sequenced with PD readouts.' },
+  { t: 'Publication-Ready Evidence Map',d: 'Citation-anchored claim tree with evidence level (guideline / CT / review / dataset / hypothesis).' },
+  { t: 'Pharma BD Technical Appendix',  d: 'Target landscape, IP whitespace, comparator trials, cohort access, timeline-to-validation, risk register.' }
+];
+
+const CHAT_SCRIPT = [
+  { role: 'user',  text: '[Run thyroid cancer vaccine discovery for a RAI-refractory PTC sample.]' },
+  { role: 'asst',  stage: 0, text: '▸ Clinical intake parsed. WHO 2022 = PTC, AJCC 8 = pT3aN1aM0, ATA 2025 risk = high, prior lenvatinib 11 mo (PD), no ICI exposure. RAI-refractory criteria #b + #c.' },
+  { role: 'asst',  stage: 1, text: '▸ Multi-omics ingestion: WES (114× T / 38× N) · RNA-seq (54M PE) · scRNA available (GSE184362-style) · WSI (UNI embeddings cached). QC pass.' },
+  { role: 'asst',  stage: 2, text: '▸ Molecular subtype: BRAF V600E + TERT promoter C228T. BRAF-RAS score = +0.62 (BRAF-like). Differentiation score low; DM1 projection class = "antigen-presenting hot subtype" (HLA-DR⁺ niche).' },
+  { role: 'asst',  stage: 3, text: '▸ TME map: CD8/Treg = 1.4; exhaustion module elevated (PDCD1, LAG3, HAVCR2). TLS-B cell signature borderline; SERPINE1⁺ stroma at invading front (consistent with GSE250521 LPTC archetype).' },
+  { role: 'asst',  stage: 4, text: '▸ HLA: A*02:01, A*33:03, B*44:02, B*58:01, C*03:02, C*07:01; DRB1*04:06, DRB1*15:01, DPB1*05:01. AFND audit: DPB1*05:01 freq 0.32 (Korean) — high local relevance. DIAL-U bias check: balanced.' },
+  { role: 'asst',  stage: 5, text: '▸ Neoantigens: 7 SNV candidates, 1 fusion-junction; top — BRAF_V600E_GLATEKSRWSGSHQF (HLA-DR restricted, class-I A*02 binding NOT supported by MS — flagged); TERT promoter excluded (non-coding).' },
+  { role: 'asst',  stage: 6, text: '▸ Ranking: 4 long-peptide candidates pass MHCflurry+PRIME+self-peptide filter (HLA Ligand Atlas miss; GTEx thyroid <2 TPM). Agretopicity median 0.27. Top: TP53_R248Q_25mer.' },
+  { role: 'asst',  stage: 7, text: '▸ Combination hypothesis: trametinib redifferentiation prime (RAS-like minor allele) → ¹³¹I window → adjuvant peptide vaccine + poly-ICLC + nivolumab (1 mg/kg q3w). Precedent: ATLEP, ITOG NCT02973997.' },
+  { role: 'asst',  stage: 8, text: '▸ Wetlab validation: ex vivo PBMC ELISpot for 4 candidates × 8 HLA contexts; MHC-I tetramer for top 2; IFN-γ release co-culture vs autologous tumor organoid; MS confirmation on FFPE-LMD immunopeptidome.' },
+  { role: 'asst',  stage: 9, text: '▸ Drug-discovery extension: LAG3+TIM3 dual-blockade adjuvant rationale; SERPINE1 niche-disrupting target; BRAFi resistance-bypass scaffold (paradox-breaker class). BD memo + 6-mo timeline drafted.' }
+];
+
+const CANDIDATES = [
+  { rank: 1, peptide: 'TP53_R248Q_long25', hla: 'A*02:01 / DRB1*04:06', mhcfl: 0.962, prime: 0.81, agreto: 0.31, safe: 'pass', note: 'Strong MS prior; no GTEx hit' },
+  { rank: 2, peptide: 'NSF_p.E209K_9mer',  hla: 'A*02:01',              mhcfl: 0.918, prime: 0.74, agreto: 0.22, safe: 'pass', note: 'Driver-adjacent; clonal' },
+  { rank: 3, peptide: 'BRAF_V600E_DR-15',  hla: 'DRB1*15:01',           mhcfl: 0.871, prime: 0.69, agreto: 0.41, safe: 'caution', note: 'DR-restricted; CD4 helper, see Veatch 2018' },
+  { rank: 4, peptide: 'CCDC6-RET_junc_15', hla: 'DRB1*04:06',           mhcfl: 0.844, prime: 0.66, agreto: 0.29, safe: 'pass', note: 'Junction unique to tumor' },
+  { rank: 5, peptide: 'CTAG1B_lineage',    hla: 'A*02:01',              mhcfl: 0.812, prime: 0.71, agreto: 0.18, safe: 'pass*', note: 'CT-antigen; testis-restricted' }
+];
+
+/* ------------------------------ ATOMS ------------------------------- */
+
+const ToneText = ({tone, children, className=''}) => (
+  <span className={`${tone==='em'?'text-gradient-em':'text-gradient-tl'} ${className}`}>{children}</span>
+);
+
+const Chip = ({tone='mute', children}) => (
+  <span className={`chip chip-${tone}`}>{children}</span>
+);
+
+const SectionTitle = ({eyebrow, tone='em', title, sub, children}) => (
+  <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8">
+    <div>
+      <div className={`micro mb-2 ${tone==='em'?'text-ember-400':'text-teal-400'}`}>{eyebrow}</div>
+      <h2 className="font-display text-3xl md:text-4xl text-slate2-50 leading-tight tracking-tight">{title}</h2>
+      {sub && <p className="text-slate2-200 mt-3 max-w-3xl">{sub}</p>}
+    </div>
+    {children}
+  </div>
+);
+
+/* ------------------------------ NAV --------------------------------- */
+
+function Nav({tab, setTab}) {
+  const TABS = [
+    { id: 'overview',  label: 'Overview' },
+    { id: 'data',      label: 'Dataset Universe' },
+    { id: 'pipeline',  label: '9-Stage Pipeline' },
+    { id: 'chat',      label: 'Chatbot Demo' },
+    { id: 'evidence',  label: 'Vaccine Evidence' },
+    { id: 'tools',     label: 'Tool Stack' }
+  ];
+  return (
+    <div className="sticky top-0 z-30 backdrop-blur-md border-b border-slate2-500/30 bg-ink-950/70">
+      <div className="max-w-[1320px] mx-auto px-6 h-14 flex items-center gap-6">
+        <a href="#top" className="flex items-center gap-2.5 shrink-0">
+          <div className="w-7 h-7 rounded-md bg-gradient-to-br from-ember-500 via-ember-600 to-teal-600 flex items-center justify-center font-display font-bold text-white">L</div>
+          <div className="leading-tight">
+            <div className="font-display font-semibold text-slate2-50 text-sm">Lumenix</div>
+            <div className="text-[10px] tracking-widest text-slate2-300 uppercase font-mono">Thyroid · Vaccine-to-Drug</div>
+          </div>
+        </a>
+        <div className="hidden md:flex items-center gap-1 ml-2 overflow-x-auto scrollx">
+          {TABS.map(t => (
+            <button key={t.id} onClick={()=>setTab(t.id)}
+              className={`px-3 py-1.5 rounded-md text-xs tracking-wide whitespace-nowrap transition
+                ${tab===t.id?'text-ember-300 bg-ember-500/10 ring-1 ring-ember-500/30':'text-slate2-200 hover:text-slate2-50 hover:bg-slate2-500/10'}`}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <span className="hidden md:inline-flex items-center gap-2 text-[11px] font-mono text-slate2-300">
+            <span className="pulse-dot"></span> v0.9 · research-grade preview
+          </span>
+          <button onClick={()=>setTab('chat')} className="text-xs px-3 py-1.5 rounded-md bg-ember-500 hover:bg-ember-600 text-ink-950 font-semibold tracking-wide">
+            Run Demo →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ----------------------------- HERO --------------------------------- */
+
+function Hero({setTab}) {
+  return (
+    <section id="top" className="relative grid-bg">
+      <div className="max-w-[1320px] mx-auto px-6 pt-14 md:pt-20 pb-14">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+          <div className="lg:col-span-7">
+            <div className="flex flex-wrap items-center gap-2 mb-5">
+              <Chip tone="em">Thyroid-vertical AI</Chip>
+              <Chip tone="tl">Translational, not clinical</Chip>
+              <Chip tone="mute">v0.9 research preview</Chip>
+              <Chip tone="mute">3+ yr founder execution</Chip>
+            </div>
+            <h1 className="font-display text-[2.7rem] sm:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-slate2-50">
+              From Thyroid Cancer Biology to <ToneText tone="em">Personalized Cancer Vaccine Strategy</ToneText>
+            </h1>
+            <p className="text-slate2-200 mt-6 text-lg max-w-2xl leading-relaxed">
+              Subtype-aware AI platform for thyroid cancer immunogenomics, neoantigen prioritization, HLA-bias audit, and translational validation planning. Built on TCGA-THCA, GSE184362/232237/191288/250521, IEDB/CEDAR, and a Korean-first HLA stack.
+            </p>
+
+            <div className="flex flex-wrap gap-3 mt-8">
+              <button onClick={()=>setTab('chat')}     className="px-5 py-3 rounded-lg bg-ember-500 hover:bg-ember-600 text-ink-950 font-semibold tracking-wide shadow-glow">Run Public Data Demo →</button>
+              <button onClick={()=>setTab('pipeline')} className="px-5 py-3 rounded-lg bg-ink-700 hover:bg-ink-600 text-slate2-50 font-semibold ring-1 ring-slate2-500/40">View 9-Stage Pipeline</button>
+              <button onClick={()=>setTab('data')}     className="px-5 py-3 rounded-lg bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 font-semibold ring-1 ring-teal-500/40">Explore Dataset Universe</button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-10">
+              {[
+                { k: '4', l: 'Subtype tracks',  s: 'PTC · RAIR · ATC · MTC' },
+                { k: '16', l: 'Datasets wired', s: 'TCGA · GEO · ENA · IEDB' },
+                { k: '~600k', l: 'Single cells', s: 'GSE184362 + GSE232237 + GSE191288' },
+                { k: '17 / 57k', l: 'ST samples · spots', s: 'GSE250521 PT→ATC' }
+              ].map((m,i)=>(
+                <div key={i} className="glass rounded-xl px-4 py-3">
+                  <div className="font-display text-2xl text-slate2-50">{m.k}</div>
+                  <div className="text-xs text-slate2-200 mt-1">{m.l}</div>
+                  <div className="text-[10px] font-mono text-slate2-300 mt-1 truncate">{m.s}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Console mock */}
+          <div className="lg:col-span-5">
+            <div className="glass-strong rounded-2xl overflow-hidden shadow-glow">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-slate2-500/20">
+                <span className="w-2.5 h-2.5 rounded-full bg-ember-500/70"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-teal-500/70"></span>
+                <span className="w-2.5 h-2.5 rounded-full bg-slate2-300/50"></span>
+                <span className="ml-3 micro text-slate2-300">lumenix · session/RAIR-PTC-0421</span>
+                <span className="ml-auto micro text-teal-400">● live</span>
+              </div>
+              <div className="p-5 font-mono text-[12.5px] leading-6 text-slate2-100">
+                <div className="text-slate2-300">$ lumenix discover \</div>
+                <div className="text-slate2-300 ml-4">--subtype RAIR-PTC \</div>
+                <div className="text-slate2-300 ml-4">--inputs WES,RNA,scRNA,WSI \</div>
+                <div className="text-slate2-300 ml-4">--hla-bias-audit AFND:KOR,EAS \</div>
+                <div className="text-slate2-300 ml-4">--vaccine-modality mRNA,peptide,DC \</div>
+                <div className="text-slate2-300 ml-4">--combine pembro+lenva+trametinib</div>
+                <div className="mt-3 text-teal-300">[stage 0] clinical intake parsed · ATA-2025 high-risk · post-lenva</div>
+                <div className="text-teal-300">[stage 2] BRAF V600E + TERT C228T · BRAS-score +0.62</div>
+                <div className="text-teal-300">[stage 4] HLA: A*02:01 · DRB1*04:06 · DPB1*05:01 · DIAL-U=0.07 (balanced)</div>
+                <div className="text-ember-300">[stage 5] 8 neoantigens · class-I A*02:01 BRAF-V600E flagged: not MS-validated</div>
+                <div className="text-ember-300">[stage 6] top candidate: TP53_R248Q_25mer · MHCflurry 0.962 · PRIME 0.81</div>
+                <div className="text-slate2-50">[stage 7] proposed: trametinib → ¹³¹I → peptide+poly-ICLC + nivolumab <span className="blink">▌</span></div>
+              </div>
+              <div className="border-t border-slate2-500/20 px-4 py-2.5 flex items-center justify-between text-[11px] font-mono text-slate2-300">
+                <span>elapsed 00:42</span>
+                <span>candidates 5 · safe 4 · flagged 1</span>
+                <span className="text-teal-400">PASS · audit clean</span>
+              </div>
+            </div>
+
+            <div className="mt-4 glass rounded-xl p-4 text-[12.5px] text-slate2-200">
+              <span className="micro text-ember-400">claim boundary</span>
+              <p className="mt-1.5">We do <em className="text-slate2-50">not</em> claim cancer vaccines are standard therapy in any thyroid histology. Lumenix produces <span className="text-slate2-50">research-grade hypotheses, ranked candidates, and validation plans</span> — not patient-level recommendations.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------- WHY THYROID — SUBTYPE CARDS ------------------- */
+
+function WhyThyroid() {
+  return (
+    <section className="max-w-[1320px] mx-auto px-6 py-16">
+      <SectionTitle
+        eyebrow="01 · WHY THYROID CANCER"
+        tone="em"
+        title="A vertical worth solving — not one model fits four diseases."
+        sub="PTC, RAI-refractory DTC, ATC/PDTC, and MTC are immunologically and genomically distinct. The platform treats them as four parallel tracks with shared infrastructure — so vaccine rationale, antigen class, and combination backbone are correctly stratified."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {SUBTYPES.map(s => (
+          <div key={s.id} className="glass rounded-2xl p-6 hover:ring-em transition">
+            <div className="flex items-baseline justify-between mb-3 gap-3">
+              <div className="flex items-center gap-3">
+                <div className="font-display text-2xl text-slate2-50">{s.label}</div>
+                <Chip tone={s.tone}>{s.id}</Chip>
+              </div>
+              <div className="text-[11px] font-mono text-slate2-300">{s.pct}</div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 mb-5">
+              <div className="rounded-md bg-ink-800/70 px-3 py-2"><div className="micro text-ember-400">TMB</div><div className="font-display text-slate2-50">{s.tmb}<span className="text-slate2-300 text-xs"> mut/Mb</span></div></div>
+              <div className="rounded-md bg-ink-800/70 px-3 py-2"><div className="micro text-teal-400">TME</div><div className="font-display text-slate2-50">{s.presentation}</div></div>
+              <div className="rounded-md bg-ink-800/70 px-3 py-2"><div className="micro text-slate2-300">Precedent</div><div className="text-slate2-50 text-xs leading-tight">{s.precedent}</div></div>
+            </div>
+
+            <div className="space-y-3 text-sm">
+              <div><div className="micro text-ember-400 mb-1">Clinical problem</div><div className="text-slate2-100 leading-relaxed">{s.clinical}</div></div>
+              <div><div className="micro text-teal-400 mb-1">Immune / vaccine rationale</div><div className="text-slate2-100 leading-relaxed">{s.immune}</div></div>
+              <div><div className="micro text-slate2-300 mb-1">Available data</div><div className="text-slate2-200 leading-relaxed">{s.data}</div></div>
+              <div className="rounded-lg bg-gradient-to-br from-ember-500/10 to-teal-500/5 p-3 ring-em">
+                <div className="micro text-ember-400 mb-1">Translational opportunity</div>
+                <div className="text-slate2-50 leading-relaxed">{s.opportunity}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------- DATA UNIVERSE ---------------------------- */
+
+function DataUniverse() {
+  const [filter, setFilter] = useState('all');
+  const filtered = useMemo(()=> filter==='all' ? DATA_MATRIX : DATA_MATRIX.filter(r => r.subtype.toLowerCase().includes(filter)), [filter]);
+  const FILTERS = [['all','All'],['ptc','PTC'],['atc','ATC'],['mtc','MTC'],['hashimoto','PTC+HT'],['korean','Korean']];
+  return (
+    <section className="max-w-[1320px] mx-auto px-6 py-16">
+      <SectionTitle
+        eyebrow="02 · DATA UNIVERSE"
+        tone="tl"
+        title="One ingestion layer across 16 thyroid-relevant resources."
+        sub="Every dataset below is wired to a deterministic ingestion path, a use-in-pipeline mapping, and a readiness flag. R = raw FASTQ/BAM open · P = processed-only · C = controlled-access (dbGaP/EGA)."
+      >
+        <div className="flex gap-1.5 flex-wrap">
+          {FILTERS.map(([k,v])=>(
+            <button key={k} onClick={()=>setFilter(k)}
+              className={`text-[11px] px-2.5 py-1.5 rounded-md font-mono transition
+                ${filter===k?'bg-teal-500/15 text-teal-300 ring-1 ring-teal-500/40':'bg-ink-800/80 text-slate2-200 hover:text-slate2-50 ring-1 ring-slate2-500/20'}`}>
+              {v}
+            </button>
+          ))}
+        </div>
+      </SectionTitle>
+
+      <div className="glass rounded-2xl overflow-hidden">
+        <div className="overflow-x-auto scrollx">
+          <table className="w-full text-sm min-w-[1100px]">
+            <thead>
+              <tr className="text-left bg-ink-850/80 border-b border-slate2-500/20">
+                <th className="px-4 py-3 micro text-slate2-300">Dataset</th>
+                <th className="px-4 py-3 micro text-slate2-300">Type</th>
+                <th className="px-4 py-3 micro text-slate2-300">Subtype</th>
+                <th className="px-4 py-3 micro text-slate2-300 text-right">Scale</th>
+                <th className="px-4 py-3 micro text-slate2-300">Use in Pipeline</th>
+                <th className="px-4 py-3 micro text-slate2-300">Readiness</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((r,i)=>(
+                <tr key={i} className="border-b border-slate2-500/10 row-hover">
+                  <td className="px-4 py-3.5 align-top">
+                    <div className="font-display text-slate2-50 leading-tight">{r.name}</div>
+                    <div className="text-[11px] font-mono text-slate2-300 mt-0.5">{r.accession} · {r.tag}</div>
+                  </td>
+                  <td className="px-4 py-3.5 text-slate2-100 align-top">{r.type}</td>
+                  <td className="px-4 py-3.5 text-slate2-200 align-top">{r.subtype}</td>
+                  <td className="px-4 py-3.5 text-right font-mono text-ember-300 align-top">{r.scale}</td>
+                  <td className="px-4 py-3.5 text-slate2-200 align-top">{r.use}</td>
+                  <td className="px-4 py-3.5 align-top">
+                    {r.readiness.includes('R') && <span className="chip chip-tl mr-1">R</span>}
+                    {r.readiness.includes('P') && <span className="chip chip-mute mr-1">P</span>}
+                    {r.readiness.includes('C') && <span className="chip chip-em">C</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+        {[
+          { t: 'Reference cohorts', d: 'TCGA-THCA, MSK Landa 2016, MSK-CHORD thyroid subset, K2 PRJEB11591 (Korean n=260).', tone:'em' },
+          { t: 'Single-cell + spatial backbone', d: 'GSE184362 (158k cells), GSE232237 (405k cells, 50 tumors), GSE191288 (PTC+HT), GSE250521 (Cell Rep Med 2025 ST).', tone:'tl' },
+          { t: 'Immune / vaccine ground truth', d: 'IEDB · CEDAR · HLA Ligand Atlas (PRIDE PXD019643) · VDJdb · McPAS-TCR · TCRdb 2.0 (~700M seq) · AFND Korean pool.', tone:'em' }
+        ].map((x,i)=>(
+          <div key={i} className="glass rounded-xl p-4">
+            <div className={`micro mb-1 ${x.tone==='em'?'text-ember-400':'text-teal-400'}`}>{x.t}</div>
+            <div className="text-slate2-100 text-sm leading-relaxed">{x.d}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-5 glass rounded-xl p-4 text-sm text-slate2-200 ring-em">
+        <span className="micro text-ember-400">honesty flag</span>
+        <p className="mt-1">CPTAC thyroid program is announced but the public PDC release was not posted as of 2026-05-06. Sun 2022 (<span className="font-mono">PXD028111</span>) is currently the deepest public thyroid proteomics dataset. We treat this as a stated limitation, not a silent gap.</p>
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------- 9-STAGE PIPELINE ------------------------- */
+
+function Pipeline() {
+  return (
+    <section className="max-w-[1320px] mx-auto px-6 py-16">
+      <SectionTitle
+        eyebrow="03 · 9-STAGE PIPELINE"
+        tone="em"
+        title="Clinical intake → Drug discovery in 10 deterministic stages."
+        sub="Every stage produces a versioned artifact (DVC-tracked), runs in containerized form (Docker + Snakemake), and emits an evidence card with citation-anchored claim level. No black box — every decision is auditable."
+      />
+
+      <div className="overflow-x-auto scrollx pb-2">
+        <div className="flex items-stretch gap-3 min-w-[1200px]">
+          {STAGES.map(s => (
+            <div key={s.n} className={`flex-1 min-w-[220px] rounded-xl p-4 transition ${s.tone==='em'?'glass ring-em hover:shadow-glow':'glass ring-tl hover:shadow-teal'}`}>
+              <div className="flex items-center justify-between mb-2">
+                <div className={`stage-dot ${s.tone==='em'?'bg-ember-500':'bg-teal-500'}`}></div>
+                <div className={`micro ${s.tone==='em'?'text-ember-400':'text-teal-400'}`}>STAGE {s.n}</div>
+              </div>
+              <div className={`text-2xl mb-1 ${s.tone==='em'?'text-ember-300':'text-teal-300'}`}>{s.icon}</div>
+              <div className="font-display text-slate2-50 text-base leading-tight">{s.label}</div>
+              <div className="text-[12.5px] text-slate2-200 leading-relaxed mt-2">{s.detail}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
+        <div className="glass rounded-xl p-5">
+          <div className="micro text-ember-400 mb-2">Why deterministic</div>
+          <p className="text-slate2-100 text-sm leading-relaxed">v5.2 LODO discipline (THCA DIAL=0.000 under proper ComBat-LODO, not 0.494 leak artifact). We don't ship subtype claims that survive only one batch design — every artifact carries the LODO check.</p>
+        </div>
+        <div className="glass rounded-xl p-5">
+          <div className="micro text-teal-400 mb-2">Why subtype-aware HLA</div>
+          <p className="text-slate2-100 text-sm leading-relaxed">Korean K2 cohort (PRJEB11591 n=260) was used to validate arcasHLA RNA-seq imputation (DPB1*05:01 ≈56%, replicating Kim 2014). Pan-Asian and AFND audits run before any neoantigen ranking is exposed.</p>
+        </div>
+        <div className="glass rounded-xl p-5">
+          <div className="micro text-ember-400 mb-2">Why a wetlab plan, not just a number</div>
+          <p className="text-slate2-100 text-sm leading-relaxed">Every ranked candidate emerges with a tetramer + ELISpot + IFN-γ release + MS confirmation plan, mapped to commercially-available reagents. Translational, not benchmarky.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* --------------------------- CHATBOT DEMO --------------------------- */
+
+function ChatbotDemo() {
+  const [step, setStep] = useState(0);
+  const [running, setRunning] = useState(false);
+  const timerRef = useRef(null);
+  const scrollRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(timerRef.current), []);
+
+  function run() {
+    if (running) return;
+    setStep(0); setRunning(true);
+    const tick = (i) => {
+      if (i >= CHAT_SCRIPT.length) { setRunning(false); return; }
+      setStep(i + 1);
+      timerRef.current = setTimeout(()=> tick(i+1), 750);
+    };
+    tick(0);
+  }
+  function reset() { clearTimeout(timerRef.current); setStep(0); setRunning(false); }
+
+  useEffect(()=>{
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [step]);
+
+  const visible = CHAT_SCRIPT.slice(0, step);
+  const currentStage = useMemo(()=>{
+    const last = [...visible].reverse().find(m => typeof m.stage === 'number');
+    return last ? last.stage : -1;
+  }, [step]);
+  const candidatesShown = step >= 7;
+  const checklistShown = step >= 9;
+
+  return (
+    <section className="max-w-[1320px] mx-auto px-6 py-16">
+      <SectionTitle
+        eyebrow="04 · CHATBOT DEMO"
+        tone="tl"
+        title="Type a clinical case. Watch the pipeline produce a defensible plan."
+        sub="The demo runs against public-data scaffolding (TCGA-THCA / GSE184362 / GSE286332 / IEDB / HLA Ligand Atlas) — no patient data. Every line is paired with the stage that emitted it and the dataset it consulted."
+      >
+        <div className="flex gap-2">
+          <button onClick={run}   disabled={running}
+            className="text-xs px-4 py-2 rounded-md bg-ember-500 hover:bg-ember-600 disabled:opacity-50 text-ink-950 font-semibold">▶ Run</button>
+          <button onClick={reset} className="text-xs px-4 py-2 rounded-md bg-ink-700 hover:bg-ink-600 text-slate2-50 font-semibold ring-1 ring-slate2-500/30">Reset</button>
+        </div>
+      </SectionTitle>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Chat column */}
+        <div className="lg:col-span-7">
+          <div className="glass-strong rounded-2xl overflow-hidden">
+            <div className="px-5 py-3 border-b border-slate2-500/20 flex items-center gap-2">
+              <span className="pulse-dot"></span>
+              <span className="micro text-slate2-200">lumenix · agent · session/RAIR-PTC-0421</span>
+              <span className="ml-auto micro text-teal-400">{running?'streaming':'idle'}</span>
+            </div>
+            <div ref={scrollRef} className="p-5 max-h-[520px] overflow-y-auto scrolly space-y-3">
+              {visible.length === 0 && (
+                <div className="text-slate2-300 text-sm">
+                  <span className="micro text-slate2-200">prompt</span>
+                  <p className="mt-1.5 italic">"Run thyroid cancer vaccine discovery for a RAI-refractory PTC sample."</p>
+                  <p className="mt-2.5 text-[12px]">Press <span className="font-mono text-ember-300">▶ Run</span> to stream the agent response.</p>
+                </div>
+              )}
+              {visible.map((m,i)=>(
+                <div key={i} className={m.role==='user'?'':'pl-4 border-l-2 border-teal-500/30'}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`micro ${m.role==='user'?'text-ember-400':'text-teal-400'}`}>{m.role==='user'?'researcher':'lumenix · agent'}</span>
+                    {typeof m.stage === 'number' && <span className="chip chip-tl">stage {m.stage}</span>}
+                  </div>
+                  <div className={`text-sm leading-relaxed ${m.role==='user'?'text-slate2-50 italic':'text-slate2-100'}`}>{m.text}</div>
+                </div>
+              ))}
+              {running && <div className="text-teal-400 text-sm font-mono">▌</div>}
+            </div>
+            <div className="border-t border-slate2-500/20 px-5 py-3 flex items-center gap-3">
+              <div className="flex-1 rounded-md bg-ink-900/80 px-3 py-2 text-[13px] text-slate2-200 ring-1 ring-slate2-500/20 font-mono">
+                Run thyroid cancer vaccine discovery for a RAI-refractory PTC sample.
+              </div>
+              <button onClick={run} disabled={running} className="text-xs px-3 py-2 rounded-md bg-ember-500/90 hover:bg-ember-600 text-ink-950 font-semibold disabled:opacity-50">Send</button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right side panel */}
+        <div className="lg:col-span-5 space-y-4">
+          {/* Live stage progress */}
+          <div className="glass rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="micro text-teal-400">Live stage progress</div>
+              <div className="text-[11px] font-mono text-slate2-300">{Math.max(currentStage,0)} / 9</div>
+            </div>
+            <div className="space-y-1.5">
+              {STAGES.map(s => {
+                const done = currentStage >= s.n;
+                const active = currentStage === s.n;
+                return (
+                  <div key={s.n} className={`flex items-center gap-3 px-3 py-2 rounded-md transition
+                    ${active?'bg-teal-500/10 ring-1 ring-teal-500/30':done?'bg-ember-500/5':'bg-ink-800/40'}`}>
+                    <div className={`stage-dot shrink-0 ${done?(s.tone==='em'?'bg-ember-500':'bg-teal-500'):'bg-slate2-500/50'}`}></div>
+                    <div className={`text-[11px] font-mono w-6 ${done?'text-slate2-50':'text-slate2-300'}`}>S{s.n}</div>
+                    <div className={`text-sm ${done?'text-slate2-50':'text-slate2-300'}`}>{s.label}</div>
+                    <div className={`ml-auto text-[10px] font-mono ${active?'text-teal-300':done?'text-ember-300':'text-slate2-300'}`}>
+                      {active?'running':done?'done':'queued'}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Top candidates */}
+          <div className={`glass rounded-2xl p-5 transition ${candidatesShown?'opacity-100':'opacity-50'}`}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="micro text-ember-400">Top candidate table</div>
+              <div className="text-[11px] font-mono text-slate2-300">5 / 8 passed safety</div>
+            </div>
+            <div className="overflow-x-auto scrollx">
+              <table className="w-full text-[12px]">
+                <thead className="text-slate2-300 border-b border-slate2-500/20">
+                  <tr>
+                    <th className="text-left py-1.5 pr-2">#</th>
+                    <th className="text-left py-1.5 pr-2">Peptide</th>
+                    <th className="text-left py-1.5 pr-2">HLA</th>
+                    <th className="text-right py-1.5 pr-2">flurry</th>
+                    <th className="text-right py-1.5 pr-2">PRIME</th>
+                    <th className="text-right py-1.5">safe</th>
+                  </tr>
+                </thead>
+                <tbody className="text-slate2-100">
+                  {CANDIDATES.map(c => (
+                    <tr key={c.rank} className="border-b border-slate2-500/10">
+                      <td className="py-1.5 pr-2 font-mono text-ember-300">{c.rank}</td>
+                      <td className="py-1.5 pr-2 font-mono">{c.peptide}</td>
+                      <td className="py-1.5 pr-2 text-slate2-200">{c.hla}</td>
+                      <td className="py-1.5 pr-2 text-right font-mono">{c.mhcfl.toFixed(2)}</td>
+                      <td className="py-1.5 pr-2 text-right font-mono">{c.prime.toFixed(2)}</td>
+                      <td className="py-1.5 text-right">
+                        <span className={`chip ${c.safe==='pass'?'chip-tl':c.safe==='caution'?'chip-em':'chip-mute'}`}>{c.safe}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Immune context card */}
+          <div className={`glass rounded-2xl p-5 transition ${currentStage>=3?'opacity-100':'opacity-50'}`}>
+            <div className="micro text-teal-400 mb-2">Immune context · S3-S4</div>
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="rounded-md bg-ink-800/60 p-2.5">
+                <div className="text-[10px] text-slate2-300 font-mono">CD8/Treg</div>
+                <div className="font-display text-slate2-50">1.4</div>
+              </div>
+              <div className="rounded-md bg-ink-800/60 p-2.5">
+                <div className="text-[10px] text-slate2-300 font-mono">Exhaustion</div>
+                <div className="font-display text-slate2-50">elevated</div>
+              </div>
+              <div className="rounded-md bg-ink-800/60 p-2.5">
+                <div className="text-[10px] text-slate2-300 font-mono">TLS-B</div>
+                <div className="font-display text-slate2-50">borderline</div>
+              </div>
+              <div className="rounded-md bg-ink-800/60 p-2.5">
+                <div className="text-[10px] text-slate2-300 font-mono">DIAL-U HLA bias</div>
+                <div className="font-display text-slate2-50">0.07</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Validation checklist */}
+          <div className={`glass rounded-2xl p-5 transition ${checklistShown?'opacity-100':'opacity-50'}`}>
+            <div className="micro text-ember-400 mb-3">Validation checklist · S8</div>
+            <div className="space-y-1.5">
+              {[
+                'PBMC ELISpot · 4 candidates × 8 HLA contexts',
+                'MHC-I tetramer · top 2 (TP53_R248Q, NSF_E209K)',
+                'IFN-γ release co-culture vs autologous tumor organoid',
+                'FFPE-LMD MS immunopeptidome confirmation',
+                'PDX engraftment & vaccination arm (n=8/arm)',
+                'CRISPR editing of antigen source gene → escape model'
+              ].map((x,i)=>(
+                <div key={i} className="flex items-start gap-2 text-[13px]">
+                  <div className="mt-0.5 w-3.5 h-3.5 rounded-sm border border-teal-500/40 bg-teal-500/10 flex items-center justify-center text-[10px] text-teal-300 shrink-0">✓</div>
+                  <span className="text-slate2-100">{x}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* -------------------------- VACCINE EVIDENCE ------------------------ */
+
+function VaccineEvidence() {
+  return (
+    <section className="max-w-[1320px] mx-auto px-6 py-16">
+      <SectionTitle
+        eyebrow="05 · VACCINE & ICI EVIDENCE BASE"
+        tone="em"
+        title="Every claim cited. Every level marked."
+        sub="The thyroid cancer vaccine field is small and predominantly small-n / single-center. We mark each row with evidence level (case · phase I · phase II · phase III · review · preclinical) and we only build hypotheses on top of citation-anchored facts."
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="lg:col-span-2 glass rounded-2xl overflow-hidden">
+          <div className="overflow-x-auto scrollx">
+            <table className="w-full text-sm min-w-[820px]">
+              <thead>
+                <tr className="text-left bg-ink-850/80 border-b border-slate2-500/20">
+                  <th className="px-4 py-3 micro text-slate2-300">Approach</th>
+                  <th className="px-4 py-3 micro text-slate2-300">Source</th>
+                  <th className="px-4 py-3 micro text-slate2-300">Level</th>
+                  <th className="px-4 py-3 micro text-slate2-300">N</th>
+                  <th className="px-4 py-3 micro text-slate2-300">Signal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {VACCINE_EVIDENCE.map((r,i)=>(
+                  <tr key={i} className="border-b border-slate2-500/10 row-hover">
+                    <td className="px-4 py-3 text-slate2-50 font-display align-top">{r.t}</td>
+                    <td className="px-4 py-3 align-top">
+                      <div className="text-slate2-100 leading-tight">{r.who}</div>
+                      <div className="text-[11px] font-mono text-slate2-300 mt-0.5">{r.cite}</div>
+                    </td>
+                    <td className="px-4 py-3 align-top"><Chip tone={r.level.includes('phase III')?'em':r.level.includes('phase II')?'em':r.level.includes('phase I')?'tl':'mute'}>{r.level}</Chip></td>
+                    <td className="px-4 py-3 font-mono text-ember-300 align-top">{r.n}</td>
+                    <td className="px-4 py-3 text-slate2-200 align-top">{r.signal}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Antigen classes panel */}
+        <div className="space-y-4">
+          <div className="glass rounded-2xl p-5">
+            <div className="micro text-ember-400 mb-3">Candidate antigen classes</div>
+            <div className="space-y-3">
+              {ANTIGEN_CLASSES.map((a,i)=>(
+                <div key={i} className="rounded-lg bg-ink-800/60 p-3">
+                  <div className="font-display text-slate2-50 text-sm mb-1.5">{a.c}</div>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {a.items.map(it => <span key={it} className="chip chip-mute">{it}</span>)}
+                  </div>
+                  <div className="text-[11.5px] text-slate2-300 leading-snug">{a.note}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="glass rounded-2xl p-5 ring-em">
+            <div className="micro text-ember-400 mb-2">Honest correction</div>
+            <p className="text-sm text-slate2-100 leading-relaxed">
+              The widely cited HLA-A*02:01 BRAF-V600E peptide <span className="font-mono text-slate2-50">GLATEKSRWS</span> is <em>not</em> robustly validated by mass-spec immunopeptidomics in thyroid. Validated BRAF-V600E T-cell biology is dominated by <span className="text-slate2-50">CD4⁺ HLA-DQB1*0303/0302</span> restriction (Veatch JCI 2018). Lumenix flags this as a <span className="text-ember-300">caution</span>, not a pass.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Two columns: Can claim / Cannot claim */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-10">
+        <div className="glass rounded-2xl p-6 ring-tl">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-md bg-teal-500/15 ring-1 ring-teal-500/40 flex items-center justify-center text-teal-300 font-display">✓</div>
+            <div className="font-display text-slate2-50 text-xl">We can claim</div>
+          </div>
+          <ul className="space-y-2 text-sm text-slate2-100">
+            <li>· Research-grade, citation-anchored thyroid vaccine pipeline.</li>
+            <li>· Public-data demo on TCGA-THCA / GEO scRNA / GSE250521 ST.</li>
+            <li>· Subtype-aware vaccine hypothesis generation (PTC · RAIR · ATC · MTC).</li>
+            <li>· HLA typing + Korean / pan-Asian frequency bias audit.</li>
+            <li>· Neoantigen ranking with self-peptide safety filter (HLA Ligand Atlas + GTEx).</li>
+            <li>· Wetlab validation plan with reagent-level resolution.</li>
+            <li>· Combination strategy generation grounded in published trials.</li>
+          </ul>
+        </div>
+        <div className="glass rounded-2xl p-6 ring-em">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-md bg-ember-500/15 ring-1 ring-ember-500/40 flex items-center justify-center text-ember-300 font-display">⨯</div>
+            <div className="font-display text-slate2-50 text-xl">We do <em>not</em> claim</div>
+          </div>
+          <ul className="space-y-2 text-sm text-slate2-100">
+            <li>· Validated clinical vaccine efficacy in any thyroid cancer histology.</li>
+            <li>· Patient-level treatment recommendation or clinical decision support.</li>
+            <li>· Regulatory-approved diagnostic or therapeutic product.</li>
+            <li>· Replacement for treating clinicians or tumor boards.</li>
+            <li>· Substitute for prospective clinical trial evidence.</li>
+            <li>· Outcome guarantees on derived hypotheses.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------- TOOL STACK --------------------------- */
+
+function ToolStack() {
+  return (
+    <section className="max-w-[1320px] mx-auto px-6 py-16">
+      <SectionTitle
+        eyebrow="06 · TOOL STACK"
+        tone="tl"
+        title="Best-in-class tools wired into a single deterministic graph."
+        sub="No tool is sacred — versions are pinned, cross-validated outputs are the unit of truth, and Lumenix-native modules sit alongside community standards."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {TOOLS.map((g,i)=>(
+          <div key={i} className={`glass rounded-2xl p-5 ${g.tone==='em'?'ring-em':'ring-tl'}`}>
+            <div className={`micro mb-3 ${g.tone==='em'?'text-ember-400':'text-teal-400'}`}>{g.cat}</div>
+            <div className="flex flex-wrap gap-2">
+              {g.items.map(it => (
+                <span key={it} className="px-2.5 py-1 text-[12.5px] font-mono rounded-md bg-ink-800/80 text-slate2-100 ring-1 ring-slate2-500/15">
+                  {it}
+                </span>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------- DELIVERABLES -------------------------- */
+
+function Deliverables() {
+  return (
+    <section className="max-w-[1320px] mx-auto px-6 py-16">
+      <SectionTitle
+        eyebrow="07 · OUTPUT DELIVERABLES"
+        tone="em"
+        title="What you walk out with after a Lumenix run."
+        sub="Each artifact is reproducible, citation-anchored, and packaged for a downstream consumer (the BD team, the wetlab, the manuscript, the IND)."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        {DELIVERABLES.map((d,i)=>(
+          <div key={i} className="glass rounded-2xl p-5 hover:ring-em transition">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-md bg-gradient-to-br from-ember-500/30 to-teal-500/20 ring-1 ring-ember-500/30 flex items-center justify-center text-ember-300 font-display shrink-0">{i+1}</div>
+              <div>
+                <div className="font-display text-slate2-50 text-lg leading-tight">{d.t}</div>
+                <div className="text-[13.5px] text-slate2-200 leading-relaxed mt-1.5">{d.d}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------------- FOOTER ----------------------------- */
+
+function Footer() {
+  return (
+    <footer className="max-w-[1320px] mx-auto px-6 pt-10 pb-16">
+      <div className="glass-strong rounded-2xl p-8 md:p-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+          <div className="lg:col-span-7">
+            <div className="micro text-teal-400 mb-3">LUMENIX · THYROID VERTICAL</div>
+            <h3 className="font-display text-2xl md:text-3xl text-slate2-50 leading-tight">
+              Built for translational thyroid oncology — from omics to vaccine strategy to drug discovery.
+            </h3>
+            <p className="text-slate2-200 mt-3 max-w-2xl text-sm leading-relaxed">
+              Founder execution depth: 3+ years on thyroid cancer, multi-omics, HLA / immunogenomics, manuscript-ready translational AI. The platform is what those years looked like wrapped into a product.
+            </p>
+          </div>
+          <div className="lg:col-span-5">
+            <div className="grid grid-cols-2 gap-3">
+              <a className="glass rounded-xl p-4 hover:ring-em block">
+                <div className="micro text-ember-400 mb-1">For pharma BD</div>
+                <div className="text-slate2-50 text-sm">Technical appendix · target landscape</div>
+              </a>
+              <a className="glass rounded-xl p-4 hover:ring-tl block">
+                <div className="micro text-teal-400 mb-1">For translational labs</div>
+                <div className="text-slate2-50 text-sm">Wetlab validation protocols · reagents</div>
+              </a>
+              <a className="glass rounded-xl p-4 hover:ring-em block">
+                <div className="micro text-ember-400 mb-1">For thyroid researchers</div>
+                <div className="text-slate2-50 text-sm">Cohort access · public-data demo</div>
+              </a>
+              <a className="glass rounded-xl p-4 hover:ring-tl block">
+                <div className="micro text-teal-400 mb-1">For hospital AI groups</div>
+                <div className="text-slate2-50 text-sm">On-prem deployable · DVC-tracked</div>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="mt-8 pt-6 border-t border-slate2-500/15 flex flex-col md:flex-row md:items-center justify-between gap-3 text-[12px] font-mono text-slate2-300">
+          <div>© 2026 · Lumenix · Thyroid Cancer Vaccine-to-Drug Discovery Platform</div>
+          <div className="flex items-center gap-4">
+            <span><span className="pulse-dot inline-block align-middle mr-2"></span>v0.9 research-grade preview</span>
+            <span>not a medical device</span>
+            <span>citation-anchored</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* -------------------------------- APP ------------------------------- */
+
+function App() {
+  const [tab, setTab] = useState('overview');
+
+  // Map tab → which sections to render. Overview shows everything in the spec order.
+  const showAll      = tab === 'overview';
+  const showWhy      = showAll;
+  const showData     = showAll || tab === 'data';
+  const showPipeline = showAll || tab === 'pipeline';
+  const showChat     = showAll || tab === 'chat';
+  const showEvidence = showAll || tab === 'evidence';
+  const showTools    = showAll || tab === 'tools';
+
+  return (
+    <div className="min-h-screen">
+      <Nav tab={tab} setTab={setTab} />
+      <Hero setTab={setTab} />
+      {showWhy      && <WhyThyroid />}
+      {showData     && <DataUniverse />}
+      {showPipeline && <Pipeline />}
+      {showChat     && <ChatbotDemo />}
+      {showEvidence && <VaccineEvidence />}
+      {showTools    && <ToolStack />}
+      {showAll      && <Deliverables />}
+      <Footer />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<App />);
+</script>
+
+</body>
+</html>
