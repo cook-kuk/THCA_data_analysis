@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumenix · Thyroid Cancer Vaccine-to-Drug Discovery Platform</title>
+<meta name="description" content="Subtype-aware AI platform for thyroid cancer immunogenomics, neoantigen prioritization, HLA-bias audit, vaccine candidate ranking, combination strategy generation, and translational validation planning." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#070b12;
+  --bg-2:#0a101b;
+  --panel:#0d1422;
+  --panel2:#111a2b;
+  --panel3:#172338;
+  --ink:#eef5ff;
+  --ink-2:#d8e2f3;
+  --muted:#9fb0c7;
+  --mute2:#7a8aa3;
+  --line:#24324a;
+  --line2:#33455f;
+  --emerald:#35d39d;
+  --emerald-2:#1c8e6d;
+  --teal:#32b8c6;
+  --amber:#f2b84b;
+  --ember:#ff8a3d;
+  --rose:#ef5f79;
+  --violet:#9b7cff;
+  --blue:#65a9ff;
+  --white:#f7fbff;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+html,body{max-width:100%;overflow-x:hidden}
+body{
+  margin:0;background:
+    radial-gradient(circle at 18% 2%,rgba(53,211,157,.15),transparent 32%),
+    radial-gradient(circle at 78% 12%,rgba(155,124,255,.12),transparent 30%),
+    radial-gradient(circle at 50% 110%,rgba(50,184,198,.08),transparent 50%),
+    linear-gradient(180deg,#070b12 0%,#0a101b 46%,#070b12 100%);
+  color:var(--ink);font-family:"IBM Plex Sans","Noto Sans KR",system-ui,sans-serif;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;z-index:0;
+  background-image:radial-gradient(rgba(255,255,255,.22) 1px, transparent 1px);
+  background-size:24px 24px;mask-image:linear-gradient(180deg,#000 0%,transparent 88%);
+}
+.kr{font-family:"Noto Sans KR","IBM Plex Sans",sans-serif}
+a{color:var(--emerald);text-decoration:none}
+.wrap,.hero,.card,.msg,.tool,.section-title,.source-list a,.quickline,td,th,p,h1,h2,h3{min-width:0;overflow-wrap:anywhere}
+
+/* ========================= NAV ========================= */
+.nav{
+  position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:18px;
+  padding:13px 22px;border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(7,11,18,.85);backdrop-filter:blur(14px);
+}
+.brand{display:flex;align-items:center;gap:11px;font-family:"Space Grotesk","JetBrains Mono",monospace;font-weight:700;font-size:14px;letter-spacing:.02em;flex-shrink:0}
+.brand-mark{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--emerald),var(--violet));
+  display:grid;place-items:center;color:#06100c;font-weight:800;
+  box-shadow:0 0 0 3px rgba(53,211,157,.12), 0 8px 22px -6px rgba(53,211,157,.4);
+}
+.brand-sub{font-size:9px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;font-weight:500;line-height:1.4;font-family:"JetBrains Mono",monospace}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin-left:8px;flex:1}
+.tabs button{
+  border:1px solid transparent;background:transparent;color:var(--muted);
+  border-radius:8px;padding:7px 11px;font-family:"JetBrains Mono",monospace;font-size:11.5px;
+  cursor:pointer;letter-spacing:.02em;transition:all .15s ease;
+}
+.tabs button:hover{color:var(--ink);background:rgba(255,255,255,.04)}
+.tabs button.active{
+  color:var(--emerald);background:rgba(53,211,157,.10);border-color:rgba(53,211,157,.32)
+}
+.nav-cta{display:flex;gap:8px;align-items:center}
+.nav-status{display:none;align-items:center;gap:7px;color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:10.5px}
+@media(min-width:980px){.nav-status{display:flex}}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--emerald);box-shadow:0 0 0 0 rgba(53,211,157,.55);animation:pulseDot 1.6s infinite}
+@keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(53,211,157,.45)}70%{box-shadow:0 0 0 12px rgba(53,211,157,0)}100%{box-shadow:0 0 0 0 rgba(53,211,157,0)}}
+.btn{
+  border:1px solid var(--line2);border-radius:8px;padding:10px 14px;background:rgba(255,255,255,.04);
+  color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:11.5px;cursor:pointer;letter-spacing:.02em;
+  transition:all .18s ease;
+}
+.btn:hover{transform:translateY(-1px);border-color:var(--emerald)}
+.btn.primary{background:linear-gradient(135deg,var(--emerald),var(--emerald-2));border-color:transparent;color:#06100c;font-weight:800}
+.btn.primary:hover{box-shadow:0 10px 28px -10px rgba(53,211,157,.55)}
+.btn.violet{background:linear-gradient(135deg,#7e62e5,#5b3fbf);color:#fff;border-color:transparent;font-weight:700}
+.btn.amber{background:linear-gradient(135deg,#f2b84b,#d99422);color:#1f1407;border-color:transparent;font-weight:800}
+
+/* ========================= LAYOUT ========================= */
+.wrap{width:100%;max-width:1340px;margin:0 auto;padding:24px 22px 80px;position:relative;z-index:1}
+.section{padding:48px 0;border-top:1px solid rgba(255,255,255,.06)}
+.section:first-of-type{border-top:0;padding-top:24px}
+.kicker{font-family:"JetBrains Mono",monospace;color:var(--emerald);font-weight:700;font-size:11.5px;letter-spacing:.20em;text-transform:uppercase;margin-bottom:14px}
+.kicker.violet{color:var(--violet)}
+.kicker.amber{color:var(--amber)}
+.kicker.teal{color:var(--teal)}
+.section-title{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:22px;flex-wrap:wrap}
+h1{font-family:"Space Grotesk","IBM Plex Sans",sans-serif;font-size:74px;line-height:.94;margin:0 0 22px;letter-spacing:-0.01em;max-width:920px;font-weight:700}
+h1 .grad{display:block;background:linear-gradient(92deg,var(--emerald) 0%,var(--teal) 38%,var(--violet) 78%);-webkit-background-clip:text;color:transparent;padding-bottom:.06em}
+h1 .grad-amber{background:linear-gradient(92deg,var(--amber),var(--ember),var(--rose));-webkit-background-clip:text;color:transparent}
+h2{font-family:"Space Grotesk","IBM Plex Sans",sans-serif;font-size:38px;line-height:1.06;margin:0;letter-spacing:-.005em;font-weight:600}
+h3{font-family:"Space Grotesk","IBM Plex Sans",sans-serif;font-weight:600;letter-spacing:-.005em}
+.dek{font-size:21px;line-height:1.55;color:#d6e2f1;max-width:870px}
+.section-note{color:var(--muted);max-width:680px;line-height:1.55;font-size:14px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,rgba(17,26,43,.92),rgba(10,17,29,.92));
+  border-radius:12px;padding:20px;min-width:0;position:relative;
+}
+.card.glow{box-shadow:0 0 0 1px rgba(53,211,157,.18), 0 18px 50px -12px rgba(53,211,157,.18)}
+.card.glow-violet{box-shadow:0 0 0 1px rgba(155,124,255,.18), 0 18px 50px -12px rgba(155,124,255,.18)}
+.card.glow-amber{box-shadow:0 0 0 1px rgba(242,184,75,.18), 0 18px 50px -12px rgba(242,184,75,.18)}
+.card h3{margin:0 0 10px;font-size:18px;color:var(--ink)}
+.card p{color:var(--muted);line-height:1.55;margin:0;font-size:14px}
+.label{
+  font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--emerald);
+  letter-spacing:.10em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;
+}
+.label.violet{color:var(--violet)} .label.amber{color:var(--amber)} .label.teal{color:var(--teal)} .label.rose{color:var(--rose)} .label.muted{color:var(--muted)}
+.chiprow{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
+.tag{
+  display:inline-flex;align-items:center;gap:5px;padding:4px 9px;font-size:11px;
+  letter-spacing:.04em;border-radius:9999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.035);color:var(--muted);font-family:"JetBrains Mono",monospace;
+}
+.tag.em{color:var(--emerald);border-color:rgba(53,211,157,.40);background:rgba(53,211,157,.08)}
+.tag.tl{color:var(--teal);border-color:rgba(50,184,198,.40);background:rgba(50,184,198,.08)}
+.tag.am{color:var(--amber);border-color:rgba(242,184,75,.40);background:rgba(242,184,75,.08)}
+.tag.vi{color:var(--violet);border-color:rgba(155,124,255,.40);background:rgba(155,124,255,.08)}
+.tag.ro{color:var(--rose);border-color:rgba(239,95,121,.40);background:rgba(239,95,121,.08)}
+
+/* ========================= HERO ========================= */
+.hero{min-height:78vh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(420px,.95fr);gap:30px;align-items:center;padding:36px 0 8px}
+.hero-left .dek{margin-top:6px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.hero-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:30px}
+.metric{
+  border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:10px;padding:13px;
+}
+.metric b{display:block;font-family:"Space Grotesk","JetBrains Mono",monospace;font-size:24px;color:var(--emerald);line-height:1;font-weight:700}
+.metric span{display:block;font-size:11.5px;color:var(--muted);margin-top:7px;line-height:1.35}
+.metric .sub{display:block;font-size:10px;color:var(--mute2);margin-top:4px;font-family:"JetBrains Mono",monospace}
+
+.hero-panel{
+  border:1px solid var(--line);background:rgba(13,20,34,.82);border-radius:14px;padding:20px;
+  box-shadow:0 30px 80px -10px rgba(0,0,0,.55), 0 0 0 1px rgba(53,211,157,.10);
+}
+.terminal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+.term-dots{display:inline-flex;gap:5px;margin-right:10px}
+.term-dots span{width:9px;height:9px;border-radius:50%}
+.term-dots span:nth-child(1){background:rgba(239,95,121,.7)}
+.term-dots span:nth-child(2){background:rgba(242,184,75,.7)}
+.term-dots span:nth-child(3){background:rgba(53,211,157,.7)}
+.stage-stack{display:grid;gap:7px}
+.stage-line{
+  display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);
+  background:#0a111d;border-radius:8px;padding:10px 12px;font-family:"JetBrains Mono",monospace;font-size:11.5px;
+}
+.stage-line.active{border-color:var(--emerald);background:rgba(53,211,157,.07)}
+.stage-line.warn{border-color:var(--amber);background:rgba(242,184,75,.07)}
+.stage-line.alert{border-color:var(--rose);background:rgba(239,95,121,.07)}
+.stage-num{color:var(--mute2);font-weight:700}
+.stage-title{color:#e9f3ff;font-weight:600;font-size:12px}
+.stage-tool{color:var(--emerald);font-size:10px;margin-top:2px;letter-spacing:.02em}
+.stage-line.warn .stage-tool{color:var(--amber)}
+.stage-line.alert .stage-tool{color:var(--rose)}
+.stage-status{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.stage-status.done{color:var(--emerald)}
+.stage-status.run{color:var(--amber)}
+.stage-status.alert{color:var(--rose)}
+
+/* ========================= SUBTYPE CARDS ========================= */
+.sub-card{position:relative;overflow:hidden}
+.sub-card .sub-rib{
+  position:absolute;top:0;right:0;padding:5px 11px;font-family:"JetBrains Mono",monospace;font-size:10px;
+  background:rgba(255,255,255,.05);border-bottom-left-radius:10px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);
+  letter-spacing:.10em;color:var(--muted);
+}
+.sub-card.atc .sub-rib{color:var(--rose);background:rgba(239,95,121,.08)}
+.sub-card.mtc .sub-rib{color:var(--violet);background:rgba(155,124,255,.08)}
+.sub-card.rair .sub-rib{color:var(--amber);background:rgba(242,184,75,.08)}
+.sub-card.ptc .sub-rib{color:var(--emerald);background:rgba(53,211,157,.08)}
+.sub-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0 14px}
+.sub-meta div{border:1px solid var(--line);background:#0a111d;border-radius:8px;padding:9px 10px}
+.sub-meta b{display:block;font-family:"Space Grotesk","JetBrains Mono",monospace;font-size:18px;color:var(--ink)}
+.sub-meta span{display:block;font-size:10px;color:var(--mute2);font-family:"JetBrains Mono",monospace;letter-spacing:.06em;margin-top:2px;text-transform:uppercase}
+.sub-block{margin-top:11px}
+.sub-block .lbl{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--emerald);letter-spacing:.10em;text-transform:uppercase;margin-bottom:4px}
+.sub-block.tl .lbl{color:var(--teal)} .sub-block.am .lbl{color:var(--amber)} .sub-block.mu .lbl{color:var(--muted)} .sub-block.vi .lbl{color:var(--violet)}
+.sub-block p{color:var(--ink-2);font-size:13.5px;line-height:1.55;margin:0}
+.opportunity{
+  margin-top:13px;padding:11px 13px;border-radius:9px;
+  background:linear-gradient(135deg,rgba(53,211,157,.10),rgba(155,124,255,.07));
+  border:1px solid rgba(53,211,157,.25);
+}
+.opportunity .lbl{color:var(--emerald);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.10em;text-transform:uppercase;margin-bottom:4px}
+.opportunity p{color:var(--ink);font-size:13.5px;line-height:1.55}
+
+/* ========================= TABLES ========================= */
+.tbl-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:rgba(8,13,22,.7)}
+.tbl-scroll{overflow-x:auto}
+.tbl-scroll::-webkit-scrollbar{height:8px}
+.tbl-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px}
+table.data{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px}
+table.data th{
+  text-align:left;padding:12px 14px;background:#0c1422;border-bottom:1px solid var(--line);
+  font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute2);letter-spacing:.10em;text-transform:uppercase;font-weight:600;
+}
+table.data td{padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:top;color:var(--ink-2)}
+table.data tr:hover td{background:rgba(53,211,157,.03)}
+table.data .name{font-family:"Space Grotesk","IBM Plex Sans",sans-serif;color:var(--ink);font-size:14px;font-weight:600;line-height:1.25}
+table.data .acc{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute2);margin-top:2px;display:block}
+table.data .num{font-family:"JetBrains Mono",monospace;color:var(--emerald);text-align:right}
+.mini-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}
+.mini-table th{font-family:"JetBrains Mono",monospace;font-size:10px;text-align:left;color:var(--mute2);border-bottom:1px solid var(--line2);padding:8px;letter-spacing:.06em;text-transform:uppercase}
+.mini-table td{border-bottom:1px solid rgba(255,255,255,.05);padding:8px;vertical-align:top;color:var(--ink-2)}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.filter-row button{
+  border:1px solid var(--line);background:#0b1422;color:var(--muted);
+  border-radius:7px;padding:6px 11px;font-family:"JetBrains Mono",monospace;font-size:11px;cursor:pointer;
+}
+.filter-row button.active{border-color:var(--emerald);color:var(--emerald);background:rgba(53,211,157,.08)}
+
+/* ========================= PIPELINE ========================= */
+.pipeline-rail{display:flex;gap:10px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x mandatory}
+.pipeline-rail::-webkit-scrollbar{height:8px}
+.pipeline-rail::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:4px}
+.stage-card{
+  flex:0 0 240px;scroll-snap-align:start;
+  border:1px solid var(--line);border-radius:12px;
+  background:linear-gradient(180deg,rgba(17,26,43,.92),rgba(10,17,29,.92));
+  padding:16px;position:relative;
+  transition:transform .2s ease, border-color .2s ease;
+}
+.stage-card:hover{transform:translateY(-3px);border-color:var(--emerald)}
+.stage-card.violet:hover{border-color:var(--violet)}
+.stage-card.amber:hover{border-color:var(--amber)}
+.stage-card .stagenum{
+  font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mute2);letter-spacing:.14em;
+  display:flex;align-items:center;gap:8px;margin-bottom:8px;
+}
+.stage-card .dot{width:10px;height:10px;border-radius:50%;background:var(--emerald)}
+.stage-card.violet .dot{background:var(--violet)}
+.stage-card.amber .dot{background:var(--amber)}
+.stage-card.teal .dot{background:var(--teal)}
+.stage-card .ico{font-size:22px;color:var(--emerald);margin-bottom:6px;line-height:1}
+.stage-card.violet .ico{color:var(--violet)}
+.stage-card.amber .ico{color:var(--amber)}
+.stage-card.teal .ico{color:var(--teal)}
+.stage-card h4{margin:0 0 6px;font-size:15px;color:var(--ink);font-family:"Space Grotesk",sans-serif;font-weight:600}
+.stage-card .det{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* ========================= CHATBOT ========================= */
+.agent-layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:18px}
+.chatbox{
+  border:1px solid var(--line);background:rgba(8,13,22,.92);border-radius:14px;
+  min-height:680px;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 18px 60px -10px rgba(0,0,0,.5);
+}
+.chat-head{
+  display:flex;justify-content:space-between;align-items:center;padding:13px 16px;
+  border-bottom:1px solid var(--line);font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);
+  background:linear-gradient(180deg,rgba(17,26,43,.6),transparent);
+}
+.chat-head .left{display:flex;gap:10px;align-items:center}
+.chat-head .left b{color:var(--ink);font-weight:600}
+.messages{flex:1;padding:18px;overflow:auto;display:flex;flex-direction:column;gap:11px;max-height:720px}
+.messages::-webkit-scrollbar{width:6px}.messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+.msg{
+  max-width:92%;border:1px solid var(--line);border-radius:11px;padding:13px 14px;line-height:1.55;
+  animation:fadeUp .25s ease-out both;font-size:13.5px;
+}
+.msg.user{align-self:flex-end;background:rgba(53,211,157,.12);border-color:rgba(53,211,157,.38);color:var(--ink)}
+.msg.agent{align-self:flex-start;background:rgba(255,255,255,.035);color:var(--ink-2)}
+.msg.stage{align-self:flex-start;background:rgba(101,169,255,.07);border-color:rgba(101,169,255,.32);width:95%}
+.msg.alert{align-self:flex-start;background:rgba(242,184,75,.07);border-color:rgba(242,184,75,.42);width:95%}
+.msg.error{align-self:flex-start;background:rgba(239,95,121,.08);border-color:rgba(239,95,121,.45);width:95%}
+.msg.result{align-self:flex-start;background:rgba(53,211,157,.07);border-color:rgba(53,211,157,.42);width:96%}
+.msg strong{color:var(--emerald)}
+.msg.alert strong{color:var(--amber)}
+.msg.error strong{color:var(--rose)}
+.msg.stage strong{color:var(--blue)}
+.msg .role-tag{
+  display:inline-block;font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.10em;
+  text-transform:uppercase;color:var(--mute2);margin-bottom:5px;
+}
+.msg.alert .role-tag{color:var(--amber)}
+.msg.result .role-tag{color:var(--emerald)}
+.msg.stage .role-tag{color:var(--blue)}
+.msg.error .role-tag{color:var(--rose)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:0 18px 14px}
+.chip-btn{
+  border:1px solid var(--line2);background:#0d1422;color:var(--ink);border-radius:9999px;
+  padding:8px 12px;font-size:12px;cursor:pointer;font-family:"IBM Plex Sans",sans-serif;
+  transition:all .15s ease;
+}
+.chip-btn:hover{border-color:var(--emerald);background:rgba(53,211,157,.08);color:var(--emerald)}
+.inputbar{display:flex;gap:10px;padding:14px;border-top:1px solid var(--line);background:#090f19}
+.inputbar input{
+  flex:1;border:1px solid var(--line2);background:#07101a;color:var(--ink);
+  border-radius:8px;padding:12px 14px;font-size:14px;font-family:"IBM Plex Sans","Noto Sans KR",sans-serif;
+}
+.inputbar input:focus{outline:none;border-color:var(--emerald)}
+.inputbar button{
+  border:0;background:linear-gradient(135deg,var(--emerald),var(--emerald-2));color:#06100c;
+  border-radius:8px;padding:0 17px;font-weight:800;font-family:"JetBrains Mono",monospace;cursor:pointer;font-size:12px;
+}
+.side{
+  border:1px solid var(--line);background:rgba(13,20,34,.92);border-radius:14px;padding:16px;
+  align-self:start;position:sticky;top:80px;display:flex;flex-direction:column;gap:14px;
+}
+.side h4{margin:0 0 11px;font-size:13px;color:var(--ink);font-family:"Space Grotesk",sans-serif;font-weight:600;display:flex;align-items:center;gap:8px}
+.exec-list{display:grid;gap:6px}
+.exec{
+  display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:start;
+  font-size:11.5px;color:var(--muted);padding:7px 8px;border-radius:7px;
+  background:rgba(255,255,255,.02);border:1px solid transparent;
+}
+.exec.run{background:rgba(242,184,75,.07);border-color:rgba(242,184,75,.30)}
+.exec.done{background:rgba(53,211,157,.05);border-color:rgba(53,211,157,.20)}
+.exec i{width:11px;height:11px;border-radius:50%;background:#3b4960;margin-top:3px}
+.exec.done i{background:var(--emerald)}
+.exec.run i{background:var(--amber);box-shadow:0 0 0 5px rgba(242,184,75,.13)}
+.exec b{display:block;color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.04em}
+.exec span{font-family:"JetBrains Mono",monospace;font-size:9.5px;color:var(--mute2)}
+.exec .stt{font-family:"JetBrains Mono",monospace;font-size:9px;color:var(--mute2);letter-spacing:.10em;text-transform:uppercase}
+.exec.done .stt{color:var(--emerald)}
+.exec.run .stt{color:var(--amber)}
+.side-mini{border:1px solid var(--line);background:#091020;border-radius:10px;padding:12px}
+.kvgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:6px}
+.kvgrid div{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:7px;padding:7px 9px}
+.kvgrid b{display:block;font-family:"Space Grotesk",sans-serif;color:var(--ink);font-size:14px;font-weight:600}
+.kvgrid span{display:block;font-family:"JetBrains Mono",monospace;font-size:9px;color:var(--mute2);letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+.checklist{display:grid;gap:5px;margin-top:5px}
+.chk{display:grid;grid-template-columns:18px 1fr;gap:7px;align-items:start;font-size:12px;color:var(--ink-2);line-height:1.45}
+.chk .box{
+  width:14px;height:14px;border-radius:4px;background:rgba(53,211,157,.08);
+  border:1px solid rgba(53,211,157,.40);display:grid;place-items:center;font-size:9px;color:var(--emerald);font-weight:700;
+}
+.chk.todo .box{background:rgba(255,255,255,.03);border-color:var(--line2);color:var(--mute2)}
+.candidate-mini{font-family:"JetBrains Mono",monospace;font-size:11.5px}
+.cand-row{
+  display:grid;grid-template-columns:18px 1fr 60px 36px;gap:7px;align-items:center;
+  padding:7px 8px;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.02);margin-bottom:5px;
+}
+.cand-row .rk{color:var(--emerald);font-weight:700}
+.cand-row .pep{color:var(--ink);font-size:11px}
+.cand-row .sc{color:var(--ink-2);text-align:right;font-size:11px}
+.cand-row .ok{color:var(--emerald);font-size:9px;text-align:right;letter-spacing:.06em}
+.cand-row .warn{color:var(--amber);font-size:9px;text-align:right;letter-spacing:.06em}
+.hla{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.hla span{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:9.5px;border:1px solid var(--line2);padding:3px 7px;border-radius:6px;color:var(--muted);background:rgba(255,255,255,.025)}
+.hla .risk{border-color:var(--rose);color:var(--rose);background:rgba(239,95,121,.07)}
+.hla .ok{border-color:var(--emerald);color:var(--emerald);background:rgba(53,211,157,.07)}
+.bar{height:6px;background:#1d2841;border-radius:99px;overflow:hidden;margin-top:5px}
+.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--emerald),var(--teal))}
+.bar.amber span{background:linear-gradient(90deg,var(--amber),var(--ember))}
+.bar.violet span{background:linear-gradient(90deg,var(--violet),var(--blue))}
+
+/* ========================= EVIDENCE ========================= */
+.evid-row{
+  display:grid;grid-template-columns:1.4fr 1fr .8fr .5fr 1.4fr;gap:0;padding:13px 14px;
+  border-bottom:1px solid rgba(255,255,255,.05);align-items:start;
+}
+.evid-row:hover{background:rgba(53,211,157,.03)}
+.evid-row .t{font-weight:600;color:var(--ink);font-family:"Space Grotesk",sans-serif;font-size:14px}
+.evid-row .who{color:var(--ink-2);font-size:13px}
+.evid-row .who small{display:block;color:var(--mute2);font-family:"JetBrains Mono",monospace;font-size:10px;margin-top:2px}
+.evid-row .lvl{font-family:"JetBrains Mono",monospace;font-size:11px}
+.evid-row .n{font-family:"JetBrains Mono",monospace;color:var(--emerald);font-size:12px}
+.evid-row .sg{color:var(--ink-2);font-size:13px;line-height:1.45}
+.evid-head{
+  display:grid;grid-template-columns:1.4fr 1fr .8fr .5fr 1.4fr;gap:0;padding:11px 14px;
+  background:#0c1422;border-bottom:1px solid var(--line);font-family:"JetBrains Mono",monospace;
+  font-size:10.5px;color:var(--mute2);letter-spacing:.10em;text-transform:uppercase;font-weight:600;
+}
+.boundary-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.boundary-grid ul{padding-left:0;margin:0;list-style:none;color:var(--ink-2);line-height:1.55;font-size:14px}
+.boundary-grid li{padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.boundary-grid li:last-child{border-bottom:0}
+.boundary-grid li:before{content:"·  ";color:var(--mute2)}
+.b-can{border:1px solid rgba(53,211,157,.32);background:rgba(53,211,157,.04);border-radius:12px;padding:22px}
+.b-cant{border:1px solid rgba(239,95,121,.32);background:rgba(239,95,121,.04);border-radius:12px;padding:22px}
+.b-can h3,.b-cant h3{display:flex;align-items:center;gap:10px;margin:0 0 14px;font-size:20px}
+.b-icon{width:32px;height:32px;border-radius:7px;display:grid;place-items:center;font-weight:800;font-size:14px;font-family:"JetBrains Mono",monospace}
+.b-can .b-icon{background:rgba(53,211,157,.12);border:1px solid rgba(53,211,157,.40);color:var(--emerald)}
+.b-cant .b-icon{background:rgba(239,95,121,.12);border:1px solid rgba(239,95,121,.40);color:var(--rose)}
+
+/* ========================= TOOL STACK ========================= */
+.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:1100px){.tool-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.tool-grid{grid-template-columns:1fr}}
+.tool-card{
+  border:1px solid var(--line);border-radius:11px;padding:16px;
+  background:linear-gradient(180deg,rgba(17,26,43,.85),rgba(10,17,29,.85));
+  transition:border-color .15s ease;
+}
+.tool-card:hover{border-color:var(--emerald)}
+.tool-card.violet:hover{border-color:var(--violet)}
+.tool-card.amber:hover{border-color:var(--amber)}
+.tool-card.teal:hover{border-color:var(--teal)}
+.tool-card .tcat{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--emerald);letter-spacing:.10em;text-transform:uppercase;margin-bottom:11px}
+.tool-card.violet .tcat{color:var(--violet)} .tool-card.amber .tcat{color:var(--amber)} .tool-card.teal .tcat{color:var(--teal)}
+.tool-list{display:flex;flex-wrap:wrap;gap:6px}
+.tool-pill{
+  font-family:"JetBrains Mono",monospace;font-size:11.5px;
+  border:1px solid var(--line2);background:#0b1420;color:var(--ink-2);
+  border-radius:7px;padding:5px 9px;
+}
+.tool-card.native .tool-pill{border-color:rgba(53,211,157,.3);color:var(--emerald);background:rgba(53,211,157,.04)}
+
+/* ========================= DELIVERABLES ========================= */
+.deliv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media(max-width:1100px){.deliv-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.deliv-grid{grid-template-columns:1fr}}
+.deliv{
+  border:1px solid var(--line);border-radius:11px;padding:18px;
+  background:linear-gradient(180deg,rgba(17,26,43,.85),rgba(10,17,29,.85));
+  display:flex;gap:12px;align-items:flex-start;
+}
+.deliv:hover{border-color:var(--emerald)}
+.deliv .num{
+  width:34px;height:34px;border-radius:7px;flex:0 0 34px;display:grid;place-items:center;
+  background:linear-gradient(135deg,rgba(53,211,157,.18),rgba(50,184,198,.10));
+  border:1px solid rgba(53,211,157,.30);color:var(--emerald);font-weight:800;font-family:"Space Grotesk",sans-serif;
+}
+.deliv h4{margin:0 0 5px;color:var(--ink);font-size:15px;font-family:"Space Grotesk",sans-serif;font-weight:600}
+.deliv p{color:var(--muted);font-size:13px;line-height:1.5;margin:0}
+
+/* ========================= SOURCES + FOOTER ========================= */
+.source-list{display:grid;gap:9px}
+.source-list a{display:block;border:1px solid var(--line);background:#0b1420;border-radius:9px;padding:11px 13px;color:#d8e6f8;font-size:13px;line-height:1.45}
+.source-list a:hover{border-color:var(--emerald);background:rgba(53,211,157,.03)}
+.source-list small{display:block;color:var(--muted);margin-top:3px;font-size:11.5px}
+.footer-card{
+  border:1px solid var(--line);border-radius:14px;padding:32px 30px;
+  background:linear-gradient(180deg,rgba(17,26,43,.92),rgba(10,17,29,.92));
+  margin-top:30px;
+}
+.footer-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:30px;align-items:end}
+@media(max-width:880px){.footer-grid{grid-template-columns:1fr}}
+.footer-tag{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.05);padding-top:18px;margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--mute2)}
+.audience-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.audience-grid a{display:block;border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:9px;padding:11px 13px}
+.audience-grid a:hover{border-color:var(--emerald)}
+.audience-grid b{display:block;color:var(--ink);font-size:12.5px;font-family:"Space Grotesk",sans-serif;margin-bottom:2px}
+.audience-grid span{display:block;color:var(--muted);font-size:11px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ========================= RESPONSIVE ========================= */
+@media(max-width:1080px){
+  .hero,.agent-layout,.g2,.g3,.g4,.boundary-grid,.footer-grid{grid-template-columns:1fr}
+  .agent-layout .side{position:relative;top:auto}
+  .hero-metrics{grid-template-columns:repeat(2,1fr)}
+  h1{font-size:50px}
+  h2{font-size:30px}
+  .evid-row,.evid-head{grid-template-columns:1.4fr 1fr;gap:8px;font-size:12.5px}
+  .evid-row .lvl,.evid-row .n,.evid-row .sg,.evid-head>span:nth-child(3),.evid-head>span:nth-child(4),.evid-head>span:nth-child(5){display:none}
+}
+
+/* ========================= IMMUNE READINESS SECTION ========================= */
+.readiness-banner{
+  border:1px solid rgba(242,184,75,.35);background:linear-gradient(135deg,rgba(255,138,61,.10),rgba(242,184,75,.04));
+  border-radius:14px;padding:18px 22px;margin:14px 0 22px;display:flex;gap:16px;align-items:flex-start
+}
+.readiness-banner .icon{font-size:26px;color:var(--ember);flex-shrink:0}
+.readiness-banner h3{margin:0 0 6px;font-size:17px;color:var(--white);font-family:"Space Grotesk","IBM Plex Sans",sans-serif}
+.readiness-banner p{margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.55}
+.readiness-banner .em-orange{color:var(--ember);font-weight:700}
+.readiness-banner .em-teal{color:var(--teal);font-weight:700}
+.vuln-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+.vuln-card{
+  border:1px solid var(--line);background:linear-gradient(180deg,rgba(101,169,255,.06),rgba(155,124,255,.03));
+  border-radius:12px;padding:14px 16px;position:relative;overflow:hidden;
+}
+.vuln-card.up{border-left:3px solid var(--violet)}
+.vuln-card.down{border-left:3px solid var(--blue)}
+.vuln-card.mixed{border-left:3px solid var(--amber)}
+.vuln-card .arrow{position:absolute;right:14px;top:14px;font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--mute2)}
+.vuln-card.up .arrow{color:var(--violet)}
+.vuln-card.down .arrow{color:var(--blue)}
+.vuln-card.mixed .arrow{color:var(--amber)}
+.vuln-card h4{margin:0 0 6px;font-size:13.5px;color:var(--white);font-family:"Space Grotesk",sans-serif;font-weight:600;letter-spacing:.01em}
+.vuln-card .d-num{
+  font-family:"JetBrains Mono",monospace;font-size:18px;font-weight:700;letter-spacing:.02em;
+  margin-bottom:6px;color:var(--white)
+}
+.vuln-card.up .d-num{color:#bca5ff}
+.vuln-card.down .d-num{color:#9bc4ff}
+.vuln-card.mixed .d-num{color:var(--amber)}
+.vuln-card .d-meta{font-size:11px;color:var(--muted);font-family:"JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+.vuln-card p{margin:0;font-size:12px;color:var(--ink-2);line-height:1.5}
+
+.axis-card{
+  border:1px solid rgba(50,184,198,.3);background:linear-gradient(135deg,rgba(50,184,198,.08),rgba(7,11,18,.6));
+  border-radius:14px;padding:20px 22px;display:grid;grid-template-columns:1fr 1fr;gap:20px
+}
+.axis-card .ax{display:flex;flex-direction:column;gap:6px;border-left:3px solid var(--teal);padding-left:14px}
+.axis-card .ax .pc{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--teal);letter-spacing:.12em;text-transform:uppercase}
+.axis-card .ax .ax-name{font-family:"Space Grotesk",sans-serif;font-size:18px;font-weight:700;color:var(--white)}
+.axis-card .ax .pct{font-family:"JetBrains Mono",monospace;font-size:14px;color:var(--ink-2)}
+.axis-card .ax p{margin:6px 0 0;font-size:12.5px;color:var(--ink-2);line-height:1.5}
+
+.dial-card{
+  border:1px solid rgba(255,138,61,.3);background:linear-gradient(135deg,rgba(255,138,61,.06),rgba(7,11,18,.6));
+  border-radius:14px;padding:20px 22px;
+}
+.dial-flow{display:flex;align-items:stretch;gap:8px;margin-top:14px;flex-wrap:wrap}
+.dial-step{
+  flex:1 1 0;min-width:140px;border:1px solid var(--line);background:rgba(13,20,34,.7);
+  border-radius:10px;padding:11px 12px;display:flex;flex-direction:column;gap:4px;
+  position:relative;
+}
+.dial-step .num{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--mute2);letter-spacing:.1em}
+.dial-step .lab{font-family:"Space Grotesk",sans-serif;font-size:13px;color:var(--ink);font-weight:600}
+.dial-step .meta{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--muted);line-height:1.45}
+.dial-step.fail{border-color:rgba(239,95,121,.4);background:rgba(239,95,121,.06)}
+.dial-step.pass{border-color:rgba(53,211,157,.35);background:rgba(53,211,157,.05)}
+.dial-step::after{
+  content:"→";position:absolute;right:-12px;top:50%;transform:translateY(-50%);
+  color:var(--mute2);font-size:18px;font-family:"JetBrains Mono",monospace;
+}
+.dial-step:last-child::after{display:none}
+@media(max-width:980px){.dial-step::after{display:none}}
+
+.dial-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.dial-result-grid .res{
+  border:1px solid var(--line);background:rgba(13,20,34,.6);border-radius:10px;padding:13px 14px;
+}
+.dial-result-grid .res .lbl{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--ember);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.dial-result-grid .res .num{font-family:"Space Grotesk",sans-serif;font-size:22px;font-weight:700;color:var(--white);margin-bottom:6px}
+.dial-result-grid .res p{margin:0;font-size:12px;color:var(--ink-2);line-height:1.5}
+
+.guard-quote{
+  border:1px solid rgba(155,124,255,.32);
+  background:linear-gradient(135deg,rgba(155,124,255,.10),rgba(50,184,198,.05));
+  border-radius:14px;padding:20px 24px;margin-top:18px;
+}
+.guard-quote .label{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--violet);letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;font-weight:700}
+.guard-quote blockquote{
+  margin:0;font-family:"Space Grotesk","IBM Plex Sans",sans-serif;font-size:18px;font-weight:500;
+  color:var(--white);line-height:1.5;font-style:italic;border-left:3px solid var(--violet);padding-left:16px
+}
+
+.boundary-readiness{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px}
+.boundary-readiness .b-cant{border:1px solid rgba(255,138,61,.3);background:rgba(255,138,61,.04);border-radius:12px;padding:16px 18px}
+.boundary-readiness .b-can{border:1px solid rgba(50,184,198,.32);background:rgba(50,184,198,.05);border-radius:12px;padding:16px 18px}
+.boundary-readiness h3{margin:0 0 10px;font-family:"Space Grotesk",sans-serif;font-size:14.5px}
+.boundary-readiness .b-cant h3{color:var(--ember)}
+.boundary-readiness .b-can h3{color:var(--teal)}
+.boundary-readiness ul{margin:0;padding-left:18px;color:var(--ink-2);font-size:13px;line-height:1.6}
+.boundary-readiness ul li{margin-bottom:4px}
+@media(max-width:980px){.vuln-grid{grid-template-columns:1fr 1fr}.axis-card,.dial-result-grid,.boundary-readiness{grid-template-columns:1fr}}
+
+/* ========================= TAB PANEL VISIBILITY ========================= */
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.tab-panel.always{display:block}
+</style>
+</head>
+<body>
+
+<!-- ===================================================== NAV ===================================================== -->
+<nav class="nav">
+  <div class="brand">
+    <div class="brand-mark">L</div>
+    <div>
+      <div>Lumenix</div>
+      <div class="brand-sub">Thyroid · Vaccine-to-Drug</div>
+    </div>
+  </div>
+  <div class="tabs" id="tabs">
+    <button class="active" data-tab="overview">Overview</button>
+    <button data-tab="data">Dataset Universe</button>
+    <button data-tab="pipeline">9-Stage Pipeline</button>
+    <button data-tab="chat">Chatbot Demo</button>
+    <button data-tab="evidence">Vaccine Evidence</button>
+    <button data-tab="readiness">Immune Readiness</button>
+    <button data-tab="tools">Tool Stack</button>
+  </div>
+  <div class="nav-cta">
+    <span class="nav-status"><i class="live-dot"></i>v0.9 · research-grade preview</span>
+    <button class="btn primary" onclick="goTab('chat')">Run Demo →</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ===================================================== HERO ===================================================== -->
+<section class="section" id="top">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="chiprow">
+        <span class="tag em">Thyroid-vertical AI</span>
+        <span class="tag tl">Translational, not clinical</span>
+        <span class="tag vi">Vaccine + ICI + targeted</span>
+        <span class="tag am">3+ yr founder execution</span>
+      </div>
+      <h1>From Thyroid Cancer Biology<br/><span class="grad">to Personalized Cancer Vaccine Strategy.</span></h1>
+      <div class="dek">
+        Subtype-aware AI platform for thyroid cancer immunogenomics, neoantigen prioritization, HLA-bias audit, vaccine candidate ranking, combination-strategy generation, and translational validation planning. Built on TCGA-THCA, GSE184362 / 232237 / 191288 / 250521, IEDB, HLA Ligand Atlas, and a Korean-first HLA stack.
+      </div>
+      <div class="hero-actions">
+        <button class="btn primary" onclick="goTab('chat')">Run Public Data Demo →</button>
+        <button class="btn violet" onclick="goTab('pipeline')">View 9-Stage Pipeline</button>
+        <button class="btn" onclick="goTab('data')">Explore Dataset Universe</button>
+        <button class="btn" onclick="goTab('evidence')">Evidence Boundary</button>
+        <a class="btn amber" href="lumenix_demo_report.html" target="_blank">▣ Real run report (n=576+18+632)</a>
+      </div>
+      <div class="hero-metrics">
+        <div class="metric"><b>4</b><span>Subtype tracks</span><span class="sub">PTC · RAIR · ATC · MTC</span></div>
+        <div class="metric"><b>16</b><span>Datasets wired</span><span class="sub">TCGA · GEO · ENA · IEDB · HLA-LA</span></div>
+        <div class="metric"><b>~600k</b><span>Single cells</span><span class="sub">GSE184362 + 232237 + 191288</span></div>
+        <div class="metric"><b>17 / 57k</b><span>ST samples · spots</span><span class="sub">GSE250521 PT→ATC progression</span></div>
+      </div>
+    </div>
+    <aside class="hero-panel">
+      <div class="terminal-head">
+        <span><span class="term-dots"><span></span><span></span><span></span></span>lumenix · session/RAIR-PTC-0421</span>
+        <span><i class="live-dot"></i>live orchestration</span>
+      </div>
+      <div class="stage-stack" id="heroStages"></div>
+      <div class="hero-metrics" style="margin-top:14px">
+        <div class="metric"><b>8/9</b><span>Stages on RAIR-PTC</span></div>
+        <div class="metric"><b>5</b><span>Vaccine candidates</span></div>
+        <div class="metric"><b>1</b><span>Flagged BRAF-V600E (A*02:01 unverified)</span></div>
+        <div class="metric"><b>0.07</b><span>DIAL-U HLA bias</span></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ===================================================== TAB PANELS ===================================================== -->
+
+<!-- ============ OVERVIEW: WHY THYROID (4 SUBTYPE CARDS) ============ -->
+<section class="section tab-panel" id="panel-overview">
+  <div class="section-title">
+    <div>
+      <div class="kicker">01 · Why thyroid cancer</div>
+      <h2>A vertical worth solving — not one model fits four diseases.</h2>
+    </div>
+    <div class="section-note">PTC, RAI-refractory DTC, ATC/PDTC, and MTC are immunologically and genomically distinct. Lumenix runs them as four parallel tracks on shared infrastructure — so antigen class, backbone, and PD readout stay subtype-correct.</div>
+  </div>
+
+  <div class="grid g2">
+    <!-- PTC -->
+    <div class="card sub-card ptc glow">
+      <span class="sub-rib">PTC · DTC · ~85%</span>
+      <h3>Papillary / Differentiated Thyroid Cancer</h3>
+      <div class="sub-meta">
+        <div><b>0.4</b><span>TMB mut/Mb</span></div>
+        <div><b>Cold→Warm</b><span>TME state</span></div>
+        <div><b>6.8%</b><span>KEYNOTE-158 ORR</span></div>
+      </div>
+      <div class="sub-block"><div class="lbl">Clinical problem</div><p>2025 ATA 4-tier risk stratification; lobectomy default for cT1 ≤2 cm; molecular testing (Afirma GSC, ThyroSeq v3) drives Bethesda III/IV management. Most "indolent" — yet ~5% become RAI-refractory.</p></div>
+      <div class="sub-block tl"><div class="lbl">Immune / vaccine rationale</div><p>Largely "cold" tumor; the PTC + Hashimoto subset shows HLA-II / IFN-γ enrichment (GSE286332 d=+3.65) and ectopic TLS biology — an antigen-presenting niche worth exploiting.</p></div>
+      <div class="sub-block mu"><div class="lbl">Available data</div><p>TCGA-THCA n=496, GSE184362 (158k cells, 11 PTC), GSE191288 (PTC+HT), GSE250521 spatial atlas. Korean public PRJEB11591 n=260.</p></div>
+      <div class="opportunity"><div class="lbl">Translational opportunity</div><p>BRAF-anchored differentiation-state vaccine + ICI in adjuvant / MRD setting. The HLA-II–biased PTC+HT subgroup is the most antigen-presenting niche.</p></div>
+    </div>
+
+    <!-- RAIR -->
+    <div class="card sub-card rair glow-amber">
+      <span class="sub-rib">RAIR DTC · 5–15% of DTC</span>
+      <h3>RAI-refractory DTC</h3>
+      <div class="sub-meta">
+        <div><b>1.2</b><span>TMB mut/Mb</span></div>
+        <div><b>Variable</b><span>TME state</span></div>
+        <div><b>65.5%</b><span>Lenva+Pembro ITOG ORR</span></div>
+      </div>
+      <div class="sub-block"><div class="lbl">Clinical problem</div><p>Lenvatinib (SELECT mPFS 18.3 vs 3.6 mo), sorafenib (DECISION), cabozantinib (COSMIC-311 HR 0.22). NTRK→larotrectinib · RET→selpercatinib. Redifferentiation: trametinib + ¹³¹I (MERAIODE).</p></div>
+      <div class="sub-block tl"><div class="lbl">Immune / vaccine rationale</div><p>Heterogeneous; subset acquires BRAF/RAS-driven dedifferentiation programs with rising MHC-I but exhausted T-cell signatures post-MKI exposure — vaccine prime + ICI maintenance is a rational sequence.</p></div>
+      <div class="sub-block mu"><div class="lbl">Available data</div><p>GSE76039 (Landa MSK n=84 PDTC + 33 ATC), thca_mskcc_2016, COSMIC-021 cohort 18 RNA-seq, ITOG NCT02973997 translational bank.</p></div>
+      <div class="opportunity"><div class="lbl">Translational opportunity</div><p>Post-redifferentiation iodine-uptake recovery → vaccine prime → anti-PD-1 maintenance is the most defensible MRD design after lenvatinib.</p></div>
+    </div>
+
+    <!-- ATC -->
+    <div class="card sub-card atc glow-violet">
+      <span class="sub-rib">ATC · PDTC · ~1–2%</span>
+      <h3>Anaplastic / Poorly-Differentiated Thyroid Cancer</h3>
+      <div class="sub-meta">
+        <div><b>6.1</b><span>TMB mut/Mb</span></div>
+        <div><b>Hot</b><span>TME state</span></div>
+        <div><b>43.2 mo</b><span>Atezo+Vem+Cobi mOS</span></div>
+      </div>
+      <div class="sub-block"><div class="lbl">Clinical problem</div><p>BRAF V600E test within days → dabrafenib + trametinib (ROAR 12-mo OS 51.7%). Neoadjuvant DTP (pembro+D+T) at MDACC: mOS 17 mo, surgical subset 63 mo. ATLEP: lenva+pembro ATC ORR 51.9%.</p></div>
+      <div class="sub-block tl"><div class="lbl">Immune / vaccine rationale</div><p>Highest TMB in thyroid (~6 mut/Mb), inflammatory infiltrate, T-cell exclusion reversible by MAPK inhibition. CT-antigens MAGE-A 62%, MAGE-C1 57%, GAGE 67%, NY-ESO-1 14%.</p></div>
+      <div class="sub-block mu"><div class="lbl">Available data</div><p>GSE76039 (33 ATC), GSE33630 (11 ATC), GSE232237 (50 thyroid cancers including ATC), MDACC FAST registry-linked NGS.</p></div>
+      <div class="opportunity"><div class="lbl">Translational opportunity</div><p>Highest-priority histology for personalized neoantigen mRNA + MAGE-A4 TCR-T + checkpoint backbone. BRAF/MEK inhibition opens the immunopeptidome window.</p></div>
+    </div>
+
+    <!-- MTC -->
+    <div class="card sub-card mtc glow-violet">
+      <span class="sub-rib">MTC · ~2–3% · 75% sporadic / 25% MEN2</span>
+      <h3>Medullary Thyroid Carcinoma</h3>
+      <div class="sub-meta">
+        <div><b>0.7</b><span>TMB mut/Mb</span></div>
+        <div><b>Cold</b><span>TME state</span></div>
+        <div><b>HR 0.28</b><span>LIBRETTO-531 selper vs cabo/vand</span></div>
+      </div>
+      <div class="sub-block"><div class="lbl">Clinical problem</div><p>RET-driven biology. LIBRETTO-531: selpercatinib first-line vs cabo/vand HR 0.28 — new SoC. Calcitonin/CEA biomarkers; MEN2B M918T thyroidectomy in first 6 months of life.</p></div>
+      <div class="sub-block tl"><div class="lbl">Immune / vaccine rationale</div><p>Immune-excluded "cold" microenvironment (Pozdeyev 2021), low TMB — but lineage antigens (calcitonin, CEA, GFRA4) are restricted and tractable. CGRP shapes the suppressive niche.</p></div>
+      <div class="sub-block mu"><div class="lbl">Available data</div><p>TCGA-MTC fragments, Agrawal Cell 2013, Ji Nat Commun 2015, MSK-MetTropism MTC subset, ARROW + LIBRETTO-001 translational.</p></div>
+      <div class="opportunity"><div class="lbl">Translational opportunity</div><p>GFRA4 CAR-T (Bhoj 2021) + selpercatinib priming + yeast-CEA / calcitonin DC vaccine prime → anti-PD-L1 release. Lineage-target stack with PD readouts (Ctn, CEA).</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DATASET UNIVERSE ============ -->
+<section class="section tab-panel" id="panel-data">
+  <div class="section-title">
+    <div>
+      <div class="kicker teal">02 · Data Universe</div>
+      <h2>One ingestion layer across 16 thyroid-relevant resources.</h2>
+    </div>
+    <div class="filter-row" id="dataFilters">
+      <button class="active" data-f="all">All</button>
+      <button data-f="ptc">PTC</button>
+      <button data-f="atc">ATC</button>
+      <button data-f="mtc">MTC</button>
+      <button data-f="hashimoto">PTC+HT</button>
+      <button data-f="korean">Korean</button>
+      <button data-f="immune">Immune / TCR</button>
+    </div>
+  </div>
+  <div class="section-note" style="margin-bottom:18px">Every dataset below is wired to a deterministic ingestion path, a use-in-pipeline mapping, and a readiness flag. <span class="tag em">R</span> raw FASTQ/BAM open · <span class="tag">P</span> processed-only · <span class="tag ro">C</span> controlled (dbGaP/EGA).</div>
+
+  <div class="tbl-wrap">
+    <div class="tbl-scroll">
+      <table class="data" id="dataTable">
+        <thead>
+          <tr>
+            <th>Dataset</th><th>Type</th><th>Subtype</th>
+            <th style="text-align:right">Scale</th>
+            <th>Use in pipeline</th>
+            <th>Readiness</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid g3" style="margin-top:18px">
+    <div class="card glow"><div class="label">Reference cohorts</div><h3>Backbone for every run</h3><p>TCGA-THCA n=496 · MSK Landa 2016 PDTC/ATC n=117 · MSK-CHORD thyroid subset · K2 PRJEB11591 Korean n=260 · MD Anderson FAST registry-linked NGS.</p></div>
+    <div class="card glow-violet"><div class="label violet">Single-cell + spatial backbone</div><h3>~600k cells · 17 ST samples</h3><p>GSE184362 (158k cells), GSE232237 (405k cells, 50 tumors), GSE191288 (PTC+HT), GSE250521 (Cell Rep Med 2025 ST atlas; HLA-DR⁺ early-cancerous niche).</p></div>
+    <div class="card glow-amber"><div class="label amber">Immune / vaccine ground truth</div><h3>Predictor + safety filter</h3><p>IEDB · CEDAR · HLA Ligand Atlas (PRIDE PXD019643, thyroid included) · VDJdb · McPAS-TCR · TCRdb 2.0 (~700M seq) · AFND Korean / pan-Asian frequency pool.</p></div>
+  </div>
+
+  <div class="card glow-amber" style="margin-top:14px">
+    <div class="label amber">Honesty flag</div>
+    <p>CPTAC thyroid program is announced, but the public PDC release was not posted as of 2026-05-06. Sun 2022 (PXD028111) is currently the deepest public thyroid proteomics dataset. Treated as a stated limitation — not a silent gap.</p>
+  </div>
+</section>
+
+<!-- ============ 9-STAGE PIPELINE ============ -->
+<section class="section tab-panel" id="panel-pipeline">
+  <div class="section-title">
+    <div>
+      <div class="kicker">03 · 9-Stage Pipeline</div>
+      <h2>Clinical intake → drug discovery in 10 deterministic stages.</h2>
+    </div>
+    <div class="section-note">Every stage produces a versioned artifact (DVC-tracked), runs in containerized form (Docker + Snakemake), and emits an evidence card with citation-anchored claim level. No black box — every decision is auditable.</div>
+  </div>
+
+  <div class="pipeline-rail" id="stageRail"></div>
+
+  <div class="grid g3" style="margin-top:22px">
+    <div class="card glow">
+      <div class="label">Why deterministic</div>
+      <h3>LODO discipline by default</h3>
+      <p>v5.2 LODO check (THCA DIAL=0.000 under proper ComBat-LODO, not 0.494 leak artifact). We do not ship subtype claims that survive only one batch design — every artifact carries the LODO check.</p>
+    </div>
+    <div class="card glow-violet">
+      <div class="label violet">Why subtype-aware HLA</div>
+      <h3>Korean-first, not Korean-blind</h3>
+      <p>K2 cohort (PRJEB11591 n=260) was used to validate arcasHLA RNA-seq imputation (DPB1*05:01 ≈56%, replicating Kim 2014). AFND Korean / pan-Asian audit runs before any neoantigen ranking is exposed.</p>
+    </div>
+    <div class="card glow-amber">
+      <div class="label amber">Why a wetlab plan, not just a number</div>
+      <h3>Reagent-level resolution</h3>
+      <p>Every ranked candidate emerges with a tetramer + ELISpot + IFN-γ release + MS-confirmation plan, mapped to commercially-available reagents. Translational, not benchmarky.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHATBOT DEMO ============ -->
+<section class="section tab-panel" id="panel-chat">
+  <div class="section-title">
+    <div>
+      <div class="kicker teal">04 · Chatbot Demo</div>
+      <h2>Type a clinical case. Watch the pipeline produce a defensible plan.</h2>
+    </div>
+    <div class="section-note">The demo runs against public-data scaffolding (TCGA-THCA / GSE184362 / GSE286332 / IEDB / HLA Ligand Atlas) — no patient data. Every line is paired with the stage that emitted it and the dataset it consulted.</div>
+  </div>
+
+  <div class="agent-layout">
+    <div class="chatbox">
+      <div class="chat-head">
+        <div class="left"><i class="live-dot"></i><b>Lumenix · Vaccine Agent</b><span>· session/RAIR-PTC-0421</span></div>
+        <div id="chatStatus">idle</div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="chips" id="chips"></div>
+      <div class="inputbar">
+        <input id="promptInput" placeholder='예: "RAI-refractory PTC 한국인 환자에 대한 vaccine candidate 뽑아줘" / "ATC BRAF V600E neoadjuvant DTP에 vaccine 어떻게 끼워?" / "MTC GFRA4 CAR + 백신 콤보"' />
+        <button onclick="sendPrompt()">Send</button>
+      </div>
+    </div>
+
+    <aside class="side">
+      <h4>· Live stage progress</h4>
+      <div class="exec-list" id="execList"></div>
+
+      <div class="side-mini">
+        <div class="label teal">Top candidate table</div>
+        <div class="candidate-mini" id="candTable">
+          <div class="cand-row"><div class="rk">·</div><div class="pep" style="color:var(--mute2)">— run a scenario to populate —</div><div class="sc"></div><div class="ok"></div></div>
+        </div>
+      </div>
+
+      <div class="side-mini">
+        <div class="label violet">Immune context</div>
+        <div class="kvgrid">
+          <div><b id="ctxCD8">—</b><span>CD8/Treg</span></div>
+          <div><b id="ctxExh">—</b><span>Exhaustion</span></div>
+          <div><b id="ctxTLS">—</b><span>TLS-B</span></div>
+          <div><b id="ctxDIAL">—</b><span>DIAL-U bias</span></div>
+        </div>
+        <div class="hla" id="ctxHLA"></div>
+      </div>
+
+      <div class="side-mini">
+        <div class="label amber">Validation checklist</div>
+        <div class="checklist" id="checklist">
+          <div class="chk todo"><div class="box">·</div><span>PBMC ELISpot · candidates × HLA contexts</span></div>
+          <div class="chk todo"><div class="box">·</div><span>MHC-I tetramer · top 2</span></div>
+          <div class="chk todo"><div class="box">·</div><span>IFN-γ release co-culture vs autologous organoid</span></div>
+          <div class="chk todo"><div class="box">·</div><span>FFPE-LMD MS immunopeptidome confirmation</span></div>
+          <div class="chk todo"><div class="box">·</div><span>PDX vaccination arm (n=8/arm)</span></div>
+          <div class="chk todo"><div class="box">·</div><span>CRISPR antigen knockout escape model</span></div>
+        </div>
+      </div>
+
+      <div class="side-mini">
+        <div class="label muted">Always-on validators</div>
+        <div class="hla">
+          <span>DIAL-U HLA bias</span>
+          <span>Self-peptide vs HLA-LA</span>
+          <span>GTEx thyroid filter</span>
+          <span>Conformal CI</span>
+          <span>OOD allele flag</span>
+          <span>Citation lint</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ EVIDENCE TABLE + ANTIGEN CLASSES + CLAIM BOUNDARY ============ -->
+<section class="section tab-panel" id="panel-evidence">
+  <div class="section-title">
+    <div>
+      <div class="kicker amber">05 · Vaccine + ICI Evidence Base</div>
+      <h2>Every claim cited. Every level marked.</h2>
+    </div>
+    <div class="section-note">Thyroid cancer vaccine field is small and predominantly small-n / single-center. Each row is marked with evidence level (case · phase I · phase II · phase III · review · preclinical) — hypotheses are built only on top of citation-anchored facts.</div>
+  </div>
+
+  <div class="grid" style="grid-template-columns:1.6fr 1fr;gap:18px">
+    <div class="tbl-wrap">
+      <div class="evid-head">
+        <span>Approach</span><span>Source</span><span>Level</span><span>N</span><span>Signal</span>
+      </div>
+      <div id="evidBody"></div>
+    </div>
+
+    <div>
+      <div class="card glow">
+        <div class="label">Candidate antigen classes</div>
+        <h3>Subtype-aware antigen mapping</h3>
+        <div id="antigenList" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card glow-amber" style="margin-top:14px">
+        <div class="label amber">Honest correction</div>
+        <p style="color:var(--ink-2)">The widely-cited HLA-A*02:01 BRAF-V600E peptide <code style="color:var(--ink);background:#0a111d;padding:2px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px">GLATEKSRWS</code> is <em>not</em> robustly validated by mass-spec immunopeptidomics in thyroid. Validated BRAF-V600E T-cell biology is dominated by <strong style="color:var(--ink)">CD4⁺ HLA-DQB1*0303/0302</strong> restriction (Veatch <em>JCI</em> 2018). Lumenix flags this as a <span class="tag am">caution</span> — not a pass.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="boundary-grid" style="margin-top:24px">
+    <div class="b-can">
+      <h3><span class="b-icon">✓</span>We can claim</h3>
+      <ul>
+        <li>Research-grade, citation-anchored thyroid vaccine pipeline.</li>
+        <li>Public-data demo on TCGA-THCA / GEO scRNA / GSE250521 ST.</li>
+        <li>Subtype-aware vaccine hypothesis generation (PTC · RAIR · ATC · MTC).</li>
+        <li>HLA typing + Korean / pan-Asian frequency bias audit.</li>
+        <li>Neoantigen ranking with self-peptide safety filter (HLA Ligand Atlas + GTEx).</li>
+        <li>Wetlab validation plan with reagent-level resolution.</li>
+        <li>Combination-strategy generation grounded in published trials.</li>
+      </ul>
+    </div>
+    <div class="b-cant">
+      <h3><span class="b-icon">⨯</span>We do <em>not</em> claim</h3>
+      <ul>
+        <li>Validated clinical vaccine efficacy in any thyroid cancer histology.</li>
+        <li>Patient-level treatment recommendation or clinical decision support.</li>
+        <li>Regulatory-approved diagnostic or therapeutic product.</li>
+        <li>Replacement for treating clinicians or tumor boards.</li>
+        <li>Substitute for prospective clinical trial evidence.</li>
+        <li>Outcome guarantees on derived hypotheses.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ IMMUNE READINESS ≠ RESPONSE PREDICTION ============ -->
+<section class="section tab-panel" id="panel-readiness">
+  <div class="section-title">
+    <div>
+      <div class="kicker amber">06 · Immune Readiness Layer</div>
+      <h2>Immune Readiness <span style="color:var(--ember)">≠</span> Response Prediction.</h2>
+    </div>
+    <div class="section-note">Pooled thyroid TME analysis (n=415, 8 cohorts) + pan-cancer ICI direction-invariance audit. Every immune score is treated as a hypothesis until it passes cross-cohort direction-invariance, HLA/neoantigen architecture, and thyroid-specific validation.</div>
+  </div>
+
+  <!-- TOP CLAIM-BOUNDARY BANNER -->
+  <div class="readiness-banner">
+    <div class="icon">⚠</div>
+    <div>
+      <h3>Hypothesis-grade only — not a clinical predictor.</h3>
+      <p>
+        Lumenix immunogenomics layer outputs <span class="em-teal">research-grade ICI-readiness, immunogenomic vulnerability prioritization, and vaccine-combination hypothesis generation</span>.
+        It does <span class="em-orange">not</span> output thyroid ICI response prediction, clinical treatment recommendation, patient selection biomarkers, or validated ICI sensitivity.
+        The boundary is enforced at every score, every figure, every interpretation.
+      </p>
+    </div>
+  </div>
+
+  <!-- ATC IMMUNE VULNERABILITY MAP -->
+  <div class="kicker violet" style="margin-top:34px">A · ATC Immune Vulnerability Map</div>
+  <h3 style="margin:6px 0 4px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px">Inflamed-but-myeloid-suppressed, dedifferentiated.</h3>
+  <p style="color:var(--muted);margin:0 0 14px;font-size:13.5px">
+    Pooled n-weighted Cohen's d across 4 thyroid cohorts (GSE126698 + GSE65144 + GSE29265 + GSE33630 + GSE76039 PDTC/ATC) — ATC vs non-ATC. Sign consistency across cohorts in parentheses.
+  </p>
+
+  <div class="vuln-grid">
+    <div class="vuln-card up">
+      <span class="arrow">▲</span>
+      <h4>Myeloid suppressive</h4>
+      <div class="d-num">d = +2.53</div>
+      <div class="d-meta">sign 4/4 · pooled meta</div>
+      <p>Largest module-level shift. CD68 / CD163 / MRC1 / CSF1R / IL10 / TGFB1 axis dominantly elevated in ATC — primary mechanism candidate for ICI resistance.</p>
+    </div>
+
+    <div class="vuln-card up">
+      <span class="arrow">▲</span>
+      <h4>Checkpoint exhaustion</h4>
+      <div class="d-num">d = +1.01</div>
+      <div class="d-meta">sign 4/4 · pooled meta</div>
+      <p>PDCD1 / CD274 / CTLA4 / LAG3 / TIGIT / HAVCR2 / TOX cluster — ATC carries actionable checkpoint biology, suggesting combination ICI rationale.</p>
+    </div>
+
+    <div class="vuln-card up">
+      <span class="arrow">▲</span>
+      <h4>HLA class II</h4>
+      <div class="d-num">d = +0.68</div>
+      <div class="d-meta">sign 3/4 · pooled meta</div>
+      <p>HLA-DR/DP/DQ/CIITA elevated — tumor-intrinsic Class II antigen presentation candidate (overlap with PTC+HT phenotype, kept boundary-distinct from Paper 2).</p>
+    </div>
+
+    <div class="vuln-card up">
+      <span class="arrow">▲</span>
+      <h4>HLA class I</h4>
+      <div class="d-num">d = +0.58</div>
+      <div class="d-meta">sign 4/4 · pooled meta</div>
+      <p>HLA-A/B/C/B2M/TAP/NLRC5/PSMB8/9 quantitatively preserved at transcript level. Loss-of-presentation requires somatic LOH analysis — Module C territory, not bulk.</p>
+    </div>
+
+    <div class="vuln-card up">
+      <span class="arrow">▲</span>
+      <h4>IFNG / T-cell inflamed</h4>
+      <div class="d-num">d = +0.55</div>
+      <div class="d-meta">sign 4/4 · pooled meta</div>
+      <p>CXCL9/10/11 + IFNG + STAT1 + IRF1 + GZMB + PRF1 + CD8A/B — IFNγ-active environment in ATC, paradoxical with myeloid suppression.</p>
+    </div>
+
+    <div class="vuln-card mixed">
+      <span class="arrow">~</span>
+      <h4>TLS / CXCL13-like</h4>
+      <div class="d-num">d = -0.15</div>
+      <div class="d-meta">sign 3/4 · NOT uniform</div>
+      <p>Tertiary lymphoid niche signal NOT uniformly elevated in ATC. Boundary-clean separation from Paper 2's PTC+HT TLS-rich phenotype — a feature, not a bug.</p>
+    </div>
+
+    <div class="vuln-card down" style="grid-column:span 3">
+      <span class="arrow">▼</span>
+      <h4>Thyroid differentiation</h4>
+      <div class="d-num">d = -2.51</div>
+      <div class="d-meta">sign 4/4 · pooled meta · TPO/TG/TSHR/SLC5A5/PAX8/NKX2-1/DIO1/2</div>
+      <p>Mirror-image effect to myeloid_suppressive. ATC defined by collapsed thyroid lineage program — the dedifferentiation axis is the substrate on which immune vulnerability rides. Method-robust: ssGSEA d=-2.51, Singscore d=-1.96 in GSE126698 (sign-match across both methods, all 7 modules).</p>
+    </div>
+  </div>
+
+  <!-- TWO-AXIS IMMUNE MAP -->
+  <div class="kicker teal" style="margin-top:38px">B · Two-axis Immune Map</div>
+  <h3 style="margin:6px 0 4px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px">PC1 + PC2 captures 83.6% of thyroid TME variance.</h3>
+  <p style="color:var(--muted);margin:0 0 14px;font-size:13.5px">
+    Standardized PCA on pooled n=415 sample × 7 module score matrix across 8 cohorts (5 thyroid + Hugo + Riaz pre + Riaz on). Interpretation locked at design — used as biologically meaningful coordinate system for vaccine / ICI hypothesis generation.
+  </p>
+
+  <div class="axis-card">
+    <div class="ax">
+      <span class="pc">Principal axis · PC1</span>
+      <span class="ax-name">Pan-immune activation</span>
+      <span class="pct">69.4% variance explained</span>
+      <p>HLA-I / HLA-II / IFNG / TLS / checkpoint / myeloid all positively loaded at +0.34 to +0.43; thyroid_differentiation negatively loaded at -0.20. Single dominant inflammation axis — vaccine + ICI candidate readiness lives mostly here.</p>
+    </div>
+    <div class="ax">
+      <span class="pc">Secondary axis · PC2</span>
+      <span class="ax-name">Dedifferentiation</span>
+      <span class="pct">14.2% variance explained</span>
+      <p>thyroid_differentiation +0.83 dominant; myeloid_suppressive -0.37; TLS +0.36. Orthogonal to immune activation — vaccine antigen class selection (lineage-restricted vs immune-amplified) maps onto this axis.</p>
+    </div>
+  </div>
+
+  <!-- DIAL: DIRECTION-INVARIANCE AUDIT LAYER -->
+  <div class="kicker amber" style="margin-top:38px">C · DIAL · Direction-Invariance Audit Layer</div>
+  <h3 style="margin:6px 0 4px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px">Pan-cancer ICI signatures do <span style="color:var(--ember)">not</span> transfer to thyroid blindly.</h3>
+  <p style="color:var(--muted);margin:0 0 14px;font-size:13.5px">
+    DIAL-lite probe on Hugo melanoma (GSE78220, n=28) + Riaz melanoma pre-treatment (GSE91061, n=51), responder vs non-responder Cohen's d with 1000-bootstrap 95% CI + 1000-permutation null. Two melanoma cohorts <em>same</em> disease — yet sign already inconsistent in 4/7 modules.
+  </p>
+
+  <div class="dial-card">
+    <div class="dial-flow">
+      <div class="dial-step">
+        <span class="num">01</span>
+        <span class="lab">Pan-cancer ICI cohorts</span>
+        <span class="meta">IMvigor210 · Hugo · Riaz · Gide · Liu · Kim</span>
+      </div>
+      <div class="dial-step">
+        <span class="num">02</span>
+        <span class="lab">Module direction test</span>
+        <span class="meta">responder − non-responder · ssGSEA + Singscore · per cohort</span>
+      </div>
+      <div class="dial-step">
+        <span class="num">03</span>
+        <span class="lab">Bootstrap + permutation</span>
+        <span class="meta">B=1000 each · 95% CI · empirical null</span>
+      </div>
+      <div class="dial-step fail">
+        <span class="num">04</span>
+        <span class="lab">Thyroid transfer eligibility</span>
+        <span class="meta">PASS / FLIP / COLLAPSE / AMBIGUOUS · per signature</span>
+      </div>
+      <div class="dial-step pass">
+        <span class="num">05</span>
+        <span class="lab">Hypothesis only · or claim blocked</span>
+        <span class="meta">DIAL-PASS-only signatures enter readiness score</span>
+      </div>
+    </div>
+
+    <div class="dial-result-grid">
+      <div class="res">
+        <div class="lbl">Sign-consistent modules (Hugo + Riaz_pre)</div>
+        <div class="num">3 / 7</div>
+        <p>HLA-I + HLA-II + TLS_CXCL13 only. Binomial 1-sided p=0.77 — direction-invariance NOT established at 2-cohort minimal sample.</p>
+      </div>
+      <div class="res">
+        <div class="lbl">Cross-method robust (ssGSEA ∩ Singscore)</div>
+        <div class="num">1 / 7</div>
+        <p>Only HLA class II passes BOTH scoring methods AND BOTH melanoma cohorts. Single defensible pan-cancer module before HLA-bias / thyroid validation.</p>
+      </div>
+      <div class="res">
+        <div class="lbl">Direction-flipped modules</div>
+        <div class="num">4 / 7</div>
+        <p>IFNG · checkpoint · myeloid_suppressive · thyroid_differentiation flip sign between Hugo and Riaz. These modules enter Module E ONLY after full DIAL audit on ≥5 cohorts.</p>
+      </div>
+      <div class="res">
+        <div class="lbl">Hierarchical cluster bootstrap stability</div>
+        <div class="num">0.27</div>
+        <p>K=4 hclust co-membership across 200 bootstraps — cohort/batch effect dominates ecotype signal. ComBat-seq harmonization required before NMF in production Module A.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- HYPOTHESIS-ONLY GUARDRAIL -->
+  <div class="guard-quote">
+    <div class="label">Lumenix immune readiness guardrail</div>
+    <blockquote>
+      "Every immune score is treated as a hypothesis until it passes cross-cohort direction-invariance, HLA/neoantigen architecture, and thyroid-specific validation."
+    </blockquote>
+  </div>
+
+  <!-- CLAIM BOUNDARY (4 forbidden + 4 allowed) -->
+  <div class="boundary-readiness">
+    <div class="b-cant">
+      <h3>⨯ Lumenix readiness layer does NOT claim</h3>
+      <ul>
+        <li>Thyroid ICI response prediction (raw thyroid ICI-treated RNA-seq absent).</li>
+        <li>Clinical treatment recommendation or any patient-level decision.</li>
+        <li>Patient selection biomarker for ICI eligibility.</li>
+        <li>Validated ICI sensitivity at any histology, including ATC.</li>
+      </ul>
+    </div>
+    <div class="b-can">
+      <h3>✓ Lumenix readiness layer does claim</h3>
+      <ul>
+        <li>Research-grade ICI-readiness candidate identification.</li>
+        <li>Immunogenomic vulnerability prioritization across PTC / RAIR / PDTC / ATC.</li>
+        <li>Vaccine-combination hypothesis generation grounded in published cohorts.</li>
+        <li>Direction-invariance audit before any pan-cancer signature reaches a thyroid claim.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TOOL STACK ============ -->
+<section class="section tab-panel" id="panel-tools">
+  <div class="section-title">
+    <div>
+      <div class="kicker teal">06 · Tool Stack</div>
+      <h2>Best-in-class tools wired into a single deterministic graph.</h2>
+    </div>
+    <div class="section-note">No tool is sacred — versions are pinned, cross-validated outputs are the unit of truth, and Lumenix-native modules sit alongside community standards.</div>
+  </div>
+
+  <div class="tool-grid" id="toolGrid"></div>
+</section>
+
+<!-- ============ DELIVERABLES (always visible on overview tab) ============ -->
+<section class="section tab-panel" id="panel-deliverables">
+  <div class="section-title">
+    <div>
+      <div class="kicker">07 · Output Deliverables</div>
+      <h2>What you walk out with after a Lumenix run.</h2>
+    </div>
+    <div class="section-note">Each artifact is reproducible, citation-anchored, and packaged for a downstream consumer (the BD team, the wetlab, the manuscript, the IND).</div>
+  </div>
+  <div class="deliv-grid" id="delivGrid"></div>
+</section>
+
+<!-- ============ SOURCES ============ -->
+<section class="section tab-panel" id="panel-sources">
+  <div class="section-title">
+    <div>
+      <div class="kicker amber">08 · Reference Spine</div>
+      <h2>Citation-anchored, primary-source-first.</h2>
+    </div>
+    <div class="section-note">The page's clinical, dataset, and tool messages are anchored to the references below. Commercial use of any tool requires legal review prior to contracting.</div>
+  </div>
+  <div class="grid g3 source-list">
+    <a href="https://www.liebertpub.com/doi/10.1177/10507256251363120" target="_blank">2025 ATA DTC Guidelines · Ringel/Sosa · Thyroid 2025<small>4-tier risk stratification, lobectomy default for cT1, redifferentiation framing.</small></a>
+    <a href="https://www.liebertpub.com/doi/10.1089/thy.2020.0944" target="_blank">2021 ATA ATC Guidelines · Bible et al. · Thyroid 31(3)<small>Same-day BRAF V600E testing → D+T → multidisciplinary plan.</small></a>
+    <a href="https://www.liebertpub.com/doi/10.1089/thy.2014.0335" target="_blank">2015 ATA MTC Guidelines · Wells et al. · Thyroid 25(6)<small>RET-tier prophylactic thyroidectomy framework; Ctn/CEA monitoring.</small></a>
+    <a href="https://pubmed.ncbi.nlm.nih.gov/35288841/" target="_blank">2022 WHO Thyroid Tumor Classification (5th ed) · Baloch · Endocr Pathol<small>DHGTC; oncocytic carcinoma; NIFTP reaffirmed.</small></a>
+    <a href="https://journals.sagepub.com/doi/10.1089/thy.2023.0141" target="_blank">2023 Bethesda System (3rd ed) · Ali · Thyroid 33(9)<small>AUS nuclear-atypia split; ROM ranges aligned to WHO 2022.</small></a>
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa1406470" target="_blank">SELECT · Schlumberger · NEJM 2015<small>Lenvatinib mPFS 18.3 vs 3.6 mo in RAIR DTC.</small></a>
+    <a href="https://www.thelancet.com/journals/lanonc/article/PIIS1470-2045(21)00332-6/abstract" target="_blank">COSMIC-311 · Brose · Lancet Oncol 2021<small>Cabozantinib post-VEGFR-TKI HR 0.22.</small></a>
+    <a href="https://www.nejm.org/doi/full/10.1056/NEJMoa2309719" target="_blank">LIBRETTO-531 · Hadoux · NEJM 2023<small>Selpercatinib first-line in RET-mutant MTC HR 0.28.</small></a>
+    <a href="https://www.annalsofoncology.org/article/S0923-7534(22)00005-9/fulltext" target="_blank">ROAR ATC update · Subbiah · Ann Oncol 2022<small>D+T in BRAF V600E ATC: 12-mo OS 51.7%.</small></a>
+    <a href="https://pubmed.ncbi.nlm.nih.gov/39446377/" target="_blank">Atezo + Vem + Cobi (BRAFm ATC) · Iyer/Cabanillas · JAMA Oncol 2024<small>mOS 43.2 mo · ORR 50%.</small></a>
+    <a href="https://ascopubs.org/doi/10.1200/JCO.2025.43.16_suppl.6008" target="_blank">Neoadjuvant DTP (BRAFm ATC) · Wang/Cabanillas · ASCO 2025<small>mOS 20 mo · surgical subset 63 mo · NCT04675710.</small></a>
+    <a href="https://aacrjournals.org/clincancerres/article/30/17/3757/747280" target="_blank">Lenva + Pembro (RAIR DTC) · Haugen/Bible · CCR 2024<small>ITOG NCT02973997 cohort 1 ORR 65.5%.</small></a>
+    <a href="https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(23)02268-7/abstract" target="_blank">KEYNOTE-942 · Weber · Lancet 2024<small>mRNA-4157 + pembro adjuvant melanoma RFS HR 0.561.</small></a>
+    <a href="https://www.nature.com/articles/s41586-023-06063-y" target="_blank">Autogene cevumeran (BNT122) · Rojas/Balachandran · Nature 2023<small>Personalized neoantigen mRNA in resected PDAC.</small></a>
+    <a href="https://pubmed.ncbi.nlm.nih.gov/11600571/" target="_blank">Schott · DC + Calcitonin/CEA in MTC · JCEM 2001<small>Foundational MTC dendritic cell vaccine paper.</small></a>
+    <a href="https://academic.oup.com/oncolo/article/31/2/oyaf429/8407308" target="_blank">GI-6207 yeast-CEA in MTC · Del Rivero · Oncologist 2025<small>Phase II rand. negative on Ctn slope; 58% T-cell expansion.</small></a>
+    <a href="https://pubmed.ncbi.nlm.nih.gov/33614919/" target="_blank">GFRA4 CAR-T for MTC · Bhoj · Mol Ther Oncolytics 2021<small>Preclinical eradication in TT/MZ-CRC1 xenograft.</small></a>
+    <a href="https://academic.oup.com/jcem/article/107/4/1110/6423845" target="_blank">TSHR CAR-T for DTC · Li · JCEM 2022<small>TSHR expressed in 91%/89% PTC/FTC; K1-70-derived CAR.</small></a>
+    <a href="https://www.cell.com/cell-reports-medicine/fulltext/S2666-3791(25)00116-8" target="_blank">Spatial Atlas of Thyroid Cancer Progression · Cell Rep Med 2025<small>GSE250521 · 17 ST samples · HLA-DR⁺ early-cancerous niche.</small></a>
+    <a href="https://www.nature.com/articles/s41467-021-26343-3" target="_blank">scRNA Atlas of PTC · Pu · Nat Commun 2021<small>GSE184362 · 158k cells · paratumor → distant met.</small></a>
+    <a href="https://hla-ligand-atlas.org" target="_blank">HLA Ligand Atlas · Marcu · JITC 2021<small>Benign-tissue immunopeptidome incl. thyroid; vaccine safety filter.</small></a>
+    <a href="https://www.iedb.org" target="_blank">IEDB · Vita · NAR 2024<small>1.6 M epitopes · 6.8 M assays · biweekly updates.</small></a>
+    <a href="https://cedar.iedb.org" target="_blank">CEDAR · Koşaloğlu-Yalçın · NAR 2023<small>Cancer-specific epitope DB · 289k epitopes.</small></a>
+    <a href="https://www.allelefrequencies.net" target="_blank">AFND · Allele Frequency Net Database<small>Korean / pan-Asian HLA frequency pool for bias audit.</small></a>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<section class="section tab-panel always" id="panel-footer">
+  <div class="footer-card">
+    <div class="footer-grid">
+      <div>
+        <div class="kicker teal">Lumenix · Thyroid Vertical</div>
+        <h2 style="margin-top:8px">Built for translational thyroid oncology — from omics to vaccine strategy to drug discovery.</h2>
+        <p style="color:var(--muted);margin-top:12px;line-height:1.55;max-width:640px">Founder execution depth: 3+ years on thyroid cancer multi-omics, HLA / immunogenomics, and manuscript-ready translational AI. The platform is what those years looked like wrapped into a product.</p>
+      </div>
+      <div class="audience-grid">
+        <a><b>For pharma BD</b><span>Technical appendix · target landscape</span></a>
+        <a><b>For translational labs</b><span>Wetlab validation protocols · reagents</span></a>
+        <a><b>For thyroid researchers</b><span>Cohort access · public-data demo</span></a>
+        <a><b>For hospital AI groups</b><span>On-prem deployable · DVC-tracked</span></a>
+      </div>
+    </div>
+    <div class="footer-tag">
+      <div>© 2026 · Lumenix · Thyroid Cancer Vaccine-to-Drug Discovery Platform</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap">
+        <span><i class="live-dot" style="margin-right:6px"></i>v0.9 research-grade preview</span>
+        <span>not a medical device</span>
+        <span>citation-anchored</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ===================================================== SCRIPT ===================================================== -->
+<script>
+/* ======================== DATA ======================== */
+const STAGES = [
+  { n:0, label:"Clinical Intake",          tone:"em", icon:"◷", det:"Subtype (WHO 2022) · AJCC 8 stage · Bethesda 2023 · ATA 2025 risk · prior RAI/MKI/ICI exposure" },
+  { n:1, label:"Multi-omics Ingestion",    tone:"em", icon:"◇", det:"WES + RNA-seq + scRNA + ST + methylation + WSI · QC · sample-tracker · LODO-aware batch design" },
+  { n:2, label:"Molecular Subtyping",      tone:"em", icon:"◆", det:"BRAF/RAS-like score · DM1 dark-matter projection · differentiation-state inference" },
+  { n:3, label:"TME Mapping",              tone:"em", icon:"☷", det:"CIBERSORTx · scVI label-transfer · cell2location ST · TLS / IFN-γ / exhaustion modules" },
+  { n:4, label:"HLA Typing + Bias Audit",  tone:"teal", icon:"⌬", det:"arcasHLA · OptiType · CookHLA · xHLA → AFND Korean / pan-Asian audit · DIAL-U bias score" },
+  { n:5, label:"Neoantigen Discovery",     tone:"teal", icon:"⌗", det:"pVACtools · OpenVax · Vaxrank · NeoPredPipe · MHCflurry · NetMHCpan · PRIME · BigMHC · agretopicity" },
+  { n:6, label:"Vaccine Candidate Ranking", tone:"teal", icon:"✦", det:"pMTnet · NetTCR · DeepImmuno · TITAN · ImRex · self-peptide safety vs HLA-LA + GTEx" },
+  { n:7, label:"Combination Strategy",     tone:"violet", icon:"✚", det:"Backbone: BRAFi/MEKi · MKI · RET-i · anti-PD-1/PD-L1 · DC/mRNA/peptide/CAR-T module selection" },
+  { n:8, label:"Wetlab Validation Plan",   tone:"amber", icon:"⚗", det:"Tetramer + ELISpot + IFN-γ release · co-culture · MS confirmation · PDX/orthotopic · CRISPR escape" },
+  { n:9, label:"Drug Discovery Extension", tone:"amber", icon:"✪", det:"Target nomination · scaffolds · structure-aware ligand design · TCR-T / mRNA / TCE / CAR triage" }
+];
+
+const DATA_MATRIX = [
+  { name:"TCGA-THCA",          accession:"phs000178",      type:"Bulk RNA-seq · WES · meth · miRNA · RPPA", subtype:"PTC (n=496) + 59 N",       scale:"496",     use:"Reference cohort; subtyping; HLA imputation; bulk neoantigen", readiness:"R/C", tag:"GDC", k:"ptc all" },
+  { name:"cBioPortal THCA",    accession:"thca_tcga_pub",  type:"Mutations · CNA · clinical",                subtype:"PTC",                       scale:"496",     use:"Driver landscape; TERT recovery (n=36); cohort filters",         readiness:"P",   tag:"cBioPortal", k:"ptc all" },
+  { name:"thca_mskcc_2016",    accession:"GSE76039",       type:"Targeted panel + RNA-seq",                  subtype:"PDTC (84) + ATC (33)",      scale:"117",     use:"Advanced-disease landscape; TP53/SWI-SNF burden",                readiness:"R",   tag:"cBioPortal/SRA", k:"atc all" },
+  { name:"GSE184362",          accession:"GSE184362",      type:"10x scRNA-seq",                             subtype:"PTC (paratumor → met)",     scale:"158,577", use:"Premalignant cell-state mapping; dedifferentiation programs",   readiness:"R",   tag:"GEO · Pu 2021 NComm", k:"ptc all" },
+  { name:"GSE232237",          accession:"GSE232237",      type:"10x scRNA-seq atlas",                       subtype:"PTC + ATC + mets + N",      scale:"405,077", use:"Cross-subtype heterogeneity reference; TME stratification",       readiness:"R",   tag:"GEO", k:"ptc atc all" },
+  { name:"GSE191288",          accession:"GSE191288",      type:"10x scRNA-seq",                             subtype:"PTC + Hashimoto overlap",   scale:"24,805",  use:"PTC+HT immune axis; HLA-II / B / TLS modules",                  readiness:"R",   tag:"GEO · Luo 2021 FCDB", k:"ptc hashimoto all" },
+  { name:"GSE250521",          accession:"GSE250521",      type:"Spatial transcriptomics",                   subtype:"PT · PTC · LPTC · ATC",     scale:"17 / 57,997 spots", use:"Progression-stage HLA-DR⁺ cancerous niche; SERPINE1⁺ stroma", readiness:"R", tag:"Cell Rep Med 2025", k:"ptc atc all" },
+  { name:"GSE286332",          accession:"GSE286332",      type:"Bulk RNA-seq",                              subtype:"Korean PTC ± Hashimoto",    scale:"18",      use:"HLA-II d=+3.65 antigen-presentation hot subset",                readiness:"R",   tag:"GEO · Korean", k:"ptc hashimoto korean all" },
+  { name:"PRJEB11591 / K2",    accession:"PRJEB11591",     type:"Bulk RNA-seq",                              subtype:"Korean PTC",                scale:"260",     use:"Korean validation; arcasHLA imputation (DPB1*05:01 56%)",        readiness:"R",   tag:"ENA · Yoo 2016", k:"ptc korean all" },
+  { name:"IEDB",               accession:"iedb.org",       type:"Epitope DB",                                subtype:"pan-disease",               scale:"1.6M ep · 6.8M assays", use:"HLA-peptide ground truth; predictor training",       readiness:"P",   tag:"IEDB 2024 NAR", k:"immune all" },
+  { name:"CEDAR",              accession:"cedar.iedb.org", type:"Cancer epitope DB",                         subtype:"pan-cancer (incl. thyroid)",scale:"289k ep · 36.9k receptors", use:"Cancer-specific epitope literature curation",      readiness:"P",   tag:"CEDAR 2024", k:"immune all" },
+  { name:"HLA Ligand Atlas",   accession:"PXD019643",      type:"Benign-tissue MS immunopeptidome",          subtype:"incl. thyroid",             scale:"227 samp · 90k I + 142k II", use:"Self-peptide safety filter for vaccine antigens",     readiness:"R",   tag:"JITC 2021 · PRIDE", k:"immune all" },
+  { name:"VDJdb",              accession:"vdjdb.cdr3.net", type:"TCR-pMHC pairs",                            subtype:"pan-disease",               scale:"~30k",    use:"TCR specificity priors; pMTnet / NetTCR training",              readiness:"P",   tag:"VDJdb", k:"immune all" },
+  { name:"McPAS-TCR",          accession:"friedmanlab",    type:"Curated pathology TCRs",                    subtype:"autoimmune + cancer",       scale:"curated", use:"Autoreactivity neighbor search vs candidate TCRs (incl. Hashimoto, Graves)", readiness:"P", tag:"McPAS", k:"immune hashimoto all" },
+  { name:"TCRdb 2.0",          accession:"TCRdb 2.0",      type:"Repertoire aggregation",                    subtype:"pan-cancer + αβ + γδ",      scale:"~700M seq", use:"Repertoire breadth context; ICI cohort priors",                readiness:"P",   tag:"NAR 2025", k:"immune all" },
+  { name:"WSI / Pathology",    accession:"TCGA DX + private", type:"H&E whole-slide images",                  subtype:"PTC · ATC · MTC",           scale:"TBD",     use:"UNI / Virchow / GigaPath embeddings → DM1 projection",          readiness:"P/C", tag:"Foundation models", k:"ptc atc mtc all" }
+];
+
+const TOOLS = [
+  { cat:"Genomics",            tone:"",        items:["GATK4","MuTect2","Strelka2","DeepVariant","VEP","ANNOVAR","vcf2maf"] },
+  { cat:"Transcriptomics",     tone:"",        items:["STAR","salmon","kallisto","DESeq2","limma-voom","Arriba","STAR-Fusion"] },
+  { cat:"HLA",                 tone:"teal",    items:["CookHLA","OptiType","arcasHLA","xHLA","seq2HLA","HLA-LA"] },
+  { cat:"Neoantigen",          tone:"teal",    items:["pVACtools","pVACview","OpenVax","Vaxrank","NeoPredPipe","NeoFox"] },
+  { cat:"MHC / Immunogenicity",tone:"teal",    items:["MHCflurry 2.0","MHCnuggets","NetMHCpan 4.1","NetMHCIIpan","PRIME","BigMHC","DeepImmuno","TransPHLA"] },
+  { cat:"TCR / pMHC",          tone:"violet",  items:["pMTnet","NetTCR","DeepTCR","TITAN","ImRex","ERGO-II"] },
+  { cat:"Single-cell / Spatial",tone:"violet", items:["Scanpy","Seurat","scVI / scANVI","Squidpy","cell2location","NicheNet","CellPhoneDB","STaligner"] },
+  { cat:"Pathology AI",        tone:"amber",   items:["UNI","Virchow / Virchow2","GigaPath","CHIEF","Phikon-v2","HoVer-Net","CellViT"] },
+  { cat:"Lumenix-native",      tone:"native",  items:["CookHLA-Korean","DIAL-U HLA bias audit","DM1 dark-matter sub-classifier","Feynman-style research agent","3+ yr thyroid+omics execution stack"] }
+];
+
+const EVIDENCE = [
+  { t:"DC + Calcitonin/CEA peptides (MTC)", who:"Schott 2001",                    cite:"PMID 11600571",                          lvl:"phase I",        lvlT:"em", n:"n=7",   sg:"3/7 marker decline; 1 hepatic regression" },
+  { t:"DC + tumor lysate + IL-2 (MTC)",     who:"Stift 2004 · CCR",               cite:"PMID 15131029",                          lvl:"phase I/II",     lvlT:"em", n:"n=10",  sg:"PR + SD; safety established" },
+  { t:"DC tumor lysate (PTC/FTC)",          who:"Kuwabara 2007 · Thyroid",        cite:"DOI 10.1089/thy.2006.0178",              lvl:"phase I",        lvlT:"tl", n:"n=6",   sg:"2 SD / 4 PD — feasibility only" },
+  { t:"GI-6207 yeast-CEA (MTC)",            who:"Del Rivero 2025 · Oncologist",   cite:"DOI 10.1093/oncolo/oyaf429",             lvl:"phase II rand.", lvlT:"em", n:"n=34",  sg:"Negative Ctn slope; 58% CEA T-cell expansion" },
+  { t:"GI-6207 → avelumab seq (MTC)",       who:"Del Rivero 2020 · Front Endocrinol",cite:"PMID 32849281",                       lvl:"case",           lvlT:"mu", n:"n=1",   sg:"Ctn doubling 135→530d; >40% drop on avelumab" },
+  { t:"Spartalizumab (ATC)",                who:"Capdevila 2020 · JCO",           cite:"DOI 10.1200/JCO.19.02727",               lvl:"phase I/II",     lvlT:"em", n:"n=42",  sg:"ORR 19% (PD-L1≥50%: 35%)" },
+  { t:"Pembrolizumab (DTC, KEYNOTE-158)",   who:"Oh 2023 · Cancer",               cite:"DOI 10.1002/cncr.34657",                 lvl:"phase II",       lvlT:"em", n:"n=103", sg:"ORR 6.8%; mDoR 18.4 mo" },
+  { t:"Lenva + Pembro (ATC, ATLEP)",        who:"Dierks 2021/2022 · Thyroid",     cite:"PMID 33509020",                          lvl:"phase II",       lvlT:"em", n:"n=35",  sg:"ATC ORR 51.9%" },
+  { t:"Lenva + Pembro (RAIR DTC)",          who:"Haugen/Bible 2024 · CCR · ITOG", cite:"NCT02973997",                            lvl:"phase II",       lvlT:"em", n:"n=30",  sg:"ORR 65.5% lenva-naïve cohort" },
+  { t:"Atezo + Vem + Cobi (BRAFm ATC)",     who:"Iyer/Cabanillas 2024 · JAMA Oncol",cite:"PMID 39446377",                        lvl:"phase II",       lvlT:"em", n:"n=18",  sg:"mOS 43.2 mo; ORR 50%" },
+  { t:"Neoadjuvant DTP (BRAFm ATC)",        who:"Wang/Cabanillas 2025 · ASCO",    cite:"NCT04675710",                            lvl:"phase II",       lvlT:"em", n:"n=36",  sg:"mOS 20 mo; surgical subset 63 mo" },
+  { t:"Nivo + Ipi (ATC/MTC/RAIR)",          who:"Sehgal/Lorch 2024 · JAMA Oncol", cite:"PMID 39446365",                          lvl:"phase II",       lvlT:"em", n:"n=49",  sg:"ATC ORR 30%; CB 50%" },
+  { t:"Cabo + Atezo (CABATEN)",             who:"Capdevila 2025 · CCR",           cite:"NCT04400474",                            lvl:"phase II",       lvlT:"em", n:"multi", sg:"Disease control across DTC/MTC/ATC" },
+  { t:"Personalized neoantigen mRNA",       who:"KEYNOTE-942 · Lancet 2024",      cite:"PMID 38246194",                          lvl:"phase IIb (mel)",lvlT:"em", n:"n=157", sg:"RFS HR 0.561 — adjuvant proof-of-concept" },
+  { t:"Autogene cevumeran (mRNA)",          who:"Rojas/Balachandran 2023 · Nature",cite:"PMID 37165196",                         lvl:"phase I (PDAC)", lvlT:"tl", n:"n=16",  sg:"CD8+ persistence at 3y; mRFS extended" },
+  { t:"GFRA4 CAR-T (MTC)",                  who:"Bhoj 2021 · Mol Ther Onc",       cite:"PMID 33614919",                          lvl:"preclinical → ph I",lvlT:"vi", n:"IND",   sg:"Tumor eradication in xenograft" },
+  { t:"TSHR CAR-T (DTC)",                   who:"Li 2022 · JCEM",                 cite:"PMID 34751400",                          lvl:"preclinical",    lvlT:"vi", n:"in vivo",sg:"TSHR⁺ in 91%/89% PTC/FTC" }
+];
+
+const ANTIGEN_CLASSES = [
+  { c:"Lineage / TAA",     items:["Calcitonin (MTC)","CEA (MTC)","TSHR","TPO","NIS","Pendrin","Thyroglobulin"], note:"Tolerance breakable post-TT; cross-reactivity audit required" },
+  { c:"Driver neoantigen", items:["BRAF V600E (HLA-DQ; class-I uncertain)","RET fusion junctions","TP53 R175H/R273H","TERT promoter (cis, non-coding)"], note:"Class-I A*02:01 BRAF presentation NOT robustly validated — re-derive from MS" },
+  { c:"Cancer-testis",     items:["MAGE-A (62% ATC)","MAGE-C1 (57%)","GAGE (67%)","NY-ESO-1 (14%)"], note:"ATC/PDTC-restricted; pharmacologically inducible by 5-aza-CdR" },
+  { c:"HERV / cryptic",    items:["HERV-K HML-2 Env","HERV-E","cryptic ORFs","splice neoantigens"], note:"Hypothesis stage; CancerHERVdb lookup" },
+  { c:"Lineage CAR-T",     items:["GFRA4 (MTC)","TSHR-blocking scFv (DTC)","DLL3 (NEN-overlap)"], note:"Functional epitope hazard (Graves-like) on TSHR" }
+];
+
+const DELIVERABLES = [
+  { t:"Dataset-Ready Report",          d:"Cohort manifest, QC dashboard, batch / LODO design, sample-tracker. Reproducible with Docker + Snakemake." },
+  { t:"Ranked Vaccine Candidate Table",d:"Per-patient peptide × HLA matrix with MHCflurry / NetMHCpan / PRIME / BigMHC scores, agretopicity, self-peptide flag." },
+  { t:"Subtype-Specific Vaccine Rationale", d:"Subtype card → antigen class → backbone → expected immune readout (Ctn / CEA / Tg / IFN-γ)." },
+  { t:"Wetlab Validation Protocol",    d:"Tetramer + ELISpot + IFN-γ release + MS confirmation + PDX / orthotopic model recommendation." },
+  { t:"Combination Therapy Hypothesis",d:"BRAFi/MEKi · MKI · RET-i · anti-PD-1/PD-L1 + vaccine modality, sequenced with PD readouts." },
+  { t:"Publication-Ready Evidence Map",d:"Citation-anchored claim tree with evidence level (guideline / CT / review / dataset / hypothesis)." },
+  { t:"Pharma BD Technical Appendix",  d:"Target landscape, IP whitespace, comparator trials, cohort access, timeline-to-validation, risk register." }
+];
+
+/* ======================== TAB ROUTING ======================== */
+const TAB_ORDER = ["overview","data","pipeline","chat","evidence","readiness","tools"];
+const PANELS_BY_TAB = {
+  overview:  ["panel-overview","panel-data","panel-pipeline","panel-chat","panel-evidence","panel-readiness","panel-tools","panel-deliverables","panel-sources"],
+  data:      ["panel-data","panel-deliverables"],
+  pipeline:  ["panel-pipeline","panel-deliverables"],
+  chat:      ["panel-chat"],
+  evidence:  ["panel-evidence","panel-sources"],
+  readiness: ["panel-readiness","panel-sources"],
+  tools:     ["panel-tools"]
+};
+function setTab(t){
+  if(!PANELS_BY_TAB[t]) return;
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("active", b.dataset.tab===t));
+  document.querySelectorAll(".tab-panel").forEach(p => {
+    const id = p.id;
+    if (p.classList.contains("always")) { p.classList.add("active"); return; }
+    p.classList.toggle("active", PANELS_BY_TAB[t].includes(id));
+  });
+  history.replaceState(null,"","#"+t);
+}
+function goTab(t){
+  setTab(t);
+  setTimeout(()=> {
+    const target = t==='chat' ? 'panel-chat' : (t==='data'?'panel-data': t==='pipeline'?'panel-pipeline': t==='evidence'?'panel-evidence': t==='readiness'?'panel-readiness': t==='tools'?'panel-tools':'top');
+    const el = document.getElementById(target) || document.getElementById('top');
+    el && el.scrollIntoView({behavior:"smooth", block:"start"});
+  }, 60);
+}
+document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => goTab(b.dataset.tab)));
+
+/* ======================== HERO STAGES ======================== */
+function drawHeroStages(){
+  const items = [
+    ["S0","Clinical intake","ATA-2025 · WHO 2022 · Bethesda 3rd","done"],
+    ["S2","Molecular subtype","BRAF V600E + TERT C228T · BRAS +0.62","done"],
+    ["S4","HLA + DIAL-U","A*02:01 · DRB1*04:06 · DPB1*05:01 · bias 0.07","done"],
+    ["S5","Neoantigen","8 candidates · BRAF A*02:01 flagged","warn"],
+    ["S6","Vaccine ranking","TP53_R248Q_25mer · MHCflurry 0.962","run"],
+    ["S7","Combination","trametinib → ¹³¹I → vaccine + nivo","run"],
+    ["S8","Wetlab plan","ELISpot + tetramer + MS","ready"]
+  ];
+  document.getElementById("heroStages").innerHTML = items.map(s =>
+    `<div class="stage-line ${s[3]==='warn'?'warn':s[3]==='run'?'active':''}">
+      <div class="stage-num">${s[0]}</div>
+      <div><div class="stage-title">${s[1]}</div><div class="stage-tool">${s[2]}</div></div>
+      <div class="stage-status ${s[3]}">${s[3]}</div>
+    </div>`).join("");
+}
+
+/* ======================== DATA TABLE ======================== */
+function renderData(filter="all"){
+  const tb = document.querySelector("#dataTable tbody");
+  const rows = filter==="all" ? DATA_MATRIX : DATA_MATRIX.filter(r => r.k.includes(filter));
+  tb.innerHTML = rows.map(r => `
+    <tr>
+      <td><span class="name">${r.name}</span><span class="acc">${r.accession} · ${r.tag}</span></td>
+      <td>${r.type}</td>
+      <td>${r.subtype}</td>
+      <td class="num">${r.scale}</td>
+      <td>${r.use}</td>
+      <td>${r.readiness.split("/").map(x=>{
+        const cls = x==="R" ? "em" : x==="P" ? "" : "ro";
+        return `<span class="tag ${cls}">${x}</span>`;
+      }).join(" ")}</td>
+    </tr>
+  `).join("");
+}
+document.querySelectorAll("#dataFilters button").forEach(b => b.addEventListener("click", ()=>{
+  document.querySelectorAll("#dataFilters button").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  renderData(b.dataset.f);
+}));
+
+/* ======================== PIPELINE RAIL ======================== */
+function renderPipeline(){
+  document.getElementById("stageRail").innerHTML = STAGES.map(s => `
+    <div class="stage-card ${s.tone==='teal'?'teal':s.tone==='violet'?'violet':s.tone==='amber'?'amber':''}">
+      <div class="stagenum"><span class="dot"></span>STAGE ${s.n}</div>
+      <div class="ico">${s.icon}</div>
+      <h4>${s.label}</h4>
+      <div class="det">${s.det}</div>
+    </div>
+  `).join("");
+}
+
+/* ======================== TOOL STACK ======================== */
+function renderTools(){
+  document.getElementById("toolGrid").innerHTML = TOOLS.map(g => `
+    <div class="tool-card ${g.tone}">
+      <div class="tcat">${g.cat}</div>
+      <div class="tool-list">${g.items.map(t=>`<span class="tool-pill">${t}</span>`).join("")}</div>
+    </div>
+  `).join("");
+}
+
+/* ======================== EVIDENCE TABLE ======================== */
+function renderEvidence(){
+  document.getElementById("evidBody").innerHTML = EVIDENCE.map(r => `
+    <div class="evid-row">
+      <div class="t">${r.t}</div>
+      <div class="who">${r.who}<small>${r.cite}</small></div>
+      <div class="lvl"><span class="tag ${r.lvlT}">${r.lvl}</span></div>
+      <div class="n">${r.n}</div>
+      <div class="sg">${r.sg}</div>
+    </div>
+  `).join("");
+}
+
+/* ======================== ANTIGEN LIST ======================== */
+function renderAntigens(){
+  document.getElementById("antigenList").innerHTML = ANTIGEN_CLASSES.map(a => `
+    <div style="border:1px solid var(--line);background:#0a111d;border-radius:9px;padding:10px 12px;margin-bottom:9px">
+      <div style="font-family:'Space Grotesk',sans-serif;color:var(--ink);font-size:14px;font-weight:600;margin-bottom:6px">${a.c}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px">
+        ${a.items.map(x=>`<span class="tag">${x}</span>`).join("")}
+      </div>
+      <div style="font-size:11.5px;color:var(--mute2);line-height:1.45">${a.note}</div>
+    </div>
+  `).join("");
+}
+
+/* ======================== DELIVERABLES ======================== */
+function renderDeliverables(){
+  document.getElementById("delivGrid").innerHTML = DELIVERABLES.map((d,i) => `
+    <div class="deliv">
+      <div class="num">${i+1}</div>
+      <div><h4>${d.t}</h4><p>${d.d}</p></div>
+    </div>
+  `).join("");
+}
+
+/* ======================== CHATBOT ======================== */
+const messages = document.getElementById("messages");
+const chips    = document.getElementById("chips");
+const execList = document.getElementById("execList");
+const chatStatus = document.getElementById("chatStatus");
+
+function addMsg(kind, html, delay=0){
+  return new Promise(resolve => setTimeout(()=>{
+    const tag = {user:"researcher",agent:"lumenix · agent",stage:"stage trace",alert:"validator alert",error:"error",result:"result"}[kind] || kind;
+    const div = document.createElement("div");
+    div.className = `msg ${kind}`;
+    div.innerHTML = `<div class="role-tag">${tag}</div>${html}`;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    resolve();
+  }, delay));
+}
+function setChips(items){
+  chips.innerHTML = items.map(([label,scenario])=>`<button class="chip-btn" onclick="runScenario('${scenario}')">${label}</button>`).join("");
+}
+function updateExec(activeStageNum=-1, doneRange=[]){
+  execList.innerHTML = STAGES.map(s => {
+    const status = doneRange.includes(s.n) ? "done" : (activeStageNum===s.n ? "run" : "");
+    const sttLbl = status==="done"?"done":status==="run"?"running":"queued";
+    return `<div class="exec ${status}">
+      <i></i>
+      <div><b>S${s.n} · ${s.label}</b><span>${s.tone==='teal'?'HLA / antigen / ranking':s.tone==='violet'?'combination strategy':s.tone==='amber'?'wetlab + drug discovery':'omics'}</span></div>
+      <div class="stt">${sttLbl}</div>
+    </div>`;
+  }).join("");
+}
+function setCtx(o){
+  if(o.cd8)  document.getElementById("ctxCD8").textContent = o.cd8;
+  if(o.exh)  document.getElementById("ctxExh").textContent = o.exh;
+  if(o.tls)  document.getElementById("ctxTLS").textContent = o.tls;
+  if(o.dial) document.getElementById("ctxDIAL").textContent = o.dial;
+  if(o.hla)  document.getElementById("ctxHLA").innerHTML = o.hla.map(h => `<span class="${h.r==='risk'?'risk':h.r==='ok'?'ok':''}">${h.h}</span>`).join("");
+}
+function setCandidates(rows){
+  document.getElementById("candTable").innerHTML = rows.map(r => `
+    <div class="cand-row">
+      <div class="rk">${r.rk}</div>
+      <div class="pep">${r.pep}<br><span style="color:var(--mute2);font-size:10px">${r.hla}</span></div>
+      <div class="sc">${r.sc}</div>
+      <div class="${r.safe==='caution'?'warn':'ok'}">${r.safe}</div>
+    </div>`).join("");
+}
+function setChecklist(states){ // 6 booleans
+  const lbls=[
+    "PBMC ELISpot · candidates × HLA contexts",
+    "MHC-I tetramer · top 2",
+    "IFN-γ release co-culture vs autologous organoid",
+    "FFPE-LMD MS immunopeptidome confirmation",
+    "PDX vaccination arm (n=8/arm)",
+    "CRISPR antigen knockout escape model"
+  ];
+  document.getElementById("checklist").innerHTML = lbls.map((l,i)=>
+    `<div class="chk ${states[i]?'':'todo'}"><div class="box">${states[i]?'✓':'·'}</div><span>${l}</span></div>`
+  ).join("");
+}
+function chatSetStatus(s){ chatStatus.textContent = s; }
+
+async function resetChat(){
+  messages.innerHTML = "";
+  setChips([
+    ["RAI-refractory PTC (Korean) — 백신 후보 추출","rair"],
+    ["BRAFm ATC neoadjuvant DTP에 vaccine 어떻게 끼우나","atc"],
+    ["MTC GFRA4 CAR + calcitonin DC 콤보","mtc"],
+    ["PTC + Hashimoto · HLA-II hot subset 추적","htptc"],
+    ["왜 1위인지 (XAI)","xai"],
+    ["combination 자동 생성","combo"],
+    ["wetlab validation plan만","wetlab"],
+    ["우리가 standard of care 라고 말해도 돼?","claim"]
+  ]);
+  updateExec(-1, []);
+  setCtx({cd8:"—",exh:"—",tls:"—",dial:"—",hla:[]});
+  setCandidates([{rk:"·",pep:'<span style="color:var(--mute2)">— run a scenario to populate —</span>',hla:"",sc:"",safe:""}]);
+  setChecklist([0,0,0,0,0,0]);
+  chatSetStatus("idle");
+  await addMsg("agent",`환자 케이스나 질문을 입력하세요. 공개 데이터 demo는 <strong>RAI-refractory PTC (Korean)</strong>, <strong>BRAF V600E ATC</strong>, <strong>MTC RET M918T</strong>, <strong>PTC + Hashimoto</strong> 시나리오로 유도됩니다. <span style="color:var(--muted)">실제 환자 데이터는 사용하지 않으며, 산출물은 hypothesis-grade입니다.</span>`);
+}
+
+function runScenario(name){
+  const labels = {
+    rair:"Run thyroid cancer vaccine discovery for a RAI-refractory PTC sample (Korean ancestry).",
+    atc:"BRAF V600E ATC neoadjuvant DTP에 personalized neoantigen vaccine을 어떻게 끼워야 할까?",
+    mtc:"MTC RET M918T 환자에 GFRA4 CAR-T + calcitonin DC vaccine 콤보 plan 짜줘.",
+    htptc:"PTC + Hashimoto HLA-II hot subset에 적합한 vaccine antigen class는?",
+    xai:"왜 TP53_R248Q_25mer가 1위인지 설명해줘. BRAF V600E A*02:01은 왜 flag이지?",
+    combo:"이 케이스에 적합한 combination strategy를 자동으로 생성해줘.",
+    wetlab:"Top 2 candidate에 대한 wetlab validation plan만 reagent 단위까지 보여줘.",
+    claim:"우리가 thyroid cancer vaccine을 standard of care 라고 마케팅에 써도 돼?",
+    license:"상업적으로 바로 쓸 수 있는 open-license tool stack만 보여줘."
+  };
+  addMsg("user", labels[name] || name);
+  setChips([]);
+  chatSetStatus("streaming");
+  if (name==="rair")  return scenarioRAIR();
+  if (name==="atc")   return scenarioATC();
+  if (name==="mtc")   return scenarioMTC();
+  if (name==="htptc") return scenarioHTPTC();
+  if (name==="xai")   return scenarioXAI();
+  if (name==="combo") return scenarioCombo();
+  if (name==="wetlab")return scenarioWetlab();
+  if (name==="claim") return scenarioClaim();
+  if (name==="license")return scenarioLicense();
+  scenarioFallback();
+}
+
+/* ----- SCENARIO 1: RAIR-PTC (KOREAN) ----- */
+async function scenarioRAIR(){
+  await addMsg("agent","RAI-refractory PTC · Korean ancestry · prior lenvatinib 11 mo (PD) · no ICI exposure로 가정합니다. 모든 산출물은 <strong>hypothesis-grade</strong>이며, 실제 환자에게 적용하기 전 임상 의사결정과 IRB 검토가 필요합니다.",250);
+  updateExec(0,[]);
+  await addMsg("stage","<strong>S0 · Clinical intake.</strong> WHO 2022: PTC. AJCC 8 = pT3aN1aM0. ATA 2025 risk = high. RAI-refractory criteria #b + #c (uptake heterogeneity + progression within 12 mo on 200 mCi). Prior lenvatinib 11 mo.",550);
+  updateExec(1,[0]);
+  await addMsg("stage","<strong>S1 · Multi-omics ingestion.</strong> WES 114× T / 38× N · RNA-seq 54 M PE · scRNA available (GSE184362-style) · WSI (UNI embeddings cached) · methylation EPIC. QC pass. LODO batch design = 3-fold.",550);
+  updateExec(2,[0,1]);
+  await addMsg("stage","<strong>S2 · Molecular subtype.</strong> Driver: BRAF V600E + TERT promoter C228T. BRAF-RAS score = +0.62 (BRAF-like). Differentiation score low. DM1 dark-matter projection class = <strong>antigen-presenting hot subtype</strong> (HLA-DR⁺ niche, GSE286332-aligned).",550);
+  updateExec(3,[0,1,2]);
+  setCtx({cd8:"1.4", exh:"elevated", tls:"borderline", dial:"running"});
+  await addMsg("stage","<strong>S3 · TME.</strong> CD8/Treg = 1.4 · exhaustion module elevated (PDCD1, LAG3, HAVCR2) · TLS-B borderline · SERPINE1⁺ stroma at invading front (GSE250521 LPTC archetype).",550);
+  updateExec(4,[0,1,2,3]);
+  setCtx({hla:[
+    {h:"A*02:01",r:"ok"},{h:"A*33:03",r:"risk"},{h:"B*44:02",r:""},{h:"B*58:01",r:"risk"},
+    {h:"C*03:02",r:""},{h:"C*07:01",r:""},{h:"DRB1*04:06",r:""},{h:"DRB1*15:01",r:""},{h:"DPB1*05:01",r:"risk"}
+  ], dial:"0.07"});
+  await addMsg("stage","<strong>S4 · HLA + Bias audit.</strong> Class I: A*02:01, A*33:03, B*44:02, B*58:01, C*03:02, C*07:01 · Class II: DRB1*04:06, DRB1*15:01, DPB1*05:01. AFND Korean: DPB1*05:01 freq 0.32 (high local relevance). DIAL-U bias = <strong>0.07</strong> (balanced).",550);
+  updateExec(5,[0,1,2,3,4]);
+  await addMsg("alert",`<strong>Validator alert (S5).</strong> 8 SNV candidates + 1 fusion-junction generated. 후보 중 <code>BRAF_V600E_GLATEKSRWSGSHQF</code>은 HLA-DRB1 helper로는 의미 있으나, <strong>HLA-A*02:01 class-I presentation은 mass-spec immunopeptidomics에서 robust하게 검증되지 않음</strong> (Veatch JCI 2018 = DQ-restricted). 따라서 A*02:01 컨텍스트에서는 <span class="tag am">caution</span>으로 다운그레이드.`,800);
+  updateExec(6,[0,1,2,3,4,5]);
+  setCandidates([
+    {rk:1, pep:"TP53_R248Q_25mer",     hla:"A*02:01 · DRB1*04:06", sc:"0.962", safe:"pass"},
+    {rk:2, pep:"NSF_p.E209K_9mer",     hla:"A*02:01",              sc:"0.918", safe:"pass"},
+    {rk:3, pep:"BRAF_V600E_DR15_15mer",hla:"DRB1*15:01",           sc:"0.871", safe:"caution"},
+    {rk:4, pep:"CCDC6-RET_junc_15mer", hla:"DRB1*04:06",           sc:"0.844", safe:"pass"},
+    {rk:5, pep:"CTAG1B_lineage_9mer",  hla:"A*02:01",              sc:"0.812", safe:"pass*"}
+  ]);
+  await addMsg("result",`<strong>S5–S6 · Vaccine candidates (top 5).</strong>
+    <table class="mini-table">
+    <tr><th>#</th><th>Peptide</th><th>HLA</th><th>flurry</th><th>PRIME</th><th>self-MS</th><th>safe</th></tr>
+    <tr><td>1</td><td>TP53_R248Q_25mer</td><td>A*02:01 · DRB1*04:06</td><td>0.962</td><td>0.81</td><td>miss</td><td><span class="tag em">pass</span></td></tr>
+    <tr><td>2</td><td>NSF_p.E209K_9mer</td><td>A*02:01</td><td>0.918</td><td>0.74</td><td>miss</td><td><span class="tag em">pass</span></td></tr>
+    <tr><td>3</td><td>BRAF_V600E_DR-15</td><td>DRB1*15:01</td><td>0.871</td><td>0.69</td><td>miss</td><td><span class="tag am">caution</span></td></tr>
+    <tr><td>4</td><td>CCDC6-RET_junc_15</td><td>DRB1*04:06</td><td>0.844</td><td>0.66</td><td>miss</td><td><span class="tag em">pass</span></td></tr>
+    <tr><td>5</td><td>CTAG1B_lineage</td><td>A*02:01</td><td>0.812</td><td>0.71</td><td>miss</td><td><span class="tag em">pass*</span></td></tr>
+    </table>
+    <small style="color:var(--mute2)">self-MS = HLA Ligand Atlas + GTEx thyroid hit. miss = no benign-tissue hit (good).</small>`,950);
+  updateExec(7,[0,1,2,3,4,5,6]);
+  await addMsg("stage","<strong>S7 · Combination strategy.</strong> RAS-like minor allele 존재 → trametinib redifferentiation prime (4 wk) → ¹³¹I window (1 cycle, dosimetry-guided) → adjuvant 25-mer peptide vaccine (top 2 + DR-restricted helper) + poly-ICLC 1 mg → nivolumab 1 mg/kg q3w × 12 mo. 정밀: ATLEP/ITOG 디자인 lineage. PD readouts: Tg, IFN-γ ELISpot, tetramer.",700);
+  updateExec(8,[0,1,2,3,4,5,6,7]);
+  setChecklist([1,1,1,1,1,1]);
+  await addMsg("stage","<strong>S8 · Wetlab validation plan.</strong> ex vivo PBMC ELISpot (4 candidates × 8 HLA contexts) · MHC-I tetramer biotinylated (top 2) · IFN-γ release co-culture vs autologous tumor organoid · FFPE-LMD MS immunopeptidome (Bruker timsTOF) · PDX engraftment + vaccination arm (n=8/arm) · CRISPR antigen knockout escape model.",700);
+  updateExec(9,[0,1,2,3,4,5,6,7,8]);
+  await addMsg("result","<strong>S9 · Drug-discovery extension.</strong> LAG3+TIM3 dual-blockade rationale flagged · SERPINE1 niche-disrupting target nominated · BRAFi resistance-bypass scaffold (paradox-breaker class) · BD memo + 6-mo timeline drafted.",700);
+  updateExec(-1,[0,1,2,3,4,5,6,7,8,9]);
+  chatSetStatus("complete · 9/9");
+  setChips([
+    ["왜 1위인지 (XAI)","xai"],
+    ["combination만 자세히","combo"],
+    ["wetlab만 reagent까지","wetlab"],
+    ["BRAFm ATC 비교","atc"],
+    ["claim 경계 확인","claim"]
+  ]);
+}
+
+/* ----- SCENARIO 2: BRAF V600E ATC ----- */
+async function scenarioATC(){
+  await addMsg("agent","BRAF V600E ATC · neoadjuvant DTP (pembro + dabrafenib + trametinib) lineage. 전제: ATC는 진단부터 days-단위 BRAF V600E IHC + NGS, 그리고 multidisciplinary FAST 알고리즘.",250);
+  updateExec(0,[]);
+  await addMsg("stage","<strong>S0–S2.</strong> WHO 2022: ATC, all stage IV (IVB local-regional). BRAF V600E + TP53 R248W co-driver. TMB 6.4 mut/Mb (highest in thyroid). DM1 class = inflammatory hot.",650);
+  updateExec(3,[0,1,2]);
+  setCtx({cd8:"2.1", exh:"high (rev. by MAPKi)", tls:"present", dial:"0.04"});
+  await addMsg("stage","<strong>S3 · TME.</strong> Inflammatory infiltrate · T-cell exclusion reversible by D+T (week 2 biopsy 모델) · CT-antigens MAGE-A4 high · TLS present at invading front.",650);
+  updateExec(4,[0,1,2,3]);
+  setCtx({hla:[{h:"A*02:01",r:"ok"},{h:"A*24:02",r:""},{h:"B*15:01",r:""},{h:"B*40:01",r:""},{h:"DRB1*04:01",r:""},{h:"DRB1*11:01",r:""}]});
+  await addMsg("stage","<strong>S4 · HLA.</strong> Pan-Asian + EUR-mix profile · DIAL-U 0.04 (low bias). Class I/II presentation broad.",550);
+  updateExec(5,[0,1,2,3,4]);
+  setCandidates([
+    {rk:1, pep:"MAGE-A4_230-238",     hla:"A*02:01",  sc:"0.951", safe:"pass"},
+    {rk:2, pep:"TP53_R248W_25mer",    hla:"DRB1*04:01", sc:"0.929", safe:"pass"},
+    {rk:3, pep:"NY-ESO-1_157-165",    hla:"A*02:01",  sc:"0.882", safe:"pass*"},
+    {rk:4, pep:"BRAF_V600E_DR-04",    hla:"DRB1*04:01", sc:"0.860", safe:"caution"},
+    {rk:5, pep:"PRAME_300-308",       hla:"A*02:01",  sc:"0.836", safe:"pass"}
+  ]);
+  await addMsg("result",`<strong>S5–S6 · Vaccine candidates.</strong> ATC는 CT-antigen-rich context이므로 <strong>MAGE-A4 (TCR-T 가능)</strong> + <strong>TP53 R248W neoantigen</strong>가 dual-modality에 유리. NY-ESO-1는 14% expression rate라 cohort screening 필요.`,800);
+  updateExec(7,[0,1,2,3,4,5,6]);
+  await addMsg("stage","<strong>S7 · Combination strategy.</strong> Lineage = MD Anderson DTP (NCT04675710): D+T (1 wk lead-in) → pembrolizumab 200 mg q3w × 4 → resection → adjuvant DTP × 6 mo. <strong>Vaccine 통합 hypothesis</strong>: lead-in 1주차에 D+T-induced CT-antigen surge 확인 후, 2-3주차에 MAGE-A4 + TP53 R248W mRNA-LNP 주사. Pembrolizumab은 booster phase (week 4+)부터 시너지.",700);
+  updateExec(8,[0,1,2,3,4,5,6,7]);
+  setChecklist([1,1,1,1,0,0]);
+  await addMsg("stage","<strong>S8 · Wetlab validation.</strong> Pre/post-D+T paired biopsy → CT-antigen MS (Bruker) · ELISpot (8 HLA contexts) · spatial CODEX (CD8 / MAGE-A4 / Ki67) · MAGE-A4 TCR-T expansion feasibility from autologous PBMC.",700);
+  await addMsg("result","<strong>Risk register.</strong> ATC tempo가 빠르므로 vaccine manufacturing turnaround &lt; 6 wk가 필수 — adjuvant setting (post-resection) 권고. Neoadjuvant trial은 surgical-resectable cohort에서만.",550);
+  updateExec(-1,[0,1,2,3,4,5,6,7,8]);
+  chatSetStatus("complete · ATC track");
+  setChips([["RAIR-PTC와 비교","rair"],["MTC GFRA4 + DC","mtc"],["wetlab reagent까지","wetlab"],["BD appendix","combo"]]);
+}
+
+/* ----- SCENARIO 3: MTC RET M918T ----- */
+async function scenarioMTC(){
+  await addMsg("agent","MTC · sporadic · somatic RET M918T · stage IVA · Ctn 2,400 pg/mL · CEA 280 ng/mL. LIBRETTO-531 lineage = selpercatinib 1L. Vaccine 질문 = lineage + neoantigen 동시 공략.",250);
+  updateExec(0,[]);
+  await addMsg("stage","<strong>S0–S3.</strong> RET M918T (M918T = MEN2B 등가, 가장 aggressive). TMB 0.7 mut/Mb (cold). Pozdeyev 2021-style immune-excluded TME. Calcitonin / CEA / GFRA4 lineage-restricted.",650);
+  updateExec(4,[0,1,2,3]);
+  setCtx({cd8:"0.6", exh:"low (T-cell excluded)", tls:"absent", dial:"0.08"});
+  setCtx({hla:[{h:"A*02:01",r:"ok"},{h:"A*11:01",r:""},{h:"B*46:01",r:"risk"},{h:"DRB1*09:01",r:""},{h:"DPB1*05:01",r:"risk"}]});
+  await addMsg("stage","<strong>S4 · HLA.</strong> 동아시아 prevalent allele 포함 · B*46:01, DPB1*05:01 OOD risk → DIAL-U reweight 적용.",550);
+  updateExec(5,[0,1,2,3,4]);
+  setCandidates([
+    {rk:1, pep:"GFRA4_ECD_target (CAR-T)", hla:"surface", sc:"0.984",  safe:"pass"},
+    {rk:2, pep:"Calcitonin_aa1-32_DC",     hla:"DR-broad", sc:"0.892", safe:"pass*"},
+    {rk:3, pep:"CEA_aa605-613",            hla:"A*02:01",  sc:"0.871", safe:"pass"},
+    {rk:4, pep:"RET_M918T_9mer",           hla:"A*11:01",  sc:"0.823", safe:"pass"},
+    {rk:5, pep:"DLL3_ECD_target",          hla:"surface",  sc:"0.802", safe:"pass*"}
+  ]);
+  await addMsg("result",`<strong>S5–S6 · MTC stack.</strong> Modality-mixed: <strong>(A) GFRA4 CAR-T</strong> (Bhoj 2021 preclinical, IND-stage) · <strong>(B) calcitonin DC vaccine</strong> (Schott 2001 lineage; xenogenic-modified per Papewalis 2008 to break tolerance) · <strong>(C) yeast-CEA GI-6207</strong> (Del Rivero 2025, ph II negative on Ctn slope but 58% T-cell expansion). RET M918T A*11:01 neoantigen은 minor.`,900);
+  updateExec(7,[0,1,2,3,4,5,6]);
+  await addMsg("stage","<strong>S7 · Combination.</strong> Selpercatinib 1L (LIBRETTO-531 SoC) → 12 wk 후 Ctn nadir 도달 확인 → MRD setting에서 GFRA4 CAR-T 1 dose + calcitonin DC vaccine boost (q4w × 4) + atezolizumab 1200 mg q3w (CGRP-axis suppressive niche 풀기 위해). PD readouts = Ctn, CEA doubling time, ELISpot.",700);
+  updateExec(8,[0,1,2,3,4,5,6,7]);
+  setChecklist([1,1,1,0,1,1]);
+  await addMsg("alert","<strong>Tolerance risk.</strong> Calcitonin DC vaccine은 normal C-cell이 thyroidectomy로 이미 제거된 post-surgical cohort에서만 권고. 잔존 ectopic thyroid tissue가 있으면 cross-reactivity 위험. GFRA4는 C-cell-restricted (Bhoj 2021), normal thyroid follicular cell 비표적.",650);
+  updateExec(-1,[0,1,2,3,4,5,6,7,8]);
+  chatSetStatus("complete · MTC track");
+  setChips([["다른 subtype 비교","rair"],["claim 경계","claim"],["BD appendix","combo"]]);
+}
+
+/* ----- SCENARIO 4: PTC + HASHIMOTO ----- */
+async function scenarioHTPTC(){
+  await addMsg("agent","PTC + Hashimoto's overlap subset. GSE286332 / GSE191288 reference. HLA-II / IFN-γ / TLS 신호가 강한 'antigen-presenting hot' niche로 추정.",250);
+  updateExec(2,[0,1]);
+  await addMsg("stage","<strong>S2–S3 · Subtype + TME.</strong> HLA-II ↑ d=+3.65 (GSE286332) · IFN-γ FDR=2e-4 · BCR clonality elevated (D5-P6 finding) · AICDA up · TLS 신호 d=+1.96. DM1 class = HLA-DR⁺ early-cancerous niche (GSE250521 archetype).",550);
+  updateExec(4,[0,1,2,3]);
+  setCtx({cd8:"2.7", exh:"moderate", tls:"high", dial:"0.06"});
+  await addMsg("stage","<strong>S4 · HLA bias.</strong> Hashimoto-associated DRB1*04:06, *09:01, DPB1*05:01 frequency가 Korean cohort에서 높음 → AFND Korean reweight 적용.",500);
+  updateExec(6,[0,1,2,3,4,5]);
+  await addMsg("result",`<strong>S5–S6 · Antigen class 추천.</strong> 이 subset은 (1) <strong>class-II restricted long peptide</strong>가 이미 자연적으로 presentation되고 있어 helper-CD4 priming friendly · (2) <strong>HERV / cryptic ORF</strong> shared epitope 후보가 augment 가능 · (3) Tg / TPO 같은 thyroid autoantigen은 <span class="tag ro">금지</span> (Hashimoto progression risk). McPAS-TCR autoreactivity neighbor search 필수.`,800);
+  await addMsg("alert","<strong>Cross-reactivity audit.</strong> Hashimoto baseline = anti-Tg, anti-TPO 양성 frequency 높음. Vaccine target ⊂ {Tg, TPO, NIS, TSHR} 시 <strong>thyroid autoimmunity acceleration risk</strong>. 따라서 PTC+HT cohort에서는 driver / CT / HERV antigen만 허용.",650);
+  updateExec(7,[0,1,2,3,4,5,6]);
+  await addMsg("stage","<strong>S7 · Combination.</strong> Standard care 중심 + adjuvant peptide-LNP (driver/CT/HERV) + nivolumab 1 mg/kg q3w. Helper-CD4 axis가 이미 활성화되어 있어 CD4-licensing adjuvant (poly-ICLC) 우선.",700);
+  setChecklist([1,1,1,1,0,1]);
+  updateExec(-1,[0,1,2,3,4,5,6,7]);
+  chatSetStatus("complete · PTC+HT track");
+  setChips([["RAIR로 가기","rair"],["claim 경계","claim"],["wetlab reagent","wetlab"]]);
+}
+
+/* ----- SCENARIO 5: XAI ----- */
+async function scenarioXAI(){
+  await addMsg("agent","XAI는 두 층으로 보여줍니다 — peptide-position attribution (PoSHAP-style)과 ranking decision tree. 1위 결정은 <strong>점수 단독이 아니라 self-peptide miss + clonal frequency + agretopicity의 cross-validated agreement</strong>로 내려집니다.",200);
+  await addMsg("result",`<strong>왜 TP53_R248Q_25mer가 1위인가.</strong>
+    <table class="mini-table">
+    <tr><th>축</th><th>값</th><th>해석</th></tr>
+    <tr><td>MHCflurry 2.0</td><td>0.962</td><td>strong A*02:01 binder (top decile)</td></tr>
+    <tr><td>NetMHCIIpan</td><td>0.948</td><td>DR-restricted helper paired</td></tr>
+    <tr><td>PRIME</td><td>0.81</td><td>immunogenicity prior 충족</td></tr>
+    <tr><td>BigMHC</td><td>0.79</td><td>presentation predicted</td></tr>
+    <tr><td>Agretopicity</td><td>0.31</td><td>WT vs MUT divergence 양호</td></tr>
+    <tr><td>Self-MS (HLA-LA)</td><td>miss</td><td>benign-tissue 존재 안함</td></tr>
+    <tr><td>GTEx thyroid TPM</td><td>&lt;2</td><td>off-target risk 낮음</td></tr>
+    <tr><td>Clonal frequency</td><td>0.84</td><td>truncal mutation</td></tr>
+    <tr><td>RNA expression</td><td>32.4 TPM</td><td>presented source 실제 풍부</td></tr>
+    </table>`,650);
+  await addMsg("alert","<strong>왜 BRAF V600E A*02:01은 caution인가.</strong> MHCflurry 점수만 보면 0.84로 통과. 그러나 <strong>thyroid (또는 melanoma) immunopeptidomics MS에서 A*02:01 BRAF V600E 9mer가 endogenously presented된 robust 증거가 없음</strong>. 검증된 BRAF V600E T-cell biology = HLA-DQB1*0303/0302 CD4 (Veatch JCI 2018). 따라서 A*02:01 컨텍스트에서는 prediction-only 표시. 실제 사용 시 patient-derived MS 또는 IVS-priming + tetramer 검증을 선행 권고.",700);
+  setChips([["RAIR full run","rair"],["uncertainty 자세히","combo"],["claim 경계","claim"]]);
+  chatSetStatus("complete · XAI");
+}
+
+/* ----- SCENARIO 6: COMBO STRATEGY ----- */
+async function scenarioCombo(){
+  await addMsg("agent","Combination strategy generator는 (a) 현재 SoC에 vaccine을 끼우는 시간축 · (b) immune backbone 선택 · (c) PD readout sequence 세 축으로 구성됩니다.",200);
+  await addMsg("result",`<strong>RAIR-PTC 케이스 combination tree.</strong>
+    <table class="mini-table">
+    <tr><th>Phase</th><th>Backbone</th><th>Vaccine integration</th><th>Readout</th></tr>
+    <tr><td>Prime (wk 0–4)</td><td>Trametinib redifferentiation (RAS-like minor allele)</td><td>(skip)</td><td>NIS expression IHC, dosimetry</td></tr>
+    <tr><td>RAI window (wk 4–6)</td><td>¹³¹I 100–150 mCi (dosimetry-guided)</td><td>(skip)</td><td>post-Tx WBS, Tg drop</td></tr>
+    <tr><td>Adjuvant (wk 6+)</td><td>Nivolumab 1 mg/kg q3w</td><td>Long peptide (TP53 + NSF + DR-helper) + poly-ICLC q2w × 6 → q4w × 6</td><td>ELISpot, tetramer, Tg, RECIST</td></tr>
+    <tr><td>Maintenance (mo 12+)</td><td>Nivolumab continue or step down</td><td>Booster q12w × 4</td><td>circulating tumor DNA, Tg trajectory</td></tr>
+    </table>`,750);
+  await addMsg("stage","<strong>Lineage citations.</strong> ATLEP (Dierks 2021/2022) · ITOG NCT02973997 (Haugen/Bible 2024) · MERAIODE (Leboulleux 2023) · KEYNOTE-942 mRNA-4157 (Weber 2024 melanoma) · BNT122 autogene cevumeran (Rojas 2023 PDAC).",700);
+  setChips([["wetlab reagent까지","wetlab"],["XAI","xai"],["BD appendix","combo"]]);
+  chatSetStatus("complete · combo");
+}
+
+/* ----- SCENARIO 7: WETLAB ----- */
+async function scenarioWetlab(){
+  await addMsg("agent","Wetlab plan은 reagent-level resolution까지 내려갑니다. Top 2 candidate에 한정.",200);
+  setChecklist([1,1,1,1,1,1]);
+  await addMsg("result",`<strong>Validation protocol · TP53_R248Q_25mer + NSF_E209K_9mer.</strong>
+    <table class="mini-table">
+    <tr><th>Assay</th><th>Reagent</th><th>Readout</th><th>Decision</th></tr>
+    <tr><td>PBMC IFN-γ ELISpot</td><td>Mabtech 3420-2HW-Plus · CTL-ImmunoSpot reader</td><td>SFC / 10⁶ PBMC, 4 candidates × 8 HLA contexts</td><td>≥3× DMSO → next stage</td></tr>
+    <tr><td>MHC-I tetramer</td><td>NIH Tetramer Core custom (A*02:01 + DRB1*04:06)</td><td>% antigen-specific CD8/CD4, fluorescent FACS panel</td><td>≥0.05% pre / ≥0.5% post = positive</td></tr>
+    <tr><td>IFN-γ release co-culture</td><td>Autologous tumor organoid (Matrigel/StemCell IntestiCult-style for thyroid)</td><td>HLA-matched co-culture 24h, ELISA pg/mL</td><td>fold &gt; 3 vs unpulsed</td></tr>
+    <tr><td>FFPE-LMD MS immunopeptidome</td><td>Bruker timsTOF SCP · W6/32 + L243 IP</td><td>endogenous presentation confirmation</td><td>≥1 spectral match → MS-validated</td></tr>
+    <tr><td>PDX vaccination arm</td><td>NSG-MHC-I/II humanized (JAX 026565)</td><td>tumor volume, OS, infiltrate IHC</td><td>n=8/arm, alpha 0.05</td></tr>
+    <tr><td>CRISPR escape model</td><td>LentiCRISPRv2 sgRNA targeting antigen source</td><td>vaccine resistance time-to-progression</td><td>HR vs control</td></tr>
+    </table>`,800);
+  await addMsg("stage","<strong>Reagent caveats.</strong> Thyroid-specific organoid culture는 표준화 미숙 — Goh et al. 2023 protocol (TSH + insulin + EGF) 권고. NSG-MHC-I/II humanized는 limit이 있어 PBMC humanization 병행 필요.",550);
+  setChips([["combo로 돌아가기","combo"],["XAI","xai"],["claim 경계","claim"]]);
+  chatSetStatus("complete · wetlab");
+}
+
+/* ----- SCENARIO 8: CLAIM BOUNDARY ----- */
+async function scenarioClaim(){
+  await addMsg("error","<strong>아니요.</strong> 어떤 thyroid cancer subtype에 대해서도 cancer vaccine은 standard of care가 아닙니다. ATC에 dabrafenib + trametinib (BRAF V600E 양성), MTC에 selpercatinib (RET), RAIR DTC에 lenvatinib·sorafenib·cabozantinib이 SoC이고, 일부 BRAFm ATC에서 atezolizumab + vemurafenib + cobimetinib 또는 D+T+pembrolizumab이 institutional standard로 자리잡고 있을 뿐, vaccine은 모두 <strong>research-grade</strong>입니다.",250);
+  await addMsg("agent",`Lumenix 마케팅에서 허용되는 표현은 다음과 같이 정렬됩니다.
+    <table class="mini-table">
+    <tr><th>허용 (we can claim)</th><th>금지 (we do NOT claim)</th></tr>
+    <tr><td>research-grade thyroid vaccine pipeline</td><td>validated clinical efficacy in any thyroid cancer histology</td></tr>
+    <tr><td>citation-anchored hypothesis generation</td><td>patient-level treatment recommendation</td></tr>
+    <tr><td>HLA bias audit · neoantigen ranking · validation plan</td><td>regulatory-approved diagnostic or therapeutic product</td></tr>
+    <tr><td>combination-strategy generation grounded in published trials</td><td>replacement for clinicians or tumor boards</td></tr>
+    </table>`,550);
+  await addMsg("alert","BD/marketing 자료에서 'standard therapy', 'approved vaccine', 'FDA-cleared', 'patient management' 같은 표현이 발견되면 자동 차단 권고. (citation lint validator가 always-on으로 동작.)",650);
+  setChips([["RAIR full run","rair"],["XAI","xai"],["BD appendix","combo"]]);
+  chatSetStatus("complete · claim guard");
+}
+
+/* ----- SCENARIO 9: LICENSE ----- */
+async function scenarioLicense(){
+  await addMsg("agent","Commercial-OK first lane.",200);
+  await addMsg("result",`<strong>License matrix.</strong>
+    <table class="mini-table">
+    <tr><th>Lane</th><th>Use now</th><th>Separate license / academic comparator</th></tr>
+    <tr><td>Variant + HLA</td><td>MuTect2, Strelka2, GATK4, DeepVariant, OptiType, arcasHLA, seq2HLA, CookHLA</td><td>HLA-HD, Polysolver</td></tr>
+    <tr><td>MHC ensemble</td><td>MHCflurry 2.0, MHCnuggets, TransPHLA, BigMHC</td><td>NetMHCpan, NetMHCIIpan, MixMHCpred, NNAlign_MA</td></tr>
+    <tr><td>Rank/audit</td><td>pVACtools, pVACview, OpenVax, Vaxrank, DIAL-U, PoSHAP, conformal UQ</td><td>IEDB hosted tools (license-dependent)</td></tr>
+    <tr><td>Pathology AI</td><td>UNI, Phikon-v2, CHIEF (research)</td><td>Virchow / Virchow2, GigaPath (commercial agreement)</td></tr>
+    </table>`,500);
+  setChips([["RAIR run","rair"],["claim 경계","claim"]]);
+  chatSetStatus("complete · license");
+}
+
+/* ----- FALLBACK ----- */
+function scenarioFallback(){
+  addMsg("agent","이 demo는 thyroid vaccine 프로젝트에 맞춰 8개 시나리오로 유도됩니다. 아래 chip 중 하나를 누르거나, 아래 키워드를 포함해 입력해 주세요: <span style=\"color:var(--emerald)\">RAIR / ATC / MTC / Hashimoto / XAI / combination / wetlab / claim</span>.");
+  setChips([
+    ["RAI-refractory PTC (Korean)","rair"],
+    ["BRAFm ATC neoadjuvant DTP","atc"],
+    ["MTC GFRA4 + DC","mtc"],
+    ["PTC + Hashimoto subset","htptc"],
+    ["XAI","xai"],
+    ["combination","combo"],
+    ["wetlab","wetlab"],
+    ["claim 경계","claim"]
+  ]);
+  chatSetStatus("idle");
+}
+
+function sendPrompt(){
+  const inp = document.getElementById("promptInput");
+  const v = inp.value.trim();
+  if (!v) return;
+  inp.value = "";
+  const low = v.toLowerCase();
+  addMsg("user", v);
+  setChips([]);
+  chatSetStatus("streaming");
+  if (/(rair|raif|raio|rai-?ref|rai\s*refractory|raffr|rai 불응|불응|한국|korean|korea|asian|아시아)/i.test(v) && !/(atc|mtc|medullary|anaplastic)/i.test(v)) return scenarioRAIR();
+  if (/(atc|anaplastic|braf.*v600|dtp|cabanillas|atlep)/i.test(v)) return scenarioATC();
+  if (/(mtc|medullary|gfra4|calcitonin|m918|libretto|selper)/i.test(v)) return scenarioMTC();
+  if (/(hashimoto|ht.?ptc|ptc\+ht|tls|hla-?ii|hla\s*ii)/i.test(v)) return scenarioHTPTC();
+  if (/(xai|shap|왜|설명|why|interpret)/i.test(v)) return scenarioXAI();
+  if (/(combination|combo|sequence|sequencing|backbone|mki|pembro|nivo)/i.test(v)) return scenarioCombo();
+  if (/(wetlab|wet-?lab|elispot|tetramer|protocol|reagent|validation)/i.test(v)) return scenarioWetlab();
+  if (/(claim|standard|approval|fda|clinical recommendation|마케팅|마케팅용|허용)/i.test(v)) return scenarioClaim();
+  if (/(license|라이선|상업|commercial|opensource|tool)/i.test(v)) return scenarioLicense();
+  scenarioFallback();
+}
+document.getElementById("promptInput").addEventListener("keydown", e => { if (e.key==="Enter") sendPrompt(); });
+
+/* ======================== INIT ======================== */
+drawHeroStages();
+renderData("all");
+renderPipeline();
+renderTools();
+renderEvidence();
+renderAntigens();
+renderDeliverables();
+resetChat();
+
+/* hash-routing on load */
+const hashTab = (location.hash||"#overview").replace("#","");
+if (TAB_ORDER.includes(hashTab)) setTab(hashTab); else setTab("overview");
+</script>
+</body>
+</html>
