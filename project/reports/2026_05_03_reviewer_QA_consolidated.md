@@ -96,7 +96,7 @@ Each Q has:
 - Min detectable d at n=9 (80% power) = 1.41
 - Observed d > minimum: 8-gene 1.60 (power 0.89), HLA-II 3.65 (power 1.00)
 
-**Answer:** Observed effect sizes substantially exceed the minimum detectable d at n=9 (1.41 for 80% power, 1.63 for 90% power). For each major effect we report achieved power: 8-gene RAI |d|=1.60 → power 0.89; HLA-I module |d|=2.34 → power 0.996; HLA-II module |d|=3.65 → power 1.000. Cross-cohort generalization in TCGA-THCA n=500 (Hashimoto-like signature transfer; OR up to 5×, p=6×10⁻¹⁰) and Korean GSE213647 n=632 (independent replication, Hashimoto-like 22.8%) eliminates concern that GSE286332 findings are sample-size artifacts.
+**Answer:** Observed effect sizes substantially exceed the minimum detectable d at n=9 (1.41 for 80% power, 1.63 for 90% power). For each major effect we report achieved power: 8-gene RAI |d|=1.60 → power 0.89; HLA-I module |d|=2.34 → power 0.996; HLA-II module |d|=3.65 → power 1.000. Cross-cohort generalization in TCGA-THCA n=500 (Hashimoto-like signature transfer; OR up to 5×, p=6.4×10⁻¹⁰) and Korean GSE213647 n=632 (independent replication, Hashimoto-like 22.8%) eliminates concern that GSE286332 findings are sample-size artifacts.
 
 ---
 
@@ -132,10 +132,10 @@ Each Q has:
 **Anticipated framing:** "Your main mechanism is from a single n=18 cohort. Generalize?"
 
 **Source evidence:**
-- `results/d4p2_tcga_hashimoto_signature/D4P2_summary.json` — 18-30% TCGA Hashimoto-like, OR up to 5×, p=6e-10
+- `results/d4p2_tcga_hashimoto_signature/D4P2_summary.json` — 18-30% TCGA Hashimoto-like, OR up to 5×, p=6.4e-10
 - `results/d8b_korean_replication/D8B_summary.json` — Korean GSE213647 22.8-28.2%
 
-**Answer:** The PTC+HT signature transferred to TCGA-THCA n=500 yields 18-30% Hashimoto-like samples across thresholds (GMM 18%, Otsu 19.6%, top-30% 30%) with strong DM2 enrichment (top-30% threshold OR=0.20, Fisher p=6×10⁻¹⁰; 3-5× higher rate than DM1). Stromal+immune-proxy residualization preserves enrichment (OR=0.29, p=8×10⁻⁹), ruling out generic immune-infiltration confounding. Independent Korean replication in GSE213647 n=632 (Lee 2024) yields 22-28% Hashimoto-like prevalence — consistent with TCGA. The autoimmune-PTC axis generalizes across two TCGA-independent cohorts.
+**Answer:** The PTC+HT signature transferred to TCGA-THCA n=500 yields 18-30% Hashimoto-like samples across thresholds (GMM 18%, Otsu 19.6%, top-30% 30%) with strong DM2 enrichment (top-30% threshold OR=0.20, Fisher p=6.4×10⁻¹⁰; 3-5× higher rate than DM1). Stromal+immune-proxy residualization preserves enrichment (OR=0.29, p=8×10⁻⁹), ruling out generic immune-infiltration confounding. Independent Korean replication in GSE213647 n=632 (Lee 2024) yields 22-28% Hashimoto-like prevalence — consistent with TCGA. The autoimmune-PTC axis generalizes across two TCGA-independent cohorts.
 
 ---
 
