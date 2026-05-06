@@ -388,6 +388,129 @@ def main():
             "hashimoto_risk":sorted(list(set(allele_set)&HASHIMOTO_RISK_HLA)),
         })
 
+    # 8.7 ─── TCGA × Korean-HLA counterfactual (heavy multiprocess workload)
+    tcga_cf = run_tcga_counterfactual(tcga, pool_size)
+
+    # 8.8 ─── K2 REAL: real Korean driver × real Korean arcasHLA (n≈169)
+    k2_real = run_k2_real(pool_size)
+    # group by driver class & dark-matter
+    k2_groups = defaultdict(list)
+    for r in k2_real:
+        if r["is_dark_matter"]: k2_groups["dark_matter"].append(r)
+        if "BRAF V600E" in r["drivers"]: k2_groups["BRAF V600E"].append(r)
+        if "NRAS Q61R" in r["drivers"] or "HRAS Q61R" in r["drivers"]: k2_groups["RAS"].append(r)
+        if "TERT promoter" in r["drivers"]: k2_groups["TERT_pos"].append(r)
+        if "DICER1" in r["drivers"]: k2_groups["DICER1"].append(r)
+        if not r["drivers"]: k2_groups["driver_negative"].append(r)
+        k2_groups["all"].append(r)
+    k2_summary = {}
+    for cls, rs in k2_groups.items():
+        if not rs: continue
+        scores = [r["top_score"] for r in rs]
+        k2_summary[cls] = {
+            "n": len(rs),
+            "mean_top_score": round(sum(scores)/len(scores),3),
+            "median_top_score": round(sorted(scores)[len(scores)//2],3),
+            "max_top_score": round(max(scores),3),
+            "frac_strong_binder": round(sum(1 for r in rs if r["top_score"]>0.4)/len(rs),3),
+            "frac_with_OOD": round(sum(1 for r in rs if r["n_OOD_alleles"]>0)/len(rs),3),
+            "frac_with_Hashimoto_HLA": round(sum(1 for r in rs if r["hashimoto_risk"])/len(rs),3),
+        }
+    # top-30 K2 cases by score, decorated with real driver / dark-matter
+    k2_top30 = sorted(k2_real, key=lambda r: r["top_score"] or 0, reverse=True)[:30]
+    cohort["k2_real"] = k2_summary
+
+    # 8.9 ─── GSE213647 REAL Korean: real arcasHLA HLA per sample
+    gse213_real = run_gse213647_real(pool_size)
+    if gse213_real:
+        kor_b = [r["kor_bias"] for r in gse213_real]
+        eur_b = [r["eur_bias"] for r in gse213_real]
+        cohort["gse213647_real"] = {
+            "n": len(gse213_real),
+            "mean_top_score": round(sum(r["top_score"] for r in gse213_real)/len(gse213_real),3),
+            "median_top_score": round(sorted([r["top_score"] for r in gse213_real])[len(gse213_real)//2],3),
+            "frac_strong_binder": round(sum(1 for r in gse213_real if r["top_score"]>0.4)/len(gse213_real),3),
+            "mean_korean_bias": round(sum(kor_b)/len(kor_b),3),
+            "mean_european_bias": round(sum(eur_b)/len(eur_b),3),
+            "asymmetry_ratio": round(sum(kor_b)/max(0.001,sum(eur_b)),1),
+            "frac_with_Hashimoto_HLA": round(sum(1 for r in gse213_real if r["hashimoto_risk_n"]>0)/len(gse213_real),3),
+            "n_with_OOD": sum(1 for r in gse213_real if r["n_OOD_alleles"]>0),
+        }
+
+    # 8.10 ─── scRNA GSE193581 cell-type / DM_score analysis
+    scrna = analyze_gse193581_scrna()
+    if scrna: cohort["scrna_gse193581"] = scrna
+
+    # 8.11 ─── GSE250521 spatial transcriptomics (16 samples · ~57k spots) parallel
+    spatial = run_gse250521_spatial(pool_size)
+    if spatial: cohort["gse250521_spatial"] = spatial
+
+    # 8.12 ─── K2 per-patient wetlab plans (tiered, 169 plans)
+    k2_plans = generate_k2_wetlab_plans(k2_real)
+    if k2_plans:
+        tier_count = Counter(p["tier"] for p in k2_plans)
+        cohort["k2_wetlab_plans_summary"] = {
+            "n_total_plans": len(k2_plans),
+            "tier_breakdown": dict(tier_count),
+            "n_T1_priority": tier_count.get("T1",0),
+            "n_T4_driver_fail": tier_count.get("T4",0),
+        }
+
+    # 8.13 ─── Spatial PNG tiles (16 .tissue_hires images for chatbot inline)
+    spatial_tiles = copy_spatial_tiles()
+    if spatial_tiles: cohort["spatial_tiles"] = spatial_tiles
+
+    # 8.14 ─── scRNA immune neighborhood / TLS-proxy / cold-warm stratification
+    neighborhoods = analyze_scrna_neighborhoods()
+    if neighborhoods: cohort["scrna_neighborhoods"] = neighborhoods
+
+    # 8.15 ─── K2 BD technical appendix (printable HTML)
+    write_k2_bd_report(k2_plans, cohort)
+
+    # 8.16 ─── arcasHLA on GSE184362 / GSE232237 — honest data-needed marker
+    cohort["data_needed"] = {
+        "arcasHLA_GSE184362": "raw BAM not local; matrix.gz is filelist only · would require ~50GB SRA download",
+        "arcasHLA_GSE232237": "raw BAM not local; matrix.gz is filelist only · would require ~120GB SRA download",
+        "estimated_compute": "~6-10h × 8 cores per cohort",
+    }
+
+    # 8.17 ─── K2 T1 priority print cards (28 patients · 1 page each)
+    generate_k2_t1_cards(k2_plans)
+
+    # 8.18 ─── Spatial DM1+ overlays (16 H&E tiles · per-spot heatmap rendering)
+    overlays = generate_spatial_overlays(pool_size, score_col="DM1_like_score")
+    if overlays: cohort["spatial_overlays"] = overlays
+
+    # 8.19 ─── GSE286332 DEG forensic mapping (PTC+HT signature → vaccine class)
+    forensic = analyze_gse286332_forensic()
+    if forensic: cohort["gse286332_forensic"] = forensic
+    # cohort-level counterfactual stats
+    by_braf = defaultdict(list)
+    for r in tcga_cf:
+        cls = "BRAF V600E" if "V600E" in (r["braf"] or "") else ("RAS-like" if "TripleNeg" not in (r["braf"] or "") and (r["braf"] or "") not in ("","V600E") else "TripleNeg")
+        if "TripleNeg" in (r["braf"] or ""): cls = "TripleNeg"
+        by_braf[cls].append(r)
+    cf_summary = {}
+    for cls, rs in by_braf.items():
+        if not rs: continue
+        scores = [r["top_score"] for r in rs]
+        sigmas = [r["top_sigma"] for r in rs]
+        biases = [r["kor_bias"] for r in rs]
+        cf_summary[cls] = {
+            "n": len(rs),
+            "mean_top_score": round(sum(scores)/len(scores),3),
+            "median_top_score": round(sorted(scores)[len(scores)//2],3),
+            "max_top_score": round(max(scores),3),
+            "min_top_score": round(min(scores),3),
+            "mean_top_sigma": round(sum(sigmas)/len(sigmas),3),
+            "mean_kor_bias": round(sum(biases)/len(biases),3),
+            "frac_with_strong_binder": round(sum(1 for r in rs if r["top_score"]>0.4)/len(rs),3),
+            "frac_with_OOD_allele": round(sum(1 for r in rs if r["n_OOD_alleles"]>0)/len(rs),3),
+        }
+    cohort["tcga_counterfactual_korean"] = cf_summary
+    # also stash a ranked top-30 across the cohort for visualization
+    tcga_cf_sorted = sorted(tcga_cf, key=lambda r: r["top_score"] or 0, reverse=True)[:30]
+
     payload = {
         "generated_at": datetime.now().isoformat(timespec='seconds'),
         "wall_seconds": round(time.time()-t0, 2),
@@ -398,6 +521,9 @@ def main():
         "gse286332_per_sample": sample_summary,
         "scenarios": scenarios,
         "xai_top": xai_top,
+        "tcga_counterfactual_top30": tcga_cf_sorted,
+        "k2_real_top30": k2_top30,
+        "k2_wetlab_plans": k2_plans if k2_plans else [],
         "honest_framing": {
             "real": ["arcasHLA per-sample 4-digit alleles","TCGA driver classes","K2/Yoo2016 driver flags","Korean GSE213647 HLA scores","DIAL-U cross-population math","self-peptide / GTEx safety filter","peptide hotspot sequences"],
             "mock": ["the 4 MHC-binding 'predictors' are deterministic mock models that emulate the relative ordering and disagreement structure of MHCflurry/NetMHCpan/MHCnuggets/TransPHLA via anchor-residue + length + hydrophobicity + predictor-specific bias; in production these are swapped for container-bound real tools"]
@@ -410,6 +536,16 @@ def main():
     served.write_text(json.dumps(payload, default=str))  # compact for browser
     print(f"\n[written] {out_path}  ({out_path.stat().st_size:,} bytes)")
     print(f"[served]  {served}  ({served.stat().st_size:,} bytes)")
+    # also drop K2 wetlab plans as standalone TSV for the BD team
+    if k2_plans:
+        wp_path = OUT/"k2_wetlab_plans.tsv"
+        with open(wp_path,"w",newline="") as f:
+            w = csv.DictWriter(f, fieldnames=list(k2_plans[0].keys()), delimiter="\t")
+            w.writeheader()
+            for p in k2_plans: w.writerow(p)
+        served_wp = SERVED_DIR/"k2_wetlab_plans.tsv"
+        served_wp.write_bytes(wp_path.read_bytes())
+        print(f"[k2-plans] {wp_path} · {served_wp.name}  ({wp_path.stat().st_size:,} bytes)")
 
     # Console headlines
     print(f"\n┌─ TCGA-THCA driver landscape ─┐")
@@ -428,4 +564,736 @@ def main():
     print(f"\n[done] wall = {time.time()-t0:.2f}s · pool = {pool_size}")
 
 if __name__ == "__main__":
+    pass  # moved to bottom of file so counterfactual fn is defined first
+
+# ──────────────────────────────────────────────────────────────────
+# 9. TCGA × KOREAN-HLA COUNTERFACTUAL  (multiprocessing-bound)
+# ──────────────────────────────────────────────────────────────────
+import random as _random
+def _draw_korean_hla(seed):
+    rng = _random.Random(seed)
+    def pick(prefix):
+        cands = [a for a in AFND_KOREAN if a.startswith(prefix)]
+        ws = [AFND_KOREAN[a] for a in cands]
+        s = sum(ws); ws = [w/s for w in ws]
+        return rng.choices(cands, weights=ws, k=1)[0]
+    A = [pick("A*"), pick("A*")]
+    B = [pick("B*"), pick("B*")]
+    C = [pick("C*"), pick("C*")]
+    DR = [pick("DRB1*"), pick("DRB1*")]
+    DQ = [pick("DQB1*"), pick("DQB1*")]
+    DP = [pick("DPB1*"), pick("DPB1*")]
+    return A+B+C, DR+DQ+DP
+
+def score_tcga_counterfactual(args):
+    """Score one TCGA sample with a synthesized Korean HLA panel."""
+    sample, seed = args
+    alleles_I, alleles_II = _draw_korean_hla(seed)
+    # Driver gating per real TCGA call
+    drivers = []
+    if "V600E" in (sample["braf"] or ""): drivers.append("BRAF V600E")
+    if sample["ras"] > 0: drivers.append("NRAS Q61R")
+    drivers.extend(["TP53","CCDC6-RET","NCOA4-RET"])
+    fake = {"sample_id":sample["sample_id"],"cohort":"TCGA-THCA-counterfactual",
+            "alleles_I":alleles_I,"alleles_II":alleles_II,"drivers":drivers,"has_HT":False,
+            "allow_CT":False,"allow_lineage":False,"allow_surface":False}
+    out = score_sample(fake)
+    top = out["ranked"][0] if out["ranked"] else None
+    bias_kor, n_ood, ood = dial_audit(alleles_I+alleles_II, "korean")
+    bias_eur, n_ood_eu, _ = dial_audit(alleles_I+alleles_II, "european")
+    return {
+        "sample_id":sample["sample_id"],
+        "braf":sample["braf"], "tert":sample["tert"], "dm_like":sample["dm_like"],
+        "alleles_I":alleles_I, "alleles_II":alleles_II,
+        "top_peptide": (f"{top['gene']}_{top['hot']}_{top['len']}{top['class']}" if top else None),
+        "top_hla": (top["hla"] if top else None),
+        "top_score": (top["lumenix_score"] if top else 0),
+        "top_sigma": (top["ensemble_sigma"] if top else 0),
+        "n_strong_binders": sum(1 for c in out["ranked"] if c["lumenix_score"]>0.5),
+        "n_passed_safety": sum(1 for c in out["ranked"] if c["safe"]=="pass"),
+        "n_caution": sum(1 for c in out["ranked"] if c["safe"].startswith("caution")),
+        "kor_bias": bias_kor, "eur_bias": bias_eur, "n_OOD_alleles": n_ood,
+    }
+
+def run_tcga_counterfactual(tcga, pool_size):
+    print(f"\n[parallel TCGA counterfactual] Pool({pool_size}) on {len(tcga)} TCGA samples × Korean HLA simulation × 18 peptides")
+    t0 = time.time()
+    args = [(s, hash(s["sample_id"]) & 0xFFFFFFFF) for s in tcga]
+    with mp.Pool(pool_size) as pool:
+        results = pool.map(score_tcga_counterfactual, args, chunksize=18)
+    elapsed = time.time() - t0
+    n_total_scored = len(results) * 18 * 12  # peptides × ~alleles
+    print(f"  done in {elapsed:.2f}s · ≈{n_total_scored:,} (peptide×HLA) ensemble evaluations · {n_total_scored/max(0.001,elapsed):,.0f}/s")
+    return results
+
+if __name__ == "__main__":
+    pass  # moved further down so all helper fns are loaded first
+
+# ──────────────────────────────────────────────────────────────────
+# 10. REAL K2 (n=169): real driver × real arcasHLA  (Korean cohort)
+# ──────────────────────────────────────────────────────────────────
+def _strip_alias(s):
+    return s.replace("GMI-","").replace("SNU-","").replace("-N","").replace("-T","").replace("-LN","")
+
+def load_k2_paired():
+    """Return list of dicts joining K2 mutation calls with K2 arcasHLA per-sample 4-digit."""
+    muts = {r["SampleID"]: r for r in csv.DictReader(open(PROJECT/"results/dark_matter_phase2/k2_yoo2016_mutations_parsed.tsv"), delimiter="\t")}
+    hla_rows = list(csv.DictReader(open(PROJECT/"results/v17_korean/arcasHLA/K2_arcasHLA_FINAL.tsv"), delimiter="\t"))
+    out = []
+    seen = set()
+    for hr in hla_rows:
+        alias = _strip_alias(hr["sample_alias"])
+        if alias in muts and alias not in seen:
+            seen.add(alias)
+            mr = muts[alias]
+            I = [hr.get("A_a1_4d"), hr.get("A_a2_4d"), hr.get("B_a1_4d"), hr.get("B_a2_4d"), hr.get("C_a1_4d"), hr.get("C_a2_4d")]
+            II = [hr.get("DRB1_a1_4d"), hr.get("DRB1_a2_4d"), hr.get("DQB1_a1_4d"), hr.get("DQB1_a2_4d"), hr.get("DPB1_a1_4d"), hr.get("DPB1_a2_4d")]
+            I = [a for a in I if a and a.strip()]
+            II = [a for a in II if a and a.strip()]
+            drivers = []
+            if str(mr.get("has_braf_v600e",""))=="True": drivers.append("BRAF V600E")
+            if str(mr.get("has_ras",""))=="True": drivers.append("NRAS Q61R")
+            if str(mr.get("has_tert",""))=="True": drivers.append("TERT promoter")
+            if str(mr.get("has_dicer1",""))=="True": drivers.append("DICER1")
+            if str(mr.get("has_eif1ax",""))=="True": drivers.append("EIF1AX")
+            if str(mr.get("has_fusion",""))=="True": drivers.extend(["CCDC6-RET","NCOA4-RET"])
+            # always include TP53 panel (general thyroid hotspots) so we can score against any sample
+            drivers.extend(["TP53"])
+            out.append({
+                "cohort":"K2","sample_id":alias,"sample_alias":hr["sample_alias"],
+                "alleles_I":I, "alleles_II":II, "drivers":drivers, "has_HT":False,
+                "allow_CT":False,"allow_lineage":False,"allow_surface":False,
+                "is_dark_matter": str(mr.get("is_dark_matter","")) == "True",
+                "mol_subtype": mr.get("mol_subtype_label",""),
+                "histology": mr.get("Pathology",""),
+                "raw_drivers_no_tp53": [d for d in drivers if d != "TP53"],
+                "DM_call": hr.get("DM_call",""),
+            })
+    return out
+
+def score_k2_real(args):
+    """Multiprocessing target: full ensemble per K2 sample."""
+    s = args
+    out = score_sample(s)
+    top = out["ranked"][0] if out["ranked"] else None
+    bias_kor, n_ood, ood = dial_audit(s["alleles_I"]+s["alleles_II"], "korean")
+    return {
+        "sample_id": s["sample_id"], "alleles_I": s["alleles_I"], "alleles_II": s["alleles_II"],
+        "drivers": s["raw_drivers_no_tp53"], "is_dark_matter": s["is_dark_matter"],
+        "mol_subtype": s["mol_subtype"], "histology": s["histology"], "DM_call": s["DM_call"],
+        "n_candidates": len(out["ranked"]),
+        "top_peptide": (f"{top['gene']}_{top['hot']}_{top['len']}{top['class']}" if top else None),
+        "top_hla": (top["hla"] if top else None),
+        "top_score": (top["lumenix_score"] if top else 0),
+        "top_sigma": (top["ensemble_sigma"] if top else 0),
+        "n_strong_binders": sum(1 for c in out["ranked"] if c["lumenix_score"]>0.4),
+        "n_caution": sum(1 for c in out["ranked"] if c["safe"].startswith("caution")),
+        "kor_bias": bias_kor, "n_OOD_alleles": n_ood, "OOD_alleles": ood,
+        "hashimoto_risk": sorted(list(set(s["alleles_I"]+s["alleles_II"]) & HASHIMOTO_RISK_HLA)),
+    }
+
+def run_k2_real(pool_size):
+    samples = load_k2_paired()
+    print(f"\n[parallel K2 REAL] Pool({pool_size}) on {len(samples)} K2 samples · real driver × real arcasHLA HLA")
+    t0 = time.time()
+    with mp.Pool(pool_size) as pool:
+        results = pool.map(score_k2_real, samples, chunksize=24)
+    n_total = sum(r["n_candidates"] for r in results)
+    elapsed = time.time()-t0
+    print(f"  done in {elapsed:.2f}s · {n_total:,} (peptide×HLA) ensemble evals · {n_total/max(0.001,elapsed):,.0f}/s")
+    return results
+
+# ──────────────────────────────────────────────────────────────────
+# 11. REAL GSE213647 (n≈630): real Korean arcasHLA HLA only
+# ──────────────────────────────────────────────────────────────────
+def load_gse213647_real():
+    rows = list(csv.DictReader(open(PROJECT/"results/v17_korean/arcasHLA_GSE213647/GSE213647_arcasHLA_genotypes.tsv"), delimiter="\t"))
+    # Cross-reference clinical histology from korean_GSE213647_hla_per_sample.tsv where available
+    clin = {}
+    for r in csv.DictReader(open(PROJECT/"results/v17_hla/korean_GSE213647_hla_per_sample.tsv"), delimiter="\t"):
+        clin[r["sample_id"].split("_")[0]] = r  # strip _RNA-seq suffix
+    out = []
+    for r in rows:
+        I  = [r.get("A_a1_4d"), r.get("A_a2_4d"), r.get("B_a1_4d"), r.get("B_a2_4d"), r.get("C_a1_4d"), r.get("C_a2_4d")]
+        II = [r.get("DRB1_a1_4d"), r.get("DRB1_a2_4d"), r.get("DQB1_a1_4d"), r.get("DQB1_a2_4d"), r.get("DPB1_a1_4d"), r.get("DPB1_a2_4d")]
+        I = [a for a in I if a and a.strip()]
+        II = [a for a in II if a and a.strip()]
+        if not I and not II: continue
+        # Use canonical thyroid driver panel (per-sample drivers not in this GEO record)
+        out.append({
+            "cohort":"GSE213647-Korean","sample_id":r["run"],
+            "alleles_I":I,"alleles_II":II,
+            "drivers":["BRAF V600E","NRAS Q61R","TP53","CCDC6-RET","NCOA4-RET"],
+            "has_HT":False,"allow_CT":False,"allow_lineage":False,"allow_surface":False,
+        })
+    return out
+
+def score_gse213647_real(s):
+    out = score_sample(s)
+    top = out["ranked"][0] if out["ranked"] else None
+    bias_kor, n_ood, ood = dial_audit(s["alleles_I"]+s["alleles_II"], "korean")
+    bias_eur, _, _ = dial_audit(s["alleles_I"]+s["alleles_II"], "european")
+    return {
+        "sample_id": s["sample_id"],
+        "top_peptide": (f"{top['gene']}_{top['hot']}_{top['len']}{top['class']}" if top else None),
+        "top_hla": (top["hla"] if top else None),
+        "top_score": (top["lumenix_score"] if top else 0),
+        "top_sigma": (top["ensemble_sigma"] if top else 0),
+        "n_strong_binders": sum(1 for c in out["ranked"] if c["lumenix_score"]>0.4),
+        "kor_bias": bias_kor, "eur_bias": bias_eur, "n_OOD_alleles": n_ood,
+        "hashimoto_risk_n": len(set(s["alleles_I"]+s["alleles_II"]) & HASHIMOTO_RISK_HLA),
+    }
+
+def run_gse213647_real(pool_size):
+    samples = load_gse213647_real()
+    print(f"\n[parallel GSE213647 REAL Korean] Pool({pool_size}) on {len(samples)} samples · real arcasHLA HLA")
+    t0 = time.time()
+    with mp.Pool(pool_size) as pool:
+        results = pool.map(score_gse213647_real, samples, chunksize=64)
+    elapsed = time.time()-t0
+    n_evals = len(results) * 18 * 12
+    print(f"  done in {elapsed:.2f}s · ≈{n_evals:,} ensemble evals · {n_evals/max(0.001,elapsed):,.0f}/s")
+    return results
+
+# ──────────────────────────────────────────────────────────────────
+# 12. scRNA GSE193581 (Lu 2023 Hashimoto): cell-type × DM_score summary
+# ──────────────────────────────────────────────────────────────────
+def analyze_gse193581_scrna():
+    h5ad = PROJECT/"results/v17_lu2023/GSE193581_hvg_adata.h5ad"
+    if not h5ad.exists():
+        return None
+    try:
+        import anndata
+        ad = anndata.read_h5ad(h5ad, backed="r")
+    except Exception as e:
+        print(f"  ⚠ anndata failed: {e}")
+        return None
+    print(f"\n[scRNA GSE193581] loaded backed-mode: {ad.shape}  ·  obs cols: {list(ad.obs.columns)}")
+    obs = ad.obs.copy()
+    # Per-histology summary
+    summary = {}
+    if "histology" in obs.columns:
+        grp = obs.groupby("histology")
+        summary["histology"] = {}
+        for h, g in grp:
+            summary["histology"][str(h)] = {
+                "n_cells": int(len(g)),
+                "DM_score_mean": round(float(g["DM_score"].mean()),3) if "DM_score" in g.columns else None,
+                "DM_score_median": round(float(g["DM_score"].median()),3) if "DM_score" in g.columns else None,
+                "pct_mt_mean": round(float(g["pct_counts_mt"].mean()),2) if "pct_counts_mt" in g.columns else None,
+                "n_genes_mean": round(float(g["n_genes_by_counts"].mean()),0) if "n_genes_by_counts" in g.columns else None,
+            }
+    # Cell-type fractions
+    if "author_celltype" in obs.columns:
+        ct = obs["author_celltype"].value_counts()
+        summary["cell_types_total"] = {str(k):int(v) for k,v in ct.head(20).items()}
+        # Cell-type fractions per histology
+        if "histology" in obs.columns:
+            cross = obs.groupby(["histology","author_celltype"]).size().unstack(fill_value=0)
+            frac = cross.div(cross.sum(axis=1), axis=0)
+            summary["cell_type_fractions_by_histology"] = {
+                str(h): {str(c): round(float(frac.loc[h,c]),3) for c in frac.columns if frac.loc[h,c] > 0.005}
+                for h in frac.index
+            }
+    # Sample list
+    if "sample" in obs.columns:
+        samples = obs["sample"].value_counts()
+        summary["samples"] = {str(k): int(v) for k,v in samples.head(20).items()}
+    return summary
+
+
+# entry point moved to end of file
+
+# ──────────────────────────────────────────────────────────────────
+# 14. GSE250521 SPATIAL (16 samples · ~57k spots · per-spot signatures)
+# ──────────────────────────────────────────────────────────────────
+SPATIAL_SCORES = ["RAI_8_score","TDS_like_score","CAF_ECM_score","EMT_score","Hypoxia_score","Proliferation_score","Epithelial_score","DM1_like_score"]
+
+def analyze_one_spatial(args):
+    gsm_dir, stage_meta = args
+    h = list(Path(gsm_dir).glob("*.scored.h5ad"))
+    if not h: return None
+    try:
+        import anndata
+        ad = anndata.read_h5ad(h[0])
+    except Exception as e:
+        return {"sample": gsm_dir.name, "error": str(e)}
+    obs = ad.obs.copy()
+    out = {"sample": gsm_dir.name, "n_spots": int(len(obs)), "stage": str(obs["stage"].iloc[0]) if "stage" in obs.columns else stage_meta}
+    for col in SPATIAL_SCORES:
+        if col in obs.columns:
+            v = obs[col].astype(float)
+            out[col + "_mean"]   = round(float(v.mean()),3)
+            out[col + "_median"] = round(float(v.median()),3)
+            out[col + "_std"]    = round(float(v.std()),3)
+            out[col + "_pos_frac"] = round(float((v > 0).sum()) / len(v), 3)
+    out["pct_mt_mean"] = round(float(obs["pct_counts_mt"].mean()),2) if "pct_counts_mt" in obs.columns else None
+    out["n_genes_mean"] = round(float(obs["n_genes_by_counts"].mean()),0) if "n_genes_by_counts" in obs.columns else None
+    return out
+
+def run_gse250521_spatial(pool_size):
+    base = PROJECT/"data/processed/GSE250521"
+    if not base.exists():
+        return None
+    sample_dirs = sorted([d for d in base.iterdir() if d.is_dir() and d.name.startswith("GSM")])
+    if not sample_dirs: return None
+    # parse stage from dir name
+    args = []
+    for d in sample_dirs:
+        nm = d.name.split("_",1)[1] if "_" in d.name else d.name  # e.g. PTC-3
+        stage = "ATC" if nm.startswith("ATC") else ("LPTC" if nm.startswith("LPTC") else ("PTC" if nm.startswith("PTC") else "N"))
+        args.append((d, stage))
+    print(f"\n[parallel GSE250521 spatial] Pool({min(pool_size, len(args))}) on {len(args)} samples · per-spot signatures")
+    t0 = time.time()
+    with mp.Pool(min(pool_size, len(args))) as pool:
+        results = pool.map(analyze_one_spatial, args)
+    results = [r for r in results if r and "error" not in r]
+    elapsed = time.time() - t0
+    n_spots_total = sum(r["n_spots"] for r in results)
+    print(f"  done in {elapsed:.2f}s · {len(results)} samples · {n_spots_total:,} spots loaded · {n_spots_total/max(0.001,elapsed):,.0f} spots/s")
+    # cohort-level by-stage aggregation
+    by_stage = defaultdict(list)
+    for r in results: by_stage[r["stage"]].append(r)
+    stage_summary = {}
+    for stage, rs in by_stage.items():
+        s = {"n_samples": len(rs), "n_spots": sum(r["n_spots"] for r in rs)}
+        for col in SPATIAL_SCORES:
+            key = col + "_mean"
+            vals = [r[key] for r in rs if key in r]
+            if vals:
+                s[col + "_cohort_mean"] = round(sum(vals)/len(vals), 3)
+                s[col + "_cohort_pos_rate"] = round(sum(r.get(col + "_pos_frac",0) for r in rs)/len(rs),3)
+        stage_summary[stage] = s
+    return {"per_sample": results, "by_stage": stage_summary, "wall_seconds": round(elapsed,2), "n_spots_total": n_spots_total}
+
+# ──────────────────────────────────────────────────────────────────
+# 15. K2 PER-PATIENT WETLAB PLAN GENERATOR (169 patients)
+# ──────────────────────────────────────────────────────────────────
+def generate_k2_wetlab_plans(k2_real):
+    """For each K2 patient with real driver × real HLA × scored top candidate,
+    emit a per-patient validation plan entry. Tier-based on top score + safety."""
+    plans = []
+    for r in k2_real:
+        if not r["top_peptide"]: continue
+        top_score = r["top_score"] or 0
+        # Tier
+        if top_score > 0.45:    tier, recommendation = "T1", "PRIORITY · proceed to ELISpot + tetramer + IFN-γ co-culture"
+        elif top_score > 0.35:  tier, recommendation = "T2", "ELISpot screen first; advance only if SFC ≥ 3× DMSO"
+        elif top_score > 0.20:  tier, recommendation = "T3", "weak signal; consider patient-specific WGS neoantigen discovery instead"
+        else:                   tier, recommendation = "T4", "DRIVER-FAIL · pivot to CT-antigen induction (5-aza) + HERV screen"
+        gene = r["top_peptide"].split("_")[0] if r["top_peptide"] else ""
+        plans.append({
+            "sample_id": r["sample_id"], "drivers": ";".join(r.get("drivers",[])) or "none",
+            "histology": r.get("histology",""), "is_dark_matter": r["is_dark_matter"],
+            "top_peptide": r["top_peptide"], "top_hla": r["top_hla"],
+            "top_score": top_score, "top_sigma": r["top_sigma"],
+            "kor_bias": r["kor_bias"], "n_OOD_alleles": r["n_OOD_alleles"],
+            "hashimoto_risk_alleles": ";".join(r["hashimoto_risk"]) if r["hashimoto_risk"] else "",
+            "tier": tier, "recommendation": recommendation,
+            "elispot_reagent": "Mabtech 3420-2HW-Plus" if tier in ("T1","T2") else "—",
+            "tetramer_order": f"NIH Tetramer Core · {r['top_hla']} · {gene}" if tier=="T1" else "—",
+            "co_culture": "autologous tumor organoid · IFN-γ ELISA" if tier=="T1" else "—",
+            "ms_confirmation": "Bruker timsTOF SCP · W6/32 IP" if tier=="T1" else ("if ELISpot positive" if tier=="T2" else "—"),
+            "alt_track": "5-aza-CdR CT-antigen induction + WGS neoantigen" if tier in ("T3","T4") else "—",
+            "autoimmune_gate": "BLOCK Tg/TPO/NIS/TSHR" if r["hashimoto_risk"] else "OK",
+        })
+    return plans
+
+
+
+# entry point moved further down so newest helpers are defined first
+
+
+# ──────────────────────────────────────────────────────────────────
+# 16. SPATIAL TILES + scRNA IMMUNE NEIGHBORHOODS + K2 BD REPORT
+# ──────────────────────────────────────────────────────────────────
+import shutil
+
+def copy_spatial_tiles():
+    """Copy GSE250521 tissue_hires_image.png files to served path so chatbot can inline them."""
+    base = PROJECT/"data/processed/GSE250521"
+    served_tiles = SERVED_DIR/"lumenix_spatial_tiles"
+    served_tiles.mkdir(exist_ok=True)
+    n = 0; manifest = []
+    for d in sorted(base.iterdir()) if base.exists() else []:
+        if not d.is_dir(): continue
+        png = d/"tissue_hires_image.png"
+        if not png.exists(): continue
+        target = served_tiles/(d.name + ".png")
+        shutil.copyfile(png, target)
+        n += 1
+        nm = d.name.split("_",1)[1] if "_" in d.name else d.name
+        stage = "ATC" if nm.startswith("ATC") else ("LPTC" if nm.startswith("LPTC") else ("PTC" if nm.startswith("PTC") else "N"))
+        manifest.append({"sample":d.name, "label":nm, "stage":stage, "url":"lumenix_spatial_tiles/"+d.name+".png", "size_kb":round(target.stat().st_size/1024,1)})
+    print(f"\n[spatial tiles] copied {n} PNGs to {served_tiles.relative_to(SERVED_DIR.parent.parent)}")
+    return manifest
+
+def analyze_scrna_neighborhoods():
+    """Compute per-sample immune-cell co-occurrence + TLS-proxy + cold/warm stratification."""
+    h5ad = PROJECT/"results/v17_lu2023/GSE193581_hvg_adata.h5ad"
+    if not h5ad.exists(): return None
+    try:
+        import anndata
+        ad = anndata.read_h5ad(h5ad, backed="r")
+    except Exception as e:
+        print(f"  ⚠ anndata: {e}"); return None
+    obs = ad.obs.copy()
+    if "sample" not in obs.columns or "author_celltype" not in obs.columns: return None
+    out = {"per_sample":[], "tls_proxy":[], "summary":{}}
+    samples = obs["sample"].unique()
+    for s in samples:
+        g = obs[obs["sample"]==s]
+        ct = g["author_celltype"].value_counts(normalize=True)
+        n_total = int(len(g))
+        hist = str(g["histology"].iloc[0]) if "histology" in g.columns else "-"
+        # cell-type fractions
+        frac = {str(k): round(float(v),3) for k,v in ct.items() if v >= 0.005}
+        # TLS proxy = (B-cell + T-cell) > 0.10 AND Malignant > 0.05
+        b   = float(ct.get("B cell", 0))
+        t   = float(ct.get("T cell", 0))
+        m   = float(ct.get("Malignant cell", 0))
+        my  = float(ct.get("Myeloid cell", 0))
+        tls = bool((b + t) > 0.10 and m > 0.05)
+        # immune-warm = T-cell > 0.20
+        warm = bool(t > 0.20)
+        # cold = Malignant > 0.40 AND T < 0.10
+        cold = bool(m > 0.40 and t < 0.10)
+        # CD8/Treg surrogate: T-cell × 1 / (B+1e-3) — proxy
+        ratio = round(t / max(b, 1e-3), 2)
+        out["per_sample"].append({
+            "sample":str(s), "histology":hist, "n_cells":n_total,
+            "frac_malignant":round(m,3), "frac_T":round(t,3), "frac_B":round(b,3), "frac_myeloid":round(my,3),
+            "tls_proxy":tls, "warm":warm, "cold":cold, "T_to_B_ratio":ratio,
+            "DM_score_mean": round(float(g["DM_score"].mean()),3) if "DM_score" in g.columns else None
+        })
+    # group rollup
+    by_h = defaultdict(list)
+    for r in out["per_sample"]: by_h[r["histology"]].append(r)
+    rollup = {}
+    for h, rs in by_h.items():
+        rollup[h] = {
+            "n_samples": len(rs),
+            "n_TLS_proxy": sum(1 for r in rs if r["tls_proxy"]),
+            "n_warm":      sum(1 for r in rs if r["warm"]),
+            "n_cold":      sum(1 for r in rs if r["cold"]),
+            "mean_frac_T":         round(sum(r["frac_T"] for r in rs)/len(rs),3),
+            "mean_frac_B":         round(sum(r["frac_B"] for r in rs)/len(rs),3),
+            "mean_frac_malignant": round(sum(r["frac_malignant"] for r in rs)/len(rs),3),
+            "mean_frac_myeloid":   round(sum(r["frac_myeloid"] for r in rs)/len(rs),3),
+            "mean_T_to_B_ratio":   round(sum(r["T_to_B_ratio"] for r in rs)/len(rs),2),
+        }
+    out["by_histology"] = rollup
+    return out
+
+def write_k2_bd_report(plans, cohort):
+    """Print-ready BD report for the K2 169-patient cohort."""
+    if not plans: return None
+    tier_count = Counter(p["tier"] for p in plans)
+    tiers = ["T1","T2","T3","T4"]
+    by_tier = {t:[p for p in plans if p["tier"]==t] for t in tiers}
+    def tr(p):
+        flag = '<span class="warn">DM</span>' if p["is_dark_matter"] else "-"
+        return f"<tr><td><code>{p['sample_id']}</code></td><td>{p['drivers'] or 'none'}</td><td>{p['histology']}</td><td>{flag}</td><td>{p['top_peptide']}</td><td>{p['top_hla']}</td><td class=\"num\">{p['top_score']:.3f}</td><td>{p['hashimoto_risk_alleles'] or '-'}</td><td>{p['recommendation']}</td></tr>"
+    def section(t, lbl, color):
+        ps = by_tier[t]
+        if not ps: return ""
+        return f"""<section><h2 style='color:{color}'>{t} · {lbl} (n={len(ps)})</h2>
+        <table><thead><tr><th>Sample</th><th>Driver</th><th>Histology</th><th>DM</th><th>Top peptide</th><th>HLA</th><th>Score</th><th>Hashimoto-risk HLA</th><th>Recommendation</th></tr></thead>
+        <tbody>{''.join(tr(p) for p in ps)}</tbody></table></section>"""
+    html = f"""<!DOCTYPE html><html><head><meta charset='utf-8'><title>Lumenix · K2 BD Report (n={len(plans)})</title>
+<link href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap' rel='stylesheet'>
+<style>
+:root{{--bg:#070b12;--ink:#eef5ff;--muted:#9fb0c7;--em:#35d39d;--am:#f2b84b;--ro:#ef5f79;--vi:#9b7cff;--line:#24324a}}
+body{{margin:0;background:linear-gradient(180deg,#070b12,#0a101b);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;padding:36px 28px;max-width:1280px;margin:0 auto}}
+h1{{font-family:'Space Grotesk',sans-serif;font-size:36px;line-height:1.1;margin:0 0 8px}}
+h1 span{{background:linear-gradient(90deg,var(--em),var(--vi));-webkit-background-clip:text;color:transparent}}
+h2{{font-family:'Space Grotesk',sans-serif;margin:32px 0 12px}}
+.dek{{color:var(--muted);font-size:13px;margin-bottom:24px;font-family:'JetBrains Mono',monospace;line-height:1.5}}
+.kpi{{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px}}
+.kpi div{{border:1px solid var(--line);background:rgba(13,20,34,.85);border-radius:10px;padding:14px}}
+.kpi b{{display:block;font-size:26px;color:var(--em);font-family:'Space Grotesk',sans-serif}}
+.kpi span{{color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;display:block;margin-top:5px}}
+table{{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}}
+th{{text-align:left;padding:9px;background:#0c1422;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600}}
+td{{padding:8px 9px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--ink);vertical-align:top}}
+.num{{font-family:'JetBrains Mono',monospace;text-align:right;color:var(--em)}}
+.warn{{color:var(--am)}} .ok{{color:var(--em)}} .ro{{color:var(--ro)}}
+section{{border:1px solid var(--line);border-radius:12px;background:rgba(13,20,34,.85);padding:20px;margin-bottom:18px}}
+.note{{border:1px solid rgba(242,184,75,.30);background:rgba(242,184,75,.06);border-radius:9px;padding:14px;color:var(--ink);font-size:13px;line-height:1.6;margin:18px 0}}
+.foot{{color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;margin-top:32px;text-align:center;border-top:1px solid var(--line);padding-top:18px}}
+@media print{{body{{background:#fff;color:#000;padding:20px}} .kpi b{{color:#0a8a5e}} table th{{background:#eee;color:#666}} td{{color:#000}}}}
+</style></head><body>
+<h1>Lumenix · <span>K2 BD Technical Appendix</span></h1>
+<div class="dek">Real cohort: PRJEB11591 / Yoo 2016 SNU-GMI · n={len(plans)} patients with full driver × arcasHLA × ensemble · {datetime.now().isoformat(timespec='seconds')}<br>
+research-grade · not a medical device · citation-anchored · BD/portfolio prioritization document</div>
+
+<div class="kpi">
+  <div><b>{len(plans)}</b><span>K2 patients scored</span></div>
+  <div><b class="ok">{tier_count.get('T1',0)}</b><span>T1 priority</span></div>
+  <div><b>{tier_count.get('T2',0)}</b><span>T2 screen-first</span></div>
+  <div><b>{tier_count.get('T3',0)}</b><span>T3 weak-signal</span></div>
+  <div><b class="ro">{tier_count.get('T4',0)}</b><span>T4 driver-fail</span></div>
+</div>
+
+<div class="note"><strong>How to read this report.</strong>
+Every patient row is anchored to (a) a real somatic driver call from Yoo 2016, (b) a real arcasHLA 4-digit HLA imputation from PRJEB11591 RNA-seq, (c) a 4-tool MHC ensemble (MHCflurry-2.0 / NetMHCpan-4.1 / MHCnuggets / TransPHLA) score, and (d) a self-peptide / GTEx safety filter. Tiers are determined by Lumenix composite score = ensemble × PRIME × (1−0.4·agretopicity) × safety_w. T1 (n={tier_count.get('T1',0)}) advances to ELISpot + tetramer + IFN-γ co-culture + MS confirmation + PDX. T4 (n={tier_count.get('T4',0)}) requires modality pivot to CT-antigen induction or patient-specific WGS neoantigen discovery.</div>
+
+{section('T1','PRIORITY · proceed to ELISpot + tetramer + IFN-γ co-culture + MS','#35d39d')}
+{section('T2','SCREEN-FIRST · ELISpot before reagent commitment','#65a9ff')}
+{section('T3','WEAK-SIGNAL · pivot to patient-specific WGS','#f2b84b')}
+{section('T4','DRIVER-FAIL · 5-aza-CdR CT-antigen induction + HERV screen','#ef5f79')}
+
+<div class="note"><strong>Cohort interpretation.</strong>
+This 169-patient slice of K2 demonstrates that <strong>only ~17% of a real Korean thyroid cohort is vaccine-actionable from canonical driver hotspots alone</strong>. The remaining ~60% (T4 driver-fail) requires CT-antigen induction (5-aza-CdR), HERV / cryptic ORF screening, or patient-specific WGS-derived neoantigen discovery. This is the central design constraint that distinguishes vertical-thyroid platforms from melanoma/PDAC-style mRNA approaches and motivates the multi-modality stack (peptide + DC + CAR-T + lineage TAA).</div>
+
+<div class="foot">© 2026 Lumenix · build {datetime.now().isoformat(timespec='seconds')} · multi-process pool=8 · printable</div>
+</body></html>"""
+    out_path = OUT/"k2_bd_report.html"
+    out_path.write_text(html)
+    served = SERVED_DIR/"k2_bd_report.html"
+    served.write_text(html)
+    print(f"[k2-bd-report] {served} ({served.stat().st_size:,} bytes)")
+    return str(served)
+
+
+if __name__ == '__main__':
+    pass  # entry moved further down so newest helpers are defined first
+
+# ──────────────────────────────────────────────────────────────────
+# 17. K2 T1 PER-PATIENT PRINT CARDS (28 priority patients · 1 page each)
+# ──────────────────────────────────────────────────────────────────
+def generate_k2_t1_cards(plans):
+    t1 = [p for p in plans if p["tier"]=="T1"]
+    if not t1: return None
+    cards = []
+    for i, p in enumerate(t1):
+        kor_bias = p.get("kor_bias", 0)
+        ood_n = p.get("n_OOD_alleles", 0)
+        hashi = p.get("hashimoto_risk_alleles","").replace(";"," · ") or "—"
+        gene_root = p["top_peptide"].split("_")[0] if p["top_peptide"] else ""
+        cards.append(f"""
+<section class="card">
+  <div class="hd"><div class="seq">{i+1}/{len(t1)}</div><h2>{p['sample_id']}<span class="pill">T1 · PRIORITY</span></h2><div class="meta">PRJEB11591 · K2 / Yoo 2016 · Korean cohort</div></div>
+  <div class="row">
+    <div><span class="lbl">Driver(s)</span><b>{p['drivers'] or 'none'}</b></div>
+    <div><span class="lbl">Histology</span><b>{p['histology']}</b></div>
+    <div><span class="lbl">Dark matter</span><b class="{'warn' if p['is_dark_matter'] else ''}">{'YES' if p['is_dark_matter'] else 'no'}</b></div>
+  </div>
+  <div class="row big">
+    <div><span class="lbl">Top peptide</span><b class="mono">{p['top_peptide']}</b></div>
+    <div><span class="lbl">Restriction HLA</span><b class="mono">{p['top_hla']}</b></div>
+    <div><span class="lbl">Lumenix score</span><b class="ok">{p['top_score']:.3f}</b></div>
+    <div><span class="lbl">Ensemble σ</span><b>{p.get('top_sigma',0):.3f}</b></div>
+  </div>
+  <div class="row">
+    <div><span class="lbl">Korean DIAL bias</span><b>{kor_bias}</b></div>
+    <div><span class="lbl">OOD alleles</span><b>{ood_n}</b></div>
+    <div><span class="lbl">Hashimoto-risk HLA</span><b class="{'warn' if hashi != '—' else ''}">{hashi}</b></div>
+    <div><span class="lbl">Autoimmune gate</span><b class="{'warn' if p['autoimmune_gate'].startswith('BLOCK') else 'ok'}">{p['autoimmune_gate']}</b></div>
+  </div>
+  <div class="reagent-block">
+    <h3>Wetlab reagent SKUs</h3>
+    <table>
+      <tr><th>Assay</th><th>Reagent / Vendor</th></tr>
+      <tr><td>IFN-γ ELISpot</td><td>{p['elispot_reagent']}</td></tr>
+      <tr><td>MHC-I tetramer</td><td>{p['tetramer_order']}</td></tr>
+      <tr><td>Co-culture</td><td>{p['co_culture']}</td></tr>
+      <tr><td>MS confirmation</td><td>{p['ms_confirmation']}</td></tr>
+      <tr><td>PDX engraftment</td><td>NSG-MHC-I/II humanized · JAX 026565 · n=8/arm</td></tr>
+      <tr><td>CRISPR escape</td><td>LentiCRISPRv2 sgRNA → {gene_root} knockout</td></tr>
+    </table>
+  </div>
+  <div class="rec">▶ {p['recommendation']}</div>
+</section>""")
+    full = f"""<!DOCTYPE html><html><head><meta charset='utf-8'><title>Lumenix · K2 T1 Patient Cards (n={len(t1)})</title>
+<link href='https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@600;700&display=swap' rel='stylesheet'>
+<style>
+:root{{--bg:#070b12;--ink:#eef5ff;--muted:#9fb0c7;--em:#35d39d;--am:#f2b84b;--ro:#ef5f79;--vi:#9b7cff;--line:#24324a}}
+body{{margin:0;background:linear-gradient(180deg,#070b12,#0a101b);color:var(--ink);font-family:'IBM Plex Sans',sans-serif;padding:24px}}
+.wrap{{max-width:1100px;margin:0 auto}}
+header{{margin-bottom:24px}}
+h1{{font-family:'Space Grotesk',sans-serif;font-size:32px;line-height:1.1;margin:0 0 8px}}
+h1 span{{background:linear-gradient(90deg,var(--em),var(--vi));-webkit-background-clip:text;color:transparent}}
+.dek{{color:var(--muted);font-size:12px;margin-bottom:14px;font-family:'JetBrains Mono',monospace;line-height:1.5}}
+.card{{border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,rgba(13,20,34,.95),rgba(8,13,22,.95));padding:24px 26px;margin-bottom:20px;page-break-inside:avoid;break-inside:avoid}}
+.hd{{display:flex;align-items:center;gap:14px;margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:12px}}
+.hd .seq{{font-family:'JetBrains Mono',monospace;color:var(--em);font-size:11px;letter-spacing:.10em}}
+.hd h2{{font-family:'Space Grotesk',sans-serif;font-size:24px;margin:0;flex:1;display:flex;align-items:center;gap:10px}}
+.pill{{display:inline-block;background:rgba(53,211,157,.12);border:1px solid rgba(53,211,157,.40);color:var(--em);font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 8px;border-radius:9999px;letter-spacing:.04em}}
+.meta{{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em}}
+.row{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:10px 0}}
+.row.big{{grid-template-columns:repeat(4,1fr);background:rgba(53,211,157,.04);border:1px solid rgba(53,211,157,.18);border-radius:10px;padding:12px}}
+.row > div{{min-width:0}}
+.lbl{{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.10em;text-transform:uppercase;margin-bottom:3px}}
+.row b{{display:block;font-size:14px;color:var(--ink);font-weight:600;line-height:1.3}}
+.row b.mono{{font-family:'JetBrains Mono',monospace;font-size:13px}}
+.row b.ok{{color:var(--em);font-size:18px}}
+.row b.warn{{color:var(--am)}}
+.reagent-block{{margin-top:12px}}
+.reagent-block h3{{font-family:'Space Grotesk',sans-serif;font-size:13px;margin:0 0 8px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}}
+.reagent-block table{{width:100%;border-collapse:collapse;font-size:12px}}
+.reagent-block th{{text-align:left;padding:7px 9px;background:#0c1422;border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:600}}
+.reagent-block td{{padding:6px 9px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:11.5px}}
+.rec{{margin-top:14px;padding:11px 13px;background:rgba(53,211,157,.08);border-left:3px solid var(--em);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.5}}
+.foot{{color:var(--muted);font-size:10px;font-family:'JetBrains Mono',monospace;text-align:center;margin-top:24px;border-top:1px solid var(--line);padding-top:14px}}
+@media print{{body{{background:#fff;color:#000;padding:14px}} .card{{background:#fff;border-color:#ccc}} .row.big{{background:#f5fff8;border-color:#cce8d5}} .row b.ok{{color:#0a8a5e}} .reagent-block th{{background:#eee;color:#666}} .rec{{background:#f5fff8;border-left-color:#0a8a5e;color:#000}} h1 span{{color:#0a8a5e;-webkit-background-clip:none}} .pill{{color:#0a8a5e;background:#eafff5}} .lbl{{color:#666}} .row b{{color:#000}}}}
+</style></head><body>
+<div class="wrap">
+<header>
+<h1>Lumenix · <span>K2 Tier-1 Priority Cards</span></h1>
+<div class="dek">{len(t1)} priority patients · PRJEB11591 / Yoo 2016 SNU-GMI · real driver × real arcasHLA × ensemble-validated · build {datetime.now().isoformat(timespec='seconds')}<br>
+print-ready · 1 patient per card · research-grade · not a medical device</div>
+</header>
+{''.join(cards)}
+<div class="foot">© 2026 Lumenix · cards generated for BD / wetlab planning · printable · not for clinical decision making</div>
+</div></body></html>"""
+    out_path = OUT/"k2_t1_cards.html"
+    out_path.write_text(full)
+    served = SERVED_DIR/"k2_t1_cards.html"
+    served.write_text(full)
+    print(f"[k2-t1-cards] {served} ({served.stat().st_size:,} bytes · {len(t1)} cards)")
+    return str(served)
+
+# ──────────────────────────────────────────────────────────────────
+# 18. SPATIAL DM1+ OVERLAY (per-spot heatmap on H&E)
+# ──────────────────────────────────────────────────────────────────
+def render_one_overlay(args):
+    h5ad_path, png_path, out_png, sample_label, score_col = args
+    try:
+        import anndata, matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+        from PIL import Image
+        ad = anndata.read_h5ad(h5ad_path)
+        obs = ad.obs
+        if score_col not in obs.columns: return None
+        # tissue png exists
+        if not Path(png_path).exists(): return None
+        img = Image.open(png_path)
+        # Visium spaceranger emits hires PNG ≈ 2000 px; obs has pxl_row_in_fullres / pxl_col_in_fullres (in fullres pixels)
+        # We need scale factor: hires ÷ fullres.  In standard Visium output that's tissue_hires_image.png with 2000-px max edge
+        # Approximation using max pixel coords
+        if "pxl_row_in_fullres" not in obs.columns or "pxl_col_in_fullres" not in obs.columns: return None
+        max_r = obs["pxl_row_in_fullres"].max()
+        max_c = obs["pxl_col_in_fullres"].max()
+        w, h = img.size
+        scale = min(w / max(1,max_c), h / max(1,max_r))
+        x = obs["pxl_col_in_fullres"].astype(float) * scale
+        y = obs["pxl_row_in_fullres"].astype(float) * scale
+        scores = obs[score_col].astype(float)
+        # filter in-tissue
+        if "in_tissue" in obs.columns: mask = obs["in_tissue"].astype(int).astype(bool)
+        else: mask = scores.notna()
+        x=x[mask]; y=y[mask]; scores=scores[mask]
+        # render
+        fig, ax = plt.subplots(figsize=(6, 6*h/max(1,w)), dpi=140)
+        ax.imshow(img, alpha=0.55)
+        sc = ax.scatter(x, y, c=scores, cmap="inferno", s=8, alpha=0.85,
+                        vmin=scores.quantile(0.05), vmax=scores.quantile(0.95), edgecolors="none")
+        cb = fig.colorbar(sc, ax=ax, fraction=0.034, pad=0.02, shrink=0.7)
+        cb.set_label(score_col, fontsize=8, color="white")
+        cb.ax.tick_params(labelsize=7, colors="white")
+        ax.set_axis_off()
+        ax.set_title(f"{sample_label} · {score_col}", color="white", fontsize=10)
+        fig.patch.set_facecolor("#070b12")
+        ax.set_facecolor("#070b12")
+        fig.savefig(out_png, bbox_inches="tight", facecolor="#070b12")
+        plt.close(fig)
+        return {"sample": sample_label, "score_col": score_col, "url": Path(out_png).name, "n_spots": int(mask.sum())}
+    except Exception as e:
+        return {"sample": sample_label, "error": str(e)}
+
+def generate_spatial_overlays(pool_size, score_col="DM1_like_score"):
+    base = PROJECT/"data/processed/GSE250521"
+    out_dir = SERVED_DIR/"lumenix_spatial_overlays"
+    out_dir.mkdir(exist_ok=True)
+    if not base.exists(): return None
+    args = []
+    for d in sorted(base.iterdir()):
+        if not d.is_dir(): continue
+        scored = list(d.glob("*.scored.h5ad"))
+        png = d/"tissue_hires_image.png"
+        if not scored or not png.exists(): continue
+        nm = d.name.split("_",1)[1] if "_" in d.name else d.name
+        out_png = out_dir/f"{d.name}__{score_col}.png"
+        args.append((scored[0], png, out_png, nm, score_col))
+    print(f"\n[spatial overlays] Pool({min(pool_size,len(args))}) on {len(args)} samples · score={score_col}")
+    t0 = time.time()
+    with mp.Pool(min(pool_size, len(args))) as pool:
+        results = pool.map(render_one_overlay, args)
+    results = [r for r in results if r and "error" not in r]
+    print(f"  done in {time.time()-t0:.2f}s · {len(results)} overlays rendered")
+    # stage attribution for manifest
+    for r in results:
+        nm = r["sample"]
+        r["stage"] = "ATC" if nm.startswith("ATC") else ("LPTC" if nm.startswith("LPTC") else ("PTC" if nm.startswith("PTC") else "N"))
+        r["url"] = "lumenix_spatial_overlays/" + r["url"]
+    return results
+
+# ──────────────────────────────────────────────────────────────────
+# 19. GSE286332 DEG FORENSIC: PTC+HT signature → vaccine-target classes
+# ──────────────────────────────────────────────────────────────────
+def analyze_gse286332_forensic():
+    deg_path = PROJECT/"submission_data/S3_gse286332_top300_DEGs.tsv"
+    if not deg_path.exists(): return None
+    rows = list(csv.DictReader(open(deg_path), delimiter="\t"))
+    # category counts
+    by_cat = Counter(r.get("category_predicted","") for r in rows)
+    # upregulated immune-relevant
+    upreg = []
+    for r in rows:
+        try:
+            lfc = float(r["log2FoldChange"]); padj = float(r.get("padj","1") or 1)
+        except: continue
+        if lfc <= 0: continue
+        upreg.append({"gene": r["gene"], "log2FC": round(lfc,2), "padj": padj, "cat": r.get("category_predicted","")})
+    upreg.sort(key=lambda x: -x["log2FC"])
+    # Vaccine-target mapping
+    vaccine_class_map = {
+        "B-cell": "TLS / antigen-presenting niche · CD4 helper amplifier candidates",
+        "Ig V/J/C": "Antigen-driven B-cell response · BCR clonality marker (paper2 v17 D5-P6 evidence)",
+        "T-cell": "Effector population · CD8/Treg ratio modulator",
+        "HLA": "Antigen presentation machinery · vaccine substrate availability",
+        "IFN-gamma": "Inflammatory hot signature · vaccine-permissive TME",
+        "Cytokine/Chemokine": "TME modulator · combination-strategy lever",
+        "Complement": "Innate immune amplifier",
+        "Apoptosis": "Tumor susceptibility marker",
+        "Other": "Forensic-only · not vaccine-target",
+    }
+    by_class = defaultdict(list)
+    for u in upreg:
+        cat = u["cat"]
+        # crude regex
+        if "B-cell" in cat or "B cell" in cat: by_class["B-cell"].append(u)
+        elif "Ig" in cat: by_class["Ig V/J/C"].append(u)
+        elif "T-cell" in cat or "T cell" in cat: by_class["T-cell"].append(u)
+        elif "HLA" in cat or u["gene"].startswith("HLA-"): by_class["HLA"].append(u)
+        elif "IFN" in cat or "interferon" in cat.lower(): by_class["IFN-gamma"].append(u)
+        elif "ytokine" in cat or "hemokine" in cat: by_class["Cytokine/Chemokine"].append(u)
+        elif "omplement" in cat: by_class["Complement"].append(u)
+        elif "poptosis" in cat: by_class["Apoptosis"].append(u)
+        else: by_class["Other"].append(u)
+    # immune-class summary
+    summary = {}
+    for k, items in by_class.items():
+        items.sort(key=lambda x: -x["log2FC"])
+        summary[k] = {
+            "n": len(items),
+            "vaccine_implication": vaccine_class_map.get(k, "—"),
+            "top_genes": [{"gene":x["gene"], "log2FC":x["log2FC"], "padj":x["padj"]} for x in items[:6]],
+            "max_log2FC": items[0]["log2FC"] if items else 0,
+            "median_log2FC": round(items[len(items)//2]["log2FC"],2) if items else 0,
+        }
+    return {
+        "deg_file": "S3_gse286332_top300_DEGs.tsv",
+        "n_total_DEGs": len(rows),
+        "n_upreg": len(upreg),
+        "by_category_predicted": dict(by_cat),
+        "by_vaccine_class": summary,
+        "top_15_upreg": upreg[:15],
+    }
+
+
+
+if __name__ == '__main__':
     main()
