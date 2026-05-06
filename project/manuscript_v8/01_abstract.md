@@ -63,7 +63,7 @@ status: v2 — Conclusions (b) 채택, Methods 40w / Results 66w 재분배, "dar
 
 1. **"Dark matter" 단어** — 따옴표 제거 적용. 본인 호불호 한 번 더 검토.
 2. **Conclusions (b)** — "motivating evaluation of fusion-targeted therapy and epigenetic-targeted RAI re-induction" — 정직 톤. 본인 voice 적용 시 "evaluation" → "investigation" 또는 "exploration" 도 고려.
-3. **5-Pillar implicit weaving 유지** — explicit "5-Pillar evidence" 명시 안 함 (web Claude 권장). Pillar 1 (Korean cohort) + 3 (driver neutrality) + 4 (pan-genome) 자연스럽게 woven. **Pillar 5 (autoimmune-PTC) 는 abstract 에서 의도적 보류 — Paper 2 의 backbone 으로 reserve.**
+3. **5-Pillar implicit weaving 유지** — explicit "5-Pillar evidence" 명시 안 함 (web Claude 권장). Pillar 1 (Korean cohort) + 3 (driver neutrality) + 4 (pan-genome) 자연스럽게 woven. **Companion immune-overlap axis 는 abstract 에서 의도적 보류 — Paper 2 backbone 으로 reserve.**
 4. **R5-2 강도** — TPO d=2.30 단독에서 "mean 8-gene β 0.385 vs 0.253" 정량 contrast 추가로 강화.
 
 ## Alternative Conclusions (이전 옵션 보존)

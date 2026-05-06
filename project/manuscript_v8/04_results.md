@@ -1,11 +1,11 @@
 ---
-title: "Paper 1 manuscript v8 — Section 2 Results (draft v1)"
-date: 2026-05-01
+title: "Paper 1 manuscript v8 — Section 2 Results"
+date: 2026-05-04
 author: Seungho Cook
 target_words: 2,500-4,000 (5 sub-results × 500-800w)
 draft_words: ~3,250
 ordering: ★ 대안 A (mechanism-first): 2.1 → 2.3 → 2.4a → 2.4b → 2.2 → 2.5
-status: v1 draft — 본인 voice 적용 필요. 수치 재확인 + cite verify.
+status: clean draft
 ---
 
 # Section 2 · Results (draft v1, ~3,250 words)
@@ -60,11 +60,11 @@ The fusion-independence of the methylation signal has direct mechanistic and the
 
 While fusion drivers explain the majority of DM1 cases, the 19/82 fusion-negative DM1 tumors warrant separate inquiry. Using unsupervised KMeans (k=2) on the TIERA67 transcriptome within DM1, we resolved two sub-clusters: sub-A (n = 72, 84.7% fusion-positive) and sub-B (n = 19, 57.9% fusion-positive) (Figure 7D, Methods; cluster silhouette score 0.584).
 
-Sub-A and sub-B differed sharply in clinical and immune phenotype. Sub-A tumors were younger (mean age 37.3 vs 51.3 years; Cohen's d = −0.82, Mann-Whitney p = 0.004), less likely to harbor advanced-stage disease (stage III/IV: 15.3% vs 44.4%; OR 0.23, p = 0.020), and characterized by lower CD8 effector, IFN-γ, and immune-checkpoint signatures (each Cohen's d = −0.5 to −0.6 vs sub-B; p < 0.05). Sub-B tumors, by contrast, were older, more frequently advanced, and immune-hot — including a non-significant trend toward increased Hashimoto-like signature carriers (sub-A 40.0% vs sub-B 67.0%; OR 0.34, p = 0.064).
+Sub-A and sub-B differed sharply in clinical and immune phenotype. Sub-A tumors were younger (mean age 37.3 vs 51.3 years; Cohen's d = −0.82, Mann-Whitney p = 0.004), less likely to harbor advanced-stage disease (stage III/IV: 15.3% vs 44.4%; OR 0.23, p = 0.020), and characterized by lower CD8 effector, IFN-γ, and immune-checkpoint signatures (each Cohen's d = −0.5 to −0.6 vs sub-B; p < 0.05). Sub-B tumors, by contrast, were older, more frequently advanced, and immune-hot.
 
-The fusion-negative immune-overlap phenotype within sub-B is consistent with — though not equivalent to — the autoimmune-PTC mechanism described in Korean papillary thyroid carcinoma cohorts with concurrent Hashimoto's thyroiditis (Methods; Supplementary Discussion). A full characterization of the autoimmune-PTC mechanism axis — including Pan-Asian HLA repertoire, B cell receptor clonal architecture, tertiary lymphoid structure burden, and mediation analyses — is reserved for a separate study (Cook et al., manuscript in preparation, Paper 2). In the present work, we limit our claims regarding sub-B to the observation that fusion-negative DM1 represents a mechanistically distinct immune-overlap subtype, and we do not pursue its detailed mechanism here.
+The fusion-negative immune-overlap phenotype within sub-B is consistent with a biologically distinct companion axis that is not resolved by driver status alone. Full characterization of this program, including dedicated external-cohort analyses, is outside the scope of the present work and is reserved for a companion study (Cook et al., manuscript in preparation, Paper 2). In the present work, we limit our claims regarding sub-B to the observation that fusion-negative DM1 represents a mechanistically distinct immune-overlap subtype, and we do not pursue its detailed mechanism here.
 
-★ Take-home: Fusion-negative DM1 sub-B represents a mechanistically distinct, older-onset, immune-overlap subtype warranting separate investigation as a candidate autoimmune-PTC axis (Figure 7D, Paper 2).
+★ Take-home: Fusion-negative DM1 sub-B represents a mechanistically distinct, older-onset, immune-overlap subtype warranting separate investigation in a companion study (Figure 7D).
 
 ---
 
@@ -84,50 +84,12 @@ Within Xing's dark matter (Xing 2014) — the BRAF/TERT-negative compartment of 
 
 ## 2.5 Cross-cohort validation and a clinical reflex testing algorithm (~470 words)
 
-We validated the DM1 axis across multiple external cohorts spanning four East Asian populations and three platforms. In a Korean independent cohort (Lee et al., GSE213647; n = 632), the DM1/DM2 panel reproduced the cluster boundary with similar 8-gene score distribution (Methods), and the Hashimoto-like sub-axis previously described in Korean PTC tumors transferred at 22.8% (GMM) to 28.2% (Otsu) prevalence — comparable to TCGA (18-20%) — supporting axis generalizability across ancestries (Methods; Supplementary Figure S6).
+We validated the DM1 axis across multiple external cohorts spanning four East Asian populations and three platforms. In a Korean independent cohort (Lee et al., GSE213647; n = 632), the DM1/DM2 panel reproduced the cluster boundary with similar 8-gene score distribution, supporting axis generalizability across ancestries (Methods; Supplementary Figure S6).
 
-For external single-cell validation, we analyzed two independent published 10x Genomics-derived PTC datasets. In the GSE184362 cohort (Pu et al., 2021; n = 6 PTC patients from Fudan University), DM1 score distributions in patient-matched tumor versus normal thyrocytes showed Spearman correlation of r = 0.798 to 0.886 across all six patients, indicating that the DM1 axis is thyrocyte-intrinsic rather than driven by stromal or immune contamination. In the independently authored Lu 2023 cohort (GSE193581; n = 23 samples), thyrocyte-specific DM1 signal was confirmed (Methods, Figure 3A-C).
+For external single-cell validation, we analyzed two independent published 10x Genomics-derived PTC datasets. In the GSE184362 cohort (Pu et al., 2021), DM1 score distributions in patient-matched tumor versus normal thyrocytes showed Spearman correlation of r = 0.798 to 0.886, indicating that the DM1 axis is thyrocyte-intrinsic rather than driven by stromal or immune contamination. In the independently authored Lu 2023 cohort (GSE193581; n = 23 samples), thyrocyte-specific DM1 signal was confirmed (Methods, Figure 3A-C).
 
 Formalin-fixed paraffin-embedded (FFPE) versus fresh-frozen (FF) tissue concordance was examined in subgroup analyses, with DM1 score distributions showing Kolmogorov-Smirnov p = 0.44 (no detectable distributional shift) across processing types — supporting clinical applicability to archival pathology specimens routinely available at point of care (Figure 5C).
 
-Synthesizing across discovery (TCGA n = 504), validation (MSK n = 117, Korean K2/Lee/GSE286332 n = 874, GSE213647 n = 632), and external single-cell datasets, our framework supports a clinical reflex testing algorithm: an 8-gene RNA expression score (suitable for NanoString or qPCR clinical platforms) classifies primary PTC tumors into DM1/DM2 strata, with a positive DM1 call triggering reflex tyrosine kinase fusion NGS (RET, NTRK1/3, ALK, BRAF panel). Population estimates based on TCGA — assuming a fusion incidence of approximately 4.8% in PTC overall and 76.8% within DM1 — yield approximately 48 selpercatinib-eligible candidates per 1000 incident PTC tumors. Combined with the fusion-independent epigenetic silencing signal (2.4a), DM1-positive patients additionally constitute the natural candidate pool for prospective trials of hypomethylating-agent + radioiodine re-induction.
+Synthesizing across discovery (TCGA n = 504), validation (MSK n = 117 and Korean cohorts n = 874), and external single-cell datasets, our framework supports a clinical reflex testing algorithm: an 8-gene RNA expression score classifies primary PTC tumors into DM1/DM2 strata, with a positive DM1 call triggering reflex tyrosine kinase fusion NGS (RET, NTRK1/3, ALK, BRAF panel). Population estimates based on TCGA — assuming a fusion incidence of approximately 4.8% in PTC overall and 76.8% within DM1 — yield approximately 48 selpercatinib-eligible candidates per 1000 incident PTC tumors. Combined with the fusion-independent epigenetic silencing signal (2.4a), DM1-positive patients additionally constitute a candidate cohort for prospective evaluation of hypomethylating-agent + radioiodine re-induction.
 
-★ Take-home: Across 4,300+ East Asian PTC tumors and external single-cell datasets, the DM1 axis is reproducible, thyrocyte-intrinsic, and FFPE-compatible — enabling immediate translation to a reflex fusion-testing algorithm that captures 81.8% of TCGA RET-fusion-positive cases (Figures 3, 5).
-
----
-
-# Summary
-
-| Section | Words | Order | Take-home |
-|---|---|---|---|
-| 2.1 Panel + DM1/DM2 | 620 | 1st | Orthogonal axis, robust to panel choice, driver-mRNA-neutral |
-| 2.3 Fusion paradigm | 700 | 2nd | DM1 76.8% fusion+, OR 7.41, 81.8% RET+ capture |
-| 2.4a Epigenetic silencing | 580 | 3rd | Fusion-independent TPO d=2.30, mean β 0.385 vs 0.253 — HMA rationale |
-| 2.4b Immune-overlap teaser | 440 | 4th | Fusion-negative DM1 = sub-B, Paper 2 reserve |
-| 2.2 Clinical aggressiveness | 440 | 5th | Pooled HR 2.53 [1.31, 4.89], I²=0% TCGA+MSK meta |
-| 2.5 Cross-cohort + reflex | 470 | 6th | 4,300+ EA, 81.8% RET+ capture, 48 selpercatinib/1000 PTC |
-| **Total** | **3,250** | | **Within 2,500-4,000 target** ✅ |
-
-## 본인 voice 적용 영역
-
-- [ ] 각 sub-result 첫 줄 + take-home one-sentence — 본인 voice 검증
-- [ ] "we found ..." Cell Press style 톤 — 본인 검증 (현재 "we performed", "we curated" 등 mixed)
-- [ ] 2.4b Paper 2 hook line 강도 — "warranting separate investigation as a candidate autoimmune-PTC axis" 본인 결정
-- [ ] 2.5 마지막 reflex algorithm framing — "natural candidate pool" vs "candidate cohort for prospective trials" 본인 voice
-- [ ] 수치 재확인 (특히 fusion partner counts, HR CIs, ARI values)
-
-## Cite verify (5/4 본인 read 이후)
-
-- [ ] Yoo 2016 PLOS Genet → 8-gene origin 정확 표현
-- [ ] Landa 2016 JCI → MSK-IMPACT cohort 정확 표현 + 5/8 gene overlap framing
-- [ ] Pu 2021 Nat Commun → 6 PTC patients per-patient r 정확 figures
-- [ ] Wirth 2020 NEJM → LIBRETTO-001 selpercatinib eligibility population estimate
-- [ ] Xing 2014 (NEJM 또는 JCO) — dark matter origin 정확 표현
-- [ ] Cook et al manuscript in preparation (Paper 2) — placeholder, Paper 2 outline 진행 후 정확 cite
-
-## 다음 step
-
-1. 본인 read 5/4: cite verify
-2. 본인 voice 적용 (각 sub-result 첫/끝 line + take-home)
-3. v2 draft → Web Claude review → v3 final
-4. Prompt 4 (Figures + captions) — Section 2 와 정합 figures 제작
+★ Take-home: Across Korean bulk cohorts, TCGA, MSK, and external single-cell datasets, the DM1 axis is reproducible, thyrocyte-intrinsic, and FFPE-compatible — enabling a reflex fusion-testing framework that captures 81.8% of TCGA RET-fusion-positive cases (Figures 3, 5).

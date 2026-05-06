@@ -160,17 +160,17 @@ Highlights: TCGA HR 2.30 [0.77, 6.88], n=504, 16 events. MSK HR 2.67 [1.17, 6.10
 
 ---
 
-## S9 — Korean Pan-Asian arcasHLA per-sample genotypes
+## S9 — Korean score-portability and calibration diagnostics
 
-**Description.** Per-sample 4-digit HLA allele calls for Korean PTC pool (n=874) and GSE286332 (n=18).
+**Description.** Per-sample calibration and score-portability summaries for Korean validation cohorts.
 
 **Source.** Compose from:
-- `project/results/d4p1_panasian_meta/korean_PTC_pool_n908.tsv`
-- `project/results/v17_korean/arcasHLA_GSE286332/{18 × genotype.json}`
+- `project/results/d7p3_k2_calibration/k2_4metric_scores.tsv`
+- `project/results/v17_korean/GSE213647_panel_score.tsv`
 
-**Format:** sample_id, cohort, HLA_A_1, HLA_A_2, HLA_B_1, HLA_B_2, HLA_C_1, HLA_C_2, HLA_DRB1_1, HLA_DRB1_2, HLA_DPB1_1, HLA_DPB1_2, HLA_DQB1_1, HLA_DQB1_2.
+**Format:** sample_id, cohort, raw_panel_score, within_sample_z_score, per_gene_z_score, rank_based_score, P_DM1, DM_call.
 
-★ **Paper 2 backbone** — Paper 1 supp only.
+Highlights: per-gene inflation factors 4.9-12.5x in the raw mini-index form; within-sample-centered scoring restores direction concordance with TCGA.
 
 ---
 
