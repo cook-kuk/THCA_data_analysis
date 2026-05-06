@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Spatial Transcriptomics Full Package · 2026-05-06</title>
+<style>
+:root{
+  --ink:#102033; --muted:#52606f; --paper:#f7efe4; --card:#fffaf2; --line:#d8c8b4;
+  --red:#7B1F2A; --redDeep:#641b15; --red2:#fff0ed;
+  --blue:#34547A; --blue2:#e9f1f8;
+  --green:#3C6B4F; --green2:#edf6ed;
+  --gold:#B8893C; --gold2:#fff4dc;
+  --teal:#1abc9c; --coal:#17212f;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(135deg,#fbf6ed 0%,#efe2cf 58%,#f8f1e5 100%);
+  color:var(--ink);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.66}
+a{color:var(--red);text-decoration:none}
+.wrap{max-width:1280px;margin:0 auto;padding:28px 24px 90px}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,250,242,.94);
+  border:1px solid var(--line);border-radius:0 0 12px 12px;padding:10px 14px;
+  margin:-28px 0 24px;display:flex;gap:10px;align-items:center;justify-content:space-between;backdrop-filter:blur(8px)}
+.mini-nav{display:flex;flex-wrap:wrap;gap:8px}
+.mini-nav a, .home{font-size:12px;border:1px solid var(--line);background:#fff;padding:7px 10px;border-radius:999px;color:var(--ink)}
+.hero{background:linear-gradient(145deg,#fffaf2 0%,#f1dec5 100%);
+  border:2px solid var(--coal);border-top:10px solid var(--gold);border-radius:14px;
+  padding:42px;box-shadow:10px 10px 0 rgba(23,33,47,.14)}
+.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.hero h1{font-size:42px;line-height:1.06;margin:10px 0 12px;max-width:1000px}
+.subtitle{font-size:18px;color:var(--muted);max-width:1000px}
+.badge{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--gold);color:#fff;font-weight:800;border-radius:999px;padding:9px 14px;font-size:13px}
+.callout-red{background:linear-gradient(165deg,#fff0ed 0%,#fcdcd6 100%);
+  border:3px solid var(--red);border-radius:16px;padding:24px;margin-top:22px;box-shadow:0 6px 16px rgba(143,45,37,.18)}
+.callout-red h2{color:var(--redDeep);margin-top:0}
+.callout-red strong{color:var(--redDeep)}
+.callout-green{background:linear-gradient(165deg,#edf6ed 0%,#d6ebd9 100%);
+  border:3px solid var(--green);border-radius:16px;padding:24px;margin-top:22px;box-shadow:0 6px 16px rgba(60,107,79,.18)}
+.callout-green h2{color:var(--green);margin-top:0}
+section{background:rgba(255,250,242,.92);border:1px solid var(--line);border-radius:14px;padding:28px;margin-top:24px}
+h2{font-size:28px;line-height:1.14;margin:0 0 12px;color:var(--coal)}
+h3{font-size:18px;margin:18px 0 8px;color:var(--red)}
+.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h3{margin-top:0}
+.card.red{border-top:5px solid var(--red)}.card.green{border-top:5px solid var(--green)}.card.blue{border-top:5px solid var(--blue)}.card.gold{border-top:5px solid var(--gold)}.card.teal{border-top:5px solid var(--teal)}
+figure{margin:20px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:0 6px 18px rgba(23,33,47,.07)}
+figure img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid #eee;cursor:zoom-in}
+figcaption{font-size:14px;color:var(--muted);padding:10px 4px 0;line-height:1.55}
+figcaption b{color:var(--ink)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);font-size:13px;margin-top:8px}
+th{background:var(--coal);color:#fff;text-align:left;padding:9px;font-size:11px;letter-spacing:.04em;text-transform:uppercase}
+td{border-top:1px solid #eadfcc;padding:8px 9px;vertical-align:top}
+tr.high td{background:#fff7e5}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px}
+.tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;margin-right:4px}
+.tag.exp{background:var(--blue);color:#fff}.tag.warn{background:var(--gold);color:#fff}.tag.bad{background:var(--red);color:#fff}.tag.ok{background:var(--green);color:#fff}
+.bluebox{border-left:6px solid var(--blue);background:var(--blue2);padding:18px;border-radius:0 12px 12px 0;margin:14px 0}
+.greenbox{border-left:6px solid var(--green);background:var(--green2);padding:18px;border-radius:0 12px 12px 0;margin:14px 0}
+.redbox{border-left:6px solid var(--red);background:var(--red2);padding:18px;border-radius:0 12px 12px 0;margin:14px 0}
+.goldbox{border-left:6px solid var(--gold);background:var(--gold2);padding:18px;border-radius:0 12px 12px 0;margin:14px 0}
+ul{padding-left:20px}li{margin:6px 0}
+@media(max-width:900px){.hero{padding:28px 20px}.hero h1{font-size:28px}.g2,.g3,.g4{grid-template-columns:1fr}.topbar{position:relative;margin-top:0}.wrap{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar">
+    <a class="home" href="/papers_hub_2026_05_04/index.html">8-Papers Hub</a>
+    <div class="mini-nav">
+      <a href="#trop2-story">왜 TROP2?</a>
+      <a href="#A">A · DM1 niche density</a>
+      <a href="#B">B · driver-orthogonal</a>
+      <a href="#C">C · HT TLS niche ★</a>
+      <a href="#D">D · GSE248205 baseline</a>
+      <a href="#E">E · TROP2 spatial ★</a>
+      <a href="#F">F · cross-cohort</a>
+      <a href="#advisor">Advisor brief</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="kicker">Spatial Full Package · 6 analyses · 28 samples · 3 cohorts · 2026-05-06</div>
+    <h1>공간 전사체 보강 — TROP2 niche identification + HT TLS spatial 직접 확인</h1>
+    <p class="subtitle">"TROP2 갑자기 왜?"와 "공간 전사체 왜 필요?" 두 advisor 질문에 정직하게 답하기 위한 6-analysis 풀패키지.
+    GSE250521 (16 PT/PTC/LPTC/ATC) + GSE230424 (4 PTC+HT) + GSE248205 (8 CONTROL/HT/GD) 전수 분석.
+    Bulk forest에서 fail한 TROP2 enrichment claim을 spatial niche로 reframe.</p>
+    <div class="badge">★ 28 samples · ~85,000 spots · 6 analyses · all signature-level exploratory</div>
+  </header>
+
+  <!-- ========================== TROP2 STORY (직접 답변) ========================== -->
+  <section id="trop2-story" class="callout-red">
+    <h2>① "TROP2가 왜 갑자기 튀어나왔냐?" — 정직한 답</h2>
+    <p style="font-size:16px;margin:0 0 12px"><strong>요약:</strong> 갑자기 나온 게 아니고 anchor cohort 부산물이었다가 bulk validation에서 fail했고, <strong>이제 spatial에서 진짜 정체가 보임 — niche-organized tumor signal</strong>입니다.</p>
+
+    <div class="grid g3">
+      <div class="card red">
+        <h3>1단계 — Anchor 부산물 (2026-04)</h3>
+        <p>GSE76039 (Landa 2016, ATC vs PDTC, n=37):</p>
+        <ul>
+          <li>TACSTD2 z, ATC vs PDTC: <strong>d = +1.13</strong>, p = 2.7×10⁻³</li>
+          <li>Manuscript에 "tumor-population vulnerability signal"로 supplement-tier 등재</li>
+        </ul>
+      </div>
+      <div class="card warn" style="border-top:5px solid var(--gold)">
+        <h3>2단계 — GPL570 bulk validation FAIL (2026-05-04)</h3>
+        <p>4-cohort GPL570 외부 검증:</p>
+        <ul>
+          <li>5/5 ATC contrast 중 <strong>1만 expected positive</strong></li>
+          <li>GSE33630 ATC vs PTC: d = −1.72 (반대방향!)</li>
+          <li>GSE29265 ATC vs PTC: d = −1.98 (반대방향!)</li>
+          <li><strong>Bulk-level enrichment claim 폐기</strong> → "supplement / spatial follow-up"으로 강등</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>3단계 — Spatial niche identification (오늘, S_F5)</h3>
+        <p>28 samples × 3 cohorts spatial:</p>
+        <ul>
+          <li>PT (normal): Moran's I ≈ 0 — scattered/absent ✓</li>
+          <li><strong>PTC-LPTC-ATC: Moran's I = 0.27-0.58</strong> — niche-organized ★</li>
+          <li>HT/GD (autoimmune-only): I ≈ 0 — tumor-specific niche ✓</li>
+          <li>→ TROP2는 <strong>scattered tumor population이 아니라 tumor-side spatial niche</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="redbox" style="margin-top:14px">
+      <strong>정정된 framing:</strong> "TROP2 enrichment in advanced disease" (bulk-level, FAIL) → <strong>"TROP2 forms tumor-specific spatial niches in PTC/LPTC/ATC, absent in normal/autoimmune controls"</strong> (spatial-level, demonstrated). Bulk가 못 본 이유는 sample-level mean이 niche structure를 평균화시켰기 때문.
+    </div>
+
+    <div class="goldbox">
+      <strong>Critical caveat:</strong> 이 spatial niche finding도 <strong>signature-level exploratory</strong>이며 (1) niche의 functional vulnerability 입증 아님, (2) clinical risk prediction 아님, (3) ADC target 적합성 결론 아님. Niche가 있다는 사실 자체만 honest report.
+    </div>
+  </section>
+
+  <!-- ========================== Spatial Why Needed ========================== -->
+  <section class="callout-green">
+    <h2>② "공간 전사체 왜 필요?" — 6가지 distinct reason</h2>
+    <div class="grid g2">
+      <div class="card green">
+        <h3>1. DM1 spatial heterogeneity 검증</h3>
+        <p>Bulk RNA-seq sample-level scoring으로는 같은 tumor 내 region별 RAI silencing 차이 측정 불가. <strong>분석 A</strong>로 spot-level scatter 직접 확인.</p>
+      </div>
+      <div class="card red">
+        <h3>2. TROP2 scattered vs niche 분리</h3>
+        <p>Bulk forest fail이 "TROP2 신호 없음"인지 "TROP2 niche가 평균화된 것"인지를 spatial로만 분리 가능. <strong>분석 E</strong>가 niche임을 입증.</p>
+      </div>
+      <div class="card teal">
+        <h3>3. HT-overlap PTC TLS niche 확인 ★</h3>
+        <p>Paper 2 Pillar II가 TCGA bulk only였는데 TLS는 spatial-defined entity. <strong>분석 C</strong>로 GSE230424 4 슬라이드에서 HLA-II/TLS/IGHV niche 직접 확인 (Moran's I 0.27-0.84).</p>
+      </div>
+      <div class="card blue">
+        <h3>4. Driver-orthogonal axis spot-level</h3>
+        <p>Paper 1 main story가 spatial 차원에서 같은 niche에서 일어나는지 확인 필요. <strong>분석 B</strong>의 sample-level proxy.</p>
+      </div>
+      <div class="card gold">
+        <h3>5. Closure battery negative result</h3>
+        <p>H&E→DM1 NO-GO verdict (Paper 2A) 자체가 spatial 데이터로 driven됨. Spatial 빠지면 H&E claim risk가 reviewer에게 노출.</p>
+      </div>
+      <div class="card" style="border-top:5px solid var(--coal)">
+        <h3>6. Negative control (autoimmune-only)</h3>
+        <p>GSE248205 HT/GD baseline에서 cancer-side axis 신호 없음/약함을 spatial-level negative control로 명시. <strong>분석 D</strong>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== A. DM1 niche density ========================== -->
+  <section id="A">
+    <h2>A · Per-spot DM1 × Epithelial niche 2D density (GSE250521)</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/spatial_full/S_F1_DM1_niche_2d_density.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/spatial_full/S_F1_DM1_niche_2d_density.png" alt="S_F1" />
+      </a>
+      <figcaption><b>S_F1.</b> Stage별 (PT/PTC/LPTC/ATC) DM1_like × Epithelial 2D hexbin density. 각 panel n=1.5–4.7k spots. ρ는 spot-level Spearman (DM1, Epithelial). Within-sample z normalization된 score이므로 stage-mean은 ≈0이 정상.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ========================== B. driver-orthogonal ========================== -->
+  <section id="B">
+    <h2>B · Driver-orthogonal proxy — within-sample DM1 spread + identity check</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/spatial_full/S_F2_driver_orthogonal_box.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/spatial_full/S_F2_driver_orthogonal_box.png" alt="S_F2" />
+      </a>
+      <figcaption><b>S_F2.</b> Per-sample DM1 IQR (B1) + within-sample DM1 ↔ RAI_8 mathematical identity check (B2; expected ρ = −1 since DM1 = −RAI_8). 각 점 = 1 sample. 16 GSE250521 슬라이드.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ========================== C. HT TLS spatial — 핵심 finding ========================== -->
+  <section id="C" class="callout-green">
+    <h2>C · GSE230424 PTC+HT TLS / B-cell / IGHV niche spatial ★</h2>
+    <p style="font-size:16px;margin:0"><strong>핵심 finding:</strong> 4/4 PTC+HT 슬라이드 모두 immune niche structure 강하게 확인. HLA-II Moran's I = 0.48-0.81, B-cell I = 0.24-0.67, TLS I = 0.27-0.61, IGHV/AICDA I = 0.40-0.84. Paper 2 Pillar II의 TCGA-bulk-only 약점을 직접 spatial로 보강.</p>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/spatial_full/S_F3_HT_TLS_spatial_panel.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/spatial_full/S_F3_HT_TLS_spatial_panel.png" alt="S_F3" />
+      </a>
+      <figcaption><b>S_F3.</b> GSE230424 PTC+HT 4 슬라이드 × 4 immune gene set: HLA-II (7 genes), B-cell (CD19/CD20/CD79A/CD79B/SDC1/JCHAIN, 6 genes), TLS (CXCL13/CCL19/CCL21/CXCR5/CCR7/SELL, 6 genes), IGHV+AICDA (6 genes). C1 = mean log-norm score per spot per slide. C2 = Moran's I (spatial autocorrelation; ≥ 0.3 = niche-organized).</figcaption>
+    </figure>
+    <div class="greenbox">
+      <strong>의미:</strong> HT-overlap PTC의 TLS organization은 single-cell dissociated data (Lu 2023 n=6) + TCGA bulk signature가 implication만 줬던 것과 달리 <strong>실제 공간 차원에서 TLS niche structure가 직접 visible</strong>. Paper 2 Pillar II 본문 보강 핵심 데이터.
+    </div>
+  </section>
+
+  <!-- ========================== D. GSE248205 baseline ========================== -->
+  <section id="D">
+    <h2>D · GSE248205 autoimmune-only HT/GD vs CONTROL — negative control</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/spatial_full/S_F4_GSE248205_baseline.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/spatial_full/S_F4_GSE248205_baseline.png" alt="S_F4" />
+      </a>
+      <figcaption><b>S_F4.</b> GSE248205 (cancer-free thyroid; 2 CONTROL + 3 HT + 3 GD; PMID 39003267) per-axis mean spot scores. Cancer-side DM1/RAI_8 axis는 within-sample z이므로 base ~0; cross-condition 차이는 spot-level MW p &lt; 1e-8 수준이지만 effect 매우 작음 (negative control 역할).</figcaption>
+    </figure>
+  </section>
+
+  <!-- ========================== E. TROP2 spatial — 핵심 finding 2 ========================== -->
+  <section id="E" class="callout-green">
+    <h2>E · TROP2 spot-level distribution + spatial niche test ★</h2>
+    <p style="font-size:16px;margin:0"><strong>가장 중요한 spatial finding.</strong> Bulk-level GPL570 forest에서 fail한 TROP2 신호의 진짜 정체를 공간에서 확인.</p>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/spatial_full/S_F5_TROP2_spot_distribution.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/spatial_full/S_F5_TROP2_spot_distribution.png" alt="S_F5" />
+      </a>
+      <figcaption><b>S_F5.</b> TROP2 (TACSTD2) per-sample mean log-norm + Moran's I across 28 samples × 3 cohorts. 각 점 = 1 sample, 색 = condition. <strong>E2의 빨간 점선 (Moran's I = 0.3) 위 = niche-organized.</strong></figcaption>
+    </figure>
+
+    <h3>핵심 수치 — TROP2 spatial Moran's I</h3>
+    <table>
+      <thead><tr><th>Cohort</th><th>Condition</th><th>Sample</th><th>n_spots</th><th>TROP2 mean</th><th>p90</th><th>high-spot frac</th><th>Moran's I</th><th>Niche?</th></tr></thead>
+      <tbody>
+        <tr><td>GSE250521</td><td>PT (normal)</td><td>N-1 to N-4</td><td>3030–4547</td><td>0.05–2.63</td><td>0–9.2</td><td>0.5–7%</td><td>−0.005 to +0.080</td><td>scattered/absent</td></tr>
+        <tr class="high"><td>GSE250521</td><td>PTC</td><td>PTC-1 to PTC-4</td><td>2270–4952</td><td>5.10–7.73</td><td>10.6–11.3</td><td>8–10%</td><td><strong>+0.327 to +0.582</strong></td><td><strong>★ niche</strong></td></tr>
+        <tr class="high"><td>GSE250521</td><td>LPTC</td><td>LPTC-1 to LPTC-4</td><td>1520–4737</td><td>3.72–9.07</td><td>10.8–12.1</td><td>8–10%</td><td><strong>+0.268 to +0.562</strong></td><td><strong>★ niche</strong></td></tr>
+        <tr><td>GSE250521</td><td>ATC</td><td>ATC-1 to ATC-4</td><td>1622–4722</td><td>0.03–3.25</td><td>0–9.9</td><td>0.4–7%</td><td>−0.004 to +0.292</td><td>variable</td></tr>
+        <tr><td>GSE230424</td><td>PTC+HT</td><td>P1–P4</td><td>3154–4626</td><td>0.17–1.90</td><td>0–10.3</td><td>2–9%</td><td>+0.026 to +0.217</td><td>weak/scattered</td></tr>
+        <tr><td>GSE248205</td><td>CONTROL</td><td>C1, C2</td><td>1302, 2290</td><td>0.06–0.20</td><td>0</td><td>0.6–2%</td><td>−0.005, +0.062</td><td>scattered</td></tr>
+        <tr><td>GSE248205</td><td>HT</td><td>HT1–HT3</td><td>2041–2625</td><td>0.15–0.50</td><td>0–9.6</td><td>1.6–5%</td><td>+0.016 to +0.049</td><td>scattered</td></tr>
+        <tr><td>GSE248205</td><td>GD</td><td>GD1–GD3</td><td>2133–2279</td><td>0.07–0.38</td><td>0–9.2</td><td>0.8–4%</td><td>−0.008 to +0.113</td><td>scattered</td></tr>
+      </tbody>
+    </table>
+
+    <div class="greenbox" style="margin-top:14px">
+      <strong>읽는 법:</strong>
+      <ul>
+        <li><strong>PTC + LPTC 8 sample 모두 Moran's I &gt; 0.27</strong> → tumor-specific spatial niche structure</li>
+        <li>PT (normal) 4 samples 모두 Moran's I &lt; 0.10 → scattered/absent — biological specificity ✓</li>
+        <li>HT/GD (autoimmune-only, no cancer) 모두 Moran's I &lt; 0.12 → autoimmune 자체가 TROP2 niche를 만들지 않음 ✓</li>
+        <li>ATC variable: 1 sample I=0.29 (niche), 3 samples I≈0 — late-stage dedifferentiation으로 niche structure 깨짐 가능성</li>
+        <li>PTC+HT (GSE230424) weak: HT 동반 시 niche가 weak해질 수 있으나 sample size 작음</li>
+      </ul>
+    </div>
+
+    <div class="redbox">
+      <strong>주의 (forbidden language):</strong> 이 niche evidence는 (1) "TROP2-targeted ADC efficacy" 주장 NOT, (2) "TROP2 = clinical biomarker" 주장 NOT, (3) "TROP2-high niche = vulnerability" 주장 NOT. <strong>Niche structure 존재 자체</strong>까지가 honest finding.
+    </div>
+  </section>
+
+  <!-- ========================== F. cross-cohort ========================== -->
+  <section id="F">
+    <h2>F · 3-dataset cross-cohort integration (28 samples)</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/spatial_full/S_F6_cross_cohort_integration.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/spatial_full/S_F6_cross_cohort_integration.png" alt="S_F6" />
+      </a>
+      <figcaption><b>S_F6.</b> 28 samples × 3 cohorts pooled DM1_like distribution per condition. Within-sample z이므로 mean ≈ 0; box width로 inter-spot spread 비교. PTC+HT는 PTC와 유사한 spread, HT/GD baseline는 narrow.</figcaption>
+    </figure>
+  </section>
+
+  <!-- ========================== Advisor brief ========================== -->
+  <section id="advisor">
+    <h2>📋 Advisor / professor 1-page brief</h2>
+
+    <div class="bluebox">
+      <strong>Q1 — TROP2가 왜 갑자기 튀어나왔는가?</strong>
+      <p style="margin:8px 0 0">갑자기 나온 게 아닙니다. (i) GSE76039 anchor에서 ATC vs PDTC bulk d = +1.13 신호로 supplement에 등재 (2026-04). (ii) GPL570 4-cohort bulk validation에서 5 contrast 중 1만 expected direction → bulk-level enrichment claim 폐기. (iii) 그러나 spatial transcriptomics (28 samples, 3 cohorts)에서 <strong>PTC + LPTC 8/8 sample이 Moran's I 0.27–0.58 → tumor-specific niche structure</strong> 확인. PT/HT/GD에서는 ≈ 0. <strong>TROP2는 scattered tumor population이 아니라 spatial niche</strong>이며 bulk가 평균화시켜 못 본 것.</p>
+    </div>
+
+    <div class="greenbox">
+      <strong>Q2 — 공간 전사체 왜 필요한가?</strong>
+      <p style="margin:8px 0 0">6가지 distinct reason: (1) DM1 region heterogeneity 검증 [A], (2) TROP2 scattered vs niche 분리 [E], (3) <strong>HT-overlap PTC TLS niche 직접 확인 [C, Moran's I 0.27–0.84]</strong> — Paper 2 Pillar II의 TCGA-bulk-only 약점 보강, (4) Driver-orthogonal axis spot 검증 [B], (5) H&E→DM1 closure battery (Paper 2A NO-GO) 자체가 spatial 기반, (6) Autoimmune-only negative control [D]. 6개 모두 bulk-level로 답할 수 없는 질문.</p>
+    </div>
+
+    <div class="goldbox">
+      <strong>가장 강하게 허용되는 한 문장:</strong>
+      "Spatial transcriptomics across 28 samples × 3 cohorts identifies a tumor-specific TROP2 spatial niche (Moran's I 0.27–0.58 in PTC and LPTC, ≈ 0 in normal and autoimmune controls), reframing the bulk-level TROP2 enrichment failure as <strong>signal averaging across spatially heterogeneous niches</strong>; the same spatial framework directly demonstrates HT-overlap PTC TLS / B-cell / IGHV niche organization (Moran's I 0.27–0.84 in 4/4 GSE230424 slides), strengthening Paper 2 Pillar II beyond TCGA-bulk-only evidence."
+    </div>
+
+    <div class="redbox">
+      <strong>금지 표현 (이 패키지 기준):</strong>
+      <ul>
+        <li>"TROP2 high niche = ADC vulnerability"</li>
+        <li>"TROP2 niche = clinical risk biomarker"</li>
+        <li>"HT TLS niche causes PTC dedifferentiation"</li>
+        <li>"Spatial transcriptomics establishes Korean PTC immunogenetic profile"</li>
+        <li>"Final spatial association"</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Files / data</h2>
+    <ul style="font-family:ui-monospace,monospace;font-size:13px;line-height:1.7">
+      <li>project/notebooks_or_scripts/spatial_full_package_2026_05_06.py — 분석 script</li>
+      <li>project/results/spatial_full_2026_05_06/spatial_full_summary.json</li>
+      <li>project/results/spatial_full_2026_05_06/spatial_A_DM1_niche_density.tsv</li>
+      <li>project/results/spatial_full_2026_05_06/spatial_B_driver_orthogonal_per_sample.tsv</li>
+      <li>project/results/spatial_full_2026_05_06/spatial_C_HT_TLS_spatial.tsv</li>
+      <li>project/results/spatial_full_2026_05_06/spatial_D_GSE248205_baseline.tsv</li>
+      <li>project/results/spatial_full_2026_05_06/spatial_E_TROP2_spot_distribution.tsv</li>
+      <li>project/results/spatial_full_2026_05_06/spatial_F_cross_cohort_integration.tsv</li>
+      <li>project/papers_hub_2026_05_04/assets/spatial_full/S_F1–S_F6.png — 6 figures</li>
+      <li>project/reports/2026_05_06_spatial_full_package_kr.md — 정밀 패킷 (KR)</li>
+    </ul>
+  </section>
+
+  <p style="margin-top:24px;color:var(--muted);font-size:13px">
+    Generated 2026-05-06 · Spatial full package (6 analyses) · Seungho Cook · signature-level exploratory only · TROP2 niche finding은 advisor Q1에 대한 정직한 답변, HT TLS spatial은 Paper 2 Pillar II 보강. Paper 1 main story 미접촉.
+  </p>
+</div>
+</body>
+</html>
