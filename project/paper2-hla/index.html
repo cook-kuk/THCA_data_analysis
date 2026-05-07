@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper 2 HLA — 교수님 보고용 정밀 패킷 · 2026-05-06</title>
+<style>
+:root{
+  --ink:#102033; --muted:#52606f; --paper:#f7efe4; --card:#fffaf2; --line:#d8c8b4;
+  --red:#8f2d25; --red2:#fff0ed; --redDeep:#641b15;
+  --blue:#244e73; --blue2:#e9f1f8;
+  --green:#426b50; --green2:#edf6ed;
+  --gold:#b58534; --gold2:#fff4dc;
+  --coal:#17212f;
+}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:linear-gradient(135deg,#fbf6ed 0%,#efe2cf 58%,#f8f1e5 100%);
+  color:var(--ink);font-family:Arial,"Noto Sans KR",sans-serif;line-height:1.66}
+a{color:var(--red);text-decoration:none}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 24px 90px}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,250,242,.94);
+  border:1px solid var(--line);border-radius:0 0 12px 12px;padding:10px 14px;
+  margin:-28px 0 24px;display:flex;gap:10px;align-items:center;justify-content:space-between;
+  backdrop-filter:blur(8px)}
+.mini-nav{display:flex;flex-wrap:wrap;gap:8px}
+.mini-nav a, .home{font-size:12px;border:1px solid var(--line);background:#fff;padding:7px 10px;
+  border-radius:999px;color:var(--ink)}
+.hero{background:linear-gradient(145deg,#fffaf2 0%,#f1dec5 100%);
+  border:2px solid var(--coal);border-top:10px solid var(--red);border-radius:14px;
+  padding:42px;box-shadow:10px 10px 0 rgba(23,33,47,.14)}
+.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--red);font-weight:800}
+.hero h1{font-size:44px;line-height:1.06;margin:10px 0 12px;max-width:1000px}
+.subtitle{font-size:19px;color:var(--muted);max-width:1000px}
+.badge{display:inline-flex;align-items:center;gap:8px;margin-top:18px;background:var(--red);color:#fff;
+  font-weight:800;border-radius:999px;padding:9px 14px;font-size:13px}
+
+.callout-red{background:linear-gradient(165deg,#fff0ed 0%,#fcdcd6 100%);
+  border:3px solid var(--red);border-radius:16px;padding:28px;margin-top:22px;
+  box-shadow:0 6px 16px rgba(143,45,37,.18)}
+.callout-red h2{color:var(--redDeep);margin-top:0}
+.callout-red strong{color:var(--redDeep)}
+.callout-red .icon{display:inline-block;font-size:28px;margin-right:8px;vertical-align:-3px}
+
+section{background:rgba(255,250,242,.92);border:1px solid var(--line);border-radius:14px;
+  padding:28px;margin-top:24px}
+section.boundary{border-left:8px solid var(--red);background:linear-gradient(135deg,#fff0ed 0%,#fffaf2 80%)}
+section.gate{border-left:8px solid var(--blue);background:linear-gradient(135deg,#e9f1f8 0%,#fffaf2 80%)}
+section.proflow{border-left:8px solid var(--green);background:linear-gradient(135deg,#edf6ed 0%,#fffaf2 80%)}
+
+h2{font-size:30px;line-height:1.14;margin:0 0 12px;color:var(--coal)}
+h3{font-size:19px;margin:18px 0 8px;color:var(--red)}
+h4{font-size:15px;margin:12px 0 6px;color:var(--blue)}
+
+.verdict{border-left:7px solid var(--blue);background:#fff;padding:22px;
+  border-radius:0 12px 12px 0;font-size:18px}
+.verdict strong{color:var(--blue)}
+
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h3{margin-top:0}
+.card.red{border-top:5px solid var(--red)}
+.card.green{border-top:5px solid var(--green)}
+.card.blue{border-top:5px solid var(--blue)}
+.card.gold{border-top:5px solid var(--gold)}
+
+.warnbox{border-left:6px solid var(--gold);background:var(--gold2);padding:18px;
+  border-radius:0 12px 12px 0;margin:14px 0}
+.okbox{border-left:6px solid var(--green);background:var(--green2);padding:18px;
+  border-radius:0 12px 12px 0;margin:14px 0}
+.redbox{border-left:6px solid var(--red);background:var(--red2);padding:18px;
+  border-radius:0 12px 12px 0;margin:14px 0}
+.bluebox{border-left:6px solid var(--blue);background:var(--blue2);padding:18px;
+  border-radius:0 12px 12px 0;margin:14px 0}
+
+figure{margin:20px 0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;
+  box-shadow:0 6px 18px rgba(23,33,47,.07)}
+figure img{width:100%;height:auto;display:block;border-radius:8px;border:1px solid #eee;cursor:zoom-in}
+figcaption{font-size:14px;color:var(--muted);padding:10px 4px 0;line-height:1.55}
+figcaption b{color:var(--ink)}
+
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);
+  font-size:14px;margin-top:8px}
+th{background:var(--coal);color:#fff;text-align:left;padding:10px;font-size:12px;
+  letter-spacing:.04em;text-transform:uppercase}
+td{border-top:1px solid #eadfcc;padding:10px;vertical-align:top}
+tr.flips td{background:#fff0ed}
+tr.stable td{background:#edf6ed}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}
+.tag{display:inline-block;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:700;
+  margin-right:4px}
+.tag.flips{background:var(--red);color:#fff}
+.tag.stable{background:var(--green);color:#fff}
+.tag.zero{background:var(--gold);color:#fff}
+.tag.exp{background:var(--blue);color:#fff}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.allowed{border-top:6px solid var(--green)}
+.forbidden{border-top:6px solid var(--red)}
+
+.stepper{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.step{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px}
+.step b{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;
+  background:var(--coal);color:#fff;margin-bottom:8px}
+.step strong{display:block;color:var(--blue)}
+
+.next-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+
+ul{padding-left:20px}
+li{margin:6px 0}
+
+.lightbox{position:fixed;inset:0;background:rgba(10,16,24,.9);z-index:9999;display:none;
+  align-items:center;justify-content:center;padding:28px}
+.lightbox.show{display:flex}
+.lightbox img{max-width:96vw;max-height:90vh;background:#fff;border-radius:10px;
+  box-shadow:0 20px 80px rgba(0,0,0,.5)}
+.lightbox button{position:fixed;top:18px;right:22px;background:#fff;border:0;border-radius:999px;
+  width:42px;height:42px;font-size:24px;cursor:pointer}
+
+@media(max-width:900px){
+  .hero{padding:28px 20px}
+  .hero h1{font-size:30px}
+  .g2,.g3,.g4,.stepper,.split,.next-grid{grid-template-columns:1fr}
+  .topbar{position:relative;margin-top:0}
+  .wrap{padding:14px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar">
+    <a class="home" href="/papers_hub_2026_05_04/index.html">8-Papers Hub</a>
+    <div class="mini-nav">
+      <a href="#caveat">⚠ Critical Caveat</a>
+      <a href="#f13">F13 — Why it matters</a>
+      <a href="#evidence">Evidence boundary</a>
+      <a href="#missing">Missing evidence</a>
+      <a href="#dqb1-qc">DQB1*02:01 QC audit</a>
+      <a href="#prof">한국어 요약</a>
+      <a href="#roadmap">Validation roadmap</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="kicker">Paper 2 HLA Pillar I · professor-facing strengthening packet · 2026-05-06</div>
+    <h1>한국인 PTC 6-allele HLA forest는 <em>탐색적 후보 우선순위 지도</em>입니다.</h1>
+    <p class="subtitle">엄격한 metric 정합화 후 6개 중 4개 enrichment 신호가 사라지고, 2개 depletion 신호(C*01:02, DQB1*02:01)만 BH-q &lt; 0.05를 통과합니다.
+    Matched-control NGS validation 없이는 case-control association으로 보고되지 않습니다.</p>
+    <div class="badge">⚠ Exploratory only — metric-mismatched carrier vs allele forest까지가 현재 한계</div>
+  </header>
+
+  <!-- ========================== CRITICAL CAVEAT (RED BOX) ========================== -->
+  <section id="caveat" class="callout-red">
+    <h2><span class="icon">⚠</span> Critical Caveat — read this first</h2>
+    <p style="font-size:17px;margin:0">
+      <strong>일차 forest(F13)는 단위가 다른 두 수치를 직접 비교한 결과입니다.</strong>
+      한국인 PTC 측은 <strong>개인 단위 carrier 빈도</strong>(n = 874명),
+      baseline 측은 <strong>출판된 allele frequency × 2n</strong>(In JW 2015 등 5개 alleles, AFND South Korea pool DPB1 1개).
+      두 단위는 같은 양이 아닙니다. <strong>HWE 가정 하에서만 환산</strong>이 가능하며 (carrier = 1−(1−AF)², AF = 1−√(1−carrier)),
+      실제 분포가 HWE를 따른다는 보장은 없습니다.
+    </p>
+    <div class="stepper" style="margin-top:18px">
+      <div class="step"><b>1</b><strong>Korean PTC pool</strong>n = 874명<br>metric = carrier frequency</div>
+      <div class="step"><b>2</b><strong>Public baseline</strong>IN2015 (n=613×2)<br>AFND SK (n=680×2)<br>metric = allele frequency</div>
+      <div class="step"><b>3</b><strong>Reconstructed counts</strong>baseline AF × 2n → allele count</div>
+      <div class="step"><b>4</b><strong>Forest (F13)</strong>Fisher / Haldane OR<br>= exploratory only</div>
+    </div>
+    <p style="margin:18px 0 0">
+      <strong>본 자료에서 보고하는 모든 OR / p / q 값은 위 metric 한계를 명시한 상태에서만 의미가 있습니다.</strong>
+      더 강한 주장은 matched-control NGS validation 후에만 가능합니다.
+    </p>
+  </section>
+
+  <!-- ========================== F13 — Why it matters ========================== -->
+  <section id="f13">
+    <h2>F13 — Why this figure matters (and what it does NOT prove)</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/paper2_hla/F13_exploratory_or_fisher_forest.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/paper2_hla/F13_exploratory_or_fisher_forest.png" alt="F13 exploratory OR/Fisher forest" />
+      </a>
+      <figcaption>
+        <b>F13 — 1차 6-allele exploratory OR/Fisher forest</b> (Haldane 보정 OR + 95% Wald CI on log-OR).
+        가로축은 OR(로그 스케일); 1.0 우측 = enrichment 방향, 좌측 = depletion 방향. n=6 후보 내 BH-q는 모두 0.05 미만.
+        <strong>이 그림이 단독으로 association을 의미하지 않습니다</strong> — caveat (위 빨간 박스) 참조.
+      </figcaption>
+    </figure>
+
+    <div class="grid g3">
+      <div class="card red">
+        <h3>What this figure shows</h3>
+        <ul>
+          <li>A*02:07, B*46:01, DPB1*05:01, DRB1*07:01의 OR이 1보다 크게 보이는 enrichment-shaped 신호.</li>
+          <li>C*01:02도 OR=1.47로 enrichment 방향으로 표시.</li>
+          <li>DQB1*02:01은 PTC carrier=0인 zero-cell depletion 신호.</li>
+          <li>n=6 후보 내 BH-q가 모두 0.05 미만(매우 작음).</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>Why it matters</h3>
+        <ul>
+          <li>Paper 2 Pillar I에 대한 <strong>구체적 6-allele 후보 리스트</strong>를 제공.</li>
+          <li>한국인 PTC와 immune-genetic background 사이의 가능성 있는 연결을 <strong>탐색적 hypothesis</strong>로 제시.</li>
+          <li>이후 matched-control NGS validation을 위한 <strong>가설 우선순위 지도</strong>가 됨.</li>
+          <li>Yu lab과의 논의에서 어떤 allele를 어떤 방향으로 검증해야 하는지 명확화.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3>What it does NOT prove</h3>
+        <ul>
+          <li>Causal HLA susceptibility를 입증하지 <strong>않습니다</strong>.</li>
+          <li>Case-control association 결과가 <strong>아닙니다</strong>.</li>
+          <li>Carrier 빈도와 allele 빈도를 동등하게 비교하기 때문에 <strong>population-level 추론은 불가</strong>.</li>
+          <li>임상 위험 예측 / 환자 선별의 근거가 <strong>아닙니다</strong>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== F16 metric sensitivity ========================== -->
+  <section>
+    <h2>F16 — Metric-sensitivity forest (4 시나리오)</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/paper2_hla/F16_metric_sensitivity_forest.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/paper2_hla/F16_metric_sensitivity_forest.png" alt="F16 metric sensitivity forest" />
+      </a>
+      <figcaption>
+        <b>F16</b> — 6 alleles × 4 시나리오 forest. <b>S0</b> 1차 (carrier vs allele, 단위 불일치).
+        <b>S1</b> baseline AF → HWE-기대 carrier (1−(1−AF)²). <b>S2</b> PTC carrier → HWE-함의 AF (1−√(1−c)).
+        <b>S3</b> 직접 allele vs allele (PTC 실제 dosage count vs baseline 2n) — HWE 가정 불필요, 가장 robust.
+        <strong>S0에서 enrichment-shaped로 보이던 4개 alleles(A*02:07, B*46:01, DPB1*05:01, DRB1*07:01)이 S3 strict comparison에서 1.0 근처로 수축</strong>.
+        C*01:02, DPB1*05:01, DRB1*07:01은 S1/S2/S3에서 방향이 반대로 뒤집힙니다.
+      </figcaption>
+    </figure>
+
+    <div class="grid g3" style="margin-top:14px">
+      <div class="card green">
+        <h3>Direction stable</h3>
+        <p><span class="tag stable">stable</span> A*02:07 — enrichment 방향, S3 OR=1.26 (q=0.43, n.s.)</p>
+        <p><span class="tag stable">stable</span> B*46:01 — enrichment 방향, S3 OR=1.05 (q=0.80, n.s.)</p>
+        <p><span class="tag zero">zero-cell</span> DQB1*02:01 — depletion 방향, S3 OR=0.018 (q=5×10⁻⁸, zero-cell caveat)</p>
+      </div>
+      <div class="card red">
+        <h3>Direction flips</h3>
+        <p><span class="tag flips">flips</span> C*01:02 — S0 enrichment → S3 <strong>depletion</strong>, S3 OR=0.68 (q=7×10⁻⁴) <strong>survives strict</strong></p>
+        <p><span class="tag flips">flips</span> DPB1*05:01 — S0 enrichment → S3 ~null (OR=0.98, q=0.80), source-sensitive</p>
+        <p><span class="tag flips">flips</span> DRB1*07:01 — S0 enrichment → S3 depletion-trending (OR=0.84, q=0.43)</p>
+      </div>
+      <div class="card blue">
+        <h3>BH-q within 6 (S0 vs S3)</h3>
+        <table class="mono">
+          <thead><tr><th>Allele</th><th>S0 q</th><th>S3 q</th></tr></thead>
+          <tbody>
+            <tr><td>A*02:07</td><td>1.1×10⁻⁵ ✓</td><td>0.43</td></tr>
+            <tr><td>B*46:01</td><td>1.1×10⁻⁵ ✓</td><td>0.80</td></tr>
+            <tr><td>C*01:02</td><td>4.3×10⁻⁴ ✓</td><td><b>7.4×10⁻⁴ ✓</b></td></tr>
+            <tr><td>DPB1*05:01</td><td>9.9×10⁻¹⁴ ✓</td><td>0.80</td></tr>
+            <tr><td>DQB1*02:01</td><td>2.5×10⁻⁶ ✓</td><td><b>5.3×10⁻⁸ ✓</b></td></tr>
+            <tr><td>DRB1*07:01</td><td>4.3×10⁻⁴ ✓</td><td>0.43</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:8px;font-size:13px"><strong>S0에서 6/6 → S3에서 2/6 (모두 depletion)만 q&lt;0.05 통과.</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== F17 subcohort ========================== -->
+  <section>
+    <h2>F17 — Subcohort heterogeneity heatmap</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/paper2_hla/F17_subcohort_frequency_heatmap.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/paper2_hla/F17_subcohort_frequency_heatmap.png" alt="F17 subcohort heatmap" />
+      </a>
+      <figcaption>
+        <b>F17</b> — 한국인 PTC 풀의 3개 subcohort (K2, Lee2024, GSE286332_PTC) 별 carrier 빈도.
+        ★ = chi-square heterogeneity p &lt; 0.05 (A*02:07, C*01:02). GSE286332_PTC는 n = 18로 매우 작아 extreme value (33%, 55%)는 분산일 가능성이 높습니다.
+        Lee2024가 carrier의 66–77%를 차지하므로 합산 carrier 빈도가 Lee2024의 분포에 의해 dominate됩니다.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ========================== F18 claim-boundary matrix ========================== -->
+  <section id="evidence" class="boundary">
+    <h2>F18 — Claim-boundary matrix (per-allele honesty audit)</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/paper2_hla/F18_claim_boundary_matrix.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/paper2_hla/F18_claim_boundary_matrix.png" alt="F18 claim-boundary matrix" />
+      </a>
+      <figcaption>
+        <b>F18</b> — 6 alleles × 8 columns honesty audit. 색상: 녹색 = stable signal 지지, 황색 = 혼합, 적색 = strict harmonization 통과 못함 / source-sensitive / zero-cell.
+      </figcaption>
+    </figure>
+
+    <div class="redbox" style="border-left-width:7px;font-size:16px">
+      <strong>v2 core statement.</strong>
+      The S0 carrier-vs-allele forest initially showed 6/6 significant signals, but
+      <strong>strict S3 allele-vs-allele harmonization retains only two depletion candidates: C*01:02 and DQB1*02:01.
+      No enrichment candidate survives strict metric harmonization.</strong>
+      DQB1*02:01 is further suspended by the 2026-05-06 zero-cell QC audit (likely typing-resolution artifact).
+    </div>
+
+    <h3>v2 claim grade table (per allele)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Allele</th>
+          <th>Claim grade (v2)</th>
+          <th>S0 primary q</th>
+          <th>S3 direct q</th>
+          <th>S0 direction</th>
+          <th>S3 direction</th>
+          <th>Next validation priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="stable">
+          <td class="mono">A*02:07</td>
+          <td><span class="tag exp">S0_only_exploratory</span></td>
+          <td>1.1×10⁻⁵</td>
+          <td>0.43 (n.s.)</td>
+          <td>enrichment</td>
+          <td>enrichment (OR≈1.26)</td>
+          <td>medium</td>
+        </tr>
+        <tr class="stable">
+          <td class="mono">B*46:01</td>
+          <td><span class="tag exp">S0_only_exploratory</span></td>
+          <td>1.1×10⁻⁵</td>
+          <td>0.80 (n.s.)</td>
+          <td>enrichment</td>
+          <td>enrichment (OR≈1.05)</td>
+          <td>medium</td>
+        </tr>
+        <tr class="flips">
+          <td class="mono">C*01:02</td>
+          <td><span class="tag flips">survives_strict_metric_but_direction_flips</span></td>
+          <td>4.3×10⁻⁴</td>
+          <td><b>7.4×10⁻⁴ ✓</b></td>
+          <td>enrichment</td>
+          <td><b>depletion</b> (OR=0.68)</td>
+          <td><strong style="color:var(--red)">high</strong></td>
+        </tr>
+        <tr class="flips">
+          <td class="mono">DPB1*05:01</td>
+          <td><span class="tag flips">source_sensitive_artifact_likely</span></td>
+          <td>9.9×10⁻¹⁴</td>
+          <td>0.80 (n.s.)</td>
+          <td>enrichment</td>
+          <td>depletion (OR≈0.98)</td>
+          <td>medium</td>
+        </tr>
+        <tr class="stable">
+          <td class="mono">DQB1*02:01</td>
+          <td><span class="tag zero">survives_strict_metric_but_zero_cell_caution</span><br><strong style="color:var(--red)">SUSPENDED — typing artifact (2026-05-06 QC audit)</strong></td>
+          <td>2.5×10⁻⁶</td>
+          <td><b>5.3×10⁻⁸</b></td>
+          <td>depletion</td>
+          <td>depletion (zero-cell, suspended)</td>
+          <td><strong style="color:var(--red)">high</strong></td>
+        </tr>
+        <tr class="flips">
+          <td class="mono">DRB1*07:01</td>
+          <td><span class="tag exp">S0_only_exploratory</span></td>
+          <td>4.3×10⁻⁴</td>
+          <td>0.43 (n.s.)</td>
+          <td>enrichment</td>
+          <td>depletion (OR=0.84)</td>
+          <td>medium</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:8px">
+      Reference: <code>project/results/p2_pillar1_forest_v2/paper2_hla_claim_grade_v2.tsv</code>.
+      Direction = sign of OR vs 1.0 in the corresponding scenario. <em>Enrichment</em> never claimed as risk allele;
+      <em>depletion</em> never claimed as causal protection. All six rows remain exploratory until matched-control NGS validation.
+    </p>
+
+    <div style="margin-top:18px" class="bluebox">
+      <strong>가장 강하게 허용되는 한 문장:</strong>
+      "The six-allele HLA forest provides an exploratory candidate-prioritization map suggesting Korean PTC may have immune-genetic background signals requiring matched-control validation."
+    </div>
+
+    <div class="split" style="margin-top:18px">
+      <div class="card allowed">
+        <h3>Allowed (max claim)</h3>
+        <ul>
+          <li>"Exploratory carrier-vs-allele forest with explicit metric mismatch."</li>
+          <li>"Direction stability across S0/S1/S2/S3 reported per allele."</li>
+          <li>"BH-q within six candidates per scenario."</li>
+          <li>"After strict harmonization, only C*01:02 (depletion) and DQB1*02:01 (depletion, zero-cell caveat) survive q&lt;0.05."</li>
+          <li>"Matched-control NGS validation required before any association statement."</li>
+        </ul>
+      </div>
+      <div class="card forbidden">
+        <h3>Forbidden</h3>
+        <ul>
+          <li>"Final case-control association."</li>
+          <li>"Causal HLA susceptibility."</li>
+          <li>"Clinical risk prediction." / "Patient selection."</li>
+          <li>"Treating carrier frequency and allele frequency as interchangeable."</li>
+          <li>"Korean PTC HLA risk alleles" / "DPB1*05:01 risk allele."</li>
+          <li>"Joint immune-genetic risk model with the 8-gene readout" (no conditional independence test performed).</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== Missing evidence ========================== -->
+  <section id="missing" class="gate">
+    <h2>Missing evidence — what we don't have yet</h2>
+
+    <div class="grid g2">
+      <div class="redbox">
+        <h3>Critical gaps</h3>
+        <ul>
+          <li><strong>Matched-control NGS HLA typing.</strong> Currently we compare Korean PTC carrier counts to <em>published allele frequencies</em> from independent populations. We do <em>not</em> have an independent Korean healthy-control cohort typed by the same NGS pipeline.</li>
+          <li><strong>Allele-level dosage on baseline.</strong> Public baselines are aggregated allele frequencies — we do not have per-individual genotype data on the baseline side.</li>
+          <li><strong>Multi-cohort PTC replication.</strong> The 874-individual pool combines K2, Lee2024, GSE286332_PTC — but no second independent Korean PTC cohort with the same pipeline exists locally.</li>
+          <li><strong>Genome-wide HLA testing.</strong> Only six pre-specified candidate alleles tested; we cannot rule out broader signals or deflate winner's-curse on the candidate set.</li>
+          <li><strong>Pre-registered analysis plan.</strong> The S0 → S3 progression here is exploratory; future tests must be pre-registered.</li>
+        </ul>
+      </div>
+
+      <div class="warnbox">
+        <h3>Partially-available controls (already attempted, limited)</h3>
+        <ul>
+          <li><strong>Kim 2014 Korean reference panel</strong> — used as a partial baseline (F17_kim2014_*). Not typed on PTC pipeline; allele-level allele-vs-allele not yet computed.</li>
+          <li><strong>Baek 2021 PLOS NGS</strong> — used as cross-check (F19_allele_vs_baek2021_ngs_forest); needs S3-equivalent extension.</li>
+          <li><strong>GSE213647 adjacent normal</strong> — RNA-seq adjacent-normal arcasHLA calls exist, but these are <em>cancer-patient paired normal tissues</em>, not independent healthy controls.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== Korean professor summary ========================== -->
+  <section id="prof" class="proflow">
+    <h2>한국어 교수님 요약 (one-page)</h2>
+    <div class="verdict" style="background:#fff;border-left-color:var(--green)">
+      <p style="font-size:18px;margin:0">
+        <strong>결론.</strong> 한국인 PTC 풀(n=874명)의 6-allele HLA forest는 <strong>탐색적 후보 우선순위 지도</strong>입니다.
+        엄격한 metric 정합화 후 4개 enrichment 신호(A*02:07, B*46:01, DPB1*05:01, DRB1*07:01)는 사라지고,
+        depletion 후보로 C*01:02 + DQB1*02:01 두 개만 BH-q&lt;0.05를 통과했지만 <strong style="color:var(--red)">DQB1*02:01은 별도 QC 감사 결과 typing-resolution artifact 가능성이 높아 일시 suspend 상태</strong>입니다(아래 DQB1 QC audit 참조).
+        이 결과는 <strong>matched-control NGS validation 없이는 case-control association으로 보고할 수 없으며</strong>, 어떤 인과 / 임상 / 환자선별 주장도 할 수 없습니다.
+      </p>
+    </div>
+    <div class="grid g4" style="margin-top:14px">
+      <div class="card red">
+        <h3>알려진 사실</h3>
+        <ul>
+          <li>n=874 한국인 PTC HLA 호출 (arcasHLA).</li>
+          <li>6개 후보 allele 1차 forest 작성됨.</li>
+          <li>Metric 불일치 명시됨.</li>
+        </ul>
+      </div>
+      <div class="card gold">
+        <h3>Strict 후 변화</h3>
+        <ul>
+          <li>3/6 alleles 방향 flip.</li>
+          <li>2/6만 q&lt;0.05 통과 (depletion).</li>
+          <li>0/6 enrichment 통과.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3>다음 작업</h3>
+        <ul>
+          <li>Matched-control NGS.</li>
+          <li>Allele-level harmonization.</li>
+          <li>Multi-cohort replication.</li>
+          <li>Pre-registration.</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>현재 허용 표현</h3>
+        <ul>
+          <li>Exploratory candidate map.</li>
+          <li>Direction-stability 보고.</li>
+          <li>BH-q within 6 보고.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== Validation roadmap ========================== -->
+  <section id="roadmap">
+    <h2>F19 — Validation roadmap (next-action diagram)</h2>
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/paper2_hla/F19_validation_roadmap.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/paper2_hla/F19_validation_roadmap.png" alt="F19 validation roadmap" />
+      </a>
+      <figcaption>
+        <b>F19</b> — 현재 상태(좌: exploratory metric-mismatched forest) → 필수 검증 작업(중: matched-control NGS, allele-level harmonization, multi-cohort, pre-registration) → 졸업 기준(우: direction stable + q&lt;0.05 + ≥2 cohorts + effect &gt; MID).
+        졸업 후에야 "Korean PTC HLA association" 표현 가능.
+      </figcaption>
+    </figure>
+
+    <div class="next-grid">
+      <div class="card red">
+        <h3>1차 (이번 달, 로컬 데이터)</h3>
+        <ul>
+          <li>Kim 2014 reference panel 기반 S3-extended forest.</li>
+          <li>Baek 2021 NGS S3-extended forest.</li>
+          <li>Per-locus typing call rate 문서화 (A=874, DPB1=779, DQB1=631).</li>
+          <li>DQB1*02:01 zero-call audit (arcasHLA imputation specific 실패 여부 확인).</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3>2차 (1–2개월, 매칭 컨트롤 확보)</h3>
+        <ul>
+          <li>독립 한국인 healthy population NGS HLA 데이터셋 발굴.</li>
+          <li>없으면 n=200 pilot matched-control 견적.</li>
+          <li>Pre-registered 가설 + 분석 plan (Yu lab 승인).</li>
+        </ul>
+      </div>
+      <div class="card green">
+        <h3>3차 (3–4개월, 졸업 시도)</h3>
+        <ul>
+          <li>Matched-control allele-vs-allele Fisher.</li>
+          <li>Multi-cohort meta (≥2 PTC cohort).</li>
+          <li>Genome-wide HLA test 가능성 평가.</li>
+          <li>졸업 기준 통과 시 manuscript section 표현 upgrade.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================== DQB1*02:01 QC audit ========================== -->
+  <section id="dqb1-qc" class="boundary">
+    <h2>DQB1*02:01 zero-cell QC audit (2026-05-06)</h2>
+
+    <div class="callout-red" style="margin-top:0">
+      <h2 style="margin-top:0"><span class="icon">⚠</span> Verdict: technically suspicious — most likely arcasHLA subtype-resolution artifact</h2>
+      <p style="font-size:16px;margin:0">
+        DQB1*02:01 = 0 carriers in n=874 Korean PTC pool <strong>does not pass locus-level callability and resolution checks</strong>.
+        DQB1 callability is 72.2% (vs A/B/C ≥ 99.9%), and the DQB1*02 family at 2-digit level appears at the expected Korean rate (13.3% carriers, family-level)
+        but is split into <em>DQB1*02:02</em> and 40 rare/suspect subtypes (<em>*02:253, *02:276, *02:225Q, *02:199, *02:214N…</em>) instead of the canonical <em>*02:01</em>.
+        <strong>The DQB1*02:01-specific depletion signal is suspended</strong> pending orthogonal NGS-typer validation.
+      </p>
+    </div>
+
+    <h3>What the audit checked</h3>
+    <ul>
+      <li>Per-locus callability (A, B, C, DRB1, DPB1, DQB1)</li>
+      <li>DQB1 4-digit allele distribution + 2-digit family breakdown + DQB1*02 family detail (DQB1*02:01 vs *02:02 vs rare *02:xxx)</li>
+      <li>Subcohort consistency (K2, Lee2024, GSE286332_PTC) of DQB1 callability + carrier counts</li>
+      <li>Cross-locus diversity (n_unique_4digit, n_unique_2digit, top-1 share)</li>
+      <li>Rare/impossible allele patterns (subtype number ≥ 50 in DQB1)</li>
+      <li>arcasHLA per-sample QC for GSE286332 (genotype.json + genes.json inspection)</li>
+    </ul>
+
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/paper2_hla/F20_DQB1_zero_cell_qc_matrix.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/paper2_hla/F20_DQB1_zero_cell_qc_matrix.png" alt="F20 DQB1 zero-cell QC matrix" />
+      </a>
+      <figcaption>
+        <b>F20 — DQB1*02:01 zero-cell QC matrix.</b>
+        <b>(A)</b> DQB1*02 family detail. Target DQB1*02:01 highlighted (red bar — zero observations).
+        DQB1*02:02 (53 obs) and rare/suspect subtypes (DQB1*02:276 14 obs, *02:253 10 obs, *02:225Q 4 obs, etc.) account for all 89 observations of the *02 family.
+        <b>(B)</b> Per-subcohort carrier counts: target DQB1*02:01 (red, all zero), any DQB1*02:xx (gold), and reference alleles DQB1*05:01 / DQB1*03:01 (called normally).
+        <b>(C)</b> Per-locus callability — DQB1 is 72.2% callable while A/B/C are ≥ 99.9% and DRB1 / DPB1 are 98.5% / 89.1%.
+      </figcaption>
+    </figure>
+
+    <figure>
+      <a href="/papers_hub_2026_05_04/assets/paper2_hla/F21_DQB1_locus_callability_barplot.png" target="_blank">
+        <img src="/papers_hub_2026_05_04/assets/paper2_hla/F21_DQB1_locus_callability_barplot.png" alt="F21 locus callability barplot" />
+      </a>
+      <figcaption>
+        <b>F21 — Per-locus callability + 4-digit allele diversity.</b>
+        Bars (left axis): callable both alleles (%). Line (right axis): unique 4-digit alleles observed.
+        DQB1's 67 unique 4-digit alleles is in the normal range for thyroid-cohort RNA-seq HLA imputation,
+        but its callability (72.2%) is conspicuously lower than every other locus tested.
+        Combined with the DQB1*02 family rare-tail inflation in F20, this points to typing-resolution artifact rather than biology.
+      </figcaption>
+    </figure>
+
+    <div class="grid g3">
+      <div class="card red">
+        <h3>What the audit found</h3>
+        <ul>
+          <li><strong>DQB1 callable 72.2%</strong> (631/874) vs A/B/C ≥ 99.9%, DRB1 98.5%, DPB1 89.1%.</li>
+          <li>DQB1*02 family carrier rate <strong>13.3%</strong> (84/631) — matches published Korean baselines (~13–17%).</li>
+          <li>Within DQB1*02 family: <strong>0 *02:01</strong>, 53 *02:02, and ~28 observations across 8 rare subtypes (*02:253, *02:276, *02:225Q, *02:199, *02:214N, *02:215, *02:272, *02:274, *02:205).</li>
+          <li>140/1262 = <strong>11.1% of DQB1 observations</strong> in the high-subtype-number tail (≥ 50). This is unusual for canonical Korean HLA distributions.</li>
+          <li>Absence is consistent across all 3 subcohorts (K2 0/163, Lee2024 0/464, GSE286332_PTC 0/4).</li>
+        </ul>
+      </div>
+      <div class="card gold">
+        <h3>Why this is consistent with technical artifact</h3>
+        <ul>
+          <li>A real biological zero-rate for *02:01 specifically would not coincide with elevated DQB1-only callability failures.</li>
+          <li>If *02:01 were truly absent, we would expect either reduced overall *02 family carriership <em>or</em> compensatory increase in *02:02 — but the *02 family carrier rate matches published baselines, and *02:01 mass appears redistributed into rare/suspect subtype-number assignments.</li>
+          <li>arcasHLA on low-coverage / ambiguous reads can output rare allele numbers rather than canonical ones (especially when run against a newer IMGT/HLA database than the published Korean baselines were typed against).</li>
+          <li>K2's sub-set with full arcasHLA pipeline output (n=63) shows DQB1 alleles at canonical 4-/6-digit resolution; the 235-pool merges this with non-arcasHLA-pipeline calls.</li>
+        </ul>
+      </div>
+      <div class="card blue">
+        <h3>What is required to resolve</h3>
+        <ul>
+          <li>Re-type DQB1 with an orthogonal NGS HLA caller (HLA-LA, OptiType, T1K, …) on a stratified subset (n ≥ 50 across K2 + Lee2024).</li>
+          <li>If orthogonal typer collapses the rare *02:xxx tail to *02:01, the artifact is confirmed and the depletion claim is dismissed.</li>
+          <li>Verify the arcasHLA IMGT/HLA database version vs the database era of the published Korean baselines.</li>
+          <li>Audit per-sample DQB1 call confidence from arcasHLA <code>genes.json</code>; flag low-confidence calls as ambiguous, not zero-vs-one.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="bluebox" style="margin-top:18px">
+      <strong>Final allowed conclusion (this audit):</strong>
+      "DQB1*02:01 remains a high-priority depletion candidate <strong>only if</strong> locus-level callability and resolution checks do not indicate technical failure.
+      In the current Korean PTC pool, locus-level callability (72.2%) and 4-digit subtype distribution within the DQB1*02 family (canonical <em>*02:01</em> absent, rare-tail <em>*02:xxx</em> subtypes inflated) <strong>do indicate technical issues</strong>,
+      so DQB1*02:01 zero-cell depletion is <strong>suspended pending orthogonal NGS-typer validation</strong>. The DQB1*02 family-level carrier rate (13.3%) is consistent with published Korean baselines, supporting the technical-artifact interpretation."
+    </div>
+
+    <p style="font-size:14px;color:var(--muted);margin-top:14px">
+      This audit supersedes any earlier text on this page that listed DQB1*02:01 as a depletion candidate surviving strict harmonization.
+      Full report: <code>project/reports/2026_05_06_paper2_dqb1_zero_cell_qc_report.md</code>;
+      consolidated audit table: <code>project/results/p2_pillar1_forest_v2/paper2_dqb1_zero_cell_qc_audit.tsv</code>;
+      audit script: <code>project/notebooks_or_scripts/paper2_dqb1_zero_cell_qc_audit.py</code>.
+      No quantitative connection to AITD or Paper 9 is drawn from this audit.
+    </p>
+  </section>
+
+  <!-- ========================== Future-work link ========================== -->
+  <section>
+    <h2>Future-work link to Paper 9 (perturbation / synthetic lethality)</h2>
+    <p style="margin:0">
+      C*01:02 depletion signal이 matched-control validation에서 살아남을 경우, HLA-C 제한 면역 컨텍스트에서 발생한 한국인 PTC 일부가
+      Paper 9의 합성치사 후보(예: GLS, metabolic dependencies)와 phenotype-level로 교차할 가능성이 있습니다.
+      <strong>본 페이지에서는 가설-수준의 future work으로만 언급하며, 어떠한 quantitative 연결도 주장하지 않습니다.</strong>
+      Paper 9의 결과는 <a href="/paper9-perturbation/index.html">/paper9-perturbation/</a> 참조.
+    </p>
+  </section>
+
+  <section>
+    <h2>Files / data</h2>
+    <ul style="font-family:ui-monospace,monospace;font-size:13px;line-height:1.7">
+      <li>project/results/p2_pillar1_forest_v2/paper2_6allele_or_fisher_primary.tsv (S0 1차)</li>
+      <li>project/results/p2_pillar1_forest_v2/paper2_hla_metric_sensitivity_strengthened.tsv (S0+S1+S2+S3 + stability)</li>
+      <li>project/results/p2_pillar1_forest_v2/paper2_hla_allele_vs_allele_direct.tsv (S3 직접)</li>
+      <li>project/results/p2_pillar1_forest_v2/paper2_hla_bh_fdr_by_scenario.tsv (시나리오별 BH-q)</li>
+      <li>project/results/p2_pillar1_forest_v2/paper2_hla_subcohort_heterogeneity.tsv (subcohort χ²)</li>
+      <li>project/results/p2_pillar1_forest_v2/paper2_hla_claim_grade.tsv (per-allele 등급)</li>
+      <li>project/reports/2026_05_06_paper2_hla_professor_packet_kr.md (정밀 패킷)</li>
+      <li>project/reports/2026_05_06_paper2_hla_one_page_summary_kr.md (한 페이지 요약)</li>
+      <li>project/reports/2026_05_06_paper2_hla_claim_boundary.md (per-allele claim boundary)</li>
+      <li>project/reports/2026_05_06_paper2_hla_next_validation_plan.md (validation roadmap)</li>
+    </ul>
+  </section>
+
+  <p style="margin-top:24px;color:var(--muted);font-size:13px">
+    Generated 2026-05-06 · Paper 2 Pillar I HLA · Seungho Cook · exploratory only — no association reported · all numbers reproducible from the listed TSVs.
+  </p>
+
+  <!-- ========================== IDEKER-STYLE INTERACTIVE SUBPLOT ========================== -->
+  <link rel="stylesheet" href="/papers_hub_2026_05_04/assets/ideker/ideker_subplot.css" />
+  <section class="ideker-frame">
+    <div class="eyebrow">Interactive · Ideker-style · S0/S1/S2/S3 metric flip</div>
+    <h2>4-scenario forest, all 6 alleles, hover for OR / 95% CI / p</h2>
+    <p class="lede">
+      각 행 = 1 allele × 1 scenario. <span style="color:#7B1F2A;font-weight:700">S0</span> = primary carrier-vs-allele (mismatched).
+      <span style="color:#34547A;font-weight:700">S1</span> = baseline AF → HWE carrier. <span style="color:#1abc9c;font-weight:700">S2</span> = PTC carrier → HWE AF. <span style="color:#3C6B4F;font-weight:700">S3</span> = direct allele-vs-allele (no HWE assumption).
+      Right of OR = 1 = enrichment direction. <span style="color:#962E2E;font-weight:700">3/6 alleles flip direction</span> when metrics are harmonized.
+    </p>
+    <div id="ik-paper2-hla-forest" class="ik-plot"></div>
+    <div class="ik-foot">
+      <span class="ik-key">★ STABLE</span><span><span class="ik-dot" style="background:#3C6B4F"></span>direction same across S0–S3</span>
+      <span class="ik-key">⚠ FLIPS</span><span><span class="ik-dot" style="background:#962E2E"></span>direction inverts under strict harmonization</span>
+      <span class="ik-key">○ ZERO-CELL</span><span><span class="ik-dot" style="background:#B8893C"></span>0 carriers — Haldane-corrected (DQB1*02:01 SUSPENDED by QC)</span>
+      <span style="margin-left:auto"><a href="../reports/2026_05_06_paper2_hla_professor_packet_kr.md">정밀 패킷 KR</a></span>
+    </div>
+  </section>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <script>
+  fetch('/papers_hub_2026_05_04/assets/ideker/paper2_hla_forest.json').then(r => r.json()).then(rows => {
+    const ALLELES = ['A*02:07','B*46:01','C*01:02','DPB1*05:01','DQB1*02:01','DRB1*07:01'];
+    const SCENS = [
+      {key:'A_current_carrier_vs_baseline_allele', label:'S0 primary', color:'#7B1F2A'},
+      {key:'B_baseline_AF_to_HWE_expected_carrier', label:'S1 HWE-carrier', color:'#34547A'},
+      {key:'C_PTC_carrier_to_HWE_implied_AF', label:'S2 HWE-AF', color:'#1abc9c'},
+      {key:'D_direct_allele_vs_allele', label:'S3 direct', color:'#3C6B4F'},
+    ];
+    const FLIPS = ['C*01:02','DPB1*05:01','DRB1*07:01'];
+    const traces = SCENS.map(s => {
+      const sub = rows.filter(r => r.scenario === s.key);
+      const x = ALLELES.map(a => {
+        const r = sub.find(x => x.allele_4digit === a); return r ? r.or : null;
+      });
+      const lo = ALLELES.map(a => {
+        const r = sub.find(x => x.allele_4digit === a); return r ? Math.max(r.ci95_low, 0.005) : null;
+      });
+      const hi = ALLELES.map(a => {
+        const r = sub.find(x => x.allele_4digit === a); return r ? Math.min(r.ci95_high, 30) : null;
+      });
+      const text = ALLELES.map(a => {
+        const r = sub.find(x => x.allele_4digit === a);
+        if (!r) return '';
+        return `<b>${a}</b><br>${s.label}<br>OR = ${r.or.toFixed(3)}<br>95% CI [${r.ci95_low.toFixed(3)}, ${r.ci95_high.toFixed(3)}]<br>Fisher p = ${r.fisher_p.toExponential(2)}<br>direction = ${r.direction}`;
+      });
+      return {
+        type: 'scatter', mode: 'markers',
+        name: s.label, legendgroup: s.key,
+        x: x, y: ALLELES,
+        error_x: { type: 'data', symmetric: false, arrayminus: x.map((v,i)=>v-lo[i]), array: x.map((v,i)=>hi[i]-v), color: s.color, thickness: 1.4 },
+        marker: { size: 11, color: s.color, line: { width: 1.2, color: '#fff' }, symbol: ALLELES.map(a => FLIPS.includes(a) ? 'square' : 'circle') },
+        hovertext: text, hoverinfo: 'text',
+      };
+    });
+    const layout = {
+      paper_bgcolor: '#ffffff', plot_bgcolor: '#fffaf2',
+      xaxis: { type: 'log', range: [Math.log10(0.005), Math.log10(30)], gridcolor: 'rgba(15,26,46,0.06)', zeroline: false, title: { text: 'Odds ratio (log scale)', font: { color: '#3A4658', size: 12 } }, tickfont: { color: '#3A4658' } },
+      yaxis: { gridcolor: 'rgba(15,26,46,0.06)', tickfont: { color: '#0F1A2E', family: 'JetBrains Mono', size: 12 } },
+      shapes: [{ type: 'line', x0: 1, x1: 1, y0: -0.5, y1: 5.5, line: { color: '#7B1F2A', width: 1.2, dash: 'solid' } }],
+      margin: { l: 110, r: 24, t: 20, b: 50 },
+      legend: { orientation: 'h', x: 0, y: 1.10, font: { color: '#0F1A2E', size: 11 } },
+      height: 460,
+      font: { family: 'JetBrains Mono, monospace', color: '#0F1A2E' },
+    };
+    Plotly.newPlot('ik-paper2-hla-forest', traces, layout, { displayModeBar: false, responsive: true });
+  });
+  </script>
+
+<div class="lightbox" id="lb" onclick="this.classList.remove('show')">
+  <button onclick="this.parentElement.classList.remove('show')">×</button>
+  <img id="lbimg" />
+</div>
+<script>
+document.querySelectorAll('figure img').forEach(function(img){
+  img.addEventListener('click', function(e){
+    e.preventDefault();
+    document.getElementById('lbimg').src = this.src;
+    document.getElementById('lb').classList.add('show');
+  });
+});
+</script>
+</body>
+</html>

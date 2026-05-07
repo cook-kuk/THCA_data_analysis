@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Paper 1 — Nature Cancer Bar Analysis Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --ink:#111827;
+  --ink2:#2f3b4a;
+  --muted:#627084;
+  --bg:#f7f5ef;
+  --panel:#ffffff;
+  --wash:#eef3f2;
+  --line:#d5d9dd;
+  --line2:#eceff1;
+  --red:#8b2635;
+  --red2:#b64b5a;
+  --teal:#2f6f73;
+  --blue:#2e5b87;
+  --sage:#506f59;
+  --gold:#a97922;
+  --warn:#fff4d9;
+  --bad:#f8e3e5;
+  --good:#e6f2ec;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;font-size:17px;line-height:1.65}
+a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(139,38,53,.35)}
+.wrap{max-width:1260px;margin:0 auto;padding:28px 24px 76px}
+.topbar{display:flex;justify-content:space-between;gap:14px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:24px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted)}
+.topbar .links{display:flex;gap:10px;flex-wrap:wrap}
+.topbar a,.ghost-btn{border:1px solid var(--line);background:#fff;border-radius:4px;padding:8px 10px;color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:11px}
+.hero{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr);gap:28px;align-items:stretch;margin-bottom:26px}
+.hero-main{background:var(--panel);border:1px solid var(--line);border-top:6px solid var(--red);padding:34px 38px}
+.hero-side{background:#101923;color:#fff;border:1px solid #101923;padding:28px}
+.kicker,.mono,.tag,.grade,.axis-label{font-family:"JetBrains Mono",monospace}
+.kicker{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--red);font-weight:700;margin-bottom:14px}
+h1{font-family:"Cormorant Garamond",serif;font-size:58px;line-height:1.02;margin:0 0 16px;color:var(--ink);max-width:900px}
+.dek{font-size:21px;color:var(--ink2);max-width:900px;font-style:italic}
+.hero-side h2{font-family:"Cormorant Garamond",serif;font-size:34px;line-height:1.08;margin:0 0 14px;color:#fff;border:0;padding:0}
+.hero-side p{color:#d7dde4;margin:0 0 16px}
+.verdict{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.verdict div{border:1px solid rgba(255,255,255,.18);padding:12px;background:rgba(255,255,255,.06)}
+.verdict b{display:block;color:#fff;font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chip{font-family:"JetBrains Mono",monospace;font-size:11px;border:1px solid var(--line);background:#fff;padding:6px 9px;border-radius:999px}
+.chip.good{background:var(--good);border-color:#b9d1c3;color:var(--sage);font-weight:700}
+.chip.warn{background:var(--warn);border-color:#e7c980;color:var(--gold);font-weight:700}
+.chip.bad{background:var(--bad);border-color:#dfb4bb;color:var(--red);font-weight:700}
+.layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:26px}
+.layout > *, .hero > *, main, section, .toc, .panel, .axis-node{min-width:0}
+.panel,.axis-node,.callout,td,th,figcaption{overflow-wrap:anywhere}
+.toc{position:sticky;top:18px;align-self:start;background:#fff;border:1px solid var(--line);padding:16px}
+.toc h3{font-family:"Cormorant Garamond",serif;font-size:24px;margin:0 0 10px;color:var(--red)}
+.toc a{display:block;border-bottom:1px dotted var(--line);padding:8px 0;color:var(--ink2);font-size:14px}
+section{background:var(--panel);border:1px solid var(--line);padding:30px;margin-bottom:22px}
+h2{font-family:"Cormorant Garamond",serif;font-size:38px;line-height:1.1;margin:0 0 14px;color:var(--ink);padding-bottom:10px;border-bottom:2px solid var(--ink)}
+h3{font-family:"Cormorant Garamond",serif;font-size:27px;line-height:1.15;margin:26px 0 10px;color:var(--red)}
+.note{color:var(--muted);font-style:italic;margin-bottom:18px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.panel{background:#fff;border:1px solid var(--line2);padding:17px}
+.panel.teal{border-top:4px solid var(--teal)}
+.panel.red{border-top:4px solid var(--red)}
+.panel.blue{border-top:4px solid var(--blue)}
+.panel.gold{border-top:4px solid var(--gold)}
+.panel.sage{border-top:4px solid var(--sage)}
+.panel h4{font-family:"JetBrains Mono",monospace;font-size:11px;line-height:1.35;letter-spacing:.08em;text-transform:uppercase;margin:0 0 8px;color:var(--red)}
+.big{font-family:"Cormorant Garamond",serif;font-size:40px;line-height:1;font-weight:700;color:var(--red)}
+.small{font-size:14px;color:var(--muted)}
+.axis{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center;margin:18px 0}
+.axis-node{background:#fff;border:1px solid var(--line2);padding:16px;min-height:126px}
+.axis-node strong{display:block;font-size:19px;margin-bottom:6px}
+.axis-arrow{font-family:"JetBrains Mono",monospace;color:var(--red);font-weight:700}
+.axis-label{font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.callout{border-left:5px solid var(--teal);background:var(--wash);padding:18px 20px;margin:18px 0}
+.callout.warn{border-left-color:var(--gold);background:var(--warn)}
+.callout.bad{border-left-color:var(--red);background:var(--bad)}
+.callout.good{border-left-color:var(--sage);background:var(--good)}
+.grade{display:inline-block;border-radius:999px;padding:3px 8px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:700}
+.grade.a{background:var(--good);color:var(--sage)}
+.grade.b{background:#e6eef8;color:var(--blue)}
+.grade.c{background:var(--warn);color:var(--gold)}
+.grade.d{background:var(--bad);color:var(--red)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);font-size:14px;margin:14px 0}
+.table-wrap{max-width:100%;overflow-x:auto}
+th{background:#111827;color:#fff;font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:10px}
+td{border-top:1px solid var(--line2);padding:10px;vertical-align:top}
+tr.safe td{background:#f3faf6}
+tr.caution td{background:#fffaf0}
+tr.stop td{background:#fff2f3}
+.figgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:18px}
+.figgrid.single{grid-template-columns:1fr}
+figure{margin:0;background:#fff;border:1px solid var(--line);padding:12px}
+figure img{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--line2);cursor:zoom-in}
+figcaption{font-size:14px;color:var(--muted);line-height:1.5;padding:10px 2px 0}
+figcaption strong{color:var(--ink)}
+.result-flow{counter-reset:item;display:grid;gap:12px;margin-top:14px}
+.result-flow .step{counter-increment:item;display:grid;grid-template-columns:46px 1fr;gap:12px;border:1px solid var(--line2);background:#fff;padding:14px}
+.result-flow .step:before{content:counter(item);width:34px;height:34px;background:var(--ink);color:#fff;display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-weight:700}
+.attack{display:grid;gap:12px}
+.attack .row{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.2fr) minmax(0,1fr);gap:12px;border:1px solid var(--line2);padding:14px;background:#fff}
+.attack b{font-family:"JetBrains Mono",monospace;font-size:11px;text-transform:uppercase;color:var(--red);letter-spacing:.06em}
+.timeline{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+.timeline .panel{min-height:158px}
+.lightbox{position:fixed;inset:0;z-index:9999;background:rgba(7,12,18,.9);display:none;align-items:center;justify-content:center;padding:28px;cursor:zoom-out}
+.lightbox.show{display:flex}
+.lightbox img{max-width:96vw;max-height:88vh;background:#fff;box-shadow:0 20px 80px rgba(0,0,0,.55)}
+.lightbox-close{position:fixed;right:22px;top:14px;color:#fff;font-size:38px;line-height:1;font-family:Arial,sans-serif}
+.footer{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--muted);text-align:center;border-top:1px solid var(--line);padding-top:18px;margin-top:26px}
+@media(max-width:960px){
+  .hero,.layout{grid-template-columns:1fr}
+  .toc{position:relative;top:auto}
+  .g2,.g3,.g4,.figgrid,.timeline,.axis{grid-template-columns:1fr}
+  .axis-arrow{text-align:center;transform:rotate(90deg)}
+  h1{font-size:40px}
+  .wrap{padding:18px 14px 60px}
+  .hero-main,.hero-side,section{padding:22px}
+  .attack .row{grid-template-columns:1fr}
+}
+@media print{
+  body{background:#fff}
+  .topbar,.toc,.lightbox{display:none}
+  .layout,.hero{display:block}
+  section,.hero-main,.hero-side,figure,.panel{break-inside:avoid}
+  a{color:#000;text-decoration:none;border:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topbar">
+    <div>Paper 1 editorial analysis board · 2026-05-06</div>
+    <div class="links">
+      <a href="index.html">Hub</a>
+      <a href="paper1.html">Paper 1 explainer</a>
+      <a href="gpl570_validation_pack.html">GPL570 pack</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-main">
+      <div class="kicker">Nature Cancer bar · analysis-first board</div>
+      <h1>Can Paper 1 be shaped into a Nature Cancer-level thyroid lineage story?</h1>
+      <div class="dek">결론부터 말하면, 현재 강한 본체는 “TROP2 drug paper”가 아니라 <strong>driver mutation을 넘어서는 thyroid-lineage differentiation state</strong>다. Nature Cancer급으로 보이려면 novelty를 target 후보가 아니라 lineage-state biology, external replication, mechanism plausibility, honest negative controls 위에 세워야 한다.</div>
+      <div class="chips">
+        <span class="chip good">Main thesis survives</span>
+        <span class="chip good">External expression validation supports axis</span>
+        <span class="chip warn">Mechanism is supportive, not causal</span>
+        <span class="chip good">New public-data pull added</span>
+        <span class="chip bad">TROP2 headline blocked</span>
+        <span class="chip bad">H&E/WSI axis dropped</span>
+      </div>
+    </div>
+    <aside class="hero-side">
+      <h2>Editorial verdict</h2>
+      <p><strong>Reach 가능성은 “질문을 바꾸는 데” 달려 있다.</strong> 새 8-gene panel 발견이 아니라, 갑상선암에서 driver genotype과 분리되는 lineage-function collapse state를 정량화하고 외부 expression cohorts에서 재현했다는 구조로 가야 한다.</p>
+      <div class="verdict">
+        <div><b>What to lead</b>Lineage-state axis, zero-overlap validation, external replication</div>
+        <div><b>What to bury</b>TROP2 therapeutic claim, dark-matter-only prognosis, image prediction</div>
+        <div><b>Main risk</b>No wet-lab causality; external validation is expression-only</div>
+        <div><b>Best use</b>Manuscript architecture, figure order, reviewer defense</div>
+      </div>
+    </aside>
+  </header>
+
+  <div class="layout">
+    <aside class="toc">
+      <h3>Board</h3>
+      <a href="#s1">1. 최종 thesis</a>
+      <a href="#s2">2. Evidence stack</a>
+      <a href="#s3">3. 분석 사고 흐름</a>
+      <a href="#s4">4. Figure architecture</a>
+      <a href="#s5">5. Nature Cancer식 Results spine</a>
+      <a href="#s6">6. Claim boundary</a>
+      <a href="#s7">7. Reviewer attack map</a>
+      <a href="#s8">8. Writing plan</a>
+      <a href="#s9">9. Go / no-go</a>
+      <a href="#s10">10. Venue probability</a>
+      <a href="#s11">11. Lineage-state analysis</a>
+      <a href="#s12">12. No-new-data audit</a>
+      <a href="#s13">13. Data pull candidates</a>
+      <a href="#s14">14. New pull results</a>
+    </aside>
+
+    <main>
+      <section id="s1">
+        <h2>1. 최종 Thesis</h2>
+        <div class="callout good">
+          <strong>Recommended title spine:</strong> A thyroid-lineage differentiation axis stratifies thyroid cancer beyond canonical driver mutations.
+          이 문장은 “치료제 발견”이나 “새 panel 발명”보다 안전하고, 현재 데이터가 가장 잘 방어하는 논문 정체성이다.
+        </div>
+        <div class="axis">
+          <div class="axis-node"><div class="axis-label">Clinical gap</div><strong>Driver mutation alone is incomplete</strong>BRAF/RAS/TERT는 중요하지만 종양의 현재 lineage-function state를 모두 설명하지 못한다.</div>
+          <div class="axis-arrow">→</div>
+          <div class="axis-node"><div class="axis-label">Molecular state</div><strong>RAI-lineage genes collapse</strong>SLC5A5/TPO/TG/TSHR/PAX8/NKX2-1/FOXE1/DIO1 축이 dedifferentiation 방향을 읽는다.</div>
+          <div class="axis-arrow">→</div>
+          <div class="axis-node"><div class="axis-label">Contribution</div><strong>External, zero-overlap, mechanistic support</strong>겹치지 않는 gene set과 외부 thyroid expression cohort가 같은 방향을 보여준다.</div>
+        </div>
+        <div class="grid g4">
+          <div class="panel red"><h4>TCGA anti-artifact anchor</h4><div class="big">r=-0.885</div><div class="small">DM1_like vs THYROID_NONOVERLAP</div></div>
+          <div class="panel teal"><h4>Spatial support</h4><div class="big">26/28</div><div class="small">slides with significant Moran structure</div></div>
+          <div class="panel blue"><h4>Outcome support</h4><div class="big">HR 1.33</div><div class="small">PFI multivariate, BRAF/RAS/age/stage adjusted</div></div>
+          <div class="panel gold"><h4>Main correction</h4><div class="big">TROP2↓</div><div class="small">exploratory only after external heterogeneity</div></div>
+        </div>
+      </section>
+
+      <section id="s2">
+        <h2>2. Evidence Stack</h2>
+        <p class="note">Nature Cancer급 페이지에서는 “강한 것부터 약한 것까지”를 숨기지 않고 등급화해야 한다. 아래는 manuscript main text와 supplement의 배치 기준이다.</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Layer</th><th>Grade</th><th>Evidence</th><th>Use in paper</th><th>Boundary</th></tr></thead>
+            <tbody>
+              <tr class="safe"><td>Lineage axis</td><td><span class="grade a">A main</span></td><td>RAI_8, TIERA67, pan-genome, zero-overlap module converge.</td><td>Title, Abstract, Fig. 1-2</td><td>Call it a compact readout, not a newly discovered causal module.</td></tr>
+              <tr class="safe"><td>External expression validation</td><td><span class="grade a">A main/supp</span></td><td>GSE76039 + GPL570 cohorts support direction-consistent lineage silencing.</td><td>Fig. 2 or Extended Data 1</td><td>Expression validation only; not clinical-grade validation.</td></tr>
+              <tr class="safe"><td>Driver orthogonality</td><td><span class="grade a">A main</span></td><td>Driver-only information does not reconstruct the expression-state axis.</td><td>Fig. 1</td><td>Do not imply drivers are irrelevant.</td></tr>
+              <tr class="caution"><td>Mechanism arm</td><td><span class="grade b">B support</span></td><td>FOXE1/NKX2-1 collapse, STAT3/AP1/DNMT direction, GSEA consistency.</td><td>Fig. 3</td><td>Use “consistent with” and “supports,” not “proves.”</td></tr>
+              <tr class="caution"><td>Clinical outcome</td><td><span class="grade b">B support</span></td><td>PFI/DFI associations in TCGA after covariate adjustment.</td><td>Fig. 4 or Extended Data</td><td>No external survival-endpoint replication.</td></tr>
+              <tr class="caution"><td>Spatial transcriptomics</td><td><span class="grade b">B support</span></td><td>DM1 score spatial clustering and negative bivariate Moran with non-overlap module.</td><td>Extended Data / supplement</td><td>Not H&E inference.</td></tr>
+              <tr class="stop"><td>TROP2/TACSTD2</td><td><span class="grade d">D demote</span></td><td>TCGA signal exists, but GPL570 bulk replication is heterogeneous/negative and spot-level colocalization is negative.</td><td>Limitations or future direction</td><td>No title, no main claim, no therapeutic population claim.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="s3">
+        <h2>3. 분석 사고 흐름</h2>
+        <p>이 페이지의 핵심은 결과 나열이 아니라, 왜 이 framing이 최종적으로 살아남았는지 보여주는 것이다. 분석은 아래 순서로 설계하면 논문이 “방어 가능한 발견”처럼 읽힌다.</p>
+        <div class="result-flow">
+          <div class="step"><div><strong>기존 driver 설명을 먼저 공격한다.</strong><br />BRAF/RAS/TERT만으로 DM1/DM2를 설명할 수 있는지 본다. 여기서 끝나면 새 논문이 아니다.</div></div>
+          <div class="step"><div><strong>8-gene artifact 가능성을 제거한다.</strong><br />동일한 8개 유전자로만 계속 검증하면 circular하다. Zero-overlap module과 pan-genome/TIERA67가 필요하다.</div></div>
+          <div class="step"><div><strong>외부 expression cohort에서 방향성을 확인한다.</strong><br />절대 점수 비교보다 dataset 내부 z-score와 histology/advanced disease direction을 본다.</div></div>
+          <div class="step"><div><strong>기전은 causal proof가 아니라 coherence test로 둔다.</strong><br />Lineage TF collapse, DNMT, STAT3/AP1, Hallmark pathway가 같은 방향인지 확인한다.</div></div>
+          <div class="step"><div><strong>negative result를 논문 방어로 전환한다.</strong><br />TROP2와 H&E/WSI는 내려놓는다. 이 정직성이 main thesis의 신뢰도를 올린다.</div></div>
+        </div>
+      </section>
+
+      <section id="s4">
+        <h2>4. Figure Architecture</h2>
+        <p class="note">Nature Cancer급으로 보이려면 그림 순서는 “예쁜 그림”이 아니라 “반론 제거 순서”여야 한다.</p>
+        <div class="figgrid">
+          <figure>
+            <img src="assets/paper1/F3_driver_neutrality.png" alt="Driver orthogonality figure" />
+            <figcaption><strong>Figure 1 candidate: Driver orthogonality.</strong> 기존 driver mutation만으로 충분하다는 첫 반론을 처리한다. Main figure 첫 자리에 적합하다.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/paper1/F4_pangenome_robustness.png" alt="Pan-genome robustness figure" />
+            <figcaption><strong>Figure 1 or Extended Data: Pan-genome robustness.</strong> 8-gene이 축을 만든 것이 아니라 broad transcriptome state를 읽는 compact readout임을 보여준다.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/paper1/s_tcga_4panel.png" alt="TCGA four-panel zero-overlap validation" />
+            <figcaption><strong>Figure 2 candidate: TCGA zero-overlap anchor.</strong> RAI_8과 겹치지 않는 thyroid-lineage module이 같은 방향을 말한다. Anti-circularity의 중심이다.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/paper1/external_direction_consistency_forest.png" alt="External direction consistency forest" />
+            <figcaption><strong>Figure 2 candidate: External direction consistency.</strong> 외부 expression cohort에서 같은 방향으로 움직이는지 보여주는 핵심 검증 그림이다.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/paper1/m_master_regulator_volcano.png" alt="Master regulator volcano" />
+            <figcaption><strong>Figure 3 candidate: TF activity.</strong> FOXE1/NKX2-1 collapse와 STAT3/AP1/DNMT activation arm을 mechanism coherence로 배치한다.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/paper1/q1_gsea_hallmark.png" alt="GSEA Hallmark figure" />
+            <figcaption><strong>Figure 3 support: Hallmark pathways.</strong> IL6/JAK/STAT3, EMT, IFN-gamma, OXPHOS down direction을 mechanism support로 둔다.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/paper1/o_multivariate_cox.png" alt="Multivariate Cox figure" />
+            <figcaption><strong>Figure 4 or Extended Data: Clinical association.</strong> TCGA outcome support는 main에 넣을 수 있으나 외부 survival-endpoint replication 부재를 명시해야 한다.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/paper1/q3_trop2_spatial.png" alt="TROP2 spatial negative result" />
+            <figcaption><strong>Extended Data negative: TROP2 boundary.</strong> DM1-high spots are not TROP2-high spots. 이 그림은 overclaim 방지용으로 가치가 있다.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="s5">
+        <h2>5. Nature Cancer식 Results Spine</h2>
+        <div class="grid g2">
+          <div class="panel red"><h4>Result 1</h4><strong>A driver-orthogonal expression state resolves thyroid cancer heterogeneity.</strong><br />Driver neutrality와 pan-genome robustness를 한 결과 섹션으로 묶는다.</div>
+          <div class="panel teal"><h4>Result 2</h4><strong>A compact RAI-lineage readout captures thyroid identity loss.</strong><br />8-gene을 discovery가 아니라 interpretable measurement tool로 소개한다.</div>
+          <div class="panel blue"><h4>Result 3</h4><strong>Zero-overlap and external cohorts validate the axis.</strong><br />TCGA zero-overlap, spatial non-overlap, GSE76039, GPL570 pack을 anti-artifact ladder로 제시한다.</div>
+          <div class="panel sage"><h4>Result 4</h4><strong>Lineage collapse aligns with STAT3/AP1/DNMT programs.</strong><br />기전은 causal language 없이 coherence and hypothesis-generation으로 둔다.</div>
+          <div class="panel gold"><h4>Result 5</h4><strong>The axis carries clinical signal but needs prospective validation.</strong><br />TCGA PFI/DFI association은 넣되, external survival-endpoint replication 부재를 선제적으로 적는다.</div>
+          <div class="panel red"><h4>Result 6</h4><strong>Negative controls define the boundary of translation.</strong><br />TROP2, dark-matter-only PFI, H&E/WSI failure를 discussion boundary로 쓴다.</div>
+        </div>
+      </section>
+
+      <section id="s6">
+        <h2>6. Claim Boundary</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Claim</th><th>Status</th><th>Allowed wording</th><th>Forbidden wording</th></tr></thead>
+            <tbody>
+              <tr class="safe"><td>Driver-orthogonal lineage axis</td><td><span class="grade a">Main</span></td><td>“stratifies thyroid cancer beyond canonical drivers”</td><td>“drivers do not matter”</td></tr>
+              <tr class="safe"><td>8-gene readout</td><td><span class="grade a">Main tool</span></td><td>“compact RAI-lineage readout”</td><td>“new causal 8-gene discovery panel”</td></tr>
+              <tr class="safe"><td>External cohorts</td><td><span class="grade a">Validation</span></td><td>“external expression validation”</td><td>“clinical-grade validation” or “survival-endpoint validation”</td></tr>
+              <tr class="caution"><td>Mechanism</td><td><span class="grade b">Support</span></td><td>“consistent with TF collapse and STAT3/AP1/DNMT activation”</td><td>“causal mechanism is proven”</td></tr>
+              <tr class="caution"><td>Outcome</td><td><span class="grade b">Support</span></td><td>“associated with recurrence-related endpoints in TCGA”</td><td>“clinically deployable prognostic test”</td></tr>
+              <tr class="stop"><td>TROP2</td><td><span class="grade d">Demote</span></td><td>“exploratory translational lead requiring validation”</td><td>“TROP2 vulnerability defines DM1-high disease”</td></tr>
+              <tr class="stop"><td>H&E/WSI</td><td><span class="grade d">Drop</span></td><td>“not pursued after negative closure battery”</td><td>“image-inferable DM1 state”</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="s7">
+        <h2>7. Reviewer Attack Map</h2>
+        <div class="attack">
+          <div class="row">
+            <div><b>Attack 1</b><br />This is just BRAF/RAS biology.</div>
+            <div>Use driver neutrality, driver-only clustering failure, and covariate-adjusted models.</div>
+            <div>Response stance: drivers remain important, but expression state adds orthogonal information.</div>
+          </div>
+          <div class="row">
+            <div><b>Attack 2</b><br />The 8-gene panel is circular.</div>
+            <div>Lead with zero-overlap thyroid module, TIERA67, pan-genome robustness, and drop-one-out stability.</div>
+            <div>Response stance: 8-gene is the readout, not the discovery engine.</div>
+          </div>
+          <div class="row">
+            <div><b>Attack 3</b><br />External validation is weak.</div>
+            <div>Separate GSE76039 advanced-disease anchor from GPL570 direction-consistency. Do not claim survival or treatment validation.</div>
+            <div>Response stance: replicated expression direction, not clinical deployment.</div>
+          </div>
+          <div class="row">
+            <div><b>Attack 4</b><br />Mechanism is speculative.</div>
+            <div>Frame TF/DNMT/STAT3 as convergent regulatory evidence and hypothesis-generating biology.</div>
+            <div>Response stance: mechanism is coherent, causality remains future work.</div>
+          </div>
+          <div class="row">
+            <div><b>Attack 5</b><br />Therapeutic TROP2 claim is overreaching.</div>
+            <div>Preempt by demoting TROP2 and showing the negative spot-level result.</div>
+            <div>Response stance: TROP2 is not the paper; it is a future validation lead.</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="s8">
+        <h2>8. Writing Plan</h2>
+        <div class="timeline">
+          <div class="panel red"><h4>Day 1-2</h4><strong>Title, abstract, first paragraph</strong><br />Lineage-state thesis로 완전히 재작성. TROP2 단어는 abstract main claim에서 제거한다.</div>
+          <div class="panel teal"><h4>Day 3-5</h4><strong>Results spine rebuild</strong><br />Driver orthogonality → compact readout → external validation → mechanism → outcome → boundary 순서로 재배치한다.</div>
+          <div class="panel blue"><h4>Day 6-8</h4><strong>Figure legends</strong><br />각 legend의 첫 문장을 “무엇을 반박하는 그림인가”로 쓴다. 모든 overclaim 표현을 제거한다.</div>
+          <div class="panel sage"><h4>Day 9-10</h4><strong>Discussion and limitations</strong><br />TROP2, external clinical-grade validation 부재, causal proof 부재, H&E negative를 정직하게 넣는다.</div>
+        </div>
+        <div class="callout warn">
+          <strong>Writing rule:</strong> Paper 1은 강하게 쓰되, 강한 데이터가 없는 방향으로 세게 쓰면 바로 무너진다. “external expression-validated lineage axis”는 강하고, “TROP2 중심 치료 claim”은 현재 약하다.
+        </div>
+      </section>
+
+      <section id="s9">
+        <h2>9. Go / No-Go</h2>
+        <div class="grid g3">
+          <div class="panel sage"><h4>Go</h4><strong>Nature Cancer-style reach package</strong><br />Lineage axis 중심, external expression validation, strict claim boundary, strong figure logic이면 reach submission package로 다듬을 수 있다.</div>
+          <div class="panel gold"><h4>Conditional</h4><strong>Mechanistic depth</strong><br />DNMT/STAT3/AP1 arm은 coherent하지만 causality가 아니다. 문장 강도를 낮추면 main story support로 충분하다.</div>
+          <div class="panel red"><h4>No-go</h4><strong>TROP2 or image-first story</strong><br />TROP2 headline, H&E prediction, dark-matter-only outcome story는 현재 Nature Cancer급 main thesis가 아니다.</div>
+        </div>
+      </section>
+
+      <section id="s10">
+        <h2>10. Venue Probability</h2>
+        <div class="callout warn">
+          <strong>Honest estimate:</strong> 현재 상태 그대로 Nature Cancer accept 가능성은 낮다. 이 페이지의 목적은 Nature Cancer 게재를 주장하는 것이 아니라, 원고를 그 수준의 논리 구조로 끌어올리기 위한 editorial pressure test다.
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Scenario</th><th>Nature Cancer 가능성</th><th>Interpretation</th></tr></thead>
+            <tbody>
+              <tr class="stop"><td>지금 웹/분석 상태 그대로</td><td><span class="grade d">5-10%</span></td><td>Story는 흥미롭지만 mechanism/clinical translation punch가 부족하다.</td></tr>
+              <tr class="caution"><td>Lineage-axis 중심 재작성 + figure/story 완성</td><td><span class="grade c">10-20%</span></td><td>도전 제출은 가능하다. 단, main target으로 보기에는 위험하다.</td></tr>
+              <tr class="caution"><td>외부 임상 outcome validation 추가</td><td><span class="grade c">15-25%</span></td><td>Expression validation을 넘어 clinical relevance 방어력이 올라간다.</td></tr>
+              <tr class="safe"><td>Wet-lab / IHC / functional validation까지 추가</td><td><span class="grade b">25-40%</span></td><td>Mechanism 또는 translational punch가 생기면 real reach로 바뀐다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>왜 낮게 보는가</h3>
+        <div class="grid g2">
+          <div class="panel sage"><h4>Strong points</h4><strong>도전권을 만드는 근거</strong><br />Driver mutation beyond라는 질문이 좋고, thyroid-lineage differentiation state로 잡으면 novelty가 있다. Zero-overlap validation과 external expression validation도 main thesis를 방어한다.</div>
+          <div class="panel red"><h4>Weak points</h4><strong>Accept를 막는 병목</strong><br />Mechanism은 causal proof가 아니라 consistency 수준이다. External validation은 expression-only이고, survival/clinical-endpoint replication이 아니다. TROP2가 내려가면서 translational hook도 약해졌다.</div>
+        </div>
+        <div class="callout good">
+          <strong>Pragmatic target strategy:</strong> 원고는 Nature Cancer급 톤과 구조로 만든다. 첫 투고를 Nature Cancer에 한 번 던질지는 마지막에 결정한다. 하지만 성공 확률 기준 주 타깃은 Cell Reports Medicine, JCI Insight, Nature Communications reach, Genome Medicine 성격이 더 현실적이다.
+        </div>
+        <div class="callout bad">
+          <strong>One-line verdict:</strong> Nature Cancer는 불가능은 아니지만 현재는 10-20% reach다. Wet-lab 또는 외부 임상 validation 없이 accept까지 가기는 어렵다.
+        </div>
+      </section>
+
+      <section id="s11">
+        <h2>11. Thyroid-Lineage Differentiation State Analysis</h2>
+        <div class="callout good">
+          <strong>Core analytical move:</strong> Paper 1은 “8개 gene panel 성능 논문”이 아니라, 갑상선암 세포가 정상 갑상선 계통 기능을 얼마나 잃었는지 읽는 <strong>lineage-state analysis</strong>로 재정의해야 한다. 이 framing이 가장 Nature Cancer식이다.
+        </div>
+
+        <h3>11.1 Biological definition</h3>
+        <p><strong>Thyroid-lineage differentiation state</strong>는 종양이 갑상선 세포다운 기능을 유지하는지, 아니면 그 정체성을 잃고 dedifferentiated/stress-like/EMT-like 상태로 이동했는지를 나타내는 RNA expression state다. 정상 갑상선 세포는 요오드 uptake와 thyroid hormone biosynthesis에 필요한 genes를 켜고 있어야 한다. 이 기능이 내려가면 RAI response와 lineage identity가 동시에 약해진 것으로 해석할 수 있다.</p>
+        <div class="grid g3">
+          <div class="panel sage"><h4>Lineage-maintained</h4><strong>Thyroid-like state</strong><br />SLC5A5, TPO, TG, TSHR, PAX8, NKX2-1, FOXE1, DIO1가 상대적으로 높다. RAI-lineage function이 살아 있는 방향이다.</div>
+          <div class="panel gold"><h4>Transition</h4><strong>Partial lineage loss</strong><br />RAI-lineage genes가 내려가고, TF collapse와 inflammatory/stress pathway가 함께 움직이기 시작한다.</div>
+          <div class="panel red"><h4>Lineage-collapsed</h4><strong>DM1-like state</strong><br />Thyroid identity genes가 낮고 STAT3/AP1/DNMT/EMT/inflammation arm이 올라간다. 이 논문의 main aggressive-state hypothesis다.</div>
+        </div>
+
+        <h3>11.2 Score logic</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Component</th><th>Direction in lineage-collapsed state</th><th>Role</th><th>Manuscript wording</th></tr></thead>
+            <tbody>
+              <tr class="safe"><td>RAI_8 core</td><td>Down</td><td>Compact measurement of thyroid/RAI-lineage function</td><td>“compact RAI-lineage readout”</td></tr>
+              <tr class="safe"><td>THYROID_NONOVERLAP</td><td>Down</td><td>Anti-circular validation module sharing zero genes with RAI_8</td><td>“zero-overlap lineage validation”</td></tr>
+              <tr class="safe"><td>DM1_like</td><td>Up when lineage genes are down</td><td>Reverse-oriented score: high means lineage loss/dedifferentiation direction</td><td>“lineage-collapsed expression state”</td></tr>
+              <tr class="caution"><td>TDS-like biology</td><td>Down</td><td>Known thyroid differentiation direction</td><td>“consistent with thyroid differentiation loss”</td></tr>
+              <tr class="caution"><td>TF-collapse module</td><td>Down for FOXE1/NKX2-1/PAX8/HHEX</td><td>Mechanism support for loss of thyroid identity regulation</td><td>“regulatory coherence”</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout warn">
+          <strong>Important wording:</strong> DM1_like가 높다는 말은 “특정 8개 유전자가 높다”가 아니다. 오히려 갑상선 lineage genes가 낮아진 상태를 reverse orientation으로 읽는 것이다. 그래서 독자가 헷갈리지 않게 Methods와 Figure legend에서 방향성을 계속 고정해야 한다.
+        </div>
+
+        <h3>11.3 Evidence chain for the state</h3>
+        <div class="result-flow">
+          <div class="step"><div><strong>Within TCGA:</strong> DM1_like와 zero-overlap thyroid-lineage module이 강하게 반대 방향으로 움직인다. 이게 panel artifact 방어의 중심이다.</div></div>
+          <div class="step"><div><strong>Across gene universes:</strong> 8-gene, TIERA67, pan-genome high-variance genes가 같은 구조를 회수한다. 즉 axis는 8개 gene만의 착시가 아니다.</div></div>
+          <div class="step"><div><strong>Across external expression cohorts:</strong> GSE76039와 GPL570 thyroid cohorts에서 advanced disease 또는 lineage-silenced direction이 반복된다.</div></div>
+          <div class="step"><div><strong>Across spatial transcriptomics:</strong> DM1 score가 spot-level에서 spatially clustered하고, non-overlap module과 spatially anti-correlated한다.</div></div>
+          <div class="step"><div><strong>Across regulatory programs:</strong> FOXE1/NKX2-1 lineage TF collapse와 STAT3/AP1/DNMT activation, IL6/JAK/STAT3, EMT, IFN-gamma, OXPHOS down이 같은 biological direction을 만든다.</div></div>
+        </div>
+
+        <h3>11.4 State model to draw in the manuscript</h3>
+        <div class="axis">
+          <div class="axis-node"><div class="axis-label">State A</div><strong>Lineage-maintained thyroid cancer</strong>RAI-lineage genes high, thyroid TF program maintained, lower DM1_like.</div>
+          <div class="axis-arrow">→</div>
+          <div class="axis-node"><div class="axis-label">State B</div><strong>Lineage-transition state</strong>Partial RAI gene silencing, beginning TF collapse, inflammatory/stress programs rising.</div>
+          <div class="axis-arrow">→</div>
+          <div class="axis-node"><div class="axis-label">State C</div><strong>Lineage-collapsed DM1-like state</strong>RAI-lineage program low, STAT3/AP1/DNMT/EMT high, recurrence-associated signal in TCGA.</div>
+        </div>
+        <div class="grid g2">
+          <div class="panel blue"><h4>Figure suggestion</h4><strong>One schematic panel before data figures</strong><br />왼쪽에는 normal thyroid function genes, 가운데에는 partial loss, 오른쪽에는 DM1-like lineage collapse를 둔다. 이 schematic이 있으면 8-gene과 DM1_like 방향 혼란이 크게 줄어든다.</div>
+          <div class="panel gold"><h4>Caption rule</h4><strong>State, not panel</strong><br />모든 caption은 “8-gene score predicts X”보다 “lineage-collapsed state associates with X”로 써야 한다. Panel은 state를 읽는 계기판이다.</div>
+        </div>
+
+        <h3>11.5 What this adds beyond existing thyroid cancer papers</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Existing frame</th><th>Limitation</th><th>Paper 1 lineage-state answer</th></tr></thead>
+            <tbody>
+              <tr><td>BRAF/RAS molecular subtype</td><td>Explains driver class but not the full expression-state continuum.</td><td>Shows a driver-orthogonal thyroid-lineage collapse axis.</td></tr>
+              <tr><td>RAI response gene panel</td><td>Often treated as a predictive panel without broader state biology.</td><td>Reframes RAI genes as a compact readout of thyroid identity loss.</td></tr>
+              <tr><td>TDS / differentiation score</td><td>Known concept, but may remain descriptive.</td><td>Links lineage score to zero-overlap validation, external cohorts, spatial structure, TF/DNMT/STAT3 programs, and TCGA outcomes.</td></tr>
+              <tr><td>Target-marker discovery</td><td>Can overreach when external replication is weak.</td><td>Demotes unstable target claims and keeps the robust lineage-state discovery as the main contribution.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>11.6 Manuscript-ready paragraph</h3>
+        <div class="callout">
+          We modelled thyroid cancer as a continuum of thyroid-lineage differentiation rather than as a binary driver-genotype classification. The resulting lineage-collapsed state was defined by coordinated loss of iodine-handling and thyroid identity genes, validated against a zero-overlap thyroid-lineage module, and reproduced across independent thyroid expression cohorts. This state was accompanied by collapse of canonical thyroid transcriptional regulators and activation of STAT3/AP1/DNMT-associated programs, supporting a coherent regulatory transition from thyroid-like differentiation toward a dedifferentiated, recurrence-associated expression state.
+        </div>
+
+        <h3>11.7 Remaining proof gap</h3>
+        <div class="callout bad">
+          <strong>Still not proven:</strong> 이 분석은 lineage-state를 강하게 정의하지만, 어떤 upstream event가 이 state를 causal하게 만든다는 것을 증명하지는 않는다. Nature Cancer급으로 올리려면 perturbation, methylation-functional link, IHC/RAI-response clinical-endpoint replication 중 하나가 있으면 확률이 크게 오른다.
+        </div>
+      </section>
+
+      <section id="s12">
+        <h2>12. No-New-Data Feasibility Audit</h2>
+        <div class="callout warn">
+          <strong>Goal:</strong> 새 자체 wet-lab 없이, 현재 repo 안의 공개/로컬 산출물만으로 Nature Cancer 가능성을 조금이라도 올릴 수 있는지 점검했다. 결론은 명확하다. <strong>Lineage-state evidence는 강하다. Clinical-endpoint와 own-cohort gap은 아직 크다.</strong>
+        </div>
+        <figure>
+          <img src="assets/paper1/nature_cancer_gap_ladder.png" alt="Nature Cancer gap ladder" />
+          <figcaption><strong>Nature Cancer gap ladder.</strong> 현재 가장 강한 축은 novel state biology, anti-circular validation, external expression validation이다. 낮은 축은 clinical-endpoint evidence, mechanism causality, own-cohort/wet-lab validation이다.</figcaption>
+        </figure>
+        <h3>12.1 Current scorecard from available data</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Layer</th><th>n / datasets</th><th>Best number</th><th>Meaning</th><th>Remaining gap</th></tr></thead>
+            <tbody>
+              <tr class="safe"><td>External expression replication</td><td>206 / 4</td><td>34/36 direction-consistent cells</td><td>Lineage-state direction replicates across processed external thyroid cohorts.</td><td>Expression-only; not prospective or clinical-endpoint validation.</td></tr>
+              <tr class="safe"><td>Zero-overlap anti-circularity</td><td>205 / 4</td><td>rho -0.94 to -0.84</td><td>DM1_like is not just RAI_8 repeating itself.</td><td>Still correlative module agreement.</td></tr>
+              <tr class="caution"><td>Promoter methylation support</td><td>144 / 1</td><td>7/8 genes p&lt;0.05; TPO d=2.30</td><td>Supports epigenetic silencing as plausible lineage-collapse biology.</td><td>Does not prove methylation causes expression loss.</td></tr>
+              <tr class="caution"><td>Integrated lineage-state inventory</td><td>756 / 5</td><td>756 scored samples</td><td>RAI/DM1/non-overlap/TF/STAT3 scores are unified across local cohorts.</td><td>Must not pool cohorts naively.</td></tr>
+              <tr class="stop"><td>RAI-refractory labelled public cohort</td><td>39 / 1</td><td>AUC 0.33; d=-0.36; p=0.29</td><td>This does not currently strengthen the clinical-endpoint story.</td><td>Small n, mixed context, and misoriented/ambiguous signal.</td></tr>
+              <tr class="stop"><td>Thyroid cell-line foothold</td><td>13 / 1</td><td>6/13 DM1-high; 3/5 ATC DM1-high</td><td>Potential model-system hint only.</td><td>Too small for claim; needs dependency/drug-response validation.</td></tr>
+              <tr class="caution"><td>Additional RAI data opportunity</td><td>603 / 8 registry total</td><td>3 high-value open entries; controlled gold-standard n=214</td><td>There are better clinical-label datasets to pursue.</td><td>Best cohort requires controlled-access request.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout bad">
+          <strong>Important negative:</strong> The available RAI-refractory labelled public cohort does not rescue the Nature Cancer clinical gap. With the current score, refractory vs avid shows AUC 0.33 and p=0.29. This should be treated as negative/ambiguous, not polished into support.
+        </div>
+
+        <h3>12.2 What can still be done without wet-lab</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Analysis</th><th>Can do now?</th><th>Expected gain</th><th>Why it matters</th><th>Risk</th></tr></thead>
+            <tbody>
+              <tr class="caution"><td>Re-check GSE151181/GSE151179 RAI endpoint with stricter sample stratification</td><td>Partly</td><td>Moderate if signal flips after proper subset definition</td><td>Only available direct RAI-labelled open endpoint in current local registry.</td><td>Current first-pass is weak; may stay negative.</td></tr>
+              <tr class="safe"><td>Formal DAC request for Mu 2024 / HRA004166 n=214</td><td>Prepare now, analyze later</td><td>High</td><td>Best labelled I-RAIA vs I-RAIR clinical cohort identified locally.</td><td>Controlled access and timeline uncertainty.</td></tr>
+              <tr class="safe"><td>Paired methylation-expression coupling for RAI-lineage genes</td><td>Likely, if paired TCGA matrices are local</td><td>Moderate-to-high</td><td>Moves methylation from group difference toward mechanism coherence.</td><td>Still correlative unless perturbation is added.</td></tr>
+              <tr class="caution"><td>DepMap dependency/drug-response correlation restricted to thyroid lines</td><td>Possible if local DepMap tables are complete</td><td>Low-to-moderate</td><td>Can nominate functional hypotheses and model systems.</td><td>n=13 thyroid lines is too small for strong inference.</td></tr>
+              <tr class="stop"><td>H&E / public tissue-image proxy mining</td><td>Not recommended as headline</td><td>Low</td><td>Could support future cohort design only.</td><td>Prior H&E-to-DM1 closure battery was negative.</td></tr>
+              <tr class="safe"><td>Minimal in-house qPCR/IHC on archived FFPE</td><td>Requires own data</td><td>High</td><td>Cleanest route to a credible Nature Cancer reach story.</td><td>Needs tissue, approval, budget, wet-lab time.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>12.3 Updated probability after this audit</h3>
+        <div class="grid g4">
+          <div class="panel red"><h4>Current package</h4><div class="big">5-10%</div><div class="small">Strong story pressure-test, but no own data or causal validation.</div></div>
+          <div class="panel gold"><h4>Best no-new-data rewrite</h4><div class="big">10-20%</div><div class="small">Lineage-axis manuscript + current scorecard. Still a reach.</div></div>
+          <div class="panel blue"><h4>Clinical endpoint added</h4><div class="big">15-25%</div><div class="small">Needs robust independent RAI-refractory/avid replication.</div></div>
+          <div class="panel sage"><h4>Own IHC/qPCR/functional</h4><div class="big">25-40%</div><div class="small">First point where Nature Cancer becomes a serious reach.</div></div>
+        </div>
+      </section>
+
+      <section id="s13">
+        <h2>13. Data Pull Candidates</h2>
+        <div class="callout good">
+          <strong>Yes, there are more data to pull.</strong> The useful candidates are not “more of the same GPL570 ATC arrays.” The best next pulls are methylation, single-cell lineage-state, perturbation/redifferentiation, and controlled RAI clinical-label data.
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Dataset</th><th>Status</th><th>Priority</th><th>What to test</th><th>Risk</th></tr></thead>
+            <tbody>
+              <tr class="safe"><td>GSE146003</td><td>Public GEO methylation, 10 ATC + 4 normal</td><td>High</td><td>Independent ATC methylation validation for RAI-lineage promoters/CpG islands.</td><td>Small n; methylation-only.</td></tr>
+              <tr class="safe"><td>GSE184362</td><td>Public scRNA, 158,577 cells from 23 specimens</td><td>High</td><td>Score malignant epithelial cells across primary, LN metastasis, and RAI-refractory distant metastasis context.</td><td>No clean quantitative RAI response endpoint.</td></tr>
+              <tr class="safe"><td>GSE232237</td><td>Public Korean scRNA normal/PTC/ATC</td><td>High</td><td>Korean single-cell validation of normal → PTC → ATC lineage-collapse gradient.</td><td>Sample-count/metadata wording needs care.</td></tr>
+              <tr class="caution"><td>GSE60542</td><td>Public GPL570, primary PTC/nodal metastasis/matched normal</td><td>Medium</td><td>Test primary vs nodal metastasis lineage score with lymph-node controls.</td><td>Lymphoid confounding is strong.</td></tr>
+              <tr class="caution"><td>GSE137697</td><td>Public RNA-seq perturbation in CAL-62</td><td>Medium</td><td>Ask whether THZ531/CDK12 perturbation shifts lineage genes or STAT3/AP1/DNMT state.</td><td>One cell line, six samples; sidecar only.</td></tr>
+              <tr class="caution"><td>GSE126698</td><td>Public ATC/PTC/normal RNA-seq, but processed files are DE summaries</td><td>Low-medium</td><td>If raw alignment is allowed, compute per-sample lineage scores.</td><td>No per-sample processed matrix; raw alignment cost/spec issue.</td></tr>
+              <tr class="safe"><td>HRA004166 / Mu 2024</td><td>Controlled NGDC/GSA clinical avidity cohort</td><td>High but blocked</td><td>Best apparent I-RAIA vs I-RAIR validation opportunity.</td><td>DAC access needed; may be targeted NGS rather than expression.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>13.1 GXL / Paperclip literature-mining layer</h3>
+        <div class="callout warn">
+          <strong>Tool status:</strong> Paperclip CLI is now installed and the server is reachable, but search is blocked until <code>paperclip login</code> is completed or <code>PAPERCLIP_API_KEY</code> is provided. Once authenticated, use it as a fast abstract/full-text accession miner. The GXL blog describes arXiv full texts and OpenAlex abstracts with search/grep/cat/sql-style access; that is useful here for finding hidden GEO/EGA/GSA accessions and methods papers.
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Paperclip task</th><th>Query</th><th>Expected value</th></tr></thead>
+            <tbody>
+              <tr><td>Hidden RAI cohorts</td><td><code>paperclip search "radioiodine refractory avid papillary thyroid carcinoma expression profiling GEO" -s abstracts -n 50</code></td><td>Find cohorts beyond GSE151179/GSE151180 and HRA004166.</td></tr>
+              <tr><td>ATC methylation-expression</td><td><code>paperclip search "anaplastic thyroid cancer DNA methylation RNA expression GEO" -s abstracts -n 50</code></td><td>Find paired methylation/transcriptome datasets to strengthen mechanism.</td></tr>
+              <tr><td>scRNA dedifferentiation</td><td><code>paperclip search "single cell thyroid cancer anaplastic papillary radioactive iodine refractory metastasis" -s abstracts -n 50</code></td><td>Find malignant epithelial lineage-state validation datasets.</td></tr>
+              <tr><td>Redifferentiation perturbation</td><td><code>paperclip search "thyroid cancer redifferentiation RNA-seq MAPK inhibitor radioactive iodine refractory" -s abstracts -n 50</code></td><td>Find public functional proxies for restoring lineage genes.</td></tr>
+              <tr><td>Accession grep</td><td><code>paperclip grep "GSE[0-9]{5,6}|EGAD[0-9]+|HRA[0-9]+" --corpus abstracts --query "radioiodine refractory thyroid"</code></td><td>Fast accession extraction from abstract/full-text universe.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="s14">
+        <h2>14. New Public-Data Pull Results</h2>
+        <div class="callout good">
+          <strong>New data pulled and analyzed:</strong> GSE146003 methylation, GSE60542 GPL570 expression, GSE137697 CAL-62 THZ531 perturbation RNA-seq, and GSE232237 Korean scRNA count matrices. The strongest upgrade is methylation + Korean scRNA directionality; the perturbation data is not a redifferentiation rescue.
+        </div>
+
+        <h3>14.1 Data validity checks</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Dataset</th><th>Data used</th><th>QC / coverage</th><th>Validity call</th><th>Claim level</th></tr></thead>
+            <tbody>
+              <tr class="safe"><td>GSE146003</td><td>EPIC methylation signal matrix, 10 ATC + 4 normal thyroid</td><td>865,918 probes raw; 845,677 probes pass p&lt;0.01 fail-rate filter; median sample fail-rate 0.52%.</td><td>Technically clean for ATC-vs-normal methylation validation.</td><td>Main-support methylation layer.</td></tr>
+              <tr class="caution"><td>GSE60542</td><td>GPL570 expression, 92 samples</td><td>33 primary PTC, 30 normal thyroid, 23 LNM, 4 normal LN, 1 PLM, 1 recurrence; all RAI_8/non-overlap/TF/mechanism genes mapped.</td><td>Good expression QC, but nodal metastasis contrasts are tissue-composition confounded.</td><td>Supplement/support only.</td></tr>
+              <tr class="stop"><td>GSE137697</td><td>CAL-62 RNA-seq, DMSO/THZ531, n=2 per dose</td><td>17,298 genes in processed RPKM files; RAI_8 found 7/8, TF 3/4, mechanism 5/6.</td><td>Small perturbation sidecar; not independent clinical validation.</td><td>Do not headline.</td></tr>
+              <tr class="caution"><td>GSE232237</td><td>Korean scRNA count TSVs, 7 PTC + 5 ATC</td><td>84,804 cells total; target genes streamed with per-cell UMI normalization; all RAI_8/non-overlap/TF/mechanism genes present.</td><td>Useful sample-level pseudo-bulk check, but not malignant-cell-resolved without annotation.</td><td>Strong supplement; possible main if cell annotation is added.</td></tr>
+              <tr class="stop"><td>Paperclip/GXL</td><td>CLI installed</td><td>Server reachable; auth missing.</td><td>Needs <code>paperclip login</code> or <code>PAPERCLIP_API_KEY</code> before literature-mining can run.</td><td>Blocked for now.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>14.2 Strongest new positive: independent methylation</h3>
+        <figure>
+          <img src="assets/paper1/gse146003_methylation_validation.png" alt="GSE146003 methylation validation" />
+          <figcaption><strong>GSE146003 methylation validation.</strong> ATC samples show lower global mean beta than normal thyroid (0.516 vs 0.559, p=0.002). More importantly, the TCGA THCA top methylation probes overlap 20/20 with GSE146003 QC-passing probes and all 20/20 reproduce the same tumor-normal direction; median absolute ATC-normal delta beta is 0.320.</figcaption>
+        </figure>
+        <div class="callout good">
+          <strong>Interpretation:</strong> This is the most useful new no-wet-lab addition. It does not prove methylation causes lineage collapse, but it independently supports a robust tumor/ATC methylation state aligned with the TCGA methylation signal.
+        </div>
+
+        <h3>14.3 Expression and scRNA additions</h3>
+        <div class="figgrid">
+          <figure>
+            <img src="assets/paper1/gse60542_lineage_scores.png" alt="GSE60542 lineage-state score boxplots" />
+            <figcaption><strong>GSE60542 GPL570.</strong> PTC vs normal thyroid is direction-consistent across RAI_8, DM1_like, THYROID_NONOVERLAP, TF-collapse, and STAT3/AP1/DNMT. LNM vs PTC also shifts toward lineage collapse, but normal lymph node controls show why this cannot be treated as a clean metastasis biology claim.</figcaption>
+          </figure>
+          <figure>
+            <img src="assets/paper1/gse232237_scrna_pseudobulk.png" alt="GSE232237 scRNA pseudo-bulk validation" />
+            <figcaption><strong>GSE232237 Korean scRNA pseudo-bulk.</strong> Across all cells, ATC vs PTC matches expected direction in 4/5 module cells. DM1_like d=+1.04 and RAI_8 d=-1.04, but p=0.20 at sample level and no malignant epithelial annotation was used.</figcaption>
+          </figure>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Contrast</th><th>Best numbers</th><th>What it adds</th><th>What it cannot prove</th></tr></thead>
+            <tbody>
+              <tr class="safe"><td>GSE60542 PTC vs normal thyroid</td><td>RAI_8 d=-2.12, DM1_like d=+2.12, non-overlap d=-2.40; all p&lt;1e-8 for lineage axes.</td><td>Another independent GPL570 cohort supports the normal-to-PTC lineage shift.</td><td>Not ATC and not RAI-response labelled.</td></tr>
+              <tr class="caution"><td>GSE60542 LNM vs PTC</td><td>RAI_8 d=-0.85, DM1_like d=+0.85, non-overlap d=-0.98; mechanism axis wrong/flat.</td><td>Suggests metastatic samples are more lineage-collapsed.</td><td>Lymphoid tissue composition is a major confounder.</td></tr>
+              <tr class="stop"><td>GSE60542 N1 vs N0 primary PTC</td><td>Only 2/5 module directions match; p values not significant.</td><td>Acts as an honest negative/sensitivity test.</td><td>No nodal-status claim should be made.</td></tr>
+              <tr class="caution"><td>GSE232237 ATC vs PTC pseudo-bulk</td><td>4/5 expected directions; DM1_like d=+1.04, RAI_8 d=-1.04.</td><td>Korean single-cell-derived sample-level support for ATC lineage collapse.</td><td>Needs cell annotation or malignant-cell filtering before main-text strength.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>14.4 Perturbation sidecar: not a rescue</h3>
+        <figure>
+          <img src="assets/paper1/gse137697_thz531_sidecar.png" alt="GSE137697 THZ531 perturbation sidecar" />
+          <figcaption><strong>GSE137697 CAL-62 THZ531.</strong> At 400 nM, RAI_8 shifts down (delta=-0.48), DM1_like shifts up (delta=+0.48), and STAT3/AP1/DNMT shifts up (delta=+0.21). With n=2 per arm, this is a sidecar only.</figcaption>
+        </figure>
+        <div class="callout bad">
+          <strong>Do not overclaim:</strong> THZ531 does not provide a clean redifferentiation rescue. If used, it belongs in a limitation/future-functional section: broad transcriptional stress in an ATC line can move the lineage-state readout, but it does not show causal restoration of thyroid identity.
+        </div>
+
+        <h3>14.5 Updated Nature Cancer probability after new pulls</h3>
+        <div class="grid g4">
+          <div class="panel red"><h4>Before new pulls</h4><div class="big">5-10%</div><div class="small">Strong conceptual board, weak independent non-expression biology.</div></div>
+          <div class="panel gold"><h4>After public-data pull</h4><div class="big">10-18%</div><div class="small">Methylation + Korean scRNA pseudo-bulk improve plausibility.</div></div>
+          <div class="panel blue"><h4>With malignant-cell scRNA annotation</h4><div class="big">15-25%</div><div class="small">If GSE232237/GSE184362 malignant cells reproduce the axis cleanly.</div></div>
+          <div class="panel sage"><h4>With own cohort / functional</h4><div class="big">25-40%</div><div class="small">Still the first serious Nature Cancer reach zone.</div></div>
+        </div>
+        <div class="callout warn">
+          <strong>Next best no-wet-lab step:</strong> annotate GSE232237/GSE184362 cells or obtain author-provided cell labels, then score malignant epithelial cells only. That would convert the current pseudo-bulk support into a cleaner lineage-state validation.
+        </div>
+
+        <h3>14.6 Done: epithelial-enriched scRNA filter</h3>
+        <figure>
+          <img src="assets/paper1/gse232237_epithelial_filter_validation.png" alt="GSE232237 epithelial-enriched filter validation" />
+          <figcaption><strong>GSE232237 epithelial-enriched validation.</strong> Marker-based filtering selected 17,026 epithelial-enriched cells from 84,804 total cells. Recomputing sample-level pseudo-bulk scores only inside this compartment strengthens the ATC-vs-PTC lineage-collapse effect: DM1_like d=+2.10, RAI_8 d=-2.10, THYROID_NONOVERLAP d=-1.94, TF-collapse d=-1.74.</figcaption>
+        </figure>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Subset</th><th>Cells / samples</th><th>RAI_8</th><th>DM1_like</th><th>Non-overlap</th><th>Interpretation</th></tr></thead>
+            <tbody>
+              <tr class="caution"><td>All cells pseudo-bulk</td><td>84,804 cells; 7 PTC + 5 ATC</td><td>d=-1.04; p=0.20</td><td>d=+1.04; p=0.20</td><td>d=-0.63; p=0.27</td><td>Directionally useful but diluted by immune/stromal cells.</td></tr>
+              <tr class="safe"><td>Epithelial-enriched pseudo-bulk</td><td>17,026 cells; 7 PTC + 5 ATC</td><td>d=-2.10; p=0.030</td><td>d=+2.10; p=0.030</td><td>d=-1.94; p=0.018</td><td>Cleaner single-cell-derived support for ATC lineage collapse.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout good">
+          <strong>What changed:</strong> Filtering to epithelial-enriched cells roughly doubled the DM1_like and RAI_8 effect size compared with all-cell pseudo-bulk. This is exactly the direction expected if the lineage-state signal is tumor/epithelial-compartment biology diluted by microenvironmental cells.
+        </div>
+        <div class="callout warn">
+          <strong>Boundary:</strong> This is still marker-enriched epithelial filtering, not CNV-inferred malignant-cell calling. It is strong enough for an Extended Data/Supplement single-cell validation panel; for main-text Nature Cancer strength, the next increment is CNV-based malignant epithelial calling or author-provided cell annotations.
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="footer">
+    Source basis: Paper 1 molecular-axis bundle, Paper 1 web integration result, GPL570 validation pack, and current Paper 1 web assets. This page is an editorial analysis board, not journal policy or a submission checklist.
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <span class="lightbox-close" aria-label="Close">&times;</span>
+  <img alt="" />
+</div>
+<script>
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = lightbox.querySelector("img");
+document.querySelectorAll("figure img").forEach((img) => {
+  img.addEventListener("click", () => {
+    lightboxImg.src = img.src;
+    lightboxImg.alt = img.alt;
+    lightbox.classList.add("show");
+    lightbox.setAttribute("aria-hidden", "false");
+  });
+});
+function closeLightbox(){
+  lightbox.classList.remove("show");
+  lightbox.setAttribute("aria-hidden", "true");
+  lightboxImg.src = "";
+}
+lightbox.addEventListener("click", closeLightbox);
+document.addEventListener("keydown", (event) => {
+  if(event.key === "Escape") closeLightbox();
+});
+</script>
+</body>
+</html>

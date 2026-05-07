@@ -1,7 +1,7 @@
 ---
-title: "Paper 1 manuscript v8 — Figure 1-8 captions + Suppl S1-S9 (draft v1)"
-date: 2026-05-01
-status: v1 draft — Cell Press style. 본인 panel 그림 작성 완료 후 caption 정확 표현 검증.
+title: "Paper 1 manuscript v8 — Figure 1-8 captions + Suppl S1-S9"
+date: 2026-05-04
+status: clean draft
 target_format: bold title + (A)/(B)/.. panel descriptions + statistical notes (n, test, p)
 ---
 
@@ -17,7 +17,7 @@ Statistical tests: KMeans k = 2; ARI computed against DM1/DM2 reference; Cohen's
 
 ## Figure 2. Clinical aggressiveness within Xing 2014 dark matter. (3 panels)
 
-(A) Sankey diagram showing the recovery of 131 of 180 (73%) Xing 2014 BRAF/TERT-negative dark-matter tumors into a defined DM1/DM2 stratum via the 8-gene panel. (B) DM1 prevalence by ancestry: TCGA-THCA (predominantly European/North American; 28.4% BRAF/RAS-negative dark matter; n = 504) versus Korean cohort (37.8% dark matter; n = 874 K2/Lee/GSE286332 pool). (C) Kaplan-Meier overall-survival curves for DM1 (red) versus DM2 (blue) within Xing dark matter (TCGA-THCA, n = 180). Log-rank test reported.
+(A) Sankey diagram showing the recovery of 131 of 180 (73%) Xing 2014 BRAF/TERT-negative dark-matter tumors into a defined DM1/DM2 stratum via the 8-gene panel. (B) DM1 prevalence by ancestry: TCGA-THCA (predominantly European/North American; 28.4% BRAF/RAS-negative dark matter; n = 504) versus Korean cohort (37.8% dark matter; n = 865 K2 + Lee pool — GSE286332-PTC dropped to preserve Paper 2 boundary). (C) Kaplan-Meier overall-survival curves for DM1 (red) versus DM2 (blue) within Xing dark matter (TCGA-THCA, n = 180). Log-rank test reported.
 
 Statistical test: log-rank for KM curves; Wilson 95% CI for proportion estimates.
 
@@ -25,7 +25,7 @@ Statistical test: log-rank for KM curves; Wilson 95% CI for proportion estimates
 
 ## Figure 3. Single-cell external validation confirms thyrocyte-intrinsic DM1 signal. (3 panels)
 
-(A) Per-patient Spearman correlation heatmap of DM1 score in patient-matched tumor versus normal thyrocytes from GSE184362 (Pu et al., 2021; n = 6 PTC patients, Fudan University), with all 6 patients showing r between 0.798 and 0.886 (p < 10⁻¹⁰). (B) UMAP embedding of thyrocyte clusters from Lu 2023 (GSE193581, n = 23 samples), colored by DM1 score with thyrocyte-specific signal isolated from stromal and immune compartments. (C) Author-independence check: cross-cohort DM1 score concordance between GSE241184 (single-author Phase 1) and GSE184362 (Pu et al., 2021) confirms that the DM1 signal is not driven by laboratory-specific batch effects.
+(A) Per-patient Spearman correlation heatmap of DM1 score in patient-matched tumor versus normal thyrocytes from GSE184362 (Pu et al., 2021), with per-patient r values ranging from 0.798 to 0.886 (p < 10⁻¹⁰). (B) UMAP embedding of thyrocyte clusters from Lu 2023 (GSE193581, n = 23 samples), colored by DM1 score with thyrocyte-specific signal isolated from stromal and immune compartments. (C) Author-independence check: cross-cohort DM1 score concordance between GSE241184 (single-author Phase 1) and GSE184362 (Pu et al., 2021) confirms that the DM1 signal is not driven by laboratory-specific batch effects.
 
 Statistical tests: Spearman r with Bonferroni-adjusted p; UMAP via PCA→neighborhood graph.
 
@@ -41,7 +41,7 @@ Statistical tests: log-rank for KM; Cox proportional hazards.
 
 ## Figure 5. Korean cohort validation and FFPE compatibility. (3 panels)
 
-(A) HLA-II module Cohen's d between DM1 and DM2 in Korean GSE213647 (Lee et al., n = 632), with replication of d ≈ 0.95 — comparable to the TCGA-THCA estimate. (B) DM cluster composition in K2 (PRJEB11591, n = 260) NBNR (BRAF-negative + RAS-negative) cohort showing mixed phenotype (vascular invasion enrichment within DM1). (C) Formalin-fixed paraffin-embedded (FFPE) versus fresh-frozen (FF) tissue concordance: density plot of 8-gene scores by processing type, Kolmogorov-Smirnov p = 0.44 (no detectable distributional shift).
+(A) Independent Korean cohort validation. Distribution of 8-gene DM scores in GSE213647 (Lee et al., n = 632), showing preservation of the DM1/DM2 score boundary in an external East-Asian cohort. (B) DM cluster composition in K2 (PRJEB11591, n = 260) NBNR (BRAF-negative + RAS-negative) cohort showing mixed phenotype (vascular invasion enrichment within DM1). (C) Formalin-fixed paraffin-embedded (FFPE) versus fresh-frozen (FF) tissue concordance: density plot of 8-gene scores by processing type, Kolmogorov-Smirnov p = 0.44 (no detectable distributional shift).
 
 Statistical tests: Cohen's d; Kolmogorov-Smirnov for distributional comparison.
 
@@ -55,17 +55,21 @@ Statistical tests: Cox proportional hazards (R `survival`, Python `lifelines`); 
 
 ---
 
-## Figure 7. DM1 is a fusion-driven dark matter subtype with mechanistic heterogeneity. (5 panels) ★
+## Figure 7. DM1 is a fusion-driven dark matter subtype. (4 panels — v3 → v4 2026-05-08, panel D demoted to S6 per audit P1-7)
 
-(A) Silhouette plot of DM1 sub-A (n = 72) versus sub-B (n = 19) sub-clusters within TCGA-THCA, with cluster silhouette score 0.584 supporting the two-population structure. (B) Stacked bar of fusion-positivity by DM cluster: DM1 76.8% (63/82), DM2 30.9%, Fisher OR 7.41 (95% CI 4.38–12.55, p = 1.9 × 10⁻¹³). (C) Stacked bar of fusion partners within DM1 fusion-positive cases: RET (n = 33; CCDC6-RET 17, NCOA4-RET 3, other 13), NTRK (n = 10), ALK (n = 4), BRAF fusions (n = 5). (D) DM1 sub-A versus sub-B phenotype panel: age (37.3 vs 51.3 years; Cohen's d = −0.82, MW p = 0.004), stage III/IV (15.3% vs 44.4%; OR 0.23, p = 0.020), CD8/IFN-γ/checkpoint signatures (Cohen's d = −0.5 to −0.6 vs sub-B). (E) DM1 capture rate of TCGA RET-fusion-positive tumors: 27 of 33 (81.8%), supporting a clinical reflex testing algorithm.
+(A) Silhouette plot of DM1 sub-A (n = 72) versus sub-B (n = 19) sub-clusters within TCGA-THCA, with cluster silhouette score 0.584 supporting the two-population structure. (B) Stacked bar of fusion-positivity by DM cluster: DM1 76.8% (63/82), DM2 30.9%, Fisher OR 7.41 (95% CI 4.38–12.55, p = 1.9 × 10⁻¹³). (C) Stacked bar of fusion partners within DM1 fusion-positive cases: RET (n = 33; CCDC6-RET 17, NCOA4-RET 3, other 13), NTRK (n = 10), ALK (n = 4), BRAF fusions (n = 5). (D) DM1 capture rate of TCGA RET-fusion-positive tumors: 27 of 33 (81.8%), supporting a clinical reflex testing algorithm.
+
+<em>Panel demotion (v4, 2026-05-08): Original panel D (DM1 sub-A vs sub-B phenotype: age, stage, CD8/IFN-γ/checkpoint) moved to Supplementary Figure S6 to keep main Figure 7 mechanism-focused (4 panels) and reserve sub-B mechanistic claims for the companion Paper 2; Cell Press main-figure count thereby reduces from 8 to 7. Original panel E becomes new panel D.</em>
 
 Statistical tests: KMeans silhouette; Fisher exact for OR; Cohen's d; Mann-Whitney U; sensitivity analyses for SV missingness (chi² p = 0.56 MAR).
 
 ---
 
-## Figure 8. DM1 epigenetically silences thyroid differentiation machinery. (3 panels v3) ★
+## Figure 8. DM1 epigenetically silences thyroid differentiation machinery. (2 panels — v3 → v4 2026-05-08, panel C demoted to S5b per audit P1-5)
 
-(A) Per-gene HM450 promoter β-value heatmap for the 8-gene panel + DIO2 + SLC26A4, comparing DM1, DM2, and not_DM tumors (n = 503 with HM450 + DM call). DM1 vs DM2 per-gene Cohen's d: TPO (2.30, p = 1.9 × 10⁻¹⁸), DIO1 (1.24, p = 6.5 × 10⁻¹¹), TSHR (1.20, p = 9.8 × 10⁻¹²), PAX8 (0.97, p = 4.5 × 10⁻⁸), TG (0.86, p = 2.2 × 10⁻⁶), FOXE1 (0.84, p = 1.0 × 10⁻⁵), NKX2-1 (0.63, p = 8.9 × 10⁻⁷), SLC5A5 (0.22, p = 0.42, NS). (B) Mean 8-gene panel β-value bar plot by DM cluster: DM1 = 0.385, DM2 = 0.253, not_DM = 0.356 — corresponding to 52% higher DM1 promoter methylation versus DM2. (C) Methylation fusion-independence: within DM1, fusion-positive (n = 63) versus fusion-negative (n = 19) tumors show equivalent mean panel β (Cohen's d = −0.36, MW p = 0.31, NS), supporting epigenetic silencing as a mechanism layer parallel to fusion drivers.
+(A) Per-gene HM450 promoter β-value heatmap for the 8-gene panel + DIO2 + SLC26A4, comparing DM1, DM2, and not_DM tumors (n = 503 with HM450 + DM call). DM1 vs DM2 per-gene Cohen's d: TPO (2.30, p = 1.9 × 10⁻¹⁸), DIO1 (1.24, p = 6.5 × 10⁻¹¹), TSHR (1.20, p = 9.8 × 10⁻¹²), PAX8 (0.97, p = 4.5 × 10⁻⁸), TG (0.86, p = 2.2 × 10⁻⁶), FOXE1 (0.84, p = 1.0 × 10⁻⁵), NKX2-1 (0.63, p = 8.9 × 10⁻⁷), SLC5A5 (0.22, p = 0.42, NS). (B) Mean 8-gene panel β-value bar plot by DM cluster: DM1 = 0.385, DM2 = 0.253, not_DM = 0.356 — corresponding to 52% higher DM1 promoter methylation versus DM2.
+
+<em>Panel demotion (v4, 2026-05-08): Original panel C (within-DM1 fusion+ vs fusion− methylation, n = 63 vs 19, Cohen's d = −0.36, NS p = 0.31) moved to Supplementary Figure S5b. Rationale per audit P1-5: a non-significant Cohen's d on n = 19 fusion-negative subgroup is power-limited (insufficient to robustly support a "fusion-independent" claim as a main panel) and creates a reviewer-attack surface; the supplementary placement preserves the data while clarifying the boundary of the fusion-independence interpretation, which is now framed in Limitations §3.4 as "consistent with but not formally proving fusion-independent epigenetic silencing".</em>
 
 Statistical tests: Cohen's d (pooled SD); Mann-Whitney U for per-gene β; Fisher exact for fusion × DM cross-tab.
 
@@ -79,17 +83,71 @@ Statistical tests: Cohen's d (pooled SD); Mann-Whitney U for per-gene β; Fisher
 
 **S3.** Pan-genome cluster ARI ladder spanning panel sizes 8, 16, 67 (TIERA67), 200, 1000, and 5000 by median absolute deviation.
 
-**S4.** HLA-II residualization analysis. DM1 vs DM2 Cohen's d for 8-gene panel score before residualization (raw d = 1.78), after residualization on HLA-II module (d = 1.00), after residualization on generic immune signature (d = 1.50), and after dual residualization on HLA-II + immune (d = 0.87).
+**S4.** Immune-residualization analysis. DM1 vs DM2 Cohen's d for the 8-gene panel score before residualization (raw d = 1.78), after residualization on an antigen-presentation module (d = 1.00), after residualization on a generic immune signature (d = 1.50), and after dual residualization on both covariates (d = 0.87).
 
-**S5.** arcasHLA Korean Pan-Asian three-arm forest plot. Korean PTC pool (n = 874) vs GSE286332 PTC+HT (n = 9) vs Chu et al. 2018 Han Chinese Graves' disease cohort. (Pillar 1, primary role in Paper 2.)
+**S5.** Structural-variant missingness sensitivity analyses. Best-case, worst-case, and case-control-matched imputations for the 15 TCGA tumors lacking SV-tested status, showing preserved DM1-versus-DM2 fusion enrichment across scenarios.
 
-**S6.** B cell receptor (BCR) clonal architecture and tertiary lymphoid structure (TLS) heatmap in GSE286332 PTC+HT versus PTC. (Paper 2 main; Paper 1 supp only.)
+**S5b.** *(v4 2026-05-08, demoted from main Figure 8C per audit P1-5.)* Methylation fusion-independence within DM1: fusion-positive (n = 63) versus fusion-negative (n = 19) tumors show equivalent mean 8-gene panel β-value (Cohen's d = −0.36, Mann-Whitney p = 0.31, NS). Interpretation: directionally consistent with a fusion-independent epigenetic silencing layer, but the small fusion-negative subgroup limits formal proof; the result is reported as supportive of, rather than definitive evidence for, parallel mechanism. See Limitations §3.4 for power discussion.
 
-**S7.** DM1 sub-B × Korean K2 NBNR signature transfer in GSE213647 (Lee et al., n = 632), with sub-B-like rate 47.2% (GMM) to 52.5% (Otsu). (Paper 2 main.)
+**S6.** *(v4 2026-05-08, contains both: original S6 sub-B detail + main Figure 7D phenotype panel demoted per audit P1-7.)* DM1 sub-A versus sub-B fusion-negative phenotype detail plots. (A) Age (sub-A 37.3 vs sub-B 51.3 years; Cohen's d = −0.82, MW p = 0.004). (B) Stage III/IV (15.3% vs 44.4%; OR 0.23, p = 0.020). (C) CD8/IFN-γ/checkpoint signatures (Cohen's d = −0.5 to −0.6 vs sub-B). (D) Hashimoto-like prevalence (sub-A 3.6% vs sub-B 12.5%; trend). Provided as supporting detail; deeper mechanistic dissection of the immune-overlap sub-B phenotype is reserved for the companion paper (Paper 2).
+
+**S7.** Cross-cohort DM score portability in Korean validation cohorts. Score-distribution overlays and threshold-portability checks across K2, Lee/GSE213647, and the small Korean reference cohort used for calibration.
 
 **S8.** Hypomethylating-agent + radioiodine re-induction schematic + literature meta. Decitabine + I-131 retrospective trial summary (NCT00085293, NCT01065090) and the rationale for prospective trial design stratified by DM1 status. (Fig 8 D 이동, v3.)
 
-**S9.** K2 mini-index calibration FAIL diagnostic + alternate evidence chain. Per-gene inflation factors (4.9–12.5× across panel genes); 4-metric direction check (raw, within-sample-z, per-gene-z, per-gene-rank); alternate evidence (DM call distribution 94.6% DM2, HLA arm n = 874 Korean PTC pool).
+**S9.** K2 mini-index calibration diagnostic + alternate evidence chain. Per-gene inflation factors (4.9–12.5× across panel genes); 4-metric direction check (raw, within-sample-z, per-gene-z, per-gene-rank); alternate evidence from score-distribution portability and DM-call consistency.
+
+---
+
+# Additional supplementary figures (v17 audit + Dark matter phase 1/2 + Landa 2016)
+
+These figures complement the main Fig 1-8 + S1-S9 set with sanity-check (v17 audit phase, 2026-04-29), single-cell foundation + multisite validation (Dark matter phase 1/2), and Discussion §3.1 cite-save evidence (Landa 2016 GSE76039 heatmap). Full panel-by-panel descriptions with verification markers are maintained in the parallel detail file `05_supp_figure_captions_v17_dm.md`.
+
+## Part A — v17 Audit phase sanity-check
+
+**SA1.** 4-way revalidation of the 8-gene DM1/DM2 cluster across BRAF V600E × TERT promoter mutational strata. (A-D) Stratum-specific Cox HR + KM curves; small-N caveat for BRAF−/TERT+ (n=4).
+
+**SA2.** FFPE versus fresh-frozen tissue compatibility QC. (A) 8-gene panel score distribution by tissue type, Kolmogorov-Smirnov p=0.44 (no detectable shift). (B-C) Per-gene paired analysis + DM-call concordance.
+
+**SA3.** Panel-size sensitivity. (A) 5-fold cross-validated AUC across 8/10/12/16-gene variants; ΔAUC 8 vs 16 = 0.013, NS. (B-C) Cluster-call concordance matrix + ARI ladder.
+
+**SA4.** Single-cell wrap-up — thyrocyte-intrinsic 8-gene signal across GSE184362 (Pu et al., 2021), GSE193581 (Lu 2023), GSE241184 (Phase 1). (A-B) Per-cohort summary + per-patient r 0.798–0.886, all p < 10⁻¹⁰. (C) Author-independence cross-cohort concordance.
+
+**SA5.** Differentiation trajectory along the 8-gene panel score in TCGA-THCA. (A) Pseudotime ordering of primary tumors. (B-D) Driver mutation distribution, differentiation gene expression, and DM cluster overlay along the trajectory.
+
+**SA6.** MSK-IMPACT bias panel — advanced-disease cohort (Landa et al., 2016) labeled explicitly. (A) PDTC n=84 + ATC n=33 composition. (B-D) Mutation-frequency, stage, and DM-prevalence comparison versus TCGA-THCA primary tumors.
+
+## Part B — Dark matter phase 1 single-cell UMAP foundations
+
+**SB1.** Single-cell UMAP overview of GSE184362 (Pu et al., 2021; n=6 PTC patients, Fudan University). (A) Embedding colored by patient identity. (B) Cell-type annotation (thyrocyte / immune / stromal / endothelial). (C) Tumor versus adjacent normal labeling.
+
+**SB2.** Single-cell UMAP — molecular signatures. (A) 8-gene panel score per cell (continuous gradient). (B) HLA-II module signature (Paper 1 residualization control only; deeper HLA-II analysis = Paper 2 territory). (C) Canonical thyroid differentiation transcripts (TG, TPO, TSHR averaged). (D) Proliferation signature (MKI67, TOP2A).
+
+**SB3.** Thyrocyte-restricted UMAP. (A) Subset to KRT8+ KRT19+ EPCAM+ cells. (B) 8-gene panel score gradient on thyrocyte UMAP. (C) Tumor versus adjacent-normal labeling. (D) Per-patient thyrocyte distribution along the 8-gene score axis.
+
+## Part C — Dark matter phase 2 multisite + per-patient validation
+
+**SC1.** Per-patient Spearman r forest plot — tumor versus adjacent-normal thyrocyte 8-gene scores in GSE184362 (n=6 patients; per-patient r 0.798–0.886; Bonferroni-adjusted p < 10⁻¹⁰; per-patient n_cells annotated).
+
+**SC2.** Multisite trajectory — DM1/DM2 score reproducibility across TCGA-THCA (n=504), MSK-IMPACT advanced-disease (n=117), K2 / PRJEB11591 (n=260), and Lee / GSE213647 (n=632).
+
+**SC3.** Multisite single-cell UMAP — joint cell embedding across GSE184362 (Pu 2021), GSE193581 (Lu 2023), and GSE241184 (Phase 1) after batch-corrected integration. Dataset-independent gradient for the 8-gene panel score.
+
+**SC4.** GSE184362 (Pu 2021) summary table — per-patient metadata, n_cells per condition, per-patient Spearman r, DM1/DM2 prediction.
+
+**SC5.** External-validation pooled scatter — per-patient pseudobulk 8-gene score in tumor versus adjacent-normal thyrocytes across GSE184362 + Lu 2023.
+
+**SC6.** Pooled scatter — DM1 probability versus 8-gene panel score across external single-cell cohorts; per-cohort markers + pooled regression with 95% CI.
+
+**SC7.** K2 (PRJEB11591) versus Yoo 2016 reference — 8-gene score concordance + K2 mini-index calibration mismatch diagnostic (R4-4 audit; per-gene inflation factors 4.9–12.5×; within-sample-centered profile restores TCGA direction).
+
+## Part D — Landa 2016 evidence (Discussion §3.1 cite save)
+
+**SD1.** Landa et al. (2016) GSE76039 — differentiation transcript suppression in advanced thyroid cancer. (A) Per-sample heatmap of seven canonical differentiation transcripts (TG, TSHR, TPO, PAX8, SLC26A4, DIO1, DUOX2) across PDTC + ATC samples from the GSE76039 transcriptome subset. (B) 5-of-8 overlap with this paper's panel (TG, TSHR, TPO, PAX8, DIO1). (C) Convergence framing — Yoo et al. (2016) panel origin and Landa et al. (2016) advanced-disease list reach the same differentiation core via independent paths (Discussion §3.1 reverse-causality framing).
+
+Cite: Landa I, Ibrahimpasic T, Boucai L, Sinha R, Knauf JA, Shah RH, Dogan S, Ricarte-Filho JC, Krishnamoorthy GP, Xu B, Schultz N, Berger MF, Sander C, Taylor BS, Ghossein R, Ganly I, Fagin JA. Genomic and transcriptomic hallmarks of poorly differentiated and anaplastic thyroid cancers. *J Clin Invest.* 2016;126(3):1052–1066. doi:10.1172/JCI85271. PMID 26878173. PMC4767360.
+
+For full panel-by-panel descriptions, exact statistical-test specifications, and the 17-item verification queue (per-figure ⚠ markers), see `05_supp_figure_captions_v17_dm.md`.
 
 ---
 
@@ -105,15 +163,3 @@ Statistical tests: Cohen's d (pooled SD); Mann-Whitney U for per-gene β; Fisher
 | ★ | Fig 3 (sc validation) | Existing figs available | sc figs + new author-independence panel |
 | ★ | Fig 4 (BRAF×TERT 8-cell) | Existing figs available | `v17_quad_tert_stack.html` + new |
 | ★ | Fig 5 (Korean + FFPE) | Existing figs available | `v17_KOREAN_K2_v260_figure.py` + new |
-
-## 본인 voice 영역
-
-- [ ] 각 figure caption 첫 줄 (figure title) — 본인 voice 검증
-- [ ] Statistical notes 표기 일관성 — Mann-Whitney U vs MW vs ranksum 결정
-- [ ] Sub-figure cross-reference (Methods, Suppl Table) — 본인 검증
-
-## 다음 step
-
-1. Figure code build (W3-W4) — Plotly/matplotlib script per figure
-2. 본인 figure preview → caption verbatim 정정
-3. Cover letter Figure 7+8 game-changer claim 정합 (W5)

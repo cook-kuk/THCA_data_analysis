@@ -1,25 +1,20 @@
 ---
 title: "Paper 1 manuscript v8 — Section 1 Introduction (draft v1)"
-date: 2026-05-01
+date: 2026-05-04
 author: Seungho Cook
 target_venue: Cell Reports Medicine (1순위) → JCI Insight + Nat Commun dual stretch → npj Precision Oncology (fallback)
 target_words: 600-900
 draft_words: 715
-status: v1 draft — 본인 voice 영역 명시. 수치/cite placeholder 5/4 본인 read 후 verify.
-voice_protected_areas: 1.1 첫 줄 (Hook), 1.4 (Aim + preview)
+status: clean draft
 ---
 
-# Section 1 · Introduction (draft v1, ~715 words)
+# Section 1 · Introduction
 
 ## 1.1 Clinical context (~180 words)
 
-> ★ **Hook 첫 줄 — 본인 voice 영역.** 아래 Alt B refined 가 default. Hybrid "compass" 옵션 본인 결정.
+[AUTHOR HOOK — voice insertion point; see `04_intro_1_1_hook.md`]
 
-[**Alt B refined / default**] Despite a >98% 5-year overall survival in differentiated thyroid carcinoma, structural disease recurrence reaches ~20% in ATA 2015 intermediate-risk patients (Haugen et al., 2016), and BRAF/RAS-negative tumors — accounting for ~23% of cases — complicate radioiodine (RAI) treatment decisions in the absence of mechanistic sub-stratification.
-
-[**Hybrid "compass" 옵션**] Despite a >98% 5-year overall survival, structural disease recurrence reaches ~20% in ATA 2015 intermediate-risk papillary thyroid carcinoma (Haugen et al., 2016), and clinicians continue to make radioiodine decisions on heterogeneous BRAF/RAS-negative tumors — ~23% of cases — without a mechanistic compass.
-
-Papillary thyroid carcinoma (PTC) is the most common endocrine malignancy and among the fastest-rising in incidence over the past three decades [SEER cite — verify]. While the majority of patients achieve durable remission after thyroidectomy and selective ¹³¹I ablation, 5-20% develop recurrent or persistent disease and approximately 10% develop distant metastases (Haugen et al., 2016). Current risk-tier-based RAI decisions — codified in the 2015 American Thyroid Association (ATA) Management Guidelines (Haugen et al., 2016) and recently updated as ATA 2025 (Ringel et al., 2025) — rely predominantly on clinico-pathological features (tumor size, multifocality, extrathyroidal extension, lymph node burden) with BRAF V600E as the sole molecular risk modifier. Bethesda III/IV indeterminate cytology affects 15-30% of fine-needle aspiration biopsies and remains a major diagnostic gap [Cibas 2017 — verify]. Together, these gaps motivate orthogonal molecular sub-stratification of clinically heterogeneous tumors, particularly within the BRAF/RAS-negative compartment.
+Papillary thyroid carcinoma (PTC) is the most common endocrine malignancy and among the fastest-rising in incidence over the past three decades (SEER, 2024). While the majority of patients achieve durable remission after thyroidectomy and selective ¹³¹I ablation, 5-20% develop recurrent or persistent disease and approximately 10% develop distant metastases (Haugen et al., 2016). Current risk-tier-based RAI decisions — codified in the 2015 American Thyroid Association (ATA) Management Guidelines (Haugen et al., 2016) and recently updated as ATA 2025 (Ringel et al., 2025) — rely predominantly on clinico-pathological features (tumor size, multifocality, extrathyroidal extension, lymph node burden) with BRAF V600E as the sole molecular risk modifier. Bethesda III/IV indeterminate cytology affects 15-30% of fine-needle aspiration biopsies and remains a major diagnostic gap (Cibas and Ali, 2017). Together, these gaps motivate orthogonal molecular sub-stratification of clinically heterogeneous tumors, particularly within the BRAF/RAS-negative compartment.
 
 ---
 
@@ -39,49 +34,4 @@ At the advanced-disease end of the thyroid cancer spectrum, Landa et al. (2016) 
 
 ## 1.4 Aim and preview (~145 words)
 
-> ★ **본인 voice 영역.** Paper 의 identity 를 정의하는 paragraph — 본인이 voice 다시 적기 권장.
-
-Here, we introduce an 8-gene RAI-responsiveness panel — independently selected from canonical RAI uptake biology (Yoo et al., 2016) prior to access of the Landa 2016 ATC-silenced gene list — and apply it to TCGA-THCA (n=504), MSK-IMPACT thyroid (n=117), three Korean cohorts (K2, Lee, GSE286332; n=874), and external single-cell datasets (Pu et al., 2021; Lu et al., 2023). The panel resolves a DM1/DM2 split that is orthogonal to canonical BRAF/RAS classification, stable to candidate-pool restriction (pan-genome top-5000 ARI 0.92 vs panel-driven TIERA67 0.90), and driver-mRNA-neutral (BRAF transcript Cohen's d=−0.04 in V600E carriers vs wild-type). Within the BRAF/RAS-negative compartment, DM1 captures 76.8% of tyrosine-kinase-fusion-positive tumors (RET/NTRK/ALK/BRAF), 81.8% of TCGA RET-fusion-positive cases, and harbors fusion-independent promoter hypermethylation of differentiation genes — together defining a fusion-driven, epigenetically silenced subtype amenable to reflex fusion testing and rationale-supported epigenetic-targeted RAI re-induction.
-
----
-
-## Word-count breakdown
-
-| Section | Target | Draft v1 |
-|---|---|---|
-| 1.1 Clinical context | 150-200 | 180 |
-| 1.2 Existing molecular framework | 150-200 | 165 |
-| 1.3 Dark matter + paired continuum | 200-250 | 225 |
-| 1.4 Aim + preview | 100-150 | 145 |
-| **Total** | **600-900** | **715** ✅ |
-
-## Cite placeholder verify list (5/4 본인 read 후)
-
-| Cite | 위치 | 검증 필요 |
-|---|---|---|
-| SEER cancer statistics (PTC incidence rise 30 years) | 1.1 | ⚠️ verify — alternate cite: Davies & Welch 2014 *JAMA*, Lim et al. 2017 *JAMA Oncol* |
-| Cibas & Ali 2017 *Thyroid* (Bethesda III/IV 15-30%) | 1.1 | ⚠️ verify — *Bethesda system 2017 update* |
-| Haugen 2016 ATA 2015 (5-20% recurrence, 10% distant) | 1.1 | ✅ confirmed (PMID 26462967) — 본인 PDF Tables 11-15 verbatim 검증 |
-| Ringel 2025 ATA 2025 | 1.1 | ✅ confirmed (PMID 40844370) |
-| Cancer Genome Atlas Research Network 2014 *Cell* | 1.2 | ✅ confirmed (PMID 25417114) — 본인 PMC4243044 read |
-| Yoo 2016 *PLOS Genet* | 1.2, 1.4 | ✅ confirmed (PMID 27494611) — 본인 read |
-| Liu et al. 2017 (East Asian) | 1.2, 1.3 | ⚠️ verify — Liu Z et al. 2017 cohort 정확 cite |
-| Wang et al. 2024 (Shanghai) | 1.3 | ⚠️ verify — Wang YL Endocr Connect 13(11):e240301 |
-| Xing et al. 2014 (dark matter) | 1.3 | ⚠️ verify — Xing M et al. *NEJM* 2014 또는 *JCO* 2015 정확 cite |
-| Landa et al. 2016 *JCI* | 1.3 | ✅ confirmed (PMID 26878173) — 본인 read |
-| Pu et al. 2021 *Nat Commun* | 1.4 | ✅ confirmed (PMID 34663816) |
-| Lu et al. 2023 | 1.4 | ⚠️ verify — Lu et al. 2023 *Cancer Cell* 또는 *Nat Cancer* 정확 cite |
-
-## 본인 voice 적용 영역 (W1 5/5-5/10)
-
-- [ ] **1.1 첫 줄 hook**: Alt B refined vs hybrid "compass" 1개 선택, 본인 voice 미세 조정
-- [ ] **1.4 aim paragraph**: Paper identity — "fusion-driven, epigenetically silenced" 표현 본인 voice 검증, "amenable to" 표현 톤 (vs "supports", "motivates", "enables") 본인 결정
-- [ ] **1.3 마지막 줄**: "Such an upstream marker..." → 본 paper 의 thesis statement 직전 line — Cell Press style 검증
-- [ ] **Section 간 transitions** — 본인 voice 자연스러운 흐름 검증
-
-## 다음 step
-
-1. 본인 5/4 read (Landa, Yoo, ATA, TCGA, Pu) → cite verify
-2. 본인 voice 적용 (1.1 hook + 1.4 aim)
-3. v2 draft → Web Claude review → v3 final
-4. Prompt 3 (Results 2.1-2.5) 진입 (W2-W3)
+Here, we apply an 8-gene RAI-responsiveness panel — independently selected from canonical thyroid differentiation biology (Yoo et al., 2016) before access to the Landa 2016 ATC-silenced gene list — across TCGA-THCA (n=504), MSK-IMPACT thyroid (n=117), Korean cohorts (n=865), and external single-cell datasets. We show that this panel resolves the BRAF/RAS-negative compartment into a DM1/DM2 axis that is orthogonal to canonical driver classification, stable to candidate-pool restriction, and neutral to driver-transcript abundance. Within this compartment, DM1 captures most tyrosine-kinase-fusion-positive tumors, including 81.8% of TCGA RET-fusion-positive cases, while also harboring fusion-independent promoter hypermethylation of thyroid differentiation genes. These findings define DM1 as a fusion-driven, epigenetically silenced dark-matter subtype and support a clinically interpretable framework for reflex fusion testing and prospective evaluation of epigenetic-targeted RAI re-induction.

@@ -84,3 +84,52 @@ is HT-only; v1 paragraph is record-only.
 ---
 
 *Generated 2026-05-04 by Task B of Paper 2 isolated session.*
+
+---
+
+## Second sweep (2026-05-04, cross-portfolio review)
+
+추가 발견된 occurrences — 이전 sweep 누락된 portfolio-level 자료:
+
+| File | Line | Before | After |
+|---|---|---|---|
+| `project/submission/papers_overview.html` | 264 (HTML comment) | `<!-- Paper 2 — Autoimmune-overlap PTC -->` | `<!-- Paper 2 — Hashimoto-overlap PTC -->` |
+| `project/submission/papers_overview.html` | 370 (Table 1 row) | `Autoimmune-overlap PTC ★` | `Hashimoto-overlap PTC ★` |
+| `project/manuscript_p2_brief/p2_advisor_discussion.html` | 6 (`<title>` tag) | `Paper 2 — Autoimmune-overlap PTC \| Advisor Discussion Brief` | `Paper 2 — Hashimoto-overlap PTC \| Advisor Discussion Brief` |
+
+## Files NOT modified — second sweep additions
+
+| File | Why not edited (this sweep) |
+|---|---|
+| `project/manuscript_p3_brief/*.html` | **Paper 3 territory** (GD/autoimmune-thyroid). SCOPE 명시: "Paper 3 file touch 금지 (source file read 도 금지)". Paper 3 brief 의 occurrences 는 Paper 3 own scope. |
+| `project/three_papers_index.html` | Cross-paper meta-index (3 papers all-context). "autoimmune-overlap PTC" 표현이 portfolio-level branding (advisor 지시 미포함 영역). Future revision 권장이나 본 sweep scope 제외. |
+| `project/STATUS_PAPER2_2026_05_02.md`, `STATUS_PAPER3_2026_05_02.md` | Status meta-doc; "autoimmune-PTC" mentions = substitution-rule documentation context (recording the change). Active framing 아님. |
+| `project/notebooks_or_scripts/v17_F5_autoimmune_PTC_mechanism.py` | Pre-isolation script (figure title "Autoimmune-PTC mechanism"). 본 figure 가 Paper 1 의 Pillar 5 figure 라서 Paper 1 voice-protected 영역. Out of Task B scope. |
+| `project/scripts/v17_hla_autoimmune/run_autoimmune_hla.py:665` | Pre-isolation era; bib reference quote inside script. Historical record. |
+| `project/results/audit_2026_04_30/FINAL_COMPREHENSIVE_SUMMARY_v{2,3}.md` | Historical audit summaries — frozen artifact. |
+
+## Updated cross-contamination footprint check (after second sweep)
+
+```bash
+# Paper 2 active narrative
+$ grep -rln "Autoimmune-overlap PTC\|autoimmune-PTC\|autoimmune PTC" project/manuscript_p2_brief/
+# Only in deprecation banner (p2_advisor_discussion.html line 671) — recording
+# the substitution context itself; not an active framing claim.
+
+$ grep -rln "Pan-Asian autoimmune-thyroid" project/manuscript_p2_brief/
+# (none — clean ✓)
+
+$ grep -rln "Autoimmune-overlap PTC\|autoimmune-overlap PTC" project/submission/papers_overview.html
+# (none — clean ✓ after second sweep)
+```
+
+Net Paper 2 active narrative (deliverables that go to advisor):
+- `paper2_brief.html` (story version, 38 pages PDF) — clean ✓
+- `p2_advisor_discussion.html` (extended, 50 pages PDF) — clean except 1 deprecation banner (intentional record) ✓
+- `p2_pillar1_forest/` v1 outputs — DEPRECATED-banner wrapped (record only) ✓
+- `p2_pillar1_forest_v2/` (Task A output) — born clean, Korean-baseline framed ✓
+- `papers_overview.html` (master index) — clean after second sweep ✓
+
+---
+
+*Updated 2026-05-04 by Task B second sweep of Paper 2 isolated session.*

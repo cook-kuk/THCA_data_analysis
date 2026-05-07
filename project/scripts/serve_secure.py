@@ -48,6 +48,19 @@ CSP = (
 
 class SecureHandler(SimpleHTTPRequestHandler):
     server_version = "THCA-Secure/1.0"
+    ROUTES = {
+        "/paper9": "/papers_hub_2026_05_04/paper9.html",
+        "/paper9-perturbation": "/paper9-perturbation/index.html",
+        "/paper2-hla": "/paper2-hla/index.html",
+        "/paper4-hla": "/paper4-hla/index.html",
+    }
+
+    def translate_path(self, path):
+        clean = path.split("?", 1)[0].split("#", 1)[0]
+        if clean in self.ROUTES:
+            path = self.ROUTES[clean]
+        return super().translate_path(path)
+
     # Disable directory listings
     def list_directory(self, path):
         self.send_error(403, "Directory listing disabled")
