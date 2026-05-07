@@ -23,7 +23,7 @@ import pandas as pd
 from matplotlib.gridspec import GridSpec
 from matplotlib.colors import LinearSegmentedColormap
 
-PROJECT_ROOT = Path(__file__).parents[2]
+PROJECT_ROOT = Path(__file__).parents[1]  # project/ (was parents[2] — bugfix 2026-05-07)
 RESULTS_DIR = PROJECT_ROOT / "results"
 OUT_DIR = PROJECT_ROOT / "manuscript_v8" / "figures"
 OUT_DIR.mkdir(parents=True, exist_ok=True)

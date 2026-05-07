@@ -58,7 +58,7 @@ This study uses publicly available genomic and transcriptomic data from previous
 - **MSK-IMPACT thyroid** (n = 117; advanced disease, mostly PDTC + ATC). Validation cohort. (Landa et al., 2016).
 - **K2 / PRJEB11591** (n = 260; primary Korean PTC). Validation cohort. (Yoo et al., 2016).
 - **Lee / GSE213647** (n = 632; Korean PTC). Validation cohort.
-- **GSE286332 reference arm** (n = 9 Korean PTC). Small external Korean reference set used for calibration and score-portability checks.
+- **GSE286332 reference arm** (n = 9 Korean PTC). Small external Korean reference set used for calibration and score-portability checks. <em>Not aggregated into the Korean cohort summary statistic n = 865 (K2 + Lee) to preserve scope separation from Paper 2 (GSE286332 PTC vs PTC+HT main cohort, n = 18).</em>
 - **GSE184362 Pu 2021** (n = 7 PTC patients; single-cell). External validation.
 - **GSE193581 Lu 2023** (n = 23 single-cell samples). External validation.
 - **GSE241184** (n = 1; Phase 1 single-cell). Internal pilot.

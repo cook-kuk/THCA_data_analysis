@@ -8,7 +8,7 @@ status: clean draft with author voice placeholder
 
 # Cover Letter
 
-[Editorial date]
+2026-05-08
 
 [Editor in Chief / Editorial Office]
 *Cell Reports Medicine*

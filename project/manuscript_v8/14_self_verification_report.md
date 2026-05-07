@@ -64,7 +64,7 @@ Protected sections were left as explicit author placeholders rather than Codex p
 ## Open items for author review
 
 - Citation placeholders in [03_introduction.md](/home/seungho/personal/THCA_data_analysis/project/manuscript_v8/03_introduction.md) still need literature-level verification for the SEER-incidence and Bethesda statements
-- Decide whether `GSE286332` should remain as a small Korean reference arm inside the `n=874` aggregate or be fully removed from Paper 1 cohort summaries
+- ~~Decide whether `GSE286332` should remain as a small Korean reference arm inside the `n=874` aggregate or be fully removed from Paper 1 cohort summaries~~ — **Resolved 2026-05-07 (audit P1-2):** GSE286332-PTC(9) dropped from Paper 1 aggregate; new Korean cohort summary statistic is `n=865 (K2 235 + Lee 630)`. GSE286332 reference arm description retained in STAR Methods with explicit boundary note. Rationale: preserve scope separation from Paper 2 (GSE286332 = Paper 2 PTC vs PTC+HT main cohort).
 - Confirm the final public repository URL and archival DOI language in [07_star_methods.md](/home/seungho/personal/THCA_data_analysis/project/manuscript_v8/07_star_methods.md)
 - Fill affiliations and corresponding-author email in [08_cover_letter.md](/home/seungho/personal/THCA_data_analysis/project/manuscript_v8/08_cover_letter.md)
 - Final supplement numbering can be re-tuned once figure build is complete
