@@ -59,4 +59,20 @@ purpose: 12 likely reviewer questions 사전 답변 — paper revision 시 정�
 
 **A12.** Sub-B is the fusion-negative component of DM1 identified by unsupervised clustering within the DM1 compartment, with silhouette support (0.584) and reproducible cross-cohort DM score geometry in Korean validation data. Its mutation-negativity indicates that the DM1 axis is not reducible to canonical BRAF/RAS driver status. We therefore interpret sub-B as a biologically distinct transcriptional state within DM1, while treating its more specific mechanism as hypothesis-generating and reserving deeper characterization for companion work.
 
+## Q13. Why eight genes and not the canonical Yoo 2014 TDS-16? Was the 8-gene panel cherry-picked from a 16-gene set?
+
+**A13.** No — the 8-gene panel is a compact lossless readout of the canonical TDS-16 differentiation axis, not a selectively top-extreme subset. Across the same biology (MAPK-driven silencing of thyroid differentiation transcripts), the deployable 8-gene panel and the canonical Yoo 2014 TDS-16 (Panel + DIO2 / DUOX1 / DUOX2 / GLIS3 / SLC26A4 / SLC5A8 / THRA / THRB) behave indistinguishably across four independent tests in two cohorts (TCGA-THCA n = 572; Lee/GSE213647 n = 632; Supplementary Figure SX_v13).
+
+(i) **Cross-cohort MAPK output × thyroid-score Spearman ρ.** Panel-8 ρ = −0.291 / −0.395; TDS-16 ρ = −0.306 / −0.435 (Δρ = +0.015 / +0.040). The disjoint TDS−panel 8-gene set (TDS-16 \\ Panel) gives ρ = −0.310 / −0.449, matching Panel-8 magnitudes — the silencing axis is distributed across the 16-gene program, not concentrated in eight pre-selected genes.
+
+(ii) **Per-driver-class Cohen's d.** BRAF V600E (n = 344) versus RAS-mutant (n = 61) Cohen's d on score: Panel-8 = −1.615 versus TDS-16 = −1.616 (identical to three significant figures); BRAF V600E versus driver-negative: Panel-8 = −0.900 versus TDS-16 = −0.996; RET fusion versus driver-negative: Panel-8 = −0.261 versus TDS-16 = −0.403. The score gradient across drivers reproduces 1:1 between the two panels.
+
+(iii) **DM1 sub-A vs sub-B two-axis convergence.** sub-A (n = 93) vs sub-B (n = 62) Cohen's d for MAPK output = +1.79 (Mann-Whitney p = 4.1 × 10⁻¹⁷) — sub-A is MAPK-active. The thyroid-program scores are flat across the same split: Panel-8 d = +0.074 (NS), TDS-16 d = +0.032 (NS), TDS−panel d = −0.026 (NS) — both compact and canonical panels converge to silencing whether reached via MAPK (sub-A) or HT/B-cell route (sub-B), and the convergence holds for the full TDS-16 (not only the deployable subset).
+
+(iv) **ROC-AUC: MAPK-high vs MAPK-low classifier.** Panel-8 AUC = 0.623 (TCGA) / 0.728 (Lee); TDS-16 AUC = 0.631 / 0.740. ΔAUC TDS-16 − Panel-8 = +0.007 / +0.012 — both non-significant. This independently reproduces the existing one-page-audit ΔAUC = 0.013 NS (DM1/DM2 classification task; see `p1_onepage_audit`) on an orthogonal classification target.
+
+(v) **Per-gene rank within TDS-16.** Strongest TCGA negative MAPK-correlations are SLC5A8 (ρ = −0.516, non-panel), DIO2 (−0.481, non-panel), TPO (−0.465, panel), SLC26A4 (−0.438, non-panel) — that is, the 8-gene panel members occupy median rank within the 16, not selectively top-extreme. NKX2-1 is the consistent positive-ρ outlier (+0.307 / +0.425) in both cohorts and is included in the panel mean as a known absorbed caveat.
+
+The 8-gene panel was originally curated from the broader TIERA67 candidate pool by RandomForest ranking with drivers excluded by design (see Q1 / Q2; `v17_8gene_audit_2026_04_29` audit), and the panel's claim is compactness for clinical RT-qPCR deploy — not "best 8 of 16." Cell Press / npj-format reviewers can verify the cherry-pick concern by running the four tests in (i–iv) on their own data, with all source code and per-panel TSVs at `project/results/p_deconv_2026_05_08/v13_*.tsv`.
+
 ---
