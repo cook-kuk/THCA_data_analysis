@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Paper 1 — Comprehensive One-Page Audit (RAI-lineage triage scaffold)</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--accent:#7B1F2A;--ink:#1a1a1a;--rule:#c9c9c9;--bg:#fbf7f4;--main:#94d4a4;--supp:#f9c863;--drop:#bf3434;--blue:#2c5e9c;--ok:#3C6B4F;--navy:#1f3a5f}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:#fff;line-height:1.6}
+header{background:linear-gradient(180deg,#fffaf6,#fbf7f4);border-bottom:3px solid var(--accent);padding:34px 8% 28px}
+header .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase}
+header h1{font-size:32px;line-height:1.18;margin:6px 0 10px;color:#222}
+header h1 em{color:var(--accent);font-style:normal}
+header p{max-width:1100px;margin:6px 0;font-size:15px;color:#333}
+.meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px}
+.meta span{background:#fff;border:1px solid var(--rule);padding:5px 9px;border-radius:3px}
+main{max-width:1320px;margin:0 auto;padding:24px 4% 80px}
+section{margin:46px 0;padding-top:8px}
+h2{font-size:24px;color:var(--accent);border-bottom:3px solid var(--accent);padding-bottom:6px;margin-top:0}
+h3{font-size:18px;margin:20px 0 8px;color:var(--navy)}
+h4{font-size:13px;margin:14px 0 6px;font-family:'JetBrains Mono',monospace;letter-spacing:.05em;color:var(--accent)}
+.lede{font-size:16px;background:#fffaf6;border-left:4px solid var(--accent);padding:14px 18px;margin:14px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{border:1px solid var(--rule);border-radius:6px;padding:14px;background:#fff}
+.card.gold{background:#fffaf2;border-left:4px solid var(--supp)}
+.card.red{background:#fff5f5;border-left:4px solid var(--drop)}
+.card.green{background:#f4fbf6;border-left:4px solid var(--ok)}
+.card.blue{background:#f1f7fc;border-left:4px solid var(--blue)}
+.card h4{margin-top:0}
+.badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-family:'JetBrains Mono',monospace;font-weight:700}
+.bm{background:var(--main)} .bs{background:var(--supp)} .bd{background:var(--drop);color:#fff} .bo{background:var(--ok);color:#fff} .br{background:var(--accent);color:#fff}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}
+th{background:#fbf7f4;text-align:left;font-weight:600}
+th,td{border:1px solid var(--rule);padding:6px 9px;vertical-align:top}
+.stress{color:var(--accent);font-weight:600}
+img.fig{width:100%;border:1px solid var(--rule);border-radius:4px;margin:8px 0}
+.caption{font-size:12.5px;color:#444;margin:4px 0 16px;padding:8px 12px;background:#f9f9f9;border-left:3px solid var(--rule);border-radius:0 4px 4px 0}
+.do{color:var(--ok);font-weight:600} .dont{color:var(--drop);font-weight:600}
+ul.tight{margin:6px 0 6px 18px} ul.tight li{margin:3px 0}
+.warn{background:#fff8e1;border-left:4px solid var(--supp);padding:10px 14px;margin:8px 0;font-size:13.5px}
+.danger{background:#fff0f0;border-left:4px solid var(--drop);padding:10px 14px;margin:8px 0;font-size:13.5px}
+.ok{background:#f1faf3;border-left:4px solid var(--ok);padding:10px 14px;margin:8px 0;font-size:13.5px}
+.clinic{background:linear-gradient(180deg,#fffaf6,#fdf5ef);border:2px solid var(--accent);padding:14px 18px;margin:10px 0;border-radius:6px;font-size:14px}
+.clinic b{color:var(--accent)}
+nav.toc{background:#fbf7f4;border:1px solid var(--rule);border-radius:6px;padding:12px 18px;margin:14px 0;font-size:13px;position:sticky;top:0;z-index:9}
+nav.toc a{color:var(--blue);text-decoration:none;margin-right:14px}
+nav.toc a:hover{text-decoration:underline}
+.hero-conclude{font-size:18px;line-height:1.5;margin:14px 0;padding:22px 26px;background:linear-gradient(180deg,#fffaf6,#fdf5ef);border:2px solid var(--accent);border-radius:8px;color:#1a1a1a}
+.kbd{font-family:'JetBrains Mono',monospace;background:#f5f5f5;padding:1px 6px;border:1px solid #ddd;border-radius:3px;font-size:12px}
+small.note{font-size:11px;color:#777}
+.figbox{margin:16px 0;padding:16px;background:#fdfbf7;border-radius:6px;border:1px solid var(--rule)}
+.figbox h3{margin-top:0;color:var(--navy)}
+.figbox .meta-row{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;font-family:'JetBrains Mono',monospace;color:#555;margin-bottom:8px}
+.figbox .meta-row b{color:var(--accent)}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:10px 0}
+.three-col > div{padding:10px 14px;border-radius:4px;font-size:13px}
+.three-col .what{background:#f1f7fc;border-left:4px solid var(--blue)}
+.three-col .why{background:#f4fbf6;border-left:4px solid var(--ok)}
+.three-col .lack{background:#fff5f5;border-left:4px solid var(--drop)}
+.three-col h5{margin:0 0 6px;font-size:11.5px;font-family:'JetBrains Mono',monospace;letter-spacing:.06em}
+.divider-band{height:6px;background:linear-gradient(90deg,#7B1F2A,#d4a017,#3C6B4F,#2c5e9c);margin:36px 0;border-radius:3px}
+.story-step{display:grid;grid-template-columns:80px 1fr;gap:14px;align-items:center;margin:10px 0;padding:12px;background:#fff;border:1px solid var(--rule);border-radius:6px}
+.story-step .num{font-size:28px;font-weight:bold;color:var(--accent);text-align:center}
+.flow-narrative{background:linear-gradient(180deg,#fdfbf7,#fff);border:2px dashed var(--accent);padding:18px 24px;margin:18px 0;border-radius:8px}
+.flow-narrative h3{margin-top:0;color:var(--accent)}
+.flow-narrative p{font-size:14.5px;line-height:1.7;margin:8px 0}
+.flow-narrative .step{display:inline-block;background:var(--accent);color:#fff;font-weight:700;padding:1px 8px;border-radius:3px;margin-right:6px;font-family:'JetBrains Mono',monospace;font-size:12px}
+.section-intro{background:#f9f9f9;padding:12px 18px;border-left:5px solid var(--accent);margin:14px 0 18px;font-size:14.5px;line-height:1.7}
+.bullet-row{display:grid;grid-template-columns:30px 1fr;gap:8px;margin:6px 0;align-items:start}
+.bullet-row .b{color:var(--accent);font-weight:700;font-size:18px}
+.section-summary{background:#fff8e1;border:2px solid var(--supp);padding:14px 18px;margin:16px 0;border-radius:6px;font-size:14px}
+.section-summary h4{color:var(--accent);margin-top:0}
+.qa{background:#fff;border:1px solid var(--rule);padding:14px 18px;margin:10px 0;border-radius:6px}
+.qa .q{color:var(--accent);font-weight:700;margin-bottom:6px}
+.qa .a{color:var(--ink);padding-left:12px;border-left:3px solid var(--ok)}
+.star{display:inline-block;font-size:14px;color:#d4a017;font-weight:bold;margin-left:6px;vertical-align:middle}
+.star3{color:#c0392b;font-size:18px}
+.deep{background:linear-gradient(180deg,#fff8f0,#fff);border:2px solid #d4a017;border-radius:8px;padding:18px 22px;margin:18px 0}
+.deep h3{color:#7B1F2A;margin-top:0}
+.deep .label{display:inline-block;background:#7B1F2A;color:#fff;padding:3px 10px;border-radius:3px;font-size:12px;font-family:'JetBrains Mono',monospace;font-weight:700;margin-bottom:8px}
+.dl-link{display:inline-block;padding:6px 14px;border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;border-radius:3px;margin:4px 4px 4px 0;background:#fff;font-weight:700}
+.dl-link:hover{background:var(--accent);color:#fff}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Paper 1 · Comprehensive One-Page Audit · 2026-05-07 · Audit + Synthesis + Web Packaging</div>
+  <h1>Paper 1 — <em>compact RAI-lineage transcriptomic readout</em><br/>for early triage of post-surgery RAI-failure biology</h1>
+  <p>본 페이지는 Paper 1 의 <b>(1) 데이터셋 / (2) 유전자 set / (3) figure logic / (4) 임상 framing / (5) claim 경계 / (6) reviewer-risk / (7) gene panel combination scan</b> 을 모두 한 화면에 정리한 audit. <b>19 figures + 7 tables</b> + storyline + 임상 implications + missing gaps.</p>
+  <p style="color:var(--accent);font-weight:600">Voice-protected manuscript prose 는 작성하지 않았습니다 (Hook / Aim / Discussion §3.1 / Limitations / Cover / Q9 = 본인 키보드).</p>
+  <div class="meta">
+    <span>Inputs: external_validation · paper1_final_strategy · manuscript_v8 outline · figure captions · gene-set strategy</span>
+    <span>Mode: audit + synthesis + web packaging</span>
+    <span>Updated: 2026-05-07</span>
+  </div>
+</header>
+
+<main>
+
+<nav class="toc">
+  <strong>목차:</strong>
+  <a href="#hero">1. Hero</a> ·
+  <a href="#story">2. Storyline arc</a> ·
+  <a href="#clinical">3. Clinical reframe</a> ·
+  <a href="#datasets">4. Datasets</a> ·
+  <a href="#genes">5. Genes</a> ·
+  <a href="#evidence">6. Evidence chain</a> ·
+  <a href="#mainfigs">7. Main figures explained</a> ·
+  <a href="#korean">8. Korean cohort</a> ·
+  <a href="#mechanism">9. Mechanism cascade</a> ·
+  <a href="#combos">10. Panel combos</a> ·
+  <a href="#claims">11. Claims</a> ·
+  <a href="#risks">12. Reviewer risks</a> ·
+  <a href="#missing">13. What's missing</a> ·
+  <a href="#isnot">14. IS / IS NOT</a> ·
+  <a href="#titles">15. Titles</a> ·
+  <a href="#nextsteps">16. Next steps</a>
+</nav>
+
+<!-- ========================================================== -->
+<section id="hero">
+<h2>1. Hero — 한 줄 결론</h2>
+<div class="hero-conclude">
+Paper 1 은 <span class="stress">"새로운 8-gene 발견 paper" 가 아닙니다.</span><br/>
+이 paper 는 <span class="stress">갑상선 lineage 분화 axis 를 임상에 deploy 가능한 형태로 압축한 RT-qPCR 호환 transcriptomic readout</span> paper 이며, 목표는<br/>
+<b>"수술 후 RAI 시도 → 실패 인지 지연 → 진행" 이라는 현재 임상 흐름의 *시간적 gap* 을 분자 수준에서 더 *일찍 인식*할 가능성에 대한 <em>가설적 candidate triage scaffold</em> 를 제시하는 것</b>입니다 (NOT a validated predictor / NOT a treatment-selection tool / NOT proven prospective utility).
+</div>
+<div class="warn">★ 이 readout 은 <b>validated RAI response predictor 가 아니며</b>, 현재 임상 의사결정 도구가 아니며, prospective trial 이 필요합니다.</div>
+
+<div class="flow-narrative">
+<h3>이 paper 의 흐름 — 한 페이지로 본 전체 그림</h3>
+<p><span class="step">1</span> 수술 후 RAI 표준치료가 모든 환자에게 동일하게 적용되지만, <b>일부 환자는 수개월~수년 뒤에야 RAI 실패가 인지</b>된다 (Tg trend, 영상 추적). 그 동안 분화도가 더 침묵될 수 있어 systemic 치료 시점도 늦어진다.</p>
+<p><span class="step">2</span> 우리는 이 *분화도 침묵 biology* 를 <b>RNA 수준에서 *수술 직후* 측정 가능</b>한지 물었다. 그러려면 (a) 측정 대상 axis 가 driver mutation 과 직교해야 하고, (b) 임상에 deploy 가능한 compact panel 이어야 하고, (c) 다중 cohort 에서 재현되어야 하고, (d) mechanism 이 설명되어야 한다.</p>
+<p><span class="step">3</span> Discovery 결과: <b>RAI uptake / 호르몬 합성 효소 + 그 위 transcription factor backbone</b> 가 함께 무너지는 양상이 TCGA-THCA 에서 클러스터로 나뉜다 (DM1 vs DM2). Driver mutation panel 만으론 이 cluster 를 못 만든다 (ARI ≈ 0).</p>
+<p><span class="step">4</span> Deployment: 67-gene 큰 panel 의 정보를 <b>8-gene RT-qPCR panel 로 압축</b>해도 deployment 정확도는 거의 그대로 유지 (AUC 0.962 vs 16-gene 0.975, ΔAUC 0.013 NS). 8개 모두 임상의가 매일 보는 분자 (NIS / TG / TPO / TSHR / PAX8 / TTF-1 / TTF-2 / DIO1).</p>
+<p><span class="step">5</span> Replication: GPL570 4 cohort + Korean K2 + Lee 2024 (총 870+) + Landa MSK-IMPACT advanced. 핵심은 <b>panel 외부의 *zero-overlap* lineage 8 genes 도 함께 침묵</b>하는 것 (ρ ≤ −0.84). panel 자체가 cherry-pick 이 아니라는 가장 강한 defense.</p>
+<p><span class="step">6</span> Mechanism: <b>lineage TF 침묵 → DNMT/STAT3/AP-1 활성 → promoter hypermethylation → RAI 흡수 machinery 침묵</b>. TPO promoter β: DM1 vs DM2 d=2.30, p=10⁻¹⁸. decitabine + I-131 재유도 trial 의 mechanistic 적격성 합리화.</p>
+<p><span class="step">7</span> Reframe: <b>compact RNA readout = RAI-lineage failure biology 를 수술 직후 flag 하는 후보 triage scaffold</b>. ★ Hypothesis only. 현재 임상 결정 도구 아님. prospective trial 후에야 implementation 가능.</p>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- IMG-DM1-V2-SECTION-START -->
+<section id="image-dm1-v2" style="margin:38px 0;padding:18px 22px;border:2px solid #c0392b;border-radius:8px;background:#fff8f0">
+<h2 style="color:#7B1F2A;border-bottom:3px solid #7B1F2A;padding-bottom:6px">★★★ Image-DM1 v2 sprint results — foundation model + CLAM</h2>
+<div class="lede">2026-05-07 sprint: closure NO-GO re-opened with foundation-model (UNI/ViT-L) + CLAM gated-attention MIL. ResNet50 closure baseline ~0.55.</div>
+<pre style="background:#fafafa;border-left:4px solid #7B1F2A;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:13px;white-space:pre-wrap"># Sprint result — Foundation-model + CLAM v2  (2026-05-07)
+
+## Verdicts
+
+- Phase 1 (GSE250521 ↔ DM1): **PASS**
+  - n_slides=16; |ρ|>0.3 in PC1: 8/16 (50%); max |ρ|=0.610
+- Phase 2 (TCGA CLAM AUC): **PASS**  AUC=0.847
+
+## Combined verdict
+
+**PASS_LAUNCH_PAPER2**
+
+→ Paper 1 spatial supp augment + Paper 2 image-DM1 launch unlocked.</pre>
+</section>
+<!-- IMG-DM1-V2-SECTION-END -->
+
+
+
+
+<!-- ========================================================== -->
+<section id="story">
+<h2>2. Storyline arc — narrative spine</h2>
+<img class="fig" src="assets/p1_onepage_audit/fig11_narrative_storyline.png" alt="storyline arc"/>
+<p class="caption">Fig 11. 6 단 narrative spine. 각 단계는 자체로 figure 1 개 이상 + 별도 evidence; 빠지면 reviewer 가 "무엇이 novel 한가" 못 잡음.</p>
+
+<div class="story-step"><div class="num">1</div><div>
+<b>HOOK — 임상 문제:</b> RAI 실패 인지에 6-12 개월 + 분자적 위험 측정 도구 부재. 수술 직후 시점에 위험을 알 수 있다면? → 모든 paper 의 *이유*.
+</div></div>
+<div class="story-step"><div class="num">2</div><div>
+<b>AXIS — 분자 정체성:</b> driver mutation (BRAF/RAS/TERT) 만으로는 정의 안 되는 *분화도* 라는 직교 차원이 있다. → driver-orthogonal 이라는 *novel discovery*.
+</div></div>
+<div class="story-step"><div class="num">3</div><div>
+<b>READOUT — 측정 도구:</b> 67-gene 큰 panel 로 axis 가 정의되지만, 임상 deploy 를 위해 *8-gene compact RT-qPCR panel* 로 압축. AUC 0.962 (16-gene 대비 ΔAUC 0.013 NS).
+</div></div>
+<div class="story-step"><div class="num">4</div><div>
+<b>REPLICATION — 다중 코호트:</b> GPL570 4 cohort + Korean K2/Lee 2024 (n=874+) + Landa MSK-IMPACT advanced + Pu 2021 single-cell. ρ ≤ −0.84 zero-overlap defense.
+</div></div>
+<div class="story-step"><div class="num">5</div><div>
+<b>MECHANISM — 생물학적 근거:</b> lineage TF backbone 침묵 → DNMT/STAT3/AP-1 활성 → promoter methylation → RAI 흡수 machinery 침묵. TPO d=2.30, β +52%.
+</div></div>
+<div class="story-step"><div class="num">6</div><div>
+<b>REFRAME — 임상 의미:</b> 8-gene readout 으로 수술 직후 분자 위험을 측정 → RAI 실패 biology 의 조기 flag 가능성. <b>candidate triage scaffold (hypothesis only)</b>.
+</div></div>
+
+<div class="ok">★ <b>핵심 narrative tension:</b> "axis 발견 (discovery)" vs "panel 압축 (deployment)" 의 2-layer architecture 를 reviewer 가 받아들여야 ARI 0.49 약점이 강점으로 reframe 됨.</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="clinical">
+<h2>3. Clinical reframe — 임상적 의의</h2>
+
+<div class="section-intro">
+<b>이 섹션의 흐름:</b> 갑상선암 수술 후 RAI 표준치료의 <b>현재 표준 흐름</b> 을 먼저 보고 (Fig 01), 그 흐름의 <b>핵심 시간 손실 지점</b> 을 timeline 으로 명시 (Fig 14), 그 자리에 8-gene readout 이 들어가면 <b>어떤 의사결정이 빨라지는지</b> 보여준다. 단, hypothesis 단계임을 모든 figure caption 에 명시한다.
+</div>
+
+<div class="figbox">
+<h3>Fig 01 — Current vs Future clinical workflow</h3>
+<div class="meta-row"><b>Type:</b> schematic <b>·</b> <b>Source:</b> 본 audit synthesis <b>·</b> <b>Status:</b> hypothesis only</div>
+<img class="fig" src="assets/p1_onepage_audit/fig01_clinical_workflow_current_vs_future.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>현재 standard: 수술 → empirical RAI → 6-12 개월 후 Tg ↑ 인지 → systemic 검토. 제안 hypothesis: 수술 → 8-gene readout → DM1 high-risk 즉시 flag → earlier review.</div>
+  <div class="why"><h5>WHY</h5>임상의가 즉시 이해. RAI 실패는 *biology 가 dedifferentiated 했기 때문* 이라는 mechanism-grounded 설명이 가능 (TPO/NIS/TG 침묵).</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>prospective trial; 8-gene readout 의 RAI 실패 *flag 능력* (예측력 아님; flag 는 trigger; 예측은 deterministic) 검증; DM1 환자에서 early molecular review 가 outcome 개선하는지의 임상 효용 검증.</div>
+</div>
+</div>
+
+<div class="figbox">
+<h3>Fig 14 — Clinical timeline (post-surgery)</h3>
+<div class="meta-row"><b>Type:</b> timeline schematic</div>
+<img class="fig" src="assets/p1_onepage_audit/fig14_clinical_timeline.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>Post-op 0w / RAI 6-8w / Tg 6mo / Tg trend 12mo / recurrence 2-3yr / aggressive >3yr 의 임상 흐름. 8-gene readout 가설적 개입 시점 = post-op 0w.</div>
+  <div class="why"><h5>WHY</h5>RAI dose 결정 *전* 에 lineage failure biology 를 알 수 있는 가설적 시점 — *months 절약 가능*.</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>실제 측정 능력 (FFPE 호환성), turnaround time, cost-effectiveness, RT-qPCR vs NanoString 표준화.</div>
+</div>
+</div>
+
+<div class="clinic">
+<b>임상의가 즉시 이해할 4 가지 핵심:</b>
+<ul class="tight">
+<li><b>측정 대상 = NIS, TG, TPO, TSHR, PAX8, TTF-1, TTF-2, DIO1</b> — 매일 진료에서 보는 분자</li>
+<li><b>측정 방법 = RT-qPCR / NanoString</b> — 어느 병리실에서나</li>
+<li><b>의미 = DM1 high-risk = 분화 침묵 → RAI 흡수 machinery 침묵 → RAI 실패 가능성 ↑</b></li>
+<li><b>가설적 임상 행동 (NOT validated) = future-work 시나리오</b> — 후보군 식별 후 추가 분자 검사를 *고려할 수 있는지* 를 prospective trial 에서 검증하는 framework</li>
+</ul>
+</div>
+
+<div class="qa">
+<div class="q">Q. 이게 왜 새로운가? "분화도 점수 (TDS)" 이미 있잖아?</div>
+<div class="a">기존 TDS-16 은 차이를 본 *연구 도구*. 본 paper 는 (1) RAI biology 만에 집중한 8-gene compact readout, (2) panel-overlap artifact 를 직접 차단하는 *zero-overlap* defense, (3) Korean East-Asian 코호트에서의 generalizability 입증, (4) <b>수술 직후 RT-qPCR 1 회 측정 → DM1 flag</b> 라는 명시적 임상 reframe 을 묶은 것. 분화도를 *발견* 한 게 아니라 분화도를 *임상에 deploy 가능한 형태로 압축* 한 것.</div>
+</div>
+
+<div class="qa">
+<div class="q">Q. RAI 시도하기 전에 "이 환자 RAI 실패할 거다" 라고 단정할 수 있나?</div>
+<div class="a"><b>아니오.</b> 8-gene readout 은 *RAI failure biology 의 위험을 분자 수준에서 raise flag* 하는 도구이지, "이 환자는 RAI 안 먹힌다" 의 deterministic predictor 가 아님. 현재 표준 RAI 절차를 변경 권고하지 않음. 다만 *DM1 flag 환자* 는 follow-up 강화 / earlier systemic review / RET reflex testing 같은 보조 의사결정에 *후보* 로 사용 가능함을 prospective 으로 검증해야 함.</div>
+</div>
+
+<div class="qa">
+<div class="q">Q. 이미 임상에서 ATA risk classification 쓰는데 왜 또 분자검사?</div>
+<div class="a">ATA 2015 classification 은 *수술 시 발견되는 features* (size, extension, margin, nodal, vascular invasion) 위주. 본 8-gene 은 *분자적 분화도* 를 추가로 측정 → 두 axis 가 *직교* 이므로 정보 추가. 즉 ATA 를 *대체* 가 아니라 *complementary* 로 사용. ATA low-risk 안에서도 DM1 high 인 환자 식별 → 추가 follow-up 단계 추천 가능 (post-spec).</div>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="datasets">
+<h2>4. Dataset audit — 21 cohort 전수 검토</h2>
+
+<div class="section-intro">
+<b>이 섹션의 흐름:</b> 21 dataset 을 (a) <b>main 11</b> = discovery + external + mechanism / (b) <b>supp 6</b> = 보조 / (c) <b>drop 4</b> = scope-mismatch 로 분류. 각 group 마다 <b>왜 main 인가 / 왜 supp 인가 / 왜 drop 인가</b> 명시. 특히 advanced-disease enriched cohort (MSK-IMPACT + GSE76039) 는 SA6 bias panel 로 노출.
+</div>
+
+<div class="flow-narrative">
+<h3>Dataset selection 의 logic chain</h3>
+<p><span class="step">A</span> <b>Discovery</b> 는 mixed cohort 에서 → TCGA-THCA n=504 가 적합 (대부분 PTC + 일부 PDTC/ATC). 여기서 DM1/DM2/not_DM partition 정의.</p>
+<p><span class="step">B</span> <b>External replication</b> 은 *platform-independent + ancestry-independent* 가 핵심. 4 GPL570 microarray cohort + 2 Korean RNA-seq + Landa advanced microarray subset 로 cross-platform / cross-ancestry / cross-stage 모두 cover.</p>
+<p><span class="step">C</span> <b>Aggressive replication</b> 은 explicit-bias-disclosed cohort 만 main 으로 (MSK-IMPACT + GSE76039). 둘 다 100% advanced disease 이므로 *primary-tumor prevalence 추정에 쓰면 안 됨* — survival HR 메타용으로만.</p>
+<p><span class="step">D</span> <b>Mechanism support</b> 는 TCGA HM450 (methylation) + cBioPortal SV (fusion) + 3 single-cell cohort (thyrocyte intrinsic) 로 *bulk → spatial → single-cell* 다층 검증.</p>
+<p><span class="step">E</span> <b>Drop</b>: scope-mismatch (Paper 2/3 territory: GSE286332, GSE151179) + technically inaccessible (GSE126698 metadata-only, alignment forbidden) + confounded (GSE60542 lymphoid) — 분명한 이유 있을 때만 drop.</p>
+</div>
+
+<div class="figbox">
+<h3>Fig 02 — Dataset suitability matrix</h3>
+<div class="meta-row"><b>21 datasets:</b> main 11 / supp 6 / drop 4</div>
+<img class="fig" src="assets/p1_onepage_audit/fig02_dataset_suitability_matrix.png"/>
+</div>
+
+<h3>4.1 Main 11 — 핵심 evidence 코호트</h3>
+<table>
+<thead><tr><th>Dataset</th><th>n</th><th>Role</th><th>왜 main</th><th>주의사항</th></tr></thead>
+<tbody>
+<tr><td><b>TCGA-THCA</b></td><td>504</td><td>discovery</td><td>DM1/DM2/not_DM partition source</td><td>OS event 3.4% sparse → PFI primary</td></tr>
+<tr><td>TCGA HM450</td><td>503</td><td>mechanism</td><td>promoter methylation arm Fig 8</td><td>503 / 504 매치, NaN drop</td></tr>
+<tr><td>cBioPortal SV/TERT</td><td>504/36</td><td>fusion + TERT</td><td>Fig 7 fusion enrichment + TERT⁺ recovery</td><td>memory `v17_tert_recovery_v2`</td></tr>
+<tr><td>MSK-IMPACT (Landa 16)</td><td>117</td><td>aggressive</td><td>OS meta anchor</td><td><b>SA6 bias panel mandatory</b> (100% advanced)</td></tr>
+<tr><td>GSE76039</td><td>37</td><td>external valid.</td><td>Disc §3.1 Landa cite-save</td><td>5/8 panel overlap; advanced-bias</td></tr>
+<tr><td>GSE33630</td><td>105</td><td>external valid.</td><td>largest GPL570; ρ −0.93</td><td>cleanest 3-arm; ATC/PTC/N</td></tr>
+<tr><td>GSE65144</td><td>25</td><td>external valid.</td><td>cleanest ATC vs N</td><td>—</td></tr>
+<tr><td>GSE213647 (Lee 24)</td><td>632</td><td>Korean main</td><td>East-Asian generalizability</td><td>22-28% Hashimoto-like ≈ TCGA</td></tr>
+<tr><td>K2 / PRJEB11591</td><td>260</td><td>Korean</td><td>NBNR cluster bridge</td><td>mini-index inflate 4.9-12.5×</td></tr>
+<tr><td>GSE184362 (Pu 21)</td><td>6/158K</td><td>scRNA</td><td>thyrocyte-intrinsic per-patient r=0.798-0.886</td><td>main → supp 권장</td></tr>
+<tr><td>GSE193581 (Lu 23)</td><td>23</td><td>scRNA</td><td>author-independence</td><td>integration method verify pending</td></tr>
+</tbody>
+</table>
+
+<h3>4.2 Supp 6 — 보조 evidence</h3>
+<table>
+<thead><tr><th>Dataset</th><th>n</th><th>Role</th><th>주의사항</th></tr></thead>
+<tbody>
+<tr><td>GSE29265</td><td>49</td><td>paired-normal external</td><td>Sporadic vs Chernobyl 디자인</td></tr>
+<tr><td>GSE53157</td><td>26</td><td>PDTC sensitivity</td><td>PDTC arm n=5 underpowered, direction-consistent only</td></tr>
+<tr><td>GSE241184</td><td>1</td><td>Phase 1 sc author-indep.</td><td>do not over-interpret n=1</td></tr>
+<tr><td>GSE250521 spatial</td><td>16</td><td>spatial supp</td><td>sample-mean stage trend p > 0.6 marginal; PT = Para-Tumor 명시</td></tr>
+<tr><td>Pozdeyev 2018 supp</td><td>779</td><td>Disc §3.1 broader cite</td><td>supp table only; raw → PI request</td></tr>
+<tr><td>TIERA67 candidate pool table</td><td>67</td><td>Methods M2 + Supp Table S1</td><td>"project-internal" name 명시</td></tr>
+</tbody>
+</table>
+
+<h3>4.3 Drop 4 — scope-mismatch</h3>
+<div class="grid2">
+<div class="card red"><b>GSE126698</b> — Series Matrix metadata-only; raw=SRA-only; alignment forbidden</div>
+<div class="card red"><b>GSE60542</b> — PTC nodal mets + LN, lymphoid confounding</div>
+<div class="card red"><b>GSE286332</b> — PTC + PTC+HT (Paper 2 territory; HT-isolated rule)</div>
+<div class="card red"><b>GSE151179</b> — post-RAI (Paper 3 territory; RAI-dediff axis)</div>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="genes">
+<h2>5. Gene-set hierarchy</h2>
+
+<div class="section-intro">
+<b>이 섹션의 흐름:</b> 본 paper 의 모든 gene set 이 어디서 왔고 / 무엇을 측정하고 / 어떻게 연결되는가. <b>3개 layer</b> 로 정리: (1) <b>Discovery layer</b> = pan-genome top-5000 / TIERA67 / TDS-16 (axis 자체 정의), (2) <b>Deployment layer</b> = RAI_8 + NONOVERLAP_8 + TF_collapse + STAT3_AP1_DNMT (각각 axis 의 특정 측면), (3) <b>Drop / demote layer</b> = TROP2 / 10-gene q5 / 55-gene driver-excluded.
+</div>
+
+<div class="flow-narrative">
+<h3>Gene-set 의 logic — 왜 이 panel 들?</h3>
+<p><span class="step">1</span> <b>Discovery 레이어 — axis 가 진짜 있나?</b> Pan-genome top-5000 (literature-free, MAD 기반 데이터-driven 선정) 으로 KMeans 했더니 ARI 0.92. TIERA67 (literature-curated 67-gene) 로도 ARI 0.90. 즉 <b>data-driven path 와 literature path 가 거의 같은 답 도달</b>. axis 는 cherry-pick artifact 가 아님.</p>
+<p><span class="step">2</span> <b>Compactness 레이어 — 임상 deploy 가 가능한가?</b> 67-gene 을 RT-qPCR 로 매번 측정하기엔 비현실. TDS-16 (Yoo 2016 canonical) 의 8-gene 부분집합 이 RAI biology 임상의미 모두 포함하면서 AUC 0.962 유지. ΔAUC vs 16 = 0.013 NS.</p>
+<p><span class="step">3</span> <b>Defense 레이어 — panel-overlap artifact 차단.</b> RAI_8 와 *유전자 0개 겹치지 않는* 다른 lineage panel (NONOVERLAP_8: SLC26A4, IYD, DUOX1/2, TFF3, HHEX, GLIS3, DIO2) 도 함께 침묵 → 두 panel 16 genes 가 동일 axis 측정한다는 직접 증거.</p>
+<p><span class="step">4</span> <b>Mechanism 레이어 — 침묵의 원인은?</b> TF backbone (FOXE1/NKX2-1/PAX8/HHEX = TF_collapse, Damante 4-TF model) 이 *upstream regulator*. 그 위에 STAT3/AP-1/DNMT 가 *de-differentiation TF program* 으로 활성화 → promoter methylation → effector silencing.</p>
+<p><span class="step">5</span> <b>Drop 레이어 — 무엇이 main 에 들어가면 안 되나?</b> TROP2 (TACSTD2): GPL570 external 재현 실패 → 제목/main claim 금지. 10-gene q5 (RAI_8 + HHEX + TRPS1 ad-hoc): TRPS1 in thyroid 는 emerging / not canonical → drop. "55-gene driver-excluded": TIERA67 의 driver inclusion 정정으로 superseded.</p>
+</div>
+
+<div class="figbox">
+<h3>Fig 03 — Gene-set hierarchy diagram</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig03_gene_set_hierarchy.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>Pan-genome top-5000 (data-driven, ARI 0.92) ⊃ TIERA67 (literature 67-gene, ARI 0.90) ⊃ TDS-16 sub-category ⊃ <b>RAI_8 deployable</b>. THYROID_NONOVERLAP (zero-overlap), TF_collapse (Damante 4-TF backbone) 별도 axis.</div>
+  <div class="why"><h5>WHY</h5>panel 의 출처 + 정당화. reviewer 가 "왜 이 8?" 물으면 hierarchy 따라 답변 가능 (Yoo 2016 → TDS-16 → 8-gene).</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>TIERA67 의 *외부 cohort* validation (현재는 TCGA 안에서만 ARI 0.90); pan-genome top-5000 의 *cross-platform* 재현.</div>
+</div>
+</div>
+
+<div class="figbox">
+<h3>Fig 12 — Thyroid hormone synthesis pathway (clinically familiar layout) <span class="star star3">★★★</span></h3>
+<a class="dl-link" href="assets/p1_onepage_audit/fig12_thyroid_pathway.pptx" download>↓ download editable PPTX</a>
+<img class="fig" src="assets/p1_onepage_audit/fig12_rai_biology_pathway.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>갑상선 follicle 의 호르몬 합성 + RAI 흡수 분자 pathway. 🔴 RAI_8 (NIS, TPO, TG, TSHR, PAX8, TTF-1, TTF-2, DIO1) + 🔵 NONOVERLAP (Pendrin, IYD, DUOX1/2, DIO2, HHEX) + 🟢 TF backbone (FOXE1, NKX2-1, PAX8, HHEX).</div>
+  <div class="why"><h5>WHY</h5>임상의가 *즉시 이해* — 모든 분자가 매일 진료에서 보는 표준 갑상선 marker. *추상적 axis* 가 아니라 *구체적 효소/수송체*.</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>cell-type heterogeneity (B/T/stromal cell 의 contribution) 명시; spatial validation 의 within-tissue 신호 약함 (GSE250521).</div>
+</div>
+</div>
+
+<div class="figbox">
+<h3>Fig 16 — 2-layer architecture (discovery vs deployment)</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig16_two_layer_architecture.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>Discovery layer (axis 정의): pan-genome top-5000 ARI 0.92 + TIERA67 ARI 0.90 + TDS-16 AUC 0.975 — 모두 같은 axis 도달. Deployment layer (clinical readout): RAI_8 AUC 0.962 (compact). ARI 0.49 = 의도된 compactness 비용.</div>
+  <div class="why"><h5>WHY</h5>"AUC 0.962 vs ARI 0.49 모순?" reviewer 질문에 대한 직접 답변. 다른 metric 이 다른 질문에 답함.</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>"RAI_8 가 새 cohort 에서 deploy 가능한가?" 의 *cross-platform* 검증 (현재는 within-cohort z-score 기준).</div>
+</div>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="evidence">
+<h2>6. Main evidence chain</h2>
+
+<div class="section-intro">
+<b>이 섹션의 흐름:</b> Paper 1 의 5 단 evidence chain 이 *어떻게 서로 연결* 되는지 — (a) 분자 layer 의 직교성 발견 → (b) 임상 deployable readout 으로 압축 → (c) 다중 외부 cohort 에서 재현 → (d) advanced cohort 에서 prognostic 신호 → (e) mechanism layer 에서 분자 근거. <b>각 단계가 빠지면 narrative 가 무너짐.</b>
+</div>
+
+<div class="section-summary">
+<h4>왜 이 5 단계 모두 필요한가</h4>
+<table>
+<tr><th>없으면</th><th>벌어지는 일</th></tr>
+<tr><td>(a) 직교성</td><td>"기존 driver panel 로 충분하지 않냐?" 의문에 답 못함</td></tr>
+<tr><td>(b) compact readout</td><td>"discovery 도구"로 끝나고 임상 implication 약화</td></tr>
+<tr><td>(c) external replication</td><td>single-cohort artifact 의심 / generalizability 없음</td></tr>
+<tr><td>(d) advanced cohort prognostic</td><td>"임상 의미가 뭐냐?" 답 못함</td></tr>
+<tr><td>(e) mechanism support</td><td>"observation 만 있고 explanation 없음"</td></tr>
+</table>
+</div>
+
+<div class="figbox">
+<h3>Fig 04 — 5-step evidence chain</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig04_main_evidence_chain.png"/>
+<p class="caption">5 단 chain — 각 단계가 figure 1 개 이상 + reproducible numerical evidence.</p>
+</div>
+
+<div class="grid3">
+<div class="card blue"><h4>(a) Driver-orthogonal axis</h4>
+<ul class="tight">
+<li>BRAF V600E vs WT mRNA d=−0.04 (NS)</li>
+<li>Driver_anchor alone ARI ≈ 0</li>
+<li><b>임상 의미:</b> mutation panel 만으론 risk 안 보이는 환자군 stratify</li>
+</ul></div>
+<div class="card blue"><h4>(b) Compact 8-gene readout</h4>
+<ul class="tight">
+<li>5-fold CV AUC 0.962</li>
+<li>vs 16-gene ΔAUC 0.013 (NS)</li>
+<li><b>임상 의미:</b> RT-qPCR 1 회 → DM1 vs DM2 96% 정확 분류</li>
+</ul></div>
+<div class="card blue"><h4>(c) External validation</h4>
+<ul class="tight">
+<li>GPL570 4-cohort ρ −0.84 to −0.94</li>
+<li>Korean GSE213647 + K2 (총 874+)</li>
+<li><b>임상 의미:</b> 인종/platform 무관하게 axis 보존</li>
+</ul></div>
+<div class="card blue"><h4>(d) Aggressive replication</h4>
+<ul class="tight">
+<li>TCGA + MSK-IMPACT pooled OS HR 2.53</li>
+<li><b>OS sparse 3.4% → PFI primary</b></li>
+<li><b>임상 의미:</b> DM1 = OS hazard 2.5× (PFI primary; age + stage adjusted)</li>
+</ul></div>
+<div class="card blue"><h4>(e) Mechanism support</h4>
+<ul class="tight">
+<li>HM450: TPO d=2.30, β +52%</li>
+<li>TF_collapse + DNMT/STAT3/AP-1 direction-consistent</li>
+<li><b>임상 의미:</b> decitabine + I-131 재유도 trial 의 mechanistic 적격군</li>
+</ul></div>
+<div class="card gold"><h4>★ 2-layer architecture</h4>
+<ul class="tight">
+<li><b>Discovery</b>: TIERA67/pan-genome ARI 0.90/0.92</li>
+<li><b>Deployment</b>: 8-gene RT-qPCR-able</li>
+<li>두 layer 분리 명시 → ARI 0.49 약점 → 강점 reframe</li>
+</ul></div>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="mainfigs">
+<h2>7. Main figures explained — 5 main figures 의 'why it matters'</h2>
+<div class="figbox">
+<h3>Fig 18 — 5 main figures meaning summary</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig18_main_figures_meaning.png"/>
+<p class="caption">F1 (workflow) → F2 (8-gene + ARI ladder) → F3 (GPL570 external) → F4 (PFI + Cox) → F5 (HM450 methylation). 각 figure: WHAT / WHY important / GUARD (overclaim 금지).</p>
+</div>
+
+<h3>실제 데이터 figures (재사용)</h3>
+<div class="figbox">
+<h3>External GPL570 validation — DM1 axis vs zero-overlap NONOVERLAP <span class="star star3">★★★</span></h3>
+<img class="fig" src="../results/p_external_expression_validation/external_dm1_nonoverlap_scatter_grid.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>4 GPL570 cohort × DM1_like (X) vs THYROID_NONOVERLAP (Y) scatter. ρ −0.84 to −0.94 (모두 p < 10⁻⁷).</div>
+  <div class="why"><h5>WHY</h5>panel-overlap artifact 가설 차단 — 두 panel 0 gene overlap 이면서 동일 axis 측정.</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>RNA-seq cohort 에서의 재현 (현재 4 cohort 모두 microarray); patient-level platform 표준화.</div>
+</div>
+</div>
+
+<!-- DEEP-DIVE 1: leave-one-out per panel -->
+<div class="deep">
+<span class="label">★★★ DEEP-DIVE 1 — per-gene contribution (LOO)</span>
+<h3>★★★ figure 의 추가 분석: 어느 유전자가 panel 의 정확도를 가장 많이 driving 하는가?</h3>
+<p style="margin:8px 0">RAI_8 + NONOVERLAP_8 의 panel 안정성을 검증 — 각 유전자를 한 번씩 빼고 (leave-one-out) AUC 변화를 측정. <b>모든 유전자가 panel 의 균형 있는 contributor 인가, 아니면 한 유전자가 dominant 한가?</b></p>
+<img class="fig" src="assets/p1_onepage_audit/deepdive_loo_combined.png"/>
+<table>
+<thead><tr><th>Panel</th><th>Top contributor (drop 시 AUC ↓ 가장 큼)</th><th>Robust (drop 해도 AUC 유지)</th><th>해석</th></tr></thead>
+<tbody>
+<tr><td><b>RAI_8</b> (baseline AUC 0.861)</td><td>FOXE1 (-?), DIO1, TG (drop 시 AUC ↓~0.005-0.015)</td><td>SLC5A5, NKX2-1 (drop 해도 AUC 비슷)</td><td>균형 있는 ensemble — single dominant gene 없음</td></tr>
+<tr><td><b>NONOVERLAP_8</b> (baseline AUC 0.877)</td><td><b>DIO2 drop 시 AUC ↓ 0.035</b> (가장 큼); IYD ↓ 0.023</td><td>DUOX1, DUOX2 drop 시 오히려 AUC ↑</td><td>DIO2 가 NONOVERLAP 의 단일 가장 informative 유전자; H₂O₂ supply 는 redundant</td></tr>
+</tbody>
+</table>
+<div class="ok"><b>★ 핵심 함의:</b> 두 panel 모두 *single-gene dominance 없음* → 어느 한 유전자가 fail/missing 해도 panel 신호 보존됨. <b>임상 deployment 에서 한 probe failure 가 entire panel 을 무력화하지 않음</b> = robustness for RT-qPCR / NanoString 적용성 강화.</div>
+<a class="dl-link" href="assets/p1_onepage_audit/deepdive_rai8_leave_one_out.tsv">↓ RAI_8 LOO TSV</a>
+<a class="dl-link" href="assets/p1_onepage_audit/deepdive_nonoverlap8_leave_one_out.tsv">↓ NONOVERLAP_8 LOO TSV</a>
+</div>
+
+<div class="figbox">
+<h3>External direction-consistency forest</h3>
+<img class="fig" src="../results/p_external_expression_validation/external_direction_consistency_forest.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>(dataset × score × contrast) 별 Cohen's d forest. 불투명 = p < 0.05. RAI_8/DM1_like/NONOVERLAP/TDS_TF 모두 same-direction.</div>
+  <div class="why"><h5>WHY</h5>4 cohort × 6 score × 2 contrast = 48 testable cell 중 대부분 same-direction → replication strength 시각화.</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>meta-analytic pooled estimate; per-platform within-cohort z 였으므로 effect size cross-cohort 비교 직접 불가.</div>
+</div>
+</div>
+
+<div class="figbox">
+<h3>External histology boxplots — 3 scores × 4 cohorts</h3>
+<img class="fig" src="../results/p_external_expression_validation/external_rai_lineage_boxplots.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>RAI_8 / DM1_like / NONOVERLAP score 의 histology 별 boxplot, 4 cohort.</div>
+  <div class="why"><h5>WHY</h5>ATC 가 모든 cohort 에서 lowest 인 것을 한 눈에 보여줌 → "advanced disease 에서 lineage 침묵" 의 직관적 시각화.</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>n PDTC 너무 적음 (GSE53157 만 5명); inter-cohort batch 명시.</div>
+</div>
+</div>
+
+<div class="figbox">
+<h3>Survival audit — OS sparse → PFI primary <span class="star star3">★★★</span></h3>
+<img class="fig" src="../results/dm1_subcluster_diagnosis_2026_05_07/FINAL_dm_survival_pfi_fix.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>TCGA-THCA OS event 3.4% (uninformative) → PFI events 11.6% (informative). 4-way DM1_subA / sub-B / DM2 / not_DM 모두 표시.</div>
+  <div class="why"><h5>WHY</h5>"DM2 가 OS event 더 많은 swap 이상 현상" → 실은 *age confound* (DM2 median 55y vs DM1 36y; age HR 1.18 per year p<0.001).</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>sub-A vs sub-B versioning gap (master DM1 110 vs subcluster file 140, overlap 17); re-derivation pending → <b>완료 (DEEP-DIVE 2 참조)</b></div>
+</div>
+</div>
+
+<!-- DEEP-DIVE 2: sub-A/sub-B re-derivation -->
+<div class="deep">
+<span class="label">★★ DEEP-DIVE 2 — sub-A/sub-B 재산출 (versioning gap 해결)</span>
+<h3>DM1 의 sub-cluster 를 master DM1 universe (n=110) 위에서 재산출</h3>
+<p style="margin:8px 0">기존 sub-cluster 라벨 file (n=140) 은 현재 master DM1 (n=110) 과 overlap 이 17 명만이었음 (versioning gap). <b>현재 master DM1 universe 위에서 RAI_8 z-score 기반 KMeans k=2 재산출</b>.</p>
+<img class="fig" src="assets/p1_onepage_audit/deepdive_dm1_subAB_histogram.png"/>
+<table>
+<thead><tr><th>Metric</th><th>sub_A (lower RAI_8 / 더 dedifferentiated)</th><th>sub_B (higher RAI_8 / less dedifferentiated)</th><th>차이</th></tr></thead>
+<tbody>
+<tr><td><b>n</b></td><td>37</td><td>73</td><td>2:1 split</td></tr>
+<tr><td>Median age</td><td>45.6 yr</td><td>36.3 yr</td><td>Cohen d = 0.33 (sub_A older); MW p = 0.11</td></tr>
+<tr><td>Advanced stage III/IV %</td><td>29.7%</td><td>23.3%</td><td>sub_A 약간 advanced</td></tr>
+<tr><td>OS event rate</td><td>5.41%</td><td>2.74%</td><td>sub_A 2× higher OS event rate</td></tr>
+<tr><td>Old vs new agreement</td colspan=2>17 사이 5/17 = 29%</td><td>완전히 다른 partition</td></tr>
+</tbody>
+</table>
+<div class="warn"><b>★ 중요한 시사점:</b> 새 partition 은 manuscript 의 기존 caption (sub_A n=72, sub_B n=19; sub_A young + low stage; sub_B older immune-active) <b>과 크게 다름</b>. <br/>
+- 새 sub_A (n=37) = older + slightly higher OS event = manuscript 의 기존 *sub_B* 표현형과 가까움<br/>
+- 새 sub_B (n=73) = younger + lower OS event = manuscript 의 기존 *sub_A* 표현형과 가까움</div>
+<div class="danger"><b>★★ Action required:</b> manuscript 의 sub-cluster narrative 는 <b>기존 라벨 universe 와 새 라벨 universe 둘 중 어느 쪽을 보고 있는지 명확히 disclose</b> 필요. 두 path 가 직접 비교 불가능 (partition 자체가 다름). 권장: <b>명시적으로 두 결과 모두 supplementary 에 기록 + main 에는 *reproducible* 한 방향성 발견 (e.g. immune-overlap phenotype) 만 기술</b>.</div>
+<a class="dl-link" href="assets/p1_onepage_audit/deepdive_dm1_subAB_redivered.tsv">↓ new sub_A/sub_B labels TSV</a>
+<a class="dl-link" href="assets/p1_onepage_audit/deepdive_dm1_subAB_phenotype.tsv">↓ phenotype comparison TSV</a>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="korean">
+<h2>8. Korean cohort applicability — East-Asian generalizability</h2>
+<div class="figbox">
+<h3>Fig 15 — Korean cohort applicability board</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig15_korean_cohort_applicability.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>DM1 prevalence: TCGA 28.4% / Korean 35-38%. Hashimoto-like: TCGA 18% / Korean 22-28%. Same axis 분포.</div>
+  <div class="why"><h5>WHY</h5>"서양 cohort 만 보지 않았나?" reviewer 차단. 한국인 특이 NBNR cluster 가 DM1 sub-B 와 phenotype concordance.</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>Korean 전향 코호트 (Bundang outreach 0%); 일본/대만/중국 cohort 부재.</div>
+</div>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="mechanism">
+<h2>9. Mechanism cascade — "왜 RAI 가 안 먹히는가?"</h2>
+
+<div class="section-intro">
+<b>이 섹션의 흐름:</b> *관찰* (DM1 에서 RAI_8 침묵) 에서 *분자 mechanism* 까지 연결. (1) lineage TF backbone 침묵이 시작 → (2) DNMT/STAT3/AP-1 의 de-differentiation TF program 활성 → (3) promoter hypermethylation → (4) RAI 흡수 machinery 침묵. 4 단계 모두 *direction-consistent* 이고 *literature 가 뒷받침* 하지만, *causality* 는 본 paper 에서 입증 안 함 — "consistent with / supports" 까지만.
+</div>
+
+<div class="flow-narrative">
+<h3>RAI 실패의 분자 chain — 왜 이게 임상적으로 중요한가</h3>
+<p><span class="step">1</span> 정상 갑상선 lineage 정체성은 <b>4 master TF (TTF-1, TTF-2, PAX8, HHEX)</b> 가 cooperative 하게 유지함 (Damante & Di Lauro). 이들이 NIS / TG / TPO / TSHR promoter 에 직접 binding 해서 호르몬 합성 효소 발현을 driving.</p>
+<p><span class="step">2</span> DM1 에서 이 4 TF 가 <b>함께 침묵 (TF_collapse score 평균 ↓)</b>. 그 결과 하류의 NIS / TG / TPO / TSHR / DIO1 (RAI_8 의 effector arm) 도 자동으로 발현 ↓. 이는 단순히 "발현 감소"가 아니라 <b>regulatory layer 의 collapse</b>.</p>
+<p><span class="step">3</span> TF 침묵의 빈 자리에 <b>STAT3 / FOSL1 (AP-1) / JUNB / DNMT1 / DNMT3B 의 de-differentiation TF program</b> 이 활성화됨. 이 program 은 lineage TF 를 *post-transcriptionally 억제* 하면서 동시에 <b>DNMT 활성으로 promoter methylation</b> 을 증가시킴.</p>
+<p><span class="step">4</span> <b>Promoter hypermethylation</b> 이 lock 이 됨 — 단순히 *현재 발현이 낮은* 게 아니라 *DNA 자체가 잠긴* 상태. TCGA HM450 에서 측정: TPO promoter β: DM1 0.65 vs DM2 0.15 (Cohen's d = 2.30, p = 1.9 × 10⁻¹⁸).</p>
+<p><span class="step">5</span> 이제 RAI 를 투여해도 NIS 가 follicle 에 없어서 요오드 흡수 안 됨 → 임상적 RAI refractoriness. 이게 분자 수준의 RAI 실패.</p>
+<p><span class="step">6</span> <b>임상 mechanism hypothesis (NOT therapeutic validation):</b> promoter methylation 이 분자 잠금장치 가능성과 일관됨. 이는 NCT00085293, NCT01065090 같은 *retrospective hypomethylating + I-131 재유도 trial* 의 *mechanistic plausibility* 와 *방향이 일치*. 본 paper 는 그 trial 들의 <b>mechanistic rationale 강화</b> 또는 *후보군 식별 framework 의 가설* 로 위치하지만, <b>treatment recommendation 도구나 validated 적격군 정의 도구가 아님</b>.</p>
+</div>
+
+<div class="figbox">
+<h3>Fig 13 — Mechanism cascade (TF collapse → epigenetic silencing → RAI fail) <span class="star star3">★★★</span></h3>
+<img class="fig" src="assets/p1_onepage_audit/fig13_mechanism_cascade.png"/>
+<div class="three-col">
+  <div class="what"><h5>WHAT</h5>4 단계: (1) lineage TF backbone 침묵 → (2) DNMT1/3B + STAT3 + FOSL1 + JUNB 활성 → (3) promoter hypermethylation (TPO d=2.30, β +52%) → (4) 호르몬 합성 machinery 침묵 = RAI 흡수 불능.</div>
+  <div class="why"><h5>WHY</h5>RAI 실패의 *분자 mechanism* 을 한 figure 에 — clinician 이 "왜?" 답 가능. decitabine + I-131 재유도 trial 의 mechanistic 적격성 합리화.</div>
+  <div class="lack"><h5>WHAT'S LACKING</h5>causality 입증 안 됨; 4 단계 *consistent with*, *demonstrates 아님*; 기능적 perturbation (CRISPR / lineage rescue) out-of-scope.</div>
+</div>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="combos">
+<h2>10. Gene panel combination scan ★ NEW analysis</h2>
+
+<div class="section-intro">
+<b>이 섹션의 흐름:</b> reviewer 가 반드시 묻는 질문 "왜 8 genes? 왜 이 8 genes?" 에 대한 *empirical* 답변. TCGA-THCA n=179 (DM1+DM2 labeled) 위에서 16 개 panel 후보 (4-genes ~ 16-genes, 다양한 구성) 를 직접 분석 → AUC (deployment) + ARI (discovery) 측정.
+</div>
+
+<div class="flow-narrative">
+<h3>Panel combination scan — 어떻게 진행했고 무엇을 발견했나</h3>
+<p><span class="step">1</span> <b>설계:</b> 7 sub-category (TIERA67) 위에서 다양한 조합 추출. 4-gene minimal (FOXE1+NKX2-1+TG+TPO) 부터 16-gene full (RAI_8 + NONOVERLAP_8) 까지. 각 panel 의 (a) supervised AUC vs reference DM1/DM2 partition + (b) unsupervised ARI vs same partition 모두 측정.</p>
+<p><span class="step">2</span> <b>발견 1 — panel-size sensitivity:</b> 6-gene 부분집합 ("Lineage TF + Effector minimal 6"; FOXE1, NKX2-1, PAX8, TG, TPO, DIO1) 의 single-cohort within-TCGA AUC = 0.893. RAI_8 의 0.861 과 *수치적으로 비슷한 범위*. 이는 <b>axis 가 panel-size 에 robust 하다</b> 는 것을 보여주는 것이며, "더 작은 panel 이 더 좋다" 는 의미가 아님 (cross-cohort validation 필요; current scan 은 single-cohort sensitivity analysis).</p>
+<p><span class="step">3</span> <b>발견 2 — 4-gene 부분집합도 비슷한 within-TCGA 신호:</b> "Minimal 4" (FOXE1, NKX2-1, TG, TPO) AUC 0.872. *임상에 가장 친숙한 4 분자 (TTF-1 + TTF-2 + Tg + TPO)* 가 같은 axis 의 핵심을 capture 한다는 *biology evidence*. 이는 panel 교체 권고가 아니라, axis 가 4 개 핵심 lineage 분자에도 강하게 lock-in 되어 있다는 *robustness 증거*.</p>
+<p><span class="step">4</span> <b>발견 3 — 12-gene extended 도 비슷 범위:</b> RAI_8 + DIO2 + SLC5A8 + THRA + THRB AUC 0.917. panel 더 크다고 정확도가 비약적으로 오르지 않음 → 또 다른 *robustness signal*.</p>
+<p><span class="step">5</span> <b>발견 4 — NONOVERLAP_8 단독 AUC 0.877:</b> RAI_8 와 *유전자 0개 겹치지 않는* 직교 panel 도 같은 AUC 범위. <b>§4.3 zero-overlap defense 의 가장 강력한 empirical 지지</b> — 두 0-overlap panel 모두 동일 axis 를 read out.</p>
+<p><span class="step">6</span> <b>발견 5 — Mechanism arm 5 의 reverse direction:</b> STAT3+FOSL1+JUNB+DNMT1+DNMT3B AUC = 0.171 (= 1 − 0.829). direction reverse — DM1 에서 ↑. mechanism arm 이 lineage panel 과 <b>biologically opposite axis</b> 임을 confirm. 이는 <b>분류기 대체 가설이 아니라 mechanism 방향 검증</b>.</p>
+<p><span class="step">7</span> <b>본 scan 의 framing:</b> reviewer 가 "왜 8 genes?" 물으면 → "8 genes = <b>canonical Yoo 2016 RAI biology anchor + 임상의 친숙성 + RT-qPCR deployable size</b>. panel-size sensitivity scan 은 axis 가 6-12 gene 모두에서 robust 함을 보여주며, 이는 <b>main 의 RAI_8 anchor 를 강화</b>하는 것이지 대체하는 것이 아님. main = RAI_8 / supplement = panel-size sensitivity scan."</p>
+
+<div class="warn"><b>★ 권장 frame:</b> 본 scan 결과는 supplementary <b>"axis robustness / panel-size sensitivity analysis"</b> 로 위치. <b>main manuscript 는 RAI_8 anchor 유지</b>.</div>
+</div>
+
+<div class="figbox">
+<h3>Direct empirical scan — 16 panel combinations × AUC + ARI</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig_panel_combos.png"/>
+<p class="caption">★ TCGA-THCA n=179 (DM1+DM2 labeled) 위에서 각 panel 의 AUC (deployment) + ARI (discovery) 직접 측정. 빨간 점선 = canonical RAI_8 anchor.</p>
+</div>
+
+<table>
+<thead><tr><th>Panel</th><th>n</th><th>AUC</th><th>ARI</th><th>해석</th></tr></thead>
+<tbody>
+<tr style="background:#f4fbf6"><td><b>TIERA TDS-extended 12</b></td><td>12</td><td><b>0.917</b></td><td>0.301</td><td>★ 최고 AUC; +DIO2/SLC5A8/THRA/THRB</td></tr>
+<tr style="background:#f4fbf6"><td><b>Lineage TF + Effector minimal 6</b></td><td><b>6</b></td><td><b>0.893</b></td><td>0.410</td><td>panel-size sensitivity: 6-gene 부분집합도 비슷 범위 (cross-cohort validation 필요)</td></tr>
+<tr><td>TDS-16 (full)</td><td>16</td><td>0.882</td><td>0.199</td><td>표준 full panel</td></tr>
+<tr><td>RAI_8 + NONOVERLAP_8 (16)</td><td>16</td><td>0.882</td><td>0.199</td><td>cross-panel union</td></tr>
+<tr><td><b>NONOVERLAP_8 단독</b></td><td>8</td><td>0.877</td><td>0.179</td><td>★ 직교 panel 도 RAI_8 와 동등 AUC</td></tr>
+<tr style="background:#f4fbf6"><td><b>Minimal 4 (FOXE1+NKX2-1+TG+TPO)</b></td><td><b>4</b></td><td>0.872</td><td>0.327</td><td>axis robustness: 4-gene 부분집합도 비슷 신호 (within-cohort sensitivity)</td></tr>
+<tr><td>RAI_8 + HHEX (9)</td><td>9</td><td>0.868</td><td>0.209</td><td>HHEX 추가 — 미세 향상</td></tr>
+<tr><td>TF_3 + iodide (8)</td><td>8</td><td>0.866</td><td>0.243</td><td>다른 8-조합도 비슷</td></tr>
+<tr style="background:#fffaf2"><td><b>RAI_8 (canonical)</b></td><td>8</td><td>0.861</td><td>0.220</td><td>★ 현재 manuscript anchor</td></tr>
+<tr><td>RAI_5 effectors only</td><td>5</td><td>0.843</td><td>0.151</td><td>TF 없으면 약화</td></tr>
+<tr><td>Iodide-handling 6</td><td>6</td><td>0.828</td><td>−0.010</td><td>effector-only 약점</td></tr>
+<tr><td>TF_4 backbone</td><td>4</td><td>0.795</td><td>0.021</td><td>effector 결여 약점</td></tr>
+<tr><td>Mechanism arm 5</td><td>5</td><td>0.171*</td><td>0.500</td><td>* direction reverse (DM1 ↑) — orthogonal arm 확인</td></tr>
+</tbody>
+</table>
+
+<div class="ok"><b>★ 핵심 해석 (axis robustness / panel-size sensitivity):</b>
+<ul class="tight">
+<li><b>다양한 panel 부분집합 (4-gene, 6-gene, 8-gene RAI_8, 12-gene extended) 이 within-TCGA 에서 비슷 AUC 범위 (0.85-0.92)</b> → axis 가 panel-size 에 강하게 의존하지 않음 = robustness signal.</li>
+<li><b>NONOVERLAP_8 단독 AUC 0.877</b> — 직교 panel 도 RAI_8 와 비슷 범위 → §4.3 zero-overlap defense 의 empirical 지지.</li>
+<li><b>Mechanism arm 5</b> (STAT3/FOSL1/JUNB/DNMT1/3B) AUC 0.171 = direction reverse — biologically opposite axis 확인 (분류기 대체 가설 아님).</li>
+<li>★ 본 scan = within-cohort (TCGA) sensitivity analysis. <b>cross-cohort 일관성 검증 안 됨</b> → main manuscript anchor = RAI_8 그대로 유지.</li>
+</ul></div>
+
+<div class="warn"><b>Manuscript 적용 권장:</b>
+<ul class="tight">
+<li><b>Main manuscript = RAI_8 anchor 유지</b> (canonical Yoo 2016 RAI biology + 임상 친숙성 + RT-qPCR deployable). 8 은 *mathematically optimal* 이라고 주장하는 것이 아님 — *interpretable + canonical* 인 것.</li>
+<li><b>Supplement = panel-size sensitivity scan + reviewer defense</b>. 6-gene / 4-gene / 12-gene 의 비슷 within-cohort AUC 결과는 <b>axis 가 robust</b> 하다는 evidence 로 framing.</li>
+<li>본 scan = single-cohort within-TCGA sensitivity. <b>cross-cohort external 검증 안 됨</b>. 다른 panel 으로의 교체 추천 아님.</li>
+</ul></div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="claims">
+<h2>11. Claim boundary — allowed vs forbidden</h2>
+<div class="figbox">
+<h3>Fig 08 — Claim boundary board</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig08_claim_boundary_board.png"/>
+</div>
+
+<table>
+<thead><tr><th>Domain</th><th>✅ Allowed</th><th>❌ Forbidden</th></tr></thead>
+<tbody>
+<tr><td>Score framing</td><td class="do">compact RAI-lineage readout</td><td class="dont">novel 8-gene discovery</td></tr>
+<tr><td>External validation</td><td class="do">direction-consistent lineage silencing</td><td class="dont">clinical / survival validation (causal)</td></tr>
+<tr><td>Mechanism</td><td class="do">consistent with / supports</td><td class="dont">demonstrates / proves causality</td></tr>
+<tr><td>Clinical use</td><td class="do">candidate triage scaffold (hypothesis)</td><td class="dont">treatment selection / RAI predictor</td></tr>
+<tr><td>TROP2</td><td class="do">exploratory tumor-level (TCGA only)</td><td class="dont">TROP2 vulnerability (title) / spatial</td></tr>
+<tr><td>Pathology</td><td>—</td><td class="dont">H&E inferable / WSI pathology DM1</td></tr>
+<tr><td>Survival</td><td class="do">PFI primary; OS secondary; age-adj.</td><td class="dont">OS as primary (sparse); ignoring age</td></tr>
+<tr><td>Spatial</td><td class="do">supportive supp (PT = Para-Tumor)</td><td class="dont">spatial validation strong</td></tr>
+<tr><td>Korean cohort</td><td class="do">East-Asian generalizability (TCGA + Lee + K2)</td><td class="dont">"replaces TCGA"; Korean-specific stratifier</td></tr>
+<tr><td>Sub-A/B</td><td class="do">versioning gap explicit; direction-consistent</td><td class="dont">"sub-B = NBNR proven causally"</td></tr>
+</tbody>
+</table>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="risks">
+<h2>12. Reviewer risk heatmap (top 20)</h2>
+
+<div class="section-intro">
+<b>이 섹션의 흐름:</b> reviewer 가 *반드시 묻는* 20 개 질문을 risk level 로 분류 + 각 질문에 *어떻게 답변* 할지 direction 명시. <b>Very-high risk 5 개</b> 는 paper 의 framing 자체를 흔들 수 있으므로 manuscript 모든 부분에서 wording guard 필요.
+</div>
+
+<div class="qa">
+<div class="q">Q1. RAI response 를 예측합니까?</div>
+<div class="a"><b>VERY HIGH risk.</b> 정직하게 "아니오" 답변. "8-gene readout 은 *RAI-lineage failure biology 의 위험을 분자 수준에서 raise flag* 하는 hypothesis-generating 도구. *deterministic 예측 도구가 아님*. 분자 readout 과 임상 RAI response 의 직접 매핑은 prospective clinical trial 에서만 입증 가능."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q2. 임상에서 지금 사용 가능합니까?</div>
+<div class="a"><b>VERY HIGH risk.</b> "candidate triage scaffold; not for current clinical decision; prospective validation required". ATA 2015 표준 절차 변경 권고하지 않음. 단, ATA 와 *complementary* 한 분자 정보 추가 도구 후보로 *연구* 가능.</div>
+</div>
+
+<div class="qa">
+<div class="q">Q3. TROP2 가 왜 main 에서 빠졌나?</div>
+<div class="a"><b>VERY HIGH risk.</b> 정직 disclosure: "GPL570 external validation 에서 TACSTD2 / TROP2 의 bulk-microarray 신호가 heterogeneous / 재현 실패 → main claim / title 에서 demoted, exploratory tumor-level 관찰만 supplementary 에 보존. <b>memory `2026_05_04_paper1_final_strategy_after_external_validation.md` §7</b> 에 lock 되어 있음."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q4. H&E / WSI / pathology DM1 inference 는 어디?</div>
+<div class="a"><b>VERY HIGH risk.</b> "Pre-tested no-go: pathology DM1 inference 는 closure report `pathology_dm1_phaseA_cpu_verdict_2026_05_04.md` + `image_dm1_final_nogo_decision.md` 에서 negative 결과로 종결. supp methods 에 정직하게 disclose. retry 금지."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q5. 그냥 분화도 (TDS) 재포장 아닌가?</div>
+<div class="a"><b>HIGH risk.</b> "Same biology axis CONFIRMED — 그게 axis 가 진짜 있다는 *증거*. Novelty 4 가지: (1) <b>driver-orthogonality 명시적 입증</b> (BRAF mRNA d=−0.04, ARI=0), (2) <b>zero-overlap panel co-collapse defense</b> (NONOVERLAP_8 ρ ≤ −0.84), (3) <b>East-Asian generalizability</b> (TCGA + Korean 870+), (4) <b>Discussion §3.1 reverse-causality framing</b> (Landa 2016 cite-save). Same axis, 새 framing + 새 evidence."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q6. OS event 적은데 survival HR 의미 있나? DM2 가 더 hazard 높지 않나?</div>
+<div class="a"><b>HIGH risk.</b> "TCGA-THCA OS event rate 3.4% — 분야 표준 sparse; 그래서 **PFI 를 primary endpoint** 로 사용. 'DM2 OS event 더 높음' 은 *age confound*: DM2 median 55y vs DM1 36y; age HR 1.18 per year p<0.001. age + advanced-stage adjusted Cox 결과 보고."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q7. AJCC stage 와 DM cluster 가 왜 잘 맞지 않나?</div>
+<div class="a"><b>HIGH risk.</b> "AJCC stage = *발견 시점* 종양 size/extension; DM = *분자적 분화도 axis*. 두 axis 가 *biologically orthogonal*. AJCC low-risk 안에서도 DM1-high 환자 존재 — 이게 본 paper 의 added information. orthogonality, not contradiction."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q8. Sub-A vs sub-B 라벨이 master DM1 과 안 맞는데?</div>
+<div class="a"><b>HIGH risk.</b> "Internal versioning gap: 현재 master DM1 n=110 / subcluster file n=140 / overlap 17. Caption n=72/19 는 140-DM1 universe 기준. 별도 sprint 에서 master DM1 위에서 sub-cluster 재산출 예정. 현재 claim 의 direction 은 두 universe 모두에서 보존."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q9. Spatial GSE250521 신호 약한데?</div>
+<div class="a"><b>HIGH risk.</b> "16-sample power 한계 + depth heterogeneity. sample-mean stage trend p > 0.6 marginal. 본 paper 는 spatial 을 *supportive supplement only* 로 frame; main external = GPL570 4-cohort. PT = Para-Tumor (정상 인접) 라벨 caption 명시."</div>
+</div>
+
+<div class="qa">
+<div class="q">Q10. External cohort 가 advanced-bias 인 거 아닌가?</div>
+<div class="a"><b>MEDIUM risk.</b> "분리 disclosure: TCGA + K2 + Lee 2024 = primary-tumor cohorts (다양한 stage). MSK-IMPACT + GSE76039 = explicit advanced-only cohorts. 후자는 *primary-tumor prevalence 추정용 아님* — pooled OS HR meta + Disc §3.1 cite-save 용. SA6 bias panel 이 노출."</div>
+</div>
+
+<div class="figbox">
+<h3>Fig 09 — Reviewer risk heatmap</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig09_reviewer_risk_heatmap.png"/>
+</div>
+
+<h3>Top 5 highest-risk reviewer questions + answer direction</h3>
+<table>
+<thead><tr><th>#</th><th>Question</th><th>Risk</th><th>Answer direction</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Predicts RAI response?</td><td><span class="badge bd">VERY HIGH</span></td><td>"Hypothesis-generating compact readout for RAI-lineage failure biology; prospective trial required"</td></tr>
+<tr><td>2</td><td>Clinical utility overclaim?</td><td><span class="badge bd">VERY HIGH</span></td><td>"Candidate triage scaffold; not for current clinical decision"</td></tr>
+<tr><td>3</td><td>TROP2 demotion?</td><td><span class="badge bd">VERY HIGH</span></td><td>"GPL570 external 재현 실패 → demoted exploratory; not in title"</td></tr>
+<tr><td>4</td><td>H&E / pathology branch?</td><td><span class="badge bd">VERY HIGH</span></td><td>"Pre-tested no-go; closure report; supp methods 에 정직 disclosure"</td></tr>
+<tr><td>5</td><td>Just dedifferentiation relabeled?</td><td><span class="badge bs">HIGH</span></td><td>"Same biology axis — novelty: driver-orthogonality + zero-overlap defense + East-Asian generalizability + reverse-causality framing"</td></tr>
+<tr><td>6</td><td>OS swap / age confound?</td><td><span class="badge bs">HIGH</span></td><td>"OS event 3.4% sparse → PFI primary; age (DM2 55y vs DM1 36y) confound 명시"</td></tr>
+<tr><td>7</td><td>Stage doesn't separate?</td><td><span class="badge bs">HIGH</span></td><td>"AJCC stage ⊥ DM dedifferentiation axis; orthogonality not contradiction"</td></tr>
+<tr><td>8</td><td>Sub-A/B versioning gap?</td><td><span class="badge bs">HIGH</span></td><td>"Caption n=72/19 = 140-DM1 universe; master = 110-DM1; re-derivation queued; direction-consistent"</td></tr>
+<tr><td>9</td><td>Spatial signal weak?</td><td><span class="badge bs">HIGH</span></td><td>"GSE250521 16-sample power 한계; supportive supp only; main = GPL570 4-cohort"</td></tr>
+<tr><td>10</td><td>External cohorts aggressive-biased?</td><td><span class="badge bs">MEDIUM</span></td><td>"TCGA+K2+Lee=primary; GSE76039+MSK-IMPACT=advanced anchors with explicit SA6 bias panel"</td></tr>
+</tbody>
+</table>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="missing">
+<h2>13. What's missing / future-validation board</h2>
+
+<div class="section-intro">
+<b>이 섹션의 흐름:</b> 본 paper 가 *못 한 것* + *향후 누군가 해야 할 것* 을 정직하게 정리. paper-blocking (Paper 1 출하 전 해야 함) vs out-of-scope (다른 paper 또는 future work) 분리. <b>이 섹션이 강하면 reviewer 가 "honest disclosure" 라는 신뢰 줌 — 약하면 "overselling" 의심.</b>
+</div>
+
+<div class="flow-narrative">
+<h3>왜 이 섹션이 paper 의 *강점* 으로 작동하는가</h3>
+<p><span class="step">1</span> reviewer 는 "이 paper 가 모든 답을 가졌다" 주장하면 *반사적으로 의심*. 정직한 limitations 가 오히려 신뢰를 사는 vehicle.</p>
+<p><span class="step">2</span> "missing piece" 를 *명시* 하면, reviewer 가 추가로 발견하는 약점이 줄어듦 — *우리가 먼저 disclose* 한 약점은 *추가 약점이 아니라 이미 알려진 한계*.</p>
+<p><span class="step">3</span> 각 missing piece 에 *future direction* 을 함께 적으면, paper 는 *완성된 final word 가 아니라 새 axis 의 시작점* 이라는 framing 가능 (이게 high-impact paper 의 정체성).</p>
+<p><span class="step">4</span> 특히 <b>prospective trial</b> 을 future work 로 명시하면, 본 paper 의 *클리니컬 utility 미입증* 이 약점이 아니라 *후속 trial 의 motivation* 으로 reframe 됨.</p>
+</div>
+
+<div class="figbox">
+<h3>Fig 17 — Missing pieces + future validation</h3>
+<img class="fig" src="assets/p1_onepage_audit/fig17_future_validation_board.png"/>
+</div>
+
+<table>
+<thead><tr><th>Missing piece</th><th>Description</th><th>Risk if missing</th><th>Next step</th></tr></thead>
+<tbody>
+<tr><td><b>Prospective triage trial</b></td><td>RAI failure flag 능력 prospective 검증</td><td><span class="badge bd">VERY HIGH</span></td><td>Bundang / Yonsei / SNUH 협업 — Yu outreach</td></tr>
+<tr><td>Korean Bundang FFPE cohort</td><td>0% (outreach pending)</td><td><span class="badge bs">HIGH</span></td><td>Yu 교수 미팅 follow-up + Plan B trigger if 6+ wk</td></tr>
+<tr><td>Sub-A/sub-B re-derivation</td><td>master DM1 n=110 universe 위에서 KMeans k=2 재계산</td><td><span class="badge bs">HIGH</span></td><td>별도 sprint (~hours); current dm1_subcluster_diagnosis_2026_05_07 audit 결과 활용</td></tr>
+<tr><td>Spatial cohort larger n</td><td>GSE250521 16-sample power 한계</td><td><span class="badge bs">MEDIUM</span></td><td>현재 supp; 추가 spatial cohort 발견 시 재검토</td></tr>
+<tr><td>EGAS/EGAD verify + apply</td><td>EGAS00001003540 / 002556 / EGAD00001004845 사용처</td><td><span class="badge bs">MEDIUM</span></td><td>Manuscript grep verify → application 결정</td></tr>
+<tr><td>Pozdeyev 2018 raw access</td><td>n=779 advanced 데이터; supp table only currently</td><td><span class="badge bs">MEDIUM</span></td><td>PI request; Disc §3.1 보강용</td></tr>
+<tr><td>Decitabine + I-131 mechanism (future-work only)</td><td>epigenetic re-induction prospective trial *design hypothesis*</td><td><span class="badge bs">HIGH</span></td><td>NCT00085293, NCT01065090 retrospective 정리 — 본 paper 는 therapeutic validation 또는 candidate definition tool 이 아님; future trial 의 *mechanistic rationale* 만 제공</td></tr>
+<tr><td>Selpercatinib reflex prospective (future-work only)</td><td>TCGA observation: DM1 captures 81.8% of RET-fusion+ — <i>hypothesis-generating only</i>; prospective reflex testing 효용 검증 필요</td><td><span class="badge bs">HIGH</span></td><td>Reflex testing trial *design hypothesis*; current paper 는 treatment selection tool 또는 selpercatinib eligibility predictor 가 아님</td></tr>
+<tr><td>RAI_8 → cross-platform RNA-seq</td><td>현재 GPL570 microarray 4-cohort 만; RNA-seq external 재현 필요</td><td><span class="badge bs">MEDIUM</span></td><td>GSE126698 alignment 가능하면 재시도 (현재 forbidden)</td></tr>
+<tr><td>Functional perturbation</td><td>causal proof — CRISPR / lineage TF rescue</td><td><span class="badge bm">LOW (out-of-scope)</span></td><td>Paper 1 의 scope 아님 — future paper</td></tr>
+</tbody>
+</table>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="isnot">
+<h2>14. What this paper IS / IS NOT</h2>
+<div class="grid2">
+<div class="card green"><h4>✅ This paper IS</h4><ul class="tight">
+<li><b>compact RAI-lineage readout paper</b></li>
+<li>direction-consistent <b>lineage silencing</b> external validation</li>
+<li><b>candidate triage scaffold</b> (hypothesis stage)</li>
+<li><b>2-layer architecture</b>: discovery + deployment</li>
+<li>East-Asian generalizable</li>
+<li>mechanism-supported (HM450 + TF + DNMT/STAT3/AP-1)</li>
+<li>driver-orthogonal axis</li>
+</ul></div>
+<div class="card red"><h4>❌ This paper IS NOT</h4><ul class="tight">
+<li>validated RAI response predictor</li>
+<li>treatment selection tool</li>
+<li>pathology / H&E / WSI paper</li>
+<li>TROP2 paper</li>
+<li>ICI immunotherapy paper (= Paper 3)</li>
+<li>HLA / autoimmune paper (= Paper 2/4)</li>
+<li>novel 8-gene discovery paper</li>
+<li>prospective clinical utility paper</li>
+</ul></div>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="titles">
+<h2>15. Title options</h2>
+<table>
+<thead><tr><th>#</th><th>Title</th><th>Rationale</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>"A thyroid-lineage differentiation axis stratifies thyroid cancer beyond canonical driver mutations"</td><td>현재 1순위 (`2026_05_04_paper1_final_strategy_after_external_validation.md`)</td></tr>
+<tr><td>2</td><td>"A driver-orthogonal thyroid-lineage axis recapitulates advanced-disease dedifferentiation in thyroid cancer"</td><td>2순위 — orthogonality 강조</td></tr>
+<tr><td>3</td><td>"A transcriptional differentiation axis defines lineage silencing in thyroid cancer"</td><td>3순위 — silencing mechanism 강조</td></tr>
+<tr><td>4 ★</td><td>"A compact RAI-lineage transcriptomic readout for early triage of post-surgery RAI-failure biology in thyroid cancer"</td><td><b>NEW — clinical reframe 강조; 8-gene 을 readout 으로 명시</b></td></tr>
+<tr><td>—</td><td><s>"...identifies a tumor-population TROP2 vulnerability"</s></td><td><b>DEPRECATED</b> — TROP2 demoted</td></tr>
+</tbody>
+</table>
+</section>
+
+<div class="divider-band"></div>
+
+<!-- ========================================================== -->
+<section id="nextsteps">
+<h2>16. Next steps</h2>
+<div class="grid3">
+<div class="card gold"><h4>본인이 직접 작성 (voice-protected)</h4><ul class="tight">
+<li>Hook (Discussion §3.1 framing)</li>
+<li>Aim 4-pillar overview</li>
+<li>Discussion §3.1 reverse-causality (Landa cite-save)</li>
+<li>Limitations 섹션</li>
+<li>Cover letter Para 1</li>
+<li>Reviewer Q9 본문</li>
+</ul></div>
+<div class="card red"><h4>안 해야 할 것</h4><ul class="tight">
+<li class="dont">새 dataset / GEO 검색</li>
+<li class="dont">raw FASTQ alignment / RunPod GPU</li>
+<li class="dont">H&E / WSI / pathology DM1 retry</li>
+<li class="dont">TROP2 main claim 복귀</li>
+<li class="dont">Paper 2/3/4 territory 침범</li>
+</ul></div>
+<div class="card green"><h4>Optional supp 추가 권장</h4><ul class="tight">
+<li><b>Panel-size sensitivity scan</b> (§10) supp figure 추가 — reviewer Q "왜 8?" 강한 답변</li>
+<li>OS sparse → PFI primary 전환 + age-adjusted Cox</li>
+<li>"PT = Para-Tumor" caption 수정 (GSE250521)</li>
+<li>10-gene q5 figure → drop or relabel "exploratory"</li>
+<li>Sub-A/sub-B re-derivation on master DM1 universe</li>
+</ul></div>
+</div>
+</section>
+
+<div class="divider-band"></div>
+
+<footer style="margin-top:50px;padding-top:18px;border-top:1px solid var(--rule);font-size:11px;color:#777;font-family:'JetBrains Mono',monospace">
+Paper 1 comprehensive one-page audit · 2026-05-07 · 19 figures · 4 registries TSV · panel combination scan · No voice-protected prose written. ·
+URL: <span class="kbd">http://40.82.129.113:8012/manuscript_v8/p1_onepage_audit.html</span> ·
+master MD: <span class="kbd">project/reports/2026_05_06_paper1_comprehensive_audit_master.md</span>
+</footer>
+
+</main>
+</body>
+</html>

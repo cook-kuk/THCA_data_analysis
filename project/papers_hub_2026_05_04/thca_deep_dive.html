@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumenix · THCA Deep Dive · Thyroid Cancer Neoantigen + ICI</title>
+<style>
+:root{--ink:#0e1828;--paper:#fbf6ec;--muted:#576275;--line:#d6c8b3;--emerald:#1c8e6d;--rose:#7B1F2A;--violet:#4f2db5;--gold:#b58534;--coal:#0c1422}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 60%,#fbf3e0 100%);color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;font-size:15.5px;line-height:1.65}
+.wrap{max-width:1200px;margin:0 auto;padding:36px 32px 96px}
+.kicker{font-family:'JetBrains Mono',monospace;color:var(--violet);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-family:"Cormorant Garamond",serif;font-size:54px;line-height:1.05;margin:0 0 12px;color:var(--coal);font-weight:700}
+h2{font-family:"Cormorant Garamond",serif;font-size:36px;color:var(--coal);margin:42px 0 8px;padding:8px 0;border-bottom:3px solid var(--violet)}
+h3{font-family:"Cormorant Garamond",serif;font-size:24px;color:var(--coal);margin:22px 0 8px}
+.lead{color:var(--muted);font-style:italic;font-size:18px;margin-bottom:24px;max-width:900px;line-height:1.6}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px;border-radius:10px;overflow:hidden;box-shadow:4px 4px 0 rgba(12,20,34,.07);margin:14px 0}
+th{background:var(--coal);color:#fff;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;text-align:left}
+td{border-bottom:1px solid var(--line);padding:9px 14px;vertical-align:top}
+td.mono{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--violet)}
+.good{color:var(--emerald);font-weight:700}
+.bad{color:var(--rose);font-weight:700}
+.warn{color:var(--gold);font-weight:700}
+.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 28px}
+.kpi div{background:#fff;border:2px solid var(--coal);border-radius:12px;padding:12px 14px;box-shadow:5px 5px 0 rgba(12,20,34,.08)}
+.kpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--violet);line-height:1;font-weight:700}
+.kpi span{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:6px;letter-spacing:.07em;text-transform:uppercase}
+.callout{background:#fff;border-left:6px solid var(--violet);padding:16px 22px;border-radius:8px;margin:14px 0;box-shadow:4px 4px 0 rgba(12,20,34,.05);font-size:15px}
+.callout.good{border-color:var(--emerald);background:#eef9f3}
+.callout.warn{border-color:var(--gold);background:#fdf6e7}
+.callout.rose{border-color:var(--rose);background:#fbecec}
+img{max-width:100%;border-radius:10px;box-shadow:4px 4px 0 rgba(12,20,34,.07);margin:10px 0;border:1px solid var(--line)}
+.fig-caption{font-style:italic;color:var(--muted);font-size:13.5px;margin:6px 0 16px;text-align:center}
+code{font-family:'JetBrains Mono',monospace;background:#f4ead7;padding:2px 7px;border-radius:4px;font-size:13px;color:var(--violet)}
+ul{padding-left:24px;line-height:1.75}
+li{margin:4px 0}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0}
+.flow div{background:#fff;border:2px solid var(--violet);border-radius:8px;padding:10px;text-align:center;font-size:13px;box-shadow:3px 3px 0 rgba(12,20,34,.06)}
+.flow div b{display:block;font-family:"Cormorant Garamond",serif;font-size:15px;color:var(--violet);margin-bottom:5px}
+.tag-emerald{background:var(--emerald);color:#fff;padding:2px 8px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+.tag-violet{background:var(--violet);color:#fff;padding:2px 8px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+.tag-rose{background:var(--rose);color:#fff;padding:2px 8px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+.tag-gold{background:var(--gold);color:#fff;padding:2px 8px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Lumenix · THCA deep dive · 2026-05-08</div>
+<h1>Thyroid Cancer (THCA)<br>· Dark Cancer + ICI Vulnerability + 5 Papers</h1>
+<p class="lead">Deep-dive re-analysis of the Lumenix neoantigen-vaccine corpus filtered to <b>thyroid cancer (THCA)</b>. Among the canonical "dark" cancers — TMB ~0.5 mut/Mb, near-zero ICI response — yet the THCA pipeline at Lumenix has 5 coordinated papers covering DM1 dark matter, HT-isolated PTC, ICI vulnerability, Korean GD HLA, and the new neoantigen vaccine benchmark.</p>
+
+<div class="kpi">
+  <div><b>2,989</b><span>THCA-relevant master records</span></div>
+  <div><b>0.5</b><span>median TMB (mut/Mb) ★ darkest</span></div>
+  <div><b>0.74</b><span>A*24:02 per-allele AUROC</span></div>
+  <div><b>3.6×</b><span>Korean A*24:02 under-rep</span></div>
+  <div><b>5</b><span>papers in flight ★</span></div>
+</div>
+
+<h2>1 · Why THCA?</h2>
+<p>Thyroid cancer is the canonical "dark cancer" for immunogenomic study. Three properties matter:</p>
+<ul>
+<li><b>Lowest TMB</b> of major solid tumors (~0.5 mut/Mb) — almost no neoantigens by mutation count. Standard ICI response baseline is essentially nil.</li>
+<li><b>Driver-mutation-dominated</b> — BRAF V600E in ~60% of papillary thyroid carcinoma (PTC), RET fusions in ~10%, NTRK fusions in ~5%. A small set of recurrent peptide targets.</li>
+<li><b>Hashimoto-overlap subgroup (HT-PTC)</b> — patients with concomitant Hashimoto's thyroiditis show 5× higher tertiary lymphoid structure (TLS) density and a different immunogenomic profile (<i>v17 D5-P6 BCR clonal+TLS finding</i>: TLS d=+1.96, IGHV clonality d&gt;0.5). This sub-population may be ICI-responsive.</li>
+</ul>
+
+<img src="manuscript_artifacts/thca_fig1_tmb_landscape.png" alt="TMB landscape" />
+<p class="fig-caption">Figure 1 · TMB landscape — THCA at the bottom (darkest) end of the immunogenomic spectrum, three orders of magnitude below melanoma.</p>
+
+<div class="callout rose">
+<strong>The dark-cancer paradox</strong>: in TMB terms THCA looks like the worst possible target for neoantigen vaccines or ICI. <b>Yet</b> the Hashimoto-overlap PTC subgroup (HT-PTC) shows immune-active features — IFN-γ, HLA-II up-regulation, B-cell tertiary lymphoid structures, and clonal IGHV expansion. This is the central tension Paper 2 + Paper 3 address: <em>which dark thyroid cancer is actually ICI-vulnerable, and how do we identify it without TMB?</em>
+</div>
+
+<h2>2 · 5-paper THCA pipeline (Lumenix coordinated)</h2>
+<img src="manuscript_artifacts/thca_fig3_pipeline.png" alt="THCA paper pipeline" />
+<p class="fig-caption">Figure 2 · THCA paper pipeline — 5 papers in flight, each addressing a different facet of dark thyroid cancer.</p>
+
+<table>
+<tr><th>#</th><th>Title</th><th>Status</th><th>Key finding</th></tr>
+<tr><td><span class="tag-emerald">1</span></td><td>DM1 Dark Matter (TCGA-THCA molecular dark matter)</td><td>ship-ready 2026-04-27 (npj submission)</td><td>TERT⁺ Cox HR=4.33 · DM1 sub-B (n=56, 96% mutation-negative) = NBNR cluster</td></tr>
+<tr><td><span class="tag-violet">2</span></td><td>HT-isolated PTC (Korean PTC vs Korean baseline · forbidden words list)</td><td>in progress · Pillar I v2</td><td>GSE286332 PTC+HT 8-gene d=-1.6, HLA-II d=+3.65, IFN-γ FDR=2e-4</td></tr>
+<tr><td><span class="tag-rose">3</span></td><td>ICI Vulnerability of Dark Thyroid Cancer (Track A FROZEN)</td><td>FROZEN at <code>project/reports/paper3_ici/PAPER3_ICI_TRACK_A_BUNDLE.md</code></td><td>ATC d=+2.53 myeloid / -2.51 thyroid_diff (4/4 sign across 4 thyroid cohorts) · Track B-lite n=415 pooled 8 cohorts</td></tr>
+<tr><td><span class="tag-gold">4</span></td><td>Korean GD HLA / Pan-Asian (backlog)</td><td>gated 4/4</td><td>DPB1*05:01 53.2% Korean (replicates Kim 2014) · arcasHLA RNA-seq imputation done on PRJEB11591 n=260</td></tr>
+<tr><td><span class="tag-emerald">5 NEW</span></td><td>Post-TESLA Neoantigen Benchmark (this session)</td><td>draft ready</td><td>ESM2-150M LOSO 0.75 · mhcflurry 0.92 TESLA-out · KRAS G12D vaccine candidate · 13-source resource</td></tr>
+</table>
+
+<h2>3 · The Korean HLA-A*24:02 gap</h2>
+<img src="manuscript_artifacts/thca_fig2_hla_gap.png" alt="HLA gap" />
+<p class="fig-caption">Figure 3 · HLA-A*24:02 (Korean common, 18.5% pop) is 3.6× under-represented in the master corpus relative to A*02:01.</p>
+
+<table>
+<tr><th>HLA</th><th>Korean pop freq</th><th>Master corpus freq</th><th>Under-rep factor</th></tr>
+<tr><td class="mono">HLA-A*24:02</td><td>18.5%</td><td>1.9%</td><td class="bad">10× under-rep</td></tr>
+<tr><td class="mono">HLA-A*02:01</td><td>11.3% (Korean)</td><td>6.9%</td><td class="warn">1.6× under-rep</td></tr>
+</table>
+
+<div class="callout warn">
+<strong>★ Per-allele finding (Q-X analysis, n=115)</strong>: HLA-A*24:02 has <b>per-allele AUROC = 0.74 ± 0.03</b> — the highest of any single HLA in our benchmark. This means: when you train a model only on A*24:02 peptides, the prediction quality is high. The Korean K2/Bundang FFPE cohort is the missing dataset to scale this up.
+</div>
+
+<h2>4 · ICI vulnerability of dark thyroid cancer (Paper 3)</h2>
+<p>Paper 3 (Track A FROZEN) found that anaplastic thyroid carcinoma (ATC) — the most aggressive thyroid cancer subtype — has a paradoxical immunogenomic signature compared to its differentiated counterparts (DTC, PTC, FTC):</p>
+
+<table>
+<tr><th>Module</th><th>ATC mean</th><th>DTC mean</th><th>Effect (Cohen d)</th><th>Direction</th></tr>
+<tr><td>Myeloid signature</td><td>high</td><td>baseline</td><td class="bad">d = +2.53</td><td>↑ in ATC</td></tr>
+<tr><td>Thyroid differentiation</td><td>low</td><td>high</td><td class="bad">d = -2.51</td><td>↓ in ATC</td></tr>
+<tr><td>RAI-refractory module</td><td>high</td><td>low</td><td class="warn">d = -1.01 (post-RAI)</td><td>↑ in ATC + post-RAI DTC</td></tr>
+</table>
+
+<p>Cross-axis: <b>RAI-refractoriness is on the same axis as partial-ATC immunogenomic phenotype</b> — meaning the patients who fail standard radioiodine therapy are immunologically heading toward ATC, and may be ICI-vulnerable in a way that would not show up on TMB alone.</p>
+
+<h2>5 · Synthetic lethality framing</h2>
+<p>Two angles emerge from combining Paper 3 (ICI vulnerability axis) with Paper 5 (neoantigen vaccine benchmark):</p>
+
+<div class="callout violet">
+<strong>Synthetic lethality A · BRAF V600E + ICI</strong>: BRAF V600E is in 60% of PTC. The mutation creates a constitutively active MAPK signal that promotes immune-suppressive TME. <b>BRAF inhibitor + neoantigen vaccine + anti-PD-1</b> — three-component combo could be synergistic where any one alone fails.<br><br>
+<strong>Synthetic lethality B · HT-overlap + ICI</strong>: HT-PTC subgroup has TLS, IFN-γ, B-cell clonality (Paper 2 finding) — already partially "primed" for immunity. ICI + neoantigen vaccine in HT-PTC could exploit existing tumor-reactive memory.
+</div>
+
+<h2>6 · Why THCA paper portfolio is coherent</h2>
+<ul>
+<li><b>Paper 1 DM1</b> identifies the 56-patient sub-B cluster (96% driver-mutation-negative) — the "dark" thyroid cancer.</li>
+<li><b>Paper 2 HT-isolated</b> identifies the immune-active HT-PTC subgroup — the part of dark cancer that may respond to ICI.</li>
+<li><b>Paper 3 ICI vulnerability</b> shows the immunogenomic axis from DTC → post-RAI → ATC — providing the molecular target for ICI selection.</li>
+<li><b>Paper 4 Korean GD HLA</b> brings Asian-specific allele context — needed for any Korean clinical translation.</li>
+<li><b>Paper 5 neoantigen benchmark (this work)</b> provides the prediction infrastructure — the "what actually matters" for translating any thyroid neoantigen finding into a vaccine candidate.</li>
+</ul>
+<p>Each paper individually is solid. Combined, they form a complete pipeline: identify dark cancer (P1) → stratify by immune state (P2) → predict ICI response axis (P3) → contextualize for Korean patients (P4) → prioritize neoantigen vaccine candidates with leakage-aware benchmark (P5). This is the <b>integrated thyroid-cancer immunogenomic platform</b>.</p>
+
+<h2>7 · Pre-clinical roadmap (THCA-specific)</h2>
+<div class="flow">
+<div><b>Step 1</b>K2/Bundang FFPE cohort acquisition</div>
+<div><b>Step 2</b>HLA-A*24:02 stratified neoantigen prediction</div>
+<div><b>Step 3</b>BRAF V600E peptide on A*24:02 (vaccine candidate)</div>
+<div><b>Step 4</b>HT-PTC subgroup ICI sensitivity panel</div>
+<div><b>Step 5</b>Korean cohort phase 1</div>
+</div>
+
+<h2>8 · Honest limitations</h2>
+<ul>
+<li>THCA-relevant master corpus is small (~3k records); most are TSNAdb predicted-only (L0 evidence level).</li>
+<li>BRAF V600E peptides have very few experimentally validated immunogenicity records in our corpus (n=3).</li>
+<li>Korean cohort (K2/Bundang) is gated and may not arrive in time for current submission cycle.</li>
+<li>ICI vulnerability axis (Paper 3) is based on bulk RNA-seq deconvolution, not single-cell or patient-matched ICI response data.</li>
+<li>Synthetic-lethality combo trials are speculative; no preclinical model run in this session.</li>
+</ul>
+
+<h2>9 · Citations + memory references</h2>
+<p style="font-size:12.5px;color:var(--muted)">
+TCGA Thyroid · GSE286332 (Korean PTC vs PTC+HT n=18, prior MEMORY: <code>v17_gse286332_strong_go</code>) · GSE151179 post-RAI vs pre-RAI · Krishnamoorthy 2025 retraction → Landa 2016 JCI (prior MEMORY: <code>v17_landa2016_cite_save</code>) · arcasHLA on PRJEB11591 n=260 · Wells <i>et al.</i> 2020 <i>Cell</i> (TESLA) · Lin <i>et al.</i> 2023 <i>Science</i> (ESM2). Memory entries: <code>v52_lodo_finding</code>, <code>v17_dark_matter_pivot</code>, <code>v18_paper2_HT_isolated</code>, <code>v19_paper3_ici_track_a</code>, <code>v19_paper4_GD_backlog</code>.
+</p>
+
+<p style="margin-top:30px"><a href="lumenix_cancer_vaccine_index.html" style="color:var(--violet);font-weight:700;text-decoration:none">◀ Back to Lumenix master index</a> · <a href="paad_deep_dive.html" style="color:var(--violet);font-weight:700;text-decoration:none">▶ PAAD deep dive</a></p>
+</div>
+</body>
+</html>

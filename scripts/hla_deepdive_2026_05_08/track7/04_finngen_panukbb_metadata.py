@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Track 7 step 4 — FinnGen + Pan-UKBB + IEU OpenGWAS metadata catalogue.
+
+We do NOT download any summary stats here (Track 11 owns that). We only
+record which thyroid-autoimmune endpoints are public-summary-stat
+accessible, with stable IDs / endpoint URLs.
+"""
+from __future__ import annotations
+
+from pathlib import Path
+import pandas as pd
+
+ROOT = Path("/home/seungho/personal/THCA_data_analysis/project/results/hla_deepdive_2026_05_08/track7_gwas_catalog_mhc")
+TAB = ROOT / "tables"
+
+# Curated from FinnGen R10/R12 documentation and PMC11261955 / s41467-023-42284-5
+ROWS = [
+    # source, dataset_id, phenotype, n_cases, n_controls, ancestry, summary_stats_url, notes
+    ("FinnGen_R10",  "AUTOIMMUNE_HYPERTHYROIDISM",      "Autoimmune hyperthyroidism (Graves)", 1991,    305175,  "Finnish",
+     "https://r10.finngen.fi/api/manhattan/AUTOIMMUNE_HYPERTHYROIDISM",
+     "R10 web release; verified via /api/phenos endpoint 2026-05-08"),
+    ("FinnGen_R9",   "E4_THYROIDITAUTOIM",              "Autoimmune thyroiditis",              "see_paper",   "see_paper", "Finnish",
+     "https://www.finngen.fi/en/access_results",
+     "R9 finngen_R9_E4_THYROIDITAUTOIM (n=321,192 incl. controls; from PMC11261955)"),
+    ("FinnGen_R9",   "E4_GRAVES_STRICT",                "Graves disease (strict)",             "see_paper",   "see_paper", "Finnish",
+     "https://www.finngen.fi/en/access_results",
+     "R9 finngen_R9_E4_GRAVES_STRICT (n=377,277 total; from PMC11261955)"),
+    ("FinnGen_R12",  "AIHT_meta",                       "Autoimmune hypothyroidism (meta)",    54752,         "see_paper", "Finnish",
+     "https://www.finngen.fi/en/access_results",
+     "R12 alone 54,752 AIHT cases per Nat Genet 2026-02521-1; 231 GWS hits"),
+    ("PanUKBB",      "20002_1226",                      "Hypothyroidism / Hashimoto self-rep", 24168,         "European,Asian,African,Hispanic",
+     "European,Asian,African,Hispanic",
+     "https://pan.ukbb.broadinstitute.org/phenotypes/20002_1226",
+     "Pan-UKBB cross-ancestry; HLA region included with full sumstats"),
+    ("PanUKBB",      "20002_1428",                      "Hyperthyroidism / Graves self-rep",   2828,          "European",
+     "European",
+     "https://pan.ukbb.broadinstitute.org/phenotypes/20002_1428",
+     "Pan-UKBB self-reported hyperthyroidism"),
+    ("PanUKBB",      "E03",                             "Other hypothyroidism (ICD10)",        20498,         "European,Asian,African,Hispanic",
+     "European,Asian,African,Hispanic",
+     "https://pan.ukbb.broadinstitute.org/phenotypes/E03",
+     "ICD10 E03 hypothyroidism"),
+    ("PanUKBB",      "E05",                             "Thyrotoxicosis (ICD10)",              2543,          "European",
+     "European",
+     "https://pan.ukbb.broadinstitute.org/phenotypes/E05",
+     "ICD10 E05 thyrotoxicosis incl. Graves"),
+    ("BioBank_Japan",      "Graves_disease_BBJ",        "Graves disease (BBJ Japanese)",       2809,          168312,  "Japanese",
+     "https://pheweb.jp/pheno/Graves_disease",
+     "BBJ public PheWeb portal"),
+    ("BioBank_Japan",      "Hashimoto_BBJ",             "Chronic thyroiditis / Hashimoto",     "see_paper",   "see_paper", "Japanese",
+     "https://pheweb.jp/pheno/Chronic_thyroiditis",
+     "BBJ Hashimoto endpoint"),
+    ("IEU_OpenGWAS", "ieu-b-95",                        "Hypothyroidism (UKBB Neale lab)",     22687,         "European",
+     "European",
+     "https://gwas.mrcieu.ac.uk/datasets/ieu-b-95/",
+     "Auth required (JWT); metadata only here"),
+    ("IEU_OpenGWAS", "ukb-d-20002_1226",                "UKBB self-rep hypothyroidism",        21952,         "European",
+     "European",
+     "https://gwas.mrcieu.ac.uk/datasets/ukb-d-20002_1226/",
+     "Auth required; metadata only here"),
+    ("IEU_OpenGWAS", "ieu-b-1241",                      "Free thyroxine (FT4)",                "see_portal",  "see_portal", "European",
+     "https://gwas.mrcieu.ac.uk/datasets/ieu-b-1241/",
+     "TSH/FT4 quant trait, MRC IEU"),
+    ("Saevarsdottir_2020_Nature", "deCODE_AITD",        "Autoimmune thyroid disease",          30234,         724172,  "European",
+     "https://www.decode.com/summarydata/",
+     "deCODE summary stats request portal; PMID 32581359"),
+    ("Sakaue_2021_Nat_Genet", "BBJ_AITD",               "AITD (Japanese cross-trait)",         "see_paper",   "see_paper", "Japanese",
+     "https://pheweb.jp/",
+     "BBJ multi-trait MHC fine-map; PMID 34594039"),
+]
+
+COLS = [
+    "source", "dataset_id", "phenotype", "n_cases", "n_controls", "ancestry",
+    "endpoint_url", "notes",
+]
+
+df = pd.DataFrame(ROWS, columns=COLS)
+out = TAB / "T09_finngen_panukbb_iue_metadata.tsv"
+df.to_csv(out, sep="\t", index=False)
+print(f"WROTE {out} rows={len(df)}")

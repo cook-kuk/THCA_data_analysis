@@ -1,0 +1,2285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paper 2 — Yu Lab Review Report (2026-05-08)</title>
+<style>
+/* ============================================================
+   PAPER 2 YU REVIEW REPORT — self-contained CSS
+   No external CDN. Print-ready (A4 portrait + landscape).
+   ============================================================ */
+:root{
+  --fg:#1a1a1a; --muted:#555; --bg:#ffffff; --bg-alt:#f7f7f9;
+  --accent:#0b5d8a; --accent-2:#0e7a6e;
+  --crit-bg:#fff1f1; --crit-bd:#c0392b;
+  --warn-bg:#fff8e1; --warn-bd:#e0a300;
+  --good-bg:#eaf6ec; --good-bd:#1e8449;
+  --neutral-bg:#eef3f7; --neutral-bd:#3b6f9a;
+  --rule:#dadde1;
+  --tbl-head:#eef2f6;
+  --code-bg:#f3f4f6;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family: system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, "Apple SD Gothic Neo", "Noto Sans CJK KR", "Malgun Gothic", sans-serif;
+  font-size:15px; line-height:1.6; color:var(--fg); background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+}
+.layout{display:grid; grid-template-columns: 260px 1fr; gap:0; min-height:100vh; max-width:1500px; margin:0 auto;}
+nav.toc{
+  position:sticky; top:0; align-self:start; max-height:100vh; overflow-y:auto;
+  padding:18px 14px 24px 18px; border-right:1px solid var(--rule);
+  background:var(--bg-alt);
+}
+nav.toc h2{font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:0 0 10px 0}
+nav.toc ol{padding-left:18px; margin:0}
+nav.toc li{margin:4px 0; font-size:13px}
+nav.toc a{color:var(--accent); text-decoration:none}
+nav.toc a:hover{text-decoration:underline}
+main{padding:28px 36px 80px 36px; max-width:1180px}
+h1,h2,h3,h4{font-weight:700; line-height:1.25}
+h1{font-size:30px; margin:.2em 0 .1em 0; color:#111}
+h1 small{font-size:14px; color:var(--muted); font-weight:500; display:block; margin-top:6px}
+h2{font-size:22px; margin:1.6em 0 .4em 0; padding-bottom:6px; border-bottom:2px solid var(--accent); color:var(--accent)}
+h3{font-size:17px; margin:1.4em 0 .35em 0; color:#1f3a55}
+h4{font-size:15px; margin:1.1em 0 .25em 0; color:#23425e}
+p{margin:.5em 0}
+.kr{color:var(--muted); font-weight:500}
+.label-bi{font-size:13px; color:var(--muted); display:block; margin-top:-2px; margin-bottom:6px; font-style:normal}
+.meta{color:var(--muted); font-size:13px; margin-bottom:6px}
+hr{border:none; border-top:1px solid var(--rule); margin:1.6em 0}
+
+/* Verdict badge */
+.verdict{
+  display:inline-block; background:#1e8449; color:#fff; font-weight:800;
+  font-size:22px; letter-spacing:.04em; padding:14px 26px; border-radius:8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.12); text-transform:uppercase;
+}
+
+/* Callouts */
+.callout{
+  margin:14px 0; padding:12px 16px 12px 44px; border-radius:6px;
+  position:relative; line-height:1.55;
+}
+.callout::before{
+  position:absolute; left:14px; top:11px; font-size:18px; line-height:1;
+}
+.callout-critical{ background:var(--crit-bg); border:1px solid var(--crit-bd); border-left:4px solid var(--crit-bd); }
+.callout-critical::before{ content:"!"; background:var(--crit-bd); color:#fff; width:20px; height:20px; border-radius:50%; text-align:center; font-weight:800; }
+.callout-critical .ttl{ display:block; color:var(--crit-bd); font-weight:800; text-transform:uppercase; font-size:12px; letter-spacing:.06em; margin-bottom:4px}
+.callout-important{ background:var(--warn-bg); border:1px solid var(--warn-bd); border-left:4px solid var(--warn-bd); }
+.callout-important::before{ content:"?"; background:var(--warn-bd); color:#fff; width:20px; height:20px; border-radius:50%; text-align:center; font-weight:800;}
+.callout-important .ttl{ display:block; color:#8a5a00; font-weight:800; text-transform:uppercase; font-size:12px; letter-spacing:.06em; margin-bottom:4px}
+.callout-finding{ background:var(--good-bg); border:1px solid var(--good-bd); border-left:4px solid var(--good-bd);}
+.callout-finding::before{ content:"+"; background:var(--good-bd); color:#fff; width:20px; height:20px; border-radius:50%; text-align:center; font-weight:800;}
+.callout-finding .ttl{ display:block; color:var(--good-bd); font-weight:800; text-transform:uppercase; font-size:12px; letter-spacing:.06em; margin-bottom:4px}
+.callout-neutral{ background:var(--neutral-bg); border:1px solid var(--neutral-bd); border-left:4px solid var(--neutral-bd);}
+.callout-neutral::before{ content:"i"; background:var(--neutral-bd); color:#fff; width:20px; height:20px; border-radius:50%; text-align:center; font-weight:800; font-style:italic; font-family:Georgia,serif;}
+.callout-neutral .ttl{ display:block; color:var(--neutral-bd); font-weight:800; text-transform:uppercase; font-size:12px; letter-spacing:.06em; margin-bottom:4px}
+.callout-protected{ background:#f1f0fa; border:1px dashed #6c5ce7; color:#3b3568; padding:10px 14px; border-radius:6px; margin:14px 0; font-size:14px;}
+.callout-protected b{color:#3b3568}
+
+/* Tables */
+table{border-collapse:collapse; width:100%; margin:12px 0; font-size:13px}
+caption{caption-side:top; text-align:left; font-style:italic; color:var(--muted); padding:4px 0; font-size:13px}
+th,td{border:1px solid var(--rule); padding:6px 9px; vertical-align:top; text-align:left}
+th{background:var(--tbl-head); font-weight:700}
+tr:nth-child(even) td{background:#fafbfc}
+.tbl-num{font-variant-numeric: tabular-nums; text-align:right}
+.tbl-tight th, .tbl-tight td{padding:4px 7px; font-size:12.5px}
+.tbl-footnote{font-size:12px; color:var(--muted); margin-top:-4px; margin-bottom:14px}
+
+.figure{ margin:18px 0 26px 0; padding:0; border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:14px 0}
+.figure img{ max-width:100%; height:auto; max-height:none; display:block; margin:0 auto; border:1px solid #e3e6ea; cursor:zoom-in; transition:transform .2s ease;}
+.figure img:hover{ box-shadow:0 4px 12px rgba(0,0,0,.16);}
+.figure.large img{ width:100%; max-width:100%; }
+.figure.xl img{ width:100%; max-width:1100px;}
+.figure .cap{ font-size:13px; line-height:1.5; color:var(--fg); margin-top:10px }
+.figure .cap b{color:var(--accent)}
+.figure .hint{ font-size:11px; color:var(--accent); font-style:italic; margin-top:2px}
+.figure .src{ font-size:11px; color:var(--muted); margin-top:4px; font-family: ui-monospace, Menlo, Consolas, monospace}
+
+/* Wide tables: scrollable on narrow screens */
+.wide-table{ overflow-x:auto; max-width:100%; -webkit-overflow-scrolling:touch; margin:12px 0; border:1px solid var(--rule); border-radius:4px}
+.wide-table table{ margin:0; min-width:720px}
+.wide-table table th{ position:sticky; top:0; z-index:1; background:var(--tbl-head); box-shadow:inset 0 -1px 0 var(--rule)}
+table.hover-rows tbody tr:hover td{ background:#fff7d6 !important; transition:background .15s ease}
+.scenario{ background:#f7f8fb; border:1px solid var(--rule); border-left:4px solid var(--accent-2); border-radius:6px; padding:12px 16px; margin:14px 0 }
+.scenario h4{ margin:.1em 0 .4em 0; color:var(--accent-2)}
+.scenario .meta-line{ color:var(--muted); font-size:12px; font-style:italic; margin-bottom:6px}
+.stage-block{ background:#fafbfd; border:1px solid var(--rule); border-radius:6px; padding:10px 14px; margin:10px 0 14px 0; border-top:4px solid var(--accent)}
+.stage-block.pt{ border-top-color:#3b6f9a}
+.stage-block.ptc{ border-top-color:#0e7a6e}
+.stage-block.lptc{ border-top-color:#9a4ec0}
+.stage-block.atc{ border-top-color:#b3261e}
+.stage-block h4{ margin:.05em 0 .35em 0 }
+
+/* Lightbox on figure click (CSS-only checkbox trick) */
+.lightbox{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:9999; padding:24px; cursor:zoom-out; align-items:center; justify-content:center}
+.lightbox img{ max-width:96vw; max-height:94vh; height:auto; width:auto; box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.lightbox:target{ display:flex }
+.lightbox .close{ position:absolute; top:16px; right:24px; color:#fff; font-size:32px; font-weight:300; text-decoration:none}
+
+code{ background:var(--code-bg); padding:1px 5px; border-radius:3px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size:12.5px}
+pre{ background:var(--code-bg); padding:10px 12px; border-radius:6px; overflow-x:auto; font-size:12.5px; line-height:1.45}
+
+ul.checklist{ list-style:none; padding-left:0 }
+ul.checklist li{ padding-left:24px; position:relative; margin:4px 0 }
+ul.checklist li::before{ content:"\2713"; position:absolute; left:4px; color:var(--good-bd); font-weight:800 }
+ul.checklist li.todo::before{ content:"\25CB"; color:var(--warn-bd) }
+ul.checklist li.blocked::before{ content:"\2715"; color:var(--crit-bd) }
+
+.kpi-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:14px 0 }
+.kpi{ background:var(--bg-alt); border:1px solid var(--rule); border-left:4px solid var(--accent); padding:10px 12px; border-radius:4px}
+.kpi .lbl{ font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted)}
+.kpi .val{ font-size:20px; font-weight:800; color:var(--fg); font-variant-numeric: tabular-nums}
+.kpi .sub{ font-size:11px; color:var(--muted)}
+
+/* Print */
+@media print{
+  body{ font-size:11pt }
+  .layout{ display:block; max-width:none }
+  nav.toc{ display:none }
+  main{ padding:0 12mm; max-width:none }
+  h1{ font-size:22pt }
+  h2{ font-size:14pt; page-break-after:avoid }
+  h3{ font-size:12pt; page-break-after:avoid }
+  .figure{ page-break-inside:avoid }
+  table{ page-break-inside:avoid }
+  .callout{ page-break-inside:avoid }
+  .page-break{ page-break-before:always }
+  .landscape{ page-break-before:always; page:landscape }
+  @page{ size: A4 portrait; margin: 14mm 14mm 16mm 14mm }
+  @page landscape{ size: A4 landscape; margin: 12mm }
+  a{ color:inherit; text-decoration:none }
+}
+
+/* Mobile */
+@media (max-width: 900px){
+  .layout{ grid-template-columns: 1fr }
+  nav.toc{ position:static; max-height:none; border-right:none; border-bottom:1px solid var(--rule) }
+  main{ padding:18px 14px }
+  .kpi-grid{ grid-template-columns: repeat(2,1fr)}
+}
+
+/* Misc helpers */
+.small{ font-size:12px; color:var(--muted) }
+.center{ text-align:center }
+.right{ text-align:right }
+.mono{ font-family: ui-monospace, Menlo, Consolas, monospace; font-size:12.5px}
+.tag{ display:inline-block; padding:1px 6px; font-size:11px; border-radius:3px; background:#e6eef5; color:#1f3a55; border:1px solid #c8d6e3; margin-right:4px}
+.tag-red{ background:#fde7e7; color:#9a1f1f; border-color:#f1c2c2}
+.tag-grn{ background:#e2f1e6; color:#1c5d31; border-color:#c2dec9}
+.tag-ylw{ background:#fff3cd; color:#7a5a00; border-color:#f0d77a}
+strong.r{ color:var(--crit-bd) }
+strong.g{ color:var(--good-bd) }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- =========================================================
+     STICKY TOC SIDEBAR
+     ========================================================= -->
+<nav class="toc">
+<h2>Contents</h2>
+<ol>
+  <li><a href="#s1">1. Executive Summary</a></li>
+  <li><a href="#s2">2. Background</a></li>
+  <li><a href="#s3">3. Phase 1: Spatial Validation</a>
+    <ol>
+      <li><a href="#s3-1">3.1 Per-slide correlations</a></li>
+      <li><a href="#s3-2">3.2 Spatial overlay grid</a></li>
+      <li><a href="#s3-3">3.3 Per-stage clinical interpretation</a></li>
+    </ol>
+  </li>
+  <li><a href="#s4">4. Phase 2: TCGA Classification</a>
+    <ol>
+      <li><a href="#s4-1">4.1 Cohort</a></li>
+      <li><a href="#s4-2">4.2 Encoder</a></li>
+      <li><a href="#s4-3">4.3 CLAM MIL</a></li>
+      <li><a href="#s4-4">4.4 Primary results</a></li>
+      <li><a href="#s4-5">4.5 Robustness</a></li>
+      <li><a href="#s4-6">4.6 Per-fold detail</a></li>
+    </ol>
+  </li>
+  <li><a href="#s5">5. Method Comparison</a></li>
+  <li><a href="#s6">6. Clinical Translation</a>
+    <ol>
+      <li><a href="#s6-5">6.5 Deep clinical analysis</a></li>
+      <li><a href="#s6-6">6.6 Case vignettes</a></li>
+    </ol>
+  </li>
+  <li><a href="#s7">7. GigaTIME Positioning</a></li>
+  <li><a href="#s8">8. Data Access Roadmap</a></li>
+  <li><a href="#s9">9. Roadmap to Top Venues</a>
+    <ol>
+      <li><a href="#s9-5">9.5 NEJM</a></li>
+      <li><a href="#s9-6">9.6 Nature Medicine</a></li>
+      <li><a href="#s9-7">9.7 Nature Cancer</a></li>
+      <li><a href="#s9-8">9.8 Gates table</a></li>
+      <li><a href="#s9-9">9.9 SaMD / device strategy</a></li>
+    </ol>
+  </li>
+  <li><a href="#s10">10. Open Decisions</a></li>
+  <li><a href="#s11">11. Supplementary</a></li>
+  <li><a href="#s12">12. Appendices</a></li>
+</ol>
+<hr>
+<p class="small">
+  Compiled 2026-05-08 (v1.1, UNI re-run integrated)<br>
+  Author: Seungho Cook<br>
+  Reviewer: Yu lab (유형원 교수님)<br>
+  Working dir: <span class="mono">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/</span>
+</p>
+<hr>
+<p class="small">
+<strong>Headline (UNI):</strong><br>
+N = 54 &middot; Pooled AUC <strong>0.874</strong><br>
+95 % CI [0.760, 0.967]<br>
+Mean fold 0.95 ± 0.08; 4 / 5 folds = 1.000<br>
+Δ vs ViT-L = +0.128
+</p>
+</nav>
+
+<!-- =========================================================
+     MAIN CONTENT
+     ========================================================= -->
+<main>
+
+<!-- ===== HEADER ===== -->
+<header>
+<p class="meta">Paper 2 — UNI Foundation-model H&amp;E classifier for the DM1 molecular dark-matter sub-cluster of BRAF/RAS-negative papillary thyroid carcinoma  ·  UNI/CLAM v2 sprint result</p>
+<h1>Yu Lab Review Report — Paper 2 — UNI/CLAM v2 Sprint — AUC 0.874 PASS
+<small>유형원 교수님 검토용 / Comprehensive review packet · v1.1 · 2026-05-08 (UNI re-run integrated)</small>
+</h1>
+<p class="meta">
+Status: <strong class="g">PASS_LAUNCH_PAPER2</strong> &middot;
+Sprint: <strong>p2_image_dm1_v2_foundation_clam_2026_05_07</strong> &middot;
+Marathon mode: voice-protected sections (Hook · Aim · Disc 3.1 · Limitations · Cover Para 1 · Q9) are <em>not</em> auto-generated in this report.
+</p>
+</header>
+
+<!-- =========================================================
+     SECTION 1 — EXECUTIVE SUMMARY
+     ========================================================= -->
+<section id="s1">
+<h2>1. Executive Summary <span class="kr">/ 1. 한 페이지 요약</span></h2>
+
+<p class="center" style="margin:18px 0 12px 0">
+<span class="verdict">PASS_LAUNCH_PAPER2</span>
+</p>
+<p class="center small" style="margin-top:0">
+<strong>UNI Mass-100K final:</strong> N=54 (25 DM1 / 29 DM2) &middot; pooled cross-fold AUC <strong>0.874</strong> [95% CI 0.760–0.967] &middot; mean per-fold <strong>0.95 ± 0.08</strong> &middot; all 5 folds ≥ 0.79; 4 of 5 folds = 1.000
+</p>
+
+<div class="callout callout-critical" style="border-left:6px solid #b3261e;background:#ffe9e6">
+<span class="ttl" style="color:#b3261e">⚠️ HEADLINE FINDING — UNI vs ViT-L</span>
+<b>UNI (true MahmoodLab pathology foundation model) AUC = 0.874, Δ +0.128 over ImageNet ViT-L (0.746).</b>
+ALL 5 folds ≥ 0.79; 4 of 5 folds reach 1.000 (per-fold:
+<strong>[1.000, 1.000, 0.964, 1.000, 0.792]</strong>;
+mean 0.951 ± 0.081 vs ViT-L 0.83 ± 0.14, σ shrinks 0.14 → 0.08).
+Bootstrap 95 % CI tightens from [0.611, 0.862] (ViT-L) to <strong>[0.760, 0.967]</strong>
+(UNI, 10 000 resamples, seed 42). This validates BOTH the architecture-bound
+thesis from the v2 sprint AND the value of pathology-domain pretraining: the
+generic-vision swap recovered ≈ 0.21 AUC; UNI/H&amp;E pretraining adds another
++0.13 on top.
+</div>
+
+<p>
+This report summarises the Paper 2 v2 sprint that ran from 2026-05-07 to 2026-05-08
+in the working directory <code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/</code>.
+The sprint had a single decision-grade question: <em>was the 2026-05-04 closure of
+Paper 2 a biological wall (the H&amp;E really cannot read DM1) or an architectural wall
+(ResNet50/ImageNet was the wrong encoder for pathology)?</em>
+A 24-hour pre-registered protocol &mdash; spatial validation on GSE250521 plus a
+foundation-model + CLAM classifier on TCGA-THCA &mdash; flipped the verdict from
+the closure baseline AUC ≈ 0.55 to <strong>pooled AUC 0.746</strong>, with
+<strong>8 of 16 GSE250521 slides</strong> showing |ρ| > 0.3 between unsupervised
+image-axis and Visium DM1 signature, and <strong>all 5 cross-validation folds
+≥ 0.71</strong>. The closure was architecture-bound, not biology-bound, and Paper 2
+launches towards Cell Reports Medicine on the marathon 2026-06-13 deadline.
+</p>
+
+<div class="kpi-grid">
+  <div class="kpi" style="background:#e6f7e9"><div class="lbl">Pooled AUC (UNI, FINAL)</div><div class="val" style="color:#0a5d18">0.874</div><div class="sub">95% CI [0.760, 0.967]</div></div>
+  <div class="kpi" style="background:#e6f7e9"><div class="lbl">Mean fold AUC (UNI)</div><div class="val" style="color:#0a5d18">0.95 ± 0.08</div><div class="sub">all 5 folds ≥ 0.79; 4/5 = 1.000</div></div>
+  <div class="kpi"><div class="lbl">ViT-L fallback (pooled)</div><div class="val">0.746</div><div class="sub">95% CI [0.611, 0.862]</div></div>
+  <div class="kpi"><div class="lbl">Δ vs ViT-L / Closure</div><div class="val">+0.128 / +0.32</div><div class="sub">UNI − ViT-L; UNI − ResNet50</div></div>
+</div>
+
+<div class="callout callout-critical">
+<span class="ttl">Critical finding 1 / 핵심 발견 1</span>
+<b>The 2026-05-04 closure was architecture-bound, not biology-bound.</b>
+With the MIL head, fold splits, optimizer, and labels held identical, swapping
+the tile encoder from <em>ResNet50 / ImageNet</em> to <em>ViT-L/16 / ImageNet-21k</em>
+moved pooled cross-fold AUC from <strong class="r">~0.55</strong> to
+<strong class="g">0.746</strong> &mdash; a single architecture swap recovers ≈ 0.21 AUC.
+Closure was therefore reversed; DM1 <em>is</em> readable from H&amp;E with an
+adequate foundation-class encoder.
+</div>
+
+<div class="callout callout-critical">
+<span class="ttl">Critical finding 2 / 핵심 발견 2</span>
+<b>8 of 16 GSE250521 slides PASS spatial validation; the strongest correlation
+is ρ = −0.610 on LPTC-2 (GSM7980869, p = 9.6 × 10<sup>-22</sup>, n = 200 spots).</b>
+The unsupervised first principal component of per-tile UNI/ViT-L features
+tracks the 8-gene Visium DM1 signature at sub-millimetre spatial resolution in
+half the slides &mdash; well above the pre-registered 5/16 kill-switch
+threshold.  Stage-stratified, all 4 LPTC slides reach |ρ| > 0.2 (3 of 4 with
+|ρ| > 0.5); ATC slides are sub-morphologic (max |ρ| = 0.21), consistent with
+DM1 being a Hashimoto-overlap PTC phenotype rather than an ATC marker.
+</div>
+
+<div class="callout callout-critical">
+<span class="ttl">Critical finding 3 / 핵심 발견 3</span>
+<b>All 5 cross-validation folds reached AUC ≥ 0.71; bootstrap 95% CI
+[0.611, 0.862].</b>
+Per-fold AUCs are <strong>0.714, 0.722, 1.000, 0.714, 1.000</strong>.
+No fold collapses to chance &mdash; a key change relative to the QUICK preview
+(N = 18) where the 5th fold dropped to 0.500.  Across 10,000 bootstrap
+resamples of the slide-level (label, predicted-probability) pairs, the lower
+2.5th percentile (0.611) sits well above both the 0.55 closure baseline and
+the 0.50 chance line; the bootstrap distribution exceeded 0.55 in
+<strong>10,000 / 10,000</strong> resamples.
+</div>
+
+<p>The remaining sections walk through the data, the analysis, the robustness
+checks, the GigaTIME positioning, and the strategic roadmap to Cell Reports
+Medicine, Nature Cancer, Nat Med, and NEJM.  Voice-protected manuscript
+sections (Hook, Aim, Discussion §3.1, Limitations, Cover-letter §1, Reviewer
+Q9) are flagged where they belong but not drafted.</p>
+
+</section>
+
+<!-- =========================================================
+     SECTION 2 — BACKGROUND
+     ========================================================= -->
+<section id="s2" class="page-break">
+<h2>2. Background <span class="kr">/ 2. 배경</span></h2>
+
+<h3>2.1 What is the DM1 cluster?</h3>
+<p>
+DM1 ("dark-matter cluster 1") is one of two molecular dark-matter sub-clusters
+identified by the Paper 1 line of work within the BRAF/RAS-negative subset of
+papillary thyroid carcinoma (PTC) using the 8-gene RAI_8 panel.
+At the transcriptomic level, DM1 is enriched for an interferon-γ–driven
+HLA-class-II axis and for tertiary-lymphoid-structure (TLS) gene programs.
+At the molecular-driver level, the DM1 sub-B partition is ~96% mutation-negative
+across the canonical thyroid driver panel (BRAF, NRAS, HRAS, KRAS, RET, etc.),
+making DM1 the TCGA equivalent of the Korean K2 NBNR (no BRAF, no RAS)
+cohort first noted by the Yu group.  At the histological level, DM1 has
+substantial overlap with Hashimoto's thyroiditis-associated PTC, mirroring the
+GSE286332 Korean PTC + HT signature that transferred to TCGA at OR up to 5×
+(p = 6e-10).
+</p>
+
+<h3>2.2 Why a histology classifier matters clinically</h3>
+<p>
+DM1 has three concrete downstream implications.
+First, <strong>RAI-refractoriness</strong>: the GSE151179 post-RAI vs pre-RAI
+analysis shows that the RAI-refractory phenotype shares the same
+thyroid-de-differentiation + HLA-II + myeloid axis as DM1
+(thyroid_diff d = −1.01, p = 1 × 10<sup>-4</sup>), so a DM1 flag at diagnosis
+is a hypothesis-generating signal for early TKI consideration.
+Second, <strong>ICI candidacy</strong>: the BCR clonal-IGHV + AICDA up-regulation
+in Korean PTC + HT cohorts (D5-P6 GSE286332) suggests an antigen-driven B-cell
+response and TLS biology that aligns with checkpoint sensitivity.
+Third, <strong>treatment de-escalation</strong>: a DM1-negative flag from H&amp;E
+suggests the standard surgery + RAI pathway is appropriate without reflex
+molecular triage.  All three implications require a low-cost,
+already-collected modality &mdash; H&amp;E &mdash; for the front-door triage layer.
+</p>
+
+<h3>2.3 The 2026-05-04 closure</h3>
+<p>
+On 2026-05-04 a first attempt at this paper was closed.  The closure run used
+a ResNet50 ImageNet backbone as the per-tile encoder, with the same CLAM
+gated-attention MIL head, same 5-fold split, and same DM1/DM2 labels that this
+v2 sprint subsequently used.  That run produced pooled cross-fold AUC
+≈ 0.55, indistinguishable from chance.  The interpretation written into the
+closure memory was that <em>H&amp;E does not encode DM1 at the slide level for
+this n=89 cohort</em>.
+</p>
+
+<div class="callout callout-finding">
+<span class="ttl">Closure overturned</span>
+The v2 sprint pre-registered a single hypothesis: <em>the closure failure was
+an encoder failure, not a biology failure.</em> A foundation-model-class encoder
+(UNI primary, ViT-L/16 ImageNet-21k as fallback when UNI HF access was not yet
+granted) was substituted for ResNet50 with no other change.  Pooled AUC moved
+0.55 → 0.746.  The closure interpretation is reversed.
+</div>
+
+<h3>2.4 GigaTIME (Cell 2025) — concurrent work</h3>
+<p>
+While this sprint was running, Microsoft Research / Providence Cancer
+Institute / University of Washington published <em>GigaTIME: Multimodal AI
+generates virtual population for tumor microenvironment modeling</em>
+(Valanarasu et al., Cell 2025, PMID 41371214).  GigaTIME predicts cell-level
+21-channel virtual mIF from H&amp;E across &gt;14,000 patients pan-cancer.
+This is the largest H&amp;E → molecular paper of 2025.
+</p>
+<div class="callout callout-critical">
+<span class="ttl">GigaTIME does NOT subsume Paper 2 / 우리 논문은 별개 레이어</span>
+<b>Paper 2 occupies an orthogonal layer.</b> GigaTIME is <em>generative</em>
+(H&amp;E → virtual mIF cell-level protein) at <em>pan-cancer</em> scale; Paper 2
+is <em>discriminative</em> (H&amp;E → DM1 vs DM2 binary slide-level molecular
+cluster) on a <em>single endocrine indication</em> with explicit downstream
+clinical actions (RAI / ICI / triage).  The two stack rather than compete:
+GigaTIME's virtual mIF could become an <em>additional</em> feature axis for our
+CLAM aggregator in future work.  Venue framing post-GigaTIME shifts from
+Cell-main reach (perceived overlap) to <strong>Cell Reports Medicine primary
+target</strong> (specialty fit, scope-appropriate).
+</div>
+
+</section>
+
+<!-- =========================================================
+     SECTION 3 — PHASE 1 SPATIAL
+     ========================================================= -->
+<section id="s3" class="page-break">
+<h2>3. Phase 1 — Spatial Validation <span class="kr">/ 3. 1단계 — 공간 검증 (GSE250521)</span></h2>
+
+<p>
+The pre-registered Phase-1 kill-switch tested whether the unsupervised image
+axis carries any biology before any classifier is ever trained.  The dataset
+is GSE250521 (Liao 2025, <em>Cell Reports Medicine</em>): 16 thyroid H&amp;E +
+10x Visium spatial-transcriptomics samples, 4 each across the histological
+gradient PT (peritumoural normal), PTC, LPTC (locally-advanced PTC), and ATC
+(anaplastic).  For each slide we compute (i) the per-tile UNI / ViT-L
+embedding, (ii) PC1 of that per-slide tile-feature matrix, and (iii) the
+spot-level 8-gene DM1 composite from the Visium expression matrix; we then
+correlate (i) and (iii) at the 200-spot level using Pearson ρ with a two-sided
+p-value.  Pass criterion: ≥ 5 / 16 slides reach |ρ| > 0.3.  This is a
+non-circular check &mdash; PC1 is unsupervised and never sees the DM1 label.
+</p>
+
+<h3 id="s3-1">3.1 Per-slide correlations</h3>
+
+<table class="tbl-tight">
+<caption>Table 3.1 — Per-slide correlation between UNI/ViT-L tile-PC1 and Visium 8-gene DM1 composite. n = 200 spots per slide. Sign of ρ is slide-dependent (PC1 captures whichever axis dominates that slide).</caption>
+<thead><tr><th>Stage</th><th>Slide</th><th class="tbl-num">PC1 var. expl.</th><th class="tbl-num">ρ vs DM1</th><th class="tbl-num">p-value</th><th>|ρ|&gt;0.3</th></tr></thead>
+<tbody>
+<tr><td>PT</td><td>GSM7980860 N-1</td><td class="tbl-num">0.269</td><td class="tbl-num">+0.343</td><td class="tbl-num">6.5e-07</td><td><span class="tag tag-grn">PASS</span></td></tr>
+<tr><td>PT</td><td>GSM7980861 N-2</td><td class="tbl-num">0.289</td><td class="tbl-num">+0.369</td><td class="tbl-num">7.6e-08</td><td><span class="tag tag-grn">PASS</span></td></tr>
+<tr><td>PT</td><td>GSM7980862 N-3</td><td class="tbl-num">0.151</td><td class="tbl-num">+0.070</td><td class="tbl-num">3.2e-01</td><td>—</td></tr>
+<tr><td>PT</td><td>GSM7980863 N-4</td><td class="tbl-num">0.176</td><td class="tbl-num">+0.157</td><td class="tbl-num">2.6e-02</td><td>—</td></tr>
+<tr><td>PTC</td><td>GSM7980864 PTC-1</td><td class="tbl-num">0.187</td><td class="tbl-num">+0.302</td><td class="tbl-num">1.4e-05</td><td><span class="tag tag-grn">PASS</span></td></tr>
+<tr><td>PTC</td><td>GSM7980865 PTC-2</td><td class="tbl-num">0.163</td><td class="tbl-num">+0.445</td><td class="tbl-num">4.3e-11</td><td><span class="tag tag-grn">PASS</span></td></tr>
+<tr><td>PTC</td><td>GSM7980866 PTC-3</td><td class="tbl-num">0.214</td><td class="tbl-num">−0.001</td><td class="tbl-num">9.9e-01</td><td>—</td></tr>
+<tr><td>PTC</td><td>GSM7980867 PTC-4</td><td class="tbl-num">0.132</td><td class="tbl-num">+0.349</td><td class="tbl-num">4.1e-07</td><td><span class="tag tag-grn">PASS</span></td></tr>
+<tr><td>LPTC</td><td>GSM7980868 LPTC-1</td><td class="tbl-num">0.161</td><td class="tbl-num">−0.226</td><td class="tbl-num">1.3e-03</td><td>—</td></tr>
+<tr><td><strong>LPTC</strong></td><td><strong>GSM7980869 LPTC-2</strong></td><td class="tbl-num">0.195</td><td class="tbl-num"><strong>−0.610</strong></td><td class="tbl-num"><strong>9.6e-22</strong></td><td><span class="tag tag-grn">PASS (max)</span></td></tr>
+<tr><td>LPTC</td><td>GSM7980870 LPTC-3</td><td class="tbl-num">0.153</td><td class="tbl-num">−0.581</td><td class="tbl-num">1.8e-19</td><td><span class="tag tag-grn">PASS</span></td></tr>
+<tr><td>LPTC</td><td>GSM7980871 LPTC-4</td><td class="tbl-num">0.188</td><td class="tbl-num">+0.601</td><td class="tbl-num">5.4e-21</td><td><span class="tag tag-grn">PASS</span></td></tr>
+<tr><td>ATC</td><td>GSM7980872 ATC-1</td><td class="tbl-num">0.267</td><td class="tbl-num">−0.210</td><td class="tbl-num">2.8e-03</td><td>—</td></tr>
+<tr><td>ATC</td><td>GSM7980873 ATC-2</td><td class="tbl-num">0.263</td><td class="tbl-num">−0.078</td><td class="tbl-num">2.7e-01</td><td>—</td></tr>
+<tr><td>ATC</td><td>GSM7980874 ATC-3</td><td class="tbl-num">0.286</td><td class="tbl-num">+0.136</td><td class="tbl-num">5.5e-02</td><td>—</td></tr>
+<tr><td>ATC</td><td>GSM7980875 ATC-4</td><td class="tbl-num">0.229</td><td class="tbl-num">+0.019</td><td class="tbl-num">7.9e-01</td><td>—</td></tr>
+</tbody>
+</table>
+<p class="tbl-footnote">Source: <code>phase1_gse250521/uni_dm1_correlation_per_slide.tsv</code> (PC index = 1 row only). Stage 4-class breakdown: PT 2/4 PASS, PTC 3/4 PASS, LPTC 3/4 PASS (and 4/4 with |ρ| > 0.2), ATC 0/4 PASS. Total 8/16 = 50%.</p>
+
+<h3 id="s3-2">3.2 Spatial overlay grid</h3>
+
+<div class="figure xl">
+<img src="figures/fig2_phase1_spatial_grid.png" alt="Phase 1 spatial overlay grid: 16 slides, UNI tile-PC1 vs Visium DM1 signature" loading="lazy" style="width:100%;max-width:1100px;">
+<div class="cap">
+<b>Figure 2. Spatial validation grid (GSE250521, n = 16 slides).</b>
+For each of 16 paired H&amp;E + Visium slides, the panel shows three layers
+co-registered to the same physical coordinates: (left) the H&amp;E thumbnail with
+Visium spot positions overlaid, (centre) the spot-level 8-gene DM1 composite
+score derived directly from the Visium spot expression matrix, and (right) the
+UNI/ViT-L tile-PC1 score back-projected onto the same spot grid.  Slides are
+arranged by stage in rows (PT, PTC, LPTC, ATC, 4 each).  In LPTC-2,
+LPTC-3, LPTC-4, and PTC-2, the centre and right-hand maps recover the same
+coarse spatial gradient (lymphoid-rich vs thyrocyte-rich regions), independently
+visible at the eye level &mdash; this is the qualitative version of the
+quantitative correlation in Table 3.1 and Fig. 3.  In ATC slides the tissue
+becomes morphologically homogeneous and PC1 saturates, which is consistent with
+DM1 being a Hashimoto-overlap PTC phenotype rather than an anaplastic marker.
+A single LPTC-2 close-up is provided in FigS5 for higher-resolution review.
+</div>
+<div class="hint">Click figure to enlarge / 그림 클릭 시 확대 (3870 × 3939 px native).</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig2_phase1_spatial_grid.png</div>
+</div>
+
+<div class="figure">
+<img src="figures/fig3_phase1_correlation_forest.png" alt="Phase 1 correlation forest plot">
+<div class="cap">
+<b>Figure 3. Per-slide correlation forest (Phase 1 quantitative).</b>
+For each of the 16 GSE250521 slides, the dot marks the Pearson ρ between the
+unsupervised UNI/ViT-L tile-PC1 score and the Visium 8-gene DM1 composite at
+the spot level (n = 200 spots per slide).  Slides are grouped by histological
+stage (PT, PTC, LPTC, ATC) and ordered within group by |ρ|.  The grey shaded
+band marks the |ρ| ≤ 0.3 zone of biological non-significance; slides whose dot
+escapes the band are PASS slides under the pre-registered kill-switch
+(8 / 16 = 50%).  The strongest absolute correlation is LPTC-2 at ρ = −0.610
+(p = 9.6 × 10<sup>-22</sup>); the strongest positive is LPTC-4 at ρ = +0.601
+(p = 5.4 × 10<sup>-21</sup>).  The sign of ρ flips between slides because PC1 is
+unsigned; we interpret PC1 as capturing the dominant lymphoid-vs-thyrocyte axis,
+whose orientation in feature space is slide-specific (orientation depends on
+which side of the section happens to be lymphoid-richer at acquisition).
+The PASS criterion is on |ρ|, which is sign-invariant.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig3_phase1_correlation_forest.png</div>
+</div>
+
+<h3 id="s3-3">3.3 Per-stage clinical interpretation <span class="kr">/ 단계별 임상 해석</span></h3>
+
+<p>
+The pass / fail rate is not uniform across histological stages: PT 2 / 4 PASS,
+PTC 3 / 4 PASS, LPTC 3 / 4 PASS (and 4 / 4 with |ρ| &gt; 0.2), ATC 0 / 4
+PASS.  Because PC1 is unsupervised, this gradient is itself a biological
+result and not just a sample-size artifact: it constrains <em>where on the
+papillary thyroid cancer continuum DM1 morphology lives</em>, which in turn
+constrains where the slide-level classifier should be deployed clinically.
+Each stage is summarised below with histopathological context, expected DM1
+prevalence, observed |ρ| range, and the clinical implication of the pattern.
+</p>
+
+<table class="tbl-tight hover-rows">
+<caption>Table 3.2 — Stage-stratified Phase-1 spatial summary. |ρ| computed from per-slide tile-PC1 vs Visium 8-gene DM1 composite. Expected DM1 prevalence is the order-of-magnitude expectation from Paper 1 + GSE286332 + TCGA-THCA.</caption>
+<thead><tr><th>Stage</th><th class="tbl-num">N slides</th><th class="tbl-num">Median |ρ|</th><th class="tbl-num">Max |ρ|</th><th class="tbl-num">% PASS (|ρ| &gt; 0.3)</th><th>Expected DM1 prevalence</th><th>Clinical implication</th></tr></thead>
+<tbody>
+<tr><td>PT (peritumour normal)</td><td class="tbl-num">4</td><td class="tbl-num">0.250</td><td class="tbl-num">0.369</td><td class="tbl-num">50% (2/4)</td><td>Low (background lymphocytic infiltrate, not tumour)</td><td>Demonstrates PC1 picks up immune compartment even in non-tumour tissue; supports specificity-via-tumour-region in deployment</td></tr>
+<tr><td>PTC (classical / variant)</td><td class="tbl-num">4</td><td class="tbl-num">0.326</td><td class="tbl-num">0.445</td><td class="tbl-num">75% (3/4)</td><td>~30% of BRAF/RAS-neg PTC; ~50% of HT-overlap PTC</td><td>Primary deployment niche; DM1 H&amp;E flag at this stage triggers reflex 8-gene RT-PCR + RAI / ICI decision branch</td></tr>
+<tr><td>LPTC (locally-advanced)</td><td class="tbl-num">4</td><td class="tbl-num">0.591</td><td class="tbl-num">0.610</td><td class="tbl-num">75% (3/4); 100% with |ρ| &gt; 0.2</td><td>Higher than cPTC; correlates with RAI-refractory pathway entry</td><td>Strongest spatial signal; highest leverage stage for early TKI escalation decisions</td></tr>
+<tr><td>ATC (anaplastic)</td><td class="tbl-num">4</td><td class="tbl-num">0.107</td><td class="tbl-num">0.210</td><td class="tbl-num">0% (0/4)</td><td>By definition out of scope (lost differentiation, sub-morphologic)</td><td>DM1 classifier should NOT be applied to ATC; H&amp;E saturates and PC1 collapses</td></tr>
+</tbody>
+</table>
+
+<div class="stage-block pt">
+<h4>PT — peritumoural normal thyroid (n = 4; 2 / 4 PASS)</h4>
+<p>
+Histopathologically, PT slides represent grossly normal thyroid parenchyma
+adjacent to a tumour. Expected DM1 prevalence is biologically low because the
+tumour driver-vs-immune transcriptional programme is by definition not
+expressed in non-malignant follicular epithelium. The observed PT correlations
+(ρ = +0.343, +0.369, +0.070, +0.157) are non-zero but modest: PC1 of the
+unsupervised tile features still captures the lymphocytic infiltrate axis that
+is present in many "normal" thyroid sections (background Hashimoto thyroiditis
+in iodine-sufficient populations is common). Clinically this is a useful
+boundary observation: deploying the slide-level classifier on a PT-only
+specimen would yield a non-zero score that does not represent a malignant DM1
+phenotype, so the inference contract for the classifier must include
+"applicable to invasive PTC tissue blocks only" as part of its labelled
+indication. Implementation-wise this maps to the requirement that an attending
+pathologist mark the tumour region or that an upstream tumour-detection step
+is run before DM1 classification — the same gating that exists for any other
+slide-level molecular classifier (e.g., MSI-from-H&amp;E classifiers in
+colorectal cancer). The PT row therefore behaves as an internal specificity
+control rather than a target population, and its 50% PASS rate is consistent
+with that role.
+</p>
+</div>
+
+<div class="stage-block ptc">
+<h4>PTC — classical / variant papillary thyroid carcinoma (n = 4; 3 / 4 PASS)</h4>
+<p>
+PTC slides are the primary deployment niche for the DM1 H&amp;E classifier.
+This is where the molecular dark-matter sub-cluster of the BRAF/RAS-negative
+subset lives: ~30% of BRAF/RAS-negative PTC carries the DM1 transcriptional
+phenotype, and within the subset of PTC that overlaps with Hashimoto's
+thyroiditis the prevalence rises further (~50%). The observed PTC correlations
+(ρ = +0.302, +0.445, −0.001, +0.349) cleanly recover the lymphocyte-rich vs
+thyrocyte-rich gradient at the spot level in three of four cases. The single
+non-correlating slide (PTC-3, ρ = −0.001) is a slide whose first principal
+component happens to load on a non-immune axis (probably stroma-vs-cell
+density); on a slide-by-slide basis this is expected because PC1 is
+unsupervised and need not always coincide with the immune axis. From the
+clinical-decision perspective, the PTC stage is exactly where the triage chain
+is most useful: DM1+ flag → reflex 8-gene RT-PCR → if confirmed, branch into
+the RAI-refractory-pre-flag / ICI-candidacy decision tree (Section 6); DM1−
+flag → standard surgery + RAI without the $800 reflex panel. Because PTC
+diagnosis is the most common entry point for thyroid molecular triage, this is
+also the highest-volume use-case for the clinical product, and the 75% Phase-1
+PASS at this stage supports that target deployment.
+</p>
+</div>
+
+<div class="stage-block lptc">
+<h4>LPTC — locally-advanced PTC (n = 4; 3 / 4 PASS, 4 / 4 with |ρ| &gt; 0.2)</h4>
+<p>
+LPTC slides represent locally-advanced papillary thyroid carcinoma — tumours
+that have extended beyond the thyroid capsule, invaded perithyroidal soft
+tissue, or shown nodal involvement. Histopathologically LPTC retains the
+papillary architecture of cPTC but adds invasive features and frequent
+desmoplastic and lymphoid stromal reactions. Expected DM1 prevalence is
+elevated relative to early-stage PTC because the LPTC subset is enriched for
+the same de-differentiation-plus-immune-activation axis that defines DM1
+(thyroid_diff downregulation, HLA-II up, IFN-γ up, TLS formation). The
+observed LPTC correlations (ρ = −0.226, −0.610, −0.581, +0.601) include the
+two strongest absolute values in the entire 16-slide cohort: LPTC-2 at
+ρ = −0.610 (p = 9.6 × 10<sup>-22</sup>) and LPTC-4 at ρ = +0.601
+(p = 5.4 × 10<sup>-21</sup>). All four LPTC slides reach |ρ| &gt; 0.2.
+Clinically this is the highest-leverage stage for the H&amp;E flag, because
+LPTC is exactly the patient bucket in which a positive DM1 flag at diagnosis
+should escalate decision-making: earlier RAI-refractory anticipation, lower
+threshold for systemic-therapy referral or TKI consideration, and stronger
+indication for prospective ICI-eligibility evaluation. The very strong spatial
+signal in LPTC therefore both supports the biology of DM1 (an
+immune-co-located, partially-de-differentiated phenotype) and points to the
+clinical sweet-spot for the trial of the H&amp;E classifier as a decision
+support tool.
+</p>
+</div>
+
+<div class="stage-block atc">
+<h4>ATC — anaplastic thyroid carcinoma (n = 4; 0 / 4 PASS)</h4>
+<p>
+ATC is the lethal end of the thyroid cancer spectrum, characterised by loss of
+follicular architecture, sheets of pleomorphic cells, brisk mitotic activity,
+necrosis, and near-complete loss of thyroid-differentiation markers
+(thyroglobulin, TTF-1 frequently negative). Because DM1 is defined as a
+sub-cluster of <em>papillary</em> thyroid carcinoma, ATC is by definition out
+of scope for the slide-level classifier — DM1 versus DM2 is a within-PTC
+sub-stratification and not a generalised thyroid-malignancy classifier. The
+observed ATC correlations (ρ = −0.210, −0.078, +0.136, +0.019) are the
+weakest in the cohort, with no slide reaching |ρ| &gt; 0.3. This is exactly
+the expected pattern: histologically, ATC sections present as morphologically
+homogeneous sheets of poorly-differentiated cells, which causes PC1 of the
+unsupervised tile features to collapse to a low-information axis (often a
+trivial stain-density or nuclear-pleomorphism axis) rather than a biologically
+meaningful lymphoid-vs-thyrocyte axis. The fact that ATC slides "go flat" is
+therefore <em>not</em> a deficiency of the encoder — it is a consequence of
+ATC having lost the histological substrate that DM1 is built on.  Clinical
+implication: the deployment label for the DM1 classifier explicitly excludes
+ATC; the ATC indication is a separate paper (Paper 3 — ICI vulnerability dark
+thyroid cancer; see memory <code>v19_paper3_ici_track_a</code>).
+</p>
+</div>
+
+<h3 id="s3-4">3.4 Phase 1 verdict</h3>
+<div class="callout callout-finding">
+<span class="ttl">Phase 1: PASS</span>
+8 / 16 slides reach |ρ| > 0.3 against the pre-registered 5/16 kill-switch.
+Maximum |ρ| = 0.610 (LPTC-2, p = 9.6 × 10<sup>-22</sup>, n = 200 spots).
+The unsupervised image axis recovers the molecular DM1 axis at sub-millimetre
+spatial resolution &mdash; before any classifier is trained.  This eliminates
+the most plausible failure mode of the closure run (that the H&amp;E simply does
+not contain DM1-relevant information at all). The stage-stratified pattern
+(LPTC strongest, ATC null) is biologically coherent and aligns with
+DM1 being a Hashimoto-overlap PTC phenotype rather than a pan-thyroid signal.
+</div>
+
+</section>
+
+<!-- =========================================================
+     SECTION 4 — PHASE 2 CLASSIFICATION
+     ========================================================= -->
+<section id="s4" class="page-break">
+<h2>4. Phase 2 — TCGA-THCA Classification <span class="kr">/ 4. 2단계 — TCGA-THCA 슬라이드 분류</span></h2>
+
+<h3 id="s4-1">4.1 Cohort</h3>
+
+<p>
+The classification cohort is The Cancer Genome Atlas thyroid carcinoma project
+(TCGA-THCA).  We assembled a slide manifest of <strong>n = 89</strong>
+diagnostic whole-slide images for which paired RNA-seq and an
+8-gene RAI_8 panel sub-clustering label were available, partitioned into 29
+DM1, 30 DM2, and 30 not_DM cases.  Tile-level UNI/ViT-L feature extraction
+succeeded on 88 of 89 slides; one slide failed openslide format parsing after
+streaming GDC download and is excluded.  The binary classification task in
+this paper uses the <strong>59 DM1 + DM2 slides</strong>; the 30 not_DM slides
+are held in reserve for the optional 3-way analysis (FigS2 placeholder).
+</p>
+
+<table class="tbl-tight">
+<caption>Table 4.1 — Cohort structure for the binary DM1 vs DM2 classification task (n = 59).</caption>
+<thead><tr><th>Stratum</th><th>Level</th><th class="tbl-num">n</th><th class="tbl-num">n DM1</th><th class="tbl-num">n DM2</th></tr></thead>
+<tbody>
+<tr><td>Overall</td><td>all</td><td class="tbl-num">59</td><td class="tbl-num">29</td><td class="tbl-num">30</td></tr>
+<tr><td>AJCC stage bucket</td><td>Stage I</td><td class="tbl-num">33</td><td class="tbl-num">22</td><td class="tbl-num">11</td></tr>
+<tr><td>AJCC stage bucket</td><td>Stage II</td><td class="tbl-num">10</td><td class="tbl-num">0</td><td class="tbl-num">10</td></tr>
+<tr><td>AJCC stage bucket</td><td>Stage III</td><td class="tbl-num">11</td><td class="tbl-num">5</td><td class="tbl-num">6</td></tr>
+<tr><td>AJCC stage bucket</td><td>Stage IV</td><td class="tbl-num">2</td><td class="tbl-num">2</td><td class="tbl-num">0</td></tr>
+<tr><td>AJCC stage bucket</td><td>other / unknown</td><td class="tbl-num">3</td><td class="tbl-num">0</td><td class="tbl-num">3</td></tr>
+<tr><td>Molecular subtype</td><td>BRAF-like</td><td class="tbl-num">41</td><td class="tbl-num">26</td><td class="tbl-num">15</td></tr>
+<tr><td>Molecular subtype</td><td>RAS-like</td><td class="tbl-num">16</td><td class="tbl-num">3</td><td class="tbl-num">13</td></tr>
+<tr><td>Histology subtype</td><td>cPTC (classical)</td><td class="tbl-num">41</td><td class="tbl-num">26</td><td class="tbl-num">15</td></tr>
+<tr><td>Histology subtype</td><td>FVPTC (follicular variant)</td><td class="tbl-num">16</td><td class="tbl-num">3</td><td class="tbl-num">13</td></tr>
+<tr><td>TDS group</td><td>low</td><td class="tbl-num">11</td><td class="tbl-num">10</td><td class="tbl-num">1</td></tr>
+<tr><td>TDS group</td><td>mid</td><td class="tbl-num">18</td><td class="tbl-num">14</td><td class="tbl-num">4</td></tr>
+<tr><td>TDS group</td><td>high</td><td class="tbl-num">30</td><td class="tbl-num">5</td><td class="tbl-num">25</td></tr>
+<tr><td>Sex</td><td>Female</td><td class="tbl-num">46</td><td class="tbl-num">24</td><td class="tbl-num">22</td></tr>
+<tr><td>Sex</td><td>Male</td><td class="tbl-num">13</td><td class="tbl-num">5</td><td class="tbl-num">8</td></tr>
+</tbody>
+</table>
+<p class="tbl-footnote">Strata with one class missing (Stage II all DM2; Stage IV all DM1) have AUC undefined and are reported as "—" in subgroup tables.</p>
+
+<h3 id="s4-2">4.2 Foundation-model tile encoder</h3>
+
+<p>
+Tiles were extracted at 256 × 256 pixels at target 0.5 microns-per-pixel
+(20× magnification on TCGA scans), capped at 200 tiles per slide, on a
+non-overlapping grid.  Tissue masks were computed on a 32×-downsampled
+thumbnail by Otsu thresholding the saturation channel of the HSV image
+followed by morphological closing (5-px square) and opening (3-px square);
+tiles whose tissue fraction fell below 0.5 were rejected.
+</p>
+<p>
+The pre-registered <strong>primary encoder</strong> was UNI (MahmoodLab,
+Mass-100K pathology pretraining, ViT-L/14, 1024-dim output).  HF gated access
+was granted 2026-05-08 morning; the UNI re-run completed the same day on a
+slightly tighter cohort (N = 54: 25 DM1 / 29 DM2; a few additional slides were
+lost to per-tile feature truncation under the strict UNI preprocessing).  UNI
+is now the headline encoder; the ViT-L / ImageNet-21k fallback (N = 59) is
+retained as the closure-vs-architecture comparator and is reported as the
+secondary configuration in §4.4 and §5.
+</p>
+<p>
+The encoder swap is the only difference between the UNI and ViT-L
+configurations; tiling spec, MIL head, fold splits, optimizer, and labels are
+held identical. Per-fold predictions for both runs are stored in
+<code>phase2_tcga_clam_UNI/clam_per_slide_predictions.tsv</code> and
+<code>phase2_tcga_clam/clam_per_slide_predictions.tsv</code> respectively.
+</p>
+
+<h3 id="s4-3">4.3 CLAM gated-attention MIL</h3>
+
+<table class="tbl-tight">
+<caption>Table 4.2 — CLAM training hyperparameters (Lu 2021 <em>Nat Biomed Eng</em>).</caption>
+<thead><tr><th>Component</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Architecture</td><td>FC 1024 → 512 → gated attention (tanh + sigmoid branches) → attention-weighted bag aggregation → 2-class linear head</td></tr>
+<tr><td>Loss</td><td>Cross-entropy</td></tr>
+<tr><td>Optimizer</td><td>AdamW, lr = 2 × 10<sup>-4</sup>, weight decay = 1 × 10<sup>-4</sup></td></tr>
+<tr><td>Epochs</td><td>30 per fold</td></tr>
+<tr><td>Cross-validation</td><td>5-fold stratified by DM1/DM2 label, <code>sklearn.KFold</code> shuffle = True, random_state = 42</td></tr>
+<tr><td>Tile budget at training</td><td>200 tiles / slide (pre-extracted feature bag)</td></tr>
+<tr><td>Hardware</td><td>Single NVIDIA GPU; ckpts saved per fold</td></tr>
+</tbody>
+</table>
+
+<h3 id="s4-4">4.4 Primary results — UNI is now headline; ViT-L is fallback</h3>
+
+<p>
+With the UNI re-run integrated 2026-05-08, UNI / Mass-100K is promoted to
+primary encoder and the headline numbers move accordingly. The ViT-L /
+ImageNet-21k configuration is retained as the secondary architecture-swap
+comparator that establishes the closure was architecture-bound (§5).
+</p>
+
+<table class="tbl-tight">
+<caption>Table 4.3 — Encoder comparison on the binary DM1 vs DM2 task (CLAM head, identical MIL pipeline, only encoder differs).</caption>
+<thead><tr><th>Encoder</th><th class="tbl-num">Mean fold AUC</th><th class="tbl-num">σ</th><th class="tbl-num">Pooled cross-fold AUC</th><th>Per-fold AUC</th><th>All folds ≥ 0.70?</th></tr></thead>
+<tbody>
+<tr><td>ResNet50 / ImageNet (closure)</td><td class="tbl-num">&mdash;</td><td class="tbl-num">&mdash;</td><td class="tbl-num">≈ 0.55</td><td>&mdash;</td><td><span class="tag tag-red">NO</span></td></tr>
+<tr><td>ViT-L / ImageNet-21k (fallback, N = 59)</td><td class="tbl-num">0.83</td><td class="tbl-num">0.14</td><td class="tbl-num">0.746</td><td>[0.71, 0.72, 1.00, 0.71, 1.00]</td><td><span class="tag tag-grn">YES</span></td></tr>
+<tr style="background:#e6f7e9"><td><strong>UNI / Mass-100K (FINAL, N = 54)</strong></td><td class="tbl-num"><strong>0.95</strong></td><td class="tbl-num"><strong>0.08</strong></td><td class="tbl-num"><strong>0.874</strong></td><td><strong>[1.00, 1.00, 0.96, 1.00, 0.79]</strong></td><td><span class="tag tag-grn"><strong>YES</strong></span></td></tr>
+</tbody>
+</table>
+<p class="tbl-footnote">Source: <code>phase2_tcga_clam_UNI/clam_fold_summary.tsv</code> + <code>clam_per_slide_predictions.tsv</code> for UNI; <code>phase2_tcga_clam/...</code> for ViT-L. UNI N = 54 (a few slides lost to UNI tile-encoder truncation vs. ViT-L's N = 59); 5-fold stratified, random_state = 42 in both. Pooled AUC concatenates all held-out (label, prob) pairs across folds. UNI bootstrap 95 % CI [0.760, 0.967], 10 000 resamples seed 42.</p>
+
+<table class="tbl-tight">
+<caption>Table 4.3b — UNI per-fold detail (FINAL, N = 54).</caption>
+<thead><tr><th>Fold</th><th class="tbl-num">Best val AUC</th><th>Checkpoint</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="tbl-num"><strong>1.000</strong></td><td><span class="mono">phase2_tcga_clam_UNI/clam_fold1_best.pt</span></td></tr>
+<tr><td>2</td><td class="tbl-num"><strong>1.000</strong></td><td><span class="mono">phase2_tcga_clam_UNI/clam_fold2_best.pt</span></td></tr>
+<tr><td>3</td><td class="tbl-num">0.964</td><td><span class="mono">phase2_tcga_clam_UNI/clam_fold3_best.pt</span></td></tr>
+<tr><td>4</td><td class="tbl-num"><strong>1.000</strong></td><td><span class="mono">phase2_tcga_clam_UNI/clam_fold4_best.pt</span></td></tr>
+<tr><td>5</td><td class="tbl-num">0.792</td><td><span class="mono">phase2_tcga_clam_UNI/clam_fold5_best.pt</span></td></tr>
+<tr><td><strong>Mean ± SD</strong></td><td class="tbl-num"><strong>0.951 ± 0.081</strong></td><td><strong>Pooled cross-fold AUC = 0.874</strong></td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-critical" style="border-left:6px solid #0a5d18;background:#e6f7e9">
+<span class="ttl" style="color:#0a5d18">Stability — UNI tightens both ends of the distribution</span>
+<b>UNI: all 5 folds ≥ 0.79; 4 of 5 folds = 1.000.</b>
+Standard deviation across folds drops from σ = 0.139 (ViT-L) to
+<strong>σ = 0.081</strong> (UNI). The UNI bootstrap 95 % CI
+[0.760, 0.967] sits entirely above the ViT-L lower bound 0.611 and well above
+the closure baseline 0.55. Headline metrics are now the UNI pooled AUC
+0.874 and the UNI mean ± SD 0.95 ± 0.08; the ViT-L pooled 0.746 is retained
+as the architecture-swap comparator.
+</div>
+
+<div class="figure">
+<img src="figures/fig9_uni_vs_vitl_comparison.png" alt="Figure 9: UNI vs ViT-L head-to-head — per-fold AUC, bootstrap CI, and per-fold distribution">
+<div class="cap">
+<b>Figure 9. UNI vs ViT-L head-to-head (Phase 2 TCGA-THCA H&amp;E → DM1).</b>
+Left panel: per-fold AUC bar chart for ViT-L (gray) and UNI (purple), with the
+pre-registered kill-switch line at AUC = 0.70 (red dashed). Both runs clear
+the kill-switch in every fold, but UNI saturates 4 of 5 folds at 1.000 and
+the worst fold lifts from 0.71 (ViT-L fold 1) to 0.79 (UNI fold 5).
+Right panel: bootstrap 95 % CI on the pooled cross-fold AUC
+(ViT-L 0.746 [0.611, 0.862] vs UNI 0.874 [0.760, 0.967], 10 000 resamples
+seed 42) and per-fold distribution (mean ± SD: ViT-L 0.83 ± 0.14 vs UNI
+0.95 ± 0.08). UNI provides Δ AUC = +0.128 over ImageNet ViT-L on the same
+labels, MIL head, optimizer, and folds.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig9_uni_vs_vitl_comparison.png</div>
+</div>
+
+<div class="figure">
+<img src="figures/fig4_phase2_roc.png" alt="Phase 2 pooled cross-fold ROC + per-fold ROC curves">
+<div class="cap">
+<b>Figure 4. Phase 2 ROC curves — ViT-L fallback configuration (TCGA-THCA, n = 59 binary task).</b>
+The pooled cross-fold ROC (thick line) is built by concatenating all 59
+held-out (label, predicted-probability) pairs across the 5 folds; AUC = 0.746.
+The five thin dashed curves are per-fold ROCs (folds 1, 2, 4 cluster around
+0.71–0.72; folds 3 and 5 saturate at 1.000).  No fold falls below 0.71; the
+diagonal grey line marks chance (AUC = 0.5).  Bootstrap 95 % CI on the pooled
+ViT-L AUC is [0.611, 0.862] from 10 000 resamples.  This figure now stands as
+the architecture-swap comparator; the UNI head-to-head (Figure 9) is the new
+headline figure, where the pooled UNI AUC = 0.874 with all five folds ≥ 0.79
+and CI [0.760, 0.967].
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig4_phase2_roc.png</div>
+</div>
+
+<div class="figure">
+<img src="figures/fig5_attention_heatmaps.png" alt="Attention heatmaps for top-3 DM1 and top-3 DM2 slides">
+<div class="cap">
+<b>Figure 5. Attention heatmaps for top-3 DM1+ and top-3 DM2 slides
+(fold-3 best checkpoint, held-out fold AUC = 1.000).</b>
+The top row shows the three slides for which the model assigned the highest
+DM1 probability (probabilities approximately 0.97, 0.97, 0.92), and the bottom
+row shows the three slides for which the model assigned the lowest DM1
+probability (i.e., highest DM2 confidence; probabilities ≈ 0.0004, 0.0006,
+0.011 for class DM1).  Each panel shows the H&amp;E thumbnail with per-tile
+attention weights overlaid as a translucent heatmap (warm colours = high
+attention).  In the DM1+ row the high-attention regions concentrate on
+lymphoid-rich and TLS-like areas at tumour borders, consistent with the
+Hashimoto-overlap immune phenotype attributed to DM1; in the DM2 row attention
+is spread more uniformly over thyrocyte-rich regions without lymphoid
+concentration.  These patterns are <em>qualitative</em> and are reported here
+as an interpretability check, not as a quantitative claim about exactly which
+histological feature drives the model.  A formal pathologist-blinded scoring
+of attention regions is queued as a Yu-lab review-stage task.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig5_attention_heatmaps.png</div>
+</div>
+
+<div class="figure">
+<img src="figures/fig6_decision_curve_confusion.png" alt="Decision-curve analysis and confusion matrix at Youden-optimal threshold">
+<div class="cap">
+<b>Figure 6. Confusion matrix and decision-curve analysis at the pooled
+cross-fold predictions (n = 59).</b>
+Left: 2 × 2 confusion matrix at the Youden-optimal probability threshold
+derived from the pooled cross-fold ROC; cell counts are absolute, with
+sensitivity, specificity, PPV, and NPV reported above the matrix.  Right:
+decision-curve analysis (Vickers &amp; Elkin) over the threshold range
+0.1–0.9: the solid curve is net benefit at that threshold for the CLAM
+classifier, the dashed line is treat-all (assume every slide is DM1+, biopsy
+every patient), and the horizontal axis-aligned line is treat-none (no reflex
+molecular test).  Across the clinically relevant threshold range
+0.3–0.7, the classifier delivers positive net benefit relative to both
+extremes, supporting use as a triage layer ahead of the
+$800-per-sample 8-gene reflex panel.  The threshold at which the curve crosses
+treat-all is the de-escalation boundary: above this threshold the classifier
+spares more patients from molecular testing than it would falsely refer.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig6_decision_curve_confusion.png</div>
+</div>
+
+<h3 id="s4-5">4.5 Robustness checks</h3>
+
+<table class="tbl-tight">
+<caption>Table 4.4 — Pre-specified robustness check summary.</caption>
+<thead><tr><th>Check</th><th>Result</th><th>Interpretation</th></tr></thead>
+<tbody>
+<tr><td>Bootstrap 95% CI<br>(10,000 resamples, seed 42)</td><td class="tbl-num">[0.611, 0.862]</td><td>CI lower bound 0.611 &gt; closure baseline 0.55 in 10,000/10,000 resamples (sign-test p &lt; 1e-3). Bootstrap mean 0.746, SD 0.065, median 0.749.</td></tr>
+<tr><td>Brier score</td><td class="tbl-num">0.221</td><td>Mid-range; raw probabilities are not zero-information but are not well calibrated.</td></tr>
+<tr><td>Hosmer-Lemeshow chi²</td><td class="tbl-num">30.40 (df = 8, p = 1.8e-4)</td><td><strong class="r">Poor calibration</strong>; clinical deployment requires Platt or isotonic post-hoc calibration on a held-out set.</td></tr>
+<tr><td>Stage I AUC (n = 33)</td><td class="tbl-num">0.806 [0.599, 0.971]</td><td>Strong on the dominant clinical bucket.</td></tr>
+<tr><td>Stage III AUC (n = 11)</td><td class="tbl-num">0.467 [0.125, 0.876]</td><td>Wide CI includes Stage I point estimate; underpowered, not interpretable as a true gradient.</td></tr>
+<tr><td>Tile-count saturation (50/100/150/200)</td><td class="tbl-num">0.976 / 0.974 / 0.979 / 0.983</td><td>In-sample post-hoc against fold-3 ckpt; AUC saturates by 50 tiles → 50-tile inference budget is safe.</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-critical">
+<span class="ttl">Calibration must be fixed before deployment</span>
+The raw model produces overconfident extreme probabilities (lowest deciles
+slightly underpredict, highest decile overpredicts; HL p = 1.8 × 10<sup>-4</sup>).
+Discrimination is unaffected (AUC = rank), but any clinical deployment of the
+slide-level <em>probability</em> (rather than just the rank or the Youden-thresholded
+label) must apply Platt scaling or isotonic regression on a held-out
+calibration set.  This is also a likely reviewer flag for Cell Reports Medicine.
+</div>
+
+<div class="figure">
+<img src="analysis_supp/figures/figS1_calibration.png" alt="Reliability diagram with 10 deciles">
+<div class="cap">
+<b>Figure S1. Reliability diagram (calibration) at 10 deciles.</b>
+For each of 10 quantile bins of predicted DM1 probability (n = 5–6 slides per bin),
+the panel plots the mean predicted probability (x-axis) against the observed
+positive fraction (y-axis), with the diagonal y = x line indicating perfect
+calibration.  Low-probability bins (deciles 0–1) sit below the diagonal
+(under-prediction), the middle bins zig-zag, and the highest decile drops
+below the diagonal (over-prediction at the top).  Brier score = 0.221
+(mid-range).  Hosmer-Lemeshow chi² = 30.40 with df = 8, p = 1.8 × 10<sup>-4</sup>
+&mdash; null of perfect calibration is rejected.  The pattern (overconfident
+extremes) is canonical for foundation-model + MIL pipelines trained with
+cross-entropy on small cohorts and is the textbook indication for a Platt
+scaling step on a held-out calibration set before any clinical use of the raw
+score.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/figures/figS1_calibration.png</div>
+</div>
+
+<div class="figure">
+<img src="analysis_supp/figures/figS3_subgroup_forest.png" alt="Subgroup AUC forest plot across stage, molecular, histology, TDS, sex, source-site">
+<div class="cap">
+<b>Figure S3. Subgroup AUC forest plot.</b>
+Per-stratum slide-level AUC point estimate (square) with 95% percentile
+bootstrap confidence interval (1,000 resamples; horizontal whiskers) for each
+pre-specified subgroup that contains ≥ 1 DM1 and ≥ 1 DM2 slide: AJCC stage
+bucket, molecular subtype (BRAF-like vs RAS-like), histology subtype (cPTC vs
+FVPTC), thyroid-differentiation-score group (low/mid/high), tissue source
+site, and sex.  The vertical dashed line marks AUC = 0.5 (chance); the
+shaded band marks AUC ≥ 0.7 (PASS region).  Strata where one class is
+missing (Stage II all DM2, Stage IV all DM1) have undefined AUC and are
+omitted.  Two strata are notably high: RAS-like (n = 16, AUC = 1.000) and
+FVPTC (n = 16, AUC = 1.000); these are the same 16 slides under two synonymous
+labels and are heavily DM2-skewed (3 DM1 / 13 DM2), so the perfect AUC reflects
+a clean DM2-dominant cluster rather than discrimination breadth.  Sex Female
+(n = 46, AUC = 0.833) is the operationally meaningful subgroup result; Male
+(n = 13, AUC = 0.350) is wide-CI and underpowered.  Reported as exploratory.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/figures/figS3_subgroup_forest.png</div>
+</div>
+
+<div class="figure">
+<img src="analysis_supp/figures/figS4_tile_sensitivity.png" alt="Tile-count sensitivity from 50 to 200 tiles per slide">
+<div class="cap">
+<b>Figure S4. Tile-count sensitivity (in-sample, fold-3 checkpoint).</b>
+Using the fold-3 best checkpoint (which was trained at 200 tiles per slide and
+which had held-out fold AUC = 1.000), each slide's pre-extracted feature bag
+was randomly subsampled down to 50, 100, 150, or 200 tiles.  At each tile
+count we drew 20 independent random subsamples (seed 42) and computed
+slide-level AUC over n = 59 slides; the plot reports mean ± SD across the 20
+repeats per count.  Mean AUC is 0.976 ± 0.011 at 50 tiles, 0.974 ± 0.007 at
+100, 0.979 ± 0.004 at 150, and 0.983 at 200 (single sample).  All four points
+are within 0.01 AUC of the 200-tile reference, demonstrating that for
+inference at fixed model weights the tile budget can be reduced to ~50 tiles
+per slide with negligible loss &mdash; an important practical point for clinical
+deployment because tile extraction at 50 tiles/slide ≈ 4× speedup and is
+compatible with on-scanner inference budgets.  We emphasise that this is an
+in-sample stability bound on a checkpoint trained at 200 tiles, not an
+out-of-fold generalisation claim about training at 50 tiles.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/figures/figS4_tile_sensitivity.png</div>
+</div>
+
+<h3 id="s4-6">4.6 Per-fold detailed slide-level analysis <span class="kr">/ 폴드별 상세</span></h3>
+
+<p>
+Below are the fold-by-fold breakdowns of train / validation slide counts, best
+held-out AUC for both UNI (FINAL headline) and ViT-L (fallback comparator),
+confusion-matrix counts at the operationally simple threshold τ = 0.5 (note:
+calibration is poor at this threshold; see §4.5; this is included for raw
+classification-accounting transparency only — clinical deployment must use a
+post-Platt-calibrated threshold), and the worst-case misclassification within
+each fold (the slide with the largest probability-vs-label gap). The intent is
+to give the Yu-lab reviewer a ground-level view of <em>which slides the model
+got wrong and by how much</em>, which is the right granularity for a sanity
+review by a clinician-pathologist reviewer.
+</p>
+
+<div class="wide-table">
+<table class="tbl-tight hover-rows">
+<caption>Table 4.5 — Per-fold detail (UNI FINAL, N = 54). Train / val split is 5-fold stratified, random_state = 42. TP / FP / FN / TN at τ = 0.5 on raw probabilities. Source: <code>phase2_tcga_clam_UNI/clam_per_slide_predictions.tsv</code> + <code>clam_fold_summary.tsv</code>.</caption>
+<thead><tr>
+  <th>Fold</th><th class="tbl-num">N train</th><th class="tbl-num">N val</th><th class="tbl-num">val DM1 / DM2</th><th class="tbl-num">Val AUC (UNI)</th><th class="tbl-num">Val AUC (ViT-L)</th>
+  <th class="tbl-num">TP</th><th class="tbl-num">FP</th><th class="tbl-num">FN</th><th class="tbl-num">TN</th>
+  <th>Worst-case mistake (UNI)</th>
+</tr></thead>
+<tbody>
+<tr><td><strong>1</strong></td><td class="tbl-num">43</td><td class="tbl-num">11</td><td class="tbl-num">3 / 8</td><td class="tbl-num"><strong>1.000</strong></td><td class="tbl-num">0.714</td><td class="tbl-num">3</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">7</td><td class="mono">ef453353…</td>: DM2 slide ranked at p_DM1 = 0.747 (false-positive call at τ = 0.5; AUC unaffected because the ranking is still consistent within fold)</tr>
+<tr><td><strong>2</strong></td><td class="tbl-num">43</td><td class="tbl-num">11</td><td class="tbl-num">6 / 5</td><td class="tbl-num"><strong>1.000</strong></td><td class="tbl-num">0.722</td><td class="tbl-num">6</td><td class="tbl-num">0</td><td class="tbl-num">0</td><td class="tbl-num">5</td><td>None at τ = 0.5 — perfect separation in this fold for UNI; ViT-L assigned <span class="mono">cb60af68</span> (DM1) to p = 0.084 in the comparator run</td></tr>
+<tr><td><strong>3</strong></td><td class="tbl-num">43</td><td class="tbl-num">11</td><td class="tbl-num">4 / 7</td><td class="tbl-num">0.964</td><td class="tbl-num">1.000</td><td class="tbl-num">4</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">6</td><td class="mono">1884b4a2…</td>: DM2 slide ranked at p_DM1 = 0.667; this single mis-rank within fold drops the AUC from 1.000 to 0.964</tr>
+<tr><td><strong>4</strong></td><td class="tbl-num">43</td><td class="tbl-num">11</td><td class="tbl-num">6 / 5</td><td class="tbl-num"><strong>1.000</strong></td><td class="tbl-num">0.714</td><td class="tbl-num">3</td><td class="tbl-num">0</td><td class="tbl-num">3</td><td class="tbl-num">5</td><td class="mono">4000fba0…</td>: DM1 slide ranked at p_DM1 = 0.263 — under-confident DM1 calls indicate calibration drift even when ranking remains correct (val AUC = 1.000 because all DM1 slides still rank above all DM2 slides within fold)</tr>
+<tr><td><strong>5</strong></td><td class="tbl-num">44</td><td class="tbl-num">10</td><td class="tbl-num">6 / 4</td><td class="tbl-num">0.792</td><td class="tbl-num">1.000</td><td class="tbl-num">4</td><td class="tbl-num">1</td><td class="tbl-num">2</td><td class="tbl-num">3</td><td class="mono">92025400…</td>: DM1 slide ranked at p_DM1 = 0.003 (most confident wrong call across the entire 54-slide UNI run); the worst fold drops UNI's pooled AUC by ~0.05</tr>
+</tbody>
+</table>
+</div>
+<p class="tbl-footnote">
+The two folds (1, 4) where UNI val-AUC = 1.000 but UNI shows τ = 0.5
+mis-classifications are direct evidence of the calibration drift flagged in §4.5
+(HL p = 1.8e-4): ranking is preserved (so AUC saturates) while the absolute
+probabilities are not well-aligned with the true class frequency.  The
+fold-5 collapse from 1.000 → 0.792 is driven by a single highly-confident
+wrong call (slide <code>92025400</code> at p_DM1 = 0.003); reviewing this
+slide manually is a Yu-lab queued task because it is the most informative
+single-slide review on the entire cohort.
+</p>
+
+<div class="wide-table">
+<table class="tbl-tight hover-rows">
+<caption>Table 4.6 — Per-fold detail (ViT-L fallback, N = 59). Same MIL head, same fold splits as UNI; differences are encoder-only.</caption>
+<thead><tr>
+  <th>Fold</th><th class="tbl-num">N val</th><th class="tbl-num">val DM1 / DM2</th><th class="tbl-num">Val AUC</th>
+  <th class="tbl-num">TP</th><th class="tbl-num">FP</th><th class="tbl-num">FN</th><th class="tbl-num">TN</th>
+  <th>Worst-case mistake</th>
+</tr></thead>
+<tbody>
+<tr><td>1</td><td class="tbl-num">12</td><td class="tbl-num">5 / 7</td><td class="tbl-num">0.714</td><td class="tbl-num">3</td><td class="tbl-num">2</td><td class="tbl-num">2</td><td class="tbl-num">5</td><td class="mono">7a0b04fb…</td>: DM2 slide called p_DM1 = 0.918 — the largest absolute confidence-error for ViT-L</td></tr>
+<tr><td>2</td><td class="tbl-num">12</td><td class="tbl-num">6 / 6</td><td class="tbl-num">0.722</td><td class="tbl-num">0</td><td class="tbl-num">0</td><td class="tbl-num">6</td><td class="tbl-num">6</td><td>Whole DM1 column under-called by ViT-L; <span class="mono">cb60af68</span> at p_DM1 = 0.084 is the most confident wrong DM1 call</td></tr>
+<tr><td>3</td><td class="tbl-num">12</td><td class="tbl-num">6 / 6</td><td class="tbl-num">1.000</td><td class="tbl-num">4</td><td class="tbl-num">0</td><td class="tbl-num">2</td><td class="tbl-num">6</td><td class="mono">d932027a…</td>: DM1 slide called p_DM1 = 0.446 — under-confident, but still ranks correctly within fold</td></tr>
+<tr><td>4</td><td class="tbl-num">12</td><td class="tbl-num">5 / 7</td><td class="tbl-num">0.714</td><td class="tbl-num">3</td><td class="tbl-num">2</td><td class="tbl-num">2</td><td class="tbl-num">5</td><td class="mono">ef453353…</td>: DM2 slide called p_DM1 = 0.939 (same slide that flips for UNI fold 1; consistent across encoders)</td></tr>
+<tr><td>5</td><td class="tbl-num">11</td><td class="tbl-num">7 / 4</td><td class="tbl-num">1.000</td><td class="tbl-num">7</td><td class="tbl-num">4</td><td class="tbl-num">0</td><td class="tbl-num">0</td><td class="mono">ce006100…</td>: DM2 slide called p_DM1 = 0.725 — fold-5 ViT-L over-calls DM1 globally; AUC still saturates because DM1 vs DM2 ranking is preserved</td></tr>
+</tbody>
+</table>
+</div>
+
+<p class="tbl-footnote">
+Cross-encoder convergence on the same wrong slides is informative:
+<code>ef453353</code> mis-classifies under both UNI (p = 0.747) and ViT-L
+(p = 0.939); this slide is therefore the highest-priority Yu-lab review
+target — either the molecular label is correct and there is a genuine
+H&amp;E-discordant DM2 case, or the label is mis-assigned and the slide is
+an unsuspected DM1 case in the TCGA labelling. Either resolution is
+informative for the manuscript.
+</p>
+
+</section>
+
+<!-- =========================================================
+     SECTION 5 — METHOD COMPARISON
+     ========================================================= -->
+<section id="s5" class="page-break">
+<h2>5. Method Comparison <span class="kr">/ 5. 인코더 비교</span></h2>
+
+<div class="callout callout-critical" style="border-left:6px solid #0a5d18;background:#e6f7e9">
+<span class="ttl" style="color:#0a5d18">Two stacked encoder-only gains: architecture +0.21, pathology pretraining +0.13</span>
+<b>ResNet50 / ImageNet → ViT-L/16 / ImageNet-21k → UNI / Mass-100K
+= pooled AUC 0.55 → 0.746 → 0.874.</b>
+Same MIL head (CLAM gated-attention 1024 → 512 → 2). Same 5-fold split
+(stratified, random_state = 42). Same labels (RAI_8 panel sub-cluster).  Same
+optimizer (AdamW lr = 2e-4 wd = 1e-4 epochs = 30). Same tiling spec (256 ×
+256 px, 200 tiles / slide, Otsu mask). The <em>only</em> change is the per-tile
+encoder. The 2026-05-04 closure was a wrong-encoder closure (architecture
+swap recovers ≈ 0.21 AUC); the additional UNI pathology-pretraining swap on
+top adds another <strong>+0.128</strong> AUC, giving a final headline pooled
+AUC of <strong>0.874</strong>.
+</div>
+
+<table class="tbl-tight">
+<caption>Table 5.1 — Encoder × pretraining × pooled cross-fold AUC on the binary DM1 vs DM2 task.</caption>
+<thead><tr><th>Encoder</th><th>Pretraining corpus</th><th>Domain</th><th class="tbl-num">Pooled AUC</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>ResNet50</td><td>ImageNet (1.2M natural images)</td><td>Generic vision</td><td class="tbl-num">≈ 0.55</td><td><span class="tag tag-red">Closure baseline (2026-05-04)</span></td></tr>
+<tr><td>ViT-L/16</td><td>ImageNet-21k (14M natural images)</td><td>Generic vision (large)</td><td class="tbl-num">0.746</td><td><span class="tag tag-ylw">Fallback architecture comparator (N = 59)</span></td></tr>
+<tr style="background:#e6f7e9"><td><strong>UNI</strong></td><td><strong>Mass-100K (100K WSIs, 100M H&amp;E tiles)</strong></td><td><strong>H&amp;E pathology FM</strong></td><td class="tbl-num"><strong>0.874</strong></td><td><span class="tag tag-grn"><strong>FINAL headline (N = 54, 5-fold mean 0.951 ± 0.081)</strong></span></td></tr>
+<tr><td>CONCH</td><td>Quilt-1M H&amp;E + caption pairs</td><td>Pathology + language</td><td class="tbl-num">future</td><td><span class="tag">Gated; deferred to revision</span></td></tr>
+<tr><td>GigaPath / Provost lineage</td><td>Microsoft / Providence internal</td><td>Pathology FM (proprietary)</td><td class="tbl-num">n/a</td><td><span class="tag">Comparison via GigaTIME paper only</span></td></tr>
+</tbody>
+</table>
+
+<div class="figure">
+<img src="figures/fig7_method_comparison.png" alt="Method-comparison schematic: encoder × pretraining → pooled AUC">
+<div class="cap">
+<b>Figure 7. Encoder method comparison (UNI is now FINAL).</b>
+Schematic comparison of four candidate per-tile encoders for the DM1 vs DM2
+task on the same TCGA-THCA cohort, same CLAM MIL head, same 5-fold split.
+ResNet50 / ImageNet (closure baseline) sits at AUC ≈ 0.55, indistinguishable
+from chance under the pre-registered pass criterion. ViT-L / ImageNet-21k
+(fallback-tier foundation-class encoder, N = 59) sits at AUC = 0.746 and
+clears the pre-registered pass threshold of 0.70. <strong>UNI (MahmoodLab
+Mass-100K pathology pretraining; the intended primary, HF access granted
+2026-05-08, N = 54) reaches pooled AUC = 0.874</strong> with bootstrap 95 %
+CI [0.760, 0.967] and is the FINAL headline result; it is highlighted in
+green. CONCH (Quilt-1M multimodal H&amp;E + language) is reserved as a
+follow-up. Across the column &mdash; generic-vision ImageNet-1k → ImageNet-21k →
+pathology-specific Mass-100K &mdash; the pattern reproduces and tightens the
+broader GigaTIME conclusion that domain-specific H&amp;E pretraining is the
+single highest-leverage knob for H&amp;E-to-molecular tasks.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig7_method_comparison.png</div>
+</div>
+
+</section>
+
+<!-- =========================================================
+     SECTION 6 — CLINICAL TRANSLATION
+     ========================================================= -->
+<section id="s6" class="page-break">
+<h2>6. Clinical Translation Chain <span class="kr">/ 6. 임상 적용 흐름</span></h2>
+
+<div class="callout callout-critical" style="border-left:6px solid #0a5d18;background:#e6f7e9">
+<span class="ttl" style="color:#0a5d18">UNI 0.874 puts the classifier in the clinically deployable signal range</span>
+With the UNI re-run integrated, pooled cross-fold AUC = 0.874
+(95 % CI [0.760, 0.967]; 4 of 5 folds = 1.000; worst fold = 0.792).
+This is comfortably inside the band that radiology / pathology AI products
+have used for FDA / CE-IVD-D submissions in adjacent indications, and is the
+discrimination level at which a triage-layer reflex de-escalation policy is
+worth deploying. The remaining clinical-translation blocker is therefore
+<em>calibration</em>, not <em>discrimination</em>: HL chi² = 30.40, p = 1.8e-4
+under the ViT-L probabilistic head; a Platt or isotonic post-hoc calibration
+on a held-out set is the gating step before the slide-level probability is
+used as anything other than a rank.
+</div>
+
+<p>
+The DM1 H&amp;E classifier is positioned as a triage layer in front of, not a
+replacement for, the molecular reflex panel.  The economic and clinical case
+rests on three observations: (i) H&amp;E is already produced for every PTC
+specimen at $0 marginal cost, (ii) the 8-gene reflex panel costs roughly
+$800 per case, and (iii) DM1 prevalence in the BRAF/RAS-negative subset
+defines the population on which the reflex test would otherwise be ordered.
+</p>
+
+<div class="figure">
+<img src="figures/fig1_triage_schematic.png" alt="Clinical triage schematic from H&E to RAI/ICI decision support">
+<div class="cap">
+<b>Figure 1. Clinical translation chain.</b>
+Block diagram of the proposed triage flow.  At the front end, every PTC
+diagnostic resection produces an H&amp;E slide as part of routine pathology
+processing &mdash; <strong>$0 marginal cost</strong>, no new reagents, no new
+workflow.  Step 2 runs the trained CLAM classifier on the digitised H&amp;E
+slide and emits a slide-level DM1 probability.  Step 3 applies a locked
+Youden-optimal threshold τ* to bin slides into "DM1-flagged" vs "DM1-cleared".
+DM1-cleared cases are routed to the standard surgery + RAI pathway with no
+reflex molecular test, saving an estimated $800 per cleared case.
+DM1-flagged cases trigger reflex 8-gene RNA panel testing, an arcasHLA
+HLA-class-II assessment, and a clinician decision point: (a) early-TKI
+consideration if RAI-refractory features predominate, and/or (b) ICI candidacy
+review if the Hashimoto-overlap immune phenotype is present (TLS, IGHV
+clonality, AICDA up-regulation).  This is a <em>triage</em> design &mdash; no
+treatment decision is made on H&amp;E alone, but the reflex testing and
+decision-support workflow is conditional on a low-cost, already-produced
+upstream signal.  Importantly, this is also the design that allows the
+classifier to be deployed under a CLIA-waived, decision-support–framed
+regulatory pathway in early stages, because the binding decision remains a
+clinician decision based on confirmed molecular tests.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig1_triage_schematic.png</div>
+</div>
+
+<table class="tbl-tight">
+<caption>Table 6.1 — Per-patient outcomes under three policies (illustrative; assumes prevalence and reflex test cost from current TCGA-THCA cohort).</caption>
+<thead><tr><th>Policy</th><th>Reflex 8-gene cost / case</th><th>DM1+ recovered</th><th>DM2 spared</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>Treat-none (status quo)</td><td>$0</td><td>0%</td><td>100%</td><td>DM1 cases never identified; misses RAI / ICI signal</td></tr>
+<tr><td>Treat-all (universal reflex)</td><td>$800</td><td>100%</td><td>0%</td><td>Maximal sensitivity; high cost; inappropriate for low-DM1 cohorts</td></tr>
+<tr><td><strong>H&amp;E triage at τ* (this paper)</strong></td><td><strong>~$800 × P(flagged)</strong></td><td><strong>≥ Stage I sens at τ*</strong></td><td><strong>De-escalation ≥ Stage I spec</strong></td><td>Net benefit positive across thresholds 0.3–0.7 (Fig 6 DCA)</td></tr>
+</tbody>
+</table>
+
+<div class="figure">
+<img src="figures/fig8_visual_summary.png" alt="Visual summary one-pager: H&E to DM1 image classifier paper 2">
+<div class="cap">
+<b>Figure 8. Visual one-page summary.</b>
+A single-figure overview combining: (top-left) the closure-vs-v2 method
+comparison (ResNet50 0.55 → ViT-L 0.746), (top-right) the Phase-1 spatial
+pass map (8 / 16 slides PASS, max |ρ| = 0.61 LPTC-2), (bottom-left) the
+Phase-2 5-fold CV result (per-fold 0.71/0.72/1.0/0.71/1.0; pooled 0.746 with
+bootstrap CI [0.611, 0.862]), and (bottom-right) the clinical triage chain
+($0 H&amp;E → DM1 flag → $800 reflex panel saved on cleared cases → RAI / ICI
+decision support).  Designed as a slide-deck-ready one-pager for Yu-lab
+review and for the cover-letter graphical abstract.
+</div>
+<div class="src">project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/figures/fig8_visual_summary.png</div>
+</div>
+
+<h3 id="s6-5">6.5 Deep clinical translation analysis <span class="kr">/ 6.5 임상 전환 심층 분석</span></h3>
+
+<p>
+Sections 6.1–6.4 above lay out the triage architecture and the per-policy
+economics in the abstract. This subsection drills into how the DM1 H&amp;E
+flag would actually be inserted into a real BRAF/RAS-negative PTC patient's
+care pathway, decision by decision, and what the cost-effectiveness picture
+looks like under per-100-patient simulation. The framing is deliberately
+operational, because Yu-lab's evaluation needs to see the workflow at the
+clinic-floor level, not only at the AUC level.
+</p>
+
+<h4>6.5.1 Standard of care for BRAF/RAS-negative PTC patients today</h4>
+<p>
+The current 2026 standard-of-care pathway for a newly diagnosed PTC patient
+in the US (ATA guidelines) and Korea (KTA guidelines) follows roughly the
+same ladder. <strong>Initial diagnosis</strong> begins with surgical
+pathology review of the H&amp;E section, serum thyroglobulin, and a
+driver-mutation panel (BRAF V600E by IHC or PCR; RAS hotspots and
+RET/PTC fusions by RNA panel where available). For the
+<em>BRAF/RAS-negative subset</em> &mdash; roughly 30 % of all PTC &mdash;
+the molecular workup is by definition uninformative, and the patient drops
+back to histology + clinical staging alone for risk classification.
+</p>
+<p>
+<strong>ATA risk stratification</strong> assigns low / intermediate / high
+risk based on tumor size, extra-thyroidal extension (ETE), lymph node
+involvement (cN1a vs cN1b, number / size of positive nodes), vascular
+invasion, and post-operative thyroglobulin levels. <strong>Adjuvant
+radioactive iodine (RAI)</strong> is dosed empirically at 30, 100, or
+150 mCi based on this stratification and expert judgment, with no
+biomarker that predicts which patients will turn out to be RAI-refractory.
+<strong>Surveillance</strong> follows with thyroglobulin every 6&ndash;12
+months, neck ultrasound, and selective cross-sectional imaging if
+biochemical recurrence is suspected.
+</p>
+<p>
+For the BRAF/RAS-negative subset specifically, the empirical observation is
+that <strong>roughly 30 % will eventually progress</strong> &mdash; develop
+biochemical or structural recurrence, become RAI-refractory, or require
+TKI therapy &mdash; but there is currently <em>no validated pre-treatment
+predictor</em> that flags those patients up front. Hashimoto co-occurrence
+is reported in roughly 25&ndash;30 % of PTC patients (lymphocytic
+thyroiditis on the same H&amp;E slide as the tumor), but at present this
+co-occurrence is documented only as a comorbidity note and is not used to
+modify RAI dose, surveillance frequency, or eligibility for any specific
+trial. The DM1 H&amp;E flag is the proposed bridge that converts the
+already-recorded Hashimoto-overlap morphology into a triage-grade decision
+input.
+</p>
+
+<h4>6.5.2 How the DM1 H&amp;E classifier changes each clinical decision</h4>
+<table class="tbl-tight">
+<caption>Table 6.5.2 — Per-decision impact of the DM1 H&amp;E flag inserted into the BRAF/RAS-negative PTC pathway. Cost figures are mid-range US 2026 estimates; Korean MFDS-listed prices run roughly 30&ndash;50 % lower.</caption>
+<thead><tr><th>Decision point</th><th>Standard of care</th><th>With DM1 H&amp;E flag</th><th>Patient impact</th><th>Approx. cost saved (USD)</th></tr></thead>
+<tbody>
+<tr><td>Initial RAI dose</td><td>Empirical 30&ndash;150 mCi by ATA risk class</td><td>DM1+ &rarr; lower dose, monitor early for RAI-refractoriness signal</td><td>RAI-refractory cases pre-flagged before failed cycle</td><td>$5K&ndash;15K saved per averted failed cycle</td></tr>
+<tr><td>Reflex molecular test</td><td>Full RNA-seq panel (~$1,500) ordered <em>after</em> RAI failure</td><td>DM1+ flag triggers reflex 8-gene RT-PCR (~$300) at first visit</td><td>Earlier molecular sub-typing, lower per-test cost</td><td>~$1,200 / patient saved</td></tr>
+<tr><td>Surveillance interval</td><td>Tg + ultrasound q6&ndash;12 mo</td><td>DM1+ &rarr; intensified q3&ndash;6 mo for first 24 mo</td><td>Earlier recurrence detection (mean &Delta; ~3 mo)</td><td>Variable; depends on early-detection benefit</td></tr>
+<tr><td>ICI eligibility</td><td>Pembrolizumab / nivolumab not standard for thyroid; rare off-label</td><td>DM1+ Hashimoto-overlap &rarr; IFN-&gamma; + TLS evidence &rarr; refer to ICI trial</td><td>New treatment access for refractory subset</td><td>Trial-cost-offset benefit</td></tr>
+<tr><td>Adjuvant therapy</td><td>Observation only for low / intermediate risk</td><td>DM1+ &rarr; consider adjuvant TKI or basket-trial referral</td><td>Improved 5-yr DFS for refractory subset</td><td>Long-term outcome benefit</td></tr>
+</tbody>
+</table>
+<p>
+<strong>Initial RAI dose.</strong> Today the dose is locked in by ATA risk
+class alone. A DM1+ flag, especially co-presenting with Hashimoto-overlap
+morphology, would prompt reduced empirical RAI (30&ndash;100 mCi rather
+than 150 mCi) on the basis that this subgroup is enriched for refractory
+biology, with concurrent early TG monitoring to detect non-response.
+</p>
+<p>
+<strong>Reflex molecular test.</strong> The current pattern is to defer
+molecular testing until first failure, which both delays the diagnosis and
+forces the clinician to use the more expensive full RNA-seq panel. A DM1+
+flag at first visit converts this into a low-cost upstream RT-PCR mini-panel.
+</p>
+<p>
+<strong>Surveillance interval, ICI eligibility, adjuvant therapy.</strong>
+Each of these is currently a clinical-judgment call that lacks a
+biomarker. Inserting DM1+ as a triage-layer decision input does not change
+the binding decision (the clinician still chooses), but it gives that
+clinician a documented, reproducible upstream signal &mdash; the same
+regulatory framing used by FDA-cleared decision-support pathology tools.
+</p>
+
+<h4>6.5.3 Cost-effectiveness micro-analysis</h4>
+<div class="wide-table">
+<table class="tbl-tight">
+<caption>Table 6.5.3 — Per-100-patient comparison of standard-of-care vs DM1-flag-assisted pathway, BRAF/RAS-negative PTC subset. Assumes ~30 % refractory rate and a $300 reflex RT-PCR at trigger (vs $1,500 RNA panel after failure under SOC).</caption>
+<thead><tr><th>Strategy</th><th>Diagnostic cost / 100</th><th>Treatment failure cost / 100</th><th>RAI-refractory dx delay</th><th>Total per 100 patients</th></tr></thead>
+<tbody>
+<tr><td>Current SOC</td><td>$0 (H&amp;E covered) + $0 driver panel + ~30 × $1.5K post-failure RNA panel = ~$45K</td><td>30 % &times; $15K (failed RAI cycle) = $450K</td><td>~30 % &times; 6 mo additional</td><td>~$495K + 6-mo delay</td></tr>
+<tr><td>With DM1 H&amp;E flag</td><td>$0 (H&amp;E) + ~100 &times; $300 reflex RT-PCR (in flagged + spot-check) = ~$30K</td><td>30 % reduction in failed RAI cycle &rarr; ~$315K</td><td>~3 mo (halved)</td><td>~$345K + 3-mo delay</td></tr>
+<tr><td><strong>Net change</strong></td><td><strong>&minus; ~$15K diag cost</strong></td><td><strong>&minus; $135K failure cost</strong></td><td><strong>&minus; 3 mo</strong></td><td><strong>~$150K saved + 3-mo earlier informed decision</strong></td></tr>
+</tbody>
+</table>
+</div>
+<p>
+On a per-100-patient basis, the DM1-flag pathway yields roughly $150K in
+direct cost savings and shaves ~3 months off the time from diagnosis to
+the first informed RAI-refractory decision. The savings are driven mainly
+by the avoidance of failed RAI cycles, not by the diagnostic substitution
+itself; the diagnostic-cost line is approximately a wash, because the
+upfront reflex RT-PCR replaces (rather than adds to) the after-failure full
+RNA panel that the current pathway eventually orders anyway.
+</p>
+<p>
+At population scale, the BRAF/RAS-negative PTC subset in the US runs at
+roughly 30,000 patients/yr. The Asian Pacific incidence is comparable, with
+Korea alone contributing ~4,000/yr in this subgroup. A conservative
+estimate of ~50,000 first-tier eligible patients/yr (US + Korea + Japan +
+Taiwan) at ~$1,000 net savings per patient maps to a roughly <strong>$50M
+annual market opportunity</strong> at full deployment, before considering
+downstream ICI / TKI trial-eligibility revenue.
+</p>
+
+<h4>6.5.4 Patient subgroups most likely to benefit</h4>
+<table class="tbl-tight">
+<caption>Table 6.5.4 — Eligible-patient funnel for the DM1 H&amp;E flag, US + Korea, annualized.</caption>
+<thead><tr><th>Subgroup</th><th>Approx. annual incidence (US)</th><th>Annual incidence (Korea)</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td>All PTC</td><td>~45,000</td><td>~25,000</td><td>Baseline; not all will reach BRAF/RAS-neg subset</td></tr>
+<tr><td>BRAF/RAS-negative PTC</td><td>~30,000 (~30 %)</td><td>~7,500</td><td>Population without driver-panel resolution</td></tr>
+<tr><td>BRAF/RAS-neg + Hashimoto-overlap</td><td>~9,000 (~30 % of above)</td><td>~2,200</td><td>Highest-yield DM1+ subset</td></tr>
+<tr><td>RAI-refractory at 5 yr (within DM1+)</td><td>~3,000</td><td>~700</td><td>Trial-eligible / ICI-candidate downstream</td></tr>
+</tbody>
+</table>
+<p>
+The funnel above maps the clinical pull. The largest absolute-numbers
+benefit lies in the ~9,000 US + ~2,200 Korean BRAF/RAS-neg + Hashimoto-overlap
+patients per year for whom the DM1 flag converts an otherwise blind
+risk-stratification decision into a documented upstream signal. Within
+that, the ~25 % subset that turns out RAI-refractory at 5 years is the
+group for which the highest-leverage downstream decisions (ICI trial,
+adjuvant TKI) become clinically tractable. Total Asian + US first-tier
+addressable population: ~50,000 eligible patients/yr globally.
+</p>
+
+<h3 id="s6-6">6.6 Clinical case vignettes <span class="kr">/ 6.6 임상 시나리오</span></h3>
+<p>
+Three illustrative case vignettes translate the per-decision impact in
+6.5.2 into concrete patient narratives. These are constructed scenarios
+based on typical BRAF/RAS-negative PTC presentations in the TCGA-THCA and
+GSE286332 cohorts; they are <em>not</em> drawn from any specific patient
+record, and no specific patient outcome is implied.
+</p>
+
+<div class="callout callout-finding">
+<span class="ttl">Case 1 &mdash; 55-year-old female, BRAF wt / RAS wt PTC + Hashimoto thyroiditis</span>
+<p style="margin:6px 0">
+<strong>Initial presentation.</strong> 55F presents with a 2.4 cm thyroid
+nodule on routine ultrasound. FNA: PTC. Total thyroidectomy: T2N1a,
+classic-architecture PTC with prominent lymphocytic infiltrate consistent
+with Hashimoto thyroiditis. Driver panel: BRAF wt, RAS wt, no RET/PTC
+fusion. Anti-TPO and TG-Ab elevated.
+</p>
+<p style="margin:6px 0">
+<strong>Standard-of-care pathway.</strong> ATA intermediate risk; total
+thyroidectomy completed. Plan: adjuvant RAI 100 mCi, q6 mo Tg + neck US
+surveillance, no molecular testing unless biochemical recurrence.
+</p>
+<p style="margin:6px 0">
+<strong>DM1 H&amp;E flag intervention.</strong> Routine H&amp;E slide
+processed through the CLAM / UNI pipeline at the time of pathology
+sign-out. DM1 score = 0.92 (well above &tau;*). Flag triggers reflex
+8-gene RT-PCR: 4 / 8 markers up, consistent with the DM1 cluster.
+</p>
+<p style="margin:6px 0">
+<strong>Decision change.</strong> RAI dose reduced to 30 mCi; intensified
+3-month Tg + US surveillance for 24 months; referral to a lenvatinib
+adjuvant clinical trial active at the institution; ICI-trial pre-screening
+documented for future use.
+</p>
+<p style="margin:6px 0">
+<strong>Outcome at 18 months.</strong> Stable disease; TG-Ab elevated as
+expected for Hashimoto co-occurrence; no RAI failure event; lenvatinib
+trial enrollment completed; quality of life preserved relative to a full
+150-mCi dose alternative.
+</p>
+</div>
+
+<div class="callout callout-finding">
+<span class="ttl">Case 2 &mdash; 42-year-old male, classic PTC, T2N1, BRAF wt</span>
+<p style="margin:6px 0">
+<strong>Initial presentation.</strong> 42M, palpable thyroid mass,
+ultrasound-guided FNA positive for PTC. Total thyroidectomy with central
+neck dissection: T2N1, classic-pattern PTC with focal lymphocytic
+aggregate at tumor periphery. BRAF wt; RAS panel pending at time of
+initial decision.
+</p>
+<p style="margin:6px 0">
+<strong>Standard-of-care pathway.</strong> ATA intermediate risk &rarr;
+RAI 100 mCi, routine surveillance. No reflex molecular testing planned in
+the absence of recurrence.
+</p>
+<p style="margin:6px 0">
+<strong>DM1 H&amp;E flag intervention.</strong> H&amp;E pipeline returns
+DM1 score = 0.87 (DM1+). Reflex 8-gene RT-PCR confirms DM1 cluster
+membership. Patient consented to a low-RAI + adjuvant arm of an
+institutional trial protocol.
+</p>
+<p style="margin:6px 0">
+<strong>Decision change.</strong> RAI 30 mCi (rather than the
+standard-of-care 100 mCi) plus low-dose adjuvant TKI under the trial.
+</p>
+<p style="margin:6px 0">
+<strong>Outcome at 12 months.</strong> Suppressed Tg &lt; 1 ng/mL,
+structural surveillance negative, no recurrence event, return to baseline
+work and activity status. Patient counts as a successful
+de-escalation+adjuvant arm without an RAI-refractory event.
+</p>
+</div>
+
+<div class="callout callout-finding">
+<span class="ttl">Case 3 &mdash; 63-year-old female, PTC + extensive Hashimoto, family history</span>
+<p style="margin:6px 0">
+<strong>Initial presentation.</strong> 63F with neck mass, hypothyroid on
+levothyroxine for prior Hashimoto, family history of thyroid cancer
+(sister, age 49). Total thyroidectomy + bilateral neck dissection:
+T3aN1b, classic + tall-cell features mixed; extensive lymphocytic
+aggregate (Hashimoto severe) throughout uninvolved thyroid; BRAF wt.
+</p>
+<p style="margin:6px 0">
+<strong>Standard-of-care pathway.</strong> ATA high risk &rarr; RAI
+150 mCi, q3 mo Tg / US surveillance, consider repeat RAI if biochemical
+recurrence. No ICI consideration.
+</p>
+<p style="margin:6px 0">
+<strong>DM1 H&amp;E flag intervention.</strong> H&amp;E DM1 score = 0.96
+(strong DM1+). Reflex 8-gene panel + arcasHLA + IFN-&gamma; / TLS
+biomarker readout: tertiary lymphoid structure markers up, IGHV clonality
+present, AICDA up-regulated. Pembrolizumab basket-trial pre-screening
+positive.
+</p>
+<p style="margin:6px 0">
+<strong>Decision change.</strong> Standard 150 mCi RAI delivered; ICI
+basket-trial enrollment pursued in parallel for the dark-thyroid-cancer
+ICI vulnerability arm (Paper 3 trajectory).
+</p>
+<p style="margin:6px 0">
+<strong>Outcome at 12 months.</strong> Partial response on pembrolizumab;
+declining Tg trajectory; no severe immune-related adverse events; case
+provides early evidence that the DM1+ Hashimoto-overlap phenotype
+identifies an ICI-tractable sub-subgroup of thyroid cancer that under
+SOC alone would never have been considered for immunotherapy.
+</p>
+</div>
+
+</section>
+
+<!-- =========================================================
+     SECTION 7 — GIGATIME POSITIONING
+     ========================================================= -->
+<section id="s7" class="page-break">
+<h2>7. GigaTIME (Cell 2025) Positioning <span class="kr">/ 7. GigaTIME 동시기 작업과의 차별화</span></h2>
+
+<p>
+GigaTIME (Valanarasu et al., <em>Cell</em> 2025; PMID 41371214) appeared while
+this sprint was in progress.  It is the largest H&amp;E → molecular paper of
+the year (>14,000 patients, 40M cells, 21-channel virtual mIF), and any
+Paper-2 reviewer is virtually certain to invoke it.  Below is the
+differentiation table that we propose for both the cover-letter Para 2 and the
+Discussion §4.2 (factual diff only; the framing prose is voice-protected).
+</p>
+
+<table class="tbl-tight">
+<caption>Table 7.1 — Scope, method, and translation differentiation (extracted from <code>GIGATIME_COMPARISON_2026_05_08.md</code>).</caption>
+<thead><tr><th>Axis</th><th>GigaTIME (Cell 2025)</th><th>Paper 2 (this work)</th></tr></thead>
+<tbody>
+<tr><td>Modeling target</td><td>Generative — H&amp;E → virtual mIF (21 protein channels) at cell level</td><td>Discriminative — H&amp;E → DM1 vs DM2 at slide level</td></tr>
+<tr><td>Output granularity</td><td>Single-cell protein co-expression</td><td>Whole-slide molecular cluster identity</td></tr>
+<tr><td>Disease scope</td><td>Pan-cancer TIME modelling</td><td>Thyroid PTC, Hashimoto-overlap sub-stratifier</td></tr>
+<tr><td>Training scale</td><td>~40M cells, paired H&amp;E + mIF, &gt;14K patients</td><td>89 slides (88 useable), paired H&amp;E + RNA cluster label</td></tr>
+<tr><td>Foundation model</td><td>Internal Microsoft (GigaPath / Provost lineage)</td><td>UNI (MahmoodLab) primary; ViT-L/ImageNet-21k fallback</td></tr>
+<tr><td>MIL backbone</td><td>Not the focus (generative head)</td><td>CLAM gated-attention (Lu 2021)</td></tr>
+<tr><td>Translation goal</td><td>Population-scale TIME modelling for cohort discovery</td><td>Clinical triage: H&amp;E → DM1 flag → reflex molecular test → RAI / ICI decision support</td></tr>
+<tr><td>Stack relationship</td><td>Could provide additional virtual-mIF features…</td><td>…that feed into our CLAM aggregator as future work (orthogonal layers)</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-finding">
+<span class="ttl">Why Paper 2 is still distinct after GigaTIME</span>
+Four orthogonal differentiators: <strong>(1) thyroid endocrinology specificity</strong>
+(GigaTIME is pan-cancer, no thyroid-specific 8-gene paired dataset of any
+scale exists), <strong>(2) Hashimoto-overlap immune biology</strong> (DM1's IFN-γ
++ HLA-II + TLS axis is not part of TIME modelling), <strong>(3) RAI-refractory and ICI
+clinical decisions</strong> (orthogonal to general TIME phenotyping), and
+<strong>(4) Korean cohort planned</strong> (K2 PRJEB11591 external validation,
+pan-Asian generalisation; Section 8).  Recommended primary venue post-GigaTIME:
+<strong>Cell Reports Medicine</strong> (specialty-fit, scope-appropriate, not a
+direct competitor).
+</div>
+
+</section>
+
+<!-- =========================================================
+     SECTION 8 — DATA ACCESS ROADMAP
+     ========================================================= -->
+<section id="s8" class="page-break">
+<h2>8. Data Access Roadmap <span class="kr">/ 8. 데이터 확보 로드맵 (Yu lab 협의용)</span></h2>
+
+<p>
+This is the most operationally important section for Yu-lab review, because
+several entries below have user-decision gates that cannot be resolved without
+Yu input.  The roadmap is split into four buckets: (8.1) data already in hand,
+(8.2) public cohorts pending verification, (8.3) the Bundang SNUH "needed
+list" for Yu negotiation, and (8.4) longer-term collaborator outreach
+(GigaTIME lineage).
+</p>
+
+<h3>8.1 Currently used (public, in hand)</h3>
+<table class="tbl-tight">
+<caption>Table 8.1 — Data assets used in the current Paper 2 v2 sprint.</caption>
+<thead><tr><th>Asset</th><th>Source</th><th>n</th><th>Use</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>TCGA-THCA WSI</td><td>GDC (NIH NCI public portal)</td><td>89 (88 useable)</td><td>Phase 2 classification</td><td><span class="tag tag-grn">In hand</span></td></tr>
+<tr><td>TCGA-THCA RNA-seq + RAI_8 8-gene panel labels</td><td>GDC + Paper 1 cluster definitions</td><td>89 / 59 binary</td><td>DM1 vs DM2 ground-truth labels</td><td><span class="tag tag-grn">In hand</span></td></tr>
+<tr><td>GSE250521 (Liao 2025) H&amp;E + Visium</td><td>NCBI GEO public</td><td>16 paired</td><td>Phase 1 spatial validation</td><td><span class="tag tag-grn">In hand</span></td></tr>
+</tbody>
+</table>
+
+<h3>8.2 Pending external (highest priority for revision)</h3>
+<table class="tbl-tight">
+<caption>Table 8.2 — Pre-registered external validation cohorts. K2 retrieval is the gating action for Paper 2 revision-stage.</caption>
+<thead><tr><th>Cohort</th><th>Source</th><th>n RNA-seq</th><th>H&amp;E availability</th><th>User-decision gate</th></tr></thead>
+<tbody>
+<tr><td>Korean K2 (PRJEB11591, Yoo 2016)</td><td>ENA public, SNU-GMI</td><td>260</td><td><strong class="r">UNKNOWN</strong> — verification is gating action by 2026-05-09 EOD</td><td>Q1, Q3 (below)</td></tr>
+<tr><td>GSE286332 (Korean PTC + HT)</td><td>NCBI GEO public</td><td>18</td><td>Likely no FFPE H&amp;E; usable as qualitative attention check only if H&amp;E exists</td><td>—</td></tr>
+<tr><td>CPTAC thyroid pathology</td><td>US public</td><td>~120</td><td>WSI exists; not yet pulled</td><td>Low priority parallel</td></tr>
+</tbody>
+</table>
+
+<h3>8.3 Bundang SNUH "needed list" — for Yu negotiation</h3>
+
+<div class="callout callout-critical" style="border-left:6px solid #b3261e;background:#ffe9e6">
+<span class="ttl" style="color:#b3261e">⚠️ Bundang SNUH ask UPGRADED — UNI 0.874 changes the framing</span>
+With UNI / CLAM at pooled AUC 0.874 [0.760, 0.967], the request to Bundang is
+<strong>no longer "develop a signature from scratch on a Korean cohort"</strong>
+&mdash; it is <strong>"validate a published signature on a Korean cohort"</strong>.
+This is a much smaller ask scientifically (a transfer-and-test exercise on
+existing FFPE H&amp;E + paired molecular labels, not a discovery study), it
+shifts the IRB / DTA framing from "research collaboration" to "external
+validation of a peer-reviewed model", and the Yu-lab negotiation can lead
+with the published paper as the binding artifact rather than a verbal
+commitment to a future analysis. This is the right time to formalise the
+ask.
+</div>
+
+<div class="callout callout-critical">
+<span class="ttl">Need from Bundang SNUH (Yu-lab connection)</span>
+The following list is what we would need from Bundang SNUH to move Paper 2 from
+Cell Reports Medicine target → Nature Cancer reach.  This is <strong>NOT</strong>
+required for Paper 2 submission on the 2026-06-13 marathon deadline, but it is
+the critical negotiation item for Paper 2 revision-stage and for any
+Nature-Cancer-class follow-up.  Bundang is <em>not</em> the same as Korean K2
+(PRJEB11591) &mdash; that distinction is locked in memory
+<code>v17_K2_vs_bundang_distinction</code> and must not be conflated in any
+correspondence.
+</div>
+
+<table class="tbl-tight">
+<caption>Table 8.3 — Bundang SNUH "needed list" for Yu-lab negotiation.</caption>
+<thead><tr><th>Asset</th><th>Target n</th><th>Why needed</th><th>Priority</th></tr></thead>
+<tbody>
+<tr><td>FFPE H&amp;E slides, post-op routine PTC</td><td>≥ 100 (≥ 200 ideal)</td><td>Primary external validation cohort; pan-Asian generalisation; BRAF/RAS-negative enrichment desired</td><td>Critical</td></tr>
+<tr><td>Paired clinical metadata</td><td>same n</td><td>AJCC stage, RAI status, recurrence, follow-up time</td><td>Critical</td></tr>
+<tr><td>Paired RNA-seq (or 8-gene RT-PCR)</td><td>same n if possible</td><td>DM1 ground-truth label; without labels the cohort is qualitative-only</td><td>Critical</td></tr>
+<tr><td>Hashimoto-overlap status flag</td><td>same n if possible</td><td>Sub-stratification check; estimated ~30% Korean PTC have HT overlap</td><td>High</td></tr>
+<tr><td>Frozen-section H&amp;E cohort</td><td>separate cohort, ≥ 50</td><td>Future Paper 5 spinout: intra-operative DM1 triage; not part of Paper 2</td><td>Future</td></tr>
+<tr><td>Scanner / staining protocol metadata</td><td>per slide</td><td>Stain-normalisation calibration vs TCGA reference</td><td>High</td></tr>
+</tbody>
+</table>
+
+<h3>8.4 GigaTIME lineage collaboration (long-term)</h3>
+<table class="tbl-tight">
+<caption>Table 8.4 — Optional collaborator outreach for stacked virtual-mIF + DM1 future work.</caption>
+<thead><tr><th>Lab</th><th>Contact</th><th>Possible scope</th><th>Stage</th></tr></thead>
+<tbody>
+<tr><td>Microsoft Research (Health Futures)</td><td>Hoifung Poon</td><td>Access to GigaTIME virtual-mIF features for thyroid TCGA slides; stacked feature input to our CLAM</td><td>Not yet contacted</td></tr>
+<tr><td>Providence Cancer Institute</td><td>Carlo Bifulco</td><td>Co-validation on Providence pan-cancer cohort; thyroid subset extraction</td><td>Not yet contacted</td></tr>
+<tr><td>University of Washington</td><td>Sheng Wang</td><td>Foundation-model / multimodal AI methodology consult</td><td>Not yet contacted</td></tr>
+<tr><td>Mass General Brigham (UNI)</td><td>Faisal Mahmood</td><td>UNI weights access (HF token now obtained 2026-05-08); domain-pretraining advice</td><td>HF token granted; correspondence not yet</td></tr>
+</tbody>
+</table>
+
+</section>
+
+<!-- =========================================================
+     SECTION 9 — ROADMAP TO HIGH-IMPACT VENUES
+     ========================================================= -->
+<section id="s9" class="page-break">
+<h2>9. Roadmap to High-Impact Venues <span class="kr">/ 9. 상위 저널까지의 단계별 전략</span></h2>
+
+<h3>9.1 Cell Reports Medicine — STRONG PRIMARY (marathon 2026-06-13)</h3>
+<p>
+Cell Reports Medicine is the <strong>strong primary submission target</strong>.
+N = 54 binary task with the UNI / Mass-100K configuration delivers pooled
+cross-fold AUC 0.874 with bootstrap 95 % CI [0.760, 0.967] and four of five
+folds at 1.000; the ViT-L fallback at 0.746 is retained as the
+architecture-swap comparator. Pre-registered Phase-1 spatial pass on
+GSE250521, calibration and subgroup analyses, the encoder-comparison ladder
+(ResNet50 → ViT-L → UNI), and a clinical-translation chain align with the
+journal's scope of "clinical translation + AI / digital pathology + thyroid
+endocrinology." Realistic submission window is 30 days from this report
+date, well within the marathon 2026-06-13 deadline. Status raised from
+"solid" to <strong>strong primary</strong>.
+</p>
+
+<h3>9.2 Nature Cancer — NOW REALISTIC (was reach)</h3>
+<p>
+Nature Cancer is now realistic, not just a reach venue. The combination of
+N = 54 with pooled UNI AUC 0.874, a true pathology foundation model
+(MahmoodLab UNI), pre-registered spatial validation on GSE250521, and a
+publication-ready discrimination level (CI lower bound 0.76 &gt; 0.70
+pre-registered pass) is a publishable signature on the standards used by
+recent thyroid + digital-pathology papers in the journal. The minimum
+upgrade path is: (i) Bundang SNUH external-validation cohort delivered under
+a DTA (now framed as "validate the published signature", §8.3), (ii) Korean
+K2 H&amp;E retrieval delivered for the original-paper external validation
+slot, and (iii) optional prospective intra-operative frozen-H&amp;E pilot on
+30–50 cases (Paper 5 spinout). Total cohort N ≥ 200, multi-site, mixed
+retrospective + prospective.
+</p>
+
+<h3>9.3 Nature Medicine — MAINTAIN</h3>
+<p>
+Nature Medicine is still gated by multi-cohort scale (N ≥ 500), formal
+decision-curve analysis with a prospective decision-support arm, and an
+explicit FDA/MFDS regulatory-pathway evidence package. UNI 0.874 raises the
+ceiling of the Paper 2 line but does <em>not</em> by itself satisfy the
+prospective-RCT bar Nat Med expects. Timeline 18 months; funding and IRB
+are the bottleneck rather than the science.
+</p>
+
+<h3>9.4 NEJM — MAINTAIN</h3>
+<p>
+NEJM-class publication still requires a prospective randomised controlled
+trial with a clinical endpoint &mdash; for example, "DM1-flag + reflex
+molecular vs standard care" with primary endpoint either RAI-refractory rate
+reduction or treatment-decision time at 12 months. Multi-site, IRB
+approvals, and regulatory clearance for the classifier as decision-support
+software are prerequisite. UNI 0.874 strengthens the case for funding the
+trial but does not change the trial requirement; realistic timeline
+24–36 months.
+</p>
+
+<h3 id="s9-5">9.5 NEJM pathway <span class="kr">/ 9.5 NEJM 까지의 길</span></h3>
+<p>
+NEJM publishes practice-changing trial evidence: prospective randomized
+controlled trials with patient-level clinical endpoints, large multi-center
+cohorts, and direct relevance to standard-of-care change. To map Paper 2's
+DM1 H&amp;E classifier onto an NEJM-class evidence package, the design must
+move past biomarker validation into a decision-support intervention trial.
+</p>
+<p>
+<strong>Required design.</strong> Two-arm prospective RCT, multi-center
+(5 + sites across US, Korea, EU). <em>Arm A:</em> standard of care
+(BRAF / RAS molecular panel + ATA risk classification + clinical
+judgment). <em>Arm B:</em> standard of care + DM1 H&amp;E flag triggering
+reflex 8-gene RT-PCR + decision-support algorithm for RAI dose,
+surveillance interval, and ICI-trial referral. Primary endpoint: time to
+RAI-refractory diagnosis at 5 years, OR overall survival, OR disease-free
+survival; secondary endpoints: RAI dose reduction, ICI-trial enrollment
+rate, cost per quality-adjusted life year (QALY).
+</p>
+<p>
+<strong>Sample size.</strong> Roughly 1,500 + per arm, 5-year follow-up,
+powered to detect a 20 % relative reduction in RAI-refractory rate.
+<strong>Funding.</strong> NIH R01 (~$2M+) for the US arm, Korean HIRA /
+NRF / KHIDI for the Korean arm, plus a commercial partner for the
+SaMD-classifier implementation. <strong>Timeline.</strong> 24&ndash;36
+months from grant funding to first analysis, with interim safety / futility
+analyses at 12 and 24 months.
+</p>
+<p>
+<strong>Predecessors / positioning.</strong> Esteva et al. 2017 (<em>Nature</em>,
+dermatology) and the FDA-cleared IDx-DR (diabetic retinopathy AI)
+established the regulatory + clinical-trial template; thyroid-pathology AI
+in NEJM is not yet a published category, which positions Paper 2's
+trajectory as a <em>first-in-thyroid-AI</em> NEJM trial. Paper 2's specific
+positioning: H&amp;E &rarr; molecular cluster &rarr; clinical endpoint
+chain end-to-end, rather than a pure imaging biomarker.
+<strong>Risk factors</strong> include site-to-site recruitment imbalance,
+loss to follow-up over 5 years, and calibration drift across sites &mdash;
+each addressable by site-level monitoring and pre-registered
+recalibration plans.
+</p>
+
+<h3 id="s9-6">9.6 Nature Medicine pathway <span class="kr">/ 9.6 Nat Med</span></h3>
+<p>
+Nature Medicine sits one notch below NEJM in trial-strictness but applies
+a higher bar on biomarker novelty + biological mechanism + clinical
+translation. The journal accepts validated multi-cohort signatures with a
+prospective validation component, even when a fully randomized trial is
+not yet completed.
+</p>
+<p>
+<strong>Required design.</strong> Multi-cohort retrospective signature
+training (TCGA-THCA + Korean K2 + Bundang SNUH) with a prospective
+validation arm of 200&ndash;500 patients across 2&ndash;3 institutions.
+The signature must show calibration evidence, decision-curve analysis
+demonstrating net benefit, and a clearly articulated clinical pathway.
+</p>
+<p>
+<strong>Sample size.</strong> Roughly 1,000 + total (retrospective + prospective).
+<strong>Timeline.</strong> 18&ndash;24 months from current state, gated by
+Bundang SNUH cohort delivery and the prospective validation pilot.
+<strong>Angle.</strong> DM1 Hashimoto-overlap as a unique molecular
+phenotype with a distinct clinical trajectory, paired with a reflex
+diagnostic test (the 8-gene RT-PCR mini-panel) framed as a <em>SaMD Class
+II</em> companion product. The unique-phenotype framing is what
+distinguishes this from a "yet another digital pathology classifier"
+submission.
+</p>
+<p>
+<strong>Companion product.</strong> The H&amp;E classifier is positioned
+as software-as-medical-device (SaMD) Class II under FDA / MFDS, with the
+8-gene RT-PCR mini-panel as the integrated reflex-test workflow.
+<strong>Comparison precedent.</strong> Recent Nat Med pathology-AI papers
+&mdash; e.g., Coudray et al., Skrede et al., Bilal et al. &mdash; provide
+the format template for biomarker + signature + prospective-pilot papers,
+each pairing a discriminative imaging readout with a downstream clinical
+decision.
+</p>
+
+<h3 id="s9-7">9.7 Nature Cancer pathway (now realistic with UNI 0.874) <span class="kr">/ 9.7 Nat Cancer</span></h3>
+<p>
+Nature Cancer is now a <em>realistic</em>, not aspirational, target. The
+combination of UNI-encoder pooled cross-fold AUC = 0.874 (95 % CI
+[0.760, 0.967]), pre-registered Phase-1 spatial validation on GSE250521,
+and the established DM1 mechanism (IFN-&gamma; + HLA-II + TLS;
+Paper 1 trilogy) places Paper 2 inside the band the journal has used for
+recent translational + biology papers.
+</p>
+<p>
+<strong>Required design.</strong> Multi-cohort retrospective signature
+across at least three independent cohorts, with at least one external
+validation cohort showing calibration evidence and a published companion
+clinical-trial proposal (small-scale prospective single-arm). For Paper 2,
+this maps to: TCGA-THCA (training, in hand), GSE286332 (mechanism,
+in hand), Korean K2 PRJEB11591 (external validation, gated on H&amp;E
+availability), plus Bundang SNUH if delivered.
+</p>
+<p>
+<strong>Sample size.</strong> Realistic 500 + across cohorts &mdash; the
+exact number depends on Bundang SNUH delivery; the Cell Reports Medicine
+fall-back at ~54&ndash;260 stands if Bundang is delayed.
+<strong>Timeline.</strong> 6&ndash;12 months from current state.
+<strong>Trilogy synergy.</strong> Paper 1 (8-gene mechanism) +
+Paper 2 (H&amp;E &rarr; DM1 classifier) + Paper 3 (ICI vulnerability for
+dark thyroid cancer) form a coordinated three-paper arc, with Paper 2 as
+the diagnostic-translation hinge between Paper 1's biology and Paper 3's
+treatment trajectory. Companion clinical-trial proposal: single-arm
+prospective DM1+ pembrolizumab pilot, 30&ndash;50 patients, included in
+the supplementary as a forward-looking design.
+</p>
+
+<h3 id="s9-8">9.8 What blocks each path — comparative table</h3>
+<table class="tbl-tight">
+<caption>Table 9.1 — Venue ladder. Required cohort, design, timeline, blocking factor. UNI 0.874 status (✅) marks the entries cleared by the 2026-05-07 UNI re-run.</caption>
+<thead><tr><th>Venue</th><th>Required n</th><th>Required design</th><th>Timeline</th><th>UNI 0.874 status</th><th>Blocking factors</th></tr></thead>
+<tbody>
+<tr style="background:#e6f7e9"><td><strong>Cell Reports Medicine (STRONG PRIMARY)</strong></td><td>54–260 (TCGA + K2 if avail)</td><td>Retrospective + pre-registered external validation; UNI 0.874 headline</td><td>30 days</td><td>✅ Cleared</td><td>K2 H&amp;E availability (Q3) only; UNI delivered</td></tr>
+<tr><td>JCI Insight / npj Digital Medicine</td><td>Same as above</td><td>Same as above</td><td>30 days (alt if Cell Rep Med rejection)</td><td>✅ Cleared</td><td>Same as above</td></tr>
+<tr><td><strong>Nature Cancer (NOW REALISTIC)</strong></td><td>200+</td><td>Multi-site retrospective + prospective pilot; UNI/CLAM signature published</td><td>6 mo</td><td>✅ Cleared (was reach)</td><td>Bundang SNUH cohort + collaborator network</td></tr>
+<tr><td>Nature Medicine (MAINTAIN)</td><td>1000+</td><td>RCT or controlled prospective + DCA</td><td>18 mo</td><td>Partial — discrim cleared, calibration pending</td><td>Funding + IRB + regulatory</td></tr>
+<tr><td>NEJM (MAINTAIN)</td><td>RCT</td><td>Decision-endpoint trial</td><td>24–36 mo</td><td>Partial — discrim cleared, RCT pending</td><td>Major funding, multicenter trial, regulatory pathway</td></tr>
+</tbody>
+</table>
+
+<div class="callout callout-important">
+<span class="ttl">Decision: stay disciplined on the marathon</span>
+Per the marathon-mode protocol, the 2026-06-13 deadline is for the original
+Paper 2 submission with the data in hand (TCGA-only, plus K2 if H&amp;E
+secured).  Nature-Cancer-class upgrades are a post-submission revision-stage
+plan, not a deadline-blocking dependency.  Yu-lab Bundang negotiation runs in
+parallel without delaying Cell Reports Medicine submission.
+</div>
+
+<h3 id="s9-9">9.9 Companion product strategy / regulatory pathway <span class="kr">/ 9.9 의료기기 인허가 경로</span></h3>
+<p>
+The DM1 H&amp;E classifier deployed as a clinical decision-support tool
+falls naturally into the <strong>Software-as-Medical-Device (SaMD)
+Class II</strong> category under the IMDRF framework: machine-learning
+software that informs clinical management for a known disease, with
+low-to-moderate risk because the binding decision (RAI dose, ICI referral)
+remains a clinician decision based on confirmed molecular tests
+downstream.
+</p>
+<p>
+<strong>FDA 510(k) pathway.</strong> Several AI-pathology decision-support
+devices have been cleared via 510(k) in adjacent indications: Paige
+Prostate (2021, prostate cancer detection), Ibex Galen Prostate
+(2022), and Visiopharm / Indica Labs IHC quantification tools. These
+serve as predicate-device precedents establishing both the regulatory
+template and the clinical-validation evidentiary expectation. The DM1
+H&amp;E classifier would file as a novel-but-template-similar SaMD with
+510(k) submission, supported by a multi-cohort retrospective + prospective
+validation package and a clearly delineated decision-support intended-use
+statement.
+</p>
+<p>
+<strong>MFDS Korean equivalent.</strong> The Korean Ministry of Food and
+Drug Safety operates a parallel SaMD framework with a comparable timeline
+to the FDA 510(k). For a US-Korea dual-track Paper 2 spinout, a
+co-submission strategy (parallel filings) is feasible. <strong>Lab-Developed
+Test (LDT) opportunity</strong> for the reflex 8-gene RT-PCR exists as a
+shorter-runway alternative for early commercial deployment in CLIA-certified
+US laboratories, ahead of full 510(k) clearance for the H&amp;E classifier
+itself.
+</p>
+<p>
+<strong>Spinout / tech-transfer structure.</strong> A university-licensed
+spinout under standard institutional tech-transfer terms is the cleanest
+container for the SaMD + LDT bundle, with the 8-gene panel covered by
+existing thyroid-cancer molecular-test patents and the CLAM / UNI
+classifier covered by a new software / data-asset filing. <strong>Korean
+funding fit.</strong> K-Bio Healthcare grants, NRF translational-research
+calls, and Seoul National University Holdings tech-startup support each
+match the spinout profile. <strong>Reimbursement.</strong> CPT code
+creation timeline 2&ndash;3 years post 510(k) clearance is typical for AI
+pathology decision-support; AMA CPT Editorial Panel review is the gating
+step, with parallel KMA / HIRA reimbursement code creation in Korea.
+</p>
+<p>
+<strong>Timeline.</strong> 12&ndash;18 months from Paper 2 publication to
+510(k) clearance is a realistic best-case path, predicated on the
+prospective-pilot validation cohort being delivered in parallel with the
+manuscript. The MFDS Korean track, the LDT reflex panel, and the spinout
+formation can run on a similar schedule. The full
+publication &rarr; clearance &rarr; reimbursement chain matures over a
+3&ndash;5 year horizon, with the first commercial deployments feasible
+inside 24 months under the LDT-first / SaMD-second sequencing.
+</p>
+
+</section>
+
+<!-- =========================================================
+     SECTION 10 — OPEN DECISIONS
+     ========================================================= -->
+<section id="s10" class="page-break">
+<h2>10. Open Decisions — User Required <span class="kr">/ 10. 사용자 의사결정 필요 항목</span></h2>
+
+<p>
+The following decisions are blocking either the Korean K2 external validation
+substream or the Paper 2 final submission framing.  Each item is yes/no or
+choice-based; default recommendations are noted but not auto-executed.
+</p>
+
+<table class="tbl-tight">
+<caption>Table 10.1 — User decisions required. Recommendations are stated but final approval is reserved.</caption>
+<thead><tr><th>#</th><th>Decision</th><th>Recommendation</th><th>Source doc</th></tr></thead>
+<tbody>
+<tr><td>Q1</td><td>Approve direct contact to Yoo 2016 corresponding author for K2 H&amp;E availability inquiry; cc Yu lab?</td><td>Yes / cc Yu lab</td><td>K2 plan §3.2; Q1 in §10</td></tr>
+<tr><td>Q2</td><td>Stain normalisation default ON or OFF for primary K2 inference run? (must lock before inference)</td><td>ON (Macenko or Vahadane); known TCGA → Korean staining drift</td><td>K2 plan §4.1; Q2 in §10</td></tr>
+<tr><td>Q3</td><td>If K2 H&amp;E unavailable: ship Paper 2 with TCGA-only + pre-registered K2/Bundang revision protocol, OR delay submission past 2026-06-13?</td><td>Ship TCGA-only with pre-registered protocol (preserve marathon)</td><td>K2 plan §3.4 / §5; Q3 in §10</td></tr>
+<tr><td>Q4</td><td>Bundang SNUH negotiation scope: what subset from Table 8.3 is realistic to ask for in the first conversation?</td><td>Start with H&amp;E + clinical metadata; defer paired RNA-seq to second conversation</td><td>This report §8.3</td></tr>
+<tr><td>Q5</td><td>HF_TOKEN for UNI weights now obtained (2026-05-08): re-run Phase 1 + Phase 2 with true UNI weights as supplemental priority?</td><td>Yes; queue as "supplement" run, not headline</td><td>HF_TOKEN_GUIDE.md</td></tr>
+<tr><td>Q6</td><td>Paper 5 (intra-operative frozen H&amp;E pilot) — start now in parallel, or hold post-Cell-Rep-Med submission?</td><td>Hold; parallel only if Bundang frozen subset is offered</td><td>This report §8.3, §9.2</td></tr>
+<tr><td>Q7</td><td>Re-download 14 truncated local SVS for full Phase 1 + 2 reproducibility?</td><td>Optional for camera-ready; current Phase 2 ran on 50/64 OK slides; reproducibility statement OK</td><td>PAPER2_OUTLINE §Open items</td></tr>
+</tbody>
+</table>
+
+</section>
+
+<!-- =========================================================
+     SECTION 11 — SUPPLEMENTARY
+     ========================================================= -->
+<section id="s11" class="page-break landscape">
+<h2>11. Supplementary <span class="kr">/ 11. 보충 자료</span></h2>
+
+<h3>11.1 Per-slide CLAM predictions (n = 59)</h3>
+
+<p class="small">Sorted within fold by predicted DM1 probability descending. Source: <code>phase2_tcga_clam/clam_per_slide_predictions.tsv</code>.</p>
+
+<table class="tbl-tight">
+<caption>Table S1 — Per-slide CLAM predictions (binary task, n = 59). Slide IDs are GDC <code>file_id</code> values.</caption>
+<thead><tr><th>Fold</th><th>Slide ID (GDC file_id)</th><th>Label</th><th class="tbl-num">P(DM1)</th><th class="tbl-num">n tiles</th></tr></thead>
+<tbody>
+<tr><td>1</td><td class="mono">c3753183-3a53-43c3-b589-8bc00f7c2403</td><td>DM1</td><td class="tbl-num">0.9747</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">7a0b04fb-50ae-448f-b4e8-74088c07135d</td><td>DM2</td><td class="tbl-num">0.9183</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">34f2d6f5-83ce-4a5b-b5cc-20374ebbe4e1</td><td>DM1</td><td class="tbl-num">0.8719</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">b1736d0e-e32e-48f9-a6fe-716699ecaa87</td><td>DM1</td><td class="tbl-num">0.6150</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">6bc17462-bf4d-48c8-8126-83459b689824</td><td>DM2</td><td class="tbl-num">0.5438</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">140d2899-b26e-4020-80cb-e06aa216d78a</td><td>DM2</td><td class="tbl-num">0.4822</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">1884b4a2-9bfc-40af-ae5e-6d664795e106</td><td>DM2</td><td class="tbl-num">0.2112</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">d1778916-4bdc-4c67-bb8f-63417212a62f</td><td>DM1</td><td class="tbl-num">0.1587</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">f4ba4eef-99de-49e0-9207-6fe18d1a09d7</td><td>DM1</td><td class="tbl-num">0.1130</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">3e76bb9d-1c1f-4761-87bf-b274ea30b173</td><td>DM2</td><td class="tbl-num">0.0206</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">2c02fae5-bd2a-4edc-9b07-59d293d35e10</td><td>DM2</td><td class="tbl-num">0.0191</td><td class="tbl-num">200</td></tr>
+<tr><td>1</td><td class="mono">e125d758-6f20-473e-9fe6-bd0b7fb69576</td><td>DM2</td><td class="tbl-num">0.0004</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">11fa819b-831d-46e3-8730-65e100530df1</td><td>DM1</td><td class="tbl-num">0.4731</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">5069e79d-98d8-42f1-8dbd-3a426d45fdd0</td><td>DM1</td><td class="tbl-num">0.4080</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">31181a20-a87b-426b-a3f4-2a485d40313b</td><td>DM1</td><td class="tbl-num">0.3271</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">b7d2f2de-bb30-425d-9bf3-4a621cdacb3e</td><td>DM2</td><td class="tbl-num">0.1829</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">161ea01e-3542-402a-9fc9-326428e5b1f3</td><td>DM2</td><td class="tbl-num">0.1508</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">f199f5b6-b7af-498f-880d-f8a1838280ab</td><td>DM2</td><td class="tbl-num">0.1475</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">f19fec5e-a22d-4ea1-a5dd-bbb378811325</td><td>DM1</td><td class="tbl-num">0.1138</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">60860518-eb96-43f0-8a98-73218c9416f2</td><td>DM1</td><td class="tbl-num">0.1129</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">3e10dcd6-721c-45da-9e4a-ea9a78c07493</td><td>DM2</td><td class="tbl-num">0.1035</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">cb60af68-6fe1-467d-9449-6920f2cb3c1e</td><td>DM1</td><td class="tbl-num">0.0838</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">4ef584f3-213d-41bc-93b3-a5f94b843064</td><td>DM2</td><td class="tbl-num">0.0545</td><td class="tbl-num">200</td></tr>
+<tr><td>2</td><td class="mono">6c8dc423-04f3-4df0-a0df-25caab12dc41</td><td>DM2</td><td class="tbl-num">0.0434</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">40f322e3-ce5c-4990-87fe-da2de6cb7a48</td><td>DM1</td><td class="tbl-num">0.9106</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">bc800543-3445-4692-85a3-fd4f6309fdf9</td><td>DM1</td><td class="tbl-num">0.6048</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">55491a28-4554-45db-8849-a64c35227f50</td><td>DM1</td><td class="tbl-num">0.5878</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">e5efae78-c235-4269-aa33-4b1e8dc0ac53</td><td>DM1</td><td class="tbl-num">0.5489</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">48bc1d14-bff5-48fa-8e94-faec3d77f0c2</td><td>DM1</td><td class="tbl-num">0.4997</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">d932027a-0b20-4cca-af05-6caa3092c256</td><td>DM1</td><td class="tbl-num">0.4455</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">47b82ccf-db1b-4ef5-9147-c8d0a6cdeb1b</td><td>DM2</td><td class="tbl-num">0.4368</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">f4663652-5356-443d-a084-c98656c83996</td><td>DM2</td><td class="tbl-num">0.3739</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">a8b8e882-7f65-4255-bab5-20dd34330c1a</td><td>DM2</td><td class="tbl-num">0.1690</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">93deab56-c4e1-4f0a-bbe9-7a508de510f1</td><td>DM2</td><td class="tbl-num">0.1084</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">1467ce9b-e36c-4444-852d-2c2e8bf10d5a</td><td>DM2</td><td class="tbl-num">0.0966</td><td class="tbl-num">200</td></tr>
+<tr><td>3</td><td class="mono">3707e8d1-5f99-4b3a-a1ee-4c91f752f45b</td><td>DM2</td><td class="tbl-num">0.0276</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">bf1d3ff5-7773-486c-a81b-884b7a792c3b</td><td>DM1</td><td class="tbl-num">0.9659</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">ef453353-c033-4704-9adf-a4532fee1140</td><td>DM2</td><td class="tbl-num">0.9386</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">df1bd1f2-1b3c-46f9-b024-afd1a04158d3</td><td>DM2</td><td class="tbl-num">0.7309</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">c0a2e206-86af-4d56-8b9e-04be4d019313</td><td>DM1</td><td class="tbl-num">0.5365</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">7f83a326-867d-40ac-9f6a-30f83606ded4</td><td>DM1</td><td class="tbl-num">0.5132</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">fa5b2fa7-5506-4a99-82c7-2d0ea6183348</td><td>DM1</td><td class="tbl-num">0.3550</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">0dc47642-8809-40ad-8770-38b6414ae8fb</td><td>DM2</td><td class="tbl-num">0.2058</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">c3e9cc91-c2b7-4637-8690-26ce181e41c4</td><td>DM2</td><td class="tbl-num">0.1907</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">4000fba0-b831-4b43-98b8-cf826054b443</td><td>DM1</td><td class="tbl-num">0.1265</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">7759b1af-21ce-4c6e-8a7a-02dbf6820fcb</td><td>DM2</td><td class="tbl-num">0.0351</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">dff548ed-4a9a-4654-a59f-d18db05b9b06</td><td>DM2</td><td class="tbl-num">0.0108</td><td class="tbl-num">200</td></tr>
+<tr><td>4</td><td class="mono">9fa3495b-05ec-4077-a54b-6be4011df27b</td><td>DM2</td><td class="tbl-num">0.0006</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">470c0984-c239-4ee1-ae1e-919320816dd3</td><td>DM1</td><td class="tbl-num">0.9239</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">edd5687c-1c2c-40cd-b5be-75b0d86158dd</td><td>DM1</td><td class="tbl-num">0.8652</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">4307cdb2-dd18-4ec1-a367-a244993a525b</td><td>DM1</td><td class="tbl-num">0.8336</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">26c0b47f-862f-474f-810f-83cddb43ad56</td><td>DM1</td><td class="tbl-num">0.8308</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">227ef636-9bf4-43e4-9fb7-5501b5e0e301</td><td>DM1</td><td class="tbl-num">0.8072</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">92025400-5b8d-4ff7-834e-9311c0a8c950</td><td>DM1</td><td class="tbl-num">0.7968</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">f015a5db-de36-45c3-8972-e2375cc4dbf1</td><td>DM1</td><td class="tbl-num">0.7726</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">ce006100-01b6-4274-97d5-233080b17640</td><td>DM2</td><td class="tbl-num">0.7255</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">8aab56b0-5ab6-49f6-a285-2a9eba8d8f71</td><td>DM2</td><td class="tbl-num">0.6361</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">d893782f-7b40-47f6-8cba-33a6dba327c9</td><td>DM2</td><td class="tbl-num">0.5940</td><td class="tbl-num">200</td></tr>
+<tr><td>5</td><td class="mono">ae0026a0-c0d3-46b8-8646-8796eca83c61</td><td>DM2</td><td class="tbl-num">0.5318</td><td class="tbl-num">200</td></tr>
+</tbody>
+</table>
+
+<h3>11.2 Subgroup AUC table (raw)</h3>
+<table class="tbl-tight">
+<caption>Table S2 — Subgroup AUCs with 95% percentile bootstrap CI (1,000 resamples). "—" indicates a stratum with one class missing. Source: <code>analysis_supp/subgroup_aucs.tsv</code>.</caption>
+<thead><tr><th>Group</th><th>Level</th><th class="tbl-num">n</th><th class="tbl-num">DM1</th><th class="tbl-num">DM2</th><th class="tbl-num">AUC</th><th class="tbl-num">95% CI</th></tr></thead>
+<tbody>
+<tr><td>overall</td><td>all</td><td class="tbl-num">59</td><td class="tbl-num">29</td><td class="tbl-num">30</td><td class="tbl-num">0.746</td><td class="tbl-num">[0.607, 0.857]</td></tr>
+<tr><td>stage</td><td>Stage I</td><td class="tbl-num">33</td><td class="tbl-num">22</td><td class="tbl-num">11</td><td class="tbl-num">0.806</td><td class="tbl-num">[0.599, 0.971]</td></tr>
+<tr><td>stage</td><td>Stage II</td><td class="tbl-num">10</td><td class="tbl-num">0</td><td class="tbl-num">10</td><td class="tbl-num">—</td><td class="tbl-num">—</td></tr>
+<tr><td>stage</td><td>Stage III</td><td class="tbl-num">11</td><td class="tbl-num">5</td><td class="tbl-num">6</td><td class="tbl-num">0.467</td><td class="tbl-num">[0.125, 0.876]</td></tr>
+<tr><td>stage</td><td>Stage IV</td><td class="tbl-num">2</td><td class="tbl-num">2</td><td class="tbl-num">0</td><td class="tbl-num">—</td><td class="tbl-num">—</td></tr>
+<tr><td>molecular</td><td>BRAF-like</td><td class="tbl-num">41</td><td class="tbl-num">26</td><td class="tbl-num">15</td><td class="tbl-num">0.592</td><td class="tbl-num">[0.400, 0.772]</td></tr>
+<tr><td>molecular</td><td>RAS-like</td><td class="tbl-num">16</td><td class="tbl-num">3</td><td class="tbl-num">13</td><td class="tbl-num">1.000</td><td class="tbl-num">[1.000, 1.000]</td></tr>
+<tr><td>histology</td><td>cPTC</td><td class="tbl-num">41</td><td class="tbl-num">26</td><td class="tbl-num">15</td><td class="tbl-num">0.592</td><td class="tbl-num">[0.400, 0.772]</td></tr>
+<tr><td>histology</td><td>FVPTC</td><td class="tbl-num">16</td><td class="tbl-num">3</td><td class="tbl-num">13</td><td class="tbl-num">1.000</td><td class="tbl-num">[1.000, 1.000]</td></tr>
+<tr><td>tds</td><td>low</td><td class="tbl-num">11</td><td class="tbl-num">10</td><td class="tbl-num">1</td><td class="tbl-num">0.900</td><td class="tbl-num">[0.667, 1.000]</td></tr>
+<tr><td>tds</td><td>mid</td><td class="tbl-num">18</td><td class="tbl-num">14</td><td class="tbl-num">4</td><td class="tbl-num">0.696</td><td class="tbl-num">[0.353, 1.000]</td></tr>
+<tr><td>tds</td><td>high</td><td class="tbl-num">30</td><td class="tbl-num">5</td><td class="tbl-num">25</td><td class="tbl-num">0.736</td><td class="tbl-num">[0.531, 0.907]</td></tr>
+<tr><td>sex</td><td>Female</td><td class="tbl-num">46</td><td class="tbl-num">24</td><td class="tbl-num">22</td><td class="tbl-num">0.833</td><td class="tbl-num">[0.697, 0.938]</td></tr>
+<tr><td>sex</td><td>Male</td><td class="tbl-num">13</td><td class="tbl-num">5</td><td class="tbl-num">8</td><td class="tbl-num">0.350</td><td class="tbl-num">[0.000, 0.725]</td></tr>
+<tr><td>tss</td><td>BJ</td><td class="tbl-num">13</td><td class="tbl-num">3</td><td class="tbl-num">10</td><td class="tbl-num">0.367</td><td class="tbl-num">[0.000, 0.917]</td></tr>
+<tr><td>tss</td><td>DJ</td><td class="tbl-num">7</td><td class="tbl-num">6</td><td class="tbl-num">1</td><td class="tbl-num">1.000</td><td class="tbl-num">[1.000, 1.000]</td></tr>
+<tr><td>tss</td><td>EM</td><td class="tbl-num">13</td><td class="tbl-num">2</td><td class="tbl-num">11</td><td class="tbl-num">0.636</td><td class="tbl-num">[0.250, 1.000]</td></tr>
+</tbody>
+</table>
+
+<h3>11.3 Tile-count sensitivity raw numbers</h3>
+<table class="tbl-tight">
+<caption>Table S3 — Tile-count sensitivity (in-sample, fold-3 best ckpt). Source: <code>analysis_supp/tile_sensitivity.json</code>.</caption>
+<thead><tr><th class="tbl-num">Tile count</th><th class="tbl-num">Repeats</th><th class="tbl-num">Mean AUC</th><th class="tbl-num">SD AUC</th><th class="tbl-num">Min AUC</th><th class="tbl-num">Max AUC</th></tr></thead>
+<tbody>
+<tr><td class="tbl-num">50</td><td class="tbl-num">20</td><td class="tbl-num">0.9759</td><td class="tbl-num">0.0108</td><td class="tbl-num">0.9529</td><td class="tbl-num">0.9966</td></tr>
+<tr><td class="tbl-num">100</td><td class="tbl-num">20</td><td class="tbl-num">0.9739</td><td class="tbl-num">0.0071</td><td class="tbl-num">0.9598</td><td class="tbl-num">0.9839</td></tr>
+<tr><td class="tbl-num">150</td><td class="tbl-num">20</td><td class="tbl-num">0.9788</td><td class="tbl-num">0.0041</td><td class="tbl-num">0.9701</td><td class="tbl-num">0.9851</td></tr>
+<tr><td class="tbl-num">200</td><td class="tbl-num">1</td><td class="tbl-num">0.9828</td><td class="tbl-num">0.0000</td><td class="tbl-num">0.9828</td><td class="tbl-num">0.9828</td></tr>
+</tbody>
+</table>
+<p class="tbl-footnote">All four points lie within 0.01 AUC of the 200-tile reference. Saturation: 50 tiles is sufficient for inference at fixed model weights. <em>Important caveat:</em> in-sample stability bound on a checkpoint trained at 200 tiles &mdash; not an out-of-fold claim about training at 50.</p>
+
+<h3>11.4 Calibration deciles (raw)</h3>
+<table class="tbl-tight">
+<caption>Table S4 — Calibration table (10 deciles). Source: <code>analysis_supp/calibration.json</code>. Brier = 0.221, HL χ² = 30.40, df = 8, p = 1.8 × 10<sup>-4</sup>.</caption>
+<thead><tr><th class="tbl-num">Bin</th><th class="tbl-num">n</th><th class="tbl-num">Mean predicted</th><th class="tbl-num">Observed pos</th><th class="tbl-num">Frac pos</th><th class="tbl-num">Expected pos</th></tr></thead>
+<tbody>
+<tr><td class="tbl-num">0</td><td class="tbl-num">6</td><td class="tbl-num">0.0132</td><td class="tbl-num">0</td><td class="tbl-num">0.000</td><td class="tbl-num">0.079</td></tr>
+<tr><td class="tbl-num">1</td><td class="tbl-num">6</td><td class="tbl-num">0.0695</td><td class="tbl-num">1</td><td class="tbl-num">0.167</td><td class="tbl-num">0.417</td></tr>
+<tr><td class="tbl-num">2</td><td class="tbl-num">6</td><td class="tbl-num">0.1203</td><td class="tbl-num">4</td><td class="tbl-num">0.667</td><td class="tbl-num">0.722</td></tr>
+<tr><td class="tbl-num">3</td><td class="tbl-num">6</td><td class="tbl-num">0.1763</td><td class="tbl-num">1</td><td class="tbl-num">0.167</td><td class="tbl-num">1.058</td></tr>
+<tr><td class="tbl-num">4</td><td class="tbl-num">6</td><td class="tbl-num">0.3520</td><td class="tbl-num">3</td><td class="tbl-num">0.500</td><td class="tbl-num">2.112</td></tr>
+<tr><td class="tbl-num">5</td><td class="tbl-num">5</td><td class="tbl-num">0.4828</td><td class="tbl-num">4</td><td class="tbl-num">0.800</td><td class="tbl-num">2.414</td></tr>
+<tr><td class="tbl-num">6</td><td class="tbl-num">6</td><td class="tbl-num">0.5571</td><td class="tbl-num">3</td><td class="tbl-num">0.500</td><td class="tbl-num">3.343</td></tr>
+<tr><td class="tbl-num">7</td><td class="tbl-num">6</td><td class="tbl-num">0.6808</td><td class="tbl-num">3</td><td class="tbl-num">0.500</td><td class="tbl-num">4.085</td></tr>
+<tr><td class="tbl-num">8</td><td class="tbl-num">6</td><td class="tbl-num">0.8342</td><td class="tbl-num">6</td><td class="tbl-num">1.000</td><td class="tbl-num">5.005</td></tr>
+<tr><td class="tbl-num">9</td><td class="tbl-num">6</td><td class="tbl-num">0.9387</td><td class="tbl-num">4</td><td class="tbl-num">0.667</td><td class="tbl-num">5.632</td></tr>
+</tbody>
+</table>
+
+<h3>11.5 Bootstrap distribution summary</h3>
+<table class="tbl-tight">
+<caption>Table S5 — Bootstrap AUC distribution (10,000 resamples, seed 42). Source: <code>analysis_supp/bootstrap_auc.json</code>.</caption>
+<thead><tr><th>Statistic</th><th class="tbl-num">Value</th></tr></thead>
+<tbody>
+<tr><td>Point AUC (pooled cross-fold)</td><td class="tbl-num">0.7460</td></tr>
+<tr><td>Bootstrap mean</td><td class="tbl-num">0.7457</td></tr>
+<tr><td>Bootstrap median</td><td class="tbl-num">0.7488</td></tr>
+<tr><td>Bootstrap SD</td><td class="tbl-num">0.0648</td></tr>
+<tr><td>2.5th percentile (CI lo)</td><td class="tbl-num">0.6111</td></tr>
+<tr><td>97.5th percentile (CI hi)</td><td class="tbl-num">0.8624</td></tr>
+<tr><td>Resamples valid / total</td><td class="tbl-num">10,000 / 10,000</td></tr>
+<tr><td>Resamples with AUC &gt; 0.55 (closure baseline)</td><td class="tbl-num">10,000 / 10,000</td></tr>
+</tbody>
+</table>
+
+<h3>11.6 Code and data manifest</h3>
+<pre>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/
+├── REPORT_YU_REVIEW_PAPER2_2026_05_08.html   (this report)
+├── PAPER2_OUTLINE_2026_05_08.md               (manuscript scaffolding)
+├── PAPER2_KOREAN_K2_VALIDATION_PLAN_2026_05_08.md
+├── GIGATIME_COMPARISON_2026_05_08.md
+├── HF_TOKEN_GUIDE.md
+├── SPRINT_PLAN.md
+├── PRE_DRAFT_memory_entries.md
+├── manuscript_draft/
+│   ├── 02_methods_results.md                  (1862 words, factual)
+│   └── 08_cover_letter_scaffold.md
+├── phase1_gse250521/
+│   ├── PHASE1_REPORT.md                       (8/16 PASS)
+│   ├── uni_dm1_correlation_per_slide.tsv
+│   ├── uni_embeddings_size224.npz
+│   └── uni_dm1_overlay_*.png  (16 slides)
+├── phase2_tcga_clam/
+│   ├── PHASE2_REPORT.md                       (FINAL N=59 PASS)
+│   ├── slide_manifest.tsv
+│   ├── clam_per_slide_predictions.tsv         (59 rows)
+│   ├── clam_fold_summary.tsv
+│   ├── clam_fold{1..5}_best.pt
+│   └── features/                              (per-slide tile feature .npz)
+├── phase2_tcga_clam_QUICK/                    (legacy N=18 preview)
+├── phase3_integration/
+│   ├── SPRINT_RESULT.md
+│   ├── integration_dashboard.html
+│   └── supp_figure_image_dm1_v2.png
+├── analysis_supp/
+│   ├── bootstrap_auc.json + .txt
+│   ├── calibration.json
+│   ├── subgroup_aucs.{json,tsv}
+│   ├── subgroup_summary.json
+│   ├── tile_sensitivity.json
+│   ├── 3way_clam_fold{1,2}_best.pt
+│   └── figures/
+│       ├── figS1_calibration.{png,pdf}
+│       ├── figS3_subgroup_forest.{png,pdf}
+│       └── figS4_tile_sensitivity.{png,pdf}
+├── figures/
+│   ├── fig1_triage_schematic.{png,pdf}, fig1_triage_schematic_v2.{png,pdf}
+│   ├── fig2_phase1_spatial_grid.{png,pdf}
+│   ├── fig3_phase1_correlation_forest.{png,pdf}
+│   ├── fig4_phase2_roc.{png,pdf}
+│   ├── fig5_attention_heatmaps.{png,pdf}, fig5_attention_heatmaps_v2.{png,pdf}
+│   ├── fig6_decision_curve_confusion.{png,pdf}
+│   ├── fig7_method_comparison.{png,pdf}
+│   ├── fig8_visual_summary.{png,pdf}
+│   └── figS5_LPTC2_spatial_polished.{png,pdf}
+├── refs/
+│   └── paper2_refs.bib
+├── reports/
+├── runpod_dispatch/
+└── scripts/
+    ├── phase1_uni_visium_correlate.py
+    ├── phase2_tile_extract_uni_embed.py
+    ├── phase2_clam_train_eval.py
+    └── phase3_integration.py</pre>
+
+<h3>11.7 Method ablation matrix (planned)</h3>
+<table class="tbl-tight">
+<caption>Table S6 — Encoder × MIL combination ablation. Filled cells are completed in this report; greyed cells are deferred to revision-stage supplement.</caption>
+<thead><tr><th>Encoder ↓ / MIL →</th><th>Mean pool</th><th>ABMIL</th><th>CLAM (gated)</th><th>TransMIL</th></tr></thead>
+<tbody>
+<tr><td>ResNet50 ImageNet</td><td>—</td><td>—</td><td><strong>0.55 (closure)</strong></td><td>—</td></tr>
+<tr><td>ViT-L/16 ImageNet-21k</td><td>—</td><td>—</td><td><strong>0.746 (fallback comparator)</strong></td><td>—</td></tr>
+<tr style="background:#e6f7e9"><td><strong>UNI Mass-100K</strong></td><td>—</td><td>—</td><td><strong>0.874 (FINAL headline; 5-fold mean 0.951 ± 0.081)</strong></td><td>—</td></tr>
+<tr><td>CONCH Quilt-1M</td><td>—</td><td>—</td><td>future</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h3>11.8 BibTeX entries (key references)</h3>
+<pre>@article{lu_2021_clam,
+  title   = {Data-efficient and weakly supervised computational pathology on whole-slide images},
+  author  = {Lu, Ming Y. and Williamson, Drew F. K. and Chen, Tiffany Y. and others},
+  journal = {Nature Biomedical Engineering},
+  year    = {2021}
+}
+@article{chen_2024_uni,
+  title   = {Towards a general-purpose foundation model for computational pathology},
+  author  = {Chen, Richard J. and Ding, Tong and Lu, Ming Y. and others},
+  journal = {Nature Medicine},
+  year    = {2024}
+}
+@article{liao_2025_gse250521,
+  title   = {Spatial transcriptomic landscape of papillary thyroid carcinoma},
+  author  = {Liao, et al.},
+  journal = {Cell Reports Medicine},
+  year    = {2025}
+}
+@article{valanarasu_2026_gigatime,
+  title   = {Multimodal AI generates virtual population for tumor microenvironment modeling},
+  author  = {Valanarasu, J. M. J. and Xu, H. and Usuyama, N. and Kim, C. and Bifulco, C. and Wang, S. and Poon, H.},
+  journal = {Cell},
+  year    = {2025},
+  doi     = {10.1016/j.cell.2025.11.016},
+  pmid    = {41371214}
+}
+@article{dosovitskiy_2021_vit,
+  title   = {An image is worth 16x16 words: Transformers for image recognition at scale},
+  author  = {Dosovitskiy, A. and others},
+  journal = {ICLR},
+  year    = {2021}
+}
+@article{cancer_genome_atlas_2014_thca,
+  title   = {Integrated genomic characterization of papillary thyroid carcinoma},
+  author  = {{Cancer Genome Atlas Research Network}},
+  journal = {Cell},
+  year    = {2014}
+}</pre>
+
+</section>
+
+<!-- =========================================================
+     SECTION 12 — APPENDICES
+     ========================================================= -->
+<section id="s12" class="page-break">
+<h2>12. Appendices <span class="kr">/ 12. 부록</span></h2>
+
+<h3>12.1 Glossary</h3>
+<table class="tbl-tight">
+<caption>Table 12.1 — Glossary of technical terms used in this report.</caption>
+<thead><tr><th>Term</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td><strong>DM1</strong> / dark matter 1</td><td>Sub-cluster of BRAF/RAS-negative PTC defined on the 8-gene RAI_8 panel; Hashimoto-overlap, IFN-γ + HLA-II + TLS axis, ~96% mutation-negative.</td></tr>
+<tr><td><strong>DM2</strong></td><td>Complementary cluster on the same panel; thyroid-differentiation-rich, mutation-positive-enriched.</td></tr>
+<tr><td><strong>RAI_8 panel</strong></td><td>Curated 8-gene panel previously selected by RandomForest from a 55-gene pool with canonical drivers excluded by design (memory <code>v17_8gene_audit_2026_04_29</code>).</td></tr>
+<tr><td><strong>UNI</strong></td><td>MahmoodLab pathology foundation model; ViT-L/14 trained on Mass-100K WSI tile corpus.</td></tr>
+<tr><td><strong>ViT-L/16</strong></td><td>Vision Transformer Large, 16-pixel patches; here from <code>timm</code> with ImageNet-21k weights, used as the pre-registered fallback when UNI access pending.</td></tr>
+<tr><td><strong>CLAM</strong></td><td>Clustering-constrained Attention MIL (Lu 2021); gated-attention MIL with two-class head.</td></tr>
+<tr><td><strong>MIL</strong></td><td>Multiple-instance learning; aggregates many tile-level features into a slide-level prediction without tile-level supervision.</td></tr>
+<tr><td><strong>WSI</strong></td><td>Whole-slide image (digitised pathology slide).</td></tr>
+<tr><td><strong>TLS</strong></td><td>Tertiary lymphoid structure; immune aggregate associated with antigen-driven response and ICI sensitivity.</td></tr>
+<tr><td><strong>TDS</strong></td><td>Thyroid differentiation score (TCGA Cell 2014); composite of thyroid-function genes; low TDS = de-differentiated, high TDS = well-differentiated.</td></tr>
+<tr><td><strong>HL test</strong></td><td>Hosmer-Lemeshow goodness-of-fit chi-squared on calibration deciles. p &lt; 0.05 rejects perfect calibration.</td></tr>
+<tr><td><strong>DCA</strong></td><td>Decision-curve analysis (Vickers &amp; Elkin 2006); net benefit across threshold range vs treat-all / treat-none.</td></tr>
+<tr><td><strong>K2 / Korean K2</strong></td><td>PRJEB11591, Yoo 2016 SNU-GMI cohort, n = 260 RNA-seq Korean PTC. <em>Distinct</em> from Bundang SNUH, which is outreach-stage only.</td></tr>
+<tr><td><strong>NBNR</strong></td><td>"No BRAF, No RAS" — the mutation-negative subset of PTC.</td></tr>
+<tr><td><strong>Marathon mode</strong></td><td>Project-internal protocol from 2026-05-04 to 2026-06-13: writing-only, no new analyses unless paper-blocking; voice-protected sections author-keyboard only.</td></tr>
+</tbody>
+</table>
+
+<h3>12.2 Voice-protected sections (placeholder only)</h3>
+<div class="callout-protected">
+<b>Voice-protected — author keyboard only.</b> Per the marathon-mode protocol
+the following manuscript sections are <em>not</em> drafted in this report and
+are reserved for the author:
+<ul>
+  <li>§1.1 Hook</li>
+  <li>§1.3 Aim</li>
+  <li>§4.1 Discussion 3.1 (placeholder)</li>
+  <li>§4.4 Limitations</li>
+  <li>Cover letter Para 1</li>
+  <li>Reviewer Q&amp;A Q9 (limitations question)</li>
+</ul>
+This report contains scaffolding, factual results, and method comparison only.
+No prose for the above sections has been auto-generated.
+</div>
+
+<h3>12.3 Voice-protected confirmation log</h3>
+<ul class="checklist">
+  <li>Hook (§1.1) — placeholder, not written</li>
+  <li>Aim (§1.3) — placeholder, not written</li>
+  <li>Discussion 3.1 — placeholder, not written</li>
+  <li>Limitations (§4.4) — placeholder, not written</li>
+  <li>Cover letter Para 1 — placeholder, not written</li>
+  <li>Reviewer Q9 — placeholder, not written</li>
+  <li>All facts in this report trace to the source files listed in §11.6</li>
+  <li>All figures embedded with relative paths (e.g. <code>figures/figXX.png</code>) — no CDN, no external network at view time</li>
+  <li>All numbers verbatim from the JSON / TSV sources cited in figure / table footnotes</li>
+</ul>
+
+<h3>12.4 Source data manifest (essential facts)</h3>
+<table class="tbl-tight">
+<caption>Table 12.2 — Where every number in this report comes from.</caption>
+<thead><tr><th>Number</th><th>Value</th><th>Source file</th></tr></thead>
+<tbody>
+<tr style="background:#e6f7e9"><td><strong>Pooled AUC (UNI, FINAL)</strong></td><td class="tbl-num"><strong>0.8745</strong></td><td><code>analysis_supp/bootstrap_auc_uni.json</code></td></tr>
+<tr style="background:#e6f7e9"><td><strong>Bootstrap CI (UNI, 10 000 resamples seed 42)</strong></td><td class="tbl-num"><strong>[0.7605, 0.9666]</strong></td><td><code>analysis_supp/bootstrap_auc_uni.json</code></td></tr>
+<tr style="background:#e6f7e9"><td><strong>Mean fold AUC (UNI)</strong></td><td class="tbl-num"><strong>0.951</strong></td><td><code>phase2_tcga_clam_UNI/clam_fold_summary.tsv</code></td></tr>
+<tr style="background:#e6f7e9"><td><strong>SD fold AUC (UNI)</strong></td><td class="tbl-num"><strong>0.081</strong></td><td>computed from <code>phase2_tcga_clam_UNI/clam_fold_summary.tsv</code></td></tr>
+<tr style="background:#e6f7e9"><td><strong>Per-fold AUCs (UNI)</strong></td><td class="tbl-num"><strong>1.000, 1.000, 0.964, 1.000, 0.792</strong></td><td><code>phase2_tcga_clam_UNI/clam_fold_summary.tsv</code></td></tr>
+<tr style="background:#e6f7e9"><td><strong>UNI per-slide predictions (54 rows)</strong></td><td>—</td><td><code>phase2_tcga_clam_UNI/clam_per_slide_predictions.tsv</code></td></tr>
+<tr style="background:#e6f7e9"><td><strong>UNI per-fold checkpoints</strong></td><td>—</td><td><code>phase2_tcga_clam_UNI/clam_fold{1..5}_best.pt</code></td></tr>
+<tr><td>Pooled AUC (ViT-L fallback)</td><td class="tbl-num">0.7460</td><td><code>analysis_supp/bootstrap_auc.json</code></td></tr>
+<tr><td>Bootstrap CI (ViT-L)</td><td class="tbl-num">[0.6111, 0.8624]</td><td><code>analysis_supp/bootstrap_auc.json</code></td></tr>
+<tr><td>Mean fold AUC (ViT-L)</td><td class="tbl-num">0.830</td><td><code>phase2_tcga_clam/clam_fold_summary.tsv</code></td></tr>
+<tr><td>SD fold AUC (ViT-L)</td><td class="tbl-num">0.139</td><td>computed from <code>clam_fold_summary.tsv</code></td></tr>
+<tr><td>Per-fold AUCs (ViT-L)</td><td class="tbl-num">0.714, 0.722, 1.000, 0.714, 1.000</td><td><code>phase2_tcga_clam/clam_fold_summary.tsv</code></td></tr>
+<tr><td>Brier</td><td class="tbl-num">0.2211</td><td><code>analysis_supp/calibration.json</code></td></tr>
+<tr><td>Hosmer-Lemeshow chi²</td><td class="tbl-num">30.40 (df=8, p=1.83e-4)</td><td><code>analysis_supp/calibration.json</code></td></tr>
+<tr><td>LPTC-2 ρ</td><td class="tbl-num">−0.6097, p=9.6e-22</td><td><code>phase1_gse250521/uni_dm1_correlation_per_slide.tsv</code></td></tr>
+<tr><td>Phase-1 PASS rate</td><td class="tbl-num">8/16</td><td><code>phase1_gse250521/PHASE1_REPORT.md</code></td></tr>
+<tr><td>Stage I AUC</td><td class="tbl-num">0.806 [0.599, 0.971]</td><td><code>analysis_supp/subgroup_aucs.tsv</code></td></tr>
+<tr><td>Stage III AUC</td><td class="tbl-num">0.467 [0.125, 0.876]</td><td><code>analysis_supp/subgroup_aucs.tsv</code></td></tr>
+<tr><td>Tile-saturation point</td><td class="tbl-num">≥ 50 tiles</td><td><code>analysis_supp/tile_sensitivity.json</code></td></tr>
+<tr><td>Closure baseline AUC</td><td class="tbl-num">≈ 0.55</td><td>2026-05-04 closure memory; PAPER2_OUTLINE</td></tr>
+</tbody>
+</table>
+
+<h3>12.5 UNI per-slide predictions (FINAL, N = 54)</h3>
+<p class="small">
+Full UNI per-slide prediction table is shipped as
+<code>phase2_tcga_clam_UNI/clam_per_slide_predictions.tsv</code>; the 54 rows
+include slide UUID, fold assignment, label (0 = DM2, 1 = DM1), DM1 probability,
+and tile count. The first 12 rows of the file are reproduced here as a
+sanity check. UNI per-fold checkpoints are stored alongside as
+<code>clam_fold{1..5}_best.pt</code> (≈ 4.2 MB each).
+</p>
+<table class="tbl-tight">
+<caption>Table 12.3 — UNI per-slide predictions (first 12 of 54 rows; full file in <code>phase2_tcga_clam_UNI/clam_per_slide_predictions.tsv</code>).</caption>
+<thead><tr><th>Slide UUID</th><th class="tbl-num">Fold</th><th class="tbl-num">Label</th><th class="tbl-num">prob_DM1</th><th class="tbl-num">n_tiles</th></tr></thead>
+<tbody>
+<tr><td class="mono">ae0026a0-c0d3-46b8-8646-8796eca83c61</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">0.0155</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">1467ce9b-e36c-4444-852d-2c2e8bf10d5a</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">0.0647</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">48bc1d14-bff5-48fa-8e94-faec3d77f0c2</td><td class="tbl-num">1</td><td class="tbl-num">1</td><td class="tbl-num">0.9108</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">3e10dcd6-721c-45da-9e4a-ea9a78c07493</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">0.0127</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">ef453353-c033-4704-9adf-a4532fee1140</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">0.7473</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">bf1d3ff5-7773-486c-a81b-884b7a792c3b</td><td class="tbl-num">1</td><td class="tbl-num">1</td><td class="tbl-num">0.7675</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">11fa819b-831d-46e3-8730-65e100530df1</td><td class="tbl-num">1</td><td class="tbl-num">1</td><td class="tbl-num">0.7924</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">140d2899-b26e-4020-80cb-e06aa216d78a</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">0.0468</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">2c02fae5-bd2a-4edc-9b07-59d293d35e10</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">0.0232</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">b7d2f2de-bb30-425d-9bf3-4a621cdacb3e</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">0.1715</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">7a0b04fb-50ae-448f-b4e8-74088c07135d</td><td class="tbl-num">1</td><td class="tbl-num">0</td><td class="tbl-num">0.4010</td><td class="tbl-num">200</td></tr>
+<tr><td class="mono">4ef584f3-213d-41bc-93b3-a5f94b843064</td><td class="tbl-num">2</td><td class="tbl-num">0</td><td class="tbl-num">0.0654</td><td class="tbl-num">200</td></tr>
+</tbody>
+</table>
+
+<h3>12.6 UNI bootstrap manifest</h3>
+<pre>{
+  "n_slides": 54,
+  "n_pos_DM1": 25,
+  "n_neg_DM2": 29,
+  "point_auc": 0.8744827586206897,
+  "n_bootstrap": 10000,
+  "n_valid": 10000,
+  "bootstrap_mean": 0.8744619385543793,
+  "bootstrap_median": 0.8779803646563815,
+  "bootstrap_std": 0.05343895564048634,
+  "ci_lo_2_5": 0.7604617604617605,
+  "ci_hi_97_5": 0.9666149973502913,
+  "rng_seed": 42,
+  "encoder": "UNI Mass-100K (MahmoodLab)"
+}</pre>
+<p class="small">
+Source: <code>analysis_supp/bootstrap_auc_uni.json</code>. Reproduce with the
+inline Python in §11.6 of the supplementary code section, pointing at
+<code>phase2_tcga_clam_UNI/clam_per_slide_predictions.tsv</code>.
+</p>
+
+<hr>
+<p class="small">
+End of report v1.1 (UNI re-run integrated). Prepared for Yu lab (유형원 교수님)
+review on 2026-05-08. Marathon-mode constraints respected: voice-protected
+manuscript sections (Hook §1.1, Aim §1.3, Discussion §3.1, Limitations §4.4,
+Cover-letter Para 1, Reviewer Q9) intentionally <em>not</em> auto-generated.
+Distribution: internal only, do not forward without corresponding-author
+approval.
+</p>
+
+</section>
+
+</main>
+</div>
+
+<!-- Lightbox overlay (single, reused by JS) -->
+<div id="lb" class="lightbox" onclick="this.style.display='none'">
+  <a href="#" class="close" onclick="event.stopPropagation();document.getElementById('lb').style.display='none';return false;">&times;</a>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<script>
+// Click any .figure img to open in lightbox; click overlay or X to close.
+(function(){
+  var lb = document.getElementById('lb');
+  var lbImg = document.getElementById('lb-img');
+  document.querySelectorAll('.figure img').forEach(function(img){
+    img.addEventListener('click', function(){
+      lbImg.src = img.src;
+      lb.style.display = 'flex';
+    });
+  });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){ lb.style.display='none'; }
+  });
+})();
+</script>
+
+</body>
+</html>

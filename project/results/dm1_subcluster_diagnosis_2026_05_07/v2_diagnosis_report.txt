@@ -1,0 +1,35 @@
+DM survival inversion — root-cause diagnosis + fix (v2 with PFI)
+===========================================================================
+
+Master TCGA-THCA n=513; merged with pancan PFI table.
+Event counts (low for OS — canonical THCA challenge):
+  OS  events = 20 / 594  (3.37%)
+  DSS events = 10 / 588  (1.70%)
+  DFI events = 33 / 416  (7.93%)
+  PFI events = 69 / 594  (11.62%)
+
+Sub-cluster file alignment problem:
+  Master DM1 n=110 ; subcluster_labels.tsv n=140 ; overlap n=17
+  → DM1 sub-A 12, sub-B 7, unassigned 112
+  This is an internal-versioning gap (different DM1 derivations).
+  → fix: re-derive sub-A/sub-B from the *current* master DM1 universe (separate sprint).
+
+Why 'survival ordering swapped':
+  - DM2 has highest OS event rate (6%) despite lowest advanced-stage % (16%)
+  - Reason: DM2 patients are older (median age 55.6y) → age dominates OS hazard
+  - DM1_subA/subB are younger (median 36y), 0 events in this small cohort
+  - not_DM has most advanced-stage (37%) but events spread thin over n=334
+  - On OS only, age confounds DM signal entirely.
+
+Why 'stage doesn't dramatically separate':
+  - DM2 is 50% Stage II (Hashimoto-like, indolent histology) vs Stage I dominant elsewhere
+  - DM1_unassigned + not_DM both ~30% Stage III/IV (similar)
+  - The transcriptomic axis (DM) is orthogonal to AJCC stage — not a contradiction;
+    AJCC stage measures size/extension at presentation, DM measures dedifferentiation biology.
+
+Recommended fix (already implemented in v2_dm_survival_endpoints_grid.png):
+  1. Switch primary endpoint from OS → PFI (canonical for THCA).
+  2. Adjust Cox for age + advanced-stage (age is dominant nuisance).
+  3. Split DM1 into sub-A / sub-B / unassigned in the figure (acknowledge versioning gap).
+  4. Report stage distribution per group as supplementary panel — frame as orthogonality, not contradiction.
+  5. Pair OS panel with PFI panel side-by-side to show why OS is uninformative (low events) and PFI is the right metric.

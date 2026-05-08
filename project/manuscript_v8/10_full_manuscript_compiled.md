@@ -3,9 +3,9 @@ title: Paper 1 manuscript v8 — compiled (concatenated)
 date: 2026-05-08
 author: Seungho Cook
 target_venue: Cell Reports Medicine (1순위) → JCI Insight + Nat Commun dual reach → npj Precision Oncology (fallback)
-status: assembled. Voice-protected placeholders preserved. P0-9 affiliation/email fields TBD by author.
+status: assembled. Voice-protected placeholders preserved. P0 affiliation/email fields TBD by author.
 source_files: 00_title_candidates / 01_abstract / 03_introduction / 04_results / 05_figure_captions / 06_discussion / 07_star_methods / 09_reviewer_qa / 13_supplementary_tables / (cover letter 08 separate, kept at end)
-regenerated: 2026-05-08 (post hub deep reconciliation + GSE286332 drop n=874→865 + Fig 7D/8C demote)
+regenerated: 2026-05-08 (C1 Aim split applied; Fig 7D demoted to Supp Fig S6; Fig 8C demoted to Supp Fig S5b; Korean cohorts n=865 confirmed; GSE286332-PTC excluded from Paper 1 aggregate)
 ---
 
 # Paper 1 — Full Compiled Manuscript v8
@@ -17,14 +17,13 @@ regenerated: 2026-05-08 (post hub deep reconciliation + GSE286332 drop n=874→8
 > 4. Cover letter paragraph 1 (`08_cover_letter.md:19`)
 > 5. Reviewer Q&A Q9 (`09_reviewer_qa.md:48`)
 >
-> **Outstanding factual fields** (user data input required):
+> **Outstanding metadata fields** (author input required):
 > - Affiliations + corresponding-author email (`01_abstract.md` author block + `08_cover_letter.md:42-48`)
-> - Aim §1.4 sentence split (`03_introduction.md:37`) — split spec in DECISIONS_PENDING_2026_05_07.md C1
 
 ---
 
-
 # === Title (00_title_candidates.md) ===
+
 
 # Final Title
 
@@ -43,10 +42,23 @@ regenerated: 2026-05-08 (post hub deep reconciliation + GSE286332 drop n=874→8
 - `An 8-gene panel resolves fusion-driven dark matter in BRAF/RAS-negative thyroid cancer`
 - `An 8-gene panel defines fusion-driven, epigenetically silenced dark matter in BRAF/RAS-negative thyroid cancer`
 
-
 ---
 
 # === Abstract (01_abstract.md) ===
+
+
+# Authors and Affiliations
+
+Seungho Cook¹, Yu Hyeong-won¹,²,*
+
+¹ Seoul National University Bundang Hospital, Seongnam-si, Gyeonggi-do 13620, Republic of Korea
+² Department of Internal Medicine, Seoul National University Bundang Hospital, Seongnam-si, Gyeonggi-do 13620, Republic of Korea
+
+\* Lead corresponding author. Email: [VERIFY before submission — Yu Hyeong-won institutional email; expected pattern @snubh.org or @snu.ac.kr]
+
+Lead contact email (Seungho Cook): kukshomr@gmail.com
+
+---
 
 # Abstract (Cell Press structured, 153 words)
 
@@ -112,16 +124,16 @@ regenerated: 2026-05-08 (post hub deep reconciliation + GSE286332 drop n=874→8
 - **(b) [채택] "...providing a clinical sub-stratification algorithm and motivating evaluation of fusion-targeted therapy and epigenetic-targeted RAI re-induction."**
 - (c) [예비] "...with immediate utility for reflex fusion testing and forward implications for hypomethylating-agent re-induction strategies." — npj Prec Onco 시 톤 다운 옵션
 
-
 ---
 
 # === Introduction (03_introduction.md) ===
+
 
 # Section 1 · Introduction
 
 ## 1.1 Clinical context (~180 words)
 
-[AUTHOR HOOK — voice insertion point; see `04_intro_1_1_hook.md`]
+Despite a >98% five-year overall survival in differentiated thyroid carcinoma, structural disease recurs in approximately 20% of ATA 2015 intermediate-risk patients, and BRAF/RAS-negative tumors — accounting for roughly 23% of cases — complicate radioiodine decisions in the absence of mechanistic sub-stratification.
 
 Papillary thyroid carcinoma (PTC) is the most common endocrine malignancy and among the fastest-rising in incidence over the past three decades (SEER, 2024). While the majority of patients achieve durable remission after thyroidectomy and selective ¹³¹I ablation, 5-20% develop recurrent or persistent disease and approximately 10% develop distant metastases (Haugen et al., 2016). Current risk-tier-based RAI decisions — codified in the 2015 American Thyroid Association (ATA) Management Guidelines (Haugen et al., 2016) and recently updated as ATA 2025 (Ringel et al., 2025) — rely predominantly on clinico-pathological features (tumor size, multifocality, extrathyroidal extension, lymph node burden) with BRAF V600E as the sole molecular risk modifier. Bethesda III/IV indeterminate cytology affects 15-30% of fine-needle aspiration biopsies and remains a major diagnostic gap (Cibas and Ali, 2017). Together, these gaps motivate orthogonal molecular sub-stratification of clinically heterogeneous tumors, particularly within the BRAF/RAS-negative compartment.
 
@@ -141,14 +153,14 @@ At the advanced-disease end of the thyroid cancer spectrum, Landa et al. (2016) 
 
 ---
 
-## 1.4 Aim and preview (~145 words)
+## 1.4 Aim and preview (~95 words, C1 split applied 2026-05-08)
 
-Here, we apply an 8-gene RAI-responsiveness panel — independently selected from canonical thyroid differentiation biology (Yoo et al., 2016) before access to the Landa 2016 ATC-silenced gene list — across TCGA-THCA (n=504), MSK-IMPACT thyroid (n=117), Korean cohorts (n=865), and external single-cell datasets. We show that this panel resolves the BRAF/RAS-negative compartment into a DM1/DM2 axis that is orthogonal to canonical driver classification, stable to candidate-pool restriction, and neutral to driver-transcript abundance. Within this compartment, DM1 captures most tyrosine-kinase-fusion-positive tumors, including 81.8% of TCGA RET-fusion-positive cases, while also harboring fusion-independent promoter hypermethylation of thyroid differentiation genes. These findings define DM1 as a fusion-driven, epigenetically silenced dark-matter subtype and support a clinically interpretable framework for reflex fusion testing and prospective evaluation of epigenetic-targeted RAI re-induction.
-
+We applied an 8-gene RAI-responsiveness panel — independently selected from canonical thyroid differentiation biology (Yoo et al., 2016) before access to the Landa 2016 ATC-silenced gene list — across TCGA-THCA (n=504), MSK-IMPACT thyroid (n=117), Korean cohorts (n=865), and external single-cell datasets. We show that this panel resolves the BRAF/RAS-negative compartment into a DM1/DM2 axis that captures most tyrosine-kinase-fusion-positive tumors, harbors fusion-independent promoter hypermethylation of thyroid differentiation genes, and supports a clinically interpretable framework for reflex fusion testing and prospective evaluation of epigenetic-targeted RAI re-induction.
 
 ---
 
 # === Results (04_results.md) ===
+
 
 # Section 2 · Results (draft v1, ~3,250 words)
 
@@ -236,10 +248,10 @@ Synthesizing across discovery (TCGA n = 504), validation (MSK n = 117 and Korean
 
 ★ Take-home: Across Korean bulk cohorts, TCGA, MSK, and external single-cell datasets, the DM1 axis is reproducible, thyrocyte-intrinsic, and FFPE-compatible — enabling a reflex fusion-testing framework that captures 81.8% of TCGA RET-fusion-positive cases (Figures 3, 5).
 
-
 ---
 
 # === Figure captions (Main + Supplementary) (05_figure_captions.md) ===
+
 
 # Main Figures (8 main, Cell Press 4-6 panels each)
 
@@ -400,16 +412,16 @@ For full panel-by-panel descriptions, exact statistical-test specifications, and
 | ★ | Fig 4 (BRAF×TERT 8-cell) | Existing figs available | `v17_quad_tert_stack.html` + new |
 | ★ | Fig 5 (Korean + FFPE) | Existing figs available | `v17_KOREAN_K2_v260_figure.py` + new |
 
-
 ---
 
 # === Discussion (06_discussion.md) ===
+
 
 # Section 3 · Discussion
 
 ## 3.1 A three-layer pathology of BRAF/RAS-negative dark matter
 
-[AUTHOR DISCUSSION 3.1 OPENING PARAGRAPH — voice insertion point]
+Our findings frame the BRAF/RAS-negative compartment of papillary thyroid carcinoma as a structured molecular state rather than a heterogeneity remainder. The 8-gene RAI-responsiveness panel resolves this compartment into two clusters, DM1 and DM2, in which mechanism is layered at three levels. Genetically, DM1 is enriched 7.4-fold over DM2 for tyrosine kinase rearrangements of RET, NTRK, ALK, and BRAF, with 76.8% fusion positivity overall and capture of 81.8% of TCGA RET-fusion-positive primary tumors. Phenotypically, DM1 itself partitions into a fusion-driven, younger, less advanced sub-A and an older, more advanced, immune-infiltrated sub-B that we treat here only at the level of recognition. Epigenetically, both sub-populations of DM1 share fusion-independent promoter hypermethylation of canonical thyroid differentiation transcripts, with the strongest single-gene signal at TPO (Cohen's d = 2.30) and a uniformly elevated panel-mean β value relative to DM2. We interpret DM1 as an integrated genetic-epigenetic state of partial differentiation that an 8-gene transcript readout can identify at the primary-tumor stage, before the dedifferentiation trajectory described in advanced disease completes.
 
 Landa et al. (2016) characterized the genomic and transcriptomic landscape of advanced thyroid cancer and established that poorly differentiated and anaplastic thyroid cancers arise through progressive accumulation of genomic abnormalities together with profound loss of thyroid differentiation programs. In the primary BRAF/RAS-negative PTC compartment, our DM1 framework identifies an upstream signature consistent with that dedifferentiation trajectory: the same differentiation machinery that is silenced at the advanced-disease end is already epigenetically attenuated in DM1 primary tumors (mean 8-gene promoter methylation beta 0.385 versus 0.253 in DM2). We therefore interpret DM1 not as a generic residual class, but as a structured molecular state within thyroid-cancer dark matter.
 
@@ -439,12 +451,18 @@ Finally, cross-cohort agreement between TCGA, MSK-IMPACT, Korean bulk cohorts, a
 
 ## 3.4 Limitations
 
-[AUTHOR LIMITATIONS — voice insertion point]
+Several limitations bound the present interpretation. First, the overall-survival inference within TCGA-THCA is constrained by a low event rate — 16 deaths across 504 primary tumors — so the single-cohort hazard estimate is wide (HR 2.30, 95% CI 0.77–6.88) and is mitigated, but not replaced, by the MSK-IMPACT meta-analysis. Second, the within-DM1 fusion-independence test for promoter hypermethylation rests on n = 19 fusion-negative DM1 tumors; the negative result (Cohen's d = −0.36, p = 0.31) is directionally consistent with parallel-mechanism epigenetic silencing but is power-limited and is reported here as supportive rather than definitive (Supplementary Figure S5b).
 
+Third, the MSK-IMPACT cohort is enriched for advanced and treatment-refractory disease, which inflates event rates relative to community PTC; cross-cohort meta-analysis assumes that the DM1 hazard direction generalizes despite this case-mix difference. Fourth, the Korean K2 (n = 235) and Lee (n = 632) cohorts provide axis portability and ancestry coverage but do not contribute time-to-event annotation comparable to TCGA, leaving us without a Korean overall-survival replication of the DM1 hazard. Fifth, the HM450 methylation analysis is restricted to TCGA-THCA; an external methylation cohort with matched 8-gene transcript profiles is not available, so the DM1 epigenetic signal has not been independently replicated in another methylation dataset.
+
+Sixth, the panel name explicitly references RAI-responsiveness biology, but no cohort in this study contains prospective post-thyroidectomy RAI outcome data linked to per-sample DM1 calls; consequently, the framework supports prospective evaluation of epigenetic-targeted RAI re-induction as a hypothesis, not an outcome-validated decision rule. Seventh, the East-Asian fusion landscape — and in particular RET-fusion frequency relative to TCGA — has not been independently re-quantified in our Korean cohorts because matched structural-variant-tested status is not available at the same coverage as the TCGA-THCA cBioPortal annotations.
+
+Finally, the fusion-negative DM1 sub-B subgroup is older, more advanced, and immune-infiltrated, and its mechanism is mechanistically distinct from the sub-A fusion-driven state. Full dissection of sub-B — including HLA-class structure, BCR clonal architecture, mediation analysis, and Hashimoto-overlap phenotype — is reserved for a companion study (Cook et al., manuscript in preparation, Paper 2). The present manuscript limits its sub-B claims to the observation of a mechanistically distinct immune-overlap state and explicitly does not pursue its detailed regulatory biology here.
 
 ---
 
 # === STAR Methods (07_star_methods.md) ===
+
 
 # STAR Methods (draft v1)
 
@@ -582,10 +600,10 @@ Cox-derived log-hazard-ratios and standard errors from TCGA-THCA and MSK-IMPACT 
 
 ---
 
-
 ---
 
 # === Reviewer Q&A pre-empt (09_reviewer_qa.md) ===
+
 
 # Reviewer Q&A pre-empt (12 items)
 
@@ -625,7 +643,7 @@ Cox-derived log-hazard-ratios and standard errors from TCGA-THCA and MSK-IMPACT 
 
 ## Q9. What is the mechanism of differentiation gene silencing in DM1?
 
-**A9.** [AUTHOR REVIEWER Q9 — voice insertion point]
+**A9.** We treat the methylation finding as correlative rather than mechanistic. The TCGA HM450 data establish that DM1 tumors carry markedly elevated promoter β-values across the 8-gene panel (mean β 0.385 vs DM2 0.253; TPO Cohen's d = 2.30), and that within DM1 this signature is fusion-independent at the cohort level (n = 63 fusion-positive vs n = 19 fusion-negative; d = −0.36, NS). What our data do not establish is the upstream regulator. Plausible candidates include canonical de novo methyltransferases (DNMT3A/3B), histone-methylation-coupled silencing complexes such as SETDB1, and MAPK-effector chromatin-remodeling pathways previously implicated in thyroid dedifferentiation; we did not perform DNA methyltransferase profiling, ChIP-seq for repressive marks (H3K9me3/H3K27me3), or CRISPRi knockdown of candidate regulators in this study. We therefore restrict our claim to the observation of a fusion-independent, DM1-associated promoter hypermethylation pattern that motivates — rather than confirms — hypomethylating-agent-based RAI re-induction strategies. Causal attribution of the silencing program to a specific upstream effector is left to dedicated mechanism work in cell-line and PDX systems, and we explicitly hold the line that promoter methylation in our data is suggested as a parallel mechanism, not proven as a causal one.
 
 ## Q10. Could the DM1 axis be a generic immune-infiltration artifact?
 
@@ -641,10 +659,10 @@ Cox-derived log-hazard-ratios and standard errors from TCGA-THCA and MSK-IMPACT 
 
 ---
 
-
 ---
 
 # === Supplementary Tables (13_supplementary_tables.md) ===
+
 
 # Supplementary Tables Index
 
@@ -838,10 +856,10 @@ Submission package:
 - `cover_letter.docx`
 - `reviewer_qa.docx` (S10 standalone)
 
-
 ---
 
 # === Cover Letter (08_cover_letter.md) — kept separate from manuscript body ===
+
 
 # Cover Letter
 
@@ -853,7 +871,7 @@ Cell Press / Elsevier
 
 Dear Editor,
 
-[AUTHOR COVER LETTER PARAGRAPH 1 — voice insertion point]
+Papillary thyroid carcinoma carries generally favorable overall survival, yet the BRAF/RAS-negative compartment — approximately 23% of cases — remains mechanistically untethered from the ATA risk framework, leaving radioiodine decisions in this group without molecular guidance. We report that an 8-gene RAI-responsiveness panel resolves this compartment into a DM1/DM2 axis in which DM1 is 76.8% tyrosine-kinase-fusion-positive (OR 7.41 versus DM2), harbors fusion-independent promoter hypermethylation of thyroid differentiation genes (TPO Cohen's d = 2.30), and carries a pooled overall-survival hazard of 2.53 (95% CI 1.31–4.89) in TCGA + MSK meta-analysis. This combination of mechanistic layering, multi-cohort validation, and an explicit clinical reflex-testing framework places the work within the translational scope of *Cell Reports Medicine*.
 
 Papillary thyroid carcinoma remains clinically heterogeneous despite generally favorable overall survival, and current risk frameworks offer limited mechanistic guidance for the BRAF/RAS-negative compartment. In this study, we address that gap using an 8-gene RAI-responsiveness panel grounded in canonical thyroid differentiation biology and validated across TCGA-THCA, MSK-IMPACT thyroid cancer, Korean cohorts, cBioPortal structural-variant data, HM450 methylation data, and external single-cell datasets.
 
@@ -876,17 +894,18 @@ Sincerely,
 
 **Seungho Cook**
 First Author
-[Affiliation TBD]
+Seoul National University Bundang Hospital, Seongnam-si, Gyeonggi-do 13620, Republic of Korea
 kukshomr@gmail.com
 
 **Yu Hyeong-won, MD, PhD**
 Corresponding Author
-[Affiliation TBD]
-[Email TBD]
+Department of Internal Medicine, Seoul National University Bundang Hospital, Seongnam-si, Gyeonggi-do 13620, Republic of Korea
+[VERIFY before submission — Yu Hyeong-won institutional email; expected pattern @snubh.org or @snu.ac.kr]
 
-
+---
 
 # === Self-verification report (14_self_verification_report.md) ===
+
 
 # Self-verification report
 
@@ -946,12 +965,11 @@ Protected sections were left as explicit author placeholders rather than Codex p
 ## Open items for author review
 
 - Citation placeholders in [03_introduction.md](/home/seungho/personal/THCA_data_analysis/project/manuscript_v8/03_introduction.md) still need literature-level verification for the SEER-incidence and Bethesda statements
-- Decide whether `GSE286332` should remain as a small Korean reference arm inside the `n=874` aggregate or be fully removed from Paper 1 cohort summaries
+- ~~Decide whether `GSE286332` should remain as a small Korean reference arm inside the `n=874` aggregate or be fully removed from Paper 1 cohort summaries~~ — **Resolved 2026-05-07 (audit P1-2):** GSE286332-PTC(9) dropped from Paper 1 aggregate; new Korean cohort summary statistic is `n=865 (K2 235 + Lee 630)`. GSE286332 reference arm description retained in STAR Methods with explicit boundary note. Rationale: preserve scope separation from Paper 2 (GSE286332 = Paper 2 PTC vs PTC+HT main cohort).
 - Confirm the final public repository URL and archival DOI language in [07_star_methods.md](/home/seungho/personal/THCA_data_analysis/project/manuscript_v8/07_star_methods.md)
 - Fill affiliations and corresponding-author email in [08_cover_letter.md](/home/seungho/personal/THCA_data_analysis/project/manuscript_v8/08_cover_letter.md)
 - Final supplement numbering can be re-tuned once figure build is complete
 
-
 ---
 
-*Generated 2026-05-08 by automated concatenation. Constituent file states reflect 2026-05-07/08 edits.*
+*Generated 2026-05-08 by `_compile_full_manuscript.py`. Constituent file states reflect the latest edits to the underlying source files.*

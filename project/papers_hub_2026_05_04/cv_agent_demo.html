@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumenix · Cancer Vaccine Agent · Live Demo (25 tools)</title>
+<style>
+:root{
+  --bg:#070b12;--panel:#0d1422;--panel2:#172338;--ink:#eef5ff;--ink-2:#d8e2f3;
+  --muted:#9fb0c7;--mute2:#7a8aa3;--line:#24324a;--line2:#33455f;
+  --emerald:#35d39d;--emerald-2:#1c8e6d;--teal:#32b8c6;--amber:#f2b84b;
+  --rose:#ef5f79;--violet:#9b7cff;--blue:#65a9ff;--ember:#ff8a3d;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:
+  radial-gradient(circle at 18% 2%,rgba(53,211,157,.15),transparent 30%),
+  radial-gradient(circle at 82% 8%,rgba(155,124,255,.13),transparent 28%),
+  radial-gradient(circle at 50% 110%,rgba(50,184,198,.10),transparent 50%),
+  linear-gradient(180deg,#070b12 0%,#0a101b 46%,#070b12 100%);
+  color:var(--ink);font-family:'IBM Plex Sans','Noto Sans KR',system-ui,sans-serif;min-height:100vh;
+  overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;z-index:0;
+  background-image:radial-gradient(rgba(255,255,255,.22) 1px, transparent 1px);
+  background-size:24px 24px;mask-image:linear-gradient(180deg,#000 0%,transparent 88%)}
+a{color:var(--emerald);text-decoration:none}
+.wrap{max-width:1500px;margin:0 auto;padding:18px 22px 80px;position:relative;z-index:1}
+.nav{display:flex;align-items:center;gap:18px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.08);
+  background:rgba(7,11,18,.85);backdrop-filter:blur(10px);position:sticky;top:0;z-index:50}
+.brand{display:flex;align-items:center;gap:11px;font-family:'Space Grotesk',monospace;font-weight:700}
+.brand-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--emerald),var(--violet));
+  display:grid;place-items:center;color:#06100c;font-weight:800;
+  box-shadow:0 0 0 3px rgba(53,211,157,.12), 0 8px 22px -6px rgba(53,211,157,.4)}
+.brand-sub{font-size:9px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;font-weight:500;font-family:'JetBrains Mono',monospace;line-height:1.4}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--emerald);
+  box-shadow:0 0 0 0 rgba(53,211,157,.55);animation:pulseDot 1.6s infinite;margin-right:6px}
+@keyframes pulseDot{0%{box-shadow:0 0 0 0 rgba(53,211,157,.45)}70%{box-shadow:0 0 0 12px rgba(53,211,157,0)}100%{box-shadow:0 0 0 0 rgba(53,211,157,0)}}
+
+.btn{border:1px solid var(--line2);border-radius:8px;padding:8px 14px;background:rgba(255,255,255,.04);
+  color:var(--ink);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:.04em;transition:all .15s}
+.btn:hover{border-color:var(--emerald);transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,var(--emerald),var(--emerald-2));color:#06100c;border:0;font-weight:800}
+.btn.violet{background:linear-gradient(135deg,#7e62e5,#5b3fbf);color:#fff;border:0;font-weight:700}
+.btn.amber{background:linear-gradient(135deg,#f2b84b,#d99422);color:#1f1407;border:0;font-weight:800}
+
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(380px,.95fr);gap:28px;align-items:start;margin:18px 0 22px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:46px;line-height:1.02;margin:0 0 14px;letter-spacing:-.01em;font-weight:700}
+.hero h1 .grad{background:linear-gradient(92deg,var(--emerald) 0%,var(--teal) 38%,var(--violet) 78%);-webkit-background-clip:text;color:transparent}
+.hero .dek{color:#d6e2f1;line-height:1.55;font-size:15px;max-width:670px}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;font-size:10.5px;letter-spacing:.04em;
+  border-radius:9999px;border:1px solid var(--line);background:rgba(255,255,255,.035);color:var(--muted);
+  font-family:'JetBrains Mono',monospace}
+.tag.em{color:var(--emerald);border-color:rgba(53,211,157,.40);background:rgba(53,211,157,.08)}
+.tag.tl{color:var(--teal);border-color:rgba(50,184,198,.40);background:rgba(50,184,198,.08)}
+.tag.am{color:var(--amber);border-color:rgba(242,184,75,.40);background:rgba(242,184,75,.08)}
+.tag.vi{color:var(--violet);border-color:rgba(155,124,255,.40);background:rgba(155,124,255,.08)}
+
+.kpi-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.kpi{border:1px solid var(--line);background:rgba(255,255,255,.035);border-radius:10px;padding:11px 13px}
+.kpi b{display:block;font-family:'Space Grotesk',monospace;font-size:22px;color:var(--emerald);line-height:1;font-weight:700}
+.kpi span{display:block;font-size:11px;color:var(--muted);margin-top:6px}
+
+/* tool grid (right column) — 25 tools that light up as agent fires them */
+.toolwall{border:1px solid var(--line);background:rgba(13,20,34,.92);border-radius:14px;padding:16px;
+  box-shadow:0 18px 60px -10px rgba(0,0,0,.45);position:sticky;top:80px}
+.toolwall h4{margin:0 0 10px;font-size:13px;color:var(--ink);font-family:'Space Grotesk',sans-serif;display:flex;justify-content:space-between;align-items:center}
+.toolwall h4 .live{font-size:9.5px;color:var(--emerald);font-family:'JetBrains Mono',monospace;letter-spacing:.10em}
+.tg{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.t-cell{aspect-ratio:1;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.025);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--mute2);position:relative;transition:all .35s ease;cursor:help}
+.t-cell:hover{transform:translateY(-2px);border-color:var(--blue)}
+.t-cell .id{font-size:13px;color:var(--ink-2);font-weight:700;line-height:1}
+.t-cell .name{font-size:8px;color:var(--mute2);margin-top:2px;text-align:center;line-height:1.15;padding:0 3px}
+.t-cell.queued{}
+.t-cell.run{border-color:var(--amber);background:rgba(242,184,75,.10);box-shadow:0 0 0 0 rgba(242,184,75,.3);animation:tcellPulse 1.2s infinite}
+.t-cell.done{border-color:var(--emerald);background:rgba(53,211,157,.10)}
+.t-cell.done .id{color:var(--emerald)}
+.t-cell.done .name{color:var(--emerald)}
+.t-cell.done::after{content:"✓";position:absolute;top:3px;right:5px;font-size:9px;color:var(--emerald)}
+@keyframes tcellPulse{0%{box-shadow:0 0 0 0 rgba(242,184,75,.4)}70%{box-shadow:0 0 0 8px rgba(242,184,75,0)}100%{box-shadow:0 0 0 0 rgba(242,184,75,0)}}
+
+.flags-mini{margin-top:14px}
+.flag{display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:7px;
+  border:1px solid transparent;background:rgba(255,255,255,.03);margin-bottom:5px;font-size:11.5px;line-height:1.45}
+.flag.PASS{border-color:rgba(53,211,157,.30);background:rgba(53,211,157,.06);color:#bff0d8}
+.flag.WARN{border-color:rgba(242,184,75,.32);background:rgba(242,184,75,.06);color:#f7d997}
+.flag.ERROR{border-color:rgba(239,95,121,.34);background:rgba(239,95,121,.07);color:#f9a7b5}
+.flag .lvl{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.10em;font-weight:700;flex-shrink:0;width:38px}
+
+/* main chat area (left) */
+.chatbox{border:1px solid var(--line);background:rgba(8,13,22,.92);border-radius:14px;
+  display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 18px 60px -10px rgba(0,0,0,.5);min-height:650px}
+.chat-head{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;
+  border-bottom:1px solid var(--line);font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);
+  background:linear-gradient(180deg,rgba(17,26,43,.6),transparent)}
+.chat-head .left{display:flex;gap:10px;align-items:center}
+.chat-head .left b{color:var(--ink);font-weight:600}
+.chat-head .right{display:flex;gap:8px;align-items:center}
+.messages{flex:1;padding:18px;overflow:auto;display:flex;flex-direction:column;gap:10px;max-height:760px}
+.messages::-webkit-scrollbar{width:6px}.messages::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+.msg{max-width:96%;border:1px solid var(--line);border-radius:11px;padding:12px 14px;line-height:1.55;
+  animation:fadeUp .25s ease-out both;font-size:13.5px}
+.msg.user{align-self:flex-end;background:rgba(53,211,157,.12);border-color:rgba(53,211,157,.38);color:var(--ink)}
+.msg.agent{align-self:flex-start;background:rgba(255,255,255,.035);color:var(--ink-2)}
+.msg.stage{align-self:flex-start;background:rgba(101,169,255,.07);border-color:rgba(101,169,255,.32);width:97%;font-size:13px}
+.msg.tool{align-self:flex-start;background:rgba(155,124,255,.06);border-color:rgba(155,124,255,.30);width:97%;font-size:12.5px;font-family:'JetBrains Mono',monospace}
+.msg.alert{align-self:flex-start;background:rgba(242,184,75,.07);border-color:rgba(242,184,75,.42);width:97%}
+.msg.error{align-self:flex-start;background:rgba(239,95,121,.08);border-color:rgba(239,95,121,.45);width:97%}
+.msg.result{align-self:flex-start;background:rgba(53,211,157,.07);border-color:rgba(53,211,157,.42);width:97%}
+.msg .role-tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9px;
+  letter-spacing:.10em;text-transform:uppercase;color:var(--mute2);margin-bottom:5px}
+.msg.tool .role-tag{color:var(--violet)}
+.msg.alert .role-tag{color:var(--amber)}.msg.result .role-tag{color:var(--emerald)}
+.msg.stage .role-tag{color:var(--blue)}.msg.error .role-tag{color:var(--rose)}
+.msg pre{margin:6px 0 0;background:#06101a;color:#cce4ff;padding:9px 12px;border-radius:7px;
+  font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.5;overflow-x:auto;
+  white-space:pre-wrap;word-break:break-word;max-height:240px}
+.msg details summary{cursor:pointer;color:var(--violet);font-size:10.5px;font-family:'JetBrains Mono',monospace;margin-top:4px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.chips{display:flex;gap:7px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--line);background:rgba(13,20,34,.4);max-height:220px;overflow-y:auto}
+.chips::-webkit-scrollbar{width:5px}.chips::-webkit-scrollbar-thumb{background:rgba(255,255,255,.08);border-radius:3px}
+.chip-btn{border:1px solid var(--line2);background:#0d1422;color:var(--ink);border-radius:9999px;
+  padding:7px 12px;font-size:11.5px;cursor:pointer;font-family:'IBM Plex Sans','Noto Sans KR',sans-serif;transition:all .15s}
+.chip-btn:hover{border-color:var(--emerald);background:rgba(53,211,157,.08);color:var(--emerald)}
+.chip-btn.star{background:linear-gradient(135deg,rgba(155,124,255,.18),rgba(53,211,157,.10));border-color:rgba(155,124,255,.45);color:#dbcfff}
+.chip-btn.star:hover{border-color:var(--violet);color:var(--violet)}
+
+.inputbar{display:flex;gap:10px;padding:13px;border-top:1px solid var(--line);background:#090f19}
+.inputbar input{flex:1;border:1px solid var(--line2);background:#07101a;color:var(--ink);
+  border-radius:8px;padding:12px 14px;font-size:14px;font-family:'IBM Plex Sans','Noto Sans KR',sans-serif}
+.inputbar input:focus{outline:none;border-color:var(--emerald)}
+.inputbar button{border:0;background:linear-gradient(135deg,var(--emerald),var(--emerald-2));
+  color:#06100c;border-radius:8px;padding:0 18px;font-weight:800;font-family:'JetBrains Mono',monospace;cursor:pointer;font-size:12px}
+.inputbar button:disabled{opacity:.5;cursor:wait}
+.inputbar .reportbtn{background:linear-gradient(135deg,#7e62e5,#5b3fbf);color:#fff}
+
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:18px}
+@media(max-width:1280px){.layout{grid-template-columns:1fr}.toolwall{position:relative;top:auto}.tg{grid-template-columns:repeat(8,1fr)}.hero{grid-template-columns:1fr}}
+
+/* progress bar */
+.progress{height:5px;background:rgba(255,255,255,.05);border-radius:99px;overflow:hidden;margin:6px 16px;display:none}
+.progress.on{display:block}
+.progress div{height:100%;background:linear-gradient(90deg,var(--emerald),var(--teal),var(--violet));
+  width:0%;transition:width .35s ease;background-size:200% 100%;animation:progBg 2s linear infinite}
+@keyframes progBg{0%{background-position:0% 0}100%{background-position:200% 0}}
+
+/* counter animation */
+.kpi b.counting{transition:color .25s}
+.fig-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 0}
+.fig-strip .fig{border:1px solid var(--line);border-radius:8px;background:#fff;overflow:hidden;cursor:zoom-in;transition:transform .2s}
+.fig-strip .fig:hover{transform:scale(1.04);border-color:var(--emerald)}
+.fig-strip img{width:100%;display:block}
+.fig-strip .cap{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--mute2);padding:5px 7px;background:#0a111d;border-top:1px solid var(--line)}
+
+.foot{margin-top:24px;color:var(--muted);font-size:11px;font-family:'JetBrains Mono',monospace;
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;padding-top:12px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<div class="nav">
+  <div class="brand">
+    <div class="brand-mark">L</div>
+    <div>
+      <div>Lumenix · Cancer Vaccine Agent</div>
+      <div class="brand-sub">SPARK-architecture · 25 tools · live PDAC PoC</div>
+    </div>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:10px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">
+    <span><span class="live-dot"></span><span id="serverStatus">connecting…</span></span>
+    <a href="cancer_vaccine_agent.html" target="_blank" class="btn">full landing</a>
+    <a href="lumenix_executive_report.html" target="_blank" class="btn primary">★ executive report</a>
+    <a href="paper_pdac_g12d.html" target="_blank" class="btn">1-page paper</a>
+    <a href="https://www.nature.com/articles/s41591-026-04357-y" target="_blank" class="btn violet">Nat Med 2026 SPARK</a>
+  </div>
+</div>
+
+<div class="wrap">
+  <!-- ★★★★ PAN-CANCER BANNER -->
+  <section style="margin:14px 0 12px;padding:18px 22px;border-radius:14px;
+    border:3px solid var(--violet);
+    background:linear-gradient(135deg,rgba(155,124,255,.22),rgba(101,169,255,.10));
+    box-shadow:0 0 0 1px rgba(155,124,255,.30), 0 18px 50px -12px rgba(155,124,255,.30)">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;color:var(--violet);font-weight:700;font-size:11px;letter-spacing:.20em;text-transform:uppercase;margin-bottom:6px">★★★★ PAN-CANCER KRAS BLAST · 14 cohorts · n ≈ 60,000 patients · 8 cores · 50 sec</div>
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:23px;line-height:1.1;font-weight:700;color:var(--white)">
+        Pan-cancer KRAS allele meta-HRs (all p ≈ 0):
+      </h2>
+      <table style="margin-top:12px;width:100%;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--ink-2);border-collapse:collapse">
+        <thead><tr style="color:var(--mute2);text-align:left"><th style="padding:5px 8px">Allele</th><th style="padding:5px 8px;text-align:right">pooled HR</th><th style="padding:5px 8px">95% CI</th><th style="padding:5px 8px;text-align:right">k</th><th style="padding:5px 8px;text-align:right">n</th></tr></thead>
+        <tbody>
+        <tr><td style="padding:5px 8px;color:var(--violet);font-weight:700">G12R ★ worst</td><td style="padding:5px 8px;text-align:right;color:var(--violet);font-weight:700">1.99</td><td style="padding:5px 8px">1.82 – 2.18</td><td style="padding:5px 8px;text-align:right">4</td><td style="padding:5px 8px;text-align:right">57,914</td></tr>
+        <tr><td style="padding:5px 8px;color:var(--white)">G12D</td><td style="padding:5px 8px;text-align:right;color:var(--white)">1.73</td><td style="padding:5px 8px">1.66 – 1.81</td><td style="padding:5px 8px;text-align:right">8</td><td style="padding:5px 8px;text-align:right">59,926</td></tr>
+        <tr><td style="padding:5px 8px">G12V</td><td style="padding:5px 8px;text-align:right">1.56</td><td style="padding:5px 8px">1.49 – 1.64</td><td style="padding:5px 8px;text-align:right">7</td><td style="padding:5px 8px;text-align:right">59,510</td></tr>
+        <tr><td style="padding:5px 8px">G12C</td><td style="padding:5px 8px;text-align:right">1.40</td><td style="padding:5px 8px">1.32 – 1.49</td><td style="padding:5px 8px;text-align:right">6</td><td style="padding:5px 8px;text-align:right">59,327</td></tr>
+        <tr><td style="padding:5px 8px">G13D</td><td style="padding:5px 8px;text-align:right">1.18</td><td style="padding:5px 8px">1.08 – 1.29</td><td style="padding:5px 8px;text-align:right">6</td><td style="padding:5px 8px;text-align:right">59,242</td></tr>
+        </tbody>
+      </table>
+      <p style="margin:12px 0 0;color:var(--ink-2);font-size:13px;line-height:1.55">
+        <strong style="color:var(--violet)">Tissue-specificity discovery:</strong>
+        pan-cancer pooled <strong>G12R = WORST allele (HR 1.99)</strong> while in PDAC alone <strong>G12R is the BEST hotspot allele</strong> (Hayashi 2021 + our T26 replication). The PDAC-G12R-better-OS pattern is therefore tissue-context-specific, not a general KRAS biology rule.
+        Anchor cohorts: MSK-CHORD 2024 (n=25,040) · MSK-MetTropism 2021 (n=24,561) · MSK-IMPACT 2017 (n=8,130) · 5 TCGA Pan-Cancer · ProcessPoolExecutor 8 cores · 50 sec end-to-end.
+      </p>
+    </div>
+  </section>
+
+  <!-- ★★★ META-ANALYSIS BANNER -->
+  <section style="margin:14px 0 12px;padding:18px 22px;border-radius:14px;
+    border:3px solid var(--emerald);
+    background:linear-gradient(135deg,rgba(53,211,157,.22),rgba(155,124,255,.10));
+    box-shadow:0 0 0 1px rgba(53,211,157,.30), 0 18px 50px -12px rgba(53,211,157,.30)">
+    <div style="display:grid;grid-template-columns:1.1fr 1.5fr;gap:24px;align-items:center">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--emerald);font-weight:700;font-size:11px;letter-spacing:.20em;text-transform:uppercase;margin-bottom:6px">★★★ META-ANALYSIS · 5 cohorts · n = 3,113 with OS</div>
+        <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:30px;line-height:1.1;font-weight:700;color:var(--white)">
+          Pooled KRAS G12D HR = <span style="color:var(--emerald)">1.41</span>
+          <span style="font-size:18px;color:var(--ink-2);font-weight:500"> (95% CI 1.25 – 1.60)</span>
+          <br><span style="font-size:18px;color:var(--ink-2);font-weight:500">p = </span><span style="color:var(--emerald);font-size:22px">3.5 × 10⁻⁸</span>
+        </h2>
+        <p style="margin:12px 0 0;color:var(--ink-2);font-size:14px;line-height:1.55">
+          Fixed-effect inverse-variance meta-analysis on log HR ± SE across TCGA-PAAD anchor + MSK 2024 (Cancer Cell + Nat Med) + TCGA Legacy + iAtlas PRINCE.
+          Single-cohort TCGA finding (HR=2.17, p=0.002) escalated to a meta-analytically supported claim across 3,113 patients.
+          Paradox replicates in 4/4 cohorts with RNA. <a href="paper_pdac_g12d.html" target="_blank" style="color:var(--emerald);font-weight:600">read paper →</a>
+        </p>
+      </div>
+      <a href="figs_pdac_poc/fig_g12d_meta_forest.png" target="_blank" style="display:block">
+        <img src="figs_pdac_poc/fig_g12d_meta_forest.png" alt="meta forest" style="width:100%;border-radius:10px;background:#fff;box-shadow:0 8px 22px -6px rgba(0,0,0,.4)">
+      </a>
+    </div>
+  </section>
+
+  <!-- ★★ CROSS-COHORT REPLICATION BANNER -->
+  <section style="margin:14px 0 12px;padding:14px 18px;border-radius:14px;
+    border:2px solid var(--emerald);
+    background:linear-gradient(135deg,rgba(53,211,157,.18),rgba(50,184,198,.06));
+    display:grid;grid-template-columns:1.4fr 1fr;gap:18px;align-items:center">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;color:var(--emerald);font-weight:700;font-size:11px;letter-spacing:.20em;text-transform:uppercase;margin-bottom:6px">★★ CROSS-COHORT REPLICATION · n ≈ 3,030 with OS</div>
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:21px;line-height:1.15;font-weight:700;color:var(--white)">
+        KRAS G12D HR > 1 in <strong style="color:var(--emerald)">3 / 5</strong> independent cohorts at <strong style="color:var(--emerald)">p ≤ 0.057</strong>
+      </h2>
+      <table style="margin-top:10px;width:100%;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink-2);border-collapse:collapse">
+        <thead><tr style="color:var(--mute2);text-align:left">
+          <th style="padding:4px 8px;border-bottom:1px solid var(--line)">cohort</th>
+          <th style="padding:4px 8px;border-bottom:1px solid var(--line);text-align:right">n_OS</th>
+          <th style="padding:4px 8px;border-bottom:1px solid var(--line);text-align:right">G12D HR</th>
+          <th style="padding:4px 8px;border-bottom:1px solid var(--line);text-align:right">p</th>
+        </tr></thead>
+        <tbody>
+        <tr><td style="padding:4px 8px;color:var(--white)">★ TCGA-PAAD anchor</td><td style="padding:4px 8px;text-align:right">100</td><td style="padding:4px 8px;text-align:right;color:var(--emerald);font-weight:700">2.17</td><td style="padding:4px 8px;text-align:right;color:var(--emerald);font-weight:700">0.002</td></tr>
+        <tr><td style="padding:4px 8px">pancreas_msk_2024</td><td style="padding:4px 8px;text-align:right">393</td><td style="padding:4px 8px;text-align:right;color:var(--emerald);font-weight:700">1.79</td><td style="padding:4px 8px;text-align:right;color:var(--emerald);font-weight:700">0.001</td></tr>
+        <tr><td style="padding:4px 8px">pdac_msk_2024</td><td style="padding:4px 8px;text-align:right">2,260</td><td style="padding:4px 8px;text-align:right;color:var(--emerald);font-weight:700">1.29</td><td style="padding:4px 8px;text-align:right;color:var(--emerald);font-weight:700">0.001</td></tr>
+        <tr><td style="padding:4px 8px">paad_tcga (legacy)</td><td style="padding:4px 8px;text-align:right">185</td><td style="padding:4px 8px;text-align:right">1.57</td><td style="padding:4px 8px;text-align:right">0.057</td></tr>
+        <tr><td style="padding:4px 8px">paad_iatlas_prince_2022</td><td style="padding:4px 8px;text-align:right">92</td><td style="padding:4px 8px;text-align:right">1.38</td><td style="padding:4px 8px;text-align:right">0.517</td></tr>
+        </tbody>
+      </table>
+      <p style="margin:8px 0 0;font-size:12px;color:var(--ink-2);line-height:1.5">
+        Same Cox model (<code style="color:var(--emerald)">14_validation_replication.py</code>) on cBioPortal multi-cohort fetch.
+        n=2,260 MSK cohort alone produces a p=0.001 confirmation. Negative control (cholangiocarcinoma): no G12D, correct null.
+        <a href="paper_pdac_g12d.html" target="_blank" style="color:var(--emerald);font-weight:600">read 1-page paper →</a>
+      </p>
+    </div>
+    <a href="figs_pdac_poc/fig_g12d_forest.png" target="_blank" style="display:block">
+      <img src="figs_pdac_poc/fig_g12d_forest.png" alt="G12D forest plot" style="width:100%;border-radius:8px;background:#fff">
+    </a>
+  </section>
+
+  <!-- ★ HEADLINE FINDING BANNER -->
+  <section style="margin:14px 0 22px;padding:16px 20px;border-radius:14px;
+    border:1px solid rgba(155,124,255,.45);
+    background:linear-gradient(135deg,rgba(155,124,255,.14),rgba(53,211,157,.06));
+    box-shadow:0 0 0 1px rgba(155,124,255,.18), 0 18px 50px -12px rgba(155,124,255,.18);
+    display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:20px;align-items:center">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;color:var(--violet);font-weight:700;font-size:11px;letter-spacing:.20em;text-transform:uppercase;margin-bottom:6px">★ Live finding · TCGA-PAAD multivariable Cox</div>
+      <h2 style="margin:0;font-family:'Space Grotesk',sans-serif;font-size:24px;line-height:1.1;font-weight:700;color:var(--white)">
+        KRAS G12D <span style="color:var(--rose)">HR = 2.17</span>
+        <span style="font-size:15px;color:var(--muted);font-weight:400">(95% CI 1.33 – 3.56, <strong style="color:var(--white)">p = 0.002</strong>) · n=100, C-index 0.63</span>
+      </h2>
+      <p style="margin:10px 0 0;color:var(--ink-2);font-size:13.5px;line-height:1.55">
+        Adjusted for Moffitt subtype + age. Direction matches <strong style="color:var(--white)">Hayashi 2021 NatCancer</strong> (G12R better OS) on independent cohort.
+        G12D is also the most basal-like-enriched (62%) AND has the highest Korean off-the-shelf joint actionability (<strong style="color:var(--emerald)">8.0%</strong>).
+        <a href="data_pdac_poc/FINDING_KRAS_G12D_PARADOX.md" target="_blank" style="color:var(--violet);font-weight:600">read the finding writeup →</a>
+      </p>
+    </div>
+    <a href="figs_pdac_poc/fig_kras_allele_KM.png" target="_blank" style="display:block">
+      <img src="figs_pdac_poc/fig_kras_allele_KM.png" alt="KRAS KM" style="width:100%;border-radius:8px;background:#fff">
+    </a>
+    <a href="figs_pdac_poc/fig_paradox.png" target="_blank" style="display:block">
+      <img src="figs_pdac_poc/fig_paradox.png" alt="Moffitt × TME paradox" style="width:100%;border-radius:8px;background:#fff">
+    </a>
+  </section>
+
+  <div class="hero">
+    <div>
+      <div class="chiprow">
+        <span class="tag em">Cancer-vaccine agent</span>
+        <span class="tag tl">25 tools · live</span>
+        <span class="tag vi">SPARK-architecture</span>
+        <span class="tag am">Korean HLA-aware</span>
+      </div>
+      <h1>One agent. <br/><span class="grad">25 tools. PDAC live.</span></h1>
+      <div class="dek">SPARK-style Planner → ToolRouter → Tools → Verifier → Memory.
+        Type a query. Watch the planner pick the right tools, the tool router fire them in dependency order,
+        the verifier flag direction-invariance, and the memory persist the run.
+        Each tool returns evidence + citations + supporting-sample count.
+        Click <b>Generate report</b> to download a branded HTML run report.
+      </div>
+      <div class="kpi-bar">
+        <div class="kpi"><b id="kpiSamples">…</b><span>TCGA-PAAD samples</span></div>
+        <div class="kpi"><b id="kpiBasal">…</b><span>basal-like</span></div>
+        <div class="kpi"><b id="kpiClassical">…</b><span>classical</span></div>
+        <div class="kpi"><b id="kpiKras">…</b><span>KRAS G12 mut.</span></div>
+        <div class="kpi"><b id="kpiCohorts">…</b><span>PDAC cohorts</span></div>
+        <div class="kpi"><b id="kpiKor">…</b><span>Korean coverage</span></div>
+      </div>
+      <div class="fig-strip">
+        <a class="fig" href="figs_pdac_poc/fig_km_moffitt.png" target="_blank"><img src="figs_pdac_poc/fig_km_moffitt.png"><div class="cap">KM · Moffitt</div></a>
+        <a class="fig" href="figs_pdac_poc/fig_neoq.png" target="_blank"><img src="figs_pdac_poc/fig_neoq.png"><div class="cap">NeoQ R×D</div></a>
+        <a class="fig" href="figs_pdac_poc/fig_immune_heatmap.png" target="_blank"><img src="figs_pdac_poc/fig_immune_heatmap.png"><div class="cap">TME modules</div></a>
+        <a class="fig" href="figs_pdac_poc/fig_vaccine_priority.png" target="_blank"><img src="figs_pdac_poc/fig_vaccine_priority.png"><div class="cap">11 targets</div></a>
+        <a class="fig" href="figs_pdac_poc/fig_hla_coverage.png" target="_blank"><img src="figs_pdac_poc/fig_hla_coverage.png"><div class="cap">HLA coverage</div></a>
+      </div>
+    </div>
+
+    <aside class="toolwall">
+      <h4>SPARK · 30-tool wall <span class="live"><span id="toolDone">0</span> / 30 fired</span></h4>
+      <div class="tg" id="toolGrid"></div>
+      <div class="flags-mini">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute2);margin-bottom:6px;letter-spacing:.10em;text-transform:uppercase">
+          Verifier audit · <span id="flagCount">0</span> flags
+        </div>
+        <div id="flags"><div class="flag"><span class="lvl">—</span><span>send a query to populate</span></div></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="layout">
+    <div class="chatbox">
+      <div class="chat-head">
+        <div class="left"><b>Live SPARK Agent · POST /api/agent</b><span>· Planner → 25 tools → Verifier → Memory</span></div>
+        <div class="right"><span id="chatStatus">idle</span></div>
+      </div>
+      <div class="progress" id="prog"><div></div></div>
+      <div class="messages" id="messages"></div>
+      <div class="chips" id="chips"></div>
+      <div class="inputbar">
+        <input id="promptInput" placeholder='예: "Korean PDAC, KRAS G12V + HLA-A*11:01 — 모든 tool 다 돌리고 vaccine + ICI maintenance plan"' />
+        <button id="sendBtn" onclick="sendPrompt()">RUN</button>
+        <button id="reportBtn" class="reportbtn" onclick="generateReport()">Generate report</button>
+      </div>
+    </div>
+    <aside></aside>
+  </div>
+
+  <!-- METHODS BROWSER (static, populated from /api/methods) -->
+  <section style="margin-top:30px;padding:18px 22px;border:1px solid var(--line);background:rgba(13,20,34,.6);border-radius:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-bottom:14px">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;color:var(--violet);font-weight:700;font-size:11px;letter-spacing:.20em;text-transform:uppercase;margin-bottom:6px">Methods · why this algorithm · why this data · role in flow</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:24px;margin:0;font-weight:600">Per-tool reasoning · all 25 tools</h2>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mute2)">click any tool to expand</div>
+    </div>
+    <div id="methodsBrowser" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px"></div>
+  </section>
+
+  <div class="foot">
+    <div>© 2026 Lumenix · research-grade hypothesis demo · not a medical device</div>
+    <div>Berbís 2026 SPARK · Bailey 2016 · Moffitt 2015 · Balachandran 2017 · Cao 2021 · Steele 2020 · Hwang 2022 · Moncada 2020 · Rojas 2023 · Sethna 2025 · Pant 2024</div>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+// Auto-detect deployment mode:
+//   (a) served from uvicorn 8090  → live API
+//   (b) served from static 8012   → precomputed JSON bundle
+//       (port 8090 is firewall-blocked in this deployment)
+const API_BASE = (!window.location.port || window.location.port === '8090')
+  ? ''
+  : `${window.location.protocol}//${window.location.hostname}:8090`;
+const STATIC_FALLBACK_URL = "data_pdac_poc/precomputed_full.json";
+let PRECOMPUTED = null;            // populated by loadPrecomputed()
+
+/* === SPARK 30-tool grid metadata === */
+const TOOLS = [
+  ["T1","cohort_lookup"], ["T2","subtype"], ["T3","drivers"], ["T4","NeoQ R×D"],
+  ["T5","TME modules"], ["T6","vaccine priority"], ["T7","HLA bias"], ["T8","trial match"],
+  ["T9","HLA typing"], ["T10","NetMHCpan"], ["T11","TCRdist3"], ["T12","TMB / MSI"],
+  ["T13","Cox surv"], ["T14","Pathway GSEA"], ["T15","Fusion"], ["T16","Mut sigs"],
+  ["T17","Methyl"], ["T18","scRNA"], ["T19","Spatial"], ["T20","Pathology AI"],
+  ["T21","Combo plan"], ["T22","Wetlab plan"], ["T23","Drug-target"], ["T24","PubMed"],
+  ["T25","Conformal CI"], ["T26","★ G12D finding"], ["T27","★ Cross-cohort"],
+  ["T28","LLM-NER"], ["T29","★★ Meta n=3.1k"], ["T30","★★★ Pan-cancer n=60k"]
+];
+
+function buildToolGrid(){
+  $("toolGrid").innerHTML = TOOLS.map(([id,name]) =>
+    `<div class="t-cell queued" id="tc-${id}" title="${id} · ${name}"><span class="id">${id}</span><span class="name">${name}</span></div>`
+  ).join("");
+}
+buildToolGrid();
+
+/* === scenarios (20+ rich PDAC + spatial + cross-cancer) === */
+const SUGGESTIONS = [
+  ["★ ALL 25 tools · Korean PDAC G12V + HLA-A*11:01", "Korean PDAC, KRAS G12V + HLA-A*11:01 — immune binding TCR survival spatial pathology trial signature meth scRNA fusion drug combo wetlab cite conformal — full plan"],
+  ["★ Spatial niche-aware vaccine plan (Hwang 2022 Visium)", "Korean PDAC spatial niche-aware vaccine plan using Hwang 2022 Visium (GSE205013) + Moncada 2020 (GSE111672) — full immune + scRNA + spatial + combo + wetlab"],
+  ["★ TLS niche enrichment → vaccine prime", "Surface PDAC TLS-like niche fraction (CXCL13+ aggregate) — does this patient have a vaccine-permissive niche? — spatial + scRNA + immune + combo"],
+  ["★ BNT122 personalized · Korean adjuvant", "BNT122 personalized neoantigen mRNA in resected Korean PDAC — adjuvant + atezolizumab + mFOLFIRINOX (NCT05111353 design) — full immune + binding + spatial + wetlab + cite"],
+  ["★ ELI-002 mKRAS amphiphile · MRD+", "ELI-002 7P off-the-shelf mKRAS amphiphile in MRD+ resected PDAC — Korean HLA bias + binding + wetlab + trial + drug-target"],
+  ["★ Long-survivor R×D · Balachandran", "Apply Balachandran 2017 R × D long-survivor framework on TCGA-PAAD 121 — survival Cox + NeoQ + binding + cite"],
+  ["KRAS G12C + sotorasib · vaccine sequencing", "KRAS G12C-mutant PDAC after sotorasib progression — vaccine sequencing window — drug-target + combo + binding + wetlab"],
+  ["Basal-like PDAC ICI rationale", "Basal-like PDAC TME — myeloid + checkpoint + CAF + ICI rationale — pathway + immune + spatial + scRNA + combo"],
+  ["BRCA-mutant PDAC · PARP + vaccine", "BRCA1/2 / PALB2 mutant PDAC — PARP maintenance + vaccine — signature + drug-target + combo + trial"],
+  ["NRG1-fusion PDAC · zenocutuzumab", "NRG1-fusion PDAC — zenocutuzumab + vaccine — fusion + drug-target + binding + trial"],
+  ["MSI-H PDAC · pembrolizumab + vaccine", "MMR-deficient (MSI-H) PDAC — pembrolizumab + neoantigen vaccine — TMB MSI + signature + binding + trial"],
+  ["TLS-rich niche · vaccine prime", "TLS-rich niche PDAC — vaccine prime rationale — spatial + scRNA + immune + combo + wetlab"],
+  ["Pan-Asian off-the-shelf cassette design", "Design pan-Asian off-the-shelf KRAS+TP53 cassette — HLA bias + binding + Korean coverage + conformal CI"],
+  ["Pre/post FOLFIRINOX TME plasticity", "Pre vs post FOLFIRINOX TME plasticity (Werba 2023 GSE194247) — scRNA + spatial + immune + combo timing"],
+  ["Personalized 20-mer pool · 6-week SOP", "Personalized 20-mer mRNA pool — 6-week wetlab SOP — wetlab + binding + TCR + cite"],
+  ["TCGA-PAAD Cox HR by Moffitt + drivers", "TCGA-PAAD multivariable Cox: Moffitt class + KRAS + TP53 + SMAD4 — survival + cite"],
+  ["Methylation M1/M2/M3 → vaccine class", "PDAC methylation classes (M1/M2/M3) and antigen class implication — meth + signature + combo"],
+  ["Pathology AI · UNI / Virchow / GigaPath", "Foundation-model pathology embeddings (UNI, Virchow-2, GigaPath) for vaccine niche scoring — pathology + spatial"],
+  ["scRNA Steele 2020 cell-type composition", "PDAC TME cell-type composition (Steele 2020 GSE155698) — scRNA + immune + combo"],
+  ["Hwang 2022 spatial niches → vaccine target", "Hwang 2022 NatGenet PDAC spatial niches — niche-aware vaccine target prioritization"],
+  ["What trials match KRAS G12D Korean adjuvant?", "Match active vaccine trials for KRAS G12D Korean resected adjuvant — trial + drug-target"],
+  ["Korean cohort wetlab SOP (T1 patients)", "Korean PDAC cohort T1 priority wetlab SOP — wetlab + cite + reagent SKU + tetramer + ELISpot"],
+];
+
+const messages = $("messages");
+const chips = $("chips");
+const chatStatus = $("chatStatus");
+const sendBtn = $("sendBtn");
+
+function addMsg(kind, html){
+  const tag = {user:"researcher", agent:"lumenix · agent", stage:"stage trace", tool:"tool result",
+               alert:"verifier flag", error:"error", result:"result"}[kind] || kind;
+  const div = document.createElement("div");
+  div.className = `msg ${kind}`;
+  div.innerHTML = `<div class="role-tag">${tag}</div>${html}`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+  return div;
+}
+
+function setChips(items){
+  chips.innerHTML = items.map(([label, query],i) =>
+    `<button class="chip-btn ${label.startsWith("★")?"star":""}" onclick='runQuery(${JSON.stringify(query)})'>${label}</button>`).join("");
+}
+
+function setToolState(id, state){
+  const el = document.getElementById(`tc-${id}`);
+  if (!el) return;
+  el.classList.remove("queued","run","done");
+  el.classList.add(state);
+  if (state === "done") {
+    const n = document.querySelectorAll("#toolGrid .t-cell.done").length;
+    $("toolDone").textContent = n;
+  }
+}
+function resetToolGrid(){
+  TOOLS.forEach(([id]) => setToolState(id, "queued"));
+  $("toolDone").textContent = "0";
+}
+
+function summarizeTool(t){
+  const data = t.data || {};
+  const d = JSON.stringify(data).slice(0, 110).replace(/[{}]/g,"").replace(/"/g,"");
+  return d || "—";
+}
+
+function renderFlags(flags){
+  $("flags").innerHTML = flags.map(f =>
+    `<div class="flag ${f.level}"><span class="lvl">${f.level}</span><span>${f.msg}</span></div>`).join("");
+  $("flagCount").textContent = flags.length;
+}
+
+function setProgress(pct){
+  const p = $("prog");
+  if (pct == null) { p.classList.remove("on"); p.querySelector("div").style.width = "0%"; return; }
+  p.classList.add("on"); p.querySelector("div").style.width = pct + "%";
+}
+
+async function loadPrecomputed(){
+  // Pull the precomputed bundle (works on any deployment)
+  try {
+    PRECOMPUTED = await fetch(STATIC_FALLBACK_URL).then(r => r.json());
+    $("serverStatus").textContent = "static-bundled";
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+async function loadKPI(){
+  // Try live API first
+  let liveOK = false;
+  try {
+    const r = await fetch(API_BASE + "/health"); if (r.ok) {
+      $("serverStatus").textContent = "online (live)";
+      liveOK = true;
+    }
+  } catch (e) { /* fall through to precomputed */ }
+
+  if (liveOK) {
+    try {
+      const d = await fetch(API_BASE + "/api/poc-data").then(x => x.json());
+      paintKPI(d);
+      return;
+    } catch (e) { /* fall through */ }
+  }
+  // Fallback: precomputed bundle (works static via 8012)
+  await loadPrecomputed();
+  if (PRECOMPUTED && PRECOMPUTED.kpi) {
+    countUp("kpiSamples", PRECOMPUTED.kpi.samples);
+    countUp("kpiBasal", PRECOMPUTED.kpi.basal);
+    countUp("kpiClassical", PRECOMPUTED.kpi.classical);
+    countUp("kpiKras", PRECOMPUTED.kpi.kras_g12_count);
+    countUp("kpiCohorts", PRECOMPUTED.kpi.cohorts);
+    $("kpiKor").textContent = PRECOMPUTED.kpi.korean_pct + "%";
+  } else {
+    $("serverStatus").textContent = "offline";
+    addMsg("error", "Could not load data. Check: <code>data_pdac_poc/precomputed_full.json</code> path.");
+  }
+}
+
+function paintKPI(d){
+  countUp("kpiSamples", d.data_manifest.samples);
+  countUp("kpiBasal", d.moffitt.n_basal);
+  countUp("kpiClassical", d.moffitt.n_classical);
+  countUp("kpiKras", d.neoantigen_quality.kras_g12_count);
+  countUp("kpiCohorts", d.registry_summary.n_entries);
+  $("kpiKor").textContent = d.vaccine_priority.korean_off_the_shelf_population_coverage_pct + "%";
+}
+
+function countUp(id, target){
+  const el = $(id);
+  if (typeof target !== "number") { el.textContent = target; return; }
+  const dur = 800; const t0 = performance.now();
+  function step(now){
+    const p = Math.min(1, (now - t0)/dur);
+    el.textContent = Math.round(target * (1 - Math.pow(1-p, 3)));
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+let currentQuery = "";
+async function runQuery(q){
+  if (!q || sendBtn.disabled) return;
+  currentQuery = q;
+  sendBtn.disabled = true;
+  chatStatus.textContent = "running…";
+  addMsg("user", q);
+  setChips([]);
+  resetToolGrid();
+  setProgress(5);
+  const stageMsg = addMsg("stage", `<strong>Planner.</strong> Decomposing query → ordered tool plan…`);
+  try {
+    let rep;
+    try {
+      const r = await fetch(API_BASE + "/api/agent", {
+        method: "POST", headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({query: q})
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      rep = await r.json();
+    } catch (apiErr) {
+      // Fallback: precomputed agent run (works on static 8012 deployment)
+      if (!PRECOMPUTED) await loadPrecomputed();
+      if (!PRECOMPUTED || !PRECOMPUTED.agent_run) throw new Error("no live agent + no precomputed bundle");
+      rep = JSON.parse(JSON.stringify(PRECOMPUTED.agent_run));    // deep copy
+      rep.query = q;
+      addMsg("agent", "<span style='color:var(--violet)'>(static-bundled mode — replaying canonical 30-tool run from <code>precomputed_full.json</code>)</span>");
+    }
+    stageMsg.innerHTML = `<div class="role-tag">stage trace</div><strong>Planner.</strong> Plan = [${rep.plan.join(" → ")}]  · elapsed ${rep.elapsed_s}s`;
+    setProgress(20);
+
+    // animate tool firing — render method+why+role per tool
+    const methods = rep.methods || {};
+    const total = rep.results.length;
+    for (let i = 0; i < total; i++) {
+      const t = rep.results[i];
+      const id = t.tool.split(".")[0];
+      setToolState(id, "run");
+      const cite = (t.citations||[]).slice(0,2).join(" · ");
+      const m = methods[id] || {};
+      const whyBlock = m.algorithm ? `
+        <div style="margin-top:6px;padding-left:9px;border-left:2px solid var(--violet);font-family:'IBM Plex Sans',sans-serif;font-size:12px;line-height:1.5;color:var(--ink-2)">
+          <div><span style="color:var(--violet);font-weight:700">algorithm</span> · ${m.algorithm}</div>
+          <div><span style="color:var(--violet);font-weight:700">data</span> · ${m.data}</div>
+          <div><span style="color:var(--violet);font-weight:700">why</span> · ${m.why_this_data}</div>
+          <div><span style="color:var(--violet);font-weight:700">role</span> · ${m.role_in_flow}</div>
+        </div>` : "";
+      addMsg("tool",
+        `<strong>${t.tool}</strong>  ✓ <span style="color:var(--muted);font-size:11.5px">n_supp=${t.n_supporting_samples ?? "—"}</span>` +
+        (cite ? `<br><span style="color:var(--mute2);font-size:11px">cite: ${cite}</span>` : "") +
+        whyBlock +
+        `<details><summary>show JSON</summary><pre>${JSON.stringify(t.data,null,2)}</pre></details>`);
+      await new Promise(r => setTimeout(r, 80));
+      setToolState(id, "done");
+      setProgress(20 + Math.round((i+1) / total * 70));
+    }
+    setProgress(95);
+    rep.audit_flags.forEach(f =>
+      addMsg(f.level === "ERROR" ? "error" : f.level === "WARN" ? "alert" : "result",
+        `<strong>${f.level}</strong> · ${f.msg}`));
+    addMsg("result", `<strong>Run complete.</strong> ${rep.results.length} tools · ${rep.audit_flags.length} flags · ${rep.elapsed_s}s. ` +
+      `Click <a href="javascript:generateReport()" style="color:var(--violet);font-weight:700">Generate report</a> for a branded HTML report.`);
+    renderFlags(rep.audit_flags);
+    setProgress(100);
+    setTimeout(() => setProgress(null), 800);
+  } catch (e) {
+    addMsg("error", `Agent call failed: ${e.message}`);
+    setProgress(null);
+  } finally {
+    sendBtn.disabled = false;
+    chatStatus.textContent = "ready";
+    setChips(SUGGESTIONS);
+  }
+}
+
+function sendPrompt(){
+  const v = $("promptInput").value.trim();
+  if (!v) return;
+  $("promptInput").value = "";
+  runQuery(v);
+}
+
+async function generateReport(){
+  // Static deployment: open the prebuilt executive report (89 KB) in a new tab.
+  // Live deployment: also accept POST /api/report → branded inline HTML.
+  const q = currentQuery || "PDAC vaccine plan — full 30-tool agent run";
+  try {
+    const r = await fetch(API_BASE + "/api/report", {method:"POST",
+      headers:{"Content-Type":"application/json"}, body: JSON.stringify({query: q})});
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    const html = await r.text();
+    const blob = new Blob([html], {type: "text/html"});
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    addMsg("result", "Branded report opened (live).");
+  } catch (e) {
+    window.open("lumenix_executive_report.html", "_blank");
+    addMsg("result", "Opened executive report (89 KB · 15 figures · 13 tables).");
+  }
+}
+
+$("promptInput").addEventListener("keydown", e => { if (e.key === "Enter") sendPrompt(); });
+
+addMsg("agent",
+  "안녕하세요. <strong>Lumenix Cancer Vaccine Agent · 25-tool live demo</strong>입니다. " +
+  "POST <code>/api/agent</code>로 SPARK-style PDAC agent를 직접 호출합니다 — TCGA-PAAD live · 9 deterministic Python scripts · 25 tools · Planner / ToolRouter / Verifier / Memory. " +
+  "오른쪽 5×5 tool wall이 plan에 따라 한 칸씩 점등합니다. 결과는 한 번의 클릭으로 <strong>HTML report</strong>로 export 가능. " +
+  "<span style='color:var(--muted)'>실제 환자 데이터는 사용하지 않으며 산출물은 hypothesis-grade입니다.</span>");
+setChips(SUGGESTIONS);
+loadKPI();
+
+/* methods browser */
+async function loadMethods(){
+  try {
+    let m;
+    try {
+      m = await fetch(API_BASE + "/api/methods").then(r => r.json());
+    } catch (e) {
+      if (!PRECOMPUTED) await loadPrecomputed();
+      m = PRECOMPUTED ? PRECOMPUTED.methods : null;
+    }
+    if (!m) throw new Error("methods unavailable");
+    const order = Array.from({length:25}, (_,i) => `T${i+1}`);
+    const html = order.map(id => {
+      const x = m[id]; if (!x) return "";
+      return `<details style="border:1px solid var(--line);background:rgba(255,255,255,.025);border-radius:9px;padding:11px 13px">
+        <summary style="cursor:pointer;font-family:'JetBrains Mono',monospace;color:var(--ink);font-size:12px;font-weight:700">
+          ${id} · <span style="color:var(--violet);font-weight:500">${x.algorithm.split(/[·—,]/)[0].slice(0,42)}</span>
+        </summary>
+        <div style="margin-top:9px;font-size:12px;line-height:1.55;color:var(--ink-2)">
+          <div style="margin-bottom:6px"><span style="color:var(--violet);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em">ALGORITHM</span><br>${x.algorithm}</div>
+          <div style="margin-bottom:6px"><span style="color:var(--violet);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em">DATA</span><br>${x.data}</div>
+          <div style="margin-bottom:6px"><span style="color:var(--violet);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em">WHY THIS DATA</span><br>${x.why_this_data}</div>
+          <div><span style="color:var(--violet);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em">ROLE IN FLOW</span><br>${x.role_in_flow}</div>
+        </div>
+      </details>`;
+    }).join("");
+    document.getElementById("methodsBrowser").innerHTML = html;
+  } catch(e) {
+    document.getElementById("methodsBrowser").innerHTML = `<div style="color:var(--rose)">Methods unavailable — could not load API or precomputed bundle.</div>`;
+  }
+}
+loadMethods();
+</script>
+</body>
+</html>

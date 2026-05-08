@@ -8,6 +8,19 @@ word_count: 153 (target 150 ± 5)
 status: v2 — Conclusions (b) 채택, Methods 40w / Results 66w 재분배, "dark matter" 따옴표 제거
 ---
 
+# Authors and Affiliations
+
+Seungho Cook¹, Yu Hyeong-won¹,²,*
+
+¹ Seoul National University Bundang Hospital, Seongnam-si, Gyeonggi-do 13620, Republic of Korea
+² Department of Internal Medicine, Seoul National University Bundang Hospital, Seongnam-si, Gyeonggi-do 13620, Republic of Korea
+
+\* Lead corresponding author. Email: [VERIFY before submission — Yu Hyeong-won institutional email; expected pattern @snubh.org or @snu.ac.kr]
+
+Lead contact email (Seungho Cook): kukshomr@gmail.com
+
+---
+
 # Abstract (Cell Press structured, 153 words)
 
 **Background.** BRAF- and RAS-negative papillary thyroid carcinoma (PTC), the dark matter representing ~23% of cases, lacks mechanistic sub-stratification, hampering radioiodine (RAI) treatment decisions.

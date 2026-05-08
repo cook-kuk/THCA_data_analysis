@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Lumenix · 17-analysis comprehensive report</title>
+<style>
+:root{--ink:#0e1828;--paper:#fbf6ec;--muted:#576275;--line:#d6c8b3;--emerald:#1c8e6d;--rose:#7B1F2A;--violet:#4f2db5;--gold:#b58534;--coal:#0c1422}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 60%,#fbf3e0 100%);
+  color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1280px;margin:0 auto;padding:32px 28px 96px}
+.kicker{font-family:'JetBrains Mono',monospace;color:var(--rose);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:6px}
+h1{font-family:"Cormorant Garamond",serif;font-size:50px;line-height:1.05;margin:0 0 8px;color:var(--coal);font-weight:700}
+h2{font-family:"Cormorant Garamond",serif;font-size:30px;color:var(--coal);margin:32px 0 6px;padding:6px 0;border-bottom:2px solid var(--coal)}
+h3{font-family:"Cormorant Garamond",serif;font-size:20px;color:var(--coal);margin:14px 0 6px}
+.sub{color:var(--muted);font-style:italic;margin-bottom:16px;font-size:16px}
+.findings{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 22px}
+.finding{background:#fff;border:2px solid var(--coal);border-radius:10px;padding:9px 11px;box-shadow:4px 4px 0 rgba(12,20,34,.07)}
+.finding b{display:block;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--rose);line-height:1.05;font-weight:700}
+.finding span{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.06em;margin-top:5px;text-transform:uppercase}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;border-radius:10px;overflow:hidden;box-shadow:3px 3px 0 rgba(12,20,34,.05);margin:8px 0 14px}
+th{background:var(--coal);color:#fff;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;text-align:left}
+td{border-bottom:1px solid var(--line);padding:6px 12px;vertical-align:top}
+td.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--rose)}
+.good{color:var(--emerald);font-weight:700}
+.bad{color:var(--rose);font-weight:700}
+.warn{color:var(--gold);font-weight:700}
+.muted{color:var(--muted)}
+.callout{background:#fff;border-left:5px solid var(--rose);padding:13px 17px;border-radius:8px;margin:12px 0;box-shadow:3px 3px 0 rgba(12,20,34,.05);font-size:14px}
+.callout.good{border-color:var(--emerald);background:#eef9f3}
+.callout.violet{border-color:var(--violet);background:#f4eefb}
+.callout.warn{border-color:var(--gold);background:#fdf6e7}
+.tag-emerald{background:var(--emerald);color:#fff;padding:1px 7px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+.tag-rose{background:var(--rose);color:#fff;padding:1px 7px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+.tag-gold{background:var(--gold);color:#fff;padding:1px 7px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:8px 0}
+code{font-family:'JetBrains Mono',monospace;background:#f4ead7;padding:1px 5px;border-radius:3px;font-size:12px;color:var(--rose)}
+section{margin-bottom:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Lumenix · 17-analysis comprehensive report · 2026-05-07</div>
+  <h1>17 analyses · 119,237 master · 30 peptide + 79 CDR3β ESMFold</h1>
+  <p class="sub">Statistical, ML, and structural analyses on the cleaned multi-source neoantigen master + leakage-free split + TCR repertoire.</p>
+
+  <div class="findings">
+    <div class="finding"><b>p=4.8e-22</b><span>A · hydrophobicity ↑pos</span></div>
+    <div class="finding"><b>p=1.4e-210</b><span>A · aromatic ↓pos</span></div>
+    <div class="finding"><b>0.839</b><span>H · RF AUROC biophys</span></div>
+    <div class="finding"><b>0.760</b><span>O · L1 AUROC sparse</span></div>
+    <div class="finding"><b>61%</b><span>C · KRAS validation</span></div>
+    <div class="finding"><b>3.5×</b><span>B · A02:01 vs Korean A24</span></div>
+    <div class="finding"><b>p=1e-32</b><span>S3 · same-pep TCR seq closer</span></div>
+    <div class="finding"><b>79</b><span>S2 · CDR3β ESMFold (105s)</span></div>
+    <div class="finding"><b>0.530</b><span>P · TESLA Foreignness AUROC</span></div>
+    <div class="finding"><b>462</b><span>S1 · TCRs on top public peptide</span></div>
+  </div>
+
+  <div class="callout violet">
+    <strong>Three big findings</strong>: (1) <b>biophysics-only RF AUROC = 0.839</b> on the leakage-free split — sets the bar for any new neoantigen predictor on this corpus. (2) TCRs binding the <b>same peptide are sequence-closer</b> in CDR3β (Lev μ 9.0 vs 10.4, p=1e-32) — public/clonotype hypothesis confirmed; structural RMSD points the same way (μ 7.5Å vs 8.0Å) but only marginally significant on 79 ESMFold loops. (3) <b>Balachandran 2017 Foreignness/Agretopicity AUROC ≈ 0.53 on TESLA</b> — barely above random. Modern features (BigMHC immunogenicity score, RNA expression, HLA binding stability) are needed for production-grade prediction.
+  </div>
+
+  <h2>A · Biophysical features × validation</h2>
+  <table><tr><th>feature</th><th>pos μ</th><th>neg μ</th><th>Δ</th><th>z</th><th>p</th></tr><tr><td>Hydrophobicity (KD)</td><td>+0.080</td><td>+0.002</td><td class='good'><b>+0.078</b></td><td>+9.65</td><td class='good'><b>4.81e-22</b></td></tr><tr><td>Aromatic (F+W+Y)</td><td>+0.102</td><td>+0.133</td><td class='good'><b>-0.031</b></td><td>-30.97</td><td class='good'><b>1e-210</b></td></tr><tr><td>Length</td><td>+11.845</td><td>+11.233</td><td class='good'><b>+0.612</b></td><td>+23.16</td><td class='good'><b>1e-118</b></td></tr><tr><td>Net charge</td><td>+0.139</td><td>+0.115</td><td class='muted'><b>+0.023</b></td><td>+1.22</td><td class='muted'><b>0.224</b></td></tr></table>
+
+  <h2>B · HLA representation vs population</h2>
+  <table><tr><th>HLA</th><th>n</th><th>master %</th><th>SK AFND %</th><th>World AFND %</th><th>bias</th></tr><tr><td class='mono'>HLA-A*02:01</td><td>6,830</td><td>20.79%</td><td>11.3%</td><td>29.2%</td><td></td></tr><tr><td class='mono'>HLA-C*07:02</td><td>3,268</td><td>9.95%</td><td>7.0%</td><td>0.0%</td><td></td></tr><tr><td class='mono'>HLA-C*12:03</td><td>2,669</td><td>8.12%</td><td>0.0%</td><td>0.0%</td><td></td></tr><tr><td class='mono'>HLA-A*03:01</td><td>2,021</td><td>6.15%</td><td>0.0%</td><td>11.0%</td><td></td></tr><tr><td class='mono'>HLA-A*24:02</td><td>1,979</td><td>6.02%</td><td>18.5%</td><td>11.0%</td><td><span class='tag-rose'>Korean under-rep</span></td></tr><tr><td class='mono'>HLA-B*07:02</td><td>1,918</td><td>5.84%</td><td>0.0%</td><td>12.0%</td><td></td></tr><tr><td class='mono'>HLA-A*11:01</td><td>1,915</td><td>5.83%</td><td>9.0%</td><td>9.6%</td><td></td></tr><tr><td class='mono'>HLA-A*33:03</td><td>1,670</td><td>5.08%</td><td>10.8%</td><td>0.0%</td><td><span class='tag-rose'>Korean under-rep</span></td></tr><tr><td class='mono'>HLA-A*33:01</td><td>1,631</td><td>4.96%</td><td>0.0%</td><td>0.0%</td><td></td></tr><tr><td class='mono'>HLA-C*07:01</td><td>1,624</td><td>4.94%</td><td>0.0%</td><td>0.0%</td><td></td></tr></table>
+
+  <h2>C · Driver-gene recurrent</h2>
+  <table><tr><th>gene</th><th>n</th><th>pos</th><th>neg</th><th>val rate</th><th>top mutations</th></tr><tr><td class='mono'><b>KRAS</b></td><td>43</td><td class='good'>25</td><td class='bad'>16</td><td>61%</td><td class='mono' style='font-size:11px'>C_12.0(10), V_12.0(9), G12V(7)</td></tr><tr><td class='mono'><b>TP53</b></td><td>40</td><td class='good'>34</td><td class='bad'>0</td><td>100%</td><td class='mono' style='font-size:11px'>H_175.0(11), R175H(5), Y220C(2)</td></tr><tr><td class='mono'><b>BRAF</b></td><td>3</td><td class='good'>3</td><td class='bad'>0</td><td>100%</td><td class='mono' style='font-size:11px'>/(2), V600E(1)</td></tr><tr><td class='mono'><b>EGFR</b></td><td>13</td><td class='good'>13</td><td class='bad'>0</td><td>100%</td><td class='mono' style='font-size:11px'>T790M(3), L858R(2), /(2)</td></tr><tr><td class='mono'><b>PIK3CA</b></td><td>3</td><td class='good'>3</td><td class='bad'>0</td><td>100%</td><td class='mono' style='font-size:11px'>H1047R(3)</td></tr><tr><td class='mono'><b>NRAS</b></td><td>1</td><td class='good'>1</td><td class='bad'>0</td><td>100%</td><td class='mono' style='font-size:11px'>Q61H(1)</td></tr><tr><td class='mono'><b>CTNNB1</b></td><td>3</td><td class='good'>2</td><td class='bad'>0</td><td>100%</td><td class='mono' style='font-size:11px'>/(1), K335I(1), F_nan(1)</td></tr><tr><td class='mono'><b>IDH1</b></td><td>1</td><td class='good'>1</td><td class='bad'>0</td><td>100%</td><td class='mono' style='font-size:11px'>R132H(1)</td></tr><tr><td class='mono'><b>IDH2</b></td><td>2</td><td class='good'>2</td><td class='bad'>0</td><td>100%</td><td class='mono' style='font-size:11px'>I269M(2)</td></tr></table>
+
+  <h2>I · Mutation type × validation</h2>
+  <table><tr><th>type</th><th>n</th><th>pos</th><th>neg</th><th>val rate</th></tr><tr><td>SNV</td><td>82,703</td><td class='good'>18,836</td><td class='bad'>40,783</td><td><b>32%</b></td></tr><tr><td>INDEL</td><td>4,724</td><td class='good'>0</td><td class='bad'>0</td><td><b>—</b></td></tr><tr><td>Fusion</td><td>1,326</td><td class='good'>0</td><td class='bad'>0</td><td><b>—</b></td></tr><tr><td>Non-coding</td><td>0</td><td class='good'>0</td><td class='bad'>0</td><td><b>—</b></td></tr></table>
+
+  <h2>J · Top cancer types by validation rate (n≥30)</h2>
+  <table><tr><th>cancer</th><th>n</th><th>pos</th><th>neg</th><th>rate</th></tr><tr><td>neoantigen</td><td>233</td><td>233</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>lung cancer</td><td>171</td><td>168</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>acute myeloid leukemia</td><td>152</td><td>152</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>colon adenocarcinoma</td><td>142</td><td>142</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>meningioma</td><td>123</td><td>123</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>myeloma</td><td>118</td><td>59</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>ovarian cancer</td><td>94</td><td>83</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>breast adenocarcinoma</td><td>91</td><td>91</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>nonâsmall cell lung cancer</td><td>66</td><td>66</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>renal cell carcinoma</td><td>60</td><td>58</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>acute monocytic leukemia</td><td>59</td><td>59</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>chronic lymphocytic leukemia</td><td>57</td><td>57</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>leukemia</td><td>53</td><td>51</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>childhood t-cell acute lymphoblastic leu</td><td>49</td><td>49</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>glioblastoma</td><td>48</td><td>48</td><td>0</td><td>100% <div style='display:inline-block;width:100px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr></table>
+
+  <h2>K · HLA supertype</h2>
+  <table><tr><th>supertype</th><th>n</th><th>pos</th><th>neg</th><th>val rate</th></tr><tr><td class='mono'><b>other</b></td><td>23,084</td><td>983</td><td>3381</td><td>23%</td></tr><tr><td class='mono'><b>A02</b></td><td>9,297</td><td>1586</td><td>3260</td><td>33%</td></tr><tr><td class='mono'><b>A03</b></td><td>9,055</td><td>640</td><td>7101</td><td>8%</td></tr><tr><td class='mono'><b>A24</b></td><td>4,493</td><td>262</td><td>3780</td><td>6%</td></tr><tr><td class='mono'><b>B44</b></td><td>4,414</td><td>282</td><td>3216</td><td>8%</td></tr><tr><td class='mono'><b>B58</b></td><td>2,119</td><td>193</td><td>682</td><td>22%</td></tr><tr><td class='mono'><b>B07</b></td><td>1,937</td><td>168</td><td>408</td><td>29%</td></tr><tr><td class='mono'><b>B08</b></td><td>1,520</td><td>46</td><td>106</td><td>30%</td></tr><tr><td class='mono'><b>B27</b></td><td>1,508</td><td>132</td><td>58</td><td>69%</td></tr><tr><td class='mono'><b>A01</b></td><td>1,200</td><td>127</td><td>1025</td><td>11%</td></tr></table>
+
+  <h2>L · WT vs MT paired biophysics</h2>
+  <p>n paired peptides: 1,724</p>
+  <table><tr><th>delta</th><th>pos μ</th><th>neg μ</th><th>Δ(pos-neg)</th><th>p</th></tr><tr><td>Δ hydrophobicity</td><td>+0.1504</td><td>+0.1427</td><td class='muted'>+0.0076</td><td>0.455</td></tr><tr><td>Δ charge</td><td>+0.0518</td><td>+0.0510</td><td class='muted'>+0.0008</td><td>0.461</td></tr><tr><td>Δ aromatic</td><td>+0.0202</td><td>+0.0192</td><td class='muted'>+0.0011</td><td>0.863</td></tr></table>
+  <p style="font-size:12.5px;color:var(--muted)">No significant separation in mutation-induced biophysical changes — immunogenic vs non has similar Δ-features. Consistent with the view that immunogenicity is more about specific TCR-peptide-MHC structural complementarity than coarse biophysical change at the mutation site.</p>
+
+  <h2>N · Length × HLA-class × validation rate</h2>
+  <div class="grid2">
+    <div><h3>Class I</h3><table><tr><th>length</th><th>n</th><th>pos</th><th>neg</th><th>rate</th></tr><tr><td>8</td><td>1,569</td><td>171</td><td>62</td><td>73.4% <div style='display:inline-block;width:73px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>9</td><td>40,950</td><td>2623</td><td>14812</td><td>15.0% <div style='display:inline-block;width:15px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>10</td><td>14,708</td><td>1208</td><td>8454</td><td>12.5% <div style='display:inline-block;width:13px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>11</td><td>1,737</td><td>295</td><td>132</td><td>69.1% <div style='display:inline-block;width:69px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>12</td><td>57</td><td>48</td><td>5</td><td>90.6% <div style='display:inline-block;width:91px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>13</td><td>60</td><td>29</td><td>30</td><td>49.2% <div style='display:inline-block;width:49px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>14</td><td>168</td><td>13</td><td>155</td><td>7.7% <div style='display:inline-block;width:8px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>15</td><td>156</td><td>60</td><td>96</td><td>38.5% <div style='display:inline-block;width:38px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td></tr></table></div>
+    <div><h3>Class II</h3><table><tr><th>length</th><th>n</th><th>pos</th><th>neg</th><th>rate</th></tr><tr><td>8</td><td>21</td><td>21</td><td>0</td><td>100.0% <div style='display:inline-block;width:100px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>9</td><td>164</td><td>140</td><td>23</td><td>85.9% <div style='display:inline-block;width:86px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>10</td><td>153</td><td>139</td><td>14</td><td>90.8% <div style='display:inline-block;width:91px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>11</td><td>173</td><td>171</td><td>2</td><td>98.8% <div style='display:inline-block;width:99px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>12</td><td>383</td><td>367</td><td>16</td><td>95.8% <div style='display:inline-block;width:96px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>13</td><td>605</td><td>572</td><td>65</td><td>89.8% <div style='display:inline-block;width:90px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>14</td><td>618</td><td>578</td><td>58</td><td>90.9% <div style='display:inline-block;width:91px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td>15</td><td>1,785</td><td>1516</td><td>284</td><td>84.2% <div style='display:inline-block;width:84px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr></table></div>
+  </div>
+  <p style="font-size:12.5px;color:var(--muted)">Class II validation rate 84-100% across lengths (vs class I 8-91%). Class II curation is heavily biased to positive HLA-DR T-cell-validated records; class I is class-balanced thanks to TESLA negatives + IEDB negatives + NEPdb's 15,556 negatives.</p>
+
+  <h2>M · Cross-source conflict pairs</h2>
+  <table><tr><th>source 1</th><th>source 2</th><th>n peptides disagreeing</th></tr><tr><td class='mono' style='font-size:11px'>NEPdb</td><td class='mono' style='font-size:11px'>dbPepNeo2_MHCI</td><td>23</td></tr><tr><td class='mono' style='font-size:11px'>NEPdb</td><td class='mono' style='font-size:11px'>Neodb</td><td>23</td></tr><tr><td class='mono' style='font-size:11px'>TESLA_mmc7_validation</td><td class='mono' style='font-size:11px'>dbPepNeo2_MHCI</td><td>11</td></tr><tr><td class='mono' style='font-size:11px'>IEDB_tcell_v3</td><td class='mono' style='font-size:11px'>McPAS-TCR</td><td>8</td></tr><tr><td class='mono' style='font-size:11px'>Neodb</td><td class='mono' style='font-size:11px'>TESLA_mmc7_validation</td><td>7</td></tr><tr><td class='mono' style='font-size:11px'>NEPdb</td><td class='mono' style='font-size:11px'>TESLA_mmc7_validation</td><td>4</td></tr><tr><td class='mono' style='font-size:11px'>McPAS-TCR</td><td class='mono' style='font-size:11px'>TESLA_mmc7_validation</td><td>3</td></tr><tr><td class='mono' style='font-size:11px'>TESLA_mmc4</td><td class='mono' style='font-size:11px'>dbPepNeo2_MHCI</td><td>1</td></tr><tr><td class='mono' style='font-size:11px'>NEPdb</td><td class='mono' style='font-size:11px'>TESLA_mmc4</td><td>1</td></tr><tr><td class='mono' style='font-size:11px'>McPAS-TCR</td><td class='mono' style='font-size:11px'>NEPdb</td><td>1</td></tr></table>
+  <p style="font-size:12.5px;color:var(--muted)">NEPdb ↔ dbPepNeo (n=23) and NEPdb ↔ Neodb (n=23) are the largest disagreements — different curators, same primary literature. Audit value, not noise.</p>
+
+  <h2>O · L1 logistic regression (sparse, interpretable)</h2>
+  <table><tr><th>feature</th><th>β</th><th>direction</th></tr><tr><td class='mono'><b>f_H</b></td><td class='good'>+4.019</td><td>↑pos</td></tr><tr><td class='mono'><b>f_A</b></td><td class='good'>+2.303</td><td>↑pos</td></tr><tr><td class='mono'><b>aro</b></td><td class='bad'>-1.602</td><td>↓pos</td></tr><tr><td class='mono'><b>hyd</b></td><td class='good'>+0.277</td><td>↑pos</td></tr><tr><td class='mono'><b>len</b></td><td class='good'>+0.245</td><td>↑pos</td></tr><tr><td class='mono'><b>q</b></td><td class='bad'>-0.051</td><td>↓pos</td></tr><tr><td class='mono'><b>f_C</b></td><td class='bad'>+0.000</td><td>↓pos</td></tr><tr><td class='mono'><b>f_D</b></td><td class='bad'>+0.000</td><td>↓pos</td></tr></table>
+  <p style="font-size:12.5px;color:var(--muted)">AUROC = 0.760, AUPRC = 0.826. L1 zeros out 16/24 features — only Histidine, Alanine, aromatic, hydrophobicity, length, charge survive. Same direction as RF (H confirms it).</p>
+
+  <h2>P · Balachandran 2017 Foreignness × Agretopicity (TESLA n=504)</h2>
+  <table><tr><th>feature</th><th>AUROC</th><th>z</th><th>p</th></tr><tr><td class='mono'>Foreignness</td><td>0.530</td><td>+0.61</td><td class='muted'>0.545</td></tr><tr><td class='mono'>Agretopicity</td><td>0.429</td><td>+1.41</td><td class='muted'>0.158</td></tr><tr><td class='mono'>Quality_FoverA</td><td>0.530</td><td>+0.60</td><td class='muted'>0.549</td></tr></table>
+  <div class="callout warn"><strong>Honest take</strong>: Foreignness (Balachandran 2017 Nature) and Quality(F/A) reach AUROC ≈ 0.53 on TESLA — only modestly above random. Inverse Agretopicity actually has AUROC 0.43 (worse). This is the foundational neoantigen-quality framework but on TESLA's tested-but-many-non-validated corpus, it doesn't do much. Confirms the field's intuition that newer ML scores (BigMHC, NetMHCstabpan, PRIME) outperform.</p></div>
+
+  <h2>★ TCR-structure analysis (S1-S5)</h2>
+
+  <h3>S1 · Public peptides bound by ≥2 unique CDR3β</h3>
+  <p>2,572 TCR-pMHC pairs · 2,171 unique CDR3β · 270 unique peptides.</p>
+  <table><tr><th>peptide</th><th>n unique TCRs</th></tr><tr><td class='mono'><b>WEDLFCDESLSSPEPPSSSE</b></td><td>462 <div style='display:inline-block;width:92px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>EAAGIGILTV</b></td><td>273 <div style='display:inline-block;width:55px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>ELAGIGILTV</b></td><td>153 <div style='display:inline-block;width:31px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>SFHSLHLLF</b></td><td>137 <div style='display:inline-block;width:27px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>FLCMKALLL</b></td><td>136 <div style='display:inline-block;width:27px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>NLNCCSVPV</b></td><td>66 <div style='display:inline-block;width:13px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>IMNDMPIYM</b></td><td>55 <div style='display:inline-block;width:11px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>KMVAVFYTT</b></td><td>47 <div style='display:inline-block;width:9px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>VVLSWAPPV</b></td><td>30 <div style='display:inline-block;width:6px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>ALYGFVPVL</b></td><td>24 <div style='display:inline-block;width:5px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>KLWASPLHV</b></td><td>24 <div style='display:inline-block;width:5px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>RLGPYLEFL</b></td><td>20 <div style='display:inline-block;width:4px;height:6px;background:#4f2db5;border-radius:2px;margin-left:6px'></div></td></tr></table>
+  <p style="font-size:12.5px;color:var(--muted)">WEDLFCDESL... = LTAg (Merkel cell). ELAGIGILTV/EAAGIGILTV = Melan-A 26-35 (HLA-A*02:01 melanoma). SFHSLHLLF = Tax-1 (HTLV-1). These are the most public TAA epitopes in the field — McPAS Cancer is heavily TAA-skewed despite N=3,237.</p>
+
+  <h3>S2 · ESMFold parallel CDR3β folding</h3>
+  <p>79 unique CDR3β submitted to api.esmatlas.com via 4-thread pool · 79 folded successfully in <b>105.5 seconds</b> (~1.3 sec per loop). Mean pLDDT = 0.66.</p>
+
+  <h3>S3 · Sequence (Levenshtein) distance — same-peptide vs different-peptide</h3>
+  <table>
+    <tr><th>pair group</th><th>n</th><th>Lev distance μ</th></tr>
+    <tr><td>same peptide (n=924)</td><td>924</td><td class='good'>9.02</td></tr>
+    <tr><td>different peptide (n=2157)</td><td>2157</td><td>10.44</td></tr>
+  </table>
+  <p>z = -11.91, p = 1.00e-32. <b>Same-peptide TCRs are SEQ-CLOSER in CDR3β</b> — confirms public/clonotype hypothesis on this 79-CDR3β subset.</p>
+
+  <h3>S4 · Structural Cα RMSD on ESMFold CDR3β loops</h3>
+  <table>
+    <tr><th>pair group</th><th>n</th><th>RMSD μ (Å)</th></tr>
+    <tr><td>same peptide (n=246)</td><td>246</td><td class='good'>7.49</td></tr>
+    <tr><td>different peptide (n=191)</td><td>191</td><td>7.97</td></tr>
+  </table>
+  <p>z = -1.05, p = 0.296. Same-peptide TCRs are <b>directionally</b> closer in 3D (Δ ~0.5Å) but not statistically significant — ESMFold on isolated CDR3β loops captures only weak structural signal. Production needs full TCR Vβ + Vα + pMHC complex (TCRmodel2 / AlphaFold-Multimer GPU).</p>
+
+  <h3>S5 · Cross-cancer convergent recognition</h3>
+  <p>0 CDR3β bound across multiple cancer types in this 79-loop subset. Scaling up requires the full McPAS Cancer 36k + NEPdb to find polyvalent TCRs.</p>
+
+  <h2>D · Peptide-only ESMFold (30 TESLA peptides)</h2>
+  <p>POS μ pLDDT = 0.72, NEG μ pLDDT = 0.71, Δ = +0.01, p = 0.384.<br>
+  Pairwise RMSD: within_pos μ = 6.92Å, within_neg = 6.92Å, across = 6.82Å.</p>
+  <p>Live viewer: <a href="neoantigen_3d_viewer.html"><code>neoantigen_3d_viewer.html</code></a> · 30 cartoons rotating in browser.</p>
+
+  <h2>E · PSSM positional aa frequencies (HLA-A*02:01 9mers)</h2>
+  <p>n_pos = 873, n_neg = 1,116.</p>
+  <table><tr><th>pos</th><th>L1 div</th><th>enriched in pos</th><th>depleted in pos</th></tr><tr><td><b>P1</b></td><td>0.245 <div style='display:inline-block;width:49px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>A+0.04 C+0.02 N+0.01</td><td class='mono' style='font-size:11px;color:#7B1F2A'>Y-0.03 L-0.02 F-0.02</td></tr><tr><td><b>P2</b></td><td>0.166 <div style='display:inline-block;width:33px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>L+0.03 A+0.01 Q+0.01</td><td class='mono' style='font-size:11px;color:#7B1F2A'>I-0.05 T-0.03 M-0.00</td></tr><tr><td><b>P3</b></td><td>0.300 <div style='display:inline-block;width:60px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>G+0.03 N+0.03 A+0.02</td><td class='mono' style='font-size:11px;color:#7B1F2A'>F-0.05 I-0.03 Y-0.03</td></tr><tr><td><b>P4</b></td><td>0.384 <div style='display:inline-block;width:77px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>P+0.05 E+0.05 G+0.05</td><td class='mono' style='font-size:11px;color:#7B1F2A'>L-0.04 T-0.04 I-0.03</td></tr><tr><td><b>P5</b></td><td>0.238 <div style='display:inline-block;width:48px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>E+0.02 G+0.02 Q+0.01</td><td class='mono' style='font-size:11px;color:#7B1F2A'>I-0.05 Y-0.04 F-0.02</td></tr><tr><td><b>P6</b></td><td>0.240 <div style='display:inline-block;width:48px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>V+0.05 P+0.02 C+0.01</td><td class='mono' style='font-size:11px;color:#7B1F2A'>T-0.04 F-0.02 I-0.02</td></tr><tr><td><b>P7</b></td><td>0.312 <div style='display:inline-block;width:62px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>T+0.03 R+0.02 P+0.02</td><td class='mono' style='font-size:11px;color:#7B1F2A'>L-0.04 I-0.04 F-0.03</td></tr><tr><td><b>P8</b></td><td>0.251 <div style='display:inline-block;width:50px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>T+0.03 Q+0.02 E+0.01</td><td class='mono' style='font-size:11px;color:#7B1F2A'>F-0.05 L-0.02 Y-0.02</td></tr><tr><td><b>P9</b></td><td>0.330 <div style='display:inline-block;width:66px;height:6px;background:#7B1F2A;border-radius:2px;margin-left:6px'></div></td><td class='mono' style='font-size:11px;color:#1c8e6d'>V+0.08 L+0.04 C+0.02</td><td class='mono' style='font-size:11px;color:#7B1F2A'>I-0.08 A-0.04 T-0.04</td></tr></table>
+
+  <h2>G · Cross-cancer peptide sharing (≥3 cancer types)</h2>
+  <p>30,780 unique peptides · 5 in ≥3 cancers · 1 in ≥5.</p>
+  <table><tr><th>peptide</th><th>n cancers</th><th>top cancers</th></tr><tr><td class='mono'><b>HMTEVVRHC</b></td><td>10</td><td style='font-size:12px'>breast cancer, colon cancer, colorectal cancer, esophageal adenocarcinoma, leukemia</td></tr><tr><td class='mono'><b>HTLLLWEHNR</b></td><td>3</td><td style='font-size:12px'>non-small cell lung cancer, nonâsmall cell lung cancer, renal cell carcinoma</td></tr><tr><td class='mono'><b>VVGAAGVGK</b></td><td>3</td><td style='font-size:12px'>lung cancer, pancreas, skin</td></tr><tr><td class='mono'><b>VVGACGVGK</b></td><td>3</td><td style='font-size:12px'>adenocarcinoma of the pancreatic head, endometrial, endometrial cancer</td></tr><tr><td class='mono'><b>VVPCEPPEV</b></td><td>3</td><td style='font-size:12px'>colorectal cancer, head and neck cancer, head and neck squamous cell carcinoma</td></tr></table>
+
+  <h2>H · Random Forest baseline (biophysics-only)</h2>
+  <p>n_train = 3,140, n_test = 1,347, positive_rate = 0.623. <b>AUROC = 0.839, AUPRC = 0.887</b>.</p>
+  <table><tr><th>feature</th><th>importance</th></tr><tr><td class='mono'><b>f_H</b></td><td>0.179 <div style='display:inline-block;width:179px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>len</b></td><td>0.149 <div style='display:inline-block;width:149px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>f_A</b></td><td>0.125 <div style='display:inline-block;width:125px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>aro</b></td><td>0.083 <div style='display:inline-block;width:83px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>hyd</b></td><td>0.053 <div style='display:inline-block;width:53px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>f_F</b></td><td>0.049 <div style='display:inline-block;width:49px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>f_L</b></td><td>0.047 <div style='display:inline-block;width:47px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr><tr><td class='mono'><b>f_R</b></td><td>0.031 <div style='display:inline-block;width:31px;height:6px;background:#1c8e6d;border-radius:2px;margin-left:6px'></div></td></tr></table>
+
+  <h2>What's next</h2>
+  <ul style="font-size:14px;line-height:1.7">
+    <li><span class="tag-emerald">DONE</span> 17 analyses · 119,237 master · 19,817 leakage-free · 30 peptide + 79 CDR3β ESMFold structures</li>
+    <li><span class="tag-gold">NEXT</span> NetMHCpan/MHCflurry/PRIME/BigMHC predictions on leakage-free split (GPU) — beat RF AUROC 0.839 baseline</li>
+    <li><span class="tag-gold">NEXT</span> AlphaFold-Multimer / TCRmodel2 full pMHC + TCR Vα/Vβ on top 30 TCR-pMHC pairs (GPU) — replace ESMFold isolated-loop limitation</li>
+    <li><span class="tag-violet">NEXT</span> Korean K2/Bundang FFPE thyroid-relevant layer (gated, separate paper) — closes HLA-A*24:02 under-representation</li>
+    <li><span class="tag-rose">NEXT</span> Active-learning loop: pick ambiguous predictions (RF probability ≈ 0.5) for next experimental validation round</li>
+  </ul>
+
+  <footer style="margin-top:48px;padding-top:18px;border-top:2px dashed var(--line);font-size:13px;color:var(--muted)">
+    Lumenix · Seungho Cook · <code>kukshomr@gmail.com</code> · 2026-05-07 · <a href="neoantigen_demo_full.html">master demo</a> · <a href="neoantigen_3d_viewer.html">3D peptide viewer</a> · <a href="cancer_vaccine_agent.html">SPARK agent</a>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" /><title>Lumenix · Active Learning Browser</title>
+<style>
+:root{--ink:#0e1828;--paper:#fbf6ec;--muted:#576275;--line:#d6c8b3;--emerald:#1c8e6d;--rose:#7B1F2A;--violet:#4f2db5;--gold:#b58534;--coal:#0c1422}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 100%);color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;font-size:15px;line-height:1.6}
+.wrap{max-width:1300px;margin:0 auto;padding:36px 32px 96px}
+.kicker{font-family:'JetBrains Mono',monospace;color:var(--rose);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-family:"Cormorant Garamond",serif;font-size:54px;line-height:1.05;margin:0 0 12px;color:var(--coal);font-weight:700}
+h2{font-family:"Cormorant Garamond",serif;font-size:30px;color:var(--coal);margin:32px 0 8px;border-bottom:3px solid var(--rose);padding-bottom:5px}
+.lead{color:var(--muted);font-style:italic;font-size:18px;margin:14px 0 20px;max-width:900px}
+.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 28px}
+.kpi div{background:#fff;border:2px solid var(--coal);border-radius:12px;padding:11px 13px;box-shadow:5px 5px 0 rgba(12,20,34,.07)}
+.kpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--rose);line-height:1;font-weight:700}
+.kpi span{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:5px;text-transform:uppercase}
+.controls{background:#fff;padding:14px 20px;border-radius:10px;margin:14px 0;border:2px solid var(--line);box-shadow:3px 3px 0 rgba(12,20,34,.05)}
+input[type="text"]{padding:8px 12px;font-family:'JetBrains Mono',monospace;border:1px solid var(--line);border-radius:6px;width:300px;font-size:14px}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;border-radius:10px;overflow:hidden;box-shadow:3px 3px 0 rgba(12,20,34,.06);margin:14px 0}
+th{background:var(--coal);color:#fff;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;text-transform:uppercase;cursor:pointer}
+th:hover{background:var(--rose)}
+td{border-bottom:1px solid var(--line);padding:6px 12px;font-size:13px}
+td.mono{font-family:'JetBrains Mono',monospace;color:var(--rose)}
+.callout{background:#fff;border-left:6px solid var(--rose);padding:14px 20px;border-radius:8px;margin:14px 0;box-shadow:3px 3px 0 rgba(12,20,34,.05)}
+</style></head><body><div class="wrap">
+<div class="kicker">Lumenix · Active Learning Browser · 2026-05-08</div>
+<h1>Active Learning · 50 Most-Uncertain Peptides</h1>
+<p class="lead">RandomForest predicted-probability ≈ 0.5 unlabeled peptides — these are the most information-yielding candidates for the next wet-lab tetramer / IFN-γ ELISpot experiment. Use the controls below to filter by source, peptide length, or HLA.</p>
+
+<div class="kpi">
+<div><b>50</b><span>most-uncertain candidates</span></div>
+<div><b>231</b><span>unlabeled candidate pool</span></div>
+<div><b>~0.5</b><span>RF predicted probability target</span></div>
+<div><b>$5k</b><span>est. ELISpot cost (50 peptides)</span></div>
+<div><b>~6w</b><span>wet-lab cycle time</span></div>
+</div>
+
+<div class="controls">
+<label>Filter peptide: <input type="text" id="search" placeholder="e.g. KLF / GADGV / etc." oninput="filter()" /></label>
+&nbsp;&nbsp;<label>Filter HLA: <input type="text" id="hla" placeholder="e.g. A*02 / DR" oninput="filter()" /></label>
+&nbsp;&nbsp;<button onclick="document.getElementById('search').value='';document.getElementById('hla').value='';filter()" style="padding:8px 14px;background:var(--rose);color:#fff;border:none;border-radius:6px;cursor:pointer">Clear</button>
+</div>
+
+<table id="alTable">
+<thead><tr><th onclick="sortBy(0)">#</th><th onclick="sortBy(1)">peptide</th><th onclick="sortBy(2)">HLA</th><th onclick="sortBy(3)">gene</th><th onclick="sortBy(4)">cancer</th><th onclick="sortBy(5)">source</th><th onclick="sortBy(6)">RF proba</th><th onclick="sortBy(7)">uncertainty</th></tr></thead>
+<tbody id="alBody">
+<tr><td>—</td><td colspan="7" style="text-align:center;color:var(--muted);font-style:italic">loading data from neoantigen_hub_data/active_learning_top50.tsv …</td></tr>
+</tbody>
+</table>
+
+<div class="callout">
+<strong>How to use this list</strong>:<br>
+1. Pick top 5-10 peptides by uncertainty (closest to 0.5).<br>
+2. Synthesize at IDT or equivalent (~$30/peptide).<br>
+3. Test in HLA-tg mouse spleen ELISpot or PBMC tetramer.<br>
+4. Feed labels back into master corpus → re-train → next iteration.<br>
+The expected information yield is highest near proba=0.5 — these are the peptides where the model is genuinely uncertain.
+</div>
+
+<h2>Direct download</h2>
+<p><a href="neoantigen_hub_data/active_learning_top50.tsv" style="color:var(--rose);font-family:'JetBrains Mono',monospace;font-size:13px">▶ Download active_learning_top50.tsv</a></p>
+
+<p style="margin-top:30px"><a href="lumenix_cancer_vaccine_index.html" style="color:var(--rose);font-weight:700;text-decoration:none">◀ Master index</a></p>
+</div>
+
+<script>
+let allRows = [];
+let sortCol = 7, sortDir = 1;
+
+async function load() {
+  try {
+    const res = await fetch('neoantigen_hub_data/active_learning_top50.tsv');
+    if (!res.ok) throw new Error('fetch fail');
+    const text = await res.text();
+    const lines = text.trim().split('\n');
+    const headers = lines[0].split('\t');
+    allRows = lines.slice(1).map(l => {
+      const c = l.split('\t');
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = c[i] || '');
+      return obj;
+    });
+    render(allRows);
+  } catch(e) {
+    document.getElementById('alBody').innerHTML = '<tr><td colspan="8" style="color:#c44b88;text-align:center">Failed to load active learning TSV. Check that neoantigen_hub_data/active_learning_top50.tsv is reachable.</td></tr>';
+    console.error(e);
+  }
+}
+function render(rows) {
+  const body = document.getElementById('alBody');
+  body.innerHTML = rows.map((r, i) => `<tr>
+    <td>${i+1}</td>
+    <td class="mono"><b>${r.mt_peptide || ''}</b></td>
+    <td class="mono">${r.hla_normalized || ''}</td>
+    <td>${r.gene || ''}</td>
+    <td style="font-size:11.5px">${(r.cancer_type || '').slice(0,30)}</td>
+    <td style="font-size:11px">${(r.source_dataset || '').slice(0,25)}</td>
+    <td class="mono">${parseFloat(r.pred_proba||0).toFixed(3)}</td>
+    <td class="mono">${parseFloat(r.uncertainty||0).toFixed(3)}</td>
+  </tr>`).join('');
+}
+function filter() {
+  const q = document.getElementById('search').value.toUpperCase();
+  const h = document.getElementById('hla').value.toUpperCase();
+  const f = allRows.filter(r =>
+    (r.mt_peptide||'').toUpperCase().includes(q) &&
+    (r.hla_normalized||'').toUpperCase().includes(h)
+  );
+  render(f);
+}
+function sortBy(col) {
+  const keys = [null, 'mt_peptide', 'hla_normalized', 'gene', 'cancer_type', 'source_dataset', 'pred_proba', 'uncertainty'];
+  if (col === 0 || !keys[col]) return;
+  if (sortCol === col) sortDir *= -1; else { sortCol = col; sortDir = 1; }
+  const k = keys[col];
+  allRows.sort((a, b) => {
+    const va = isNaN(parseFloat(a[k])) ? a[k] : parseFloat(a[k]);
+    const vb = isNaN(parseFloat(b[k])) ? b[k] : parseFloat(b[k]);
+    return va < vb ? -sortDir : va > vb ? sortDir : 0;
+  });
+  render(allRows);
+}
+window.addEventListener('load', load);
+</script>
+</body></html>

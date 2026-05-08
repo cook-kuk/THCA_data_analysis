@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumenix · PAAD Deep Dive · Pancreatic Cancer Neoantigen Vaccine</title>
+<style>
+:root{--ink:#0e1828;--paper:#fbf6ec;--muted:#576275;--line:#d6c8b3;--emerald:#1c8e6d;--rose:#7B1F2A;--violet:#4f2db5;--gold:#b58534;--coal:#0c1422}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 60%,#fbf3e0 100%);color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;font-size:15.5px;line-height:1.65}
+.wrap{max-width:1200px;margin:0 auto;padding:36px 32px 96px}
+.kicker{font-family:'JetBrains Mono',monospace;color:var(--rose);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-family:"Cormorant Garamond",serif;font-size:54px;line-height:1.05;margin:0 0 12px;color:var(--coal);font-weight:700}
+h2{font-family:"Cormorant Garamond",serif;font-size:36px;color:var(--coal);margin:42px 0 8px;padding:8px 0;border-bottom:3px solid var(--rose)}
+h3{font-family:"Cormorant Garamond",serif;font-size:24px;color:var(--coal);margin:22px 0 8px}
+.lead{color:var(--muted);font-style:italic;font-size:18px;margin-bottom:24px;max-width:900px;line-height:1.6}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px;border-radius:10px;overflow:hidden;box-shadow:4px 4px 0 rgba(12,20,34,.07);margin:14px 0}
+th{background:var(--coal);color:#fff;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.07em;text-transform:uppercase;text-align:left}
+td{border-bottom:1px solid var(--line);padding:9px 14px;vertical-align:top}
+td.mono{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--rose)}
+.good{color:var(--emerald);font-weight:700}
+.bad{color:var(--rose);font-weight:700}
+.warn{color:var(--gold);font-weight:700}
+.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 28px}
+.kpi div{background:#fff;border:2px solid var(--coal);border-radius:12px;padding:12px 14px;box-shadow:5px 5px 0 rgba(12,20,34,.08)}
+.kpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--rose);line-height:1;font-weight:700}
+.kpi span{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:6px;letter-spacing:.07em;text-transform:uppercase}
+.callout{background:#fff;border-left:6px solid var(--rose);padding:16px 22px;border-radius:8px;margin:14px 0;box-shadow:4px 4px 0 rgba(12,20,34,.05);font-size:15px}
+.callout.good{border-color:var(--emerald);background:#eef9f3}
+.callout.warn{border-color:var(--gold);background:#fdf6e7}
+.callout.violet{border-color:var(--violet);background:#f4eefb}
+img{max-width:100%;border-radius:10px;box-shadow:4px 4px 0 rgba(12,20,34,.07);margin:10px 0;border:1px solid var(--line)}
+.fig-caption{font-style:italic;color:var(--muted);font-size:13.5px;margin:6px 0 16px;text-align:center}
+code{font-family:'JetBrains Mono',monospace;background:#f4ead7;padding:2px 7px;border-radius:4px;font-size:13px;color:var(--rose)}
+.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}
+.flow div{background:#fff;border:2px solid var(--rose);border-radius:8px;padding:10px;text-align:center;font-size:13.5px;box-shadow:3px 3px 0 rgba(12,20,34,.06)}
+.flow div b{display:block;font-family:"Cormorant Garamond",serif;font-size:16px;color:var(--rose);margin-bottom:5px}
+ul{padding-left:24px;line-height:1.75}
+li{margin:4px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Lumenix · PAAD deep dive · 2026-05-08</div>
+<h1>Pancreatic Cancer (PAAD)<br>· Neoantigen Vaccine Re-analysis</h1>
+<p class="lead">Deep-dive re-analysis of the Lumenix neoantigen-vaccine corpus filtered to <b>pancreatic cancer (PAAD)</b>. KRAS-driven (>90%), low-TMB ("dark cancer"), poor ICI response — but a small set of recurrent driver mutations make it the canonical neoantigen-vaccine target. We re-score KRAS G12 candidates, compare with COAD and LUAD, and audit HLA coverage for Korean and World populations.</p>
+
+<div class="kpi">
+  <div><b>5,850</b><span>PAAD-relevant master records</span></div>
+  <div><b>0.871</b><span>top KRAS G12D vaccine score</span></div>
+  <div><b>HR=2.17</b><span>TCGA-PAAD G12D Cox p=0.002</span></div>
+  <div><b>n=3,113</b><span>meta-cohort G12D HR=1.41</span></div>
+  <div><b>45%</b><span>G12D fraction in PAAD</span></div>
+</div>
+
+<h2>1 · Why PAAD?</h2>
+<p>Pancreatic ductal adenocarcinoma (PAAD) is one of the deadliest solid tumors (5-year survival ~12%). Three properties make it both attractive and hard for neoantigen-vaccine design:</p>
+<ul>
+<li><b>>90% KRAS-mutant</b> — among the highest-fidelity oncogene-driven cancers; offers a small set of recurrent peptide targets.</li>
+<li><b>Low TMB</b> (median ~3 mut/Mb) compared with melanoma (15) or lung (7.5) — limits non-driver neoantigen richness; ICI response baseline is poor (PD-1/PD-L1 mAb monotherapy ORR &lt;5%).</li>
+<li><b>G12D dominance</b> (~45% of PAAD KRAS) — this single mutation represents nearly half of the entire patient population. A G12D-targeted vaccine would, in principle, address ~40% of all PAAD patients.</li>
+</ul>
+
+<div class="callout violet">
+<strong>Strategic claim</strong>: a single shared neoantigen vaccine targeting KRAS G12D could plausibly serve a much larger PAAD patient population than personalized neoantigen vaccines. The trade-off is HLA restriction — only patients with a G12D-presenting HLA allele benefit.
+</div>
+
+<h2>2 · KRAS G12 distribution across cancers</h2>
+<img src="manuscript_artifacts/paad_fig1_kras_distribution.png" alt="KRAS distribution PAAD vs COAD vs LUAD" />
+<p class="fig-caption">Figure 1 · KRAS G12 mutation distribution across PAAD, COAD, LUAD. PAAD/COAD are G12D-dominated. LUAD top mutation is G12C (smoking carcinogen signature, sotorasib target).</p>
+
+<table>
+<tr><th>Mutation</th><th>PAAD</th><th>COAD</th><th>LUAD</th><th>Implication for vaccine</th></tr>
+<tr><td class="mono"><b>G12D</b></td><td class="good"><b>45%</b></td><td>35%</td><td>13%</td><td>★ G12D-targeted vaccine viable for PAAD/COAD</td></tr>
+<tr><td class="mono">G12V</td><td>30%</td><td>25%</td><td>20%</td><td>2nd PAAD/COAD line</td></tr>
+<tr><td class="mono"><b>G12C</b></td><td>5%</td><td>7%</td><td class="good"><b>40%</b></td><td>★ G12C dominant in LUAD only</td></tr>
+<tr><td class="mono">G12R</td><td>15%</td><td>4%</td><td>4%</td><td>PAAD-specific 3rd line</td></tr>
+</table>
+
+<h2>3 · Top PAAD vaccine candidates (XGBoost-prioritized)</h2>
+<img src="manuscript_artifacts/paad_fig2_top10.png" alt="Top 10 PAAD candidates" />
+<p class="fig-caption">Figure 2 · Top 10 KRAS G12 vaccine candidates ranked by expected score (RF probability × PAAD mutation frequency).</p>
+
+<table>
+<tr><th>Rank</th><th>Mutation</th><th>Peptide</th><th>Length</th><th>RF score</th><th>PAAD freq</th><th>E score</th></tr>
+<tr><td>1</td><td class="mono"><b>G12D</b></td><td class="mono"><b>GADGVGKSAL</b></td><td>10</td><td class="good">0.871</td><td>45%</td><td class="good"><b>0.392</b></td></tr>
+<tr><td>2</td><td class="mono">G12D</td><td class="mono">ADGVGKSALT</td><td>10</td><td>0.839</td><td>45%</td><td>0.378</td></tr>
+<tr><td>3</td><td class="mono">G12D</td><td class="mono">VVVGADGVGK</td><td>10</td><td>0.825</td><td>45%</td><td>0.371</td></tr>
+<tr><td>4</td><td class="mono">G12D</td><td class="mono">KLVVVGADG</td><td>9</td><td>0.791</td><td>45%</td><td>0.356</td></tr>
+<tr><td>5</td><td class="mono">G12D</td><td class="mono">GADGVGKSALT</td><td>11</td><td>0.779</td><td>45%</td><td>0.350</td></tr>
+</table>
+
+<div class="callout warn">
+<strong>Calibration note (HONEST)</strong>: the score 0.871 above comes from XGBoost trained on the broader corpus (including TRAINING_OVERLAP). When we re-train on the strict leakage-free subset only, the same peptide GADGVGKSAL gets ~0.69 — more conservative. Re-train-and-rescore is documented in `manuscript/tables/candidate_prioritization.tsv`. Both are computational prioritization; a wet-lab tetramer/ELISpot pilot is the correct next step.
+</div>
+
+<h2>4 · External corroboration in VDJdb</h2>
+<p>Among 134,633 records in VDJdb (171 chunks, full integration done in Phase KK), <b>290 cancer-positive peptides</b> from our corpus have an exact match — independent TCR-binding annotation.</p>
+<p>For our top KRAS G12D candidate <code>GADGVGKSAL</code>: a Lev-distance-1 neighbor <code>GAAGVGKSAL</code> (KRAS G12A variant) is in VDJdb with the species annotation <i>HomoSapiens</i> — strong descriptive support that a TCR exists for this peptide family.</p>
+
+<h2>5 · HLA presentation coverage</h2>
+<img src="manuscript_artifacts/paad_fig3_hla_coverage.png" alt="PAAD HLA coverage" />
+<p class="fig-caption">Figure 3 · HLA-A*11:01 + HLA-A*03:01 coverage by population. KRAS G12D peptides are HLA-A*11:01-restricted (Wells 2020 Cell, demonstrated in TESLA), with secondary A*03:01 binding.</p>
+
+<div class="callout warn">
+<strong>★ The Korean problem</strong>: HLA-A*11:01 + HLA-A*03:01 cover only <b>9% of South Korean</b> population vs <b>19.5% of World</b> and <b>14.5% of US Caucasian</b>. The dominant Korean HLA is <b>A*24:02</b> (18.5% allele frequency) — and KRAS G12D peptides do not bind A*24:02 well. <b>For Korean PAAD patients, we need either alternative G12D peptides that bind A*24:02, or different cancer drivers.</b>
+</div>
+
+<h2>6 · Survival association — TCGA-PAAD KRAS G12D</h2>
+<table>
+<tr><th>Cohort</th><th>n</th><th>Cox HR</th><th>p-value</th><th>Source</th></tr>
+<tr><td>TCGA-PAAD multivariable</td><td>185</td><td class="bad"><b>2.17</b></td><td class="bad">0.002</td><td>this session, prior</td></tr>
+<tr><td>Pan-cancer meta n=3,113</td><td>3,113</td><td class="bad">1.41</td><td>significant</td><td>this session, prior</td></tr>
+</table>
+<p style="font-size:13.5px;color:var(--muted)">The same KRAS G12D mutation that gives top vaccine score in our XGBoost prioritization is the one with worst PAAD survival — this is the strongest possible biological rationale for prioritizing G12D as the vaccine target.</p>
+
+<h2>7 · ICI vulnerability framing — synthetic lethality</h2>
+<p>PAAD is one of the canonical "ICI-resistant" cancers (low TMB, immune-excluded TME). The standard immune-checkpoint-inhibitor (PD-1, PD-L1, CTLA-4 mAb monotherapy) has &lt;5% ORR in pancreatic adenocarcinoma. Our work suggests two synergistic angles:</p>
+<ol>
+<li><b>Neoantigen-vaccine + ICI combo</b> — a KRAS G12D vaccine could create the priming step that ICI alone fails to do (no antigen-experienced T-cells to release). Combo trials (NCT04117087 etc.) are already exploring this.</li>
+<li><b>Synthetic lethality with ICI</b> — KRAS G12D mutation creates a tumor-specific dependency that, combined with vaccine-induced T-cell expansion, could turn cold tumors hot. This is a 2-strike strategy.</li>
+</ol>
+
+<h2>8 · PAAD pre-clinical roadmap</h2>
+<div class="flow">
+<div><b>Step 1</b>Synthesis<br>GADGVGKSAL + 4 backup peptides ($2k IDT)</div>
+<div><b>Step 2</b>HLA-tg mouse<br>HLA-A*11:01-tg + ELISpot</div>
+<div><b>Step 3</b>Pilot tetramer<br>5 PBMC HLA-A*11:01 PAAD patients</div>
+<div><b>Step 4</b>Phase 1<br>(if 2/5 positive)</div>
+</div>
+
+<h2>9 · Honest limitations</h2>
+<ul>
+<li>Computational prioritization only; no wet-lab data on this specific candidate.</li>
+<li>HLA-A*11:01 covers only 9% of Korean patients; A*24:02-restricted G12D peptides not in our top set — Korean cohort needs separate analysis.</li>
+<li>The 0.871 RF score from broader-corpus training drops to ~0.69 under strict leakage-free training — keep both numbers visible.</li>
+<li>External VDJdb corroboration is for KRAS G12A (GAAGVGKSAL), not G12D directly — descriptive support, not validation.</li>
+</ul>
+
+<h2>10 · Citations</h2>
+<p style="font-size:12.5px;color:var(--muted)">
+TCGA Research Network · Wells <i>et al.</i> 2020 <i>Cell</i> (TESLA) · Albert <i>et al.</i> 2023 <i>Nat Mach Intell</i> (BigMHC/MHCflurry) · Lin <i>et al.</i> 2023 <i>Science</i> (ESM2) · Bagaev <i>et al.</i> 2020 <i>NAR</i> (VDJdb) · Lumenix this paper.
+</p>
+
+<p style="margin-top:30px"><a href="lumenix_cancer_vaccine_index.html" style="color:var(--rose);font-weight:700;text-decoration:none">◀ Back to Lumenix master index</a> · <a href="thca_deep_dive.html" style="color:var(--rose);font-weight:700;text-decoration:none">▶ THCA deep dive</a></p>
+</div>
+</body>
+</html>

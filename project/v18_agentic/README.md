@@ -101,6 +101,33 @@ docs/
 2. [The six components of an agent](docs/tutorial_02_six_components.md)
 3. [The five patterns](docs/tutorial_03_five_patterns.md)
 
+## v19 roadmap — `domains/research_compass`
+
+The `core/` spine and `patterns/` are domain-agnostic. The v19 layer puts that
+to the test by adding the first `domains/` module: a CV-conditioned topic
+recommender that combines phylo.bio-style composite scoring with a five-stage
+pipeline orchestrated by `TieredParallelOrchestrator`.
+
+```
+CV  ─▶  ResearchProfile
+            │
+            ▼
+       ┌── journal_feed (BRIC 한빛사 + bioRxiv + top RSS)
+       ├── method_index (keyword-indexed method papers)
+       └── data_registry (GEO/SRA/cBioPortal/UKB metadata)
+            │
+            ▼
+       topic_ranker  ──▶  TopicHypothesis[]  (HIGH/MEDIUM/LOW)
+```
+
+Demo: `python3 -m examples.research_compass_demo` (offline, ~0.05s).
+Tests: `pytest tests/test_research_compass.py -q` (4 unit tests).
+See `agentic_research/domains/research_compass/README.md` for the full design.
+
+The v0 wires offline stubs end-to-end. Live fetchers (NCBI Entrez, bioRxiv API,
+BRIC scraper, cBioPortal REST, UKB Showcase, top-tier RSS) and an LLM-backed
+CV parser + `ReviewerLoop`-wrapped ranker are deferred to v0.2.
+
 ## Status
 
 Alpha. The interfaces are stable enough to build on but not stable enough to

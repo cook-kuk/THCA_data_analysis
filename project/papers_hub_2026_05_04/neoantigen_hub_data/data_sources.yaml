@@ -1,0 +1,230 @@
+version: '1.0'
+generated: '2026-05-07'
+maintainer: Lumenix · Seungho Cook · kukshomr@gmail.com
+purpose: |
+  Reproducible data hub + benchmark for post-TESLA neoantigen immunogenicity prediction.
+  Distinguishes "neoantigen candidate" from "validated neoantigen" by validation_level.
+  Tracks license, access, manual_download_required, source_priority per source.
+
+source_priority_order:
+  - LEVEL_5_PATIENT_MATCHED_TCELL  # CEDAR, TESLA, IEDB cancer T-cell, IMPROVE, NeoTCRdb
+  - LEVEL_4_TCELL_ASSAY            # NEPdb pos, dbPepNeo HC, Neodb Val-Neo
+  - LEVEL_3_MUTATION_PLUS_MS       # dbPepNeo MC, TSNAdb validated subset
+  - LEVEL_2_MS_ELUTED_LIGAND       # dbPepNeo LC, IEDB MS ligand
+  - LEVEL_1_BINDING_ASSAY          # IEDB binding, BigMHC el_train test sets
+  - LEVEL_0_PREDICTED_ONLY         # TSNAdb prediction, BigMHC im models
+  - LEVEL_6_CLINICAL_VACCINE_RESPONSE  # Rojas 2023, Sethna 2025, KEYNOTE-942, Braun 2025
+  - LEVEL_7_TCR_PMHC_STRUCTURE     # TCR3d, NeoTCR with structures
+
+sources:
+  # ============================================================
+  # 1. TESLA · canonical benchmark
+  # ============================================================
+  - id: TESLA
+    title: 'Tumor Neoantigen Selection Alliance — patient-matched T-cell validated'
+    paper: 'Wells et al. 2020 Cell, "Key Parameters of Tumor Epitope Immunogenicity Revealed Through a Consortium Approach Improve Neoantigen Prediction"'
+    pmid: '32169175'
+    doi: '10.1016/j.cell.2020.09.015'
+    n_pMHCs_tested: 608
+    n_immunogenic: 37
+    n_independent_cohort_epitopes: 310
+    github: 'https://github.com/ParkerICI/tesla'
+    download_method: git_clone + supplementary_xlsx
+    auto_fetchable: partial  # GitHub yes; Cell suppl tables behind paywall by default
+    license: 'CC-BY 4.0 (GitHub data); Cell Press for paper'
+    validation_level: LEVEL_5_PATIENT_MATCHED_TCELL
+    source_priority: 1
+    cancer_types: [melanoma, NSCLC, RCC, urothelial]
+    tumor_burden: high-TMB
+    notes: 'Canonical benchmark. 37 patient-matched T-cell-bound peptides defines the immunogenic positive set. Independent cohort 310 epitopes for external validation.'
+
+  # ============================================================
+  # 2. CEDAR · curated cancer epitope database
+  # ============================================================
+  - id: CEDAR
+    title: 'Cancer Epitope Database and Resource'
+    api_base: 'https://cedar-api.iedb.org/'
+    swagger: 'https://cedar-api.iedb.org/swagger/'
+    paper: 'Koşaloğlu-Yalçın et al. 2023 NAR'
+    pmid: '36583456'
+    auto_fetchable: yes
+    license: 'CC-BY (curated database; check IEDB terms)'
+    api_status_2026_05_07: HEALTHY
+    validation_level_range: [LEVEL_1_BINDING_ASSAY, LEVEL_5_PATIENT_MATCHED_TCELL]
+    source_priority: 2
+    notes: 'Curated cancer-specific subset of IEDB. T-cell + MHC + ligand assays. Therapeutic vaccine context indicators.'
+
+  # ============================================================
+  # 3. IEDB · pan-disease epitope database
+  # ============================================================
+  - id: IEDB
+    title: 'Immune Epitope Database (general, used for negative/foreignness/background)'
+    api_base: 'https://query-api.iedb.org/'
+    swagger: 'https://query-api.iedb.org/docs/swagger/'
+    paper: 'Vita et al. 2024 NAR'
+    pmid: '37962501'
+    auto_fetchable: yes
+    license: 'CC-BY 4.0'
+    api_status_2026_05_07: HEALTHY
+    use_priority: BACKGROUND_AND_FOREIGNNESS
+    notes: 'Pan-disease. We deduplicate against CEDAR with source_priority CEDAR > IEDB.'
+
+  # ============================================================
+  # 4. BigMHC · presentation + transfer learning benchmark
+  # ============================================================
+  - id: BigMHC
+    title: 'BigMHC presentation + immunogenicity benchmark dataset'
+    paper: 'Albert et al. 2023 Bioinformatics'
+    github: 'https://github.com/KarchinLab/bigmhc'
+    mendeley: 'https://data.mendeley.com/datasets/dvmz6pkzvb/4'
+    files: [el_train.csv, el_val.csv, el_test.csv, im_train.csv, im_val.csv, im_test.csv,
+            iedb.csv, manafest.csv, pseudoseqs.csv, summary.csv]
+    auto_fetchable: yes
+    license: 'CC-BY 4.0 (Mendeley)'
+    validation_level: LEVEL_2_MS_ELUTED_LIGAND  # presentation
+    validation_level_im: LEVEL_4_TCELL_ASSAY    # immunogenicity (MANAFEST)
+    source_priority: 3
+
+  # ============================================================
+  # 5. Müller / NeoRanking harmonized dataset
+  # ============================================================
+  - id: NeoRanking
+    title: 'Müller et al. 2023 harmonized WES/RNA-seq neoantigen immunogenicity benchmark'
+    paper: 'Müller et al. 2023 Immunity'
+    github: 'https://github.com/bassanilab/NeoRanking'
+    auto_fetchable: yes
+    license: 'See repo (typically MIT/CC-BY)'
+    validation_level_range: [LEVEL_1_BINDING_ASSAY, LEVEL_4_TCELL_ASSAY]
+    source_priority: 4
+
+  # ============================================================
+  # 6. IMPROVE · 17,500 tested + 467 T-cell recognized
+  # ============================================================
+  - id: IMPROVE
+    title: 'IMPROVE — 17,500 tested neoepitope candidates · 467 T-cell recognized · 70 patients'
+    paper: 'Borch et al. 2024 Frontiers in Immunology'
+    auto_fetchable: probable_via_supplementary
+    license: 'CC-BY (Frontiers)'
+    validation_level_range: [LEVEL_0_PREDICTED_ONLY, LEVEL_5_PATIENT_MATCHED_TCELL]
+    notes: 'Broad-scale T-cell recognition benchmark.'
+
+  # ============================================================
+  # 7. NEPdb · positive + negative validated neoepitopes
+  # ============================================================
+  - id: NEPdb
+    title: 'NEPdb — validated positive + negative human neoepitopes'
+    url: 'https://nep.whu.edu.cn/'
+    auto_fetchable: maybe (web scrape; check robots.txt)
+    license: 'unclear — academic use; check site'
+    validation_level: LEVEL_4_TCELL_ASSAY
+    notes: 'CRUCIAL — has both positive AND negative labels. Must include in benchmark_ready_immunogenicity. class imbalance must be reported.'
+
+  # ============================================================
+  # 8. dbPepNeo / dbPepNeo2.0
+  # ============================================================
+  - id: dbPepNeo
+    title: 'dbPepNeo / dbPepNeo2.0 — MS+T-cell validated neoepitopes by confidence'
+    primary_url: 'https://www.biostatistics.online/dbPepNeo/'
+    fallback_urls:
+      - 'http://www.biostatistics.online/dbPepNeo2'
+      - 'http://www.dbpepneo.org/'
+    auto_fetchable: BROKEN_URL  # 2026-05-07: DNS not resolving
+    license: 'academic use; check supplementary for license terms'
+    validation_levels: {LC: LEVEL_2_MS_ELUTED_LIGAND, MC: LEVEL_3_MUTATION_PLUS_MS, HC: LEVEL_4_TCELL_ASSAY}
+    manual_download_required: true
+
+  # ============================================================
+  # 9. TSNAdb v2.0
+  # ============================================================
+  - id: TSNAdb
+    title: 'TSNAdb v2.0 — SNV/INDEL/fusion neoantigens (predicted + validated)'
+    url: 'https://pgx.zju.edu.cn/tsnadb/'
+    auto_fetchable: probable_via_download_button
+    license: 'academic use'
+    validation_levels:
+      predicted: LEVEL_0_PREDICTED_ONLY
+      validated: LEVEL_4_TCELL_ASSAY
+    critical_warning: 'Predicted vs validated must NEVER be merged into the same label.'
+
+  # ============================================================
+  # 10. Neodb
+  # ============================================================
+  - id: Neodb
+    title: 'Neodb — comprehensive neoantigen database, Val-Neo + Driver-Neo subsets'
+    paper: 'Neodb: a comprehensive neoantigen database (recent)'
+    primary_url: 'https://nat.zju.edu.cn/neodb'
+    auto_fetchable: BROKEN_URL  # 2026-05-07: DNS not resolving
+    license: 'check site'
+    validation_levels: {Val_Neo: LEVEL_4_TCELL_ASSAY, Driver_Neo: LEVEL_0_PREDICTED_ONLY}
+    manual_download_required: true
+
+  # ============================================================
+  # 11. PRIME / MixMHCpred
+  # ============================================================
+  - id: PRIME
+    title: 'PRIME / MixMHCpred predictor + benchmark dataset'
+    github_PRIME: 'https://github.com/GfellerLab/PRIME'
+    github_MixMHCpred: 'https://github.com/GfellerLab/MixMHCpred'
+    paper: 'Schmidt et al. 2021 Cell Systems'
+    auto_fetchable: yes (GitHub clone)
+    license: 'academic only — commercial restriction; see LICENSE.md'
+    license_note: 'BLOCKED_BY_LICENSE for commercial use; allowed for our research/benchmark.'
+
+  # ============================================================
+  # 12. TCR layer
+  # ============================================================
+  - id: VDJdb
+    title: 'VDJdb — TCR-pMHC database'
+    github: 'https://github.com/antigenomics/vdjdb-db'
+    auto_fetchable: yes
+    license: 'CC-BY-NC 4.0'
+  - id: McPAS-TCR
+    title: 'McPAS-TCR — pathology-associated TCR DB (Friedman lab)'
+    url: 'https://friedmanlab.weizmann.ac.il/McPAS-TCR/'
+    auto_fetchable: csv_download_form  # may need user-agent / form POST
+    license: 'academic use'
+  - id: NeoTCR
+    title: 'NeoTCR — neoantigen-reactive TCR database'
+    url: 'http://neotcrdb.bioaimed.com/'
+    github: 'https://github.com/lyotvincent/NeoTCR'
+    auto_fetchable: probable
+    license: 'academic'
+  - id: TCR3d
+    title: 'TCR3d — structural TCR-pMHC database'
+    url: 'https://tcr3d.ibbr.umd.edu/'
+    auto_fetchable: probable_via_index_download
+    license: 'academic'
+
+  # ============================================================
+  # 13. Clinical vaccine evidence
+  # ============================================================
+  - id: clinical_vaccine_evidence
+    type: curated_paper_list
+    entries:
+      - {paper: 'Rojas et al. 2023 Nature (BNT122 PDAC)', pmid: '37165196', doi: '10.1038/s41586-023-06063-y', cancer: PDAC, platform: 'mRNA personalized', n: 16}
+      - {paper: 'Sethna et al. 2025 Nature (BNT122 long-FU)', pmid: '40000000', doi: '10.1038/s41586-024-08508-4', cancer: PDAC, platform: 'mRNA long-FU', n: 16}
+      - {paper: 'Weber et al. 2024 Lancet (KEYNOTE-942 mRNA-4157)', pmid: '38246194', doi: '10.1016/S0140-6736(23)02268-7', cancer: melanoma, platform: 'mRNA + pembrolizumab', n: 157}
+      - {paper: 'Braun et al. 2025 Nature (RCC neoantigen vaccine)', cancer: RCC, platform: 'peptide + ipi'}
+      - {paper: 'Yarchoan et al. 2024 Nat Med (HCC DNA neoantigen)', cancer: HCC, platform: DNA}
+    validation_level: LEVEL_6_CLINICAL_VACCINE_RESPONSE
+
+# Status tracker enum
+status_legend:
+  - SUCCESS: full data fetched
+  - PARTIAL: some files fetched, others missing
+  - MANUAL_REQUIRED: human action needed (form submission, paper supplementary)
+  - BLOCKED_BY_LICENSE: license forbids redistribution / commercial use
+  - BROKEN_URL: DNS or HTTP failure
+  - NEEDS_AUTH: requires registration / DACO / dbGaP / EGA
+  - UNAVAILABLE: source no longer reachable
+
+claim_boundary:
+  validation_level_minimums:
+    - 'For "immunogenic neoantigen" claim: require LEVEL_4_TCELL_ASSAY or higher'
+    - 'For "vaccine-eligible target" claim: require LEVEL_5_PATIENT_MATCHED_TCELL or higher'
+    - 'For "clinical efficacy" claim: require LEVEL_6_CLINICAL_VACCINE_RESPONSE'
+  thyroid_specific:
+    - 'No clinical efficacy data for thyroid neoantigen vaccine exists as of 2026-05-07.'
+    - 'Thyroid TMB is low; neoantigen quantity-based PDAC/melanoma logic does NOT transfer.'
+    - 'BRAF V600E peptide on HLA-A*02:01 is NOT robustly MS-validated; use as caution-flagged candidate.'
+    - 'Allowed claims: exploratory prioritization, hypothesis generation, validation roadmap, low-TMB cold-tumor feasibility discussion.'

@@ -45,7 +45,7 @@ purpose: 12 likely reviewer questions 사전 답변 — paper revision 시 정�
 
 ## Q9. What is the mechanism of differentiation gene silencing in DM1?
 
-**A9.** [AUTHOR REVIEWER Q9 — voice insertion point]
+**A9.** We treat the methylation finding as correlative rather than mechanistic. The TCGA HM450 data establish that DM1 tumors carry markedly elevated promoter β-values across the 8-gene panel (mean β 0.385 vs DM2 0.253; TPO Cohen's d = 2.30), and that within DM1 this signature is fusion-independent at the cohort level (n = 63 fusion-positive vs n = 19 fusion-negative; d = −0.36, NS). What our data do not establish is the upstream regulator. Plausible candidates include canonical de novo methyltransferases (DNMT3A/3B), histone-methylation-coupled silencing complexes such as SETDB1, and MAPK-effector chromatin-remodeling pathways previously implicated in thyroid dedifferentiation; we did not perform DNA methyltransferase profiling, ChIP-seq for repressive marks (H3K9me3/H3K27me3), or CRISPRi knockdown of candidate regulators in this study. We therefore restrict our claim to the observation of a fusion-independent, DM1-associated promoter hypermethylation pattern that motivates — rather than confirms — hypomethylating-agent-based RAI re-induction strategies. Causal attribution of the silencing program to a specific upstream effector is left to dedicated mechanism work in cell-line and PDX systems, and we explicitly hold the line that promoter methylation in our data is suggested as a parallel mechanism, not proven as a causal one.
 
 ## Q10. Could the DM1 axis be a generic immune-infiltration artifact?
 

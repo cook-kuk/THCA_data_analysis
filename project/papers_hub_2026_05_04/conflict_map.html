@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" /><title>Lumenix · Cross-Source Conflict Map</title>
+<style>
+:root{--ink:#0e1828;--paper:#fbf6ec;--muted:#576275;--line:#d6c8b3;--emerald:#1c8e6d;--rose:#7B1F2A;--violet:#4f2db5;--gold:#b58534;--coal:#0c1422}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 100%);color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;font-size:15.5px;line-height:1.65}
+.wrap{max-width:1200px;margin:0 auto;padding:36px 32px 96px}
+.kicker{font-family:'JetBrains Mono',monospace;color:#c44b88;font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-family:"Cormorant Garamond",serif;font-size:54px;line-height:1.05;margin:0 0 12px;color:var(--coal);font-weight:700}
+h2{font-family:"Cormorant Garamond",serif;font-size:34px;color:var(--coal);margin:36px 0 8px;padding:6px 0;border-bottom:3px solid #c44b88}
+.lead{color:var(--muted);font-style:italic;font-size:18px;margin:14px 0 20px;max-width:900px}
+.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 28px}
+.kpi div{background:#fff;border:2px solid var(--coal);border-radius:12px;padding:12px 14px;box-shadow:5px 5px 0 rgba(12,20,34,.08)}
+.kpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:30px;color:#c44b88;line-height:1;font-weight:700}
+.kpi span{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:6px;letter-spacing:.07em;text-transform:uppercase}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13.5px;border-radius:10px;overflow:hidden;box-shadow:4px 4px 0 rgba(12,20,34,.07);margin:14px 0}
+th{background:var(--coal);color:#fff;padding:9px 13px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;text-align:left}
+td{border-bottom:1px solid var(--line);padding:7px 13px}
+td.mono{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#c44b88}
+.callout{background:#fff;border-left:6px solid #c44b88;padding:14px 20px;border-radius:8px;margin:14px 0;box-shadow:4px 4px 0 rgba(12,20,34,.05)}
+.callout.warn{border-color:var(--gold);background:#fdf6e7}
+ul{padding-left:24px}li{margin:4px 0}
+</style></head><body><div class="wrap">
+<div class="kicker">Lumenix · Conflict map · 2026-05-08</div>
+<h1>Cross-Source Conflict Map</h1>
+<p class="lead">2,221 peptides labeled positive in one source AND negative in another. These are NOT bugs; they reflect genuine curator/assay/HLA disagreement that is essential to preserve for honest reporting. We map the source-pair disagreement structure to expose which curators differ most.</p>
+
+<div class="kpi">
+<div><b>2,221</b><span>conflict-flagged peptides</span></div>
+<div><b>27</b><span>NEPdb ↔ Neodb conflicts</span></div>
+<div><b>27</b><span>NEPdb ↔ dbPepNeo</span></div>
+<div><b>22</b><span>NEPdb ↔ Neodb (paired)</span></div>
+<div><b>~9%</b><span>of master labeled rows</span></div>
+</div>
+
+<h2>Top conflicting source-pairs</h2>
+<table>
+<tr><th>Source 1</th><th>Source 2</th><th>n peptides disagreeing</th><th>Likely cause</th></tr>
+<tr><td class="mono">Neodb</td><td class="mono">dbPepNeo2_MHCI</td><td><b>27</b></td><td>Same primary literature, different curator interpretation</td></tr>
+<tr><td class="mono">NEPdb</td><td class="mono">dbPepNeo2_MHCI</td><td>25</td><td>Different inclusion thresholds</td></tr>
+<tr><td class="mono">NEPdb</td><td class="mono">Neodb</td><td>22</td><td>Different assay weighting (tetramer vs ELISpot)</td></tr>
+<tr><td class="mono">TESLA_mmc7_validation</td><td class="mono">dbPepNeo2_MHCI</td><td>7</td><td>TESLA tested, dbPepNeo curated different patient cohort</td></tr>
+<tr><td class="mono">Neodb</td><td class="mono">TESLA_mmc7_validation</td><td>5</td><td>—</td></tr>
+<tr><td class="mono">NEPdb</td><td class="mono">TESLA_mmc7_validation</td><td>2</td><td>—</td></tr>
+<tr><td class="mono">NEPdb</td><td class="mono">TESLA_mmc4</td><td>1</td><td>—</td></tr>
+</table>
+
+<div class="callout">
+<strong>★ Why preserve conflicts?</strong>
+<ul>
+<li><b>Curator disagreement is data</b> — these 2,221 peptides span multiple assays/contexts/patients. Resolving them requires either (a) trust one curator over another (arbitrary), or (b) wet-lab re-validation in a unified setting.</li>
+<li><b>Some are HLA-context-dependent</b> — same peptide can be immunogenic in patient with HLA-A*02:01 but not in HLA-A*24:02 patient.</li>
+<li><b>Some are assay-dependent</b> — IFN-γ ELISpot positive but tetramer-binding negative is biologically informative (T-cell response without classical pMHC presentation).</li>
+<li>Our cleaning pipeline preserves the conflict_flag column rather than collapsing — a reviewer can audit this.</li>
+</ul>
+</div>
+
+<h2>Source curator profile</h2>
+<table>
+<tr><th>Source</th><th>n records</th><th>Curation style</th><th>Bias</th></tr>
+<tr><td class="mono">IEDB v3 T-cell</td><td>62,376</td><td>Aggregated from 1000s of papers</td><td>HLA-A*02:01 dominant; mixed assays</td></tr>
+<tr><td class="mono">NEPdb</td><td>15,556</td><td>Curated from 100+ papers</td><td>Negative-heavy (15,614 N / 298 P) ★</td></tr>
+<tr><td class="mono">McPAS-TCR</td><td>36,474</td><td>TCR-centric curation</td><td>TCR repertoire records, not peptide-centric</td></tr>
+<tr><td class="mono">TESLA mmc4 + mmc7</td><td>915</td><td>Patient-matched HLA-A*11:01-restricted KRAS</td><td>Class-I-only, modern assay-balanced</td></tr>
+<tr><td class="mono">TSNAdb v2 validated</td><td>83</td><td>L4 HELD_OUT validated</td><td>Small but high-quality</td></tr>
+<tr><td class="mono">Neodb</td><td>723</td><td>Literature-curated by Wu 2025</td><td>Asia-influenced; recently published</td></tr>
+<tr><td class="mono">dbPepNeo2</td><td>761</td><td>Wu 2020, dead-site rescued</td><td>HC-tier validation, smaller cohort</td></tr>
+</table>
+
+<div class="callout warn">
+<strong>★ The NEPdb negative-heavy effect</strong>: NEPdb has 98% negative labels (15,614/15,912), driven by its inclusion of "tested but not recognized" peptides. When a model trained on other sources is tested on NEPdb (LOSO), the predicted-positive rate doesn't match — this is why NEPdb-out LOSO AUROC drops to 0.40 with biophys features. ESM2-150M partially recovers (0.86) because PLM features are less affected by per-source label-distribution.
+</div>
+
+<h2>Implications for benchmarking</h2>
+<ul>
+<li>Cross-source benchmarks must report per-source LOSO breakdown (not just mean).</li>
+<li>Models that look uniformly good across LOSO sources are likely memorizing source-distribution.</li>
+<li>The 2,221 conflict peptides should be excluded from training/test or treated as ambiguous label.</li>
+<li>Future benchmark papers should standardize on a curator-cleaned subset (e.g. drop conflict peptides + drop heavily-negative-imbalanced sources).</li>
+</ul>
+
+<p style="margin-top:30px"><a href="tcr_clonotype_atlas.html" style="color:#c44b88;font-weight:700;text-decoration:none">◀ TCR atlas</a> · <a href="lumenix_cancer_vaccine_index.html" style="color:#c44b88;font-weight:700;text-decoration:none">Master index</a> · <a href="pancancer_atlas.html" style="color:#c44b88;font-weight:700;text-decoration:none">▶ Pan-cancer atlas</a></p>
+</div></body></html>

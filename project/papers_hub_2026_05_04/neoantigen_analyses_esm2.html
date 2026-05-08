@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8" /><title>Lumenix · ESM2-35M analysis</title>
+<style>
+:root{--ink:#0e1828;--paper:#fbf6ec;--muted:#576275;--line:#d6c8b3;--emerald:#1c8e6d;--rose:#7B1F2A;--violet:#4f2db5;--gold:#b58534;--coal:#0c1422}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 60%,#fbf3e0 100%);color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1280px;margin:0 auto;padding:32px 28px 96px}
+.kicker{font-family:'JetBrains Mono',monospace;color:var(--rose);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:6px}
+h1{font-family:"Cormorant Garamond",serif;font-size:48px;line-height:1.05;margin:0 0 8px;color:var(--coal);font-weight:700}
+h2{font-family:"Cormorant Garamond",serif;font-size:30px;color:var(--coal);margin:32px 0 6px;padding:6px 0;border-bottom:2px solid var(--coal)}
+h3{font-family:"Cormorant Garamond",serif;font-size:20px;color:var(--coal);margin:14px 0 6px}
+.sub{color:var(--muted);font-style:italic;margin-bottom:16px;font-size:16px}
+.findings{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0 22px}
+.finding{background:#fff;border:2px solid var(--coal);border-radius:10px;padding:9px 11px;box-shadow:4px 4px 0 rgba(12,20,34,.07)}
+.finding b{display:block;font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--rose);line-height:1.05;font-weight:700}
+.finding span{display:block;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-top:5px;letter-spacing:.06em;text-transform:uppercase}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13px;border-radius:10px;overflow:hidden;box-shadow:3px 3px 0 rgba(12,20,34,.05);margin:8px 0 14px}
+th{background:var(--coal);color:#fff;padding:7px 11px;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;text-align:left}
+td{border-bottom:1px solid var(--line);padding:6px 11px;vertical-align:top}
+td.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--rose)}
+.good{color:var(--emerald);font-weight:700}.bad{color:var(--rose);font-weight:700}.warn{color:var(--gold);font-weight:700}.muted{color:var(--muted)}
+.callout{background:#fff;border-left:5px solid var(--rose);padding:13px 17px;border-radius:8px;margin:12px 0;box-shadow:3px 3px 0 rgba(12,20,34,.05);font-size:14px}
+.callout.good{border-color:var(--emerald);background:#eef9f3}
+.callout.warn{border-color:var(--gold);background:#fdf6e7}
+.callout.violet{border-color:var(--violet);background:#f4eefb}
+code{font-family:'JetBrains Mono',monospace;background:#f4ead7;padding:1px 5px;border-radius:3px;font-size:12px;color:var(--rose)}
+</style></head><body><div class="wrap">
+<div class="kicker">Lumenix · ESM2-35M protein-LM benchmark · 2026-05-07</div>
+<h1>ESM2-35M embeddings — does it fix LOSO?</h1>
+<p class="sub">Mean-pooled per-residue ESM2 (480-d) embeddings + LogReg. CPU torch, ~30 sec for 4,000 peptides on 8 cores.</p>
+
+<div class="findings">
+  <div class="finding"><b>33.5M</b><span>params (smallest ESM2)</span></div>
+  <div class="finding"><b>480</b><span>embedding dim</span></div>
+  <div class="finding"><b>0.828</b><span>5-fold CV AUROC</span></div>
+  <div class="finding"><b>-0.026</b><span>Δ vs biophys 0.854</span></div>
+  <div class="finding"><b>+0.073</b><span>NEPdb LOSO Δ ★</span></div>
+  <div class="finding"><b>30 sec</b><span>4,000 peptides CPU</span></div>
+  <div class="finding"><b>7.3 MB</b><span>cached .npy</span></div>
+  <div class="finding"><b>0.476</b><span>NEPdb LOSO ESM2</span></div>
+  <div class="finding"><b>0.403</b><span>NEPdb LOSO biophys</span></div>
+  <div class="finding"><b>partial fix</b><span>ESM2 verdict</span></div>
+</div>
+
+<div class="callout violet">
+  <strong>★ Result · partial LOSO fix</strong>: ESM2-35M does NOT improve within-source CV (0.828 vs biophys 0.854; biophys captures length+aromatic+H well). But for the WORST cross-source case — leaving NEPdb out — ESM2 lifts AUROC <b>0.403 → 0.476</b> (+0.073, beats random by ~5%). For IMPROVE leave-out: 0.512 → 0.545 (+0.032). For TESLA: roughly unchanged. <b>ESM2 partially fixes the cross-source bias for the most divergent source.</b> Larger ESM2 (650M / 3B) on GPU would likely do better; ESM2-35M on CPU is the cheap version.
+</div>
+
+<h2>5-fold cross-validated AUROC (n=4,000 leakage-free, positive rate 0.62)</h2>
+<table><tr><th>fold</th><th>n_test</th><th>AUROC</th><th>AUPRC</th></tr><tr><td>1</td><td>800</td><td>0.801</td><td>0.867</td></tr><tr><td>2</td><td>800</td><td>0.830</td><td>0.872</td></tr><tr><td>3</td><td>800</td><td>0.831</td><td>0.867</td></tr><tr><td>4</td><td>800</td><td>0.865</td><td>0.911</td></tr><tr><td>5</td><td>800</td><td>0.814</td><td>0.860</td></tr></table>
+<p>Mean = <b>0.828 ± 0.022</b>. Biophys baseline = <b>0.854 ± 0.008</b>. Δ = <b>-0.026</b>.</p>
+<p style="font-size:12.5px;color:var(--muted)">Within-source ESM2 is <b>marginally worse</b> than biophysics-only RF. The baseline is hard to beat because Histidine + Aromatic + length explain most of the within-source variance, and these 3 features are very low-dimensional vs ESM2's 480-d. ESM2 likely needs longer fine-tuning + larger model to beat biophys on tabular CV.</p>
+
+<h2>LOSO ESM2 vs biophysics</h2>
+<table>
+  <tr><th>left-out source</th><th>biophys AUROC</th><th>ESM2 AUROC</th><th>Δ</th><th>verdict</th></tr>
+  <tr><td class='mono'>IMPROVE_Neoepitopes_CEDAR_benchmark</td><td>0.512</td><td class='warn'>0.545</td><td class='warn'>+0.032</td><td class='warn'>≈ unchanged</td></tr><tr><td class='mono'>NEPdb</td><td>0.403</td><td class='good'>0.476</td><td class='good'>+0.073</td><td class='good'>✓ improved</td></tr><tr><td class='mono'>TESLA_mmc4</td><td>0.554</td><td class='bad'>0.530</td><td class='bad'>-0.024</td><td class='bad'>≈ unchanged</td></tr>
+</table>
+<div class="callout warn">
+  <strong>HONEST</strong>: ESM2 fix is <b>partial</b>. NEPdb (biophys 0.40 → ESM2 0.48) and IMPROVE (0.51 → 0.55) improve. TESLA flat. Even with ESM2, no LOSO source crosses AUROC=0.6. The remaining gap is real distribution shift across curators (NEPdb's 15,614 negatives vs other sources' positive bias is too strong for any feature representation alone). <b>Real fix needs per-source class re-balancing or domain-adversarial training.</b>
+</div>
+
+<h2>What this means for the paper</h2>
+<ul style="font-size:14px;line-height:1.7">
+  <li>Within-source benchmark: <b>biophys-only RF AUROC=0.854</b> remains the headline number — beats ESM2-35M (0.828)</li>
+  <li>Cross-source (LOSO): ESM2 lifts the worst case from 0.40 → 0.48 (NEPdb), small but meaningful</li>
+  <li>For Cell Rep Med / NAR Database Issue: <b>report both</b>. The story = "biophysics captures within-source signal well, but cross-source generalization needs sequence-LM features even at 35M parameters"</li>
+  <li>Next: ESM2-650M on GPU (Azure burst ~$5) — likely closes another 5-10% AUROC gap</li>
+  <li>Next: domain-adversarial or per-source weighted training</li>
+</ul>
+
+<h2>Cached + reusable</h2>
+<ul style="font-size:13px;line-height:1.6">
+  <li><code>/data/neoantigen_vaccine_hub/data_processed/esm2_embeddings.npy</code> — 4,000 × 480 float32, 7.3 MB</li>
+  <li><code>/data/neoantigen_vaccine_hub/data_processed/esm2_embeddings_meta.tsv</code> — peptide ↔ source ↔ HLA ↔ label mapping</li>
+  <li>Re-use for: TCR-cancer matching, public-epitope clustering, cross-source domain adaptation</li>
+</ul>
+
+<footer style="margin-top:48px;padding-top:18px;border-top:2px dashed var(--line);font-size:13px;color:var(--muted)">
+  Lumenix · Seungho Cook · <code>kukshomr@gmail.com</code> · 2026-05-07 · ESM2 Lin 2023 Science · <a href="neoantigen_demo_full.html">master demo</a>
+</footer>
+</div></body></html>

@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SPARK · DM1/DM2 Pathology Idea Generator</title>
+<meta name="description" content="SPARK-style agentic generator: dark-matter (DM1/DM2) thyroid pathology hypothesis → code-snippet draft, tailored to TCGA-THCA + GSE250521 ST + Korean K2 cohorts." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body { background: #05070d; color: #c8d2e6; font-family: Inter, system-ui, sans-serif; }
+  body {
+    background-image:
+      radial-gradient(60rem 40rem at 18% -10%, rgba(255,124,62,.10), transparent 60%),
+      radial-gradient(50rem 40rem at 110% 10%, rgba(20,184,166,.10), transparent 55%),
+      linear-gradient(180deg, #05070d 0%, #07091a 50%, #05070d 100%);
+    background-attachment: fixed;
+  }
+  .glass { background: linear-gradient(180deg, rgba(19,27,50,.55), rgba(11,16,32,.65)); border: 1px solid rgba(120,140,180,.10); backdrop-filter: blur(8px); }
+  .ring-em { box-shadow: inset 0 0 0 1px rgba(255,124,62,.30); }
+  .ring-tl { box-shadow: inset 0 0 0 1px rgba(20,184,166,.30); }
+  .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; }
+  .chip { display:inline-flex; align-items:center; gap:.4rem; padding:.18rem .55rem; font-size:11px; letter-spacing:.04em; border-radius:9999px; border:1px solid; }
+  .chip-em { background: rgba(255,124,62,.08); border-color: rgba(255,124,62,.30); color:#ffb38a; }
+  .chip-tl { background: rgba(20,184,166,.08); border-color: rgba(20,184,166,.30); color:#5eead4; }
+  .chip-mute { background: rgba(120,140,180,.08); border-color: rgba(120,140,180,.20); color:#94a3c4; }
+  .chat-bubble-ai { background: linear-gradient(180deg, rgba(20,184,166,.10), rgba(20,184,166,.04)); border:1px solid rgba(20,184,166,.20); }
+  .chat-bubble-user { background: linear-gradient(180deg, rgba(255,124,62,.12), rgba(255,124,62,.04)); border:1px solid rgba(255,124,62,.25); }
+  pre { background: rgba(10,14,28,.85); border: 1px solid rgba(120,140,180,.18); border-radius: 10px; padding: 12px; overflow-x:auto; font-size: 11.5px; line-height: 1.45; }
+  details > summary { list-style:none; cursor:pointer; }
+  details > summary::-webkit-details-marker { display:none; }
+  .pulse { animation: pulse 1.6s infinite; }
+  @keyframes pulse { 50% { opacity:.4; } }
+</style>
+</head>
+<body class="antialiased min-h-screen">
+
+<header class="max-w-6xl mx-auto px-6 py-8">
+  <div class="flex items-center gap-3 mb-3">
+    <span class="chip chip-em">SPARK · agentic</span>
+    <span class="chip chip-tl">DM1 vs DM2 axis</span>
+    <span class="chip chip-mute">offline-safe · API-optional</span>
+  </div>
+  <h1 class="text-3xl font-semibold tracking-tight">SPARK · 갑상선암 dark-matter pathology idea generator</h1>
+  <p class="text-sm text-slate-400 mt-2 max-w-3xl">
+    Tolkach Lab SPARK (Nature Med 2026, <code class="mono">cpath-ukk/SPARK</code>) 의 Generative pipeline 을 한국 갑상선암 TCGA-THCA + GSE250521 ST + Korean K2 cohort 에 맞춘 web 챗봇.
+    DM1/DM2 분화도 axis 를 표적으로 4-cycle 아이디어 생성 → 중복 제거 → 코드 스니펫 초안. Hovernext / UNI / DINOv2 출력을 SPARK Analytical pipeline 에 연결.
+  </p>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 pb-20 space-y-6">
+
+  <section class="glass rounded-2xl p-5 ring-em">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">0 · Live evidence (auto-refreshed from spark_dm_evidence.json)</h2>
+      <span id="evidence-stamp" class="chip chip-mute">loading…</span>
+    </div>
+    <div id="evidence-grid" class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs"></div>
+    <div class="mt-3 text-[11px] text-slate-500">
+      Phase A POC LOSO 3 tile sizes (Ridge, DM1_like_score_resid) + ATC binary (closure_battery) +
+      SPARK-lite per-stage signal. <a href="spark_dm_evidence.json" target="_blank" class="underline text-teal-300">raw JSON</a>
+    </div>
+  </section>
+
+  <section class="glass rounded-2xl p-5 ring-tl">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">1 · Cohort context (read-only)</h2>
+      <span class="chip chip-tl">ground truth</span>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+      <div class="rounded-xl p-3 bg-slate-900/40">
+        <div class="mono text-slate-500">DM1 (TCGA-THCA)</div>
+        <div class="text-2xl font-semibold mt-1">82 cases</div>
+        <div class="text-xs text-slate-400 mt-1">76 driver-neg · 1 BRAF · 5 OTHER · subset n=25 for WSI run</div>
+      </div>
+      <div class="rounded-xl p-3 bg-slate-900/40">
+        <div class="mono text-slate-500">DM2 (TCGA-THCA)</div>
+        <div class="text-2xl font-semibold mt-1">55 cases</div>
+        <div class="text-xs text-slate-400 mt-1">48 driver-neg · 0 BRAF · 7 OTHER · subset n=25</div>
+      </div>
+      <div class="rounded-xl p-3 bg-slate-900/40">
+        <div class="mono text-slate-500">GSE250521 ST</div>
+        <div class="text-2xl font-semibold mt-1">16 slides</div>
+        <div class="text-xs text-slate-400 mt-1">N / PTC / LPTC / ATC × 4 + 8521 spots / 3 tile sizes</div>
+      </div>
+    </div>
+    <div class="mt-4 text-xs text-slate-500 leading-relaxed">
+      <span class="chip chip-mute">Phase A (ResNet50)</span> &nbsp; LOSO Spearman 0.022, AUROC 0.51 = chance (DM axis NOT captured by ImageNet weights).
+      <span class="chip chip-mute">closure battery</span> &nbsp; slide-level top-25% Spearman 0.21 (DM1 hotspot signal exists).
+      <span class="chip chip-mute">ATC binary</span> &nbsp; ResNet50 logreg AUROC 0.689 (coarse ATC vs rest works).
+      → SPARK upgrades: foundation model UNI / CONCH + Hovernext cell features + multi-agent hypothesis generation.
+    </div>
+  </section>
+
+  <section class="glass rounded-2xl p-5 ring-em">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">2 · Idea-generation knobs</h2>
+      <div class="flex gap-2">
+        <button id="btn-fallback" class="text-xs px-3 py-1.5 rounded-lg border border-slate-600 hover:bg-slate-800">offline (8 hardcoded)</button>
+        <button id="btn-claude" class="text-xs px-3 py-1.5 rounded-lg border border-orange-500/40 bg-orange-500/10 hover:bg-orange-500/20 text-orange-200">Claude API call</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label class="mono text-xs text-slate-500">Use case (SPARK module)</label>
+        <select id="usecase" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm">
+          <option value="B">B · Predict survival / DM1 vs DM2 progression</option>
+          <option value="C">C · Predict metastatic spread (DM2 → ATC trajectory)</option>
+          <option value="D">D · Multiplexed TMA (Hovernext + IHC stand-in)</option>
+          <option value="HUMAN">HUMAN · idea-from-pathologist (formatter)</option>
+        </select>
+      </div>
+      <div>
+        <label class="mono text-xs text-slate-500">Idea quality</label>
+        <select id="quality" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm">
+          <option value="basic">basic</option>
+          <option value="advanced" selected>advanced</option>
+          <option value="creative">creative</option>
+          <option value="visionary">visionary, out-of-the-box</option>
+        </select>
+      </div>
+      <div>
+        <label class="mono text-xs text-slate-500">Number of ideas (per cycle)</label>
+        <input id="num-ideas" type="number" min="1" max="20" value="6" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div>
+        <label class="mono text-xs text-slate-500">Cell types (SPARK NUMBER_CELL_TYPES)</label>
+        <input id="cell-types" type="text" value="thyrocyte / lymphocyte / fibroblast" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm" />
+      </div>
+      <div class="md:col-span-2">
+        <label class="mono text-xs text-slate-500">Custom seed prompt (optional)</label>
+        <textarea id="seed" rows="2" placeholder="e.g. 'TLS density × NIS expression cross-product within DM1 sub-B cluster'" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm"></textarea>
+      </div>
+    </div>
+
+    <div class="mt-3 text-xs text-slate-500">
+      <span class="chip chip-mute">SPARK config_IG_B.json</span>
+      LLM_IGA → user-supplied (default openai/o1; switch to <code class="mono">claude-opus-4-7</code> via API field below).
+    </div>
+
+    <div class="mt-3">
+      <label class="mono text-xs text-slate-500">Anthropic API key (in-browser, never logged)</label>
+      <input id="api-key" type="password" placeholder="sk-ant-…  (only required for live Claude call)" class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm mono" />
+    </div>
+  </section>
+
+  <section class="glass rounded-2xl p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">3 · Generated ideas (SPARK refined)</h2>
+      <span id="status" class="chip chip-mute">idle</span>
+    </div>
+    <div id="chat" class="space-y-3 min-h-[200px]"></div>
+  </section>
+
+  <section class="glass rounded-2xl p-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-lg font-semibold">4 · Code snippet preview (Idea coding stage)</h2>
+      <span class="chip chip-tl">click an idea above</span>
+    </div>
+    <pre id="code-out" class="mono text-slate-300">Pick an idea above to see SPARK convert_snippets_to_functions.py-style output.</pre>
+  </section>
+
+  <section class="glass rounded-2xl p-5">
+    <h2 class="text-lg font-semibold mb-3">5 · Wiring map · 4-tier pipeline (한 화면)</h2>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+      <div class="rounded-xl border border-teal-500/20 p-3">
+        <div class="mono text-teal-300 mb-1">① Generative (이 페이지)</div>
+        <div>Claude opus-4-7 · 4-cycle ideas · code snippets → <code class="mono">FUNCTIONS/*.py</code></div>
+      </div>
+      <div class="rounded-xl border border-orange-500/20 p-3">
+        <div class="mono text-orange-300 mb-1">② Cell detection</div>
+        <div>HoVer-NeXt 7-class (PanNuke ConvNeXtV2-Large) on RunPod GPU · skimage rule-based 로컬 fallback (현재 GSE250521 16-slide)</div>
+      </div>
+      <div class="rounded-xl border border-pink-500/20 p-3">
+        <div class="mono text-pink-300 mb-1">③ Virtual mIF (Cell 2025)</div>
+        <div>GigaTIME prov-gigatime/GigaTIME · 23-channel (PD-L1/Ki67/CD8/CD20/CK …) · HF_TOKEN gated · GPU only</div>
+      </div>
+      <div class="rounded-xl border border-purple-500/20 p-3">
+        <div class="mono text-purple-300 mb-1">④ Analytical → Prognostic</div>
+        <div>SPARK MAIN_FUNCTION_CALLER · per-patient aggregate · DM1/DM2 LOSO · Cox/KM PFI</div>
+      </div>
+    </div>
+    <div class="text-[11px] text-slate-500 mt-3 leading-relaxed">
+      Pod DM script: <code class="mono">project/notebooks_or_scripts/runpod_pod_DM_WSI_pathology.sh</code> (Phase 1-8: install/WSI download/tile/UNI embed/DM1-DM2 LOSO/HoVer-NeXt/GigaTIME/sync) · Manifest: <code class="mono">project/data/manifests/tcga_thca_wsi_dm_balanced.tsv</code> · Full flow: <a href="SPARK_DM_FULL_FLOW.md" target="_blank" class="underline text-teal-300">SPARK_DM_FULL_FLOW.md</a> · Spatial overlays: <a href="../results/03_pathology_poc/spatial_overlays/index.html" target="_blank" class="underline text-teal-300">16-slide gallery</a>
+    </div>
+  </section>
+
+</main>
+
+<script type="module">
+const FALLBACK_IDEAS = [
+  {
+    id: "B1",
+    quality: "advanced",
+    title: "Stromal-encased thyrocyte index",
+    body: "Per-patch ratio of thyrocyte cells whose 30 µm neighborhood is dominated by fibroblasts (>60%) without immune infiltrate. Tests whether DM1 dedifferentiation correlates with stromal enclosure (NIS-silencing niche), independent of BRAF status.",
+    snippet: `def calculate_stromal_encased_thyrocyte_index(Eval_Obj, sign_indices, cell_ids_in_patches, patchwise_tissue_masks, output_file_NEW):
+    import numpy as np, pandas as pd
+    rows = []
+    for patch_id, ids, mask in zip(sign_indices, cell_ids_in_patches, patchwise_tissue_masks):
+        thyro = Eval_Obj.cells_in_patch(ids, cls="thyrocyte")
+        fib   = Eval_Obj.cells_in_patch(ids, cls="fibroblast")
+        imm   = Eval_Obj.cells_in_patch(ids, cls="lymphocyte")
+        encased = 0
+        for t in thyro:
+            nb_f = sum(np.linalg.norm(t.xy - f.xy) < 30 for f in fib)
+            nb_i = sum(np.linalg.norm(t.xy - i.xy) < 30 for i in imm)
+            if nb_f > 0.6 * (nb_f + nb_i + 1e-6):
+                encased += 1
+        rows.append({"PATCH_ID": patch_id, "STROMAL_ENCASED_FRAC": encased / max(1, len(thyro))})
+    pd.DataFrame(rows).to_csv(output_file_NEW, index=False)
+`,
+  },
+  {
+    id: "B2",
+    quality: "advanced",
+    title: "TLS-density × thyrocyte-density anti-correlation",
+    body: "Tertiary lymphoid structures spatially exclude thyrocytes in HT-overlap PTC. DM1 sub-B (NBNR cluster) is hypothesized to have *low* anti-correlation (TLS coexists with thyrocyte). Per-slide Pearson r across patches; aggregate to patient.",
+    snippet: `def calculate_tls_thyrocyte_anticorr(Eval_Obj, sign_indices, cell_ids_in_patches, patchwise_tissue_masks, output_file_NEW):
+    import numpy as np, pandas as pd
+    rows = []
+    for patch_id, ids, mask in zip(sign_indices, cell_ids_in_patches, patchwise_tissue_masks):
+        d_tls = Eval_Obj.density(ids, cls="lymphocyte_aggregate")
+        d_thy = Eval_Obj.density(ids, cls="thyrocyte")
+        rows.append({"PATCH_ID": patch_id, "D_TLS": d_tls, "D_THY": d_thy})
+    pd.DataFrame(rows).to_csv(output_file_NEW, index=False)
+`,
+  },
+  {
+    id: "C1",
+    quality: "creative",
+    title: "Tumor-front lymphocyte gradient (invasion-front 200 µm)",
+    body: "DM2 invasion fronts maintain a steep CD8 gradient (high inside, low outside); DM1 invasion fronts attenuate the gradient as dedifferentiation progresses. Quantified as ratio of inner-200 µm vs outer-200 µm lymphocyte density.",
+    snippet: `def invasion_front_lymphocyte_gradient(Eval_Obj, sign_indices, cell_ids_in_patches, patchwise_tissue_masks, output_file_NEW):
+    import numpy as np, pandas as pd
+    rows = []
+    for patch_id, ids, mask in zip(sign_indices, cell_ids_in_patches, patchwise_tissue_masks):
+        if not Eval_Obj.is_invasion_front(patch_id): continue
+        inner = Eval_Obj.density(ids, cls="lymphocyte", region="inner200um")
+        outer = Eval_Obj.density(ids, cls="lymphocyte", region="outer200um")
+        rows.append({"PATCH_ID": patch_id, "FRONT_LY_GRAD": inner / max(outer, 1e-6)})
+    pd.DataFrame(rows).to_csv(output_file_NEW, index=False)
+`,
+  },
+  {
+    id: "B3",
+    quality: "creative",
+    title: "Nuclear pleomorphism variance (per-tumor heterogeneity)",
+    body: "DM1 tumors carry higher within-tumor heterogeneity of nuclear shape (eccentricity / area variance). Reproducible across BRAF / RAS / driver-neg sub-cohorts.",
+    snippet: `def nuclear_pleomorphism_variance(Eval_Obj, sign_indices, cell_ids_in_patches, patchwise_tissue_masks, output_file_NEW):
+    import numpy as np, pandas as pd
+    rows = []
+    for patch_id, ids, mask in zip(sign_indices, cell_ids_in_patches, patchwise_tissue_masks):
+        thyro = Eval_Obj.cells_in_patch(ids, cls="thyrocyte")
+        if not thyro: continue
+        ecc = np.array([c.eccentricity for c in thyro])
+        rows.append({"PATCH_ID": patch_id, "NUCLEAR_ECC_VAR": float(np.var(ecc))})
+    pd.DataFrame(rows).to_csv(output_file_NEW, index=False)
+`,
+  },
+  {
+    id: "B4",
+    quality: "basic",
+    title: "Plain tumor:stroma ratio",
+    body: "Baseline reproducibility check. DM1 expected stroma-rich, DM2 stroma-poor.",
+    snippet: `def tumor_stroma_ratio(Eval_Obj, sign_indices, cell_ids_in_patches, patchwise_tissue_masks, output_file_NEW):
+    import pandas as pd
+    rows = []
+    for patch_id, ids, mask in zip(sign_indices, cell_ids_in_patches, patchwise_tissue_masks):
+        t = (mask == "tumor").sum()
+        s = (mask == "stroma").sum()
+        rows.append({"PATCH_ID": patch_id, "TUMOR_STROMA_RATIO": t / max(s, 1)})
+    pd.DataFrame(rows).to_csv(output_file_NEW, index=False)
+`,
+  },
+  {
+    id: "C2",
+    quality: "visionary",
+    title: "Spatial entropy of cell-type co-occurrence (Shannon over 7 classes)",
+    body: "Multi-class entropy of Hovernext 7-class GeoJSON within 50 µm windows. DM1 hypothesized to have higher entropy (mixing of immune + stromal with thyrocyte) vs DM2 (clean tumor nests).",
+    snippet: `def spatial_celltype_entropy(Eval_Obj, sign_indices, cell_ids_in_patches, patchwise_tissue_masks, output_file_NEW):
+    import numpy as np, pandas as pd
+    rows = []
+    for patch_id, ids, mask in zip(sign_indices, cell_ids_in_patches, patchwise_tissue_masks):
+        cnt = Eval_Obj.class_counts_in_window(ids, radius_um=50)
+        p = np.array(list(cnt.values())); p = p / max(p.sum(), 1e-6)
+        H = -np.sum([pi*np.log2(pi+1e-12) for pi in p if pi>0])
+        rows.append({"PATCH_ID": patch_id, "SPATIAL_ENTROPY": float(H)})
+    pd.DataFrame(rows).to_csv(output_file_NEW, index=False)
+`,
+  },
+  {
+    id: "B5",
+    quality: "advanced",
+    title: "Thyrocyte cluster compactness (DBSCAN-cluster median size / std)",
+    body: "DM1 follicular architecture loss → smaller, fragmented thyrocyte clusters; DM2 retains larger, more uniform clusters. Quantified per patch via DBSCAN + cluster-size statistics.",
+    snippet: `def thyrocyte_cluster_compactness(Eval_Obj, sign_indices, cell_ids_in_patches, patchwise_tissue_masks, output_file_NEW):
+    import numpy as np, pandas as pd
+    from sklearn.cluster import DBSCAN
+    rows = []
+    for patch_id, ids, mask in zip(sign_indices, cell_ids_in_patches, patchwise_tissue_masks):
+        thyro = Eval_Obj.cells_in_patch(ids, cls="thyrocyte")
+        if len(thyro) < 5:
+            rows.append({"PATCH_ID": patch_id, "CLUSTER_MED": 0, "CLUSTER_STD": 0}); continue
+        xy = np.array([c.xy for c in thyro])
+        labels = DBSCAN(eps=25, min_samples=4).fit_predict(xy)
+        sizes = [(labels==l).sum() for l in set(labels) if l!=-1] or [0]
+        rows.append({"PATCH_ID": patch_id, "CLUSTER_MED": float(np.median(sizes)), "CLUSTER_STD": float(np.std(sizes))})
+    pd.DataFrame(rows).to_csv(output_file_NEW, index=False)
+`,
+  },
+  {
+    id: "D1",
+    quality: "advanced",
+    title: "TMA-style 4-quadrant heterogeneity score",
+    body: "Divide each TCGA WSI into 4 quadrants; compute coefficient of variation of (thyrocyte density, lymphocyte density) across quadrants. DM1 expected higher CV (heterogeneous), DM2 lower (uniform).",
+    snippet: `def tma_quadrant_heterogeneity(Eval_Obj, sign_indices, cell_ids_in_patches, patchwise_tissue_masks, output_file_NEW):
+    import numpy as np, pandas as pd
+    rows = []
+    quadrant = Eval_Obj.assign_quadrants(sign_indices)
+    for q in [0,1,2,3]:
+        ids_q = quadrant[q]
+        thy = Eval_Obj.density(ids_q, cls="thyrocyte")
+        lym = Eval_Obj.density(ids_q, cls="lymphocyte")
+        rows.append({"QUADRANT": q, "DENSITY_THY": thy, "DENSITY_LYM": lym})
+    df = pd.DataFrame(rows)
+    cv = df.std()/df.mean()
+    pd.DataFrame([{"CV_THY": float(cv.DENSITY_THY), "CV_LYM": float(cv.DENSITY_LYM)}]).to_csv(output_file_NEW, index=False)
+`,
+  },
+];
+
+const $ = sel => document.querySelector(sel);
+const setStatus = (txt, cls="chip chip-mute") => { const el = $("#status"); el.className = cls; el.textContent = txt; };
+
+function renderIdeas(ideas) {
+  const chat = $("#chat");
+  chat.innerHTML = "";
+  ideas.forEach(idea => {
+    const div = document.createElement("div");
+    div.className = "chat-bubble-ai p-3 rounded-xl";
+    div.innerHTML = `
+      <div class="flex items-start gap-3">
+        <span class="chip chip-tl shrink-0">${idea.id}</span>
+        <div class="flex-1">
+          <div class="font-semibold text-sm">${idea.title}</div>
+          <div class="text-xs text-slate-300 mt-1 leading-relaxed">${idea.body}</div>
+          <div class="mt-2 flex items-center gap-2 text-[11px] text-slate-500">
+            <span class="chip chip-mute">${idea.quality}</span>
+            <button data-id="${idea.id}" class="show-code px-2 py-0.5 rounded border border-slate-600 hover:bg-slate-800">show code →</button>
+          </div>
+        </div>
+      </div>`;
+    chat.appendChild(div);
+  });
+  chat.querySelectorAll(".show-code").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const idea = ideas.find(x => x.id === id);
+      $("#code-out").textContent = idea?.snippet || "(no snippet)";
+    });
+  });
+}
+
+$("#btn-fallback").addEventListener("click", () => {
+  setStatus("offline ideas (8 hardcoded, SPARK seed pool)", "chip chip-tl");
+  const q = $("#quality").value;
+  const filtered = q === "all" ? FALLBACK_IDEAS : FALLBACK_IDEAS;
+  renderIdeas(filtered);
+});
+
+async function callClaude({ usecase, quality, n, cellTypes, seed, apiKey }) {
+  const sys = `You are SPARK Idea_Generation_${usecase} agent for thyroid cancer pathology. Cohort context:
+- TCGA-THCA n=504 primary tumor; DM1 (n=82) vs DM2 (n=55) dark-matter clusters; both driver-neg-dominant; orthogonal to BRAF/RAS.
+- GSE250521 ST atlas: 16 slides (N/PTC/LPTC/ATC × 4); 8521 spots; ResNet50 + tile pipeline already built.
+- Korean K2 (PRJEB11591) n=260 + Lee 2024 (GSE213647) n=632 for replication.
+- ATC binary classification works on H&E (AUROC 0.689) but DM1/DM2 fine stratification fails with ResNet50; UNI/Hovernext upgrade is the open question.
+
+Generate ${n} biologically-grounded hypotheses in JSON array form, each:
+{ id, quality, title, body, snippet }
+- id: ${usecase}1, ${usecase}2, …
+- body: 1–3 sentences on biological rationale + which DM cluster expected high/low
+- snippet: pure-Python function consuming Hovernext-format GeoJSON cell features (cls in {thyrocyte, lymphocyte, fibroblast, ...}) + tissue mask. Output a CSV via pandas.
+- Cell types in scope: ${cellTypes}
+- Quality bucket: ${quality}
+${seed ? `- User seed concept: ${seed}` : ""}
+
+Return ONLY a JSON array, no prose.`;
+  const body = {
+    model: "claude-opus-4-7",
+    max_tokens: 4096,
+    messages: [{ role: "user", content: sys }],
+  };
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "anthropic-dangerous-direct-browser-access": "true",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status} — ${await r.text()}`);
+  const j = await r.json();
+  const txt = j.content?.[0]?.text || "[]";
+  const m = txt.match(/\[[\s\S]*\]/);
+  return JSON.parse(m ? m[0] : "[]");
+}
+
+$("#btn-claude").addEventListener("click", async () => {
+  const apiKey = $("#api-key").value.trim();
+  if (!apiKey) { setStatus("API key required", "chip chip-em"); return; }
+  setStatus("calling Claude…", "chip chip-em pulse");
+  try {
+    const ideas = await callClaude({
+      usecase: $("#usecase").value,
+      quality: $("#quality").value,
+      n: parseInt($("#num-ideas").value, 10),
+      cellTypes: $("#cell-types").value,
+      seed: $("#seed").value.trim(),
+      apiKey,
+    });
+    if (!Array.isArray(ideas) || !ideas.length) throw new Error("empty array");
+    renderIdeas(ideas);
+    setStatus(`Claude returned ${ideas.length} ideas`, "chip chip-tl");
+  } catch (e) {
+    console.error(e);
+    setStatus("error · falling back to offline", "chip chip-em");
+    renderIdeas(FALLBACK_IDEAS);
+  }
+});
+
+// Auto-load API key from local .api_local.json (cook-forge sourced)
+async function autoloadKey() {
+  try {
+    const r = await fetch(".api_local.json", { cache: "no-store" });
+    if (!r.ok) return;
+    const j = await r.json();
+    if (j.anthropic_key && j.anthropic_key.startsWith("sk-ant-")) {
+      const el = document.querySelector("#api-key");
+      el.value = j.anthropic_key;
+      el.placeholder = "loaded from cook-forge .env";
+    }
+  } catch (e) {}
+}
+autoloadKey();
+
+// initial render
+renderIdeas(FALLBACK_IDEAS);
+setStatus("offline ideas loaded · API key auto-loaded if available", "chip chip-mute");
+
+// Live evidence panel
+async function loadEvidence() {
+  try {
+    const r = await fetch("spark_dm_evidence.json", { cache: "no-store" });
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    document.querySelector("#evidence-stamp").textContent = "stamp " + j.updated;
+    document.querySelector("#evidence-stamp").className = "chip chip-tl";
+    const g = document.querySelector("#evidence-grid");
+    const ridge = j.phase_a.loso_ridge || {};
+    const sl = j.spark_lite?.by_stage || {};
+    const atc = j.phase_a.atc_binary_auroc;
+    g.innerHTML = `
+      <div class="rounded-xl p-3 bg-slate-900/40">
+        <div class="mono text-slate-500">LOSO Ridge size 224</div>
+        <div class="text-2xl font-semibold mt-1">${(ridge["224"]?.pooled_auroc_DM1high || 0).toFixed(3)}</div>
+        <div class="text-[11px] text-slate-400">AUROC DM1-high · Spearman ${(ridge["224"]?.pooled_spearman_r || 0).toFixed(3)}</div>
+      </div>
+      <div class="rounded-xl p-3 bg-slate-900/40">
+        <div class="mono text-slate-500">LOSO Ridge size 448 / 672</div>
+        <div class="text-base font-semibold mt-1">${(ridge["448"]?.pooled_auroc_DM1high || 0).toFixed(3)} / ${(ridge["672"]?.pooled_auroc_DM1high || 0).toFixed(3)}</div>
+        <div class="text-[11px] text-slate-400">all chance level → ResNet50 dead end</div>
+      </div>
+      <div class="rounded-xl p-3 bg-slate-900/40">
+        <div class="mono text-slate-500">ATC binary (ResNet50 logreg)</div>
+        <div class="text-2xl font-semibold mt-1">${(atc || 0).toFixed(3)}</div>
+        <div class="text-[11px] text-slate-400">AUROC pooled · coarse axis works</div>
+      </div>
+      <div class="rounded-xl p-3 bg-slate-900/40">
+        <div class="mono text-slate-500">SPARK-lite top-25% by stage (DM1 hotspot)</div>
+        <div class="text-base font-semibold mt-1">N ${sl.N?.top25?.toFixed(2) || "-"} → PTC ${sl.PTC?.top25?.toFixed(2) || "-"} → LPTC ${sl.LPTC?.top25?.toFixed(2) || "-"} → ATC ${sl.ATC?.top25?.toFixed(2) || "-"}</div>
+        <div class="text-[11px] text-slate-400">DM1 niche shrinks with dedifferentiation</div>
+      </div>`;
+  } catch (e) {
+    document.querySelector("#evidence-stamp").textContent = "evidence offline";
+    document.querySelector("#evidence-stamp").className = "chip chip-em";
+  }
+}
+loadEvidence();
+setInterval(loadEvidence, 60_000);
+</script>
+
+</body>
+</html>

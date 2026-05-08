@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Lumenix · pMHC Method Comparison Viewer</title>
+<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+<style>
+:root{--ink:#0e1828;--paper:#fbf6ec;--muted:#576275;--line:#d6c8b3;--emerald:#1c8e6d;--rose:#7B1F2A;--violet:#4f2db5;--gold:#b58534;--coal:#0c1422}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#0c1422,#1a2438);color:#fbf6ec;font-family:"Newsreader","Noto Sans KR",serif;font-size:15.5px;line-height:1.65;min-height:100vh}
+.wrap{max-width:1300px;margin:0 auto;padding:36px 32px 96px}
+.kicker{font-family:'JetBrains Mono',monospace;color:#ffd28a;font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+h1{font-family:"Cormorant Garamond",serif;font-size:54px;line-height:1.05;margin:0 0 12px;color:#fff8e7;font-weight:700}
+h2{font-family:"Cormorant Garamond",serif;font-size:32px;color:#ffd28a;margin:36px 0 8px;border-bottom:2px solid #ffd28a;padding-bottom:5px}
+.lead{color:#d6c8b3;font-style:italic;font-size:18px;margin:14px 0 24px;max-width:920px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin:14px 0}
+.card{background:rgba(255,255,255,0.05);border:2px solid rgba(255,210,140,0.3);border-radius:12px;overflow:hidden;transition:transform .2s}
+.card:hover{transform:translateY(-3px);border-color:#ffd28a}
+.viewer{height:380px;background:#000;position:relative;width:100%;overflow:hidden}
+.meta{padding:16px 20px}
+.meta h3{font-family:'JetBrains Mono',monospace;color:#ffd28a;font-size:14px;margin:0 0 6px;letter-spacing:.07em}
+.meta .desc{color:#a8b4c4;font-size:13px;margin:6px 0;line-height:1.5}
+.meta .stats{font-family:'JetBrains Mono',monospace;font-size:11px;color:#a8b4c4;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,210,140,0.2)}
+.callout{background:rgba(255,210,140,0.08);border-left:6px solid #ffd28a;padding:16px 22px;border-radius:8px;margin:14px 0}
+table{width:100%;border-collapse:collapse;background:rgba(255,255,255,0.04);font-size:13.5px;border-radius:10px;overflow:hidden;margin:14px 0;border:1px solid rgba(255,210,140,0.2)}
+th{background:#0c1422;color:#ffd28a;padding:10px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;text-align:left;border-bottom:2px solid #ffd28a}
+td{border-bottom:1px solid rgba(255,255,255,0.08);padding:8px 14px}
+td.mono{font-family:'JetBrains Mono',monospace;color:#ffd28a;font-size:12.5px}
+.good{color:#5b9b3a;font-weight:700}.bad{color:#c44b88;font-weight:700}.warn{color:#b58534;font-weight:700}
+a{color:#ffd28a}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="kicker">Lumenix · pMHC method comparison · 2026-05-08</div>
+<h1>pMHC Structural Method Comparison</h1>
+<p class="lead">Side-by-side: ESMFold pseudo-pMHC (single-chain linker hack, 9 sec) vs RCSB crystal structure 1Q94 (HLA-A*11:01 + β2m + 9-mer peptide, real X-ray). Same target geometry — different methods, different costs, different accuracy. AlphaFold-Multimer (Layer 2) result will be added when CPU run completes.</p>
+
+<div class="grid">
+
+<div class="card">
+<div class="viewer" id="esmfold_pmhc"
+     data-pdb-url="manuscript_artifacts/pseudo_pmhc_kras_g12d.pdb"
+     data-style="rainbow"></div>
+<div class="meta">
+<h3>★ ESMFold pseudo-pMHC · KRAS G12D</h3>
+<div class="desc">Single-chain construct via linker trick: HLA-stub(155aa) + GGGGSGGGGS + β2m-stub(45aa) + GGGGSGGGGS + GADGVGKSAL(10aa) = 225 aa total.</div>
+<div class="stats">
+method: ESMFold v1 (Lin 2023 Science)<br>
+cost: free CPU API (api.esmatlas.com)<br>
+time: 9 seconds<br>
+output: 141 KB PDB · pLDDT in B-factor<br>
+caveat: linker hack means HLA + β2m in same chain → unrealistic geometry
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="viewer" id="rcsb_1Q94"
+     data-pdb-url="neoantigen_hub_data/pdb_pmhc/1Q94.pdb"
+     data-hla="A" data-b2m="B" data-pep="C"></div>
+<div class="meta">
+<h3>RCSB 1Q94 · HLA-A*11:01 + peptide (real X-ray)</h3>
+<div class="desc">Real crystal structure: HLA heavy chain (A) + β2-microglobulin (B) + 9-mer peptide (C). HLA-A*11:01 is the same allele that presents KRAS G12D peptides in TESLA.</div>
+<div class="stats">
+method: X-ray crystallography (real lab experiment)<br>
+cost: years of synthesis + crystallography<br>
+output: 568 KB PDB · multiple chains, exact geometry<br>
+caveat: peptide is NOT KRAS G12D (different test peptide)
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="viewer" id="rcsb_1HHK"
+     data-pdb-url="neoantigen_hub_data/pdb_pmhc/1HHK.pdb"
+     data-hla="A" data-b2m="B" data-pep="C"></div>
+<div class="meta">
+<h3>RCSB 1HHK · HLA-A*02:01 + 9-mer (real)</h3>
+<div class="desc">Different HLA allele (A*02:01, Western common). Same overall pMHC architecture: α1+α2 groove + α3 + β2m. The peptide sits in the groove with anchor at P2 + P9.</div>
+<div class="stats">
+method: X-ray<br>
+allele: HLA-A*02:01<br>
+peptide: 9-mer (P2 = anchor L, P9 = anchor V/L)
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="viewer" id="rcsb_1AO7"
+     data-pdb-url="neoantigen_hub_data/pdb_pmhc/1AO7.pdb"
+     data-hla="A" data-b2m="B" data-pep="C" data-tcra="D" data-tcrb="E"></div>
+<div class="meta">
+<h3>RCSB 1AO7 · TCR + HLA-A*02:01 + Tax (3-component)</h3>
+<div class="desc">Full TCR-pMHC complex: HLA + β2m + peptide + TCR Vα (gold) + TCR Vβ (orange). The TCR docks on top of the peptide-MHC complex with CDR3α/β contacting the peptide.</div>
+<div class="stats">
+method: X-ray crystallography<br>
+chains: HLA(A) + β2m(B) + peptide(C) + TCRα(D) + TCRβ(E)<br>
+covers: pMHC binding + TCR engagement + immune synapse architecture
+</div>
+</div>
+</div>
+
+</div>
+
+<h2>Method comparison · cost / time / fidelity</h2>
+<table>
+<tr><th>Method</th><th>Compute cost</th><th>Wall time / complex</th><th>Fidelity</th><th>Use case</th></tr>
+<tr><td><b>ESMFold isolated peptide</b></td><td class="good">free (CPU API)</td><td class="good">~1 sec</td><td class="bad">low (no HLA context)</td><td>peptide-only visualization</td></tr>
+<tr><td><b>ESMFold pseudo-pMHC linker</b></td><td class="good">free</td><td class="good">~10 sec</td><td class="warn">medium-low</td><td>quick reference; geometry unrealistic</td></tr>
+<tr><td><b>AlphaFold-Multimer single_seq</b></td><td class="warn">~$1-2 GPU</td><td class="warn">5 min GPU / 30-60 min CPU</td><td class="good">good</td><td>production prediction</td></tr>
+<tr><td><b>AlphaFold-Multimer + MMseqs MSA</b></td><td class="warn">~$3-6 GPU</td><td>15-30 min GPU</td><td class="good">best</td><td>publication-grade</td></tr>
+<tr><td><b>RCSB X-ray crystal</b></td><td class="bad">months/years lab</td><td class="bad">years</td><td class="good">ground truth</td><td>reference structure</td></tr>
+<tr><td><b>GROMACS MD 100 ns</b></td><td class="bad">~$50-200 GPU</td><td class="bad">3-7 days</td><td class="good">dynamics + ΔG</td><td>binding free energy</td></tr>
+</table>
+
+<div class="callout">
+<strong>What to look for in 3D viewers above</strong>:<br>
+- <b>HLA α1+α2 groove</b>: two parallel helices forming a "wall" with the peptide between them.<br>
+- <b>β2-microglobulin</b>: globular domain underneath the HLA, like a base.<br>
+- <b>Peptide</b>: extended chain with side-chains at P2 and P9 dipping INTO pockets in the HLA groove.<br>
+- <b>TCR (only in 1AO7, 2BNQ)</b>: large two-chain (Vα + Vβ) cap on top of the pMHC, with CDR3 loops contacting the peptide.<br>
+- <b>ESMFold pseudo-pMHC</b>: should resemble the above in topology BUT with a long unstructured linker connecting HLA to β2m (artifact of the construct).
+</div>
+
+<h2>Why ESMFold pseudo-complex is NOT a substitute for AlphaFold-Multimer</h2>
+<ul>
+<li>ESMFold expects single-chain — when forced multi-chain via linker, the linker is unstructured and dominates conformation.</li>
+<li>HLA + β2m heterodimer interface is the wrong geometry (chain ends not at correct positions).</li>
+<li>Peptide may not actually sit in the groove — could fold into the linker.</li>
+<li>For PUBLICATION-grade: must use AlphaFold-Multimer or real crystal/cryo-EM.</li>
+<li>For VISUALIZATION + first-pass: ESMFold pseudo-complex is fine.</li>
+</ul>
+
+<h2>Status of AlphaFold-Multimer pilot run</h2>
+<p>Live status at <a href="alphafold_simulation.html">alphafold_simulation.html</a>. CPU JAX run on KRAS G12D pMHC (HLA-A*11:01 + β2m + GADGVGKSAL, 385 aa). Output PDB will be added here when complete.</p>
+
+<p style="margin-top:30px"><a href="alphafold_simulation.html">◀ AlphaFold-Multimer pipeline</a> · <a href="lumenix_cancer_vaccine_index.html">Master index</a></p>
+</div>
+
+<script>
+async function loadPDB() {
+  document.querySelectorAll('.viewer').forEach(async el => {
+    try {
+      const r = await fetch(el.dataset.pdbUrl);
+      if (!r.ok) { el.innerHTML = '<div style="padding:160px;color:#ffd28a;text-align:center;font-family:monospace">PDB load fail</div>'; return; }
+      const pdb = await r.text();
+      const v = $3Dmol.createViewer(el, {backgroundColor: '#000'});
+      v.addModel(pdb, 'pdb');
+      const hla = el.dataset.hla, b2m = el.dataset.b2m, pep = el.dataset.pep;
+      const tcra = el.dataset.tcra, tcrb = el.dataset.tcrb;
+      const style = el.dataset.style;
+      if (style === "rainbow") {
+        // ESMFold pseudo-pMHC: rainbow N→C terminus to show construct topology
+        v.setStyle({}, {cartoon: {color: 'spectrum'}});
+      } else {
+        if (hla) v.setStyle({chain: hla}, {cartoon: {color: '#cdd6e0', opacity: 0.85}});
+        if (b2m) v.setStyle({chain: b2m}, {cartoon: {color: '#7fbcd4', opacity: 0.9}});
+        if (pep) v.setStyle({chain: pep}, {cartoon: {color: '#e84a5f'}, stick: {colorscheme: 'redCarbon', radius: 0.3}});
+        if (tcra) v.setStyle({chain: tcra}, {cartoon: {color: '#ffd28a', opacity: 0.85}});
+        if (tcrb) v.setStyle({chain: tcrb}, {cartoon: {color: '#f59042', opacity: 0.85}});
+      }
+      v.zoomTo();
+      v.spin('y', 0.5);
+      v.render();
+    } catch (e) { console.error(el.id, e); }
+  });
+}
+window.addEventListener('load', loadPDB);
+</script>
+</body>
+</html>

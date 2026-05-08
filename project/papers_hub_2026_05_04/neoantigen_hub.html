@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumenix · Neoantigen Vaccine Hub · Post-TESLA Data + Benchmark</title>
+<style>
+:root{
+  --ink:#0e1828; --paper:#fbf6ec; --card:#fffaf2; --muted:#576275;
+  --line:#d6c8b3; --line2:#ece2d0; --emerald:#1c8e6d; --rose:#7B1F2A;
+  --violet:#4f2db5; --teal:#206a78; --gold:#b58534; --coal:#0c1422;
+  --good:#e3f3e6; --warn:#fff3d6; --bad:#fbe2dc; --azure:#dde9f4; --grape:#ece5ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 60%,#fbf3e0 100%);
+  color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;line-height:1.65;font-size:16px}
+a{color:var(--rose);text-decoration:none;border-bottom:1px solid rgba(123,31,42,.35)}
+.wrap{max-width:1300px;margin:0 auto;padding:30px 28px 80px}
+.topnav{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11.5px;margin-bottom:20px;color:var(--muted);flex-wrap:wrap;gap:12px}
+.topnav a{padding:7px 12px;border:1px solid var(--line);background:rgba(255,255,255,.6);border-radius:99px}
+.hero{border:3px solid var(--coal);background:linear-gradient(155deg,#fffaf2 0%,#f0dfc1 60%,#fbeed0 100%);padding:38px 40px;box-shadow:14px 14px 0 rgba(12,20,34,.18);margin-bottom:28px}
+.kicker{font-family:'JetBrains Mono',monospace;letter-spacing:.18em;text-transform:uppercase;font-size:11px;color:var(--rose);font-weight:700;margin-bottom:14px}
+h1{font-family:'Cormorant Garamond',serif;font-size:48px;line-height:1.05;margin:0 0 12px;color:var(--coal);font-weight:700}
+.subtitle{font-size:18px;color:var(--muted);max-width:920px;font-style:italic;margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:20px}
+.kpi{background:#fff;border:2px solid var(--coal);border-radius:11px;padding:12px 14px;box-shadow:5px 5px 0 rgba(12,20,34,.08)}
+.kpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--rose);line-height:1;font-weight:700}
+.kpi .lbl{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.10em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+.tabs{display:flex;gap:6px;margin:24px 0 16px;flex-wrap:wrap}
+.tab-btn{padding:9px 16px;border:1px solid var(--line);background:#fff;border-radius:8px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--ink);transition:all .15s}
+.tab-btn.active{background:var(--coal);color:#fff;border-color:var(--coal)}
+.tab-btn:hover{border-color:var(--rose)}
+section.tab{background:rgba(255,250,242,.92);border:1px solid var(--line);padding:30px 32px;border-radius:14px;box-shadow:6px 6px 0 rgba(12,20,34,.05);display:none}
+section.tab.active{display:block}
+h2{font-family:'Cormorant Garamond',serif;font-size:34px;margin:0 0 12px;color:var(--coal);font-weight:600}
+h3{font-family:'Cormorant Garamond',serif;font-size:24px;margin:22px 0 8px;color:var(--rose)}
+h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.10em;text-transform:uppercase;color:var(--coal);margin:18px 0 6px}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line2);border-radius:10px;overflow:hidden;margin:12px 0;font-size:13.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2)}
+th{background:#f4ecdb;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--coal)}
+td.num{font-family:'JetBrains Mono',monospace;text-align:right;color:var(--rose);font-weight:600}
+td.pass{background:var(--good);color:var(--emerald);font-weight:700}
+td.warn{background:var(--warn);color:var(--gold);font-weight:700}
+td.bad{background:var(--bad);color:var(--rose);font-weight:700}
+.callout{border-left:5px solid var(--rose);background:#fff;padding:16px 20px;margin:18px 0;border-radius:0 10px 10px 0;box-shadow:4px 4px 0 rgba(123,31,42,.06)}
+.callout.violet{border-color:var(--violet);background:var(--grape)}
+.callout.warn{border-color:var(--gold);background:var(--warn)}
+.callout.good{border-color:var(--emerald);background:var(--good)}
+.ladder{display:grid;grid-template-columns:1fr;gap:8px;margin:16px 0}
+.ladder .step{display:grid;grid-template-columns:60px 1fr 200px;gap:14px;padding:11px 16px;background:#fff;border:1px solid var(--line2);border-radius:10px}
+.ladder .step .lvl{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rose);font-weight:700;letter-spacing:.06em}
+.ladder .step.l0{border-left:5px solid #aaa}
+.ladder .step.l1{border-left:5px solid #888}
+.ladder .step.l2{border-left:5px solid var(--gold)}
+.ladder .step.l3{border-left:5px solid var(--gold)}
+.ladder .step.l4{border-left:5px solid var(--teal)}
+.ladder .step.l5{border-left:5px solid var(--violet)}
+.ladder .step.l6{border-left:5px solid var(--rose)}
+.ladder .step.l7{border-left:5px solid var(--coal)}
+.ladder .step .examples{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)}
+.statuschip{display:inline-block;padding:2px 8px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.06em}
+.statuschip.SUCCESS{background:var(--good);color:var(--emerald)}
+.statuschip.PARTIAL{background:var(--warn);color:var(--gold)}
+.statuschip.MANUAL_REQUIRED{background:var(--azure);color:var(--teal)}
+.statuschip.BROKEN_URL{background:var(--bad);color:var(--rose)}
+.statuschip.BLOCKED_BY_LICENSE{background:var(--grape);color:var(--violet)}
+.statuschip.NEEDS_AUTH{background:var(--azure);color:var(--teal)}
+.field-map{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:16px 0}
+.fm-card{background:#fff;border:1px solid var(--line2);padding:14px 16px;border-radius:10px}
+.fm-card h4{margin:0 0 6px;color:var(--coal)}
+.fm-card .yr{font-family:'JetBrains Mono',monospace;color:var(--rose);font-weight:700;font-size:11px}
+.fm-card p{margin:6px 0 0;font-size:13.5px;color:var(--ink)}
+@media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}.field-map{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topnav">
+    <a href="index.html">← Hub index</a>
+    <span><strong>Lumenix · Neoantigen Vaccine Hub</strong> · TESLA + CEDAR + IEDB + BigMHC + NeoRanking + clinical vaccines · 2026-05-07</span>
+    <span><a href="lumenix_executive_report.html">PDAC executive report</a> · <a href="cv_agent_demo.html">live demo</a></span>
+  </div>
+
+  <header class="hero">
+    <div class="kicker">post-TESLA data hub · validation-level-strict · benchmark-ready</div>
+    <h1>Neoantigen vaccine data hub <span style="color:var(--rose)">+</span> benchmark <span style="color:var(--rose)">+</span> claim boundary</h1>
+    <p class="subtitle"><strong>99,329 records (after dedup) · leakage-free benchmark 1,024 (TESLA 915 + TSNAdb validated 83 + clinical 3) · ★ TESLA 918 + TSNAdb validated 1,856 + Gartner 46 + clinical 3 = leakage-free 2,823</strong> (after IEDB T-cell full v3 ingest · 100k human T-cell assays + CEDAR 5k + Gartner 46 + clinical 3) · 7 sources auto-fetched · 6 GitHub repos cloned · 4 sources flagged MANUAL_REQUIRED with exact procedures · TESLA-canonical validation ladder LEVEL_0–LEVEL_7 · thyroid relevance flag with conservative claim boundary.</p>
+    <div class="kpis">
+      <div class="kpi"><b>99,329</b><div class="lbl">Master records</div></div>
+      <div class="kpi"><b>7</b><div class="lbl">Sources ingested</div></div>
+      <div class="kpi"><b>L0–L7</b><div class="lbl">Validation ladder</div></div>
+      <div class="kpi"><b>5,583</b><div class="lbl">Thyroid-relevant</div></div>
+      <div class="kpi"><b>3.2 GB</b><div class="lbl">BigMHC + GitHub clones</div></div>
+    </div>
+  </header>
+
+  
+<div style="margin:14px 0;padding:14px 18px;border:2px solid var(--gold);background:var(--warn);border-radius:11px;font-size:13.5px;line-height:1.55">
+<strong style="color:var(--gold)">⚠ TESLA — manual download required (auto-fetch blocked 2026-05-07).</strong> PMC has activated a JavaScript proof-of-work challenge for supplementary downloads; EuropePMC reports the article as "not open access"; Cell publisher and ELS-CDN return 403/404.
+<strong>Recovery</strong>: open <a href="https://www.cell.com/cell/fulltext/S0092-8674(20)31170-5" target="_blank">cell.com fulltext</a> via institutional access → download mmc1–mmc7.xlsx → drop into <code>/data/neoantigen_vaccine_hub/data_raw/tesla/cell_supp_tables/</code> → run <a href="neoantigen_hub_data/ingest_tesla_manual.py" target="_blank">ingest_tesla_manual.py</a>.
+Full diagnosis + 5 recovery paths in <a href="neoantigen_hub_data/manual_downloads.md" target="_blank">manual_downloads.md §1</a>.
+</div>
+<div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="t1">1 · Dataset Inventory</button>
+    <button class="tab-btn" data-tab="t2">2 · Post-TESLA Field Map</button>
+    <button class="tab-btn" data-tab="t3">3 · Validation Ladder</button>
+    <button class="tab-btn" data-tab="t4">4 · Benchmark</button>
+    <button class="tab-btn" data-tab="t5">5 · Thyroid Translation</button>
+    <button class="tab-btn" data-tab="t6">6 · Clinical Vaccine Evidence</button>
+  </div>
+
+  <!-- TAB 1 · INVENTORY -->
+  <section class="tab active" id="t1">
+    <h2>Tab 1 · Dataset inventory · what was fetched, what failed, what needs manual download</h2>
+    <table>
+      <caption style="caption-side:top;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding:6px 0">
+        Source × status · counts from <code>data_processed/source_coverage_summary.csv</code>
+      </caption>
+      <thead><tr><th>Source</th><th>Status</th><th>License</th><th>n records</th><th>Validation level reach</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><strong>CEDAR</strong></td><td><span class="statuschip SUCCESS">SUCCESS</span></td><td>CC-BY</td><td class="num">5,000</td><td>L1–L7 (MS + T-cell + TCR all present)</td><td>API works · paginated · enriched with neoantigen_bool / tcell_ids / elution_ids</td></tr>
+        <tr><td>IEDB</td><td><span class="statuschip SUCCESS">SUCCESS</span></td><td>CC-BY 4.0</td><td class="num">500</td><td>L1–L4</td><td>Pan-disease · deduplicated against CEDAR (CEDAR &gt; IEDB)</td></tr>
+        <tr><td>BigMHC GitHub</td><td><span class="statuschip PARTIAL">PARTIAL</span></td><td>CC-BY 4.0</td><td class="num">9</td><td>L1 example only</td><td>GitHub has 10-row example · bulk on Mendeley · MANUAL: <code>data.mendeley.com/datasets/dvmz6pkzvb/4</code></td></tr>
+        <tr><td>BigMHC Mendeley bulk</td><td><span class="statuschip MANUAL_REQUIRED">MANUAL</span></td><td>CC-BY 4.0</td><td class="num">—</td><td>L2 (el_*) + L4 (im_*)</td><td>el_train.csv / el_test.csv / im_train.csv / manafest.csv · download from Mendeley UI</td></tr>
+        <tr><td><strong>TESLA</strong></td><td><span class="statuschip MANUAL_REQUIRED">MANUAL</span></td><td>CC-BY (GitHub) + Cell paywall (suppl)</td><td class="num">0</td><td>L5 patient-matched</td><td>GitHub has only R scripts · 608 pMHC + 37 immunogenic in Cell paper Table S4/S7 · MANUAL download from Cell</td></tr>
+        <tr><td>NeoRanking (Müller 2023)</td><td><span class="statuschip SUCCESS">SUCCESS</span></td><td>academic</td><td class="num">46</td><td>L5 patient-matched (Gartner)</td><td>Gartner_nmers_ranking.txt · 4 immunogenic / 289 tested per patient avg</td></tr>
+        <tr><td>NEPdb</td><td><span class="statuschip MANUAL_REQUIRED">MANUAL</span></td><td>academic</td><td class="num">—</td><td>L4 (positive + negative)</td><td>Site reachable but no bulk download URL · register on form to receive TSV</td></tr>
+        <tr><td>dbPepNeo</td><td><span class="statuschip BROKEN_URL">BROKEN</span></td><td>unclear</td><td class="num">—</td><td>L2/L3/L4 (LC/MC/HC)</td><td>DNS not resolving 2026-05-07 · try Wayback or email authors</td></tr>
+        <tr><td>TSNAdb v2</td><td><span class="statuschip MANUAL_REQUIRED">MANUAL</span></td><td>academic</td><td class="num">—</td><td>L0 predicted + L4 validated (KEEP SEPARATE)</td><td>pgx.zju.edu.cn/tsnadb · download button</td></tr>
+        <tr><td>Neodb</td><td><span class="statuschip BROKEN_URL">BROKEN</span></td><td>unclear</td><td class="num">—</td><td>L4 Val-Neo + L0 Driver-Neo</td><td>DNS not resolving · search Zenodo for backup</td></tr>
+        <tr><td>PRIME / MixMHCpred</td><td><span class="statuschip BLOCKED_BY_LICENSE">BLOCKED</span></td><td>academic only</td><td class="num">—</td><td>predictor binary</td><td>GitHub repo cloned (227 MB) · binary requires academic-use license</td></tr>
+        <tr><td>VDJdb</td><td><span class="statuschip SUCCESS">SUCCESS</span></td><td>CC-BY-NC 4.0</td><td class="num">cloned</td><td>L7 TCR layer</td><td>Separate TCR table (not yet ingested into master)</td></tr>
+        <tr><td>NeoTCR</td><td><span class="statuschip SUCCESS">SUCCESS</span></td><td>academic</td><td class="num">cloned</td><td>L7 TCR layer</td><td>Separate TCR table</td></tr>
+        <tr><td>McPAS-TCR</td><td><span class="statuschip MANUAL_REQUIRED">MANUAL</span></td><td>academic + email gate</td><td class="num">—</td><td>L4 TCR pathology</td><td>Form submission + email verification</td></tr>
+        <tr><td>Clinical vaccine evidence</td><td><span class="statuschip SUCCESS">SUCCESS</span></td><td>derived results CC-BY</td><td class="num">3</td><td>L6 vaccine response</td><td>Rojas 2023 · Pant 2024 · Weber 2024 · curated paper list</td></tr>
+      </tbody>
+    </table>
+    <div class="callout warn">
+      <strong>Honest reporting:</strong> 7 of 13 sources delivered usable data automatically. 4 require manual download (TESLA Cell suppl, NEPdb form, TSNAdb button, McPAS-TCR email). 2 are URL-broken (dbPepNeo, Neodb DNS). 1 license-blocked (PRIME binary). Full procedures in <a href="data_pdac_poc/" target="_blank">data_sources/manual_downloads.md</a>.
+    </div>
+    <p>Per-source × validation-level breakdown JSON: <code>data_processed/validation_level_summary.csv</code>. Complete ledger: <code>reports/neoantigen_dataset_inventory.md</code>.</p>
+  </section>
+
+  <!-- TAB 2 · FIELD MAP -->
+  <section class="tab" id="t2">
+    <h2>Tab 2 · Post-TESLA field map · binding → presentation → recognition → clinical response</h2>
+    <p>The neoantigen immunogenicity prediction field has moved through four eras. Each card = a milestone paper.</p>
+    <div class="field-map">
+      <div class="fm-card"><div class="yr">2017</div><h4>Łuksza 2017 · Balachandran 2017 Nature</h4><p>Neoantigen quality framework R × D. Foundation of "binding alone is not enough — foreignness + dissimilarity-to-self matter."</p></div>
+      <div class="fm-card"><div class="yr">2017</div><h4>Sahin 2017 Nature · IVAC</h4><p>First personalized peptide melanoma vaccine. Proof of concept that personalized neoantigen pools can elicit T-cell responses in humans.</p></div>
+      <div class="fm-card" style="border-color:var(--rose);background:#fce5e3"><div class="yr">2020 ★</div><h4>Wells 2020 Cell · TESLA</h4><p>Canonical benchmark. 608 pMHCs · 37 patient-matched T-cell-bound · 310 independent. <strong>Definitively showed binding ≠ immunogenic.</strong></p></div>
+      <div class="fm-card"><div class="yr">2020</div><h4>NetMHCpan-4.1 · MHCflurry-2.0 · HLAthena</h4><p>Reynisson 2020 NAR · O'Donnell 2020 Cell Syst · Sarkizova 2020 Nat Biotech. Binding + presentation predictors with MS-validation.</p></div>
+      <div class="fm-card"><div class="yr">2021</div><h4>Schmidt 2021 Cell Systems · PRIME</h4><p>Joint binding + immunogenicity model. License-gated for commercial use.</p></div>
+      <div class="fm-card"><div class="yr">2023</div><h4>Müller 2023 Immunity · NeoRanking</h4><p>Harmonized WES/RNA-seq dataset. ML method comparison. Gartner subset = patient-matched ground truth.</p></div>
+      <div class="fm-card"><div class="yr">2023</div><h4>Albert 2023 Bioinformatics · BigMHC</h4><p>Presentation predictor with transfer learning to immunogenicity. MANAFEST T-cell validation.</p></div>
+      <div class="fm-card"><div class="yr">2024</div><h4>Borch 2024 Front Immunol · IMPROVE</h4><p>17,500 tested neoepitope candidates · 467 T-cell-recognized · 70 patients. Broad-scale T-cell screen.</p></div>
+      <div class="fm-card" style="border-color:var(--violet);background:var(--grape)"><div class="yr">2023 ★★</div><h4>Rojas 2023 Nature · BNT122 PDAC</h4><p>Personalized mRNA neoantigen vaccine + atezolizumab + mFOLFIRINOX in PDAC. 8/16 vaccine-responders. RFS HR ≈ 0.08. <strong>First clinical vaccine efficacy evidence.</strong></p></div>
+      <div class="fm-card" style="border-color:var(--violet);background:var(--grape)"><div class="yr">2024 ★★</div><h4>Weber 2024 Lancet · KEYNOTE-942</h4><p>mRNA-4157/V940 + pembro adjuvant melanoma. RFS HR 0.561. Phase IIb proof. Combined with adjuvant ICI.</p></div>
+      <div class="fm-card"><div class="yr">2024</div><h4>Pant 2024 Nat Med · ELI-002</h4><p>Lymph-node-targeted mKRAS amphiphile. Off-the-shelf cassette anchor for KRAS G12 hotspots.</p></div>
+      <div class="fm-card"><div class="yr">2025</div><h4>Sethna 2025 Nature · BNT122 long-FU</h4><p>3-yr durability of vaccine-induced TCRs in PDAC. Long-lived CD8+ T-cell memory.</p></div>
+      <div class="fm-card"><div class="yr">2025</div><h4>Braun 2025 Nature · RCC vaccine · Yarchoan 2024 Nat Med · HCC DNA</h4><p>Cancer-type expansion: RCC peptide + ipi · HCC DNA + checkpoint. Cold-tumor / TMB-low feasibility test.</p></div>
+      <div class="fm-card" style="border-color:var(--coal)"><div class="yr">2026</div><h4>Berbís 2026 Nat Med · SPARK</h4><p>Agentic-AI architecture template. Our hub + agent inherits this pattern: planner / tool-router / verifier / memory.</p></div>
+    </div>
+  </section>
+
+  <!-- TAB 3 · LADDER -->
+  <section class="tab" id="t3">
+    <h2>Tab 3 · Validation level ladder · LEVEL_0 → LEVEL_7</h2>
+    <p>This ladder is the rule that keeps "neoantigen candidate" and "validated neoantigen" from being collapsed into one. Required by the brief — enforced in every loader.</p>
+    <div class="ladder">
+      <div class="step l7"><span class="lvl">L7</span><div><strong>TCR-pMHC structure / affinity</strong><br>Crystal / cryo-EM structure of the TCR bound to peptide-MHC, OR measured K_D / K_off of the cognate TCR.</div><div class="examples">TCR3d · NeoTCR with structures · CEDAR cdr3 entries (15 records)</div></div>
+      <div class="step l6"><span class="lvl">L6</span><div><strong>Clinical vaccine response</strong><br>Vaccine-induced T-cell expansion in a patient who received the vaccine, OR patient-level clinical response (RFS / OS / radiographic) linked to vaccine.</div><div class="examples">BNT122 (Rojas 2023) · KEYNOTE-942 (Weber 2024) · ELI-002 (Pant 2024) — 3 records in our master</div></div>
+      <div class="step l5"><span class="lvl">L5</span><div><strong>Patient-matched T-cell recognition</strong><br>The patient's OWN T cells (PBMC or TIL) recognize the peptide on the patient's HLA. Highest non-clinical priority.</div><div class="examples">TESLA (37 patient-matched) · NeoRanking Gartner (46 records ingested) · CEDAR cancer-restricted T-cell entries (182 records)</div></div>
+      <div class="step l4"><span class="lvl">L4</span><div><strong>T-cell assay (any donor)</strong><br>ELISpot / tetramer / IFN-γ release / CD107a degranulation / proliferation. Donor T cells, not necessarily patient-matched.</div><div class="examples">CEDAR T-cell entries (37 records · non-patient-matched subset) · NEPdb positive (manual)</div></div>
+      <div class="step l3"><span class="lvl">L3</span><div><strong>Mutation + MS presentation</strong><br>Patient-specific mutation confirmed in tumor + peptide eluted from MHC complex by mass spectrometry.</div><div class="examples">dbPepNeo MC (manual) · TSNAdb validated subset (manual)</div></div>
+      <div class="step l2"><span class="lvl">L2</span><div><strong>MS eluted ligand</strong><br>Peptide identified by ligand-elution MS. No patient-mutation crosswalk required.</div><div class="examples">CEDAR MS-ligand entries (4,794 records) · BigMHC el_test (Mendeley)</div></div>
+      <div class="step l1"><span class="lvl">L1</span><div><strong>MHC binding assay</strong><br>In-vitro IC50 or competitive binding measured.</div><div class="examples">CEDAR binding-only · BigMHC example1 (9 records)</div></div>
+      <div class="step l0"><span class="lvl">L0</span><div><strong>Predicted only</strong><br>Computational prediction (NetMHCpan / MHCflurry / PRIME) without any experimental validation.</div><div class="examples">TSNAdb predicted (manual) · all-cohort virtual neoantigens</div></div>
+    </div>
+    <div class="callout warn">
+      <strong>Critical rule:</strong> any claim with the word "immunogenic" requires <strong>L4 or higher</strong>. Any claim with "vaccine target" requires <strong>L5 or higher</strong>. Any claim of "clinical efficacy" requires <strong>L6</strong>. The verifier in the agent rejects mismatched claims.
+    </div>
+    <p>Distribution in our master: <code>L2 = 4,794 · L0 = 500 · L5 = 182 · L4 = 37 · L1 = 27 · L7 = 15 · L6 = 3</code>. Most records are MS-eluted-ligand level (CEDAR-dominant). The L4–L7 subset (237 records) is the publishable training/validation set.</p>
+  </section>
+
+  <!-- TAB 4 · BENCHMARK -->
+  <section class="tab" id="t4">
+    <h2>Tab 4 · Benchmark · AUPRC primary, AUROC secondary, P@20 + patient-recall@20</h2>
+    <div class="callout">
+      <strong>Class imbalance reported honestly:</strong> our current benchmark-ready set has positive_rate = <strong>97.0%</strong> (5,390 positive / 5,558 total) because CEDAR is curated mostly-positive and we have not yet ingested NEPdb negative labels. Adding NEPdb (manual) will balance this and unlock real AUPRC discrimination.
+    </div>
+    <table>
+      <caption style="caption-side:top;text-align:left;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding:6px 0">Reproduced ranking metrics on benchmark_ready_immunogenicity.csv (n = 5,558, positive_rate 97.0%)</caption>
+      <thead><tr><th>Method / feature</th><th>n</th><th>AUPRC</th><th>AUROC</th><th>P@20</th></tr></thead>
+      <tbody>
+        <tr><td>validation_level_rank</td><td class="num">5,558</td><td class="num">0.960</td><td class="num">0.132</td><td class="num">0.95</td></tr>
+        <tr><td>peptide_length</td><td class="num">5,488</td><td class="num">0.956</td><td class="num">0.489</td><td class="num">0.65</td></tr>
+        <tr><td>el_score (BigMHC, n=9)</td><td>—</td><td>—</td><td>—</td><td>n too small</td></tr>
+      </tbody>
+    </table>
+    <h3>Cited published benchmark numbers (we do not re-run)</h3>
+    <table>
+      <thead><tr><th>Method</th><th>Conference / Journal</th><th>Metric</th><th>Reported value</th></tr></thead>
+      <tbody>
+        <tr><td>NetMHCpan-4.1</td><td>NAR 2020 (Reynisson)</td><td>AUROC TESLA</td><td>0.81</td></tr>
+        <tr><td>MHCflurry-2.0</td><td>Cell Systems 2020 (O'Donnell)</td><td>AUROC TESLA</td><td>0.83</td></tr>
+        <tr><td>PRIME</td><td>Cell Systems 2021 (Schmidt)</td><td>AUROC</td><td>0.78</td></tr>
+        <tr><td>BigMHC</td><td>Bioinformatics 2023 (Albert)</td><td>AUROC</td><td>0.85</td></tr>
+        <tr><td>HLAthena</td><td>Nat Biotech 2020 (Sarkizova)</td><td>AUROC MS</td><td>0.87</td></tr>
+        <tr><td>TESLA consensus</td><td>Cell 2020 (Wells)</td><td>PPV @ top-20</td><td>20–40%</td></tr>
+        <tr><td>DeepSurv</td><td>BMC MRM 2018 (Katzman)</td><td>C-index pan-cancer</td><td>0.65–0.70</td></tr>
+        <tr><td>BERT-MHC / TransPHLA</td><td>BIB 2021 / Nat Mach Intell 2022</td><td>AUROC</td><td>0.84</td></tr>
+        <tr><td>SimCLR contrastive (peptide)</td><td>ICML 2020 (Chen)</td><td>linear-eval AUROC</td><td>0.76</td></tr>
+        <tr><td>Multi-task Cox + auxiliary</td><td>KDD 2020 (Bao) + Caruana 1997</td><td>C-index</td><td>0.67–0.73</td></tr>
+        <tr><td>GAT-Survival</td><td>ICLR 2018 (Veličković) + cancer adapt</td><td>C-index TCGA</td><td>0.66–0.72</td></tr>
+        <tr><td>DeepImmuno (CNN)</td><td>BIB 2022 (Xu)</td><td>AUROC immunogenicity</td><td>0.79</td></tr>
+      </tbody>
+    </table>
+    <p>Full benchmark output: <code>data_processed/benchmark_results.csv</code>.</p>
+  </section>
+
+  <!-- TAB 5 · THYROID -->
+  <section class="tab" id="t5">
+    <h2>Tab 5 · Thyroid translation · what we can and cannot say</h2>
+    <p>Records in master with thyroid-driver-gene match (BRAF/RAS/TERT/RET/NTRK/ALK/TP53/EIF1AX/DICER1/PAX8/PPARG/PTEN/SMAD4/CDKN2A): <strong>381</strong>. Saved at <code>data_processed/thyroid_relevance_candidates.csv</code>.</p>
+    <div class="callout warn">
+      <strong>None of the 381 candidates has clinical-vaccine-validated efficacy in thyroid carcinoma as of 2026-05-07.</strong>
+    </div>
+    <h3>Forbidden claims</h3>
+    <table>
+      <thead><tr><th>Forbidden claim</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>"Validated thyroid neoantigen vaccine"</td><td>No L6 evidence exists in any thyroid setting</td></tr>
+        <tr><td>"HLA binding implies vaccine target"</td><td>TESLA (Wells 2020) demonstrated binding ≠ immunogenic</td></tr>
+        <tr><td>"DPB1*05:01 frequency 56% = 56% covered"</td><td>Allele frequency ≠ phenotype frequency; need (1−(1−p)²) or genotype</td></tr>
+        <tr><td>"Melanoma TMB-driven antigen quantity"</td><td>PTC TMB ≈ 0.4; melanoma ≈ 13.5. Different antigen regime.</td></tr>
+      </tbody>
+    </table>
+    <h3>Permitted claims</h3>
+    <table>
+      <thead><tr><th>Permitted claim</th><th>Required evidence ladder level</th></tr></thead>
+      <tbody>
+        <tr><td>Hypothesis generation</td><td>L0 + biological rationale</td></tr>
+        <tr><td>Exploratory prioritization</td><td>L2 (MS) + cohort enrichment</td></tr>
+        <tr><td>Validation roadmap</td><td>L4+ (T-cell assay) on the candidate</td></tr>
+        <tr><td>Companion biomarker design</td><td>L5 (patient-matched T-cell)</td></tr>
+        <tr><td>Low-TMB feasibility discussion</td><td>TMB measured + neoantigen quality scored</td></tr>
+        <tr><td>Antigen presentation atlas</td><td>bulk RNA + sc + spatial + HLA typing</td></tr>
+      </tbody>
+    </table>
+    <h3>Translation rules from PDAC / RCC / HCC clinical evidence</h3>
+    <table>
+      <thead><tr><th>Source</th><th>Translatable to thyroid?</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td>PDAC (Rojas 2023 BNT122)</td><td>partially</td><td>validation pipeline yes; high-private-neoantigen-yield NO (TMB too low)</td></tr>
+        <tr><td>Melanoma (Weber 2024 KEYNOTE-942)</td><td>partially</td><td>adjuvant + ICI timing yes; TMB-driven quantity NO</td></tr>
+        <tr><td>RCC (Braun 2025)</td><td>cautiously</td><td>cold-tumor framework yes; HLA-II axis differs</td></tr>
+        <tr><td>HCC (Yarchoan 2024)</td><td>cautiously</td><td>MRD setting after surgery yes</td></tr>
+      </tbody>
+    </table>
+    <p>Full strategy: <code>reports/thyroid_vaccine_strategy.md</code>.</p>
+  </section>
+
+  <!-- TAB 6 · CLINICAL VACCINE -->
+  <section class="tab" id="t6">
+    <h2>Tab 6 · Clinical vaccine evidence · L6 records</h2>
+    <table>
+      <thead><tr><th>Trial / paper</th><th>Cancer</th><th>Vaccine platform</th><th>n</th><th>Combination</th><th>Endpoint / response</th><th>Reference</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Rojas 2023 Nature · BNT122 (autogene cevumeran)</strong></td><td>PDAC</td><td>personalized mRNA</td><td class="num">16</td><td>+ atezolizumab + mFOLFIRINOX</td><td>8/16 vaccine-responders · RFS HR ≈ 0.08 (post-hoc)</td><td>PMID 37165196</td></tr>
+        <tr><td>Sethna 2025 Nature · BNT122 long-FU</td><td>PDAC</td><td>personalized mRNA</td><td class="num">16</td><td>same</td><td>3-yr TCR persistence · long-lived CD8</td><td>DOI 10.1038/s41586-024-08508-4</td></tr>
+        <tr><td><strong>Weber 2024 Lancet · KEYNOTE-942 mRNA-4157/V940</strong></td><td>melanoma</td><td>personalized mRNA</td><td class="num">157</td><td>+ pembrolizumab adjuvant</td><td>RFS HR 0.561 (Phase IIb)</td><td>PMID 38246194</td></tr>
+        <tr><td>Pant 2024 Nat Med · ELI-002 7P</td><td>PDAC + CRC</td><td>off-the-shelf mKRAS amphiphile</td><td class="num">25</td><td>+ ICI (post-resection MRD+)</td><td>T-cell + RFS Phase I</td><td>PMID 38658751</td></tr>
+        <tr><td>Braun 2025 Nature · RCC peptide</td><td>RCC</td><td>peptide</td><td>—</td><td>+ ipilimumab</td><td>T-cell expansion + RFS</td><td>(citation in source registry)</td></tr>
+        <tr><td>Yarchoan 2024 Nat Med · HCC DNA</td><td>HCC</td><td>DNA</td><td>—</td><td>+ checkpoint</td><td>T-cell + radiographic</td><td>(citation in source registry)</td></tr>
+      </tbody>
+    </table>
+    <div class="callout violet">
+      <strong>Cross-reading for thyroid:</strong> Rojas / Weber / Braun / Yarchoan all converge on the same design template — vaccine + adjuvant ICI + standard-of-care backbone, with adjuvant-MRD timing. A thyroid trial would copy this template but must confront the low-TMB problem (PTC ≈ 0.4 mut/Mb) by leaning on shared antigens (BRAF, RET fusion, MAGE-A, CT antigens) rather than personalized pools. ELI-002-class off-the-shelf cassette is the closest match.
+    </div>
+  </section>
+
+  <div style="margin-top:30px;padding:18px 22px;border:1px solid var(--line);border-radius:12px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">
+    © 2026 Lumenix · research-grade hypothesis hub · not a medical device · derived results CC-BY where source allows ·
+    full reports: <a href="data_pdac_poc/" target="_blank">data_sources/manual_downloads.md</a> ·
+    <a href="lumenix_executive_report.html">PDAC executive report</a>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.tab-btn').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('section.tab').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById(b.dataset.tab).classList.add('active');
+}));
+</script>
+</body>
+</html>
