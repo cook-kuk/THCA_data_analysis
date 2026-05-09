@@ -12,14 +12,14 @@ Decision: **HOLD_FOR_SOTA__USE_AS_EXACT_SPLIT_RESCUE_EXPERT**
 
 | split_name                   | pre_gate_best                           |   pre_gate_AUPRC |   pre_gate_top10 |   gate_AUPRC |   gate_top10 | combined_best                           |   combined_AUPRC |   combined_top10 |
 |:-----------------------------|:----------------------------------------|-----------------:|-----------------:|-------------:|-------------:|:----------------------------------------|-----------------:|-----------------:|
-| exact_peptide_hla_holdout    | prespecified_rf_qk_no_anchor_w0.5       |         0.586965 |              0.7 |     0.645399 |          0.7 | fast_nested_esm2_qk_gate                |         0.645399 |              0.7 |
+| exact_peptide_hla_holdout    | prespecified_rf_qk_no_anchor_w0.5       |         0.586965 |              0.7 |     0.636885 |          0.7 | fast_nested_esm2_qk_gate                |         0.636885 |              0.7 |
 | near_peptide_cluster_holdout | rule_gate_rf_qk_fallback_train_selected |         0.518669 |              0.7 |     0.411047 |          0.4 | rule_gate_rf_qk_fallback_train_selected |         0.518669 |              0.7 |
 | hla_stratified_group_5fold   | v2_cf_plm_lr                            |         0.563197 |              0.5 |     0.533327 |          0.7 | v2_cf_plm_lr                            |         0.563197 |              0.5 |
 | hla_supertype_heldout        | v2_multimodal_lr                        |         0.58542  |              0.6 |     0.516795 |          0.5 | v2_multimodal_lr                        |         0.58542  |              0.6 |
 
 ## Interpretation
 
-- Exact peptide-HLA improved from AUPRC 0.587 to 0.645; this is a real locked-split signal.
+- Exact peptide-HLA improved from AUPRC 0.587 to 0.637; this is a real locked-split signal.
 - Near-peptide holdout fell from AUPRC 0.519 to 0.411; this blocks promotion to headline model.
 - HLA group gained top10 but lost AUPRC; HLA supertype also lost AUPRC.
 - Therefore the gate is a bounded rescue expert, not the main model.

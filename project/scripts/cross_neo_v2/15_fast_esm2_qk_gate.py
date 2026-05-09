@@ -106,6 +106,7 @@ def main() -> None:
                 })
             selected.append({"split_name": split, "fold_id": fold_id, **{k: best[k] for k in ["base", "esm", "w", "train_AUPRC", "train_top10"]}})
     fused = pd.DataFrame(fused_rows)
+    fused["score"] = fused["score"].round(12)
     fused["rank"] = fused.groupby(["split_name", "fold_id", "model_name"])["score"].rank(method="first", ascending=False)
     fused["rank_pct"] = fused["rank"] / fused.groupby(["split_name", "fold_id", "model_name"])["row_id"].transform("size")
     fused.to_csv(OUT / "predictions/fast_esm2_qk_gate_predictions.tsv", sep="\t", index=False, na_rep="NA")
