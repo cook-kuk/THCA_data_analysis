@@ -27,6 +27,20 @@ BAR-Neo abstains or lowers confidence for high leakage risk, underrepresented HL
 
 PAAD high-priority context is resected/MRD/low-burden disease. THCA high-priority research context is ATC, PDTC, progressive radioiodine-refractory DTC, or high-risk recurrence. Unknown patient metadata are marked as uncertainty rather than inferred.
 
+## PAAD/THCA Demo Status
+
+Current PAAD/THCA patient-gated outputs are written as a metadata-requirements and scenario-gate demo. Because the benchmark master table lacks patient disease context, all current patient-gated candidate rows are `research_triage_only=true`, `clinical_use=false`, and low confidence.
+
+| scenario_id                   | disease   | research_priority         |   scenario_gate_multiplier |
+|:------------------------------|:----------|:--------------------------|---------------------------:|
+| PAAD_RESECTED_PERSONALIZED    | PAAD      | high_if_metadata_complete |                  0.3136    |
+| PAAD_MRD_KRAS_PUBLIC          | PAAD      | high_if_kras_hla_match    |                  0.2548    |
+| PAAD_RESECTED_KRAS_BROAD      | PAAD      | conditional               |                  0.148297  |
+| THCA_BRAF_V600E_ATC           | THCA      | conditional_add_on        |                  0.12012   |
+| THCA_RR_DTC_PDTC_HIGH_RISK    | THCA      | conditional               |                  0.14196   |
+| THCA_HT_TLS_IMMUNE_ACTIVE_PTC | THCA      | narrow_trial_only         |                  0.0796331 |
+| PRESENTATION_FAILURE_NO_GO    | Both      | no_go                     |                  0         |
+
 ## Limitations
 
 BAR-Neo currently reflects available public/local benchmark labels and sparse patient metadata. It is a research triage and reliability layer, not a clinical treatment selector.

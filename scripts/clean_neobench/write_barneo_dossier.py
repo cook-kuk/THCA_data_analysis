@@ -140,6 +140,9 @@ def main() -> None:
     failure_aware = read_tsv(output_root / "barneo_failure_aware_candidate_scores.tsv")
     manual_queue = read_tsv(output_root / "barneo_manual_review_queue.tsv")
     challenge_queue = read_tsv(output_root / "barneo_distribution_challenge_queue.tsv")
+    patient_requirements = read_tsv(output_root / "patient_gated_clean_neo_metadata_requirements.tsv")
+    patient_scenarios = read_tsv(output_root / "patient_gated_clean_neo_demo_scenarios.tsv")
+    patient_queue = read_tsv(output_root / "patient_gated_clean_neo_candidate_queue.tsv")
     master = read_tsv(output_root / "clean_neobench_master.tsv")
     manifest_path = output_root / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
@@ -164,6 +167,12 @@ def main() -> None:
     abstention_summary = build_abstention_summary(bma)
     review_tier_summary = build_review_tier_summary(failure_aware)
     split_summary = build_split_summary(split_metrics)
+    if not patient_requirements.empty and "metadata_status" in patient_requirements.columns:
+        patient_blocked = patient_requirements[
+            patient_requirements["metadata_status"].isin(["absent_from_master", "present_but_empty"])
+        ].copy()
+    else:
+        patient_blocked = pd.DataFrame()
     top_bma = bma.sort_values("bma_rank_global") if "bma_rank_global" in bma.columns else bma
     fallback_min_rank = int(top_bma.loc[fallback_mask, "bma_rank_global"].min()) if fallback_rows and "bma_rank_global" in top_bma.columns else "NA"
     clean_review = bma[(~bma.get("bma_abstain", pd.Series([True] * len(bma))))].copy() if not bma.empty else pd.DataFrame()
@@ -250,8 +259,9 @@ def main() -> None:
       <a href="#failure-aware">08 Failure-Aware</a>
       <a href="#manual-queue">09 Manual Queue</a>
       <a href="#public-audit">10 Public Audit</a>
-      <a href="#caveats">11 Caveats</a>
-      <a href="#paths">12 Paths</a>
+      <a href="#patient-gated">11 Patient Gates</a>
+      <a href="#caveats">12 Caveats</a>
+      <a href="#paths">13 Paths</a>
     </nav>
     <main>
       <section id="tldr">
@@ -340,8 +350,19 @@ def main() -> None:
         {table_html(public_training_requirements, ["public_tool", "filename_tokens", "required_key", "minimum_columns", "clean_pass_rule", "drop_location"], 30)}
       </section>
 
+      <section id="patient-gated">
+        <h2><span class="num">11</span>PAAD/THCA Patient Gates</h2>
+        <p><span class="warn">Current status: demo only.</span> Candidate rows lack enough disease timing, presentation, antigen expression, immune-context, and safety metadata for real patient-level confidence. All current patient-gated rows are research triage only and clinical_use=false.</p>
+        <h3>Scenario gate matrix</h3>
+        {table_html(patient_scenarios, ["scenario_id", "disease", "research_priority", "disease_context_gate", "presentation_gate", "antigen_gate", "immune_context_gate", "safety_gate", "scenario_gate_multiplier", "combination_strategy", "main_caveat"], 20)}
+        <h3>Blocking metadata gaps</h3>
+        {table_html(patient_blocked, ["field", "gate_group", "required_for", "metadata_status", "reviewer_safe_default_if_missing"], 60)}
+        <h3>Demo gated queue</h3>
+        {table_html(patient_queue, ["scenario_id", "candidate_id", "peptide", "hla_allele_4digit", "patient_gate_base_score", "model_confidence_gate", "scenario_gate_multiplier", "metadata_completion_cap", "demo_patient_gated_score", "patient_gated_confidence_bin", "abstention_reason_primary"], 45)}
+      </section>
+
       <section id="caveats">
-        <h2><span class="num">11</span>Caveats</h2>
+        <h2><span class="num">12</span>Caveats</h2>
         <div class="cards">
           <div class="card"><strong class="warn">Public tools:</strong><br>Public pretrained tools are caveated comparators until row-level training-corpus overlap audit is complete.</div>
           <div class="card"><strong class="warn">MHC class:</strong><br>Class I and Class II must not be pooled as a single predictor claim.</div>
@@ -353,13 +374,14 @@ def main() -> None:
       </section>
 
       <section id="paths">
-        <h2><span class="num">12</span>Sources + Paths</h2>
+        <h2><span class="num">13</span>Sources + Paths</h2>
         <p class="path">Output root: {html.escape(str(output_root))}</p>
         <p class="path">Leaderboard: {html.escape(str(output_root / "clean_neobench_leaderboard.tsv"))}</p>
         <p class="path">Split metrics: {html.escape(str(output_root / "clean_neobench_split_metrics.tsv"))}</p>
         <p class="path">BMA candidate scores: {html.escape(str(output_root / "barneo_bma_candidate_scores.tsv"))}</p>
         <p class="path">BMA method weights: {html.escape(str(output_root / "barneo_bma_method_weights.tsv"))}</p>
         <p class="path">BMA selector audit: {html.escape(str(output_root / "barneo_bma_selector_audit.tsv"))}</p>
+        <p class="path">Patient-gated demo: {html.escape(str(output_root / "patient_gated_clean_neo_candidate_queue.tsv"))}</p>
       </section>
     </main>
   </div>

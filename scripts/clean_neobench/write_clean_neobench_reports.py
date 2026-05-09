@@ -56,6 +56,9 @@ def main() -> None:
     reasons = load(output_root / "barneo_abstention_reasons.tsv")
     bma = load(output_root / "barneo_bma_candidate_scores.tsv")
     public_audit = load(output_root / "clean_neobench_public_tool_overlap_audit.tsv")
+    patient_requirements = load(output_root / "patient_gated_clean_neo_metadata_requirements.tsv")
+    patient_scenarios = load(output_root / "patient_gated_clean_neo_demo_scenarios.tsv")
+    patient_queue = load(output_root / "patient_gated_clean_neo_candidate_queue.tsv")
 
     clean_board = leaderboard[leaderboard.get("method_role", "").isin(["anchor", "internal_candidate", "bounded_fallback"])] if len(leaderboard) else pd.DataFrame()
     public_board = leaderboard[leaderboard.get("method_role", "").eq("caveated_public_comparator")] if len(leaderboard) else pd.DataFrame()
@@ -245,6 +248,12 @@ BAR-Neo abstains or lowers confidence for high leakage risk, underrepresented HL
 
 PAAD high-priority context is resected/MRD/low-burden disease. THCA high-priority research context is ATC, PDTC, progressive radioiodine-refractory DTC, or high-risk recurrence. Unknown patient metadata are marked as uncertainty rather than inferred.
 
+## PAAD/THCA Demo Status
+
+Current PAAD/THCA patient-gated outputs are written as a metadata-requirements and scenario-gate demo. Because the benchmark master table lacks patient disease context, all current patient-gated candidate rows are `research_triage_only=true`, `clinical_use=false`, and low confidence.
+
+{dataframe_to_markdown(patient_scenarios[["scenario_id", "disease", "research_priority", "scenario_gate_multiplier"]].head(20) if len(patient_scenarios) else patient_scenarios)}
+
 ## Limitations
 
 BAR-Neo currently reflects available public/local benchmark labels and sparse patient metadata. It is a research triage and reliability layer, not a clinical treatment selector.
@@ -293,6 +302,7 @@ BAR-Neo currently reflects available public/local benchmark labels and sparse pa
                 "CLEAN_NEOBENCH_PUBLIC_TOOL_CAVEAT.md",
                 "BAR_NEO_METHOD_CARD.md",
                 "BAR_NEO_ABSTENTION_REPORT.md",
+                "PATIENT_GATED_CLEAN_NEO_PAAD_THCA_DEMO.md",
             ],
             "warnings": [],
         },
@@ -310,6 +320,9 @@ BAR-Neo currently reflects available public/local benchmark labels and sparse pa
         "n_methods": int(scores["method_name"].nunique()) if len(scores) else 0,
         "n_metric_rows": int(len(metrics)),
         "n_barneo_scores": int(len(barneo)),
+        "n_patient_gate_scenarios": int(len(patient_scenarios)),
+        "n_patient_gated_candidate_rows": int(len(patient_queue)),
+        "n_patient_gate_required_fields": int(len(patient_requirements)),
         }
     )
     if len(bma):
@@ -343,6 +356,8 @@ BAR-Neo currently reflects available public/local benchmark labels and sparse pa
             for col in [
                 "wt_peptide",
                 "patient_id",
+                "cancer_type",
+                "disease_context",
                 "source_protein_window",
                 "expression_tpm",
                 "mutant_expression",
@@ -355,6 +370,8 @@ BAR-Neo currently reflects available public/local benchmark labels and sparse pa
                 "tls_score",
                 "ifng_score",
                 "cytolytic_score",
+                "tumor_stage",
+                "treatment_context",
             ]
             if col in master.columns
         }

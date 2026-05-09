@@ -65,6 +65,7 @@ def main() -> None:
         "analyze_failure_modes.py",
         "apply_failure_aware_reliability.py",
         "build_barneo_manual_review_queue.py",
+        "build_patient_gated_clean_neo_demo.py",
         "write_clean_neobench_reports.py",
     ]
     for step in steps:
