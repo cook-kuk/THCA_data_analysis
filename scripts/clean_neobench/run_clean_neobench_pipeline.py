@@ -63,6 +63,7 @@ def main() -> None:
         "barneo_bma_agent.py",
         "analyze_failure_modes.py",
         "apply_failure_aware_reliability.py",
+        "build_barneo_manual_review_queue.py",
         "write_clean_neobench_reports.py",
     ]
     for step in steps:

@@ -181,6 +181,7 @@ def update_manifest(output_root: Path, stage: str, payload: dict[str, Any]) -> N
     if warnings:
         manifest.setdefault("warnings", [])
         manifest["warnings"].extend(str(w) for w in warnings)
+        manifest["warnings"] = list(dict.fromkeys(manifest["warnings"]))
     path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
 
 
