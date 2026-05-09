@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paper 1 v17 spatial signal decomposition</title><style>
+    :root{--bg:#0d1117;--panel:#151b23;--line:#30363d;--text:#e6edf3;--muted:#9ba7b4;--gold:#f6c85f;--blue:#67a9cf;--red:#ef8a62}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;line-height:1.55}
+    .hero{padding:56px 7vw 32px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#111a24,#0d1117)}
+    .kicker{color:var(--gold);text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:700}
+    h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:44px;line-height:1.05;margin:10px 0 14px}
+    .lead{max-width:1100px;color:#c8d1dc}.crumbs{margin-top:18px;color:var(--muted);font-size:12px}.crumbs a{color:var(--blue)}
+    .stats{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;margin-top:24px}.stat{border:1px solid var(--line);background:#111821;padding:12px;border-radius:6px}
+    .stat b{display:block;color:var(--gold);font-size:20px}.stat span{font-size:11px;color:var(--muted)}
+    .wrap{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:26px 7vw 60px}.toc{position:sticky;top:16px;align-self:start;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:14px}
+    .toc a{display:block;color:#c8d1dc;text-decoration:none;font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    section{margin-bottom:28px;border-top:1px solid var(--line);padding-top:20px}.num{color:var(--gold);font-weight:700;margin-right:8px} h2{font-size:22px;margin:0 0 12px}
+    .box{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:16px;margin:14px 0}.warn{border-color:#7c4b17;background:#21170c}.good{border-color:#345d40;background:#101d16}
+    table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0} th,td{border:1px solid var(--line);padding:7px 8px;text-align:left} th{color:var(--gold);background:#111821}
+    img{max-width:100%;border:1px solid var(--line);border-radius:6px;background:#fff}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:#111821;border-radius:6px;padding:13px;text-decoration:none;color:var(--text)}.card b{display:block;color:var(--gold);margin-bottom:4px}.card span{font-size:12px;color:var(--muted)}
+    code{color:#ffd98a}.small{font-size:12px;color:var(--muted)}@media(max-width:900px){.wrap{grid-template-columns:1fr}.toc{position:relative}.stats,.cards{grid-template-columns:1fr}h1{font-size:34px}}
+    </style></head>
+<body>
+<div class="hero">
+  <div class="kicker">Paper 1 · Fig 8 reserve · v17</div>
+  <h1>Spatial signal decomposition dossier</h1>
+  <p class="lead">v17 decomposes the failed GSE250521 spatial anti-correlation test. The result is stronger as a caveat: the raw positive MAPK-panel co-localization is broad detection/covariate structure, and rank-partial plus random-module checks do not reveal a hidden module-level anti-correlation.</p>
+  <div class="stats">
+    <div class="stat"><b>0.208</b><span>raw tumor epi rho</span></div>
+    <div class="stat"><b>0.064</b><span>full rank-partial rho</span></div>
+    <div class="stat"><b>0.383</b><span>detect-breadth rho</span></div>
+    <div class="stat"><b>0.099</b><span>random raw median</span></div>
+    <div class="stat"><b>0.006</b><span>random full median</span></div>
+    <div class="stat"><b>-0.096</b><span>CCND1_vs_TPO</span></div>
+  </div>
+  <div class="crumbs"><a href="index.html">hub</a> / <a href="paper1_spatial_failure_rescue_v16.html">v16 failure rescue</a> / v17 decomposition</div>
+</div>
+<div class="wrap">
+  <nav class="toc">
+    <a href="#tldr">TL;DR</a><a href="#figure">Figure</a><a href="#components">Components</a><a href="#qc">QC/detection</a><a href="#modules">Submodules</a><a href="#null">Random null</a><a href="#decision">Decision</a><a href="#sources">Sources</a>
+  </nav>
+  <main>
+    <section id="tldr"><h2><span class="num">01</span>TL;DR</h2>
+      <div class="box warn"><b>No hidden rescue.</b> Rank-partial Spearman and submodule checks do not recover the hypothesized within-spot MAPK-high / Panel-low relation. The honest result remains caveat/reserve.</div>
+      <div class="box good"><b>Better defense.</b> The raw positive result behaves like generic detection/covariate co-localization: random module pairs also show positive raw correlations, then collapse toward null after the same adjustment.</div>
+    </section>
+    <section id="figure"><h2><span class="num">02</span>Composite Figure</h2>
+      <img src="assets/paper1/Fig_SX_v17_spatial_signal_decomposition.png" alt="v17 spatial signal decomposition figure">
+    </section>
+    <section id="components"><h2><span class="num">03</span>Adjustment Components</h2>
+      <table><thead><tr><th>adjustment</th><th>rho_linear_resid_spearman</th><th>rho_rank_partial_spearman</th><th>n_linear</th></tr></thead><tbody><tr><td>raw</td><td>0.2085</td><td>0.2085</td><td>20569</td></tr><tr><td>epithelial</td><td>0.2019</td><td>0.1991</td><td>20569</td></tr><tr><td>qc</td><td>0.0632</td><td>0.07085</td><td>20569</td></tr><tr><td>microenv</td><td>0.1723</td><td>0.1606</td><td>20569</td></tr><tr><td>spatial</td><td>0.2108</td><td>0.2124</td><td>20569</td></tr><tr><td>detection</td><td>0.04127</td><td>0.05152</td><td>20569</td></tr><tr><td>epithelial_qc</td><td>0.06062</td><td>0.06765</td><td>20569</td></tr><tr><td>epithelial_qc_microenv</td><td>0.05241</td><td>0.06374</td><td>20569</td></tr><tr><td>epithelial_qc_microenv_spatial</td><td>0.05637</td><td>0.06612</td><td>20569</td></tr><tr><td>epithelial_qc_microenv_spatial_detection</td><td>0.007158</td><td>0.05355</td><td>20569</td></tr></tbody></table>
+      <h3>Covariate R2</h3>
+      <table><thead><tr><th>covariate_family</th><th>target</th><th>r2</th></tr></thead><tbody><tr><td>detection</td><td>MAPK_z</td><td>0.7322</td></tr><tr><td>detection</td><td>Panel8_z</td><td>0.6196</td></tr><tr><td>epithelial</td><td>MAPK_z</td><td>0.001535</td></tr><tr><td>epithelial</td><td>Panel8_z</td><td>0.006271</td></tr><tr><td>epithelial_qc_microenv</td><td>MAPK_z</td><td>0.1808</td></tr><tr><td>epithelial_qc_microenv</td><td>Panel8_z</td><td>0.2445</td></tr><tr><td>epithelial_qc_microenv_spatial_detection</td><td>MAPK_z</td><td>0.8089</td></tr><tr><td>epithelial_qc_microenv_spatial_detection</td><td>Panel8_z</td><td>0.6831</td></tr><tr><td>microenv</td><td>MAPK_z</td><td>0.0639</td></tr><tr><td>microenv</td><td>Panel8_z</td><td>0.07916</td></tr><tr><td>qc</td><td>MAPK_z</td><td>0.1645</td></tr><tr><td>qc</td><td>Panel8_z</td><td>0.1236</td></tr><tr><td>spatial</td><td>MAPK_z</td><td>0.03962</td></tr><tr><td>spatial</td><td>Panel8_z</td><td>0.05178</td></tr></tbody></table>
+    </section>
+    <section id="qc"><h2><span class="num">04</span>QC and Detection</h2>
+      <table><thead><tr><th>metric</th><th>rho</th></tr></thead><tbody><tr><td>Panel8_z_vs_panel_detect</td><td>0.8647</td></tr><tr><td>MAPK_z_vs_MAPK_detect</td><td>0.8386</td></tr><tr><td>MAPK_detect_vs_panel_detect</td><td>0.3831</td></tr><tr><td>MAPK_z_vs_log1p_total</td><td>0.3361</td></tr><tr><td>Panel8_z_vs_log1p_total</td><td>0.2957</td></tr><tr><td>MAPK_z_vs_Epithelial_score</td><td>0.04806</td></tr><tr><td>Panel8_z_vs_Epithelial_score</td><td>-0.01915</td></tr></tbody></table>
+    </section>
+    <section id="modules"><h2><span class="num">05</span>MAPK Submodules + Gene Pairs</h2>
+      <table><thead><tr><th>module</th><th>adjustment</th><th>rho_mapk_module_panel</th></tr></thead><tbody><tr><td>CCND1_only</td><td>full</td><td>-0.04877</td></tr><tr><td>CCND1_only</td><td>raw</td><td>-0.009032</td></tr><tr><td>MAPK_all9</td><td>full</td><td>-0.004452</td></tr><tr><td>MAPK_all9</td><td>raw</td><td>0.1095</td></tr><tr><td>feedback_DUSP_SPRY</td><td>full</td><td>0.01301</td></tr><tr><td>feedback_DUSP_SPRY</td><td>raw</td><td>0.114</td></tr><tr><td>no_CCND1</td><td>full</td><td>0.009423</td></tr><tr><td>no_CCND1</td><td>raw</td><td>0.1168</td></tr><tr><td>transcriptional_ETV_PHLDA1</td><td>full</td><td>0.02008</td></tr><tr><td>transcriptional_ETV_PHLDA1</td><td>raw</td><td>0.09851</td></tr></tbody></table>
+      <table><thead><tr><th>mapk_gene</th><th>panel_gene</th><th>median_rho</th><th>mean_rho</th><th>n_samples</th><th>n_negative</th><th>n_positive</th><th>frac_negative</th><th>binom_p_negative</th><th>binom_fdr_negative</th></tr></thead><tbody><tr><td>CCND1</td><td>TPO</td><td>-0.09555</td><td>-0.07968</td><td>12</td><td>10</td><td>1</td><td>0.8333</td><td>0.01929</td><td>0.6943</td></tr><tr><td>DUSP6</td><td>TPO</td><td>-0.07191</td><td>-0.07201</td><td>12</td><td>10</td><td>1</td><td>0.8333</td><td>0.01929</td><td>0.6943</td></tr><tr><td>ETV5</td><td>TPO</td><td>-0.04065</td><td>-0.002764</td><td>12</td><td>8</td><td>3</td><td>0.6667</td><td>0.1938</td><td>0.9998</td></tr><tr><td>CCND1</td><td>TG</td><td>-0.03918</td><td>-0.03734</td><td>12</td><td>9</td><td>3</td><td>0.75</td><td>0.073</td><td>0.876</td></tr><tr><td>PHLDA1</td><td>TSHR</td><td>-0.03902</td><td>-0.01116</td><td>12</td><td>7</td><td>4</td><td>0.5833</td><td>0.3872</td><td>0.9998</td></tr><tr><td>CCND1</td><td>TSHR</td><td>-0.0378</td><td>-0.03003</td><td>12</td><td>9</td><td>2</td><td>0.75</td><td>0.073</td><td>0.876</td></tr><tr><td>DUSP6</td><td>SLC5A5</td><td>-0.0366</td><td>-0.02754</td><td>12</td><td>6</td><td>1</td><td>0.5</td><td>0.6128</td><td>0.9998</td></tr><tr><td>SPRY4</td><td>NKX2-1</td><td>-0.03633</td><td>-0.05155</td><td>12</td><td>7</td><td>4</td><td>0.5833</td><td>0.3872</td><td>0.9998</td></tr><tr><td>PHLDA1</td><td>DIO1</td><td>-0.03514</td><td>-0.0313</td><td>12</td><td>8</td><td>3</td><td>0.6667</td><td>0.1938</td><td>0.9998</td></tr><tr><td>SPRY4</td><td>TSHR</td><td>-0.02761</td><td>-0.05176</td><td>12</td><td>8</td><td>3</td><td>0.6667</td><td>0.1938</td><td>0.9998</td></tr><tr><td>ETV4</td><td>DIO1</td><td>-0.02726</td><td>-0.02033</td><td>12</td><td>6</td><td>5</td><td>0.5</td><td>0.6128</td><td>0.9998</td></tr><tr><td>DUSP5</td><td>DIO1</td><td>-0.02681</td><td>-0.02981</td><td>12</td><td>9</td><td>2</td><td>0.75</td><td>0.073</td><td>0.876</td></tr></tbody></table>
+    </section>
+    <section id="null"><h2><span class="num">06</span>Random-Module Null</h2>
+      <p class="small">Random draws use 9-gene and 8-gene non-mitochondrial expressed modules per tumor sample, repeated 50 times per sample.</p>
+      <table><thead><tr><th>metric</th><th>rho</th><th>percentile_vs_random</th></tr></thead><tbody><tr><td>observed raw per-sample median</td><td>0.1095</td><td>0.545</td></tr><tr><td>random raw median</td><td>0.09926</td><td>nan</td></tr><tr><td>observed full-resid per-sample median</td><td>-0.004452</td><td>0.3433</td></tr><tr><td>random full-resid median</td><td>0.006011</td><td>nan</td></tr></tbody></table>
+    </section>
+    <section id="decision"><h2><span class="num">07</span>Decision</h2>
+      <table><thead><tr><th>Question</th><th>Answer</th><th>Disposition</th></tr></thead><tbody>
+        <tr><td>Can GSE250521 be turned into a positive Fig 8 mechanism result?</td><td>No. Full rank-partial rho is 0.064.</td><td>Keep out of positive mechanism chain.</td></tr>
+        <tr><td>Can the failure be defended?</td><td>Yes. Detection breadth and covariates explain broad positive co-localization; random modules show the same behavior.</td><td>Use only as caveat/reserve.</td></tr>
+        <tr><td>Is there any local foothold?</td><td>Weak gene-pair hints, top CCND1_vs_TPO rho -0.096.</td><td>Do not overclaim.</td></tr>
+      </tbody></table>
+      <div class="cards">
+        <a class="card" href="paper1_spatial_failure_rescue_v16.html"><b>v16 failure rescue</b><span>Adjustment ladder and near-null containment.</span></a>
+        <a class="card" href="paper1_fig8_mechanism_dossier.html"><b>Fig 8 mechanism dossier</b><span>Primary positive mechanism layer.</span></a>
+        <a class="card" href="paper1_methods_reproducibility_dossier.html"><b>Methods reproducibility</b><span>Gene lists, formulas, and cohort filters.</span></a>
+      </div>
+    </section>
+    <section id="sources"><h2><span class="num">08</span>Sources + Paths</h2>
+      <div class="box small">
+        <p><code>project/data/processed/GSE250521/*/*.scored.h5ad</code></p>
+        <p><code>project/results/p_deconv_2026_05_08/run_v17_spatial_signal_decomposition.py</code></p>
+        <p><code>v17_spatial_component_ladder_pooled.tsv</code>, <code>v17_spatial_covariate_r2.tsv</code>, <code>v17_spatial_random_module_null.tsv</code>, <code>v17_spatial_signal_decomposition_summary.json</code></p>
+      </div>
+    </section>
+  </main>
+</div></body></html>

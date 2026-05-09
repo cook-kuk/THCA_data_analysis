@@ -1,5 +1,7 @@
 # Bulk RNA-seq cell-type deconvolution — multi-method × canonical RAI score (v2)
 
+**Operating rollup:** `DECONV_ROLLUP_2026_05_09.md` is the current decision map for paper use. Short version: v2/v3/v5/v13/v14 are usable; v15A/v15C are reserve; GSE250521 spatial v15B-v18 is caveat-only and should not enter the positive mechanism chain.
+
 **Date:** 2026-05-08 (v2 update)
 **Scope:** Marathon-scope Paper 1 supplement — Q10/Q11 reviewer-attack defense + canonical S4 reproduction
 **Anchor:** Paper 1 manuscript v8 — A2 canonical DM labels + `rai_score_recalc` score
@@ -492,3 +494,330 @@ The v9–v13 MAPK-route mechanism is therefore **not over-claimed for cohorts wh
 ## Suggested Supp Fig SX_v14 caption
 
 > **Supplementary Figure SX_v14.** Cross-cohort forest of MAPK output × thyroid-score Spearman ρ (3 score panels: 8-gene Panel deployable / TDS-16 Yoo 2014 canonical / TDS−panel 8 disjoint genes; 5 cohorts: TCGA-THCA n=572 / Lee GSE213647 n=632 / GSE126698 n=28 / GSE286332 n=18 / GSE76039 n=37 advanced). Squares = per-cohort Spearman ρ (size proportional to √n); horizontal bars = 95% CI (Fisher z-transform). Diamond = pooled fixed-effect Fisher-z ρ; pooled Panel-8 ρ = −0.327 [−0.376, −0.278] (n_total = 1,287). Cochran Q = 14.77 (df=4, p=0.005), I² = 72.9% — heterogeneity is biologically expected and predicted by the v12 two-axis convergence model: GSE286332 (Korean PTC vs PTC+HT) is an HT-route cohort where MAPK decouples, and GSE76039 (advanced PDTC/ATC) shows panel saturation at the dedifferentiated end of the axis. The two well-differentiated primary cohorts (TCGA + Lee, n = 1,204) carry the entire signal.
+
+---
+
+# v15 (2026-05-09 evening) — K2 score-only overlay, GSE250521 spatial stress test, PRISM/DepMap therapy overlay
+
+**Question.** Do the non-blocking reserve extensions add reviewer-useful support without changing the main Fig 8 panel count or overstating the correlative mechanism boundary?
+
+## A. K2 mini-index score-only overlay
+
+K2 has the deployable 8-gene mini-index only; MAPK genes are not available, so it cannot enter the v14 MAPK × thyroid-score forest. The valid use is a score-distribution overlay using the same TCGA-centered profile classifier.
+
+| Metric | Value |
+|---|---:|
+| TCGA centered-profile 5-fold CV AUC | 0.960 |
+| TCGA training n | 500 (DM1:DM2 = 140:360) |
+| K2 n | 260 |
+| K2 DM2-like calls, p_DM2 ≥ 0.5 | 246 / 260 (94.6%) |
+| K2 median p_DM2 | 0.978 |
+
+**Boundary.** K2 is Korean cohort score-distribution evidence only. It is not a MAPK × Panel cohort because the K2 mini-index matrix lacks MAPK-output genes.
+
+## B. GSE250521 spatial MAPK × Panel stress test
+
+Per-spot GSE250521 raw h5ad files were converted to log1p(CP10K), within-slide z-scored, and summarized as MAPK-9 and Panel-8 scores. Contrary to the candidate hypothesis, the direct per-spot MAPK × Panel relationship is **positive**, not negative, and shrinks strongly after QC partialing.
+
+| Metric | Value |
+|---|---:|
+| Total spots retained | 57,997 |
+| Tumor-region spots (PTC/LPTC/ATC) | 43,180 |
+| Tumor slides | 12 |
+| Fixed-effect per-slide MAPK × Panel ρ | +0.326 [0.318, 0.335] |
+| QC-partial fixed-effect ρ | +0.059 [0.049, 0.068] |
+| Negative raw per-slide correlations | 0 / 16 |
+
+**Boundary.** This is a useful negative/edge-case result, not a mechanism lock. GSE250521 should not be cited as spatial confirmation of a MAPK-to-panel anti-correlation; it is better treated as tissue-localization/QC-sensitive co-localization.
+
+## C. PRISM/DepMap MAPK-inhibitor overlay
+
+PRISM and DepMap support a drug-vulnerability layer, but they do not measure thyroid-panel expression restoration after treatment.
+
+| Metric | Value |
+|---|---:|
+| PRISM drugs tested | 1,518 |
+| FDR < 0.05 DM1-high selective drugs | 11 / 11 |
+| FDR < 0.05 canonical MAPK-axis drugs | 7 |
+| Top PRISM drug | AZD-0364 (MEK), d = −0.594, FDR = 5.9e−7 |
+| DM1 score × canonical MAPK-inhibitor mean LFC | ρ = −0.236, p = 3.3e−10 (n = 690 nonmissing) |
+| MAPK-inhibitor mean LFC, DM1-high vs DM1-low | Cohen's d = −0.617 |
+| Top DepMap dependency | MYC, d = −0.499, p = 1.0e−11 |
+
+**Boundary.** This supports MAPK-axis vulnerability in DM1-high models and provides a rationale for perturbational follow-up. It does not prove MEK/RAF/ERK inhibition reverses thyroid-gene silencing.
+
+## Verdict
+
+v15 adds two reviewer-useful reserve layers and one honest non-confirmatory stress test:
+
+- K2 extends the Korean generalizability surface at the score-distribution level only.
+- GSE250521 does not support a spatial MAPK × Panel anti-correlation; keep it out of the positive mechanism chain unless explicitly framed as a limitation/stress test.
+- PRISM/DepMap strengthens the therapeutic vulnerability rationale but remains non-restoration evidence.
+
+## Outputs
+
+| File | Purpose |
+|---|---|
+| `run_v15_mechanism_extensions.py` | v15 A-C analysis and figure pipeline |
+| `v15A_k2_panel_overlay_per_sample.tsv` | TCGA / Lee / K2 per-sample centered-profile p_DM2 scores |
+| `v15A_k2_panel_overlay_by_group.tsv` | per-cohort group summaries |
+| `v15B_spatial_mapk_panel_per_slide.tsv` | GSE250521 per-slide MAPK × Panel Spearman ρ + CI + QC-partial ρ |
+| `v15B_spatial_mapk_panel_per_spot.tsv.gz` | per-spot MAPK-9 / Panel-8 / TDS-16 score table |
+| `v15B_spatial_mapk_panel_by_stage.tsv` | stage-level spatial summaries |
+| `v15C_prism_annotated_drugs.tsv` | PRISM drug table with MAPK-axis class annotations |
+| `v15C_prism_top15_annotated.tsv` | top-15 PRISM hits used in the figure |
+| `v15C_prism_mapk_cellline_scores.tsv.gz` | cell-line mean LFC across canonical MAPK FDR<0.05 drugs |
+| `v15C_depmap_dependency_overlay.tsv` | DepMap dependency overlay for DM1-high vs low |
+| `v15_mechanism_extensions_summary.json` | umbrella v15 summary |
+| `Fig_SX_v15_mechanism_extensions.{png,pdf}` | 4-panel reserve extension figure |
+
+---
+
+# v16 (2026-05-09 evening) — Spatial rescue failure + PRISM overclaim lock
+
+**Question.** Can the v15 spatial result be rescued by a stricter stratum or adjustment model, and how exactly should the PRISM MAPK-inhibitor claim be stated?
+
+## A. GSE250521 spatial diagnostics
+
+Input: `v15B_spatial_mapk_panel_per_spot.tsv.gz` merged with `project/results/01_spatial_score/all_spots_scored.tsv.gz`. Tested 5 adjustment models (`raw`, `QC`, `epithelial`, `cell_state`, `QC_plus_cell_state`) across all spots, tumor stages, individual stages, and epithelial-enriched strata.
+
+| Diagnostic | Value |
+|---|---:|
+| Total spots | 57,997 |
+| Tumor-stage spots | 43,180 |
+| Slides | 16 |
+| Tumor-slide pooled raw MAPK × Panel ρ | +0.326 [0.318, 0.335] |
+| Tumor-slide pooled QC-adjusted ρ | +0.058 [0.048, 0.068] |
+| Tumor-slide pooled QC + cell-state adjusted ρ | +0.034 [0.024, 0.044] |
+| Raw per-slide negative correlations | 0 / 16 |
+| Full-adjusted per-slide negative correlations | 2 / 16 |
+| MAPK × Panel subset/adjustment grid negative tests | 0 / 45 |
+
+**Verdict.** No reasonable spatial stratum or adjustment recovers a robust MAPK × Panel anti-correlation. The direct positive association is mostly QC/cell-state structure and is strongly attenuated by adjustment. Use GSE250521 as a stress-test/caveat only.
+
+## B. PRISM MAPK-axis claim lock
+
+Input: `v15C_prism_annotated_drugs.tsv` and `v15C_prism_mapk_cellline_scores.tsv.gz`.
+
+| Diagnostic | Value |
+|---|---:|
+| PRISM drugs tested | 1,518 |
+| Canonical MAPK universe in annotated PRISM table | 9 |
+| Top 7 by FDR rank | 7 / 7 canonical MAPK |
+| Top 11 by FDR rank | 7 / 11 canonical MAPK |
+| Top 15 by FDR rank | 8 / 15 canonical MAPK |
+| FDR < 0.05 | 7 / 11 canonical MAPK |
+| FDR < 0.05 canonical MAPK enrichment p | 3.25e−15 |
+| DM1 score × MAPK-inhibitor mean LFC | ρ = −0.236, p = 3.31e−10 |
+| Excluding thyroid cell lines | ρ = −0.240, p = 2.27e−10 |
+| Thyroid cell lines | n = 10, DM1 score constant; lineage-specific correlation not interpretable |
+
+**Correct wording.** PRISM support is real but narrower than the earlier memory shorthand. Do **not** say "top 15 all MAPK inhibitors." Say: top 7 are canonical MAPK-axis inhibitors; 7/11 FDR < 0.05 hits are canonical MAPK-axis inhibitors; top 15 includes non-MAPK hits.
+
+## Outputs
+
+| File | Purpose |
+|---|---|
+| `run_v16_spatial_prism_diagnostics.py` | v16 spatial/PRISM diagnostic pipeline |
+| `v16_spatial_adjustment_grid.tsv` | 45 MAPK × Panel spatial subset/adjustment tests plus other pair checks |
+| `v16_spatial_per_slide_adjusted.tsv` | per-slide raw/QC/cell-state partial correlations |
+| `v16_spatial_epithelial_quartile_grid.tsv` | stage × epithelial-score quartile rho grid |
+| `v16_prism_enrichment_sensitivity.tsv` | top-k and FDR-threshold MAPK enrichment sensitivity |
+| `v16_prism_lineage_sensitivity.tsv` | all/exclude-thyroid/lineage PRISM correlation checks |
+| `v16_spatial_prism_diagnostics_summary.json` | v16 headline summary |
+| `Fig_SX_v16_spatial_prism_diagnostics.{png,pdf}` | 4-panel diagnostic figure |
+
+---
+
+# v17 (2026-05-09 evening) — Spatial positive-signal decomposition
+
+**Question.** If GSE250521 spatial MAPK × Panel is positive rather than negative, is that positive signal biologically specific or mostly detection/covariate structure?
+
+Input: existing `v17_spatial_signal_decomposition_*` outputs in `project/results/p_deconv_2026_05_08/`.
+
+| Diagnostic | Value |
+|---|---:|
+| Tumor epithelial-top50 raw linear-residual ρ | +0.208 |
+| Full covariate adjusted linear-residual ρ | +0.052 |
+| Full rank-partial ρ | +0.064 |
+| Full spatial + detection adjusted linear ρ | +0.007 |
+| Median covariate R² for MAPK in tumor epithelial spots | 0.809 |
+| Median covariate R² for Panel-8 in tumor epithelial spots | 0.683 |
+| MAPK-detection × Panel-detection median ρ | +0.383 |
+| Observed raw median ρ percentile vs random module null | 0.545 |
+| Observed full-residual median ρ percentile vs random module null | 0.343 |
+| Top negative gene pair | CCND1 vs TPO, median ρ = −0.096; FDR = 0.694 |
+
+**Verdict.** The positive Visium MAPK × Panel co-localization is broad detection/covariate structure, not a biologically specific rescued mechanism. It collapses to near-zero after detection/spatial/cell-state adjustment and is not enriched beyond random same-size module pairs. This further supports keeping GSE250521 out of the positive Fig 8 mechanism chain.
+
+## Outputs
+
+| File | Purpose |
+|---|---|
+| `run_v17_spatial_signal_decomposition.py` | spatial signal decomposition pipeline |
+| `v17_spatial_component_ladder_pooled.tsv` | pooled adjustment-family ladder |
+| `v17_spatial_covariate_r2.tsv` | per-sample covariate R² for MAPK and Panel |
+| `v17_spatial_random_module_null.tsv` | random module null for module-module spatial correlations |
+| `v17_spatial_mapk_submodule_correlations.tsv` | MAPK submodule correlations after full adjustment |
+| `v17_spatial_gene_pair_sign_summary.tsv` | per-gene MAPK × panel sign consistency |
+| `v17_spatial_signal_decomposition_summary.json` | v17 headline summary |
+| `Fig_SX_v17_spatial_signal_decomposition.{png,pdf}` | 6-panel spatial decomposition figure |
+
+---
+
+# v15 (2026-05-09) — K2 overlay + spatial test + DepMap/PRISM reserve
+
+**Question.** Run all paper-blocking reserve extensions after v14: (A) K2 panel-only transfer, (B) GSE250521 spatial MAPK x Panel test, and (C) DepMap/PRISM actionability overlay.
+
+## Headline results
+
+| Layer | Result | Interpretation |
+|---|---|---|
+| v15A K2 | TCGA centered-panel 5-fold OOF AUC = **0.960**; K2 = **246/260 DM2**, median p_DM2 = **0.978** | Confirms K2 can be carried as panel-only score-distribution evidence. Raw mini-index TPM remains invalid for absolute-scale comparison. |
+| v15B spatial | GSE250521 tumor epithelial-enriched MAPK_z x Panel8_z rho = **+0.208** (p = 9.7e-201); epithelial-residualized rho = **+0.202** | Expected anti-correlation was **not observed**. This is a caveat/reserve result, not mechanism support. |
+| v15C PRISM | PRISM FDR<0.05 DM1-high selective hits: **7/11 MAPK-pathway**, hypergeometric p = **1.08e-14** | Strong actionability reserve; avoid overclaiming "all" hits are MAPK. |
+| v15C DepMap | top DM1-high CRISPR dependencies: **MYC d=-0.499 p=1.0e-11**, NAMPT d=-0.445 p=1.5e-9 | Pan-cancer proxy reserve, not thyroid-specific functional validation. |
+
+## Outputs
+
+| File | Purpose |
+|---|---|
+| `run_v15_k2_spatial_depmap.py` | One script for v15A/v15B/v15C analysis and composite figure |
+| `build_methods_reproducibility_dossier.py` | Builds the methods/reproducibility HTML dossier from local TSV/JSON files |
+| `v15_k2_panel_profile_scores.tsv` | TCGA + Lee + K2 centered-panel p_DM2 per sample |
+| `v15_k2_score_distribution_summary.tsv` | grouped p_DM2 distribution summaries |
+| `v15_spatial_mapk_panel_per_sample.tsv` | per-sample spatial MAPK x Panel correlations, raw and epithelial-residualized |
+| `v15_spatial_mapk_panel_stage_summary.tsv` | stage-pooled spatial correlations and residualized controls |
+| `v15_spatial_mapk_panel_spot_scores.tsv.gz` | per-spot MAPK_z, Panel8_z, DM1_like_z, epithelial-enriched flag |
+| `v15_prism_mapk_overlay.tsv` | PRISM drug differential table with MAPK-pathway annotation |
+| `v15_prism_mapk_enrichment.tsv` | hypergeometric enrichment tests for MAPK-pathway drugs |
+| `v15_depmap_dependency_overlay.tsv` | DepMap CRISPR dependency overlay |
+| `v15_summary.json` | headline metrics for v15 |
+| `Fig_SX_v15_K2_spatial_DEPMap.{png,pdf}` | 6-panel composite, mirrored to papers hub assets |
+| `project/papers_hub_2026_05_04/paper1_methods_reproducibility_dossier.html` | deployed methods/reproducibility dossier |
+
+## Disposition
+
+- **Use / reserve:** v15A K2 as score-distribution generalizability reserve; v15C PRISM/DepMap as actionability reserve.
+- **Do not use as support:** v15B spatial. It is a negative/contrary result for the hypothesized within-tumor spatial anti-correlation, likely reflecting spot-level co-expression/cell-state structure rather than bulk driver-route biology.
+- **Voice-protected sections untouched.** No Hook/Aim/Discussion/Limitations/Cover/Q9 prose was generated or edited.
+
+# v16 (2026-05-09) — spatial failure rescue/autopsy
+
+**Question.** The v15 GSE250521 spatial MAPK x Panel-8 anti-correlation failed. Can the failure be contained honestly rather than becoming a fatal contradiction?
+
+## Headline result
+
+The spatial result is **not rescued as positive mechanism support**, but it is contained as a reviewer-defense caveat:
+
+| Test | Result | Interpretation |
+|---|---|---|
+| Tumor epithelial-enriched raw MAPK_z x Panel8_z | rho = **+0.208** | Confirms the v15 failure: raw Visium spots co-localize MAPK output and thyroid panel signal. |
+| Full covariate residualization | rho = **+0.035** | Positive signal collapses by **83.1%** after epithelial, QC, CAF/ECM, EMT, hypoxia, and proliferation adjustment. |
+| Full + spatial polynomial residualization | rho = **+0.036** | Adding row/column spatial gradients does not restore a contradiction; the effect remains near-null. |
+| ATC epithelial-enriched full residualization | rho = **-0.0007** | In the most dedifferentiated stage, the apparent contradiction is neutralized. |
+| Gene-pair residual foothold | top = **CCND1 vs TPO**, median rho = **-0.071** | Weak gene-level anti-correlation hints exist, but they are not strong enough to replace the failed module-level test. |
+
+## Disposition
+
+- **Use v16 only as failure autopsy / reviewer reserve.** It explains why GSE250521 should not be over-read: the raw spot-level positive correlation is dominated by compartment/QC/microenvironment/spatial structure.
+- **Do not promote v16 into the main mechanism chain.** v13/v14 remain the mechanism-support layer.
+- **Manuscript-safe framing:** “GSE250521 did not validate the hypothesized within-spot MAPK x thyroid-panel anti-correlation; stricter spatial/covariate controls attenuated the contrary signal toward null.” Keep this factual block out of voice-protected narrative unless the author rewrites it.
+
+## Outputs
+
+| File | Purpose |
+|---|---|
+| `run_v16_spatial_failure_rescue.py` | v16 rescue/autopsy pipeline |
+| `v16_spatial_adjustment_ladder_per_sample.tsv` | per-sample raw, QC/purity, full covariate, spatial polynomial, and local-KNN correlation ladder |
+| `v16_spatial_pooled_adjustment_summary.tsv` | pooled spot-level adjustment summary |
+| `v16_spatial_stage_median_ladder.tsv` | stage-level median correlation ladder |
+| `v16_spatial_gene_pair_residual_correlations.tsv` | per-sample full-residual MAPK-gene x panel-gene correlations |
+| `v16_spatial_gene_pair_residual_summary.tsv` | tumor-sample median gene-pair residual correlations |
+| `v16_spatial_rescue_summary.json` | headline v16 metrics |
+| `Fig_SX_v16_spatial_failure_autopsy.{png,pdf}` | 6-panel v16 autopsy figure, mirrored to papers hub assets |
+| `project/papers_hub_2026_05_04/paper1_spatial_failure_rescue_v16.html` | deployed v16 HTML dossier |
+
+# v17 (2026-05-09) — spatial signal decomposition / random-module null
+
+**Question.** Push the failed GSE250521 spatial result further: is the raw positive MAPK x Panel-8 signal specific to the MAPK-panel hypothesis, or is it generic Visium detection/covariate co-localization?
+
+## Headline result
+
+v17 strengthens the **failure-autopsy defense**, not the positive mechanism chain.
+
+| Test | Result | Interpretation |
+|---|---|---|
+| Tumor epithelial raw MAPK_z x Panel8_z | rho = **+0.208** | Same raw failure as v15/v16. |
+| Full covariate residualization, pooled | rho = **+0.052**; rank-partial rho = **+0.064** | Still weakly positive in pooled analysis, but greatly attenuated from raw. |
+| Full + spatial + detection residualization | rho = **+0.007**, p = 0.305 | Once detection breadth is included, the pooled linear residual signal is effectively null. |
+| Per-sample median full residual | rho = **-0.004** | At the slide level, the residualized signal centers at null. |
+| Covariate explanatory power | median R2 = **0.809** for MAPK_z; **0.683** for Panel8_z | The modules are heavily explained by detection/QC/cell-state covariates. |
+| Detection breadth | median MAPK-detect x Panel-detect rho = **+0.383** | Co-detection is a major driver of raw positive co-localization. |
+| Random-module null | observed raw median rho = **+0.110** vs random raw median **+0.099**; percentile = **0.545** | The raw observed signal is not special relative to random expressed gene modules. |
+| Random-module full residual | observed full median rho = **-0.004** vs random full median **+0.006**; percentile = **0.343** | After adjustment, both observed and random modules collapse around null. |
+| Best gene-pair foothold | **CCND1 vs TPO**, median rho = **-0.096**, 10/12 tumor slides negative, sign-test FDR = **0.69** | Interesting but not robust after multiple testing; reserve only. |
+
+## Disposition
+
+- **Do not use GSE250521 as mechanism support.** v17 finds no hidden module-level anti-correlation under rank-partial, submodule, or random-null checks.
+- **Use v17 as the strongest reviewer-defense caveat.** The failed spatial result behaves like generic Visium co-detection/covariate structure, not a MAPK-panel-specific contradiction.
+- **Main chain remains v13/v14.** v16/v17 are autopsy pages for a hostile reviewer asking why spatial MAPK output did not anti-correlate with the panel within spots.
+- **Voice-protected sections untouched.** No Hook/Aim/Discussion/Limitations/Cover/Q9 prose was generated or edited.
+
+## Outputs
+
+| File | Purpose |
+|---|---|
+| `run_v17_spatial_signal_decomposition.py` | v17 decomposition pipeline |
+| `v17_spatial_component_ladder_per_sample.tsv` | per-sample raw/partial/residual adjustment ladder |
+| `v17_spatial_component_ladder_pooled.tsv` | pooled linear-residual and rank-partial Spearman ladder |
+| `v17_spatial_covariate_r2.tsv` | covariate-family R2 for MAPK_z and Panel8_z |
+| `v17_spatial_qc_detection_correlations.tsv` | depth/detection/epithelial-score correlation diagnostics |
+| `v17_spatial_mapk_submodule_correlations.tsv` | MAPK submodule checks: DUSP/SPRY, ETV/PHLDA1, no-CCND1, CCND1-only |
+| `v17_spatial_gene_pair_sign_per_sample.tsv` | per-slide residual MAPK-gene x panel-gene correlations |
+| `v17_spatial_gene_pair_sign_summary.tsv` | gene-pair sign consistency summary with binomial FDR |
+| `v17_spatial_random_module_null.tsv` | 50 random module-pair draws per tumor slide |
+| `v17_spatial_signal_decomposition_summary.json` | headline v17 metrics |
+| `Fig_SX_v17_spatial_signal_decomposition.{png,pdf}` | 6-panel v17 decomposition figure, mirrored to papers hub assets |
+| `project/papers_hub_2026_05_04/paper1_spatial_signal_decomposition_v17.html` | deployed v17 HTML dossier |
+
+# v18 (2026-05-09) — spatial lag + MAPK-high/Panel-low pocket closure
+
+**Question.** If same-spot GSE250521 MAPK x Panel-8 anti-correlation fails, is there still a spatial-neighborhood rescue: MAPK-high spots adjacent to Panel-low neighborhoods, or focal MAPK-high/Panel-low pockets?
+
+## Headline result
+
+v18 closes the last spatial rescue route. There is **no neighborhood-level anti-correlation rescue** and no enrichment of MAPK-high/Panel-low pockets.
+
+| Test | Result | Interpretation |
+|---|---|---|
+| Tumor epithelial raw same-spot median rho | **+0.110** | Same direction as the failed v15/v17 raw result. |
+| Tumor epithelial raw KNN 1-6 lag rho | **+0.090** | Nearby Panel neighborhoods remain weakly positive, not negative. |
+| Tumor epithelial raw KNN 7-18 lag rho | **+0.071** | The positive relation attenuates with distance but does not invert. |
+| Full+spatial+detection residual same-spot rho | **-0.011** | Residual same-spot relation centers near null. |
+| Full+spatial+detection residual KNN 1-6 lag rho | **+0.033** | No residual negative neighborhood effect. |
+| Full+spatial+detection residual KNN 7-18 lag rho | **+0.010** | Distant neighborhood relation is near null. |
+| Raw MAPK-high/Panel-low pocket enrichment | **0.882**, OR **0.693** | Anti-pockets are depleted rather than enriched in raw spots. |
+| Residual MAPK-high/Panel-low pocket enrichment | **1.010**, OR **1.018** | Residual anti-pockets are essentially independence-level. |
+| Raw anti-pocket covariate signature | strongest depletion = **Panel_detect**, d = **-1.094** | Raw anti-pockets are low panel-detection spots, not robust biological domains. |
+
+## Disposition
+
+- **No further spatial rescue in GSE250521.** Same-spot, neighborhood-lag, and pocket analyses all fail to produce a usable MAPK-high/Panel-low spatial mechanism.
+- **Use v18 as closure evidence.** It supports a clear boundary: GSE250521 is a Visium-resolution/detection caveat, not a Fig 8 support pillar.
+- **Stop extending this branch unless a reviewer specifically asks.** v13/v14 remain the positive mechanism chain; v16-v18 are defensive autopsy layers.
+- **Voice-protected sections untouched.** No Hook/Aim/Discussion/Limitations/Cover/Q9 prose was generated or edited.
+
+## Outputs
+
+| File | Purpose |
+|---|---|
+| `run_v18_spatial_lag_pockets.py` | v18 spatial-lag and pocket pipeline |
+| `v18_spatial_lag_correlations.tsv` | same-spot and KNN-ring MAPK spot vs Panel neighborhood correlations |
+| `v18_spatial_pocket_enrichment.tsv` | MAPK-high/Panel-low and MAPK-high/Panel-high pocket enrichment/OR/clustering |
+| `v18_spatial_pocket_covariate_contrasts.tsv` | anti-pocket covariate contrasts vs other epithelial-top50 spots |
+| `v18_spatial_sample_qc_summary.tsv` | sample-level spot/gene/detection QC summary |
+| `v18_spatial_lag_pockets_summary.json` | headline v18 metrics |
+| `Fig_SX_v18_spatial_lag_pockets.{png,pdf}` | 6-panel v18 closure figure, mirrored to papers hub assets |
+| `project/papers_hub_2026_05_04/paper1_spatial_lag_pockets_v18.html` | v18 HTML dossier |
