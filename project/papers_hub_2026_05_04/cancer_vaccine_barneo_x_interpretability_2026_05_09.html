@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BAR-Neo-X Interpretability Boost</title>
+  <style>
+    :root { --bg:#0d1117; --panel:#151b23; --panel2:#101820; --ink:#e6edf3; --muted:#9aa7b4; --line:#2a3441; --gold:#e3b341; --cyan:#5eead4; --red:#f87171; --green:#86efac; --violet:#b58cff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; line-height:1.55; }
+    a { color:var(--cyan); text-decoration:none; }
+    .hero { min-height:76vh; display:flex; align-items:flex-end; padding:58px 48px 40px; border-bottom:1px solid var(--line); background:linear-gradient(145deg, rgba(94,234,212,.10), transparent 40%), radial-gradient(circle at 78% 14%, rgba(134,239,172,.14), transparent 30%), #0d1117; }
+    .hero-inner { max-width:1220px; width:100%; }
+    .kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.08em; font-size:13px; font-weight:700; }
+    h1 { font-family:Georgia, "Times New Roman", serif; font-size:clamp(42px, 7vw, 84px); line-height:.97; margin:14px 0 18px; letter-spacing:0; max-width:1080px; }
+    .lead { max-width:1000px; font-size:18px; color:#c8d1dc; }
+    .hero-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .hero-links a { border:1px solid var(--line); padding:8px 11px; background:#101820; color:#d7fff6; }
+    .stats { display:grid; grid-template-columns:repeat(6, minmax(130px,1fr)); gap:12px; margin-top:28px; }
+    .stat { border:1px solid var(--line); background:rgba(21,27,35,.72); padding:14px; min-height:104px; }
+    .stat-value { font-size:24px; color:white; font-weight:800; }
+    .stat-label { color:var(--cyan); font-size:12px; margin-top:4px; }
+    .stat-note { color:var(--muted); font-size:11px; margin-top:8px; }
+    .layout { display:grid; grid-template-columns:260px minmax(0,1fr); gap:30px; max-width:1420px; margin:0 auto; padding:34px 28px 80px; }
+    nav { position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto; padding:18px 0; }
+    nav a { display:block; padding:8px 10px; color:#b9c4d0; border-left:2px solid transparent; font-size:13px; }
+    nav a:hover { border-left-color:var(--cyan); color:white; }
+    section { padding:24px 0 36px; border-bottom:1px solid var(--line); }
+    h2 { font-family:Georgia, "Times New Roman", serif; font-size:34px; margin:0 0 14px; letter-spacing:0; }
+    h3 { font-size:18px; margin:24px 0 10px; color:var(--gold); }
+    .num { color:var(--gold); margin-right:10px; font-size:18px; }
+    .grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
+    .cards { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+    .box,.card { border:1px solid var(--line); background:var(--panel); padding:16px; }
+    .box strong,.card strong { color:white; }
+    .muted { color:var(--muted); }
+    .warn { color:var(--red); font-weight:700; }
+    .ok { color:var(--green); font-weight:700; }
+    .gold { color:var(--gold); font-weight:700; }
+    .cyan { color:var(--cyan); font-weight:700; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); background:var(--panel2); margin:14px 0; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th, td { padding:9px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; white-space:nowrap; }
+    th { color:var(--gold); background:#10151c; position:sticky; top:0; }
+    td { color:#d6dee7; }
+    td.good { color:var(--green); font-weight:700; }
+    td.warn { color:var(--red); font-weight:700; }
+    .figure { border:1px solid var(--line); background:#101820; padding:12px; margin:16px 0; }
+    .figure img { display:block; max-width:100%; height:auto; margin:0 auto; }
+    .path { color:#b9c4d0; font-size:12px; overflow-wrap:anywhere; }
+    .kakao { white-space:pre-wrap; background:#0b1320; border:1px solid var(--line); padding:16px; color:#edf7ff; }
+    @media (max-width: 920px) { .layout { grid-template-columns:1fr; padding:24px 16px 64px; } nav { position:relative; max-height:none; } .stats,.cards,.grid { grid-template-columns:1fr; } .hero { padding:42px 20px 28px; } th,td { white-space:normal; } }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="kicker">Cancer vaccine benchmark · claim-safe XAI layer · 2026-05-09</div>
+      <h1>BAR-Neo-X Interpretability Boost</h1>
+      <p class="lead">A post-hoc explanation and claim-safe reranking layer for CLEAN-NeoBench/BAR-Neo. It does not claim public SOTA, clinical vaccine selection, or quantum advantage. Its value is narrower and stronger: keep candidate-level precision while making the top reviewer-facing list low-leakage and explainable.</p>
+      <div class="hero-links">
+        <a href="index.html">Hub index</a>
+        <a href="clean_neobench_barneo_dossier_2026_05_09.html">CLEAN-NeoBench/BAR-Neo dossier</a>
+        <a href="cancer_vaccine_full_dossier.html">Cancer vaccine full dossier</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-value">2,715</div><div class="stat-label">Candidates</div><div class="stat-note">CLEAN-NeoBench rows</div></div>
+        <div class="stat"><div class="stat-value">0.975</div><div class="stat-label">Raw BAR-Neo AUPRC</div><div class="stat-note">apparent candidate-level audit</div></div>
+        <div class="stat"><div class="stat-value">0.813</div><div class="stat-label">X claim-safe AUPRC</div><div class="stat-note">lower by design</div></div>
+        <div class="stat"><div class="stat-value">1.000 -&gt; 0.000</div><div class="stat-label">Top10 high-leakage</div><div class="stat-note">BAR-Neo to BAR-Neo-X claim-safe</div></div>
+        <div class="stat"><div class="stat-value">0.900</div><div class="stat-label">Claim-safe top10 precision</div><div class="stat-note">top20 0.850, top20 leak 0.000</div></div>
+        <div class="stat"><div class="stat-value">1</div><div class="stat-label">Priority rows</div><div class="stat-note">top claim-safe score 0.522</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav>
+      <a href="#tldr">01 TL;DR</a>
+      <a href="#task">02 Data, task, training</a>
+      <a href="#tradeoff">03 Performance tradeoff</a>
+      <a href="#algorithm">04 Algorithm</a>
+      <a href="#candidates">05 Top candidates</a>
+      <a href="#factors">06 Factor audit</a>
+      <a href="#decision">07 Decision matrix</a>
+      <a href="#kakao">08 Kakao payload</a>
+      <a href="#paths">09 Sources + paths</a>
+    </nav>
+
+    <main>
+      <section id="tldr">
+        <h2><span class="num">01</span>TL;DR</h2>
+        <div class="grid">
+          <div class="box"><strong>What improved:</strong> top10 high-leakage fraction drops from <span class="warn">1.000</span> to <span class="ok">0.000</span> while claim-safe top10 precision stays <span class="ok">0.900</span>.</div>
+          <div class="box"><strong>What did not improve:</strong> apparent AUPRC is lower than raw BAR-Neo, from <span class="gold">0.975</span> to <span class="gold">0.813</span>, because leakage-heavy rows are deliberately downranked.</div>
+          <div class="box"><strong>What became interpretable:</strong> each candidate receives positive components and negative penalties: BAR-Neo evidence, BMA consensus, internal predictor support, confidence, leakage, overlap, patient gate incompleteness, uncertainty, and disagreement.</div>
+          <div class="box"><strong>Allowed claim:</strong> explainable, leakage-aware research triage. <span class="warn">Forbidden:</span> public SOTA, clinical vaccine selection, or quantum advantage.</div>
+        </div>
+      </section>
+
+      <section id="task">
+        <h2><span class="num">02</span>Data, Task, Training</h2>
+        <div class="cards">
+          <div class="card"><strong>Data used</strong><br>CLEAN-NeoBench master rows, method scores, BAR-Neo candidate scores, BAR-Neo-BMA scores, and row-level leakage/overlap flags.</div>
+          <div class="card"><strong>Task</strong><br>Candidate-level neoantigen/immunogenicity triage with a separate reviewer-facing clean-claim ranking.</div>
+          <div class="card"><strong>Training</strong><br>No new base predictor is trained in BAR-Neo-X. It is a deterministic post-hoc reranking and explanation layer on existing BAR-Neo/BMA outputs.</div>
+          <div class="card"><strong>Model family</strong><br>Additive component attribution plus leakage-aware claim gate and metadata cap.</div>
+          <div class="card"><strong>Quantum status</strong><br>None. Existing QUBO/QK terms remain bounded heuristics in the broader pipeline, not a quantum advantage claim.</div>
+          <div class="card"><strong>Clinical status</strong><br>Research triage only. Candidate review requires patient metadata, disease context, presentation status, expression, clonality, and wet-lab validation.</div>
+        </div>
+      </section>
+
+      <section id="tradeoff">
+        <h2><span class="num">03</span>Performance Tradeoff</h2>
+        <p class="muted">The right comparison is not raw metric maximization. The reviewer-facing objective is precision under leakage control.</p>
+        <div class="figure"><img src="assets/barneo_x/barneo_x_tradeoff.png" alt="BAR-Neo-X metric tradeoff plot"></div>
+        <div class="table-wrap"><table><thead><tr><th>score</th><th>n</th><th>apparent_auprc</th><th>apparent_auroc</th><th>top10_precision</th><th>top20_precision</th><th>top10_high_leakage_fraction</th></tr></thead><tbody><tr><td>barneo_score</td><td>2715</td><td>0.9750</td><td>0.9772</td><td>1.00</td><td>1.00</td><td>1.00</td></tr><tr><td>barneo_bma_score</td><td>2715</td><td>0.9026</td><td>0.9212</td><td>1.00</td><td>1.00</td><td>1.00</td></tr><tr><td>patient_gated_score</td><td>2715</td><td>0.9752</td><td>0.9775</td><td>1.00</td><td>1.00</td><td>1.00</td></tr><tr><td>patient_gated_bma_score</td><td>2715</td><td>0.8962</td><td>0.9186</td><td>1.00</td><td>0.9000</td><td>1.00</td></tr><tr><td>barneo_x_discovery_score</td><td>2715</td><td>0.9356</td><td>0.9387</td><td>0.9000</td><td>0.9500</td><td>0.2000</td></tr><tr><td>barneo_x_claim_safe_score</td><td>2715</td><td>0.8133</td><td>0.8960</td><td>0.9000</td><td>0.8500</td><td>0.0000</td></tr></tbody></table></div>
+        <h3>Top-k safety audit</h3>
+        <div class="table-wrap"><table><thead><tr><th>score</th><th>top_k</th><th>precision</th><th>high_leakage_fraction</th><th>median_claim_safe_score</th><th>priority_review_rows</th></tr></thead><tbody><tr><td>barneo_x_discovery_score</td><td>10</td><td>0.9000</td><td>0.2000</td><td>0.4927</td><td>1</td></tr><tr><td>barneo_x_discovery_score</td><td>20</td><td>0.9500</td><td>0.6000</td><td>0.1914</td><td>1</td></tr><tr><td>barneo_x_discovery_score</td><td>50</td><td>0.9800</td><td>0.8400</td><td>0.1903</td><td>1</td></tr><tr><td>barneo_x_discovery_score</td><td>100</td><td>0.9900</td><td>0.8500</td><td>0.1892</td><td>1</td></tr><tr><td>barneo_x_claim_safe_score</td><td>10</td><td>0.9000</td><td>0.0000</td><td>0.4927</td><td>1</td></tr><tr><td>barneo_x_claim_safe_score</td><td>20</td><td>0.8500</td><td>0.0000</td><td>0.4548</td><td>1</td></tr><tr><td>barneo_x_claim_safe_score</td><td>50</td><td>0.6200</td><td>0.0000</td><td>0.3613</td><td>1</td></tr><tr><td>barneo_x_claim_safe_score</td><td>100</td><td>0.5600</td><td>0.2300</td><td>0.2571</td><td>1</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm">
+        <h2><span class="num">04</span>Algorithm</h2>
+        <div class="grid">
+          <div class="box"><strong>Positive evidence:</strong> BAR-Neo model evidence, BMA expert consensus, clean internal predictor support, anchor support, confidence support.</div>
+          <div class="box"><strong>Negative evidence:</strong> posterior disagreement, posterior uncertainty, patient gate incompleteness, high/medium leakage, exact or near peptide overlap, study/patient overlap, public pretrained overlap, low-prevalence source, sparse expert support.</div>
+          <div class="box"><strong>Discovery score:</strong> positive component sum minus a penalty-weighted risk sum. Use for internal hypothesis generation.</div>
+          <div class="box"><strong>Claim-safe score:</strong> discovery score multiplied by leakage gate and metadata cap. Use for reviewer-facing candidate review.</div>
+        </div>
+      </section>
+
+      <section id="candidates">
+        <h2><span class="num">05</span>Top Claim-Safe Candidates</h2>
+        <p class="muted">Rows are sorted by BAR-Neo-X claim-safe rank. Labels are benchmark labels, not clinical validation.</p>
+        <div class="table-wrap"><table><thead><tr><th>candidate_id</th><th>peptide</th><th>hla_allele_4digit</th><th>label</th><th>leakage_risk_level</th><th>barneo_score</th><th>barneo_bma_score</th><th>barneo_x_claim_safe_score</th><th>barneo_x_primary_action</th><th>barneo_x_top_positive_factors</th><th>barneo_x_top_negative_factors</th></tr></thead><tbody><tr><td>CNV0_02407</td><td>KLMNIQQKL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8847</td><td>0.5128</td><td>0.5225</td><td class="good">priority_review_candidate</td><td>BAR-Neo model evidence=0.372; clean internal predictor support=0.142; BMA expert consensus=0.123; confidence support=0.108</td><td>patient gate incompleteness penalty=-0.084; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02503</td><td>RLSDFSEQL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8729</td><td>0.4623</td><td>0.5000</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.367; clean internal predictor support=0.133; BMA expert consensus=0.111; confidence support=0.107</td><td>patient gate incompleteness penalty=-0.084; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02410</td><td>MLGEQLFPL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8860</td><td>0.4079</td><td>0.4972</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.372; clean internal predictor support=0.139; confidence support=0.109; BMA expert consensus=0.098</td><td>patient gate incompleteness penalty=-0.083; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02509</td><td>SLLRSLENV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8885</td><td>0.4079</td><td>0.4957</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.373; clean internal predictor support=0.139; confidence support=0.107; BMA expert consensus=0.098</td><td>patient gate incompleteness penalty=-0.087; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02409</td><td>IILVAVPHV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.9018</td><td>0.3933</td><td>0.4946</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.379; clean internal predictor support=0.132; confidence support=0.110; BMA expert consensus=0.094</td><td>patient gate incompleteness penalty=-0.083; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02504</td><td>LLVDLAEEL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8587</td><td>0.3933</td><td>0.4907</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.361; clean internal predictor support=0.149; confidence support=0.106; BMA expert consensus=0.094</td><td>patient gate incompleteness penalty=-0.085; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02420</td><td>KLANPLPYT</td><td>HLA-A*02:01</td><td>0</td><td>low</td><td>0.7586</td><td>0.5128</td><td>0.4790</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.319; clean internal predictor support=0.149; BMA expert consensus=0.123; confidence support=0.098</td><td>patient gate incompleteness penalty=-0.088; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02450</td><td>KELEGILLL</td><td>HLA-B*44:03</td><td>1</td><td>low</td><td>0.7059</td><td>0.4788</td><td>0.4684</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.296; clean internal predictor support=0.160; BMA expert consensus=0.115; confidence support=0.094</td><td>patient gate incompleteness penalty=-0.090; posterior disagreement penalty=-0.035; posterior uncertainty penalty=-0.011</td></tr><tr><td>CNV0_02424</td><td>LADEAEVYL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.6263</td><td>0.6650</td><td>0.4663</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.263; clean internal predictor support=0.160; BMA expert consensus=0.160; confidence support=0.089</td><td>patient gate incompleteness penalty=-0.088; posterior disagreement penalty=-0.083; posterior uncertainty penalty=-0.029</td></tr><tr><td>CNV0_02452</td><td>LLDGFLATV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.6789</td><td>0.5918</td><td>0.4579</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.285; clean internal predictor support=0.160; BMA expert consensus=0.142; confidence support=0.092</td><td>posterior disagreement penalty=-0.106; patient gate incompleteness penalty=-0.092; posterior uncertainty penalty=-0.035</td></tr><tr><td>CNV0_02408</td><td>FLYNLLTRV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8465</td><td>0.2273</td><td>0.4517</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.356; clean internal predictor support=0.157; confidence support=0.104; BMA expert consensus=0.055</td><td>patient gate incompleteness penalty=-0.089; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02478</td><td>YVDFREYEYY</td><td>HLA-A*01:01</td><td>1</td><td>low</td><td>0.5792</td><td>0.5399</td><td>0.4462</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.243; clean internal predictor support=0.160; BMA expert consensus=0.130; confidence support=0.086</td><td>patient gate incompleteness penalty=-0.088; posterior disagreement penalty=-0.016; posterior uncertainty penalty=-0.006</td></tr><tr><td>CNV0_02448</td><td>ILDKVLVHL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.6635</td><td>0.4324</td><td>0.4460</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.279; clean internal predictor support=0.160; BMA expert consensus=0.104; confidence support=0.092</td><td>patient gate incompleteness penalty=-0.088; posterior disagreement penalty=-0.030; posterior uncertainty penalty=-0.010</td></tr><tr><td>CNV0_02508</td><td>YILKYSVFL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8618</td><td>0.2535</td><td>0.4438</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.362; clean internal predictor support=0.131; confidence support=0.105; BMA expert consensus=0.061</td><td>patient gate incompleteness penalty=-0.089; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02507</td><td>WVLALFDEV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8465</td><td>0.2603</td><td>0.4426</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.356; clean internal predictor support=0.133; confidence support=0.104; BMA expert consensus=0.062</td><td>patient gate incompleteness penalty=-0.087; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02397</td><td>LPIQYEPVL</td><td>HLA-B*35:03</td><td>0</td><td>low</td><td>0.7326</td><td>0.4395</td><td>0.4324</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.308; clean internal predictor support=0.140; BMA expert consensus=0.105; confidence support=0.073</td><td>patient gate incompleteness penalty=-0.086; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02400</td><td>ETSKQVTRW</td><td>HLA-A*25:01</td><td>0</td><td>low</td><td>0.6882</td><td>0.4129</td><td>0.4237</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.289; clean internal predictor support=0.160; BMA expert consensus=0.099; confidence support=0.069</td><td>patient gate incompleteness penalty=-0.090; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02425</td><td>GIVEGLITT</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.5716</td><td>0.4418</td><td>0.4124</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.240; clean internal predictor support=0.160; BMA expert consensus=0.106; confidence support=0.085</td><td>patient gate incompleteness penalty=-0.090; posterior disagreement penalty=-0.030; posterior uncertainty penalty=-0.011</td></tr><tr><td>CNV0_02460</td><td>GIVEGLITTV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.5318</td><td>0.4587</td><td>0.4078</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.223; clean internal predictor support=0.160; BMA expert consensus=0.110; confidence support=0.084</td><td>patient gate incompleteness penalty=-0.087; posterior disagreement penalty=-0.026; posterior uncertainty penalty=-0.009</td></tr><tr><td>CNV0_02480</td><td>ILDTAGKEEY</td><td>HLA-A*01:01</td><td>1</td><td>medium</td><td>0.8838</td><td>0.7322</td><td>0.3905</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.371; BMA expert consensus=0.176; clean internal predictor support=0.160; confidence support=0.106</td><td>medium leakage risk penalty=-0.100; patient gate incompleteness penalty=-0.090; near peptide overlap penalty=-0.060; posterior disagreement penalty=-0.048; posterior uncertainty penalty=-0.016</td></tr></tbody></table></div>
+      </section>
+
+      <section id="factors">
+        <h2><span class="num">06</span>Factor Audit</h2>
+        <div class="grid">
+          <div>
+            <h3>Top positive factors in claim-safe top50</h3>
+            <div class="table-wrap"><table><thead><tr><th>factor</th><th>n_top50_rows</th></tr></thead><tbody><tr><td>BAR-Neo model evidence</td><td>50</td></tr><tr><td>clean internal predictor support</td><td>50</td></tr><tr><td>confidence support</td><td>50</td></tr><tr><td>BMA expert consensus</td><td>49</td></tr></tbody></table></div>
+          </div>
+          <div>
+            <h3>Top negative factors in claim-safe top50</h3>
+            <div class="table-wrap"><table><thead><tr><th>factor</th><th>n_top50_rows</th></tr></thead><tbody><tr><td>patient gate incompleteness penalty</td><td>50</td></tr><tr><td>posterior disagreement penalty</td><td>36</td></tr><tr><td>posterior uncertainty penalty</td><td>36</td></tr><tr><td>sparse expert support penalty</td><td>14</td></tr><tr><td>low-prevalence source penalty</td><td>6</td></tr><tr><td>medium leakage risk penalty</td><td>4</td></tr><tr><td>near peptide overlap penalty</td><td>4</td></tr></tbody></table></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="decision">
+        <h2><span class="num">07</span>Decision Matrix</h2>
+        <div class="table-wrap"><table><thead><tr><th>surface</th><th>best use</th><th>evidence</th><th>blocker</th><th>disposition</th></tr></thead><tbody><tr><td>raw BAR-Neo score</td><td>internal discovery signal</td><td>AUPRC 0.975, top10 precision 1.000</td><td>top10 high-leakage 1.000</td><td>do not use as clean reviewer-facing top10</td></tr><tr><td>BAR-Neo-X discovery score</td><td>hypothesis queue before manual audit</td><td>top10 precision 0.900</td><td>top20 high-leakage 0.600</td><td>internal only</td></tr><tr><td>BAR-Neo-X claim-safe score</td><td>reviewer-facing candidate triage</td><td>top10 precision 0.900, top20 precision 0.850</td><td>lower apparent AUPRC by design</td><td>primary dossier ranking</td></tr><tr><td>public SOTA claim</td><td>none in current evidence package</td><td>candidate-level apparent audit only</td><td>overlap and leakage controls dominate the clean claim</td><td>forbidden</td></tr><tr><td>quantum advantage claim</td><td>none</td><td>QUBO/QK pieces are bounded engineering heuristics</td><td>no quantum runtime or advantage test</td><td>forbidden</td></tr></tbody></table></div>
+      </section>
+
+      <section id="kakao">
+        <h2><span class="num">08</span>Kakao Payload</h2>
+        <div class="kakao">Cancer vaccine neoantigen benchmark에서 BAR-Neo 기반으로 BAR-Neo-X를 만들었고, 후보별로 BAR-Neo evidence/BMA consensus/internal predictor/confidence와 leakage-overlap-uncertainty penalty를 분해해서 설명 가능하게 만들었습니다. raw BAR-Neo는 apparent AUPRC 0.975지만 top10이 전부 high-leakage라 SOTA 주장엔 위험하고, BAR-Neo-X claim-safe score는 AUPRC 0.813으로 보수화되는 대신 top10 high-leakage를 1.000->0.000로 제거하면서 top10 precision 0.900를 유지합니다. 즉 무조건 SOTA/clinical/quantum advantage가 아니라, 리뷰어 방어 가능한 해석형-누수차단 neoantigen triage layer입니다.</div>
+      </section>
+
+      <section id="paths">
+        <h2><span class="num">09</span>Sources + Paths</h2>
+        <p class="path">Output root: project/results/clean_neobench_barneo_2026_05_09</p>
+        <p class="path">Metric audit: project/results/clean_neobench_barneo_2026_05_09/barneo_x_metric_audit.tsv</p>
+        <p class="path">Top-k safety audit: project/results/clean_neobench_barneo_2026_05_09/barneo_x_topk_safety_audit.tsv</p>
+        <p class="path">Candidate explanations: project/results/clean_neobench_barneo_2026_05_09/barneo_x_candidate_explanations.tsv</p>
+        <p class="path">Candidate scores: project/results/clean_neobench_barneo_2026_05_09/barneo_x_candidate_scores.tsv</p>
+        <p class="path">Summary JSON: project/results/clean_neobench_barneo_2026_05_09/BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json</p>
+        <p class="path">Manifest stage: barneo_x_interpretability_boost</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
