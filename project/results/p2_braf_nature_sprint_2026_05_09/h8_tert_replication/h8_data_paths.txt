@@ -1,0 +1,56 @@
+H8 — DM1xTERT EXTERNAL REPLICATION — DATA PATH AUDIT
+======================================================
+
+Cohort 1 — Lee 2024 GSE213647 (Korean PTC RNA-seq, n=632)
+  Searched:
+    /data/thca/repo_data/raw/GSE213647/GSE213647_RAW.tar (RNA STAR ReadsPerGene tabs)
+    /data/thca/data_raw/geo/GSE213647/GSE213647_series_matrix.txt.gz
+    /data/thca/v17_korean/GSE213647/sample_sheet.tsv (gsm,title,cell_type,cell_subtype,
+        histology,sample_id,tissue_type,fixation,library_kit,dx_year,age,sex)
+    /data/thca/v17_korean/GSE213647/sample_sheet_clinical.tsv (same 13 cols, no mutation)
+    /data/thca/v17_korean/GSE213647/Lee2024_MOESM5.xlsx (15 sheets: metabolomics,
+        DEG/KEGG comparisons, scRNAseq DEG, STR profile — NO mutation/clinical)
+  Result: TERT/BRAF mutation columns ABSENT from all metadata sources.
+    series_matrix Sample_characteristics_ch1: "genotype: NA" for all 632 samples.
+    Lee 2024 Nat Commun did not deposit per-sample driver-mutation calls in GEO.
+    No survival in GEO.
+  Decision: SKIPPED in replication (documented, not fabricated).
+  Future fix path: contact corresponding author for mutation calls; or re-call from
+    aligned BAMs via Mutect2 over chr5:1295228 / chr7:140453136 (BRAF V600E).
+
+Cohort 2 — Landa GSE76039 (PDTC + ATC microarray, n=37)
+  RNA scores: /data/thca/repo_results/p_landa_2016/scores.tsv
+    Cols: sample_id, RAI_8_score, DM1_like_score, THYROID_NONOVERLAP_score,
+          TDS_like_score, TF_collapse_score, STAT3_AP1_DNMT_score, TACSTD2_z,
+          histology, disease_group
+  Sample meta: /data/thca/repo_results/p_landa_2016/sample_metadata.tsv
+    GEO sample_id (GSMxxx) <-> title (s_JF_thy_xxx_P or s_JJ_thy_xxx_P)
+  TERT calls: /data/thca/repo_results/v17_tert_recovery/v2/FINAL_promoter_records_all_sources.tsv
+    Records sourced from cBioPortal datahub thyroid_mskcc_2016/data_mutations.txt
+    (= Landa's same MSKCC PDTC/ATC cohort), pulled by Pozdeyev2024 search step.
+    Filter: __source == "S4_pozdeyev2024", chr5:1295228 + flanking promoter region.
+    35 of 37 RNA samples have TERT promoter mutation status; 20 mutated.
+  Survival: /data/thca/repo_results/v17_tert_recovery/v3/v3_thyroid_mskcc_2016_clinical_patient.tsv
+    OS_STATUS (0:LIVING / 1:DECEASED), OS_MONTHS, AGE, PDTC_DEFINITION, M_STAGE
+    n=117 patients (47 deceased) — supersets the 37 RNA samples.
+  Sample-to-patient: /data/thca/repo_results/v17_tert_recovery/v3/v3_thyroid_mskcc_2016_clinical_sample.tsv
+    Joins title (s_JF_thy_xxx_P) -> PATIENT_ID (p_xxxxxx) -> OS_MONTHS
+
+Cohort 3 — K2 / PRJEB11591 / Yoo 2016 (Korean RNA-seq, n=180)
+  Mutation file: /data/thca/repo_results/dark_matter_phase2/k2_yoo2016_mutations_parsed.tsv
+    Has has_braf_v600e, has_ras, has_dicer1, has_eif1ax, has_fusion — but
+    has_tert column is uniformly 0 (TERT promoter NOT in Yoo 2016 sequencing scope).
+  Summary: /data/thca/repo_results/dark_matter_phase2/k2_mutation_summary.json
+    "TERT": 0 of 180 (vs BRAF_V600E: 67, RAS: 45).
+  Decision: NOT a candidate for DM1xTERT replication. Documented.
+
+Cohort 4 — TCGA-THCA full primary tumor cohort (re-anchor, NOT BRAF-cPTC restricted)
+  /home/seungho/personal/THCA_data_analysis/project/results/p2_braf_nature_sprint_2026_05_09/h6_survival/h6_merged_clinical.tsv
+  Cols used: sample_id, dm, molecular_subtype, tert_promoter_integrated (per memory
+    v17_tert_recovery_v2: 36 promoter mutations integrated from cBioPortal thca_tcga_pub),
+    OS, OS.time, DSS, DSS.time, PFI, PFI.time, age_yr, adv_stage, sex_m
+  n=513 primary tumors; molecular_subtype: BRAF_like 392 / RAS_like 111 / unknown 10
+    (note: H6 merge does not include NBNR rows — molecular_subtype is restricted to
+     BRAF_like / RAS_like / unknown in this snapshot; NBNR per-driver stratum is empty
+     and reported as such).
+  TERT mutated: 36/513. DM1+TERT+ comutant cell: n=4 (2 OS events, 2 DSS, 2 PFI events).
