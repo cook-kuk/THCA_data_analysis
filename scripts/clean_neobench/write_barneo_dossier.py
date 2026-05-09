@@ -136,6 +136,8 @@ def main() -> None:
     selector = read_tsv(output_root / "barneo_bma_selector_audit.tsv")
     public_audit = read_tsv(output_root / "clean_neobench_public_tool_overlap_audit.tsv")
     failure_aware = read_tsv(output_root / "barneo_failure_aware_candidate_scores.tsv")
+    manual_queue = read_tsv(output_root / "barneo_manual_review_queue.tsv")
+    challenge_queue = read_tsv(output_root / "barneo_distribution_challenge_queue.tsv")
     master = read_tsv(output_root / "clean_neobench_master.tsv")
     manifest_path = output_root / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
@@ -244,9 +246,10 @@ def main() -> None:
       <a href="#candidates">06 Candidate Scores</a>
       <a href="#splits">07 Split Robustness</a>
       <a href="#failure-aware">08 Failure-Aware</a>
-      <a href="#public-audit">09 Public Audit</a>
-      <a href="#caveats">10 Caveats</a>
-      <a href="#paths">11 Paths</a>
+      <a href="#manual-queue">09 Manual Queue</a>
+      <a href="#public-audit">10 Public Audit</a>
+      <a href="#caveats">11 Caveats</a>
+      <a href="#paths">12 Paths</a>
     </nav>
     <main>
       <section id="tldr">
@@ -316,14 +319,23 @@ def main() -> None:
         {table_html(review_tier_summary, ["review_tier", "n"], 20)}
       </section>
 
+      <section id="manual-queue">
+        <h2><span class="num">09</span>Manual Review Queue</h2>
+        <p>The manual queue is not a clean claim list. It separates high-score claim-blocked rows from rescue/watchlist rows and distribution challenge rows.</p>
+        <h3>Priority Review Queue</h3>
+        {table_html(manual_queue, ["candidate_id", "manual_review_priority_bin", "manual_review_priority_score", "failure_aware_review_tier", "label", "source_name", "hla_allele_4digit", "peptide", "base_patient_gated_bma_score", "failure_aware_score", "best_clean_internal_support", "best_caveated_public_support", "review_action_required"], 45)}
+        <h3>Distribution Challenge Queue</h3>
+        {table_html(challenge_queue, ["candidate_id", "challenge_axis", "manual_review_priority_bin", "manual_review_priority_score", "failure_aware_review_tier", "label", "source_name", "source_positive_prevalence", "hla_allele_4digit", "hla_allele_support_count", "peptide", "base_patient_gated_bma_score", "failure_aware_score", "review_action_required"], 60)}
+      </section>
+
       <section id="public-audit">
-        <h2><span class="num">09</span>Public Tool Overlap Audit</h2>
+        <h2><span class="num">10</span>Public Tool Overlap Audit</h2>
         <p><span class="warn">Public pretrained tools remain caveated.</span> Documentation-level provenance is not enough to call a public method a clean external baseline. Row-level candidate/peptide-HLA training-corpus overlap audit is required.</p>
         {table_html(public_audit[public_audit["uses_public_pretraining"].astype(bool)] if not public_audit.empty and "uses_public_pretraining" in public_audit.columns else public_audit, ["method_name", "method_role", "training_overlap_audit_status", "clean_comparator_allowed_after_audit", "reviewer_disposition", "caveat"], 30)}
       </section>
 
       <section id="caveats">
-        <h2><span class="num">10</span>Caveats</h2>
+        <h2><span class="num">11</span>Caveats</h2>
         <div class="cards">
           <div class="card"><strong class="warn">Public tools:</strong><br>Public pretrained tools are caveated comparators until row-level training-corpus overlap audit is complete.</div>
           <div class="card"><strong class="warn">MHC class:</strong><br>Class I and Class II must not be pooled as a single predictor claim.</div>
@@ -335,7 +347,7 @@ def main() -> None:
       </section>
 
       <section id="paths">
-        <h2><span class="num">11</span>Sources + Paths</h2>
+        <h2><span class="num">12</span>Sources + Paths</h2>
         <p class="path">Output root: {html.escape(str(output_root))}</p>
         <p class="path">Leaderboard: {html.escape(str(output_root / "clean_neobench_leaderboard.tsv"))}</p>
         <p class="path">Split metrics: {html.escape(str(output_root / "clean_neobench_split_metrics.tsv"))}</p>
