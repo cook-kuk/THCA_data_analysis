@@ -247,6 +247,12 @@ def ensemble_scores(master: pd.DataFrame, scores: pd.DataFrame, selections: dict
         disagreement = float(np.nanmax(arr) - np.nanmin(arr)) if len(arr) else 0.0
         posterior_uncertainty = float(np.sqrt(max(0.0, variance)))
         confidence = max(0.0, min(1.0, 1.0 - posterior_uncertainty - 0.35 * disagreement))
+        high_leakage = str(r.get("leakage_risk_level", "")).lower() == "high"
+        barneo_abstains = cid in bar_idx.index and bool(bar_idx.loc[cid].get("abstain", False))
+        if high_leakage:
+            confidence = min(confidence, 0.40)
+        if barneo_abstains:
+            confidence = min(confidence, 0.45)
         if fallback_only:
             confidence = min(confidence, 0.35)
         gate = bounded(bar_idx.loc[cid, "patient_gated_score"], ensemble) / max(1e-9, bounded(bar_idx.loc[cid, "barneo_score"], ensemble)) if cid in bar_idx.index and "patient_gated_score" in bar_idx.columns else 0.8
@@ -258,13 +264,13 @@ def ensemble_scores(master: pd.DataFrame, scores: pd.DataFrame, selections: dict
             reasons.append("High posterior expert disagreement")
         if posterior_uncertainty > 0.22:
             reasons.append("High posterior weight uncertainty")
-        if str(r.get("leakage_risk_level", "")).lower() == "high":
+        if high_leakage:
             reasons.append("High leakage risk invalidates clean benchmark claim")
         if ctx == "low_prevalence":
             reasons.append("Low-prevalence source requires top-k caution")
         if len(used) < 3:
             reasons.append("Sparse selected expert support")
-        if cid in bar_idx.index and bool(bar_idx.loc[cid].get("abstain", False)):
+        if barneo_abstains:
             primary = str(bar_idx.loc[cid].get("abstention_reason_primary", ""))
             if primary:
                 reasons.append(f"BAR-Neo abstention: {primary}")
