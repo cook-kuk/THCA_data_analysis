@@ -62,6 +62,7 @@ def main() -> None:
         "evaluate_clean_neobench.py",
         "train_barneo.py",
         "barneo_bma_agent.py",
+        "build_barneo_interpretability_boost.py",
         "analyze_failure_modes.py",
         "apply_failure_aware_reliability.py",
         "build_barneo_manual_review_queue.py",
