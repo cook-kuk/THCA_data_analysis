@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper 1 Synthetic-Lethality Claim Boundary</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --panel: #191d25;
+      --panel-2: #202631;
+      --ink: #ece7da;
+      --muted: #a7aebd;
+      --line: #343b49;
+      --gold: #d9ad5f;
+      --red: #ef6b62;
+      --green: #86d391;
+      --blue: #8ab7ff;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --serif: "Cormorant Garamond", Georgia, serif;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    code { font-family: var(--mono); color: #f2d395; font-size: .9em; }
+    .hero {
+      min-height: 58vh;
+      padding: 58px max(28px, 7vw) 34px;
+      background:
+        linear-gradient(90deg, rgba(17,19,24,.96), rgba(17,19,24,.76)),
+        url("assets/paper1/synthetic_lethality/prism_top_drugs.png") center/cover no-repeat;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .kicker { font: 700 12px var(--mono); color: var(--gold); letter-spacing: 0; text-transform: uppercase; }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(42px, 7vw, 92px);
+      line-height: .92;
+      letter-spacing: 0;
+      margin: 12px 0 18px;
+      max-width: 1050px;
+    }
+    .lead { max-width: 980px; color: #d8dde8; font-size: 19px; }
+    .crumbs { margin-top: 16px; color: var(--muted); font-family: var(--mono); font-size: 12px; }
+    .stats { display: grid; grid-template-columns: repeat(6, minmax(140px, 1fr)); gap: 10px; margin-top: 28px; max-width: 1250px; }
+    .stat { background: rgba(25,29,37,.88); border: 1px solid var(--line); padding: 14px; border-radius: 8px; min-height: 86px; }
+    .stat span { display:block; color: var(--muted); font: 700 11px var(--mono); text-transform: uppercase; }
+    .stat b { display:block; margin-top: 8px; font-size: 20px; color: var(--ink); }
+    .layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 28px; max-width: 1540px; margin: 0 auto; padding: 30px 26px 70px; }
+    nav { position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; border-right: 1px solid var(--line); padding-right: 18px; }
+    nav b { display:block; color: var(--gold); font-family: var(--mono); font-size: 12px; margin-bottom: 12px; }
+    nav a { display:block; color: var(--muted); padding: 8px 0; border-bottom: 1px solid rgba(52,59,73,.55); font-size: 14px; }
+    section { margin: 0 0 42px; }
+    h2 { font-family: var(--serif); font-size: 38px; line-height: 1.05; margin: 0 0 16px; letter-spacing: 0; }
+    h2 .num { color: var(--gold); font-family: var(--mono); font-size: 18px; margin-right: 10px; }
+    .tl {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--gold);
+      border-radius: 8px;
+      padding: 18px 20px;
+      font-size: 18px;
+    }
+    .warn { border-left-color: var(--red); }
+    .ok { border-left-color: var(--green); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .fig-card { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .fig-card img { width: 100%; display: block; background: #fff; }
+    figcaption { padding: 12px 14px; color: var(--muted); font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--panel); border: 1px solid var(--line); }
+    th, td { border-bottom: 1px solid var(--line); vertical-align: top; padding: 10px 12px; }
+    th { color: var(--gold); font-family: var(--mono); text-align: left; font-size: 11px; text-transform: uppercase; background: #151922; }
+    td.gold { background: rgba(217,173,95,.12); color: #f0d9a7; font-weight: 700; }
+    .table-wrap { overflow-x: auto; border-radius: 8px; }
+    .claim-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .claim { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+    .claim b { display: block; color: var(--gold); margin-bottom: 8px; }
+    .claim .bad { color: var(--red); }
+    .claim .good { color: var(--green); }
+    .page-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+    .page-card { display:block; min-height: 112px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 15px; color: var(--ink); }
+    .page-card span { display:block; color: var(--muted); margin-top: 8px; font-size: 13px; }
+    .small { color: var(--muted); font-size: 13px; }
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 14px; }
+      .grid, .claim-grid, .page-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 46px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="kicker">Paper 1 / Paper 9 bridge · Claim-boundary dossier · 2026-05-09</div>
+    <h1>Synthetic-Lethality Boundary</h1>
+    <p class="lead">Local PRISM, DepMap, and Paper9 perturbation outputs support a focused vulnerability queue. They do not yet establish validated synthetic lethality. This page keeps the usable actionability signal and the forbidden overclaim in the same frame.</p>
+    <div class="crumbs">Source of truth: <code>project/results/p_synthetic_lethality_2026_05_09/</code></div>
+    <div class="stats"><div class="stat"><span>PRISM drugs</span><b>7/11 FDR hits canonical MAPK</b></div>
+<div class="stat"><span>AZD-0364</span><b>d -0.594; FDR 5.88e-07</b></div>
+<div class="stat"><span>MAPK LFC</span><b>rho -0.236; p 3.31e-10</b></div>
+<div class="stat"><span>MYC</span><b>d -0.499; p 1.00e-11</b></div>
+<div class="stat"><span>NAMPT</span><b>d -0.445; p 1.53e-09</b></div>
+<div class="stat"><span>Verdict</span><b>candidate prioritization, not validated SL</b></div></div>
+  </header>
+  <div class="layout">
+    <nav>
+      <b>Contents</b>
+      <a href="#tl">01 TL;DR</a>
+      <a href="#boundary">02 Claim Boundary</a>
+      <a href="#matrix">03 Decision Matrix</a>
+      <a href="#figures">04 Figures</a>
+      <a href="#wetlab">05 Wet-Lab Queue</a>
+      <a href="#caveats">06 Caveats</a>
+      <a href="#siblings">07 Related Pages</a>
+      <a href="#sources">08 Sources</a>
+    </nav>
+    <main>
+      <section id="tl">
+        <h2><span class="num">01</span>TL;DR</h2>
+        <div class="tl"><strong>Current verdict:</strong> strongest allowed claim is candidate vulnerability prioritization in DM1-high / lineage-silenced models. PRISM strongly prioritizes MAPK-axis inhibitors; DepMap prioritizes MYC/NAMPT; Paper9 prioritizes SLC1A5 &gt; GLUD1 &gt; GLS for wet-lab perturbation. None is validated synthetic lethality yet.</div>
+      </section>
+      <section id="boundary">
+        <h2><span class="num">02</span>Claim Boundary</h2>
+        <div class="claim-grid">
+          <div class="claim"><b class="good">Allowed</b>Pharmacologic vulnerability, CRISPR dependency prioritization, wet-lab perturbation roadmap, reviewer-reserve actionability.</div>
+          <div class="claim"><b class="bad">Forbidden</b>Validated synthetic lethality, clinical recommendation, patient-selection biomarker, treatment-induced thyroid-gene restoration.</div>
+          <div class="claim"><b>Safe Wording</b>DM1-high or lineage-silenced models show public-data vulnerability signals motivating focused perturbation experiments.</div>
+        </div>
+      </section>
+      <section id="matrix">
+        <h2><span class="num">03</span>Decision Matrix</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Tier</th><th>Candidate</th><th>Context</th><th>Perturbation</th><th>Headline metrics</th><th>Claim status</th><th>Disposition</th><th>Next validation</th><th>Sources</th></tr>
+            </thead>
+            <tbody><tr><td class="">T1</td><td class="">DM1-high / MAPK-axis pharmacologic vulnerability</td><td class="">DM1-high, lineage-silenced pan-cancer cell-line state</td><td class="">MEK/RAF/ERK inhibitors</td><td class="">PRISM 1518 drugs; FDR&lt;0.05 hits 11, canonical MAPK 7/11; top7 MAPK 7/7; AZD-0364 d=-0.594, FDR=5.88e-07; DM1 score x MAPK LFC rho=-0.236, p=3.31e-10</td><td class="">Allowed: pharmacologic vulnerability / actionability reserve. Forbidden: validated synthetic lethality.</td><td class="gold">KEEP AS REVIEWER-RESERVE, NOT MAIN SYNTHETIC-LETHAL CLAIM</td><td class="">Matched thyroid/DM1-high models, dose-response MEK/RAF/ERK, genetic MAPK rescue or bypass, and lineage-gene restoration readout.</td><td class="">v15C_prism_annotated_drugs.tsv; v16_prism_enrichment_sensitivity.tsv; v16_prism_lineage_sensitivity.tsv</td></tr>
+<tr><td class="">T2</td><td class="">DM1-high CRISPR dependency</td><td class="">DM1-high vs DM1-low DepMap cell lines</td><td class="">MYC and NAMPT genetic perturbation; inhibitor follow-up only as separate validation</td><td class="">n_high=372, n_low=394; MYC d=-0.499, p=1.00e-11; NAMPT d=-0.445, p=1.53e-09</td><td class="">Allowed: dependency prioritization. Forbidden: selective clinical target without pan-essentiality controls.</td><td class="gold">KEEP AS FUNCTIONAL PRIORITIZATION; MYC HAS PAN-ESSENTIAL RISK</td><td class="">Within-lineage matched models, CRISPRi/siRNA titration, rescue, viability plus apoptosis/colony assays, and toxicity window against lineage-high controls.</td><td class="">v15C_depmap_dependency_overlay.tsv; phase_D_depmap/dm1_high_low_dependency.tsv</td></tr>
+<tr><td class="">T3A</td><td class="">Glutamine transporter vulnerability</td><td class="">lineage-silenced thyroid cancer model</td><td class="">SLC1A5 KD/KO/CRISPRi; glutamine withdrawal; V-9302/GPNA only if metadata supports</td><td class="">SLC1A5 dependency rho=0.102, p=5.33e-04, n=1140; pan-cancer corrected rho=0.078, p=0.008; strict thyroid n=11 NS</td><td class="">Allowed: wet-lab priority. Forbidden: drug-response claim without matched response data.</td><td class="gold">TOP PAPER9 WET-LAB PRIORITY</td><td class="">Genetic perturbation plus glutamine or alpha-ketoglutarate rescue; viability/apoptosis/colony; SLC5A5/TPO/TSHR/TG/PAX8/NKX2-1 readout.</td><td class="">paper9_module_dependency_associations.tsv; paper9_drug_perturbation_go_no_go.md</td></tr>
+<tr><td class="">T3B</td><td class="">Glutamate/TCA anaplerosis vulnerability</td><td class="">lineage-silenced thyroid cancer model</td><td class="">GLUD1 KD/KO/CRISPRi; inhibitor only if specificity acceptable</td><td class="">GLUD1 dependency rho=0.075, p=0.011; pan-cancer corrected rho=0.062, p=0.037; strict thyroid n=11 NS</td><td class="">Allowed: wet-lab priority. Forbidden: inhibitor claim from weak metadata.</td><td class="gold">SECOND PAPER9 WET-LAB PRIORITY</td><td class="">GLUD1 perturbation with alpha-ketoglutarate/TCA rescue; OCR/ECAR; viability and lineage-gene readout.</td><td class="">paper9_module_dependency_associations.tsv; paper9_drug_perturbation_go_no_go.md</td></tr>
+<tr><td class="">T3C</td><td class="">Glutaminase vulnerability</td><td class="">lineage-silenced thyroid cancer model</td><td class="">GLS KD/KO/CRISPRi; BPTES/CB-839 style pharmacology only with caveat</td><td class="">GLS dependency rho=0.088, p=0.003; pan-cancer corrected rho=0.081, p=0.006; strict thyroid n=11 NS</td><td class="">Allowed: candidate. Forbidden: headline due to weak/discordant public drug concordance.</td><td class="gold">CANDIDATE, NOT HEADLINE</td><td class="">Concordant genetic and pharmacologic effect with rescue; resolve BPTES/CB-839 concordance before using as main story.</td><td class="">paper9_module_dependency_associations.tsv; paper9_perturbation_evidence_summary.md</td></tr>
+<tr><td class="">BOUNDARY</td><td class="">Spatial MAPK-panel test</td><td class="">GSE250521 thyroid Visium</td><td class="">None; observational spatial stress test</td><td class="">v16/v17 did not rescue spatial anti-correlation; 0/45 subset/adjustment tests negative in v16; full+detection residual rho ~0 in v17.</td><td class="">Allowed: caveat/reserve. Forbidden: mechanism support or synthetic lethality support.</td><td class="gold">USE AS HONEST NEGATIVE CAVEAT ONLY</td><td class="">Do not use for synthetic-lethality argument; separate from pharmacologic/CRISPR prioritization.</td><td class="">v16_spatial_prism_diagnostics_summary.json; v17_spatial_signal_decomposition_summary.json</td></tr>
+<tr><td class="">BOUNDARY</td><td class="">ICI vulnerability / immune phenotype</td><td class="">DM1 inflamed/dedifferentiated tumor state</td><td class="">Immune checkpoint therapy context</td><td class="">Project boundary map already separates immune vulnerability from synthetic-lethal and synthetic-rescue hypotheses.</td><td class="">Allowed: separate Paper 3 immune-vulnerability frame. Forbidden: calling ICI response synthetic lethality.</td><td class="gold">KEEP OUT OF SYNTHETIC-LETHALITY CLAIM SET</td><td class="">Treat as separate Paper 3 track; do not merge with DM1 perturbation vulnerability language.</td><td class="">project/reports/2026_05_06_ici_vs_synthetic_lethality_boundary_map.md</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="figures">
+        <h2><span class="num">04</span>Figures</h2>
+        <div class="grid">
+    <figure class="fig-card">
+      <img src="assets/paper1/synthetic_lethality/prism_top_drugs.png" alt="PRISM top drugs">
+      <figcaption><strong>PRISM top drugs</strong><br>Existing round6 figure showing DM1-high drug-sensitivity ranking.</figcaption>
+    </figure>
+    
+
+    <figure class="fig-card">
+      <img src="assets/paper1/synthetic_lethality/depmap_dependencies.png" alt="DepMap dependencies">
+      <figcaption><strong>DepMap dependencies</strong><br>Existing round6 figure summarizing DM1-high CRISPR dependency candidates.</figcaption>
+    </figure>
+    
+
+    <figure class="fig-card">
+      <img src="assets/paper1/synthetic_lethality/paper9_lineage_dependency_heatmap.png" alt="Paper9 perturbation heatmap">
+      <figcaption><strong>Paper9 perturbation heatmap</strong><br>Local perturbation roadmap evidence used for SLC1A5 / GLUD1 / GLS triage.</figcaption>
+    </figure>
+    
+
+    <figure class="fig-card">
+      <img src="assets/paper1/synthetic_lethality/v16_spatial_prism_diagnostics.png" alt="Spatial/PRISM diagnostics">
+      <figcaption><strong>Spatial/PRISM diagnostics</strong><br>Useful caveat: spatial MAPK-panel anti-correlation was not rescued; PRISM wording was corrected.</figcaption>
+    </figure>
+    </div>
+      </section>
+      <section id="wetlab">
+        <h2><span class="num">05</span>Wet-Lab Queue</h2>
+        <div class="tl ok"><strong>Priority order:</strong> SLC1A5 &gt; GLUD1 &gt; GLS. The falsification design should pair genetic perturbation with glutamine or alpha-ketoglutarate rescue, viability/apoptosis/colony phenotypes, and thyroid-lineage readouts.</div>
+      </section>
+      <section id="caveats">
+        <h2><span class="num">06</span>Caveats</h2>
+        <div class="tl warn">Spatial GSE250521 does not support a local within-spot MAPK-panel anti-correlation and should remain a caveat/reserve result. ICI vulnerability belongs to Paper 3 immune framing, not synthetic lethality. TROP2/topo-I ADC work is a separate actionability track and should not be merged into this claim set.</div>
+      </section>
+      <section id="siblings">
+        <h2><span class="num">07</span>Related Pages</h2>
+        <div class="page-grid"><a class="page-card" href="paper1_fig8_mechanism_dossier.html"><b>Fig 8 Mechanism Dossier</b><span>v6-v17 mechanism evidence and caveats</span></a>
+<a class="page-card" href="paper1_reviewer_defense_dashboard.html"><b>Reviewer Defense Dashboard</b><span>Q1-Q14 factual answer surface</span></a>
+<a class="page-card" href="paper1_methods_reproducibility_dossier.html"><b>Methods Reproducibility</b><span>gene lists, formulas, filters, edge cases</span></a>
+<a class="page-card" href="paper1_spatial_signal_decomposition_v17.html"><b>Spatial Signal Decomposition</b><span>negative/caveat autopsy for GSE250521</span></a></div>
+      </section>
+      <section id="sources">
+        <h2><span class="num">08</span>Sources</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Key</th><th>Path</th></tr></thead>
+            <tbody><tr><td>prism</td><td><code>project/results/p_deconv_2026_05_08/v15C_prism_annotated_drugs.tsv</code></td></tr>
+<tr><td>prism_enrich</td><td><code>project/results/p_deconv_2026_05_08/v16_prism_enrichment_sensitivity.tsv</code></td></tr>
+<tr><td>prism_lineage</td><td><code>project/results/p_deconv_2026_05_08/v16_prism_lineage_sensitivity.tsv</code></td></tr>
+<tr><td>depmap</td><td><code>project/results/p_deconv_2026_05_08/v15C_depmap_dependency_overlay.tsv</code></td></tr>
+<tr><td>metabolic</td><td><code>project/results/p3_p9_full_execution/paper9_sprint2_metabolic/paper9_module_dependency_associations.tsv</code></td></tr>
+<tr><td>paper9_gene</td><td><code>project/results/p3_p9_full_execution/paper9/p9_candidate_dependency_associations.tsv</code></td></tr>
+<tr><td>paper9_go</td><td><code>project/results/paper9_perturbation_2026_05_06/paper9_drug_perturbation_go_no_go.md</code></td></tr>
+<tr><td>paper9_summary</td><td><code>project/results/paper9_perturbation_2026_05_06/paper9_perturbation_evidence_summary.md</code></td></tr></tbody>
+          </table>
+        </div>
+        <p class="small">Generated by <code>project/results/p_synthetic_lethality_2026_05_09/build_synthetic_lethality_dossier.py</code>. Live copy deployed to <code>/var/www/papers/papers_hub_2026_05_04/paper1_synthetic_lethality_dossier.html</code>.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
