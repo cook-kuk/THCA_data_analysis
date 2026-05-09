@@ -45,15 +45,18 @@ for svs in tqdm(svs_paths, desc="tiling"):
     width, height = slide.level_dimensions[level]
     n_x = max(1, width // PATCH_SIZE)
     n_y = max(1, height // PATCH_SIZE)
-    stride_x = max(1, n_x // 15)
-    stride_y = max(1, n_y // 15)
+    stride_x = max(1, n_x // 30)
+    stride_y = max(1, n_y // 30)
+    downsample = float(slide.level_downsamples[level])
     saved = 0
 
     for ix in range(0, n_x, stride_x):
         for iy in range(0, n_y, stride_y):
             x = ix * PATCH_SIZE
             y = iy * PATCH_SIZE
-            img = slide.read_region((x, y), level, (PATCH_SIZE, PATCH_SIZE)).convert("RGB")
+            x0 = int(x * downsample)
+            y0 = int(y * downsample)
+            img = slide.read_region((x0, y0), level, (PATCH_SIZE, PATCH_SIZE)).convert("RGB")
             arr = np.array(img)
             if (arr > 200).all(axis=2).mean() > 0.75:
                 continue

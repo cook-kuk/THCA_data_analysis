@@ -1,0 +1,244 @@
+#!/usr/bin/env python3
+"""Build figures and an HTML dossier for the corrected WSI DM1/DM2 recovery run."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from sklearn.metrics import auc, confusion_matrix, roc_curve
+
+
+ROOT = Path(__file__).resolve().parents[3]
+RUN_DIR = ROOT / "project/data/processed/TCGA-THCA-WSI-DM/runpod_split_2026_05_09_v2"
+MERGED = RUN_DIR / "merged"
+OUT = ROOT / "project/results/p_wsi_dm1_2026_05_09"
+HUB = ROOT / "project/papers_hub_2026_05_04"
+ASSETS = HUB / "assets/paper1"
+
+
+def fmt(x: float | None, n: int = 3) -> str:
+    if x is None or pd.isna(x):
+        return "NA"
+    return f"{x:.{n}f}"
+
+
+def write_figures(pred: pd.DataFrame) -> dict[str, Path]:
+    OUT.mkdir(parents=True, exist_ok=True)
+    ASSETS.mkdir(parents=True, exist_ok=True)
+    y = (pred["dm_true"] == "DM2").astype(int).to_numpy()
+    p = pred["dm2_pred_prob"].to_numpy()
+    fpr, tpr, _ = roc_curve(y, p)
+    roc_auc = auc(fpr, tpr)
+
+    plt.style.use("default")
+    fig, ax = plt.subplots(figsize=(5.8, 4.8))
+    ax.plot(fpr, tpr, color="#2f6f8f", lw=2.4, label=f"AUC {roc_auc:.3f}")
+    ax.plot([0, 1], [0, 1], color="#9aa4ad", lw=1.2, ls="--")
+    ax.set_xlabel("False positive rate")
+    ax.set_ylabel("True positive rate")
+    ax.set_title("WSI foundation embedding DM1/DM2 LOSO")
+    ax.legend(loc="lower right", frameon=False)
+    ax.grid(True, color="#d8dde3", lw=0.6, alpha=0.7)
+    fig.tight_layout()
+    roc_png = OUT / "fig_wsi_dm1_v2_roc.png"
+    roc_pdf = OUT / "fig_wsi_dm1_v2_roc.pdf"
+    fig.savefig(roc_png, dpi=220)
+    fig.savefig(roc_pdf)
+    plt.close(fig)
+
+    fig, ax = plt.subplots(figsize=(6.4, 4.8))
+    bins = np.linspace(0, 1, 12)
+    ax.hist(pred.loc[pred.dm_true == "DM1", "dm2_pred_prob"], bins=bins, alpha=0.75, label="DM1", color="#3d8b74")
+    ax.hist(pred.loc[pred.dm_true == "DM2", "dm2_pred_prob"], bins=bins, alpha=0.75, label="DM2", color="#b46b4c")
+    ax.axvline(0.5, color="#333333", lw=1.2, ls="--")
+    ax.set_xlabel("Predicted DM2 probability")
+    ax.set_ylabel("Slides")
+    ax.set_title("Predicted probability distribution")
+    ax.legend(frameon=False)
+    ax.grid(True, axis="y", color="#d8dde3", lw=0.6, alpha=0.7)
+    fig.tight_layout()
+    dist_png = OUT / "fig_wsi_dm1_v2_score_distribution.png"
+    dist_pdf = OUT / "fig_wsi_dm1_v2_score_distribution.pdf"
+    fig.savefig(dist_png, dpi=220)
+    fig.savefig(dist_pdf)
+    plt.close(fig)
+
+    for src in [roc_png, roc_pdf, dist_png, dist_pdf]:
+        (ASSETS / src.name).write_bytes(src.read_bytes())
+
+    return {
+        "roc_png": roc_png,
+        "roc_pdf": roc_pdf,
+        "dist_png": dist_png,
+        "dist_pdf": dist_pdf,
+        "hub_roc": ASSETS / roc_png.name,
+        "hub_dist": ASSETS / dist_png.name,
+    }
+
+
+def build_tables(pred: pd.DataFrame) -> dict[str, object]:
+    y = (pred["dm_true"] == "DM2").astype(int)
+    yhat = (pred["dm2_pred_prob"] > 0.5).astype(int)
+    cm = confusion_matrix(y, yhat, labels=[0, 1])
+    perf = {
+        "tn": int(cm[0, 0]),
+        "fp": int(cm[0, 1]),
+        "fn": int(cm[1, 0]),
+        "tp": int(cm[1, 1]),
+    }
+    by_bucket = (
+        pred.assign(correct=(pred.dm_true == np.where(pred.dm2_pred_prob > 0.5, "DM2", "DM1")))
+        .groupby(["bucket", "dm_true"], dropna=False)
+        .agg(n=("case_id", "count"), mean_dm2_prob=("dm2_pred_prob", "mean"), accuracy=("correct", "mean"))
+        .reset_index()
+        .sort_values(["bucket", "dm_true"])
+    )
+    by_bucket.to_csv(OUT / "wsi_dm1_v2_per_bucket_summary.tsv", sep="\t", index=False)
+
+    ranked = pred.copy()
+    ranked["margin_error"] = np.where(ranked.dm_true == "DM2", 1 - ranked.dm2_pred_prob, ranked.dm2_pred_prob)
+    ranked.sort_values("margin_error", ascending=False).head(12).to_csv(
+        OUT / "wsi_dm1_v2_top_error_slides.tsv", sep="\t", index=False
+    )
+    pred.to_csv(OUT / "wsi_dm1_v2_predictions.tsv", sep="\t", index=False)
+    return {"confusion": perf, "by_bucket": by_bucket, "ranked": ranked}
+
+
+def html_table(df: pd.DataFrame, cols: list[str], limit: int | None = None) -> str:
+    view = df.loc[:, cols].copy()
+    if limit is not None:
+        view = view.head(limit)
+    rows = ["<table><thead><tr>" + "".join(f"<th>{c}</th>" for c in cols) + "</tr></thead><tbody>"]
+    for _, r in view.iterrows():
+        cells = []
+        for c in cols:
+            v = r[c]
+            if isinstance(v, float):
+                v = f"{v:.3f}"
+            cells.append(f"<td>{v}</td>")
+        rows.append("<tr>" + "".join(cells) + "</tr>")
+    rows.append("</tbody></table>")
+    return "\n".join(rows)
+
+
+def build_html(metrics: dict[str, object], pred: pd.DataFrame, figs: dict[str, Path], tables: dict[str, object]) -> Path:
+    pred = pred.copy()
+    pred["pred_label"] = np.where(pred.dm2_pred_prob > 0.5, "DM2", "DM1")
+    pred["correct"] = pred.dm_true == pred.pred_label
+    misses = pred.loc[~pred.correct].sort_values("dm2_pred_prob")
+    cm = tables["confusion"]
+    by_bucket = tables["by_bucket"]
+    roc_rel = f"assets/paper1/{figs['hub_roc'].name}"
+    dist_rel = f"assets/paper1/{figs['hub_dist'].name}"
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WSI DM1/DM2 Recovery Dossier · 2026-05-09</title>
+<style>
+:root{{--bg:#081019;--panel:#101a28;--panel2:#142237;--ink:#eff6ff;--muted:#9fb0c5;--line:#26364d;--gold:#ffd28a;--teal:#44d3ad;--rose:#ff8a6b;--blue:#7ab3ff;--green:#73dfaa;--paper:#fff6dd}}
+*{{box-sizing:border-box}} html,body{{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.55}}
+a{{color:var(--teal);text-decoration:none}} a:hover{{color:var(--gold);text-decoration:underline}} code,.path{{font-family:"JetBrains Mono","SF Mono",Menlo,monospace}}
+h1,h2,h3{{font-family:"Cormorant Garamond","Newsreader",Georgia,serif;letter-spacing:-.01em}}
+.hero{{padding:62px 32px 38px;background:linear-gradient(135deg,#09131f 0%,#15243a 60%,#211017 100%);border-bottom:1px solid var(--line)}} .hero-inner{{max-width:1260px;margin:0 auto}}
+.kicker{{font-family:"JetBrains Mono",monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);font-size:11px;font-weight:800;margin:0 0 12px}}
+h1{{font-size:58px;line-height:1;margin:0 0 14px;color:var(--paper)}} .lead{{max-width:1040px;color:#d7e1ee;font-family:"Newsreader",Georgia,serif;font-size:18px;line-height:1.62;font-style:italic}} .lead b{{color:var(--gold);font-style:normal}}
+.stats{{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:22px}} .stat{{border:1px solid rgba(255,210,138,.28);background:rgba(255,255,255,.045);border-radius:8px;padding:12px}} .stat b{{display:block;color:var(--gold);font-family:"Cormorant Garamond",serif;font-size:28px;line-height:1}} .stat span{{display:block;color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:9px;letter-spacing:.06em;text-transform:uppercase;margin-top:5px}}
+.crumbs{{margin-top:18px;color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:11px}}
+.wrap{{max-width:1260px;margin:0 auto;display:grid;grid-template-columns:230px minmax(0,1fr);gap:32px;padding:0 32px 68px}} .toc{{position:sticky;top:0;align-self:start;height:100vh;overflow:auto;border-right:1px solid var(--line);padding:26px 18px 26px 0}} .toc h4{{font-family:"JetBrains Mono",monospace;color:var(--gold);font-size:10px;letter-spacing:.18em;text-transform:uppercase;margin:0 0 10px}} .toc a{{display:block;color:#c9d4e2;font-size:12px;margin:6px 0}}
+main{{padding-top:24px}} section{{border-bottom:1px solid var(--line);padding:30px 0}} section h2{{font-size:34px;color:var(--paper);margin:0 0 6px}} .num{{font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--gold);letter-spacing:.16em;margin-right:11px}} .sub{{font-family:"JetBrains Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}}
+.grid{{display:grid;gap:14px}} .g2{{grid-template-columns:1fr 1fr}} .g3{{grid-template-columns:repeat(3,1fr)}} .card{{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px}} .card h3{{margin:0 0 6px;color:var(--gold);font-size:20px}} .card .big{{font-family:"Cormorant Garamond",serif;font-size:34px;color:var(--paper);line-height:1;font-weight:700}} .card p{{margin:8px 0 0;color:#cbd6e5;font-size:12.5px}}
+.box{{border:1px solid var(--line);border-left:4px solid var(--gold);background:var(--panel);border-radius:0 8px 8px 0;padding:14px 16px;margin:14px 0}} .box.good{{border-left-color:var(--green)}} .box.warn{{border-left-color:var(--rose)}} .box.blue{{border-left-color:var(--blue)}} .box h3{{margin:0 0 6px;color:var(--gold);font-size:20px}} .box.warn h3{{color:var(--rose)}} .box.good h3{{color:var(--green)}} .box.blue h3{{color:var(--blue)}}
+table{{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0 14px}} th,td{{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}} th{{background:#17253d;color:var(--gold);font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase}} tr:nth-child(even) td{{background:rgba(255,255,255,.025)}} td{{color:#d7e1ed}}
+.path{{display:inline-block;background:#0a111d;border:1px solid var(--line);border-radius:4px;color:var(--teal);padding:1px 5px;font-size:11px}} .tag{{display:inline-block;border:1px solid rgba(255,210,138,.35);border-radius:999px;color:var(--gold);font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;margin-right:4px}} .tag.warn{{border-color:rgba(255,138,107,.45);color:var(--rose)}} .tag.good{{border-color:rgba(115,223,170,.45);color:var(--green)}}
+.fig{{background:#0a111d;border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:12px 0}} .fig img{{display:block;width:100%;height:auto;background:#fff}} .cap{{border-top:1px solid var(--line);padding:10px 12px;color:#cbd6e5;font-size:11.5px;background:#101a2b}}
+@media(max-width:980px){{.wrap{{display:block;padding:0 18px 50px}}.toc{{display:none}}.stats{{grid-template-columns:repeat(2,1fr)}}h1{{font-size:40px}}.g2,.g3{{grid-template-columns:1fr}}}}
+</style>
+</head>
+<body>
+<header class="hero"><div class="hero-inner">
+<p class="kicker">WSI recovery · TCGA-THCA · corrected coordinate pass · 2026-05-09</p>
+<h1>H&amp;E carries a moderate DM1/DM2 signal after coordinate repair.</h1>
+<p class="lead">The RunPod recovery produced a corrected 50-slide DINOv2 ViT-L embedding pilot. The result is <b>useful reserve evidence</b>, not a manuscript-facing replacement for the molecular axis: case-grouped LOSO AUC is <b>{metrics['auc_dm2_probability']:.3f}</b> with full 50/50 slide coverage after fixing a level-coordinate tiling bug.</p>
+<div class="stats">
+<div class="stat"><b>{metrics['n_embedded_slides']}/50</b><span>embedded slides</span></div>
+<div class="stat"><b>{metrics['n_DM1']}</b><span>DM1</span></div>
+<div class="stat"><b>{metrics['n_DM2']}</b><span>DM2</span></div>
+<div class="stat"><b>{metrics['auc_dm2_probability']:.3f}</b><span>merged LOSO AUC</span></div>
+<div class="stat"><b>{metrics['accuracy_at_0_5']:.2f}</b><span>accuracy</span></div>
+<div class="stat"><b>0</b><span>missing embeddings</span></div>
+<div class="stat"><b>DINOv2</b><span>ViT-L 518</span></div>
+</div>
+<div class="crumbs"><a href="index.html">Hub</a> · <a href="paper1_paper2_braf_axis_takeover_dossier.html">BRAF axis dossier</a> · <a href="paper1_deconvolution_rollup_v18.html">Deconv rollup</a> · source: <span class="path">runpod_split_2026_05_09_v2/</span></div>
+</div></header>
+<div class="wrap"><aside class="toc">
+<h4>Contents</h4>
+<a href="#decision">01 Disposition</a>
+<a href="#fix">02 Coordinate Fix</a>
+<a href="#metrics">03 Metrics</a>
+<a href="#figures">04 Figures</a>
+<a href="#errors">05 Error Audit</a>
+<a href="#sources">06 Sources</a>
+</aside><main>
+<section id="decision"><h2><span class="num">01</span>Disposition</h2><p class="sub">Moderate reserve signal, not overclaim</p>
+<div class="box good"><h3>Use as reserve evidence</h3><p>The corrected result shows image embeddings can separate DM1/DM2 above chance in this balanced TCGA-THCA subset. It should be framed as a recovered pilot and technical bridge, not as a primary pathology claim for Paper 1.</p></div>
+<div class="box warn"><h3>Do not make a HoVer-NeXt claim</h3><p>The HoVer-NeXt proof-of-concept did not run because the remote environment lacked <code>toml</code>. The final result here is foundation embedding only.</p></div>
+</section>
+<section id="fix"><h2><span class="num">02</span>Coordinate Fix</h2><p class="sub">Why v1 was discarded</p>
+<div class="grid g3">
+<div class="card"><h3>v1 problem</h3><div class="big">8 missing</div><p>Eight slides had no embeddings because the first tile pass sampled level coordinates as level-0 coordinates.</p></div>
+<div class="card"><h3>v2 repair</h3><div class="big">×downsample</div><p>Tile coordinates are now multiplied by <code>slide.level_downsamples[level]</code> before <code>read_region</code>.</p></div>
+<div class="card"><h3>v2 coverage</h3><div class="big">50/50</div><p>All manifest slides now have DINOv2 embeddings.</p></div>
+</div></section>
+<section id="metrics"><h2><span class="num">03</span>Metrics</h2><p class="sub">Case-grouped leave-one-case-out classifier</p>
+<table><thead><tr><th>Metric</th><th>Value</th><th>Path</th></tr></thead><tbody>
+<tr><td>Embedded slides</td><td>{metrics['n_embedded_slides']} / {metrics['n_manifest_slides']}</td><td><span class="path">embedding_coverage.tsv</span></td></tr>
+<tr><td>Class balance</td><td>DM1={metrics['n_DM1']}; DM2={metrics['n_DM2']}</td><td><span class="path">merged_loso_metrics.json</span></td></tr>
+<tr><td>LOSO AUC</td><td>{metrics['auc_dm2_probability']:.4f}</td><td><span class="path">merged_loso_metrics.json</span></td></tr>
+<tr><td>Accuracy at 0.5</td><td>{metrics['accuracy_at_0_5']:.3f}</td><td><span class="path">merged_loso_metrics.json</span></td></tr>
+<tr><td>Confusion matrix</td><td>TN={cm['tn']}; FP={cm['fp']}; FN={cm['fn']}; TP={cm['tp']}</td><td><span class="path">wsi_dm1_v2_predictions.tsv</span></td></tr>
+</tbody></table>
+<h3>Bucket Summary</h3>
+{html_table(by_bucket, ["bucket", "dm_true", "n", "mean_dm2_prob", "accuracy"])}
+</section>
+<section id="figures"><h2><span class="num">04</span>Figures</h2><p class="sub">Generated directly from merged predictions</p>
+<div class="grid g2">
+<div class="fig"><img src="{roc_rel}" alt="ROC curve" /><div class="cap">ROC curve for corrected v2 merged case-grouped LOSO predictions.</div></div>
+<div class="fig"><img src="{dist_rel}" alt="Score distribution" /><div class="cap">Predicted DM2 probability distribution by true DM label.</div></div>
+</div></section>
+<section id="errors"><h2><span class="num">05</span>Error Audit</h2><p class="sub">Misses are co-located with the result</p>
+{html_table(misses, ["case_id", "dm_true", "pred_label", "dm2_pred_prob", "bucket", "driver_class"], limit=12)}
+<div class="box blue"><h3>Interpretation boundary</h3><p>AUC 0.746 is enough to preserve the pathology pilot as a reserve axis. It is not strong enough to supersede transcriptomic DM1/DM2 definitions or support a standalone H&amp;E biomarker claim.</p></div>
+</section>
+<section id="sources"><h2><span class="num">06</span>Sources</h2><p class="sub">Every value is from local artifacts</p>
+<table><thead><tr><th>Artifact</th><th>Path</th></tr></thead><tbody>
+<tr><td>Metrics</td><td><span class="path">project/data/processed/TCGA-THCA-WSI-DM/runpod_split_2026_05_09_v2/merged/merged_loso_metrics.json</span></td></tr>
+<tr><td>Predictions</td><td><span class="path">project/data/processed/TCGA-THCA-WSI-DM/runpod_split_2026_05_09_v2/merged/merged_dm1_vs_dm2_loso_predictions.tsv</span></td></tr>
+<tr><td>Run summary</td><td><span class="path">project/results/p_wsi_dm1_2026_05_09/SUMMARY.md</span></td></tr>
+<tr><td>Builder script</td><td><span class="path">project/results/p_wsi_dm1_2026_05_09/build_wsi_dm1_recovery_dossier.py</span></td></tr>
+</tbody></table>
+</section>
+</main></div></body></html>
+"""
+    out = HUB / "wsi_dm1_recovery_dossier_2026_05_09.html"
+    out.write_text(html)
+    return out
+
+
+def main() -> None:
+    metrics = json.loads((MERGED / "merged_loso_metrics.json").read_text())
+    pred = pd.read_csv(MERGED / "merged_dm1_vs_dm2_loso_predictions.tsv", sep="\t")
+    figs = write_figures(pred)
+    tables = build_tables(pred)
+    html = build_html(metrics, pred, figs, tables)
+    print(json.dumps({"html": str(html), "figures": {k: str(v) for k, v in figs.items()}}, indent=2))
+
+
+if __name__ == "__main__":
+    main()
