@@ -174,7 +174,7 @@
       <div class="kicker">Paper 2 · GSE250521 · Path2Space-Inspired Reanalysis</div>
       <h1>H&amp;E Carries A Spatial DM1 Signal</h1>
       <p class="lead">
-        Reanalysis after the Cell 2026 Path2Space paper: spatial smoothing converts the prior weak UNI scout into a weak-to-moderate image-to-spatial-RNA result, while preserving the boundary that GSE250521 does not rescue the Paper 1 MAPK-silencing mechanism.
+        Reanalysis after the Cell 2026 Path2Space paper: spatial smoothing converts the prior weak UNI scout into a weak-to-moderate image-to-spatial-RNA result, then GSE230424 adds a label-free external thyroid Visium control with a stronger DM1/RAI H&amp;E signal but a clear QC caveat.
       </p>
       <div class="stat-strip">
         <div class="stat"><div class="v">3,200</div><div class="l">UNI-embedded spots</div></div>
@@ -183,6 +183,9 @@
         <div class="stat"><div class="v">+0.097</div><div class="l">smoothing gain over raw</div></div>
         <div class="stat"><div class="v">0.581</div><div class="l">DM1 domain slide-centered rho</div></div>
         <div class="stat"><div class="v">0.303</div><div class="l">DM1 rho after QC residualization</div></div>
+        <div class="stat"><div class="v">0.644</div><div class="l">GSE230424 DM1/RAI sample-centered rho</div></div>
+        <div class="stat"><div class="v">0.283</div><div class="l">GSE230424 coord+QC residual rho</div></div>
+        <div class="stat"><div class="v">0.232</div><div class="l">GSE230424 strict residual-target rho</div></div>
       </div>
     </div>
   </header>
@@ -195,8 +198,10 @@
       <a href="#spand">04 SPAND</a>
       <a href="#clusters">05 Clusters</a>
       <a href="#controls">06 Controls</a>
-      <a href="#decision">07 Decision</a>
-      <a href="#sources">08 Sources</a>
+      <a href="#gse230424">07 GSE230424</a>
+      <a href="#gse248205">08 GSE248205</a>
+      <a href="#decision">09 Decision</a>
+      <a href="#sources">10 Sources</a>
     </nav>
 
     <main>
@@ -310,16 +315,76 @@
         <p class="muted">The safe claim is deliberately narrow: pathology carries a reproducible spatial DM1/RAI signal, but measured ST QC variables explain substantial variation. This is a Paper 2 reinforcement, not a Paper 1 causal mechanism rescue.</p>
       </section>
 
+      <section id="gse230424">
+        <h2><span class="num">07</span>GSE230424 External Thyroid Control</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_pathology_thyroid_axis.png" alt="GSE230424 pathology to thyroid spatial axis controls">
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Modeled spots / samples</td><td>15,489 / 4</td><td><code>GSE230424_PATHOLOGY_THYROID_SUMMARY.json</code></td></tr>
+            <tr><td>Top axis</td><td><code>DM1_low_RAI_score</code></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
+            <tr><td>H&amp;E sample-centered rho</td><td><strong class="good">0.644</strong></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
+            <tr><td>H&amp;E domain-centered rho</td><td><strong class="good">0.910</strong></td><td><code>gse230424_domain_summary.tsv</code></td></tr>
+            <tr><td>QC-only sample-centered rho</td><td><strong class="warn">0.732</strong></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
+            <tr><td>H&amp;E residual after coord+QC adjustment</td><td>0.283</td><td><code>gse230424_residual_alignment.tsv</code></td></tr>
+            <tr><td>Strict residual-target H&amp;E rho after coord+QC removal</td><td><strong class="good">0.232</strong></td><td><code>residual_target_controls/gse230424_residual_target_model_comparison.tsv</code></td></tr>
+            <tr><td>Within-sample permutation p</td><td>0.001</td><td><code>gse230424_permutation_alignment.tsv</code></td></tr>
+          </tbody>
+        </table>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_sample_axis_context.png" alt="GSE230424 sample-level thyroid module context">
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Why It Helps</h3>
+            <p class="muted">This is an independent thyroid Visium cohort with raw H&amp;E images. It reproduces the central image-to-DM1/RAI spatial direction at a stronger effect size than GSE250521.</p>
+          </div>
+          <div class="card">
+            <h3>Boundary</h3>
+            <p class="muted">GEO exposes P1-P4 but not HT versus PTC+HT labels, and QC-only is stronger than H&amp;E. Use it as label-free spatial support with explicit QC residualization, not disease-group validation.</p>
+          </div>
+        </div>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_spatial_maps.png" alt="GSE230424 observed and predicted spatial maps">
+        </div>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_residual_target_controls.png" alt="GSE230424 residual-target controls">
+        </div>
+        <p class="muted">The residual-target control is the strictest version of the test: observed DM1/low-RAI is first residualized within each sample against coordinates and ST QC variables, and H&amp;E is then trained to predict that residual. The retained rho 0.232 supports a smaller image-aligned component beyond the QC/tissue-density signal.</p>
+      </section>
+
+      <section id="gse248205">
+        <h2><span class="num">08</span>GSE248205 Negative Control</h2>
+        <div class="figure">
+          <img src="assets/paper2_gse248205_aitd/fig_gse248205_pathology_aitd_axis.png" alt="GSE248205 AITD pathology axis negative control">
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>Modeled spots / samples</td><td>16,985 / 8</td><td>Useful control set</td></tr>
+            <tr><td>AP/TLS H&amp;E pooled rho</td><td>0.590</td><td>Looks strong before centering</td></tr>
+            <tr><td>AP/TLS H&amp;E sample-centered rho</td><td><strong class="bad">-0.090</strong></td><td>No-go for local morphology claim</td></tr>
+            <tr><td>AP/TLS domain sample-centered rho</td><td><strong class="bad">-0.164</strong></td><td>No-go after domain aggregation</td></tr>
+            <tr><td>Final use</td><td><code>NO_GO_LOCAL_HE_CAVEAT_ONLY</code></td><td>Disclose as negative control if needed</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">This prevents overclaiming: not every thyroid autoimmune ST dataset gives a valid local H&amp;E signal. The Paper 2 evidence should lean on GSE250521 plus GSE230424, with GSE248205 retained as a caveat-only control.</p>
+      </section>
+
       <section id="decision">
-        <h2><span class="num">07</span>Decision Matrix</h2>
+        <h2><span class="num">09</span>Decision Matrix</h2>
         <table class="decision">
           <thead><tr><th>Question</th><th>Evidence</th><th>Disposition</th></tr></thead>
           <tbody>
             <tr><td>Can H&amp;E recover local DM1/RAI spatial signal?</td><td>Smoothed LOSO rho 0.392; 12/16 slides rho &gt; 0.2</td><td>Use for Paper 2</td></tr>
+            <tr><td>Does an independent thyroid Visium cohort support this?</td><td>GSE230424 DM1/low-RAI H&amp;E sample-centered rho 0.644; coord+QC residual rho 0.283; strict residual-target rho 0.232</td><td>Use as external support with QC caveat</td></tr>
             <tr><td>Does smoothing matter?</td><td>DM1/RAI rho 0.295 to 0.392</td><td>Yes, keep</td></tr>
             <tr><td>Does domain aggregation strengthen the signal?</td><td>DM1/RAI domain slide-centered rho 0.581</td><td>Strong supporting analysis</td></tr>
             <tr><td>Is it only coordinate/stage?</td><td>Coordinate-only rho 0.133; stage-only near null</td><td>No</td></tr>
             <tr><td>Is QC a serious confound?</td><td>QC-only rho 0.476; QC-residual UNI alignment rho 0.303</td><td>Disclose and residualize</td></tr>
+            <tr><td>Does every thyroid autoimmune ST dataset support local H&amp;E prediction?</td><td>GSE248205 AP/TLS pooled rho 0.590 but sample-centered rho -0.090</td><td>No; negative control/caveat</td></tr>
             <tr><td>Can H&amp;E recover MAPK output?</td><td>Smoothed rho 0.298</td><td>Exploratory support only</td></tr>
             <tr><td>Does this rescue Paper 1 spatial MAPK x Panel?</td><td>v15-v18 direct anti-correlation, lag, and pocket tests failed</td><td>Caveat-only</td></tr>
             <tr><td>Is the spatial cluster architecture stage-defining?</td><td>Dominant-cluster/stage ARI 0.000</td><td>No</td></tr>
@@ -328,7 +393,7 @@
       </section>
 
       <section id="sources">
-        <h2><span class="num">08</span>Sources And Paths</h2>
+        <h2><span class="num">10</span>Sources And Paths</h2>
         <table>
           <thead><tr><th>Artifact</th><th>Path</th></tr></thead>
           <tbody>
@@ -339,6 +404,11 @@
             <tr><td>SPAND table</td><td><code>path2space_spand_by_slide.tsv</code></td></tr>
             <tr><td>Cluster tables</td><td><code>path2space_spatial_cluster_*.tsv</code></td></tr>
             <tr><td>Strengthening controls</td><td><code>analysis_supp/path2space_inspired_reanalysis_2026_05_09/strengthening_controls/</code></td></tr>
+            <tr><td>GSE230424 script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/gse230424_pathology_thyroid_axis.py</code></td></tr>
+            <tr><td>GSE230424 report</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/GSE230424_PATHOLOGY_THYROID_REPORT.md</code></td></tr>
+            <tr><td>GSE230424 residual-target controls</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/residual_target_controls/</code></td></tr>
+            <tr><td>GSE248205 script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/gse248205_pathology_aitd_axis.py</code></td></tr>
+            <tr><td>GSE248205 report</td><td><code>analysis_supp/gse248205_pathology_aitd_axis_2026_05_09/GSE248205_PATHOLOGY_AITD_REPORT.md</code></td></tr>
           </tbody>
         </table>
       </section>
