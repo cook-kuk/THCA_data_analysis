@@ -8,7 +8,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from common import OUT, safe_parquet
+from common import OUT, REPO, safe_parquet
 
 
 TCR_OUT = OUT / "tcr_extension"
@@ -99,6 +99,8 @@ def annotate_cases(comp: pd.DataFrame, linked: pd.DataFrame) -> pd.DataFrame:
         "hla_supertype",
         "source_protein",
         "tcr_evidence_sources",
+        "tcr_evidence_count",
+        "paired_tcr_evidence_count",
         "beta_only_tcr_evidence_count",
         "peptide_hla_tcr_label_count",
         "cancer_context_evidence_count",
@@ -197,6 +199,45 @@ def aggregate_candidate_table(comp: pd.DataFrame) -> pd.DataFrame:
     return score.sort_values("wetlab_priority_score", ascending=False)
 
 
+def add_evidence_adjusted_candidate_score(candidates: pd.DataFrame) -> pd.DataFrame:
+    out = candidates.copy()
+    for col in [
+        "tcr_evidence_count",
+        "paired_tcr_evidence_count",
+        "cancer_context_evidence_count",
+        "pathogen_context_evidence_count",
+        "structure_evidence_count",
+    ]:
+        default = pd.Series(0, index=out.index)
+        out[col] = pd.to_numeric(out[col] if col in out.columns else default, errors="coerce").fillna(0)
+    evidence_bonus = (
+        0.25 * out["paired_tcr_evidence_count"].gt(0).astype(float)
+        + 0.20 * out["cancer_context_evidence_count"].gt(0).astype(float)
+        + 0.05 * out["structure_evidence_count"].gt(0).astype(float)
+        + 0.05 * out["tcr_evidence_count"].gt(0).astype(float)
+    )
+    evidence_penalty = (
+        0.30 * out["tcr_evidence_count"].eq(0).astype(float)
+        + 0.15
+        * (
+            out["pathogen_context_evidence_count"].gt(0)
+            & out["cancer_context_evidence_count"].eq(0)
+        ).astype(float)
+    )
+    out["tcr_evidence_quality_adjustment"] = evidence_bonus - evidence_penalty
+    out["wetlab_priority_score_evidence_adjusted"] = out["wetlab_priority_score"] + out["tcr_evidence_quality_adjustment"]
+    out["wetlab_priority_tier"] = "P2_model_score_only"
+    out.loc[out["tcr_evidence_count"].gt(0), "wetlab_priority_tier"] = "P1_tcr_evidence"
+    out.loc[
+        out["paired_tcr_evidence_count"].gt(0) | out["cancer_context_evidence_count"].gt(0),
+        "wetlab_priority_tier",
+    ] = "P0_tcr_or_cancer_context"
+    return out.sort_values(
+        ["wetlab_priority_score_evidence_adjusted", "wetlab_priority_score"],
+        ascending=False,
+    )
+
+
 def write_case_report(
     conservative: pd.DataFrame,
     raw: pd.DataFrame,
@@ -275,7 +316,7 @@ def write_decision_report(linked: pd.DataFrame, counts: dict[str, int], aggregat
         r = sub.iloc[0]
         return f"AUPRC {r['baseline_auprc']:.3f} -> {r['comparison_auprc']:.3f} (delta {r['delta_auprc']:+.3f}), AUROC delta {r['delta_auroc']:+.3f}"
 
-    decoy = aggregate[aggregate["pilot"].eq("paired_tcr_decoy_sequence_pilot")].copy()
+    decoy = aggregate[aggregate["pilot"].eq("paired_tcr_pmhc_shuffled_decoy")].copy()
     decoy_best = "not available"
     if not decoy.empty:
         best = decoy.sort_values("auprc_mean", ascending=False).iloc[0]
@@ -297,7 +338,7 @@ def write_decision_report(linked: pd.DataFrame, counts: dict[str, int], aggregat
         f"7. Source-heldout rescue: partial. Conservative NEPdb source-heldout readout: {delta_line('source_heldout_NEPdb')}. Raw TCR evidence is stronger but treated as leakage-prone.",
         "8. False positives: case audit files identify main-high/TCR-low and TCR-high-only negatives, but explanation remains diagnostic until structures or external TCR assays support it.",
         "9. Main claim or supplement: **supplement/diagnostic branch now**, not the main CROSS-Neo ranking claim.",
-        "10. Wetlab candidates: prioritize rows in `tcr_wetlab_candidate_prioritization.tsv` with high conservative TCR-augmented score, positive delta, exact paired or cancer-context TCR evidence, and low pathogen-only dependence.",
+        "10. Wetlab candidates: prioritize rows in `tcr_wetlab_candidate_prioritization.tsv` and the de-duplicated `tcr_wetlab_candidate_prioritization_unique_pmhc.tsv` with high conservative TCR-augmented score, positive delta, exact paired or cancer-context TCR evidence, and low pathogen-only dependence.",
         "",
         "## Decoy Recognition Pilot",
         "",
@@ -310,7 +351,9 @@ def write_decision_report(linked: pd.DataFrame, counts: dict[str, int], aggregat
         "- Do not claim clinical utility or universal TCR-aware prediction.",
         "- Safe current claim: optional TCR evidence/diagnostic layer plus wetlab prioritization scaffold.",
     ]
-    (OUT / "CROSS_Neo_TCR_extension_decision_report.md").write_text("\n".join(lines) + "\n")
+    text = "\n".join(lines) + "\n"
+    (OUT / "CROSS_Neo_TCR_extension_decision_report.md").write_text(text)
+    (REPO / "CROSS_Neo_TCR_extension_decision_report.md").write_text(text)
 
 
 def main() -> None:
@@ -328,6 +371,7 @@ def main() -> None:
     rescue, harm, fp, fn = case_tables(conservative)
     candidates = aggregate_candidate_table(conservative)
     candidates = annotate_cases(candidates, linked)
+    candidates = add_evidence_adjusted_candidate_score(candidates)
 
     out_cols_first = [
         "split_name",
@@ -371,6 +415,9 @@ def main() -> None:
     write_table(fp, "tcr_false_positive_audit.tsv", limit=5000)
     write_table(fn, "tcr_false_negative_audit.tsv", limit=5000)
     write_tsv(candidates, TCR_OUT / "tcr_wetlab_candidate_prioritization.tsv")
+    unique_keys = [c for c in ["peptide", "hla_4digit"] if c in candidates.columns]
+    unique_candidates = candidates.drop_duplicates(unique_keys).copy() if unique_keys else candidates.copy()
+    write_tsv(unique_candidates, TCR_OUT / "tcr_wetlab_candidate_prioritization_unique_pmhc.tsv")
     safe_parquet(conservative, TCR_OUT / "tcr_error_analysis_conservative_predictions.parquet")
     safe_parquet(raw, TCR_OUT / "tcr_error_analysis_raw_predictions.parquet")
 

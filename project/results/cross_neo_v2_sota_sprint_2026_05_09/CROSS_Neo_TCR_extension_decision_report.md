@@ -13,11 +13,11 @@ Decision: **PROMOTE_TO_DIAGNOSTIC_CASE_STUDY** and **PROMOTE_TO_WETLAB_PRIORITIZ
 7. Source-heldout rescue: partial. Conservative NEPdb source-heldout readout: AUPRC 0.233 -> 0.259 (delta +0.026), AUROC delta +0.050. Raw TCR evidence is stronger but treated as leakage-prone.
 8. False positives: case audit files identify main-high/TCR-low and TCR-high-only negatives, but explanation remains diagnostic until structures or external TCR assays support it.
 9. Main claim or supplement: **supplement/diagnostic branch now**, not the main CROSS-Neo ranking claim.
-10. Wetlab candidates: prioritize rows in `tcr_wetlab_candidate_prioritization.tsv` with high conservative TCR-augmented score, positive delta, exact paired or cancer-context TCR evidence, and low pathogen-only dependence.
+10. Wetlab candidates: prioritize rows in `tcr_wetlab_candidate_prioritization.tsv` and the de-duplicated `tcr_wetlab_candidate_prioritization_unique_pmhc.tsv` with high conservative TCR-augmented score, positive delta, exact paired or cancer-context TCR evidence, and low pathogen-only dependence.
 
 ## Decoy Recognition Pilot
 
-- Paired positive versus shuffled-TCR decoy pilot best result: not available. This indicates the simple handcrafted TCR sequence features are not sufficient for de novo cognate-recognition prediction.
+- Paired positive versus shuffled-TCR decoy pilot best result: pmhc_only AUPRC 0.500, AUROC 0.500. This indicates the simple handcrafted TCR sequence features are not sufficient for de novo cognate-recognition prediction.
 
 ## Claim Boundary
 
