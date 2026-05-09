@@ -59,6 +59,7 @@ def main() -> None:
         "collect_method_scores.py",
         "evaluate_clean_neobench.py",
         "train_barneo.py",
+        "barneo_bma_agent.py",
         "write_clean_neobench_reports.py",
     ]
     for step in steps:
