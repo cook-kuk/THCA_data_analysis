@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper 2 Path2Space-Inspired Spatial Reanalysis</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #151b23;
+      --panel-2: #1c2430;
+      --ink: #e6edf3;
+      --muted: #97a3b6;
+      --line: #303846;
+      --gold: #d6b25e;
+      --blue: #57a6ff;
+      --teal: #63d5c4;
+      --red: #ff7b72;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      line-height: 1.55;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .hero {
+      min-height: 58vh;
+      display: grid;
+      align-items: end;
+      padding: 56px 5vw 44px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(13,17,23,0.18), rgba(13,17,23,0.96)),
+        url("assets/paper2_path2space/fig_path2space_inspired_reanalysis.png") center 36% / cover no-repeat;
+    }
+    .hero-inner { max-width: 1180px; }
+    .kicker {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 10px 0 14px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: 0.95;
+      font-weight: 650;
+      letter-spacing: 0;
+      max-width: 1080px;
+    }
+    .lead {
+      max-width: 980px;
+      color: #d8dee8;
+      font-size: 18px;
+    }
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 26px;
+      max-width: 1120px;
+    }
+    .stat {
+      border: 1px solid rgba(214,178,94,0.45);
+      background: rgba(13,17,23,0.82);
+      padding: 14px;
+      min-height: 94px;
+    }
+    .stat .v { color: var(--gold); font-size: 24px; font-weight: 800; }
+    .stat .l { color: var(--muted); font-size: 12px; margin-top: 5px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 32px;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 34px 24px 80px;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: 100vh;
+      overflow: auto;
+      padding: 18px 0;
+    }
+    nav a {
+      display: block;
+      padding: 9px 12px;
+      border-left: 2px solid transparent;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav a:hover { color: var(--ink); border-left-color: var(--gold); text-decoration: none; }
+    main { min-width: 0; }
+    section {
+      border-top: 1px solid var(--line);
+      padding: 34px 0;
+    }
+    section:first-child { border-top: 0; padding-top: 0; }
+    h2 {
+      margin: 0 0 18px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 34px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+    .num { color: var(--gold); margin-right: 10px; font-family: "JetBrains Mono", monospace; font-size: 18px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .card h3 { margin: 0 0 10px; font-size: 17px; color: #ffffff; }
+    .muted { color: var(--muted); }
+    .good { color: var(--teal); }
+    .warn { color: var(--gold); }
+    .bad { color: var(--red); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--gold); font-weight: 700; background: rgba(214,178,94,0.06); }
+    .figure {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 18px 0;
+    }
+    .figure img { width: 100%; display: block; border-radius: 4px; }
+    code {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #d8dee8;
+    }
+    .decision td:last-child {
+      color: var(--gold);
+      font-weight: 800;
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; max-height: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="kicker">Paper 2 · GSE250521 · Path2Space-Inspired Reanalysis</div>
+      <h1>H&amp;E Carries A Spatial DM1 Signal</h1>
+      <p class="lead">
+        Reanalysis after the Cell 2026 Path2Space paper: spatial smoothing converts the prior weak UNI scout into a weak-to-moderate image-to-spatial-RNA result, while preserving the boundary that GSE250521 does not rescue the Paper 1 MAPK-silencing mechanism.
+      </p>
+      <div class="stat-strip">
+        <div class="stat"><div class="v">3,200</div><div class="l">UNI-embedded spots</div></div>
+        <div class="stat"><div class="v">16</div><div class="l">GSE250521 slides</div></div>
+        <div class="stat"><div class="v">0.392</div><div class="l">DM1/RAI smoothed LOSO rho</div></div>
+        <div class="stat"><div class="v">+0.097</div><div class="l">smoothing gain over raw</div></div>
+        <div class="stat"><div class="v">0.581</div><div class="l">DM1 domain slide-centered rho</div></div>
+        <div class="stat"><div class="v">0.303</div><div class="l">DM1 rho after QC residualization</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav>
+      <a href="#tl-dr">01 TL;DR</a>
+      <a href="#strategy">02 Strategy</a>
+      <a href="#prediction">03 Prediction</a>
+      <a href="#spand">04 SPAND</a>
+      <a href="#clusters">05 Clusters</a>
+      <a href="#controls">06 Controls</a>
+      <a href="#decision">07 Decision</a>
+      <a href="#sources">08 Sources</a>
+    </nav>
+
+    <main>
+      <section id="tl-dr">
+        <h2><span class="num">01</span>TL;DR</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>What Changed</h3>
+            <p class="muted">The earlier scout evaluated raw spot RNA labels. The reanalysis follows the Path2Space paper's practical lesson: smooth local spatial labels before evaluating H&amp;E-to-expression prediction.</p>
+          </div>
+          <div class="card">
+            <h3>What Did Not Change</h3>
+            <p class="muted">The direct GSE250521 MAPK x Panel spatial anti-correlation remains closed from v15-v18. This page is Paper 2 support, not Paper 1 causal mechanism support.</p>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Top smoothed target</td><td><code>DM1_like_score</code></td><td><code>PATH2SPACE_REANALYSIS_SUMMARY.json</code></td></tr>
+            <tr><td>DM1/RAI raw LOSO Spearman rho</td><td>0.295</td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>DM1/RAI KNN-8 smoothed LOSO Spearman rho</td><td><strong class="good">0.392</strong></td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>Slides with DM1/RAI rho &gt; 0.2</td><td>12/16</td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>MAPK output smoothed LOSO Spearman rho</td><td>0.298</td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>Best spatial cluster k / silhouette</td><td>3 / 0.272</td><td><code>path2space_cluster_k_silhouette.tsv</code></td></tr>
+            <tr><td>DM1/RAI domain slide-centered rho</td><td><strong class="good">0.581</strong></td><td><code>path2space_strengthening_domain_summary.tsv</code></td></tr>
+            <tr><td>DM1/RAI residual alignment after QC adjustment</td><td>0.303</td><td><code>path2space_strengthening_residual_alignment.tsv</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="strategy">
+        <h2><span class="num">02</span>Strategy</h2>
+        <table>
+          <thead><tr><th>Path2Space idea</th><th>THCA port</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr><td>H&amp;E as low-cost spatial RNA surrogate</td><td>UNI tile embeddings predict measured ST module scores</td><td>Paper 2 image-DM1 needs pathology-to-RNA evidence</td></tr>
+            <tr><td>Spatial smoothing</td><td>KNN-8 smoothing of spot-level targets</td><td>Reduces Visium spot noise and improves biological interpretability</td></tr>
+            <tr><td>Held-out patient evaluation</td><td>Leave-one-slide-out validation</td><td>Blocks same-slide leakage</td></tr>
+            <tr><td>SPAND heterogeneity</td><td><code>1 - Moran's I</code> on rank-normalized predicted axes</td><td>Measures local intermixing rather than same-spot co-expression</td></tr>
+            <tr><td>Spatial cluster composition</td><td>KMeans on predicted multi-axis spatial programs</td><td>Tests architecture-level representation, not one correlation</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="prediction">
+        <h2><span class="num">03</span>Prediction</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_inspired_reanalysis.png" alt="Path2Space-inspired reanalysis summary figure">
+        </div>
+        <table>
+          <thead><tr><th>Rank</th><th>Smoothed target</th><th>LOSO rho</th><th>Median slide rho</th><th>Slides rho &gt; 0.2</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>DM1_like_score</td><td>0.392</td><td>0.373</td><td>12/16</td></tr>
+            <tr><td>2</td><td>TDS_like_score</td><td>0.381</td><td>0.338</td><td>12/16</td></tr>
+            <tr><td>3</td><td>CAF_ECM_score</td><td>0.318</td><td>0.289</td><td>9/16</td></tr>
+            <tr><td>4</td><td>MAPK_output_score</td><td>0.298</td><td>0.307</td><td>12/16</td></tr>
+            <tr><td>5</td><td>Epithelial_score</td><td>0.244</td><td>0.274</td><td>12/16</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="spand">
+        <h2><span class="num">04</span>SPAND-Like Heterogeneity</h2>
+        <p class="muted">Higher <code>1 - Moran's I</code> means less spatial autocorrelation and more local intermixing. The result is descriptive because the cohort has no treatment response endpoint.</p>
+        <table>
+          <thead><tr><th>Predicted axis</th><th>PT</th><th>PTC</th><th>LPTC</th><th>ATC</th></tr></thead>
+          <tbody>
+            <tr><td>DM1_like_score</td><td>0.450</td><td>0.313</td><td>0.278</td><td>0.506</td></tr>
+            <tr><td>TDS_like_score</td><td>0.426</td><td>0.336</td><td>0.282</td><td>0.519</td></tr>
+            <tr><td>MAPK_output_score</td><td>0.440</td><td>0.326</td><td>0.269</td><td>0.331</td></tr>
+            <tr><td>Epithelial_score</td><td>0.356</td><td>0.329</td><td>0.267</td><td>0.362</td></tr>
+            <tr><td>CAF_ECM_score</td><td>0.603</td><td>0.305</td><td>0.302</td><td>0.541</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="clusters">
+        <h2><span class="num">05</span>Spatial Clusters</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_cluster_programs.png" alt="Predicted spatial cluster programs">
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Architecture Signal</h3>
+            <p class="muted">The best unsupervised cluster count is k = 3 with silhouette 0.272. That is a modest architecture representation, not a stage classifier.</p>
+          </div>
+          <div class="card">
+            <h3>Stage Boundary</h3>
+            <p class="muted">Dominant cluster versus stage ARI is 0.000, so the representation should not be framed as cleanly staging PT/PTC/LPTC/ATC.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="controls">
+        <h2><span class="num">06</span>Strengthening Controls</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_strengthening_controls.png" alt="Path2Space strengthening controls">
+        </div>
+        <table>
+          <thead><tr><th>Control</th><th>DM1/RAI result</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>UNI H&amp;E, slide-centered</td><td>rho 0.440</td><td>Signal survives slide mean removal</td></tr>
+            <tr><td>Coordinate-only baseline</td><td>rho 0.133</td><td>Spatial coordinates alone do not explain it</td></tr>
+            <tr><td>ResNet50 H&amp;E baseline</td><td>rho 0.298</td><td>UNI improves over a generic ImageNet encoder</td></tr>
+            <tr><td>QC-only baseline</td><td>rho 0.476</td><td>Measured ST quality/cell-density axes are strong and must be disclosed</td></tr>
+            <tr><td>UNI after within-slide QC residualization</td><td>rho 0.303</td><td>A morphology-aligned component remains after removing QC covariation</td></tr>
+            <tr><td>Coordinate-domain aggregation</td><td>rho 0.581</td><td>Domain averaging strengthens the signal, matching Path2Space aggregation logic</td></tr>
+            <tr><td>Within-slide permutation null</td><td>empirical p 0.001</td><td>Local alignment is not random field matching</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">The safe claim is deliberately narrow: pathology carries a reproducible spatial DM1/RAI signal, but measured ST QC variables explain substantial variation. This is a Paper 2 reinforcement, not a Paper 1 causal mechanism rescue.</p>
+      </section>
+
+      <section id="decision">
+        <h2><span class="num">07</span>Decision Matrix</h2>
+        <table class="decision">
+          <thead><tr><th>Question</th><th>Evidence</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>Can H&amp;E recover local DM1/RAI spatial signal?</td><td>Smoothed LOSO rho 0.392; 12/16 slides rho &gt; 0.2</td><td>Use for Paper 2</td></tr>
+            <tr><td>Does smoothing matter?</td><td>DM1/RAI rho 0.295 to 0.392</td><td>Yes, keep</td></tr>
+            <tr><td>Does domain aggregation strengthen the signal?</td><td>DM1/RAI domain slide-centered rho 0.581</td><td>Strong supporting analysis</td></tr>
+            <tr><td>Is it only coordinate/stage?</td><td>Coordinate-only rho 0.133; stage-only near null</td><td>No</td></tr>
+            <tr><td>Is QC a serious confound?</td><td>QC-only rho 0.476; QC-residual UNI alignment rho 0.303</td><td>Disclose and residualize</td></tr>
+            <tr><td>Can H&amp;E recover MAPK output?</td><td>Smoothed rho 0.298</td><td>Exploratory support only</td></tr>
+            <tr><td>Does this rescue Paper 1 spatial MAPK x Panel?</td><td>v15-v18 direct anti-correlation, lag, and pocket tests failed</td><td>Caveat-only</td></tr>
+            <tr><td>Is the spatial cluster architecture stage-defining?</td><td>Dominant-cluster/stage ARI 0.000</td><td>No</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sources">
+        <h2><span class="num">08</span>Sources And Paths</h2>
+        <table>
+          <thead><tr><th>Artifact</th><th>Path</th></tr></thead>
+          <tbody>
+            <tr><td>Reference PDF</td><td><code>AI-predicted spatial transcriptomics unlocks breast cancer biomarkers from pathology.pdf</code></td></tr>
+            <tr><td>Run script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/path2space_inspired_reanalysis.py</code></td></tr>
+            <tr><td>Report</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/PATH2SPACE_REANALYSIS_REPORT.md</code></td></tr>
+            <tr><td>Target summary</td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>SPAND table</td><td><code>path2space_spand_by_slide.tsv</code></td></tr>
+            <tr><td>Cluster tables</td><td><code>path2space_spatial_cluster_*.tsv</code></td></tr>
+            <tr><td>Strengthening controls</td><td><code>analysis_supp/path2space_inspired_reanalysis_2026_05_09/strengthening_controls/</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
