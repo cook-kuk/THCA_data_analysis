@@ -54,6 +54,8 @@ def main() -> None:
     metrics = load(output_root / "clean_neobench_split_metrics.tsv")
     barneo = load(output_root / "barneo_candidate_scores.tsv")
     reasons = load(output_root / "barneo_abstention_reasons.tsv")
+    bma = load(output_root / "barneo_bma_candidate_scores.tsv")
+    public_audit = load(output_root / "clean_neobench_public_tool_overlap_audit.tsv")
 
     clean_board = leaderboard[leaderboard.get("method_role", "").isin(["anchor", "internal_candidate", "bounded_fallback"])] if len(leaderboard) else pd.DataFrame()
     public_board = leaderboard[leaderboard.get("method_role", "").eq("caveated_public_comparator")] if len(leaderboard) else pd.DataFrame()
@@ -300,13 +302,41 @@ BAR-Neo currently reflects available public/local benchmark labels and sparse pa
         manifest = json.loads(manifest_path.read_text())
     else:
         manifest = {}
-    manifest["output_files"] = sorted(p.name for p in output_root.iterdir() if p.is_file())
-    manifest["summary"] = {
+    manifest["output_files"] = sorted(set(manifest.get("output_files", []) + [p.name for p in output_root.iterdir() if p.is_file()]))
+    summary = manifest.setdefault("summary", {})
+    summary.update(
+        {
         "n_candidates": int(len(master)),
         "n_methods": int(scores["method_name"].nunique()) if len(scores) else 0,
         "n_metric_rows": int(len(metrics)),
         "n_barneo_scores": int(len(barneo)),
-    }
+        }
+    )
+    if len(bma):
+        summary.update(
+            {
+                "n_bma_candidates": int(len(bma)),
+                "n_bma_abstain": int(bma["bma_abstain"].sum()) if "bma_abstain" in bma.columns else 0,
+                "n_bma_nonabstain": int((~bma["bma_abstain"].astype(bool)).sum()) if "bma_abstain" in bma.columns else 0,
+            }
+        )
+    if len(public_audit):
+        public_mask = (
+            public_audit["uses_public_pretraining"].astype(bool)
+            if "uses_public_pretraining" in public_audit.columns
+            else pd.Series([False] * len(public_audit), index=public_audit.index)
+        )
+        public_clean_allowed = (
+            public_audit.loc[public_mask, "clean_comparator_allowed_after_audit"].astype(bool).sum()
+            if "clean_comparator_allowed_after_audit" in public_audit.columns
+            else 0
+        )
+        summary.update(
+            {
+                "n_public_methods_overlap_unresolved": int(public_mask.sum()),
+                "n_public_clean_comparators_allowed": int(public_clean_allowed),
+            }
+        )
     if len(master):
         manifest["missing_metadata"] = {
             col: missing_or_empty_count(master, col)

@@ -3,17 +3,17 @@
 
 ## Included Public or Public-Pretrained Tools
 
-| method_name     | method_family       | method_role                | uses_public_pretraining   | training_overlap_audited   | clean_comparator_allowed   | caveat                                                    |
-|:----------------|:--------------------|:---------------------------|:--------------------------|:---------------------------|:---------------------------|:----------------------------------------------------------|
-| BigMHC_IM       | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
-| DeepImmuno      | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
-| MHCflurry       | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
-| MHCnuggets_2    | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
-| NetMHCpan_4.1   | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
-| NetMHCstabpan   | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
-| PRIME           | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
-| TSCAPE_TITANiAN | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
-| TransPHLA       | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; training overlap unresolved |
+| method_name     | method_family       | method_role                | uses_public_pretraining   | training_overlap_audited   | clean_comparator_allowed   | caveat                                                              |
+|:----------------|:--------------------|:---------------------------|:--------------------------|:---------------------------|:---------------------------|:--------------------------------------------------------------------|
+| BigMHC_IM       | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
+| DeepImmuno      | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
+| MHCflurry       | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
+| MHCnuggets_2    | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
+| NetMHCpan_4.1   | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
+| NetMHCstabpan   | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
+| PRIME           | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
+| TSCAPE_TITANiAN | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
+| TransPHLA       | deep_immunogenicity | caveated_public_comparator | True                      | False                      | False                      | public pretrained comparator; row-level training overlap unresolved |
 
 ## Caveat Rule
 

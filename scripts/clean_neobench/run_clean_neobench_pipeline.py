@@ -57,6 +57,7 @@ def main() -> None:
         "build_clean_neobench_master.py",
         "build_overlap_flags.py",
         "collect_method_scores.py",
+        "build_public_tool_overlap_audit.py",
         "evaluate_clean_neobench.py",
         "train_barneo.py",
         "barneo_bma_agent.py",
