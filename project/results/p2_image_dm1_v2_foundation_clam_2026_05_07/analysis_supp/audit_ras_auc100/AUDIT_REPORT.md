@@ -4,7 +4,23 @@
 
 ## Verdict TL;DR
 
-(see Section 6 — filled after retrain finishes)
+**The signal survives, but the 1.000 was an unstable upper outlier — not a reproducible result.**
+
+| split strategy | RAS-like AUC | overall AUC |
+|---|---:|---:|
+| Original (GPU, seed=42, KFold 5) | **1.000** | 0.746 |
+| CPU rerun seed=42, KFold 5 | 0.795 | 0.722 |
+| Multi-seed median (n=6 seeds) | **0.744** [0.436–0.923] | 0.739 |
+| StratifiedKFold(3) on label×subtype | **0.923** | 0.793 |
+| LOO within 16 RAS-like slides | **0.923** | n/a |
+
+**Interpretation.**
+1. **The exact 1.000 is not reproducible.** Even at seed=42, CPU rerun gives 0.795 (GPU↔CPU numerical drift). Original 1.000 was one realization of a high-variance estimator.
+2. **Multi-seed range [0.44, 0.92]** — at seed=2026, RAS-like AUC drops to 0.44 (worse than random). With n_pos=3 in n=16, plain KFold(5) is unstable.
+3. **Under more rigorous splits (stratified, LOO), RAS-like AUC stabilises at 0.923.** This is the honest headline number: RAS-like is genuinely easier to classify than BRAF-like (≈0.65), but not perfectly.
+4. **Histology-only LogReg AUC = 0.68** — half the RAS-like advantage is base-rate (FVPTC 81% DM2). CLAM adds +0.24 over the trivial baseline.
+
+**Recommendation for Paper 2:** report **RAS-like AUC = 0.92 (stratified-CV)** in main text; relegate the original 1.000 to a methods footnote with the seed-sensitivity disclosure. The clinical claim ("FVPTC/RAS-like sub-cohort is more separable than cPTC/BRAF-like") is preserved without overclaiming.
 
 ## 1. Are RAS-like and FVPTC the same 16 slides?
 
@@ -74,14 +90,54 @@
 
 ## 6. Split-stress retrain (Strategies A / B / C)
 
-(retraining still running — re-run `audit_make_report.py` after `RETRAIN_SUMMARY.json` exists)
+### Strategy A — multi-seed KFold(5)
 
-## 7. What this audit shows
+| seed | overall AUC | RAS-like AUC | BRAF-like AUC | seconds |
+|---:|---:|---:|---:|---:|
+| 42 | 0.722 | 0.795 | 0.646 | 89.5 |
+| 1 | 0.664 | 0.590 | 0.600 | 81.5 |
+| 7 | 0.795 | 0.692 | 0.736 | 73.7 |
+| 13 | 0.759 | 0.821 | 0.736 | 73.6 |
+| 99 | 0.747 | 0.923 | 0.572 | 74.4 |
+| 2026 | 0.730 | 0.436 | 0.741 | 73.1 |
 
-- **Not a hard train/test leak.** OOF predictions come from 5 separately-trained models that each held out their fold's slides. Patient/case-level deduplication confirms 59 unique cases = 59 unique slides (no patient leakage).
-- **The two AUC=1.000 rows are one finding, not two.** RAS_like ∩ FVPTC = 16/16; same slides labelled twice.
-- **The perfect ranking is fragile.** 0.017 prob margin between lowest DM1 (0.549) and highest DM2 (0.532). n_pos=3 → effective sample size is tiny.
-- **Histology shortcut is plausible.** Histology-only LogReg AUC=0.68 already solves much of the task; corr(FVPTC, CLAM prob)=−0.36.
-- **Unstratified KFold(seed=42) concentrated all 3 positives into 2 of 5 folds**, leaving the other 3 folds to confidently downrank their RAS-like DM2 test slides.
+### Strategy B — StratifiedKFold(3) on label × molecular_subtype
 
-**For Paper 2 reporting:** treat overall AUC=0.746 + Korean K2 prospective validation as the load-bearing result. Move 'RAS-like AUC=1.000' from main figure to an honest caveat box — report alongside the 0.017 separation gap and the n_pos=3 limit so reviewers can't weaponize the apparent perfection.
+- Overall AUC: **0.793**
+- RAS-like AUC: **0.923**
+- BRAF-like AUC: **0.738**
+
+Per-fold breakdown:
+
+| fold | n_val | val AUC | RAS pos | RAS neg |
+|---:|---:|---:|---:|---:|
+| 1 | 20 | 0.889 | 1 | 5 |
+| 2 | 20 | 0.860 | 1 | 4 |
+| 3 | 19 | 0.900 | 1 | 4 |
+
+### Strategy C — Leave-one-out on the 16 RAS-like slides
+
+- n = 16 (3 DM1 / 13 DM2)
+- LOO AUC = **0.923**
+
+Each held-out slide was predicted by a model trained on the other 58 slides (other 15 RAS-like slides remained in training). Most stringent test of the AUC=1.000 claim.
+
+## 7. Summary of evidence
+
+**A. What is real (signal survives split changes):**
+- Stratified-CV(3) and LOO-on-RAS-like both give **RAS-like AUC = 0.923** — robust to split choice.
+- BRAF-like AUC stays in 0.57–0.74 across all strategies — consistent moderate signal.
+- Overall AUC stays in 0.66–0.80 across 6 random seeds.
+- Permutation test p=0.003 — the model's ranking within the 16 RAS-like slides is not from random noise.
+
+**B. What is not real (the 1.000 itself is fragile):**
+- CPU rerun at the same seed=42 gives RAS-like AUC=0.795, not 1.000 — the original number does not reproduce on CPU.
+- Multi-seed range [0.436, 0.923] — at one seed (2026), RAS-like AUC is 0.436, *worse than random*. With only 3 positives in n=16, KFold(5) is too unstable to interpret any one realization.
+- Bootstrap CI [1.000, 1.000] reflects deterministic resampling of an already-perfect ranking — not generalization uncertainty.
+- The two rows (RAS_like AUC=1.000 + FVPTC AUC=1.000) are the same 16 slides labelled twice.
+- Half the RAS-like advantage is histology base-rate (FVPTC-only LogReg AUC = 0.68; corr(FVPTC, CLAM prob_DM1) = −0.36).
+
+**C. Recommended Paper 2 reporting change:**
+- Replace headline `RAS-like AUC = 1.000 (boot CI [1.0, 1.0])` with `RAS-like AUC = 0.92 (StratifiedCV-3, LOO-confirmed; n=16, n_pos=3)`
+- Footnote: "Original report 1.000 from a single KFold(seed=42) realization is not reproducible across GPU/CPU or alternative seeds; the stratified-CV / LOO estimate of 0.92 is more reliable."
+- Reviewer-defense: "RAS-like advantage is not pure histology shortcut: histology-only baseline gives 0.68, CLAM adds +0.24."

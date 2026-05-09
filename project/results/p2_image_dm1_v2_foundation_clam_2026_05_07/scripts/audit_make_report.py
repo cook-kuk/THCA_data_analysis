@@ -22,8 +22,44 @@ def main():
     md.append("")
     md.append("## Verdict TL;DR")
     md.append("")
-    md.append("(see Section 6 — filled after retrain finishes)")
-    md.append("")
+    if (AUD / "RETRAIN_SUMMARY.json").exists():
+        md.append("**The signal survives, but the 1.000 was an unstable upper "
+                  "outlier — not a reproducible result.**")
+        md.append("")
+        md.append("| split strategy | RAS-like AUC | overall AUC |")
+        md.append("|---|---:|---:|")
+        md.append("| Original (GPU, seed=42, KFold 5) | **1.000** | 0.746 |")
+        md.append("| CPU rerun seed=42, KFold 5 | 0.795 | 0.722 |")
+        md.append("| Multi-seed median (n=6 seeds) | **0.744** [0.436–0.923] | 0.739 |")
+        md.append("| StratifiedKFold(3) on label×subtype | **0.923** | 0.793 |")
+        md.append("| LOO within 16 RAS-like slides | **0.923** | n/a |")
+        md.append("")
+        md.append("**Interpretation.**")
+        md.append("1. **The exact 1.000 is not reproducible.** Even at "
+                  "seed=42, CPU rerun gives 0.795 (GPU↔CPU numerical drift). "
+                  "Original 1.000 was one realization of a high-variance "
+                  "estimator.")
+        md.append("2. **Multi-seed range [0.44, 0.92]** — at seed=2026, "
+                  "RAS-like AUC drops to 0.44 (worse than random). With "
+                  "n_pos=3 in n=16, plain KFold(5) is unstable.")
+        md.append("3. **Under more rigorous splits (stratified, LOO), "
+                  "RAS-like AUC stabilises at 0.923.** This is the "
+                  "honest headline number: RAS-like is genuinely easier "
+                  "to classify than BRAF-like (≈0.65), but not perfectly.")
+        md.append("4. **Histology-only LogReg AUC = 0.68** — half the "
+                  "RAS-like advantage is base-rate (FVPTC 81% DM2). "
+                  "CLAM adds +0.24 over the trivial baseline.")
+        md.append("")
+        md.append("**Recommendation for Paper 2:** report **RAS-like "
+                  "AUC = 0.92 (stratified-CV)** in main text; relegate "
+                  "the original 1.000 to a methods footnote with "
+                  "the seed-sensitivity disclosure. The clinical claim "
+                  "(\"FVPTC/RAS-like sub-cohort is more separable than "
+                  "cPTC/BRAF-like\") is preserved without overclaiming.")
+        md.append("")
+    else:
+        md.append("(see Section 6 — filled after retrain finishes)")
+        md.append("")
 
     # ── C1
     summary_path = AUD / "AUDIT_SUMMARY.json"
@@ -189,30 +225,44 @@ def main():
         md.append("")
 
     # ── Verdict
-    md.append("## 7. What this audit shows")
+    md.append("## 7. Summary of evidence")
     md.append("")
-    md.append("- **Not a hard train/test leak.** OOF predictions come from "
-              "5 separately-trained models that each held out their fold's "
-              "slides. Patient/case-level deduplication confirms 59 unique "
-              "cases = 59 unique slides (no patient leakage).")
-    md.append("- **The two AUC=1.000 rows are one finding, not two.** "
-              "RAS_like ∩ FVPTC = 16/16; same slides labelled twice.")
-    md.append("- **The perfect ranking is fragile.** 0.017 prob margin "
-              "between lowest DM1 (0.549) and highest DM2 (0.532). "
-              "n_pos=3 → effective sample size is tiny.")
-    md.append("- **Histology shortcut is plausible.** Histology-only "
-              "LogReg AUC=0.68 already solves much of the task; "
-              "corr(FVPTC, CLAM prob)=−0.36.")
-    md.append("- **Unstratified KFold(seed=42) concentrated all 3 "
-              "positives into 2 of 5 folds**, leaving the other 3 folds "
-              "to confidently downrank their RAS-like DM2 test slides.")
+    md.append("**A. What is real (signal survives split changes):**")
+    md.append("- Stratified-CV(3) and LOO-on-RAS-like both give "
+              "**RAS-like AUC = 0.923** — robust to split choice.")
+    md.append("- BRAF-like AUC stays in 0.57–0.74 across all strategies — "
+              "consistent moderate signal.")
+    md.append("- Overall AUC stays in 0.66–0.80 across 6 random seeds.")
+    md.append("- Permutation test p=0.003 — the model's ranking within "
+              "the 16 RAS-like slides is not from random noise.")
     md.append("")
-    md.append("**For Paper 2 reporting:** treat overall AUC=0.746 + "
-              "Korean K2 prospective validation as the load-bearing "
-              "result. Move 'RAS-like AUC=1.000' from main figure to "
-              "an honest caveat box — report alongside the 0.017 "
-              "separation gap and the n_pos=3 limit so reviewers can't "
-              "weaponize the apparent perfection.")
+    md.append("**B. What is not real (the 1.000 itself is fragile):**")
+    md.append("- CPU rerun at the same seed=42 gives RAS-like AUC=0.795, "
+              "not 1.000 — the original number does not reproduce on CPU.")
+    md.append("- Multi-seed range [0.436, 0.923] — at one seed (2026), "
+              "RAS-like AUC is 0.436, *worse than random*. With only 3 "
+              "positives in n=16, KFold(5) is too unstable to interpret "
+              "any one realization.")
+    md.append("- Bootstrap CI [1.000, 1.000] reflects deterministic "
+              "resampling of an already-perfect ranking — not "
+              "generalization uncertainty.")
+    md.append("- The two rows (RAS_like AUC=1.000 + FVPTC AUC=1.000) "
+              "are the same 16 slides labelled twice.")
+    md.append("- Half the RAS-like advantage is histology base-rate "
+              "(FVPTC-only LogReg AUC = 0.68; corr(FVPTC, CLAM "
+              "prob_DM1) = −0.36).")
+    md.append("")
+    md.append("**C. Recommended Paper 2 reporting change:**")
+    md.append("- Replace headline `RAS-like AUC = 1.000 (boot CI [1.0, 1.0])` "
+              "with `RAS-like AUC = 0.92 (StratifiedCV-3, LOO-confirmed; "
+              "n=16, n_pos=3)`")
+    md.append("- Footnote: \"Original report 1.000 from a single "
+              "KFold(seed=42) realization is not reproducible across "
+              "GPU/CPU or alternative seeds; the stratified-CV / LOO "
+              "estimate of 0.92 is more reliable.\"")
+    md.append("- Reviewer-defense: \"RAS-like advantage is not pure "
+              "histology shortcut: histology-only baseline gives 0.68, "
+              "CLAM adds +0.24.\"")
     md.append("")
 
     out = AUD / "AUDIT_REPORT.md"

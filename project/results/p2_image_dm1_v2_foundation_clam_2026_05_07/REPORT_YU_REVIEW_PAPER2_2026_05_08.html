@@ -261,6 +261,20 @@ Status: <strong class="g">PASS_LAUNCH_PAPER2</strong> &middot;
 Sprint: <strong>p2_image_dm1_v2_foundation_clam_2026_05_07</strong> &middot;
 Marathon mode: voice-protected sections (Hook · Aim · Disc 3.1 · Limitations · Cover Para 1 · Q9) are <em>not</em> auto-generated in this report.
 </p>
+
+<div class="callout callout-critical" style="border:3px solid #b3261e;background:#fff1ee;padding:18px 22px;margin:18px 0;border-radius:8px">
+<span class="ttl" style="color:#b3261e;font-size:1.05em">🛑 POST-AUDIT CAVEAT (added 2026-05-09) — see analysis_supp/audit_ras_auc100/AUDIT_REPORT_v2.md</span>
+<p style="margin:8px 0 4px 0"><b>Subgroup AUC = 1.000 (RAS-like / FVPTC, n=16, n_pos=3) is a TSS batch-effect artefact.</b> Verified by:</p>
+<ul style="margin:6px 0 6px 22px;padding:0">
+<li><b>Pooled leave-one-TSS-out AUC = 0.602 (overall) / 0.308 (RAS-like)</b> — model collapses below random when training and test do not share TSS centers</li>
+<li><b>TSS-only logistic regression (no image features) → within-RAS-like AUC = 1.000</b>; the 16 RAS-like split (DJ/FK = DM1, EM = DM2) is structurally determined by tissue source site</li>
+<li><b>Multimodal LR: clinical_only AUC = 0.768 &gt; multimodal (clinical + CLAM_prob) AUC = 0.756</b> — image channel adds zero / negative gain over (histology + sex + TSS) on TCGA</li>
+<li><b>Sex asymmetry: Female AUC 0.83 vs Male AUC 0.35</b> (raw OOF; Male n=13)</li>
+<li>Cross-tab: 0 (cPTC, RAS_like) and 0 (FVPTC, BRAF_like) cases in n=59 → histology and molecular subtype are 100% co-linear in this subset</li>
+</ul>
+<p style="margin:6px 0 0 0"><b>Implication:</b> the headline "PASS_LAUNCH_PAPER2 / AUC 0.874" stands at overall level, but the sub-cluster claims (RAS-like 1.000, FVPTC 1.000, sub-strata forest) and the framing "image predicts DM1 independently of clinical metadata" do <em>not</em> survive audit. K2 cohort H&amp;E with TSS-balanced design is required before main-text image-DM1 claim can be made.</p>
+<p style="margin:6px 0 0 0"><b>Recommended action before resubmission of Paper 2:</b> demote subgroup-AUC forest to supplementary, reframe headline as "clinical + image multimodal nomogram" (truthful image gain reported as 0% on TCGA), and gate the original PASS verdict on K2 external replication. Audit artefacts: <code>analysis_supp/audit_ras_auc100/</code> (AUDIT_REPORT_v2.md, 7 figures, 9 TSV/JSON evidence).</p>
+</div>
 </header>
 
 <!-- =========================================================
