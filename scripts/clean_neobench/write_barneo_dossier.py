@@ -135,6 +135,8 @@ def main() -> None:
     weights = read_tsv(output_root / "barneo_bma_method_weights.tsv")
     selector = read_tsv(output_root / "barneo_bma_selector_audit.tsv")
     public_audit = read_tsv(output_root / "clean_neobench_public_tool_overlap_audit.tsv")
+    public_training_row_summary = read_tsv(output_root / "clean_neobench_public_training_row_overlap_summary.tsv")
+    public_training_requirements = read_tsv(output_root / "clean_neobench_public_training_corpus_requirements.tsv")
     failure_aware = read_tsv(output_root / "barneo_failure_aware_candidate_scores.tsv")
     manual_queue = read_tsv(output_root / "barneo_manual_review_queue.tsv")
     challenge_queue = read_tsv(output_root / "barneo_distribution_challenge_queue.tsv")
@@ -332,6 +334,10 @@ def main() -> None:
         <h2><span class="num">10</span>Public Tool Overlap Audit</h2>
         <p><span class="warn">Public pretrained tools remain caveated.</span> Documentation-level provenance is not enough to call a public method a clean external baseline. Row-level candidate/peptide-HLA training-corpus overlap audit is required.</p>
         {table_html(public_audit[public_audit["uses_public_pretraining"].astype(bool)] if not public_audit.empty and "uses_public_pretraining" in public_audit.columns else public_audit, ["method_name", "method_role", "training_overlap_audit_status", "clean_comparator_allowed_after_audit", "reviewer_disposition", "caveat"], 30)}
+        <h3>Row-Level Training Corpus Audit</h3>
+        {table_html(public_training_row_summary, ["public_tool", "public_corpus_file", "n_candidate_overlaps", "candidate_overlap_fraction", "n_exact_peptide_hla", "n_exact_peptide", "n_near_peptide", "audit_status", "clean_comparator_allowed_after_row_audit"], 30)}
+        <h3>Required Public Corpus Inputs</h3>
+        {table_html(public_training_requirements, ["public_tool", "filename_tokens", "required_key", "minimum_columns", "clean_pass_rule", "drop_location"], 30)}
       </section>
 
       <section id="caveats">
