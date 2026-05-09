@@ -18,6 +18,7 @@ ASSET_DIR_NAME = "barneo_x"
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo-root", default=".", help="Repository root; accepted for pipeline compatibility")
     parser.add_argument("--output-root", required=True, help="CLEAN-NeoBench BAR-Neo output directory")
     parser.add_argument("--hub-root", default="project/papers_hub_2026_05_04", help="HTML hub directory")
     parser.add_argument("--page-name", default=PAGE_NAME)
@@ -187,7 +188,12 @@ def main() -> None:
     topk = read_tsv(output_root / "barneo_x_topk_safety_audit.tsv")
     ablation = read_tsv(output_root / "barneo_x_ablation_audit.tsv")
     explain = read_tsv(output_root / "barneo_x_candidate_explanations.tsv")
+    why_not = read_tsv(output_root / "barneo_x_why_not_audit.tsv")
+    why_reasons = read_tsv(output_root / "barneo_x_why_not_reason_summary.tsv")
+    why_blockers = read_tsv(output_root / "barneo_x_primary_blocker_summary.tsv")
+    why_lanes = read_tsv(output_root / "barneo_x_rescue_lane_summary.tsv")
     summary = read_json(output_root / "BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json")
+    why_summary = read_json(output_root / "BAR_NEO_X_WHY_NOT_SUMMARY.json")
     manifest = read_json(output_root / "run_manifest.json")
     plot_rel = write_tradeoff_plot(metrics, topk, asset_dir)
 
@@ -202,9 +208,14 @@ def main() -> None:
     x_leak = metric_value(metrics, "barneo_x_claim_safe_score", "top10_high_leakage_fraction")
     x_top20_precision = metric_value(metrics, "barneo_x_claim_safe_score", "top20_precision")
     x_top20_leak = topk_value(topk, "barneo_x_claim_safe_score", 20, "high_leakage_fraction")
+    hard_blocked = int(why_summary.get("n_hard_claim_blocked", 0))
+    metadata_rescuable = int(why_summary.get("n_metadata_rescuable", 0))
+    priority_now = int(why_summary.get("n_priority_now", 0))
+    priority_if_metadata = int(why_summary.get("n_would_be_priority_if_metadata_complete", 0))
 
     top_claim_rows = explain.sort_values("barneo_x_claim_safe_rank").head(20) if "barneo_x_claim_safe_rank" in explain.columns else explain.head(20)
     top50 = explain.sort_values("barneo_x_claim_safe_rank").head(50) if "barneo_x_claim_safe_rank" in explain.columns else explain.head(50)
+    why_top = why_not.sort_values("barneo_x_claim_safe_rank").head(30) if "barneo_x_claim_safe_rank" in why_not.columns else why_not.head(30)
     positive_frequency = component_frequency(top50, "barneo_x_top_positive_factors")
     negative_frequency = component_frequency(top50, "barneo_x_top_negative_factors")
 
@@ -266,7 +277,7 @@ def main() -> None:
     .lead {{ max-width:1000px; font-size:18px; color:#c8d1dc; }}
     .hero-links {{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }}
     .hero-links a {{ border:1px solid var(--line); padding:8px 11px; background:#101820; color:#d7fff6; }}
-    .stats {{ display:grid; grid-template-columns:repeat(6, minmax(130px,1fr)); gap:12px; margin-top:28px; }}
+    .stats {{ display:grid; grid-template-columns:repeat(7, minmax(120px,1fr)); gap:12px; margin-top:28px; }}
     .stat {{ border:1px solid var(--line); background:rgba(21,27,35,.72); padding:14px; min-height:104px; }}
     .stat-value {{ font-size:24px; color:white; font-weight:800; }}
     .stat-label {{ color:var(--cyan); font-size:12px; margin-top:4px; }}
@@ -321,6 +332,7 @@ def main() -> None:
         {stat(f"{fmt_num(raw_leak)} -> {fmt_num(x_leak)}", "Top10 high-leakage", "BAR-Neo to BAR-Neo-X claim-safe")}
         {stat(fmt_num(x_precision), "Claim-safe top10 precision", f"top20 {fmt_num(x_top20_precision)}, top20 leak {fmt_num(x_top20_leak)}")}
         {stat(str(priority), "Priority rows", f"top claim-safe score {fmt_num(top_claim)}")}
+        {stat(f"{hard_blocked:,}", "Hard blocked", f"{metadata_rescuable:,} metadata-rescuable")}
       </div>
     </div>
   </header>
@@ -334,9 +346,10 @@ def main() -> None:
       <a href="#algorithm">05 Algorithm</a>
       <a href="#candidates">06 Top candidates</a>
       <a href="#factors">07 Factor audit</a>
-      <a href="#decision">08 Decision matrix</a>
-      <a href="#kakao">09 Kakao payload</a>
-      <a href="#paths">10 Sources + paths</a>
+      <a href="#why-not">08 Why-not audit</a>
+      <a href="#decision">09 Decision matrix</a>
+      <a href="#kakao">10 Kakao payload</a>
+      <a href="#paths">11 Sources + paths</a>
     </nav>
 
     <main>
@@ -346,7 +359,7 @@ def main() -> None:
           <div class="box"><strong>What improved:</strong> top10 high-leakage fraction drops from <span class="warn">{fmt_num(raw_leak)}</span> to <span class="ok">{fmt_num(x_leak)}</span> while claim-safe top10 precision stays <span class="ok">{fmt_num(x_precision)}</span>.</div>
           <div class="box"><strong>What did not improve:</strong> apparent AUPRC is lower than raw BAR-Neo, from <span class="gold">{fmt_num(raw_auprc)}</span> to <span class="gold">{fmt_num(x_auprc)}</span>, because leakage-heavy rows are deliberately downranked.</div>
           <div class="box"><strong>What became interpretable:</strong> each candidate receives positive components and negative penalties: BAR-Neo evidence, BMA consensus, internal predictor support, confidence, leakage, overlap, patient gate incompleteness, uncertainty, and disagreement.</div>
-          <div class="box"><strong>Allowed claim:</strong> explainable, leakage-aware research triage. <span class="warn">Forbidden:</span> public SOTA, clinical vaccine selection, or quantum advantage.</div>
+          <div class="box"><strong>Why-not layer:</strong> {hard_blocked:,} rows are hard claim-blocked, {metadata_rescuable:,} are metadata-rescuable, {priority_if_metadata:,} would cross priority if metadata were complete, and {priority_now:,} is priority now.</div>
         </div>
       </section>
 
@@ -407,23 +420,44 @@ def main() -> None:
         </div>
       </section>
 
+      <section id="why-not">
+        <h2><span class="num">08</span>Why-Not / Rescue Audit</h2>
+        <p class="muted">This layer answers the failure case question directly: whether a row is blocked by leakage/identity overlap, missing patient context, model uncertainty, sparse support, or low-priority benchmark status.</p>
+        <div class="grid">
+          <div class="box"><strong>Hard claim-blocked:</strong> <span class="warn">{hard_blocked:,}</span> candidates need a new holdout, row-level overlap audit, or independent external cohort before clean benchmark claims.</div>
+          <div class="box"><strong>Metadata-rescuable:</strong> <span class="gold">{metadata_rescuable:,}</span> candidates can be reprioritized after cancer type, disease context, stage, expression, VAF/clonality, HLA-LOH/B2M, and immune context are completed.</div>
+          <div class="box"><strong>Priority now:</strong> <span class="ok">{priority_now:,}</span> candidate remains reviewer-triage priority under the claim-safe score.</div>
+          <div class="box"><strong>Upside if metadata completes:</strong> <span class="cyan">{priority_if_metadata:,}</span> candidates would cross the priority threshold without removing the leakage gate.</div>
+        </div>
+        <h3>Primary blocker summary</h3>
+        {table_html(why_blockers, ["primary_blocker", "n_candidates", "n_positive_label", "median_claim_safe_score", "n_would_be_priority_if_metadata_complete", "top_rescue_lane", "example_required_next_data"], 12)}
+        <h3>Rescue lane summary</h3>
+        {table_html(why_lanes, ["rescue_lane", "n_candidates", "n_positive_label", "median_claim_safe_score", "example_required_next_data", "claim_boundary"], 12)}
+        <h3>Top why-not reasons</h3>
+        {table_html(why_reasons, ["reason", "n_candidates", "n_positive_label", "median_claim_safe_score", "top_rescue_lane"], 16)}
+        <h3>Top rows with blockers</h3>
+        {table_html(why_top, ["candidate_id", "peptide", "hla_allele_4digit", "label", "leakage_risk_level", "barneo_x_claim_safe_score", "primary_blocker", "rescue_lane", "would_be_priority_if_metadata_complete", "required_next_data"], 30)}
+      </section>
+
       <section id="decision">
-        <h2><span class="num">08</span>Decision Matrix</h2>
+        <h2><span class="num">09</span>Decision Matrix</h2>
         {table_html(decision, ["surface", "best use", "evidence", "blocker", "disposition"], 10)}
       </section>
 
       <section id="kakao">
-        <h2><span class="num">09</span>Kakao Payload</h2>
-        <div class="kakao">Cancer vaccine neoantigen benchmark에서 BAR-Neo 기반으로 BAR-Neo-X를 만들었고, 후보별로 BAR-Neo evidence/BMA consensus/internal predictor/confidence와 leakage-overlap-uncertainty penalty를 분해해서 설명 가능하게 만들었습니다. raw BAR-Neo는 apparent AUPRC {fmt_num(raw_auprc)}지만 top10이 전부 high-leakage라 SOTA 주장엔 위험하고, BAR-Neo-X claim-safe score는 AUPRC {fmt_num(x_auprc)}으로 보수화되는 대신 top10 high-leakage를 {fmt_num(raw_leak)}->{fmt_num(x_leak)}로 제거하면서 top10 precision {fmt_num(x_precision)}를 유지합니다. 즉 무조건 SOTA/clinical/quantum advantage가 아니라, 리뷰어 방어 가능한 해석형-누수차단 neoantigen triage layer입니다.</div>
+        <h2><span class="num">10</span>Kakao Payload</h2>
+        <div class="kakao">Cancer vaccine neoantigen benchmark에서 BAR-Neo 기반 BAR-Neo-X를 만들었고, 후보별 BAR-Neo evidence/BMA consensus/internal predictor/confidence와 leakage-overlap-uncertainty penalty를 분해해 설명 가능하게 만들었습니다. raw BAR-Neo는 apparent AUPRC {fmt_num(raw_auprc)}지만 top10이 전부 high-leakage라 SOTA 주장엔 위험하고, BAR-Neo-X claim-safe score는 AUPRC {fmt_num(x_auprc)}으로 보수화되는 대신 top10 high-leakage를 {fmt_num(raw_leak)}->{fmt_num(x_leak)}로 제거하면서 top10 precision {fmt_num(x_precision)}를 유지합니다. 안 될 때도 이유가 분해됩니다: {hard_blocked:,}개는 leakage/identity overlap 때문에 clean claim 불가, {metadata_rescuable:,}개는 patient/disease metadata 보강 시 구제 가능, {priority_if_metadata:,}개는 metadata 완성 시 priority threshold 통과 가능, 현재 priority-now는 {priority_now:,}개입니다. 즉 무조건 SOTA/clinical/quantum advantage가 아니라, 리뷰어 방어 가능한 해석형-누수차단 neoantigen triage layer입니다.</div>
       </section>
 
       <section id="paths">
-        <h2><span class="num">10</span>Sources + Paths</h2>
+        <h2><span class="num">11</span>Sources + Paths</h2>
         <p class="path">Output root: {safe(output_root)}</p>
         <p class="path">Metric audit: {safe(output_root / "barneo_x_metric_audit.tsv")}</p>
         <p class="path">Top-k safety audit: {safe(output_root / "barneo_x_topk_safety_audit.tsv")}</p>
         <p class="path">Candidate explanations: {safe(output_root / "barneo_x_candidate_explanations.tsv")}</p>
         <p class="path">Candidate scores: {safe(output_root / "barneo_x_candidate_scores.tsv")}</p>
+        <p class="path">Why-not audit: {safe(output_root / "barneo_x_why_not_audit.tsv")}</p>
+        <p class="path">Primary blocker summary: {safe(output_root / "barneo_x_primary_blocker_summary.tsv")}</p>
         <p class="path">Summary JSON: {safe(output_root / "BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json")}</p>
         <p class="path">Reviewer packet ZIP: assets/barneo_x/barneo_x_reviewer_packet_2026_05_09.zip</p>
         <p class="path">Manifest stage: {safe('barneo_x_interpretability_boost' if 'barneo_x_interpretability_boost' in manifest.get('stages', {}) else 'recorded in run_manifest.json')}</p>

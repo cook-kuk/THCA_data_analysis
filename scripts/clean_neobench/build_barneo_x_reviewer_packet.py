@@ -22,7 +22,10 @@ KAKAO_TEMPLATE = (
     "BAR-Neo-X claim-safe score는 AUPRC {claim_auprc}으로 보수화되는 대신 top10 high-leakage를 "
     "{raw_top10_leak}->{claim_top10_leak}로 제거하면서 top10 precision {claim_top10_precision}를 유지합니다. "
     "ablation에서도 positive-only는 top10 leakage {positive_top10_leak}라 위험하고, leakage gate 제거 시 top20 leakage가 "
-    "{no_leak_gate_top20_leak}까지 올라갑니다. 즉 무조건 SOTA/clinical/quantum advantage가 아니라, "
+    "{no_leak_gate_top20_leak}까지 올라갑니다. 안 될 때도 이유가 분해됩니다: {hard_blocked}개는 leakage/identity overlap으로 "
+    "clean claim 불가, {metadata_rescuable}개는 patient/disease metadata 보강 시 구제 가능, "
+    "{priority_if_metadata}개는 metadata 완성 시 priority threshold 통과 가능, 현재 priority-now는 {priority_now}개입니다. "
+    "즉 무조건 SOTA/clinical/quantum advantage가 아니라, "
     "리뷰어 방어 가능한 해석형-누수차단 neoantigen triage layer입니다."
 )
 
@@ -120,10 +123,14 @@ def main() -> None:
     hub_root = Path(args.hub_root)
     packet_dir = output_root / PACKET_NAME
     packet_dir.mkdir(parents=True, exist_ok=True)
+    stale_run_manifest = packet_dir / "run_manifest.json"
+    if stale_run_manifest.exists():
+        stale_run_manifest.unlink()
 
     metrics = read_tsv(output_root / "barneo_x_metric_audit.tsv")
     ablation = read_tsv(output_root / "barneo_x_ablation_audit.tsv")
     summary = read_json(output_root / "BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json")
+    why_summary = read_json(output_root / "BAR_NEO_X_WHY_NOT_SUMMARY.json")
 
     claim_card = {
         "project": "CLEAN-NeoBench BAR-Neo-X",
@@ -151,6 +158,12 @@ def main() -> None:
             "positive_only_top10_high_leakage_fraction": metric(ablation, "barneo_x_positive_only_score", "top10_high_leakage_fraction"),
             "no_leakage_gate_top20_high_leakage_fraction": metric(ablation, "barneo_x_no_leakage_gate_score", "top20_high_leakage_fraction"),
         },
+        "why_not_audit": {
+            "hard_claim_blocked_by_leakage_or_identity_overlap": why_summary.get("n_hard_claim_blocked"),
+            "metadata_rescuable": why_summary.get("n_metadata_rescuable"),
+            "priority_review_now": why_summary.get("n_priority_now"),
+            "would_be_priority_if_metadata_complete": why_summary.get("n_would_be_priority_if_metadata_complete"),
+        },
     }
 
     kakao = KAKAO_TEMPLATE.format(
@@ -161,6 +174,10 @@ def main() -> None:
         claim_top10_precision=claim_card["barneo_x_claim_safe"]["top10_precision"],
         positive_top10_leak=claim_card["ablation_boundary"]["positive_only_top10_high_leakage_fraction"],
         no_leak_gate_top20_leak=claim_card["ablation_boundary"]["no_leakage_gate_top20_high_leakage_fraction"],
+        hard_blocked=claim_card["why_not_audit"]["hard_claim_blocked_by_leakage_or_identity_overlap"],
+        metadata_rescuable=claim_card["why_not_audit"]["metadata_rescuable"],
+        priority_if_metadata=claim_card["why_not_audit"]["would_be_priority_if_metadata_complete"],
+        priority_now=claim_card["why_not_audit"]["priority_review_now"],
     )
 
     (packet_dir / "BAR_NEO_X_CLAIM_CARD.json").write_text(json.dumps(claim_card, indent=2, sort_keys=True) + "\n")
@@ -180,23 +197,28 @@ def main() -> None:
                 "",
                 f"Raw BAR-Neo AUPRC: {claim_card['raw_barneo']['apparent_auprc']}; raw top10 high-leakage: {claim_card['raw_barneo']['top10_high_leakage_fraction']}.",
                 f"BAR-Neo-X claim-safe AUPRC: {claim_card['barneo_x_claim_safe']['apparent_auprc']}; claim-safe top10 high-leakage: {claim_card['barneo_x_claim_safe']['top10_high_leakage_fraction']}.",
+                f"Why-not audit: {claim_card['why_not_audit']['hard_claim_blocked_by_leakage_or_identity_overlap']} hard claim-blocked; {claim_card['why_not_audit']['metadata_rescuable']} metadata-rescuable; {claim_card['why_not_audit']['would_be_priority_if_metadata_complete']} would be priority if metadata were complete; {claim_card['why_not_audit']['priority_review_now']} priority now.",
                 "",
             ]
         )
     )
 
     zip_path = output_root / f"{PACKET_NAME}.zip"
-    update_manifest(output_root, zip_path, packet_dir)
     copies = [
         output_root / "BAR_NEO_X_INTERPRETABILITY_BOOST_REPORT.md",
         output_root / "BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json",
+        output_root / "BAR_NEO_X_WHY_NOT_REPORT.md",
+        output_root / "BAR_NEO_X_WHY_NOT_SUMMARY.json",
         output_root / "barneo_x_metric_audit.tsv",
         output_root / "barneo_x_topk_safety_audit.tsv",
         output_root / "barneo_x_ablation_audit.tsv",
         output_root / "barneo_x_candidate_scores.tsv",
         output_root / "barneo_x_candidate_explanations.tsv",
         output_root / "barneo_x_component_attributions.tsv",
-        output_root / "run_manifest.json",
+        output_root / "barneo_x_why_not_audit.tsv",
+        output_root / "barneo_x_why_not_reason_summary.tsv",
+        output_root / "barneo_x_primary_blocker_summary.tsv",
+        output_root / "barneo_x_rescue_lane_summary.tsv",
         hub_root / args.page_name,
         hub_root / "assets" / "barneo_x" / "barneo_x_tradeoff.png",
     ]
