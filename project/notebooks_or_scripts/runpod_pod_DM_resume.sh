@@ -11,26 +11,37 @@ mkdir -p "$WORK"/{wsi,tiles,embeddings,segm,geojson,results,logs,gigatime_mIF}
 echo "=== [Phase 2b] direct GDC download ==="
 cd "$WORK/wsi"
 
-# 5 parallel downloads
-tail -n +2 "$WORK/wsi_resolved_manifest.tsv" | awk -F'\t' '{print $1"\t"$2}' > "$WORK/dl_list.tsv"
+# 5 parallel downloads. Download into .part files and accept a slide only
+# after the byte count is close to the GDC manifest size. This prevents
+# interrupted curl output from being treated as a valid SVS on rerun.
+tail -n +2 "$WORK/wsi_resolved_manifest.tsv" | awk -F'\t' '{print $1"\t"$2"\t"$4}' > "$WORK/dl_list.tsv"
 N=$(wc -l < "$WORK/dl_list.tsv")
 echo "downloading $N WSIs in parallel (5 at a time)..."
 
 mkdir -p "$WORK/wsi"
-cat "$WORK/dl_list.tsv" | xargs -L1 -P5 -I{} bash -c '
-  fid=$(echo "{}" | cut -f1)
-  fname=$(echo "{}" | cut -f2)
+cat "$WORK/dl_list.tsv" | xargs -P5 -n3 bash -c '
+  fid="$1"
+  fname="$2"
+  size_gb="$3"
   out=/workspace/wsi_pathology_dm/wsi/${fid}/${fname}
-  if [ -s "$out" ]; then echo "EXISTS $fid"; exit 0; fi
+  min_bytes=$(python3 -c "print(int(float(\"$size_gb\") * 1e9 * 0.90))")
+  if [ -s "$out" ] && [ "$(stat -c%s "$out")" -ge "$min_bytes" ]; then
+    echo "EXISTS $fid"
+    exit 0
+  fi
+  rm -f "$out" "${out}.part"
   mkdir -p "/workspace/wsi_pathology_dm/wsi/${fid}"
-  curl -sSL -o "$out" "https://api.gdc.cancer.gov/data/${fid}" --retry 3 --max-time 1200
-  if [ -s "$out" ]; then
-    sz=$(stat -c%s "$out")
+  curl -fL -sS -o "${out}.part" "https://api.gdc.cancer.gov/data/${fid}" --retry 5 --retry-delay 3 --retry-all-errors --max-time 1800
+  sz=$(stat -c%s "${out}.part" 2>/dev/null || echo 0)
+  if [ "$sz" -ge "$min_bytes" ]; then
+    mv "${out}.part" "$out"
     echo "OK $fid ($((sz/1024/1024)) MB) $fname"
   else
-    echo "FAIL $fid $fname"
+    rm -f "${out}.part"
+    echo "FAIL $fid $fname expected_min=$((min_bytes/1024/1024))MB got=$((sz/1024/1024))MB"
+    exit 1
   fi
-'
+' _
 
 ls "$WORK/wsi"/*/*.svs 2>/dev/null | wc -l
 du -sh "$WORK/wsi" 2>/dev/null
