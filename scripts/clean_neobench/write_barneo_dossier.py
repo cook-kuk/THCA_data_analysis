@@ -94,6 +94,18 @@ def build_abstention_summary(bma: pd.DataFrame) -> pd.DataFrame:
     return counts.rename_axis("reason").reset_index(name="n")
 
 
+def build_review_tier_summary(failure_aware: pd.DataFrame) -> pd.DataFrame:
+    if failure_aware.empty or "failure_aware_review_tier" not in failure_aware.columns:
+        return pd.DataFrame()
+    counts = (
+        failure_aware["failure_aware_review_tier"]
+        .fillna("")
+        .replace("", "no_review_tier")
+        .value_counts()
+    )
+    return counts.rename_axis("review_tier").reset_index(name="n")
+
+
 def build_split_summary(split_metrics: pd.DataFrame) -> pd.DataFrame:
     if split_metrics.empty or "split_contract" not in split_metrics.columns:
         return pd.DataFrame()
@@ -123,6 +135,7 @@ def main() -> None:
     weights = read_tsv(output_root / "barneo_bma_method_weights.tsv")
     selector = read_tsv(output_root / "barneo_bma_selector_audit.tsv")
     public_audit = read_tsv(output_root / "clean_neobench_public_tool_overlap_audit.tsv")
+    failure_aware = read_tsv(output_root / "barneo_failure_aware_candidate_scores.tsv")
     master = read_tsv(output_root / "clean_neobench_master.tsv")
     manifest_path = output_root / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
@@ -141,10 +154,11 @@ def main() -> None:
         else pd.Series(dtype=bool)
     )
     fallback_rows = int(fallback_mask.sum()) if not bma.empty else 0
-    public_unresolved = int(public_audit["uses_public_pretraining"].astype(bool).sum()) if not public_audit.empty and "uses_public_pretraining" in public_audit.columns else 0
+    failure_nonabstain = int((~failure_aware["failure_aware_abstain"].astype(bool)).sum()) if not failure_aware.empty and "failure_aware_abstain" in failure_aware.columns else 0
 
     context_summary = build_context_summary(selector)
     abstention_summary = build_abstention_summary(bma)
+    review_tier_summary = build_review_tier_summary(failure_aware)
     split_summary = build_split_summary(split_metrics)
     top_bma = bma.sort_values("bma_rank_global") if "bma_rank_global" in bma.columns else bma
     fallback_min_rank = int(top_bma.loc[fallback_mask, "bma_rank_global"].min()) if fallback_rows and "bma_rank_global" in top_bma.columns else "NA"
@@ -216,7 +230,7 @@ def main() -> None:
         {stat("Split metrics", f"{n_metric_rows:,}", "Exact, near, source, HLA, low prevalence")}
         {stat("BMA abstain", f"{n_bma_abstain:,}", "Reviewer-safe conservative mode")}
         {stat("BMA review rows", f"{n_bma_nonabstain:,}", "Non-abstain candidate prompts")}
-        {stat("Public unresolved", f"{public_unresolved:,}", "Caveated until row-level audit")}
+        {stat("Failure-aware clean", f"{failure_nonabstain:,}", "Non-abstain after error-pattern penalties")}
       </div>
     </div>
   </header>
@@ -229,9 +243,10 @@ def main() -> None:
       <a href="#selector">05 Selector Audit</a>
       <a href="#candidates">06 Candidate Scores</a>
       <a href="#splits">07 Split Robustness</a>
-      <a href="#public-audit">08 Public Audit</a>
-      <a href="#caveats">09 Caveats</a>
-      <a href="#paths">10 Paths</a>
+      <a href="#failure-aware">08 Failure-Aware</a>
+      <a href="#public-audit">09 Public Audit</a>
+      <a href="#caveats">10 Caveats</a>
+      <a href="#paths">11 Paths</a>
     </nav>
     <main>
       <section id="tldr">
@@ -294,14 +309,21 @@ def main() -> None:
         {table_html(split_summary, ["split_contract", "n_metric_rows", "n_methods", "median_AUPRC", "median_top10_precision"], 20)}
       </section>
 
+      <section id="failure-aware">
+        <h2><span class="num">08</span>Failure-Aware Reliability</h2>
+        <p>The failure-aware layer applies observed source/HLA/leakage error modes to BAR-Neo-BMA. It separates clean non-abstain claims from practical manual review tiers.</p>
+        {table_html(failure_aware.sort_values("failure_aware_score", ascending=False) if not failure_aware.empty and "failure_aware_score" in failure_aware.columns else failure_aware, ["candidate_id", "label", "source_name", "hla_allele_4digit", "base_patient_gated_bma_score", "failure_aware_score", "failure_aware_confidence", "failure_aware_review_tier", "failure_aware_abstain", "failure_aware_reason_primary"], 35)}
+        {table_html(review_tier_summary, ["review_tier", "n"], 20)}
+      </section>
+
       <section id="public-audit">
-        <h2><span class="num">08</span>Public Tool Overlap Audit</h2>
+        <h2><span class="num">09</span>Public Tool Overlap Audit</h2>
         <p><span class="warn">Public pretrained tools remain caveated.</span> Documentation-level provenance is not enough to call a public method a clean external baseline. Row-level candidate/peptide-HLA training-corpus overlap audit is required.</p>
         {table_html(public_audit[public_audit["uses_public_pretraining"].astype(bool)] if not public_audit.empty and "uses_public_pretraining" in public_audit.columns else public_audit, ["method_name", "method_role", "training_overlap_audit_status", "clean_comparator_allowed_after_audit", "reviewer_disposition", "caveat"], 30)}
       </section>
 
       <section id="caveats">
-        <h2><span class="num">09</span>Caveats</h2>
+        <h2><span class="num">10</span>Caveats</h2>
         <div class="cards">
           <div class="card"><strong class="warn">Public tools:</strong><br>Public pretrained tools are caveated comparators until row-level training-corpus overlap audit is complete.</div>
           <div class="card"><strong class="warn">MHC class:</strong><br>Class I and Class II must not be pooled as a single predictor claim.</div>
@@ -313,7 +335,7 @@ def main() -> None:
       </section>
 
       <section id="paths">
-        <h2><span class="num">10</span>Sources + Paths</h2>
+        <h2><span class="num">11</span>Sources + Paths</h2>
         <p class="path">Output root: {html.escape(str(output_root))}</p>
         <p class="path">Leaderboard: {html.escape(str(output_root / "clean_neobench_leaderboard.tsv"))}</p>
         <p class="path">Split metrics: {html.escape(str(output_root / "clean_neobench_split_metrics.tsv"))}</p>
