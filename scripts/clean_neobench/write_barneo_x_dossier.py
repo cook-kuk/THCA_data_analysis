@@ -312,6 +312,7 @@ def main() -> None:
         <a href="index.html">Hub index</a>
         <a href="clean_neobench_barneo_dossier_2026_05_09.html">CLEAN-NeoBench/BAR-Neo dossier</a>
         <a href="cancer_vaccine_full_dossier.html">Cancer vaccine full dossier</a>
+        <a href="assets/barneo_x/barneo_x_reviewer_packet_2026_05_09.zip">Reviewer packet ZIP</a>
       </div>
       <div class="stats">
         {stat(f"{n_candidates:,}", "Candidates", "CLEAN-NeoBench rows")}
@@ -424,6 +425,7 @@ def main() -> None:
         <p class="path">Candidate explanations: {safe(output_root / "barneo_x_candidate_explanations.tsv")}</p>
         <p class="path">Candidate scores: {safe(output_root / "barneo_x_candidate_scores.tsv")}</p>
         <p class="path">Summary JSON: {safe(output_root / "BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json")}</p>
+        <p class="path">Reviewer packet ZIP: assets/barneo_x/barneo_x_reviewer_packet_2026_05_09.zip</p>
         <p class="path">Manifest stage: {safe('barneo_x_interpretability_boost' if 'barneo_x_interpretability_boost' in manifest.get('stages', {}) else 'recorded in run_manifest.json')}</p>
       </section>
     </main>
