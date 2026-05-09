@@ -821,3 +821,40 @@ v18 closes the last spatial rescue route. There is **no neighborhood-level anti-
 | `v18_spatial_lag_pockets_summary.json` | headline v18 metrics |
 | `Fig_SX_v18_spatial_lag_pockets.{png,pdf}` | 6-panel v18 closure figure, mirrored to papers hub assets |
 | `project/papers_hub_2026_05_04/paper1_spatial_lag_pockets_v18.html` | v18 HTML dossier |
+
+# v15A-focused rerun (2026-05-09) — K2 panel-only overlay dossier
+
+**Question.** Can PRJEB11591/K2 be added as Korean support without overstating it as a MAPK mechanism cohort?
+
+## Headline result
+
+K2 remains usable only as an **8-gene profile score-distribution overlay / calibration stress test**. It cannot enter the v14 MAPK x Panel-8 forest because the local mini-index contains the eight thyroid panel genes but not MAPK-output genes. K2 normal runs also score high under this projection, so the result must not be read as tumor-normal discrimination or population DM1/DM2 prevalence.
+
+| Test | Result | Interpretation |
+|---|---|---|
+| TCGA centered-profile 8-gene classifier | 5-fold AUC **0.963 +/- 0.026** | Scale-invariant profile model remains strong in TCGA. |
+| K2 scored runs | **260** total; **179 tumor**, **81 normal** | Full local mini-index table, not the earlier 9-run pilot. |
+| K2 tumor DM2-like calls | **165/179 = 92.2%** | K2 tumors are strongly preserved-thyroid-profile / DM2-skewed under the centered model. |
+| K2 tumor median p(DM2) | **0.998** | Score distribution is near the TCGA DM2 end. |
+| K2 normal median p(DM2) | **0.911** | Normal-high scores expose cross-platform / mini-index baseline shift; this is a calibration caveat, not validation. |
+| K2 vs TCGA DM1 | MW p = **5.6e-46** | K2 tumor scores are decisively separated from TCGA DM1. |
+| K2 vs TCGA DM2 | MW p = **1.0e-6** | K2 tumor scores are even more DM2-skewed than the TCGA DM2 median; use as calibration evidence, not as prevalence inference. |
+| K2 MAPK availability | **0 MAPK genes** | K2 cannot be used as a MAPK x Panel anti-correlation cohort. |
+
+## Disposition
+
+- **Use as reserve Korean calibration evidence.** The K2 mini-index stress-tests projection of the deployable 8-gene profile under within-sample centering.
+- **Do not claim Korean MAPK mechanism validation from K2.** The required MAPK-output genes are absent by design from the mini-index.
+- **Do not infer population DM1 prevalence or tumor-normal separation from the mini-index alone.** The correct claim is score-distribution / calibration, not epidemiology or validation.
+
+## Outputs
+
+| File | Purpose |
+|---|---|
+| `run_v15_k2_panel_overlay.py` | focused K2 panel-only overlay pipeline |
+| `v15_k2_panel_overlay_scores.tsv` | TCGA + Lee + K2 per-sample centered-profile p(DM2) scores |
+| `v15_k2_panel_overlay_centered_gene_profiles.tsv` | TCGA-scaled centered 8-gene feature matrix for audit heatmap |
+| `v15_k2_panel_overlay_summary.tsv` | cohort/group score summary |
+| `v15_k2_panel_overlay_metrics.json` | headline metrics |
+| `Fig_SX_v15_K2_panel_overlay.{png,pdf}` | 4-panel focused overlay figure, mirrored to papers hub assets |
+| `project/papers_hub_2026_05_04/paper1_k2_panel_overlay_v15.html` | focused v15 K2 dossier |
