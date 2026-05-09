@@ -198,6 +198,12 @@ def main() -> None:
         "counterfactual_plm": merge_features([cf, plm]),
         "multimodal": merge_features([cf, plm, struct, proc]),
     }
+    esm2_path = OUT / "features/esm2_35m_features.parquet"
+    if esm2_path.exists() or esm2_path.with_suffix(esm2_path.suffix + ".pkl").exists() or (OUT / "features/esm2_35m_features.tsv").exists():
+        esm2 = read_feature(esm2_path)
+        feature_sets["esm2_35m"] = numeric_features(esm2)
+        feature_sets["counterfactual_esm2_35m"] = merge_features([cf, esm2])
+        feature_sets["multimodal_esm2_35m"] = merge_features([cf, esm2, struct, proc])
 
     specs = [
         ("v2_counterfactual_lr", "classical_counterfactual", "counterfactual", "lr", "none", "reviewer_safe_internal_locked"),
@@ -213,6 +219,14 @@ def main() -> None:
         ("v2_groupdro_proxy_cf_lr", "source_robust", "counterfactual", "lr", "groupdro_proxy", "reviewer_safe_internal_locked"),
         ("v2_class_balanced_cf_plm_hgb", "ranking_proxy", "counterfactual_plm", "hgb", "class_balanced", "reviewer_safe_internal_locked"),
     ]
+    if "esm2_35m" in feature_sets:
+        specs.extend([
+            ("v2_esm2_35m_lr", "real_frozen_plm", "esm2_35m", "lr", "none", "reviewer_safe_internal_locked"),
+            ("v2_cf_esm2_35m_lr", "counterfactual_real_plm", "counterfactual_esm2_35m", "lr", "none", "reviewer_safe_internal_locked"),
+            ("v2_multimodal_esm2_35m_lr", "multimodal_real_plm", "multimodal_esm2_35m", "lr", "none", "reviewer_safe_internal_locked"),
+            ("v2_source_balanced_cf_esm2_35m_lr", "source_robust_real_plm", "counterfactual_esm2_35m", "lr", "source_balanced", "reviewer_safe_internal_locked"),
+            ("v2_groupdro_proxy_cf_esm2_35m_lr", "source_robust_real_plm", "counterfactual_esm2_35m", "lr", "groupdro_proxy", "reviewer_safe_internal_locked"),
+        ])
 
     all_pred = [import_v1_predictions(reg_ids)]
     model_errors = []
