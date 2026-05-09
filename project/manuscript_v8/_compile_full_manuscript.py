@@ -5,6 +5,7 @@ Order matches the original concatenation pattern:
   00_title_candidates -> 01_abstract -> 03_introduction -> 04_results
   -> 05_figure_captions -> 06_discussion -> 07_star_methods
   -> 09_reviewer_qa -> 13_supplementary_tables
+  -> 15_supp_image_dm1_tss_confound_case_study
   -> 08_cover_letter (kept separate)
   -> 14_self_verification_report
 
@@ -28,6 +29,7 @@ SECTIONS: list[tuple[str, str]] = [
     ("STAR Methods", "07_star_methods.md"),
     ("Reviewer Q&A pre-empt", "09_reviewer_qa.md"),
     ("Supplementary Tables", "13_supplementary_tables.md"),
+    ("Supplementary Text ST1", "15_supp_image_dm1_tss_confound_case_study.md"),
 ]
 COVER_LETTER = ("Cover Letter", "08_cover_letter.md")
 SELF_VERIF = ("Self-verification report", "14_self_verification_report.md")
@@ -62,7 +64,7 @@ def main() -> None:
         "author: Seungho Cook\n"
         "target_venue: Cell Reports Medicine (1순위) → JCI Insight + Nat Commun dual reach → npj Precision Oncology (fallback)\n"
         "status: assembled. Voice-protected placeholders preserved. P0 affiliation/email fields TBD by author.\n"
-        "source_files: 00_title_candidates / 01_abstract / 03_introduction / 04_results / 05_figure_captions / 06_discussion / 07_star_methods / 09_reviewer_qa / 13_supplementary_tables / (cover letter 08 separate, kept at end)\n"
+        "source_files: 00_title_candidates / 01_abstract / 03_introduction / 04_results / 05_figure_captions / 06_discussion / 07_star_methods / 09_reviewer_qa / 13_supplementary_tables / 15_supp_image_dm1_tss_confound_case_study / (cover letter 08 separate, kept at end)\n"
         f"regenerated: {today} (C1 Aim split applied; Fig 7D demoted to Supp Fig S6; Fig 8C demoted to Supp Fig S5b; Korean cohorts n=865 confirmed; GSE286332-PTC excluded from Paper 1 aggregate)\n"
         "---\n\n"
         "# Paper 1 — Full Compiled Manuscript v8\n\n"

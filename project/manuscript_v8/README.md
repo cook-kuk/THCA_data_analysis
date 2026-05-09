@@ -31,6 +31,7 @@
 | 11 | `11_fig7_dm1_mechanism.py` | Figure 7 code (matplotlib, 5 panels) | — |
 | 12 | `12_fig8_epigenetic.py` | Figure 8 code (matplotlib, 3 panels) | — |
 | 13 | `13_supplementary_tables.md` | Suppl Tables S1-S10 index + source TSVs | — |
+| 15 | `15_supp_image_dm1_tss_confound_case_study.md` | Supplementary Text ST1: Paper 2 image-DM1 TCGA TSS-confound disclosure | — |
 
 ### Prep files (5/4 본인 read 후 verify)
 

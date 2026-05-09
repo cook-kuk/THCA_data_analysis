@@ -151,7 +151,7 @@ flowchart TD
 | **Fig 5** | Korean validation + FFPE | A-GSE213647 HLA d=0.95 / B-K2 NBNR mixed phenotype / C-FFPE vs FF KS p=0.44 | v17_KOREAN_K2_v260_figure.py + existing |
 | **Fig 6** | META-analysis forest | A-TCGA HR 2.30 + MSK HR 2.67 + Pooled 2.53 / B-I²=0% / C-DM1 sub-A vs sub-B Cox | v17_D4P1_forest_meta.py |
 | **Fig 7 ★ (v4 = 4 panels, 2026-05-08)** | DM1 mechanism (paradigm) | A-Sub-A vs Sub-B silhouette 0.584 / B-Fusion enrichment 76.8% vs 30.9% / C-Fusion partner stack (RET CCDC6/NCOA4 + NTRK + ALK + BRAF) / D-Reflex algorithm 81.8% capture (was panel E). **Original panel D (sub-A vs sub-B phenotype) demoted to Supp Fig S6 per audit P1-7.** | v17_audit_F2_F3_F4.py + R4 + new |
-| **Fig 8 ★ (v4 = 2 panels, 2026-05-08; v4.1 mechanism cross-ref 2026-05-09)** | Epigenetic layer (NEW R5-2) | A-Per-gene β heatmap DM1 vs DM2 (8-gene + DIO2/SLC26A4) / B-Mean 8-gene β bar (DM1 0.385 vs DM2 0.253 vs not_DM 0.356). **Original panel C (within-DM1 fusion+ vs − methylation NS, d=−0.36, p=0.31) demoted to Supp Fig S5b per audit P1-5.** **Mechanism layer 2026-05-09:** v9-v13 deconv (MAPK output × HM450 mean β: BRAF V600E β=0.37 ≈ RET fusion β=0.39 vs RAS β=0.27; MAPK × Panel-8 RNA ρ=−0.291/−0.395 TCGA/Lee; sub-A MAPK-active d=+1.79 vs sub-B HT-active both reach silencing; TDS-16 ≈ Panel-8 ΔAUC NS) reported as Supp Fig SX panels H–J + new **Supp Fig SX_v13** (TDS-16 × Panel × MAPK 6-panel composite, Reviewer-Q13 cherry-pick lock). Main Fig 8 panel count unchanged. | v17_audit_R5_all.py + p_deconv_2026_05_08/run_v13_tds16_panel_mapk.py |
+| **Fig 8 ★ (v4 = 2 panels, 2026-05-08; v4.5 mechanism cross-ref 2026-05-09)** | Epigenetic layer (NEW R5-2) | A-Per-gene β heatmap DM1 vs DM2 (8-gene + DIO2/SLC26A4) / B-Mean 8-gene β bar (DM1 0.385 vs DM2 0.253 vs not_DM 0.356). **Original panel C (within-DM1 fusion+ vs − methylation NS, d=−0.36, p=0.31) demoted to Supp Fig S5b per audit P1-5.** **Mechanism layer 2026-05-09:** v9-v18 deconv support reported in Supplementary only: SX panels H-J, **SX_v13** (TDS-16 × Panel × MAPK; Q13 cherry-pick lock), **SX_v14** (5-cohort MAPK × thyroid-score forest; pooled Panel-8 ρ=−0.327 [−0.376, −0.278], n=1,287), **SX_v15** reserve extensions, **SX_v16** spatial/PRISM diagnostic stress tests, **SX_v17** spatial signal decomposition showing the Visium signal is detection/covariate structure rather than a rescued anti-correlation, and **SX_v18** spatial lag/pocket closure showing no neighborhood-level MAPK-high/Panel-low rescue. Main Fig 8 panel count unchanged. | v17_audit_R5_all.py + p_deconv_2026_05_08/run_v13_tds16_panel_mapk.py + run_v14_cross_cohort_forest.py + run_v15_mechanism_extensions.py + run_v16_spatial_prism_diagnostics.py + run_v17_spatial_signal_decomposition.py + run_v18_spatial_lag_pockets.py |
 
 **Suppl figures (S1-S9, v3 — Fig 1 Heatmap 추가 이동):**
 - ★ **S1 8-gene heatmap sorted by P_DM1** (Fig 1 C 에서 이동) — TCGA + cohort comparison
@@ -178,6 +178,12 @@ flowchart TD
 | S8 | Meta-analysis raw inputs (TCGA + MSK Cox + DerSimonian-Laird) | results/round2/n1_meta.json |
 | S9 | Korean Pan-Asian HLA per-sample arcasHLA genotypes | d4p1_panasian_meta/korean_PTC_pool_n908.tsv |
 | S10 | Reviewer Q&A pre-empt 12 items | manuscript_v8/09_reviewer_qa.md |
+
+### Supplementary Texts
+
+| # | Title | Source |
+|---|---|---|
+| ST1 | Image-DM1 pilot TSS-confound disclosure | `project/manuscript_v8/15_supp_image_dm1_tss_confound_case_study.md` + `project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/audit_ras_auc100/` |
 
 ---
 
