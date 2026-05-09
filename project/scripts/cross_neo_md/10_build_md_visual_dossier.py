@@ -84,6 +84,25 @@ def main() -> None:
         OUT / "counterfactual_design/openmm_ready_structure_jobs.tsv",
         OUT / "counterfactual_design/openmm_ready_command_templates.tsv",
         OUT / "MD_control_readiness_report.md",
+        OUT / "ultra_priority/ultra_wetlab_priority_report.md",
+        OUT / "ultra_priority/ultra_wetlab_priority_candidates.tsv",
+        OUT / "ultra_priority/ultra_wetlab_assay_plan.tsv",
+        OUT / "ultra_priority/ultra_wetlab_priority_summary.json",
+        OUT / "small_dataset_uncertainty/small_dataset_uncertainty_funnel_report.md",
+        OUT / "small_dataset_uncertainty/small_dataset_uncertainty_funnel.tsv",
+        OUT / "small_dataset_uncertainty/small_dataset_wetlab_survivors.tsv",
+        OUT / "small_dataset_uncertainty/small_dataset_culled_candidates.tsv",
+        OUT / "small_dataset_uncertainty/culling_decision_counts.tsv",
+        OUT / "small_dataset_uncertainty/bayesian_posterior_scores.tsv",
+        OUT / "small_dataset_uncertainty/dropout_perturbation_summary.tsv",
+        OUT / "dl_first_funnel/dl_first_funnel_report.md",
+        OUT / "dl_first_funnel/dl_first_candidate_funnel.tsv",
+        OUT / "dl_first_funnel/dl_first_stage_counts.tsv",
+        OUT / "dl_first_funnel/dl_first_decision_counts.tsv",
+        OUT / "dl_first_funnel/dl_first_survivors_for_tcr_structure_review.tsv",
+        OUT / "dl_first_funnel/dl_first_md_escalation_candidates.tsv",
+        OUT / "dl_first_funnel/dl_first_wetlab_shortlist.tsv",
+        OUT / "dl_first_funnel/dl_first_culled_candidates.tsv",
         OUT / "watchers/hmtevvrhc_autowatch_latest.json",
     ]:
         if p.exists():
@@ -100,6 +119,12 @@ def main() -> None:
     cf_batch = pd.read_csv(OUT / "counterfactual_design/counterfactual_md_batch_manifest.tsv", sep="\t") if (OUT / "counterfactual_design/counterfactual_md_batch_manifest.tsv").exists() else pd.DataFrame()
     pos_controls = pd.read_csv(OUT / "counterfactual_design/positive_control_pdb_extraction.tsv", sep="\t") if (OUT / "counterfactual_design/positive_control_pdb_extraction.tsv").exists() else pd.DataFrame()
     prep_jobs = pd.read_csv(OUT / "counterfactual_design/openmm_ready_structure_jobs.tsv", sep="\t") if (OUT / "counterfactual_design/openmm_ready_structure_jobs.tsv").exists() else pd.DataFrame()
+    ultra = pd.read_csv(OUT / "ultra_priority/ultra_wetlab_priority_candidates.tsv", sep="\t") if (OUT / "ultra_priority/ultra_wetlab_priority_candidates.tsv").exists() else pd.DataFrame()
+    funnel = pd.read_csv(OUT / "small_dataset_uncertainty/small_dataset_uncertainty_funnel.tsv", sep="\t") if (OUT / "small_dataset_uncertainty/small_dataset_uncertainty_funnel.tsv").exists() else pd.DataFrame()
+    cull_counts = pd.read_csv(OUT / "small_dataset_uncertainty/culling_decision_counts.tsv", sep="\t") if (OUT / "small_dataset_uncertainty/culling_decision_counts.tsv").exists() else pd.DataFrame()
+    dl_first = pd.read_csv(OUT / "dl_first_funnel/dl_first_candidate_funnel.tsv", sep="\t") if (OUT / "dl_first_funnel/dl_first_candidate_funnel.tsv").exists() else pd.DataFrame()
+    dl_first_stages = pd.read_csv(OUT / "dl_first_funnel/dl_first_stage_counts.tsv", sep="\t") if (OUT / "dl_first_funnel/dl_first_stage_counts.tsv").exists() else pd.DataFrame()
+    dl_first_counts = pd.read_csv(OUT / "dl_first_funnel/dl_first_decision_counts.tsv", sep="\t") if (OUT / "dl_first_funnel/dl_first_decision_counts.tsv").exists() else pd.DataFrame()
     figs = [p.name for p in sorted((OUT / "figures").glob("fig_md*.png"))]
     fig_cards = "\n".join(
         f"<article><img src='assets/cross_neo_md_audit/{esc(name)}'><h3>{esc(name.replace('.png',''))}</h3><a href='assets/cross_neo_md_audit/{esc(name)}'>PNG</a></article>"
@@ -145,6 +170,9 @@ img{{width:100%;background:white;border-radius:6px}} .warn{{border-left:4px soli
 <a class="pill" href="assets/cross_neo_md_audit/positive_control_selection_report.md">Positive controls</a>
 <a class="pill" href="assets/cross_neo_md_audit/structure_prep_job_report.md">Structure prep jobs</a>
 <a class="pill" href="assets/cross_neo_md_audit/MD_control_readiness_report.md">Control readiness</a>
+<a class="pill" href="assets/cross_neo_md_audit/ultra_wetlab_priority_report.md">Ultra priority</a>
+<a class="pill" href="assets/cross_neo_md_audit/small_dataset_uncertainty_funnel_report.md">Bayesian/dropout funnel</a>
+<a class="pill" href="assets/cross_neo_md_audit/dl_first_funnel_report.md">DL-first funnel</a>
 <a class="pill" href="assets/cross_neo_md_audit/hmtevvrhc_autowatch_latest.json">6VRN watcher JSON</a>
 </div>
 </section>
@@ -170,6 +198,21 @@ img{{width:100%;background:white;border-radius:6px}} .warn{{border-left:4px soli
 <section><h2>OpenMM-Ready Structure Jobs</h2>
 <p class="muted">Command templates are generated, but no new MD runs are launched from this dossier.</p>
 {table(prep_jobs, ['prep_id','batch_id','peptide','hla_4digit','control_type','complex_kind','sequence','structure_route','input_template_pdb'], 16)}
+</section>
+<section><h2>Ultra Wetlab Priority</h2>
+<p class="muted">This is a conservative recommendation score, not an immunogenicity probability.</p>
+{table(ultra, ['row_id','peptide','hla_4digit','recommendation_tier','ultra_priority_score','confidence_score','model_evidence_score','tcr_resource_score','md_structural_score','control_readiness_score','claim_risk_penalty','why'], 15)}
+</section>
+<section><h2>Small-Dataset Uncertainty Funnel</h2>
+<p class="muted">Bayesian posterior and dropout/weight perturbation are used to cull weak or unstable candidates, not to certify positives.</p>
+{table(cull_counts, ['decision','n'], 12)}
+{table(funnel, ['row_id','peptide','hla_4digit','funnel_decision','funnel_priority_score','bayes_mean','bayes_q05','bayes_q95','perturb_median','perturb_width_90','dropout_sensitivity','funnel_reason'], 15)}
+</section>
+<section><h2>DL-First Candidate Funnel</h2>
+<p class="muted">Cheap model ensemble and uncertainty gates run before TCR rescue, structure, and MD. TCR-discordant high-model rows are audit/control candidates, not positives.</p>
+{table(dl_first_stages, ['stage','n'], 12)}
+{table(dl_first_counts, ['decision','n'], 12)}
+{table(dl_first, ['row_id','peptide','hla_4digit','dl_first_decision','next_action','dl_first_priority_score','main_dl_score','bayes_mean','bayes_q05','bayes_q95','perturb_prob_gt_050','tcr_augmented_score_mean','paired_tcr_evidence_count','md_label'], 18)}
 </section>
 <section><h2>Figure Gallery</h2><div class="figs">{fig_cards}</div></section>
 <section><h2>Source Paths</h2><p class="muted">{esc(OUT)}</p></section>
