@@ -31,6 +31,8 @@ SCORE_COLUMNS = [
 OUTPUT_FILES = [
     "barneo_x_candidate_scores.tsv",
     "barneo_x_candidate_explanations.tsv",
+    "barneo_x_component_attributions.tsv",
+    "barneo_x_ablation_audit.tsv",
     "barneo_x_metric_audit.tsv",
     "barneo_x_topk_safety_audit.tsv",
     "BAR_NEO_X_INTERPRETABILITY_BOOST_REPORT.md",
@@ -278,6 +280,97 @@ def metric_rows(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def score_metric_row(df: pd.DataFrame, score_col: str) -> dict[str, Any] | None:
+    y = pd.to_numeric(df.get("label"), errors="coerce")
+    s = pd.to_numeric(df.get(score_col), errors="coerce")
+    valid = y.isin([0, 1]) & s.notna()
+    if valid.sum() < 10 or y[valid].nunique() < 2:
+        return None
+    yy = y[valid].astype(int).to_numpy()
+    ss = s[valid].astype(float).to_numpy()
+    ranked = df.loc[valid].iloc[np.argsort(-ss)]
+    top10 = ranked.head(10)
+    top20 = ranked.head(20)
+    return {
+        "score": score_col,
+        "n": int(valid.sum()),
+        "apparent_auprc": float(average_precision_score(yy, ss)) if average_precision_score else np.nan,
+        "apparent_auroc": float(roc_auc_score(yy, ss)) if roc_auc_score else np.nan,
+        "top10_precision": float(pd.to_numeric(top10.get("label"), errors="coerce").mean()) if len(top10) else np.nan,
+        "top20_precision": float(pd.to_numeric(top20.get("label"), errors="coerce").mean()) if len(top20) else np.nan,
+        "top10_high_leakage_fraction": float(top10["leakage_risk_level"].astype(str).str.lower().eq("high").mean()) if len(top10) else np.nan,
+        "top20_high_leakage_fraction": float(top20["leakage_risk_level"].astype(str).str.lower().eq("high").mean()) if len(top20) else np.nan,
+    }
+
+
+def component_attribution_rows(df: pd.DataFrame) -> pd.DataFrame:
+    rows = []
+    for _, row in df.iterrows():
+        contrib = contribution_dict(row)
+        total_positive = sum(v for v in contrib.values() if v > 0)
+        total_penalty = -sum(v for v in contrib.values() if v < 0)
+        for name, value in contrib.items():
+            if abs(value) < 1e-12:
+                continue
+            sign = "penalty" if "penalty" in name or value < 0 else "positive"
+            denominator = total_positive if sign == "positive" else total_penalty
+            rows.append(
+                {
+                    "candidate_id": row.get("candidate_id"),
+                    "peptide": row.get("peptide"),
+                    "hla_allele_4digit": row.get("hla_allele_4digit"),
+                    "label": row.get("label"),
+                    "leakage_risk_level": row.get("leakage_risk_level"),
+                    "barneo_x_claim_safe_rank": row.get("barneo_x_claim_safe_rank"),
+                    "component_name": name,
+                    "component_sign": sign,
+                    "component_value": float(value),
+                    "component_abs_value": float(abs(value)),
+                    "component_fraction_within_sign": float(abs(value) / denominator) if denominator else 0.0,
+                }
+            )
+    return pd.DataFrame(rows).sort_values(["barneo_x_claim_safe_rank", "component_sign", "component_abs_value"], ascending=[True, True, False])
+
+
+def ablation_rows(df: pd.DataFrame) -> pd.DataFrame:
+    audit = df.copy()
+    audit["barneo_x_no_penalty_score"] = np.clip(
+        pd.to_numeric(audit["barneo_x_positive_component_sum"], errors="coerce")
+        * pd.to_numeric(audit["barneo_x_claim_gate"], errors="coerce")
+        * pd.to_numeric(audit["barneo_x_metadata_cap"], errors="coerce"),
+        0,
+        1,
+    )
+    audit["barneo_x_no_leakage_gate_score"] = np.clip(
+        pd.to_numeric(audit["barneo_x_discovery_score"], errors="coerce")
+        * pd.to_numeric(audit["barneo_x_metadata_cap"], errors="coerce"),
+        0,
+        1,
+    )
+    audit["barneo_x_no_metadata_cap_score"] = np.clip(
+        pd.to_numeric(audit["barneo_x_discovery_score"], errors="coerce")
+        * pd.to_numeric(audit["barneo_x_claim_gate"], errors="coerce"),
+        0,
+        1,
+    )
+    audit["barneo_x_positive_only_score"] = np.clip(pd.to_numeric(audit["barneo_x_positive_component_sum"], errors="coerce"), 0, 1)
+    rows = []
+    for col, interpretation in [
+        ("barneo_score", "raw apparent BAR-Neo score; high label metric but unsafe for clean top-k claims"),
+        ("barneo_x_positive_only_score", "positive evidence only; exposes why penalties are needed"),
+        ("barneo_x_no_penalty_score", "claim gate and metadata cap retained, but component penalties removed"),
+        ("barneo_x_no_leakage_gate_score", "component penalties retained, but high/medium leakage gate removed"),
+        ("barneo_x_no_metadata_cap_score", "component penalties and leakage gate retained, but missing metadata cap removed"),
+        ("barneo_x_claim_safe_score", "full BAR-Neo-X reviewer-facing score"),
+    ]:
+        row = score_metric_row(audit, col)
+        if row is None:
+            continue
+        row["interpretation"] = interpretation
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
 def topk_rows(df: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for score_col in ["barneo_x_discovery_score", "barneo_x_claim_safe_score"]:
@@ -298,7 +391,7 @@ def topk_rows(df: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def write_report(output_root: Path, scores: pd.DataFrame, metrics: pd.DataFrame, topk: pd.DataFrame) -> None:
+def write_report(output_root: Path, scores: pd.DataFrame, metrics: pd.DataFrame, topk: pd.DataFrame, ablation: pd.DataFrame) -> None:
     top_claim = scores.sort_values("barneo_x_claim_safe_score", ascending=False).head(20)
     cols = [
         "candidate_id",
@@ -327,6 +420,10 @@ def write_report(output_root: Path, scores: pd.DataFrame, metrics: pd.DataFrame,
         "## Top-K Safety Audit",
         "",
         topk.round(4).to_markdown(index=False) if not topk.empty else "No top-k audit available.",
+        "",
+        "## Ablation Audit",
+        "",
+        ablation.round(4).to_markdown(index=False) if not ablation.empty else "No ablation audit available.",
         "",
         "## Top Claim-Safe Review Rows",
         "",
@@ -358,6 +455,7 @@ def update_output_manifest(output_root: Path, summary: dict[str, Any]) -> None:
             "n_barneo_x_candidates": int(summary["n_candidates"]),
             "n_barneo_x_priority_review_candidates": int(summary["n_priority_review_candidates"]),
             "barneo_x_top_claim_safe_score": float(summary["top_claim_safe_score"]),
+            "n_barneo_x_component_attribution_rows": int(summary["n_component_attribution_rows"]),
         }
     )
     path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
@@ -392,6 +490,8 @@ def main() -> None:
         "bma_abstention_reason_primary",
     ]
     write_tsv(scored[[c for c in explanation_cols if c in scored.columns]], output_root / "barneo_x_candidate_explanations.tsv")
+    component_attributions = component_attribution_rows(scored)
+    write_tsv(component_attributions, output_root / "barneo_x_component_attributions.tsv")
     write_tsv(
         scored[
             [
@@ -407,13 +507,16 @@ def main() -> None:
     )
     metrics = metric_rows(scored)
     topk = topk_rows(scored)
+    ablation = ablation_rows(scored)
     write_tsv(metrics, output_root / "barneo_x_metric_audit.tsv")
     write_tsv(topk, output_root / "barneo_x_topk_safety_audit.tsv")
-    write_report(output_root, scored, metrics, topk)
+    write_tsv(ablation, output_root / "barneo_x_ablation_audit.tsv")
+    write_report(output_root, scored, metrics, topk, ablation)
     summary = {
         "n_candidates": int(len(scored)),
         "n_priority_review_candidates": int(scored["barneo_x_primary_action"].eq("priority_review_candidate").sum()),
         "top_claim_safe_score": float(scored["barneo_x_claim_safe_score"].max()),
+        "n_component_attribution_rows": int(len(component_attributions)),
     }
     (output_root / "BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json").write_text(json.dumps(summary, indent=2) + "\n")
     update_output_manifest(output_root, summary)
@@ -424,6 +527,7 @@ def main() -> None:
             "outputs": OUTPUT_FILES,
             "n_candidates": int(len(scored)),
             "n_priority_review_candidates": int(scored["barneo_x_primary_action"].eq("priority_review_candidate").sum()),
+            "n_component_attribution_rows": int(len(component_attributions)),
             "warnings": [
                 "BAR-Neo-X metrics are candidate-level apparent audits, not an external SOTA claim.",
                 "Claim-safe score intentionally downranks high-leakage rows even when labels are positive.",

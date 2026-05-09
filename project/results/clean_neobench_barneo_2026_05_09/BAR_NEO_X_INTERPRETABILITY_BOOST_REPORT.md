@@ -30,6 +30,17 @@ It is not a new public SOTA claim and not a quantum-advantage claim.
 | barneo_x_claim_safe_score |      50 |        0.62 |                    0    |                    0.3613 |                      1 |
 | barneo_x_claim_safe_score |     100 |        0.56 |                    0.23 |                    0.2571 |                      1 |
 
+## Ablation Audit
+
+| score                          |    n |   apparent_auprc |   apparent_auroc |   top10_precision |   top20_precision |   top10_high_leakage_fraction |   top20_high_leakage_fraction | interpretation                                                                  |
+|:-------------------------------|-----:|-----------------:|-----------------:|------------------:|------------------:|------------------------------:|------------------------------:|:--------------------------------------------------------------------------------|
+| barneo_score                   | 2715 |           0.975  |           0.9772 |               1   |              1    |                           1   |                           1   | raw apparent BAR-Neo score; high label metric but unsafe for clean top-k claims |
+| barneo_x_positive_only_score   | 2715 |           0.9634 |           0.9658 |               1   |              1    |                           1   |                           1   | positive evidence only; exposes why penalties are needed                        |
+| barneo_x_no_penalty_score      | 2715 |           0.8592 |           0.9201 |               0.9 |              0.85 |                           0   |                           0   | claim gate and metadata cap retained, but component penalties removed           |
+| barneo_x_no_leakage_gate_score | 2715 |           0.9356 |           0.9387 |               0.9 |              0.95 |                           0.2 |                           0.6 | component penalties retained, but high/medium leakage gate removed              |
+| barneo_x_no_metadata_cap_score | 2715 |           0.8133 |           0.896  |               0.9 |              0.85 |                           0   |                           0   | component penalties and leakage gate retained, but missing metadata cap removed |
+| barneo_x_claim_safe_score      | 2715 |           0.8133 |           0.896  |               0.9 |              0.85 |                           0   |                           0   | full BAR-Neo-X reviewer-facing score                                            |
+
 ## Top Claim-Safe Review Rows
 
 | candidate_id   | peptide    | hla_allele_4digit   |   label | leakage_risk_level   |   barneo_x_claim_safe_score | barneo_x_primary_action    | barneo_x_top_positive_factors                                                                                              | barneo_x_top_negative_factors                                                                                                                                                                    |

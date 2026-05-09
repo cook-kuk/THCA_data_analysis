@@ -185,6 +185,7 @@ def main() -> None:
 
     metrics = read_tsv(output_root / "barneo_x_metric_audit.tsv")
     topk = read_tsv(output_root / "barneo_x_topk_safety_audit.tsv")
+    ablation = read_tsv(output_root / "barneo_x_ablation_audit.tsv")
     explain = read_tsv(output_root / "barneo_x_candidate_explanations.tsv")
     summary = read_json(output_root / "BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json")
     manifest = read_json(output_root / "run_manifest.json")
@@ -328,12 +329,13 @@ def main() -> None:
       <a href="#tldr">01 TL;DR</a>
       <a href="#task">02 Data, task, training</a>
       <a href="#tradeoff">03 Performance tradeoff</a>
-      <a href="#algorithm">04 Algorithm</a>
-      <a href="#candidates">05 Top candidates</a>
-      <a href="#factors">06 Factor audit</a>
-      <a href="#decision">07 Decision matrix</a>
-      <a href="#kakao">08 Kakao payload</a>
-      <a href="#paths">09 Sources + paths</a>
+      <a href="#ablation">04 Ablation audit</a>
+      <a href="#algorithm">05 Algorithm</a>
+      <a href="#candidates">06 Top candidates</a>
+      <a href="#factors">07 Factor audit</a>
+      <a href="#decision">08 Decision matrix</a>
+      <a href="#kakao">09 Kakao payload</a>
+      <a href="#paths">10 Sources + paths</a>
     </nav>
 
     <main>
@@ -368,8 +370,14 @@ def main() -> None:
         {table_html(topk, ["score", "top_k", "precision", "high_leakage_fraction", "median_claim_safe_score", "priority_review_rows"], 12)}
       </section>
 
+      <section id="ablation">
+        <h2><span class="num">04</span>Ablation Audit</h2>
+        <p class="muted">This table shows what breaks when penalties, leakage gating, or metadata capping are removed. The goal is to justify the conservative score, not maximize apparent AUPRC.</p>
+        {table_html(ablation, ["score", "n", "apparent_auprc", "apparent_auroc", "top10_precision", "top20_precision", "top10_high_leakage_fraction", "top20_high_leakage_fraction", "interpretation"], 10)}
+      </section>
+
       <section id="algorithm">
-        <h2><span class="num">04</span>Algorithm</h2>
+        <h2><span class="num">05</span>Algorithm</h2>
         <div class="grid">
           <div class="box"><strong>Positive evidence:</strong> BAR-Neo model evidence, BMA expert consensus, clean internal predictor support, anchor support, confidence support.</div>
           <div class="box"><strong>Negative evidence:</strong> posterior disagreement, posterior uncertainty, patient gate incompleteness, high/medium leakage, exact or near peptide overlap, study/patient overlap, public pretrained overlap, low-prevalence source, sparse expert support.</div>
@@ -379,13 +387,13 @@ def main() -> None:
       </section>
 
       <section id="candidates">
-        <h2><span class="num">05</span>Top Claim-Safe Candidates</h2>
+        <h2><span class="num">06</span>Top Claim-Safe Candidates</h2>
         <p class="muted">Rows are sorted by BAR-Neo-X claim-safe rank. Labels are benchmark labels, not clinical validation.</p>
         {table_html(top_claim_rows, ["candidate_id", "peptide", "hla_allele_4digit", "label", "leakage_risk_level", "barneo_score", "barneo_bma_score", "barneo_x_claim_safe_score", "barneo_x_primary_action", "barneo_x_top_positive_factors", "barneo_x_top_negative_factors"], 20, {"barneo_x_primary_action": "good"})}
       </section>
 
       <section id="factors">
-        <h2><span class="num">06</span>Factor Audit</h2>
+        <h2><span class="num">07</span>Factor Audit</h2>
         <div class="grid">
           <div>
             <h3>Top positive factors in claim-safe top50</h3>
@@ -399,17 +407,17 @@ def main() -> None:
       </section>
 
       <section id="decision">
-        <h2><span class="num">07</span>Decision Matrix</h2>
+        <h2><span class="num">08</span>Decision Matrix</h2>
         {table_html(decision, ["surface", "best use", "evidence", "blocker", "disposition"], 10)}
       </section>
 
       <section id="kakao">
-        <h2><span class="num">08</span>Kakao Payload</h2>
+        <h2><span class="num">09</span>Kakao Payload</h2>
         <div class="kakao">Cancer vaccine neoantigen benchmark에서 BAR-Neo 기반으로 BAR-Neo-X를 만들었고, 후보별로 BAR-Neo evidence/BMA consensus/internal predictor/confidence와 leakage-overlap-uncertainty penalty를 분해해서 설명 가능하게 만들었습니다. raw BAR-Neo는 apparent AUPRC {fmt_num(raw_auprc)}지만 top10이 전부 high-leakage라 SOTA 주장엔 위험하고, BAR-Neo-X claim-safe score는 AUPRC {fmt_num(x_auprc)}으로 보수화되는 대신 top10 high-leakage를 {fmt_num(raw_leak)}->{fmt_num(x_leak)}로 제거하면서 top10 precision {fmt_num(x_precision)}를 유지합니다. 즉 무조건 SOTA/clinical/quantum advantage가 아니라, 리뷰어 방어 가능한 해석형-누수차단 neoantigen triage layer입니다.</div>
       </section>
 
       <section id="paths">
-        <h2><span class="num">09</span>Sources + Paths</h2>
+        <h2><span class="num">10</span>Sources + Paths</h2>
         <p class="path">Output root: {safe(output_root)}</p>
         <p class="path">Metric audit: {safe(output_root / "barneo_x_metric_audit.tsv")}</p>
         <p class="path">Top-k safety audit: {safe(output_root / "barneo_x_topk_safety_audit.tsv")}</p>
