@@ -63,11 +63,20 @@ def main() -> None:
         "train_barneo.py",
         "barneo_bma_agent.py",
         "build_barneo_interpretability_boost.py",
+        "write_barneo_x_dossier.py",
+        "build_barneo_x_reviewer_packet.py",
         "analyze_failure_modes.py",
+        "analyze_distribution_error_audit.py",
+        "build_barneo_contextual_bma.py",
         "apply_failure_aware_reliability.py",
         "build_barneo_manual_review_queue.py",
         "build_patient_gated_clean_neo_demo.py",
+        "build_clean_neobench_challenge_pack.py",
+        "build_clean_neobench_winloss_report.py",
+        "write_clean_neobench_visual_dashboard.py",
+        "write_barneo_dossier.py",
         "write_clean_neobench_reports.py",
+        "write_clean_neobench_status_kr.py",
     ]
     for step in steps:
         run_step(script_dir, step, repo_root, output_root)

@@ -27,8 +27,8 @@ CLEAN-NeoBench is a leakage-aware AI neoantigen predictor benchmarking framework
 
 ## Method Zoo
 
-- `internal_candidate`: 57054
-- `bounded_fallback`: 20198
+- `internal_candidate`: 59450
+- `bounded_fallback`: 21152
 - `anchor`: 6066
 - `caveated_public_comparator`: 3224
 - `uncertainty_only`: 400

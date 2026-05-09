@@ -36,7 +36,7 @@ CEDAR는 거의 positive-rich source이고, TESLA/ITSNdb_Val은 low-prevalence s
 | pu_weighted_rf_train_prior_calibrated             |       2396 |                              18 |                           129 |                        0.123682  |           0.93186  |          0.126506  |
 | source_balanced_plus_pu_rf_train_prior_calibrated |       2396 |                              17 |                           127 |                        0.121764  |           0.93     |          0.107822  |
 | source_balanced_rf_train_prior_calibrated         |       2396 |                              15 |                           122 |                        0.11697   |           0.918605 |          0.112082  |
-| BAR_Neo_BMA                                       |       2715 |                              19 |                           107 |                        0.0907549 |           0.379384 |          0.0594981 |
+| BAR_Neo_BMA                                       |       2715 |                              19 |                           107 |                        0.0907549 |           0.381124 |          0.0596631 |
 
 해석:
 

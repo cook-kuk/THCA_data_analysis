@@ -5,8 +5,8 @@
 
 - Candidates: 2715
 - Labeled candidates: 2715
-- Method score rows: 86942
-- Metric rows: 6935
+- Method score rows: 90292
+- Metric rows: 7144
 
 ## Source Distribution
 
@@ -83,13 +83,13 @@
 
 ## Split Contract Rows
 
-- `hla_heldout`: 2949
-- `supertype_heldout`: 2527
-- `existing_prediction_context`: 400
-- `source_heldout`: 287
-- `study_heldout`: 287
-- `overall_labeled`: 97
-- `exact_peptide_hla_holdout`: 97
-- `near_peptide_cluster_holdout`: 97
-- `low_prevalence_heldout`: 97
-- `korean_hla_focus`: 97
+- `hla_heldout`: 3039
+- `supertype_heldout`: 2599
+- `existing_prediction_context`: 416
+- `source_heldout`: 295
+- `study_heldout`: 295
+- `overall_labeled`: 100
+- `exact_peptide_hla_holdout`: 100
+- `near_peptide_cluster_holdout`: 100
+- `low_prevalence_heldout`: 100
+- `korean_hla_focus`: 100

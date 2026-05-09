@@ -5,7 +5,7 @@
 This audit scaffold separates documentation-level provenance from row-level training-corpus overlap auditing.
 
 - Public pretrained methods detected: 9
-- Internal/local methods detected: 88
+- Internal/local methods detected: 91
 - Public methods promoted to clean comparators: 0
 - Row-level clean-pass status: unresolved unless a future method-specific candidate/peptide-HLA audit table proves otherwise.
 

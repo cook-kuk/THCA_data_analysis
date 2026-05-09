@@ -32,6 +32,7 @@ KAKAO_TEMPLATE = (
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo-root", default=".", help="Repository root; accepted for pipeline compatibility")
     parser.add_argument("--output-root", required=True, help="CLEAN-NeoBench BAR-Neo output directory")
     parser.add_argument("--hub-root", default="project/papers_hub_2026_05_04", help="HTML hub directory")
     parser.add_argument("--page-name", default=PAGE_NAME)
@@ -229,6 +230,7 @@ def main() -> None:
     zip_dir(packet_dir, zip_path)
     hub_zip = hub_root / "assets" / "barneo_x" / zip_path.name
     copy_if_exists(zip_path, hub_zip)
+    update_manifest(output_root, zip_path, packet_dir)
 
     print(json.dumps({"packet_dir": str(packet_dir), "zip": str(zip_path), "hub_zip": str(hub_zip)}, indent=2))
 

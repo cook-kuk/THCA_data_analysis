@@ -10,9 +10,12 @@ from pathlib import Path
 
 import pandas as pd
 
+from common import update_manifest
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--repo-root", default=".", help="Repository root")
     parser.add_argument("--output-root", required=True, help="CLEAN-NeoBench output directory")
     parser.add_argument("--hub-root", default="project/papers_hub_2026_05_04", help="HTML hub directory")
     parser.add_argument("--page-name", default="clean_neobench_barneo_dossier_2026_05_09.html")
@@ -125,12 +128,19 @@ def build_split_summary(split_metrics: pd.DataFrame) -> pd.DataFrame:
 
 def main() -> None:
     args = parse_args()
+    repo_root = Path(args.repo_root).resolve()
     output_root = Path(args.output_root)
+    if not output_root.is_absolute():
+        output_root = repo_root / output_root
     hub_root = Path(args.hub_root)
+    if not hub_root.is_absolute():
+        hub_root = repo_root / hub_root
     hub_root.mkdir(parents=True, exist_ok=True)
 
     leaderboard = read_tsv(output_root / "clean_neobench_leaderboard.tsv")
     split_metrics = read_tsv(output_root / "clean_neobench_split_metrics.tsv")
+    winloss_summary = read_tsv(output_root / "clean_neobench_winloss_method_summary.tsv")
+    split_winners = read_tsv(output_root / "clean_neobench_split_winner_board.tsv")
     bma = read_tsv(output_root / "barneo_bma_candidate_scores.tsv")
     weights = read_tsv(output_root / "barneo_bma_method_weights.tsv")
     selector = read_tsv(output_root / "barneo_bma_selector_audit.tsv")
@@ -140,6 +150,15 @@ def main() -> None:
     failure_aware = read_tsv(output_root / "barneo_failure_aware_candidate_scores.tsv")
     manual_queue = read_tsv(output_root / "barneo_manual_review_queue.tsv")
     challenge_queue = read_tsv(output_root / "barneo_distribution_challenge_queue.tsv")
+    distribution_vulnerability = read_tsv(output_root / "clean_neobench_method_distribution_vulnerability.tsv")
+    shift_error_link = read_tsv(output_root / "clean_neobench_train_distribution_error_link.tsv")
+    remediation_plan = read_tsv(output_root / "clean_neobench_distribution_remediation_plan.tsv")
+    contextual_scores = read_tsv(output_root / "barneo_contextual_bma_candidate_scores.tsv")
+    contextual_weights = read_tsv(output_root / "barneo_contextual_bma_method_weights.tsv")
+    contextual_summary = read_tsv(output_root / "barneo_contextual_bma_context_summary.tsv")
+    challenge_pack = read_tsv(output_root / "clean_neobench_challenge_pack.tsv")
+    challenge_summary = read_tsv(output_root / "clean_neobench_challenge_axis_summary.tsv")
+    experiment_plan = read_tsv(output_root / "clean_neobench_next_experiment_plan.tsv")
     patient_requirements = read_tsv(output_root / "patient_gated_clean_neo_metadata_requirements.tsv")
     patient_scenarios = read_tsv(output_root / "patient_gated_clean_neo_demo_scenarios.tsv")
     patient_queue = read_tsv(output_root / "patient_gated_clean_neo_candidate_queue.tsv")
@@ -192,6 +211,8 @@ def main() -> None:
     .kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.08em; font-size:13px; font-weight:700; }
     h1 { font-family:Georgia, "Times New Roman", serif; font-size:clamp(42px, 6vw, 78px); line-height:.98; margin:14px 0 18px; letter-spacing:0; max-width:1000px; }
     .lead { max-width:980px; font-size:18px; color:#c8d1dc; }
+    .hero-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .hero-links a { border:1px solid var(--line); padding:8px 11px; background:#101820; color:#d7fff6; }
     .stats { display:grid; grid-template-columns:repeat(6, minmax(130px,1fr)); gap:12px; margin-top:28px; }
     .stat { border:1px solid var(--line); background:rgba(21,27,35,.72); padding:14px; min-height:104px; }
     .stat-value { font-size:24px; color:white; font-weight:800; }
@@ -237,6 +258,11 @@ def main() -> None:
       <div class="kicker">Leakage-aware neoantigen benchmarking · 2026-05-09</div>
       <h1>CLEAN-NeoBench + BAR-Neo-BMA</h1>
       <p class="lead">Reviewer-safe benchmark contract, benchmark-adaptive reliability ranking, and practical agentic ensemble weighting for neoantigen candidate triage. This page deliberately avoids SOTA, clinical vaccine-selection, public-clean-baseline, and quantum-advantage claims.</p>
+      <div class="hero-links">
+        <a href="cancer_vaccine_barneo_x_interpretability_2026_05_09.html">BAR-Neo-X claim-safe XAI layer</a>
+        <a href="cancer_vaccine_full_dossier.html">Cancer vaccine full dossier</a>
+        <a href="index.html">Hub index</a>
+      </div>
       <div class="stats">
         {stat("Candidates", f"{n_candidates:,}", "Unified benchmark rows")}
         {stat("Methods", f"{n_methods:,}", "Internal + caveated comparator outputs")}
@@ -257,11 +283,15 @@ def main() -> None:
       <a href="#candidates">06 Candidate Scores</a>
       <a href="#splits">07 Split Robustness</a>
       <a href="#failure-aware">08 Failure-Aware</a>
-      <a href="#manual-queue">09 Manual Queue</a>
-      <a href="#public-audit">10 Public Audit</a>
-      <a href="#patient-gated">11 Patient Gates</a>
-      <a href="#caveats">12 Caveats</a>
-      <a href="#paths">13 Paths</a>
+      <a href="#distribution-error">09 Distribution Error</a>
+      <a href="#contextual-bma">10 Contextual BMA</a>
+      <a href="#challenge-pack">11 Challenge Pack</a>
+      <a href="#manual-queue">12 Manual Queue</a>
+      <a href="#public-audit">13 Public Audit</a>
+      <a href="#patient-gated">14 Patient Gates</a>
+      <a href="#caveats">15 Caveats</a>
+      <a href="#visuals">16 Visuals</a>
+      <a href="#paths">17 Paths</a>
     </nav>
     <main>
       <section id="tldr">
@@ -270,6 +300,7 @@ def main() -> None:
           <div class="box"><strong>What is built:</strong> CLEAN-NeoBench normalizes candidate/method/split tables; BAR-Neo adds reliability score and abstention; BAR-Neo-BMA turns benchmark behavior into posterior expert weights.</div>
           <div class="box"><strong>What is not claimed:</strong> no clinical vaccine selection, no new SOTA predictor, no external validation proven, no quantum advantage, no clean public baseline without overlap audit.</div>
           <div class="box"><strong>Current practical use:</strong> use BMA scores as research review prompts. High score + abstention means inspect manually, not claim validity.</div>
+          <div class="box"><strong>BAR-Neo-X upgrade:</strong> the separate claim-safe XAI layer explains each row and downranks leakage-heavy top rows for reviewer-facing candidate triage.</div>
           <div class="box"><strong>Fallback control:</strong> fallback-only rows are capped and start at rank {fallback_min_rank}, so missing expert support cannot dominate.</div>
         </div>
       </section>
@@ -285,6 +316,7 @@ def main() -> None:
             {"Layer": "QK branch", "Role": "bounded fallback", "Allowed claim": "bounded fallback/fusion component"},
             {"Layer": "BAR-Neo", "Role": "reliability ranker", "Allowed claim": "calibrated prioritization with abstention"},
             {"Layer": "BAR-Neo-BMA", "Role": "agentic ensemble controller", "Allowed claim": "Bayesian-style benchmark-derived expert weighting"},
+            {"Layer": "BAR-Neo-X", "Role": "post-hoc XAI + claim-safe reranker", "Allowed claim": "leakage-aware reviewer-facing triage, not SOTA"},
         ]), ["Layer", "Role", "Allowed claim"], 20)}
       </section>
 
@@ -292,6 +324,11 @@ def main() -> None:
         <h2><span class="num">03</span>CLEAN-NeoBench Leaderboard</h2>
         <p class="muted">Overall table is reviewer-safe: public pretrained tools remain caveated unless overlap audit exists.</p>
         {table_html(leaderboard, ["method_name", "method_role", "method_family", "mean_AUPRC", "mean_top10_precision", "mean_ECE", "reviewer_safe_score"], 15)}
+        <h3>Win/Loss vs Structure_LR</h3>
+        <p class="muted">This table answers the practical question: which methods beat the honest local anchor on matched split slices, and where source/HLA stress still breaks them.</p>
+        {table_html(winloss_summary, ["method_name", "method_role", "method_disposition", "n_matched_anchor_splits", "n_wins_vs_anchor", "n_losses_vs_anchor", "win_rate_vs_anchor", "median_delta_AUPRC_vs_anchor", "source_heldout_median_delta_AUPRC", "hla_heldout_median_delta_AUPRC"], 20)}
+        <h3>Split Winner Board</h3>
+        {table_html(split_winners, ["split_contract", "split_group", "overall_winner", "overall_winner_role", "overall_winner_AUPRC", "clean_internal_winner", "clean_internal_winner_AUPRC", "caveated_public_winner", "public_winner_clean_claim_allowed"], 35)}
       </section>
 
       <section id="bma">
@@ -331,8 +368,41 @@ def main() -> None:
         {table_html(review_tier_summary, ["review_tier", "n"], 20)}
       </section>
 
+      <section id="distribution-error">
+        <h2><span class="num">09</span>Distribution Error Audit</h2>
+        <p>This section links wrong predictions to training/external distribution, source prevalence, rare HLA support, low-prevalence stress groups, and leakage-risk regions.</p>
+        <h3>Method vulnerability</h3>
+        {table_html(distribution_vulnerability, ["method_name", "method_role", "n_scored", "source_score_prevalence_corr", "low_prevalence_high_ranked_negative_rate", "rare_hla_high_ranked_negative_rate", "rare_hla_missed_positive_rate", "external_missed_positive_rate", "distribution_vulnerability_score", "primary_distribution_issues"], 30)}
+        <h3>Shift-linked error slices</h3>
+        {table_html(shift_error_link, ["feature", "value", "train_n", "external_n", "train_positive_prevalence", "external_positive_prevalence", "distribution_shift_score", "max_error_pressure_score", "error_shift_link_score", "top_fp_methods", "top_fn_methods", "diagnosis"], 45)}
+        <h3>Remediation plan</h3>
+        {table_html(remediation_plan, ["priority", "failure_axis", "evidence", "recommended_action", "barneo_policy"], 12)}
+      </section>
+
+      <section id="contextual-bma">
+        <h2><span class="num">10</span>Contextual BAR-Neo-BMA</h2>
+        <p>Contextual BMA changes posterior expert weights by source, HLA support, low-prevalence stress, Korean-HLA focus, external/holdout status, and leakage risk. Public pretrained tools remain caveated support and are excluded from the clean contextual score view.</p>
+        <h3>Top contextual candidates</h3>
+        {table_html(contextual_scores, ["candidate_id", "source_name", "hla_allele_4digit", "contextual_bma_score", "clean_contextual_bma_score", "contextual_confidence_score", "contextual_abstain", "contextual_abstention_reason_primary", "selected_contextual_methods"], 35)}
+        <h3>Context summary</h3>
+        {table_html(contextual_summary, ["context_label", "n_candidates", "n_pos", "positive_prevalence", "mean_contextual_bma_score", "mean_clean_contextual_bma_score", "mean_confidence", "abstention_rate", "clean_claim_allowed", "caveated_public_used_rate"], 45)}
+        <h3>Contextual method weights</h3>
+        {table_html(contextual_weights, ["context_label", "method_name", "method_role", "method_family", "contextual_weight", "context_multiplier", "context_adjustment_reasons"], 55)}
+      </section>
+
+      <section id="challenge-pack">
+        <h2><span class="num">11</span>Challenge Pack</h2>
+        <p>The challenge pack converts current failures into next experiments: low-prevalence false-positive stress, rare-HLA rescue, high-score claim-blocked rows, external fragility, public/internal disagreement, Korean-HLA focus, and patient-gate metadata blockers.</p>
+        <h3>Axis summary</h3>
+        {table_html(challenge_summary, ["challenge_axis", "n_unique_candidates", "positive_prevalence", "mean_contextual_bma_score", "mean_clean_contextual_bma_score", "mean_confidence", "recommended_split_contract", "success_metric"], 30)}
+        <h3>Top challenge rows</h3>
+        {table_html(challenge_pack, ["global_challenge_rank", "challenge_axis", "candidate_id", "label", "source_name", "hla_allele_4digit", "contextual_bma_score", "clean_contextual_bma_score", "contextual_confidence_score", "challenge_reason", "recommended_next_action"], 55)}
+        <h3>Next experiment plan</h3>
+        {table_html(experiment_plan, ["priority", "experiment", "why", "success_metric", "expected_output"], 20)}
+      </section>
+
       <section id="manual-queue">
-        <h2><span class="num">09</span>Manual Review Queue</h2>
+        <h2><span class="num">12</span>Manual Review Queue</h2>
         <p>The manual queue is not a clean claim list. It separates high-score claim-blocked rows from rescue/watchlist rows and distribution challenge rows.</p>
         <h3>Priority Review Queue</h3>
         {table_html(manual_queue, ["candidate_id", "manual_review_priority_bin", "manual_review_priority_score", "failure_aware_review_tier", "label", "source_name", "hla_allele_4digit", "peptide", "base_patient_gated_bma_score", "failure_aware_score", "best_clean_internal_support", "best_caveated_public_support", "review_action_required"], 45)}
@@ -341,7 +411,7 @@ def main() -> None:
       </section>
 
       <section id="public-audit">
-        <h2><span class="num">10</span>Public Tool Overlap Audit</h2>
+        <h2><span class="num">13</span>Public Tool Overlap Audit</h2>
         <p><span class="warn">Public pretrained tools remain caveated.</span> Documentation-level provenance is not enough to call a public method a clean external baseline. Row-level candidate/peptide-HLA training-corpus overlap audit is required.</p>
         {table_html(public_audit[public_audit["uses_public_pretraining"].astype(bool)] if not public_audit.empty and "uses_public_pretraining" in public_audit.columns else public_audit, ["method_name", "method_role", "training_overlap_audit_status", "clean_comparator_allowed_after_audit", "reviewer_disposition", "caveat"], 30)}
         <h3>Row-Level Training Corpus Audit</h3>
@@ -351,7 +421,7 @@ def main() -> None:
       </section>
 
       <section id="patient-gated">
-        <h2><span class="num">11</span>PAAD/THCA Patient Gates</h2>
+        <h2><span class="num">14</span>PAAD/THCA Patient Gates</h2>
         <p><span class="warn">Current status: demo only.</span> Candidate rows lack enough disease timing, presentation, antigen expression, immune-context, and safety metadata for real patient-level confidence. All current patient-gated rows are research triage only and clinical_use=false.</p>
         <h3>Scenario gate matrix</h3>
         {table_html(patient_scenarios, ["scenario_id", "disease", "research_priority", "disease_context_gate", "presentation_gate", "antigen_gate", "immune_context_gate", "safety_gate", "scenario_gate_multiplier", "combination_strategy", "main_caveat"], 20)}
@@ -362,7 +432,7 @@ def main() -> None:
       </section>
 
       <section id="caveats">
-        <h2><span class="num">12</span>Caveats</h2>
+        <h2><span class="num">15</span>Caveats</h2>
         <div class="cards">
           <div class="card"><strong class="warn">Public tools:</strong><br>Public pretrained tools are caveated comparators until row-level training-corpus overlap audit is complete.</div>
           <div class="card"><strong class="warn">MHC class:</strong><br>Class I and Class II must not be pooled as a single predictor claim.</div>
@@ -373,14 +443,25 @@ def main() -> None:
         </div>
       </section>
 
+      <section id="visuals">
+        <h2><span class="num">16</span>Visual Dashboard</h2>
+        <p>The separate visual dashboard contains 12 PNG panels for leaderboard ranking, source prevalence shift, abstention funnel, method vulnerability, challenge axes, contextual score-confidence, patient-gate metadata blockers, public-tool caveats, split heatmaps, anchor deltas, contextual weights, and claim-safe top candidates.</p>
+        <p><a href="clean_neobench_visual_dashboard_2026_05_10.html">Open CLEAN-NeoBench Visual Dashboard</a></p>
+      </section>
+
       <section id="paths">
-        <h2><span class="num">13</span>Sources + Paths</h2>
+        <h2><span class="num">17</span>Sources + Paths</h2>
         <p class="path">Output root: {html.escape(str(output_root))}</p>
         <p class="path">Leaderboard: {html.escape(str(output_root / "clean_neobench_leaderboard.tsv"))}</p>
+        <p class="path">Win/loss summary: {html.escape(str(output_root / "clean_neobench_winloss_method_summary.tsv"))}</p>
+        <p class="path">Split winner board: {html.escape(str(output_root / "clean_neobench_split_winner_board.tsv"))}</p>
         <p class="path">Split metrics: {html.escape(str(output_root / "clean_neobench_split_metrics.tsv"))}</p>
         <p class="path">BMA candidate scores: {html.escape(str(output_root / "barneo_bma_candidate_scores.tsv"))}</p>
         <p class="path">BMA method weights: {html.escape(str(output_root / "barneo_bma_method_weights.tsv"))}</p>
         <p class="path">BMA selector audit: {html.escape(str(output_root / "barneo_bma_selector_audit.tsv"))}</p>
+        <p class="path">Distribution error audit: {html.escape(str(output_root / "clean_neobench_method_distribution_vulnerability.tsv"))}</p>
+        <p class="path">Contextual BMA scores: {html.escape(str(output_root / "barneo_contextual_bma_candidate_scores.tsv"))}</p>
+        <p class="path">Challenge pack: {html.escape(str(output_root / "clean_neobench_challenge_pack.tsv"))}</p>
         <p class="path">Patient-gated demo: {html.escape(str(output_root / "patient_gated_clean_neo_candidate_queue.tsv"))}</p>
       </section>
     </main>
@@ -390,6 +471,14 @@ def main() -> None:
 """
     page_path = hub_root / args.page_name
     page_path.write_text(html_text)
+    update_manifest(
+        output_root,
+        "barneo_html_dossier",
+        {
+            "outputs": [str(page_path)],
+            "warnings": ["HTML dossier is reviewer-safe research triage, not clinical vaccine selection or SOTA validation."],
+        },
+    )
     print(f"[barneo-dossier] wrote {page_path}")
 
 

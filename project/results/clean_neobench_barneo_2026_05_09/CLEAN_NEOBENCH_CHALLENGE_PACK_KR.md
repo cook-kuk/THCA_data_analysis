@@ -8,15 +8,15 @@
 
 | challenge_axis                       |   n_unique_candidates |   positive_prevalence |   mean_contextual_bma_score |   mean_confidence | recommended_split_contract                          |
 |:-------------------------------------|----------------------:|----------------------:|----------------------------:|------------------:|:----------------------------------------------------|
-| missed_positive_rescue_watchlist     |                   120 |              1        |                   0.0739725 |          0.145667 | HLA_heldout + source_heldout                        |
-| korean_hla_focus_stress              |                   120 |              0.966667 |                   0.765822  |          0.387933 | korean_hla_focus                                    |
+| missed_positive_rescue_watchlist     |                   120 |              1        |                   0.0787338 |          0.149917 | HLA_heldout + source_heldout                        |
+| korean_hla_focus_stress              |                   120 |              0.95     |                   0.774668  |          0.387933 | korean_hla_focus                                    |
 | external_holdout_fragility           |                   120 |              0.791667 |                   0.165663  |          0.135854 | source_heldout_external                             |
-| patient_gate_metadata_blocker        |                   120 |              0.958333 |                   0.804501  |          0.408078 | patient_gated_PAAD_THCA_demo                        |
-| rare_hla_support_gap                 |                   120 |              0.991667 |                   0.702416  |          0.380167 | HLA_heldout + Korean_HLA_focus_if_applicable        |
-| high_score_claim_blocked             |                   120 |              0.9      |                   0.821048  |          0.38     | exact_phla_holdout + near_peptide_cluster_holdout   |
-| low_prevalence_false_positive_stress |                   120 |              0        |                   0.306905  |          0.463583 | low_prevalence_heldout                              |
-| public_internal_disagreement         |                    43 |              0.767442 |                   0.541423  |          0.447029 | public_overlap_audit + clean_internal_only_ablation |
-| claim_safe_priority_review           |                     1 |              1        |                   0.722513  |          0.775931 | exact_phla + source_heldout + HLA_heldout           |
+| patient_gate_metadata_blocker        |                   120 |              0.966667 |                   0.781021  |          0.408078 | patient_gated_PAAD_THCA_demo                        |
+| rare_hla_support_gap                 |                   120 |              0.991667 |                   0.703143  |          0.380167 | HLA_heldout + Korean_HLA_focus_if_applicable        |
+| high_score_claim_blocked             |                   120 |              0.858333 |                   0.799003  |          0.38     | exact_phla_holdout + near_peptide_cluster_holdout   |
+| low_prevalence_false_positive_stress |                   120 |              0        |                   0.308646  |          0.425333 | low_prevalence_heldout                              |
+| public_internal_disagreement         |                    43 |              0.767442 |                   0.537812  |          0.447029 | public_overlap_audit + clean_internal_only_ablation |
+| claim_safe_priority_review           |                     2 |              1        |                   0.669062  |          0.752358 | exact_phla + source_heldout + HLA_heldout           |
 
 ## 다음 실험
 
