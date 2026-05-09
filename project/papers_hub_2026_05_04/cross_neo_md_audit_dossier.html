@@ -1,0 +1,1047 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CROSS-Neo MD Audit</title>
+<style>
+body{margin:0;background:#07111f;color:#edf5ff;font-family:Inter,Arial,sans-serif;line-height:1.55}
+a{color:#39d4b5} .hero{padding:48px 32px;background:#0f2035;border-bottom:1px solid #26364d}
+.wrap{max-width:1280px;margin:0 auto;padding:28px 30px 70px} h1{font-size:48px;margin:0 0 10px;font-family:Georgia,serif}
+.lead{max-width:980px;color:#cbd7e7;font-size:17px} .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}
+.stat{background:#101d30;border:1px solid #293b55;border-radius:8px;padding:14px} .stat b{display:block;color:#f2c46d;font-size:26px}
+section{border-bottom:1px solid #26364d;padding:24px 0} h2{font-family:Georgia,serif;font-size:30px;color:#fff2d0}
+table{border-collapse:collapse;width:100%;font-size:12px} th,td{border:1px solid #293b55;padding:7px;vertical-align:top} th{color:#f2c46d;background:#13243a}
+.figs{display:grid;grid-template-columns:repeat(2,1fr);gap:16px} article{background:#101d30;border:1px solid #293b55;border-radius:8px;padding:12px}
+img{width:100%;background:white;border-radius:6px} .warn{border-left:4px solid #ff7b72;background:#111d2e;padding:12px 14px;margin:14px 0}
+.links{display:flex;gap:10px;flex-wrap:wrap} .pill{border:1px solid #395170;border-radius:999px;padding:7px 10px;background:#101d30}
+.muted{color:#9fb0c7} @media(max-width:900px){.grid,.figs{grid-template-columns:1fr}}
+</style></head><body>
+<header class="hero"><div class="wrap">
+<h1>CROSS-Neo MD Audit</h1>
+<p class="lead">Structure-aware MD visualization layer for TCR-pMHC neoantigen candidates. This page summarizes synced OpenMM trajectories, QC, contact persistence, and claim boundaries.</p>
+<div class="grid">
+<div class="stat"><b>5</b><span>runs indexed</span></div>
+<div class="stat"><b>4</b><span>trajectories parsed</span></div>
+<div class="stat"><b>10.00</b><span>max ns synced</span></div>
+<div class="stat"><b>13</b><span>main figure panels</span></div>
+</div>
+<p><a href="index.html">Hub index</a></p>
+</div></header>
+<main class="wrap">
+<section><h2>Current Verdict</h2>
+<div class="warn">MD is a structural audit layer, not immunogenicity proof. Completed 10 ns evidence is currently available for GADGVGKSAL / HLA-C*08:02; HMTEVVRHC 10 ns was still partial at the latest sync.</div>
+<div class="links">
+<a class="pill" href="assets/cross_neo_md_audit/CROSS_Neo_MD_audit_decision_report.md">Decision report</a>
+<a class="pill" href="assets/cross_neo_md_audit/MD_one_page_paper_summary.md">Paper summary</a>
+<a class="pill" href="assets/cross_neo_md_audit/MD_one_page_korean_summary_for_Seungho.md">Korean summary</a>
+<a class="pill" href="assets/cross_neo_md_audit/md_case_audit_report.md">Model + MD audit</a>
+<a class="pill" href="assets/cross_neo_md_audit/counterfactual_md_batch_plan.md">Counterfactual batch</a>
+<a class="pill" href="assets/cross_neo_md_audit/positive_control_selection_report.md">Positive controls</a>
+<a class="pill" href="assets/cross_neo_md_audit/structure_prep_job_report.md">Structure prep jobs</a>
+<a class="pill" href="assets/cross_neo_md_audit/MD_control_readiness_report.md">Control readiness</a>
+<a class="pill" href="assets/cross_neo_md_audit/hmtevvrhc_autowatch_latest.json">6VRN watcher JSON</a>
+</div>
+</section>
+<section><h2>QC Summary</h2><table><thead><tr>
+<th>run id</th>
+<th>candidate</th>
+<th>condition</th>
+<th>total time ps</th>
+<th>peptide rmsd final nm</th>
+<th>peptide com drift final nm</th>
+<th>qc status</th>
+</tr></thead><tbody>
+<tr>
+<td>prod_10ns_6VRN_1fs300K</td>
+<td>HMTEVVRHC/HLA-A*02:01</td>
+<td>explicit_cuda_10ns</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>missing_trajectory</td>
+</tr>
+<tr>
+<td>prod_10ns_6UON_2fs300K</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>explicit_cuda_10ns</td>
+<td>10000.000</td>
+<td>0.139</td>
+<td>0.660</td>
+<td>ok</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>explicit_cuda_replicate_screen</td>
+<td>1000.000</td>
+<td>0.112</td>
+<td>0.243</td>
+<td>ok</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>vacuum_smoke</td>
+<td>0.100</td>
+<td>0.010</td>
+<td>0.005</td>
+<td>ok</td>
+</tr>
+<tr>
+<td>6VRN_HMTEVVRHC</td>
+<td>HMTEVVRHC/HLA-A*02:01</td>
+<td>vacuum_smoke</td>
+<td>0.100</td>
+<td>0.005</td>
+<td>0.002</td>
+<td>ok</td>
+</tr>
+</tbody></table></section>
+<section><h2>MD Evidence Scores</h2><table><thead><tr>
+<th>run id</th>
+<th>candidate</th>
+<th>MD evidence score</th>
+<th>MD evidence label</th>
+<th>pMHC stability score</th>
+<th>TCR recognition score</th>
+<th>runtime fraction</th>
+</tr></thead><tbody>
+<tr>
+<td>prod_10ns_6UON_2fs300K</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>0.557</td>
+<td>MD_MODERATE</td>
+<td>0.520</td>
+<td>0.440</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>0.650</td>
+<td>MD_MODERATE</td>
+<td>0.721</td>
+<td>0.504</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>0.561</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>0.989</td>
+<td>0.540</td>
+<td>0.000</td>
+</tr>
+<tr>
+<td>6VRN_HMTEVVRHC</td>
+<td>HMTEVVRHC/HLA-A*02:01</td>
+<td>0.666</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>0.988</td>
+<td>1.000</td>
+<td>0.000</td>
+</tr>
+</tbody></table></section>
+<section><h2>Anchor Contacts</h2><table><thead><tr>
+<th>run id</th>
+<th>candidate</th>
+<th>max contact occupancy</th>
+<th>sum contact occupancy</th>
+</tr></thead><tbody>
+<tr>
+<td>prod_10ns_6UON_2fs300K</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>0.995</td>
+<td>6.525</td>
+</tr>
+<tr>
+<td>prod_10ns_6UON_2fs300K</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>1.000</td>
+<td>7.515</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>1.000</td>
+<td>6.700</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>1.000</td>
+<td>8.300</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>1.000</td>
+<td>7.000</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>1.000</td>
+<td>7.000</td>
+</tr>
+<tr>
+<td>6VRN_HMTEVVRHC</td>
+<td>HMTEVVRHC/HLA-A*02:01</td>
+<td>1.000</td>
+<td>7.200</td>
+</tr>
+<tr>
+<td>6VRN_HMTEVVRHC</td>
+<td>HMTEVVRHC/HLA-A*02:01</td>
+<td>1.000</td>
+<td>6.100</td>
+</tr>
+</tbody></table></section>
+<section><h2>TCR Contact Tail</h2><table><thead><tr>
+<th>run id</th>
+<th>candidate</th>
+<th>time ps</th>
+<th>tcr peptide heavy atom contacts</th>
+</tr></thead><tbody>
+<tr>
+<td>prod_10ns_6UON_2fs300K</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>10000.000</td>
+<td>24.000</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>1000.000</td>
+<td>24.000</td>
+</tr>
+<tr>
+<td>6UON_GADGVGKSAL</td>
+<td>GADGVGKSAL/HLA-C*08:02</td>
+<td>0.100</td>
+<td>27.000</td>
+</tr>
+<tr>
+<td>6VRN_HMTEVVRHC</td>
+<td>HMTEVVRHC/HLA-A*02:01</td>
+<td>0.100</td>
+<td>73.000</td>
+</tr>
+</tbody></table></section>
+<section><h2>CROSS-Neo + MD Agreement</h2>
+<p class="muted">Rows where model score and completed MD evidence both support candidate prioritization.</p>
+<table><thead><tr>
+<th>row id</th>
+<th>source dataset</th>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>label</th>
+<th>score</th>
+<th>model name</th>
+<th>split name</th>
+<th>MD evidence label</th>
+<th>MD evidence score</th>
+<th>wetlab priority score evidence adjusted</th>
+</tr></thead><tbody>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.918</td>
+<td>source_qk_compact_gamma1</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.918</td>
+<td>source_qk_compact_gamma1</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.748</td>
+<td>v2_counterfactual_hgb</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.729</td>
+<td>source_prespecified_rf_qk_compact_w0.5</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.714</td>
+<td>v2_counterfactual_lr_hla_ranknorm</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.701</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.682</td>
+<td>v2_counterfactual_lr</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.604</td>
+<td>v2_groupdro_proxy_cf_lr</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.604</td>
+<td>selective_ensemble_v2_1_conservative</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.604</td>
+<td>selective_ensemble_v2_1_topk</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.560</td>
+<td>v2_cf_plm_rf</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+<tr>
+<td>CNV0_01132</td>
+<td>NEPdb</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>1.000</td>
+<td>0.556</td>
+<td>v2_class_balanced_cf_plm_hgb</td>
+<td>source_heldout_NEPdb</td>
+<td>MD_MODERATE</td>
+<td>0.557</td>
+<td>1.631</td>
+</tr>
+</tbody></table>
+<p class="muted">High model score but MD is low or still insufficient.</p>
+<table><thead><tr>
+<th>row id</th>
+<th>source dataset</th>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>label</th>
+<th>score</th>
+<th>model name</th>
+<th>MD evidence label</th>
+<th>md interpretation</th>
+</tr></thead><tbody>
+<tr>
+<td>CNV0_01149</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01150</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01151</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01152</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01172</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01176</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01177</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01183</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01188</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01189</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+<tr>
+<td>CNV0_01195</td>
+<td>NEPdb</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>1.000</td>
+<td>0.802</td>
+<td>v2_cf_plm_rf_hla_ranknorm</td>
+<td>MD_INSUFFICIENT_RUNTIME</td>
+<td>insufficient_runtime_or_missing_trajectory</td>
+</tr>
+</tbody></table>
+</section>
+<section><h2>Next Simulation Batch</h2><table><thead><tr>
+<th>priority rank</th>
+<th>row id</th>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>md tier</th>
+<th>recommended next batch</th>
+<th>reason</th>
+</tr></thead><tbody>
+<tr>
+<td>1.000</td>
+<td>CNV0_01151</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>P0_MD_TCR_pMHC</td>
+<td>P0: let current 10ns finish, sync DCD, rerun full analysis, then launch WT/decoy 3x10ns</td>
+<td>highest TCR evidence and live state is stable, but trajectory-derived contacts are pending</td>
+</tr>
+<tr>
+<td>2.000</td>
+<td>CNV0_01132</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>P0_MD_TCR_pMHC</td>
+<td>P0: add WT, scrambled decoy, same-HLA positive control; run 3x10ns before any 50-100ns promotion</td>
+<td>10ns mutant TCR-pMHC completed with moderate structural support, but no counterfactual control exists</td>
+</tr>
+<tr>
+<td>3.000</td>
+<td>CNV0_01388</td>
+<td>MAWSLGVLVALPFPL</td>
+<td>HLA-B*40:01</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>4.000</td>
+<td>CNV0_01384</td>
+<td>MAWSLGVLVALPFPL</td>
+<td>HLA-A*02:01</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>5.000</td>
+<td>CNV0_01146</td>
+<td>FSLVFLVYSVFKNNV</td>
+<td>HLA-A*11:01</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>6.000</td>
+<td>CNV0_01163</td>
+<td>MAWSLGVLVALPFPL</td>
+<td>HLA-B*18:01</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>7.000</td>
+<td>CNV0_01164</td>
+<td>MAWSLGVLVALPFPL</td>
+<td>HLA-A*25:01</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>8.000</td>
+<td>CNV0_01276</td>
+<td>MSSLAATTFHWKKCR</td>
+<td>HLA-B*07:02</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>9.000</td>
+<td>CNV0_00930</td>
+<td>MSSLAATTFHWKKCR</td>
+<td>HLA-A*68:01</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>10.000</td>
+<td>CNV0_00931</td>
+<td>MSSLAATTFHWKKCR</td>
+<td>HLA-B*35:03</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>11.000</td>
+<td>CNV0_01391</td>
+<td>FSLVFLVYSVFKNNV</td>
+<td>HLA-B*38:01</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+<tr>
+<td>12.000</td>
+<td>CNV0_01144</td>
+<td>FSLVFLVYSVFKNNV</td>
+<td>HLA-B*52:01</td>
+<td>P1_MD_pMHC_bulge</td>
+<td>P1: pMHC-only 3x10ns bulge/stability screen; no TCR-recognition claim</td>
+<td>long class-I peptide or conformation uncertainty without paired TCR</td>
+</tr>
+</tbody></table></section>
+<section><h2>Counterfactual Controls</h2>
+<p class="muted">WT rows are blocked or manual-confirmation required unless a registry WT peptide is available. Decoys preserve P2 and C-terminal anchors.</p>
+<table><thead><tr>
+<th>batch id</th>
+<th>priority rank</th>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>control type</th>
+<th>complex kind</th>
+<th>sequence</th>
+<th>sequence status</th>
+<th>readiness</th>
+<th>blocked by</th>
+</tr></thead><tbody>
+<tr>
+<td>P01_HMTEVVRHC_HLA_A_02_01_mutant_pmhc_3x10ns</td>
+<td>1.000</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>mutant</td>
+<td>pMHC</td>
+<td>HMTEVVRHC</td>
+<td>observed_mutant_or_candidate_peptide</td>
+<td>ready_template_or_structure_generation_needed</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>P01_HMTEVVRHC_HLA_A_02_01_mutant_tcr_pmhc_3x10ns</td>
+<td>1.000</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>mutant</td>
+<td>TCR-pMHC</td>
+<td>HMTEVVRHC</td>
+<td>observed_mutant_or_candidate_peptide</td>
+<td>ready_existing_tcr_pmhc_template</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>P01_HMTEVVRHC_HLA_A_02_01_wt_pMHC_3x10ns</td>
+<td>1.000</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>wildtype</td>
+<td>pMHC</td>
+<td>NA</td>
+<td>missing_wt_sequence_blocked</td>
+<td>blocked</td>
+<td>missing_wt_sequence</td>
+</tr>
+<tr>
+<td>P01_HMTEVVRHC_HLA_A_02_01_wt_TCR_pMHC_3x10ns</td>
+<td>1.000</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>wildtype</td>
+<td>TCR-pMHC</td>
+<td>NA</td>
+<td>missing_wt_sequence_blocked</td>
+<td>blocked</td>
+<td>missing_wt_sequence</td>
+</tr>
+<tr>
+<td>P01_HMTEVVRHC_HLA_A_02_01_anchor_preserved_decoy_pMHC_3x10ns</td>
+<td>1.000</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>anchor_preserved_scrambled_decoy</td>
+<td>pMHC</td>
+<td>HMTHRVVEC</td>
+<td>algorithmic_decoy_preserving_p2_and_cterminal_anchor</td>
+<td>structure_generation_required</td>
+<td>prepare_decoy_structure_from_template</td>
+</tr>
+<tr>
+<td>P01_HMTEVVRHC_HLA_A_02_01_anchor_preserved_decoy_TCR_pMHC_3x10ns</td>
+<td>1.000</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>anchor_preserved_scrambled_decoy</td>
+<td>TCR-pMHC</td>
+<td>HMTHRVVEC</td>
+<td>algorithmic_decoy_preserving_p2_and_cterminal_anchor</td>
+<td>structure_generation_required</td>
+<td>prepare_decoy_structure_from_template</td>
+</tr>
+<tr>
+<td>P01_HMTEVVRHC_HLA_A_02_01_same_hla_positive_control_pMHC_3x10ns</td>
+<td>1.000</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>same_or_similar_hla_positive_control</td>
+<td>pMHC</td>
+<td>ELAGIGILTV</td>
+<td>selected_positive_control_exact_hla; tcr_row=TCRREG_0537478; pdb=5nqk</td>
+<td>ready_TCR_pMHC_positive_control</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>P01_HMTEVVRHC_HLA_A_02_01_same_hla_positive_control_TCR_pMHC_3x10ns</td>
+<td>1.000</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>same_or_similar_hla_positive_control</td>
+<td>TCR-pMHC</td>
+<td>ELAGIGILTV</td>
+<td>selected_positive_control_exact_hla; tcr_row=TCRREG_0537478; pdb=5nqk</td>
+<td>ready_TCR_pMHC_positive_control</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>P02_GADGVGKSAL_HLA_C_08_02_mutant_pmhc_3x10ns</td>
+<td>2.000</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>mutant</td>
+<td>pMHC</td>
+<td>GADGVGKSAL</td>
+<td>observed_mutant_or_candidate_peptide</td>
+<td>ready_template_or_structure_generation_needed</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>P02_GADGVGKSAL_HLA_C_08_02_mutant_tcr_pmhc_3x10ns</td>
+<td>2.000</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>mutant</td>
+<td>TCR-pMHC</td>
+<td>GADGVGKSAL</td>
+<td>observed_mutant_or_candidate_peptide</td>
+<td>ready_existing_tcr_pmhc_template</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>P02_GADGVGKSAL_HLA_C_08_02_wt_pMHC_3x10ns</td>
+<td>2.000</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>wildtype</td>
+<td>pMHC</td>
+<td>GAGGVGKSAL</td>
+<td>inferred_kras_g12d_like_requires_manual_confirmation</td>
+<td>manual_confirmation_required</td>
+<td>confirm_wt_sequence_before_simulation</td>
+</tr>
+<tr>
+<td>P02_GADGVGKSAL_HLA_C_08_02_wt_TCR_pMHC_3x10ns</td>
+<td>2.000</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>wildtype</td>
+<td>TCR-pMHC</td>
+<td>GAGGVGKSAL</td>
+<td>inferred_kras_g12d_like_requires_manual_confirmation</td>
+<td>manual_confirmation_required</td>
+<td>confirm_wt_sequence_before_simulation</td>
+</tr>
+<tr>
+<td>P02_GADGVGKSAL_HLA_C_08_02_anchor_preserved_decoy_pMHC_3x10ns</td>
+<td>2.000</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>anchor_preserved_scrambled_decoy</td>
+<td>pMHC</td>
+<td>GASGVKGADL</td>
+<td>algorithmic_decoy_preserving_p2_and_cterminal_anchor</td>
+<td>structure_generation_required</td>
+<td>prepare_decoy_structure_from_template</td>
+</tr>
+<tr>
+<td>P02_GADGVGKSAL_HLA_C_08_02_anchor_preserved_decoy_TCR_pMHC_3x10ns</td>
+<td>2.000</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>anchor_preserved_scrambled_decoy</td>
+<td>TCR-pMHC</td>
+<td>GASGVKGADL</td>
+<td>algorithmic_decoy_preserving_p2_and_cterminal_anchor</td>
+<td>structure_generation_required</td>
+<td>prepare_decoy_structure_from_template</td>
+</tr>
+<tr>
+<td>P02_GADGVGKSAL_HLA_C_08_02_same_hla_positive_control_pMHC_3x10ns</td>
+<td>2.000</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>same_or_similar_hla_positive_control</td>
+<td>pMHC</td>
+<td>GADGVGKSA</td>
+<td>selected_positive_control_exact_hla; tcr_row=TCRREG_0351706; pdb=6ULR</td>
+<td>incomplete_positive_control</td>
+<td>NA</td>
+</tr>
+<tr>
+<td>P02_GADGVGKSAL_HLA_C_08_02_same_hla_positive_control_TCR_pMHC_3x10ns</td>
+<td>2.000</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>same_or_similar_hla_positive_control</td>
+<td>TCR-pMHC</td>
+<td>FGDVGSTLF</td>
+<td>selected_positive_control_exact_hla; tcr_row=TCRREG_0053410; pdb=nan</td>
+<td>structure_generation_required</td>
+<td>prepare_positive_control_structure</td>
+</tr>
+<tr>
+<td>P03_MAWSLGVLVALPFPL_HLA_B_40_01_mutant_pmhc_3x10ns</td>
+<td>3.000</td>
+<td>MAWSLGVLVALPFPL</td>
+<td>HLA-B*40:01</td>
+<td>mutant</td>
+<td>pMHC</td>
+<td>MAWSLGVLVALPFPL</td>
+<td>observed_mutant_or_candidate_peptide</td>
+<td>ready_template_or_structure_generation_needed</td>
+<td>requires_pmhc_structure_generation</td>
+</tr>
+<tr>
+<td>P03_MAWSLGVLVALPFPL_HLA_B_40_01_wt_pMHC_3x10ns</td>
+<td>3.000</td>
+<td>MAWSLGVLVALPFPL</td>
+<td>HLA-B*40:01</td>
+<td>wildtype</td>
+<td>pMHC</td>
+<td>NA</td>
+<td>missing_wt_sequence_blocked</td>
+<td>blocked</td>
+<td>missing_wt_sequence</td>
+</tr>
+</tbody></table>
+</section>
+<section><h2>Positive Control PDBs</h2>
+<p class="muted">These are analysis sanity controls only, not cancer specificity evidence.</p>
+<table><thead><tr>
+<th>target peptide</th>
+<th>control peptide</th>
+<th>control hla 4digit</th>
+<th>pdb id</th>
+<th>status</th>
+<th>selected chains</th>
+<th>contacts tcr peptide initial</th>
+<th>extracted pdb</th>
+</tr></thead><tbody>
+<tr>
+<td>HMTEVVRHC</td>
+<td>ELAGIGILTV</td>
+<td>HLA-A*02:01</td>
+<td>5NQK</td>
+<td>ready_TCR_pMHC_positive_control</td>
+<td>A|B|H|L|P</td>
+<td>40.000</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_md_audit_2026_05_10/counterfactual_design/positive_control_pdbs/extracted/5NQK_ELAGIGILTV_HLA-A0201_chainP.pdb</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>AAGIGILTV</td>
+<td>HLA-A*02:01</td>
+<td>3QDJ</td>
+<td>ready_TCR_pMHC_positive_control</td>
+<td>A|B|C|D|E</td>
+<td>31.000</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_md_audit_2026_05_10/counterfactual_design/positive_control_pdbs/extracted/3QDJ_AAGIGILTV_HLA-A0201_chainC.pdb</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>ALGIGILTV</td>
+<td>HLA-A*02:01</td>
+<td>4EUP</td>
+<td>ready_TCR_pMHC_positive_control</td>
+<td>A|B|C|I|J</td>
+<td>62.000</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_md_audit_2026_05_10/counterfactual_design/positive_control_pdbs/extracted/4EUP_ALGIGILTV_HLA-A0201_chainC.pdb</td>
+</tr>
+<tr>
+<td>GADGVGKSAL</td>
+<td>GADGVGKSA</td>
+<td>HLA-C*08:02</td>
+<td>6ULR</td>
+<td>incomplete_positive_control</td>
+<td>A|B|C</td>
+<td>0.000</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_md_audit_2026_05_10/counterfactual_design/positive_control_pdbs/extracted/6ULR_GADGVGKSA_HLA-C0802_chainC.pdb</td>
+</tr>
+</tbody></table>
+</section>
+<section><h2>OpenMM-Ready Structure Jobs</h2>
+<p class="muted">Command templates are generated, but no new MD runs are launched from this dossier.</p>
+<table><thead><tr>
+<th>prep id</th>
+<th>batch id</th>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>control type</th>
+<th>complex kind</th>
+<th>sequence</th>
+<th>structure route</th>
+<th>input template pdb</th>
+</tr></thead><tbody>
+<tr>
+<td>MDPREP_0000</td>
+<td>P01_HMTEVVRHC_HLA_A_02_01_mutant_pmhc_3x10ns</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>mutant</td>
+<td>pMHC</td>
+<td>HMTEVVRHC</td>
+<td>openmm_prepare_existing_candidate_template</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_v2_sota_sprint_2026_05_09/tcr_extension/md_escalation/p0_structures/pilot_complexes/6VRN_HMTEVVRHC_HLA-A0201_chainP.pdb</td>
+</tr>
+<tr>
+<td>MDPREP_0001</td>
+<td>P01_HMTEVVRHC_HLA_A_02_01_mutant_tcr_pmhc_3x10ns</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>mutant</td>
+<td>TCR-pMHC</td>
+<td>HMTEVVRHC</td>
+<td>openmm_prepare_existing_candidate_template</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_v2_sota_sprint_2026_05_09/tcr_extension/md_escalation/p0_structures/pilot_complexes/6VRN_HMTEVVRHC_HLA-A0201_chainP.pdb</td>
+</tr>
+<tr>
+<td>MDPREP_0006</td>
+<td>P01_HMTEVVRHC_HLA_A_02_01_same_hla_positive_control_pMHC_3x10ns</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>same_or_similar_hla_positive_control</td>
+<td>pMHC</td>
+<td>ELAGIGILTV</td>
+<td>openmm_prepare_existing_extracted_positive_control</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_md_audit_2026_05_10/counterfactual_design/positive_control_pdbs/extracted/5NQK_ELAGIGILTV_HLA-A0201_chainP.pdb</td>
+</tr>
+<tr>
+<td>MDPREP_0007</td>
+<td>P01_HMTEVVRHC_HLA_A_02_01_same_hla_positive_control_TCR_pMHC_3x10ns</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>same_or_similar_hla_positive_control</td>
+<td>TCR-pMHC</td>
+<td>ELAGIGILTV</td>
+<td>openmm_prepare_existing_extracted_positive_control</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_md_audit_2026_05_10/counterfactual_design/positive_control_pdbs/extracted/5NQK_ELAGIGILTV_HLA-A0201_chainP.pdb</td>
+</tr>
+<tr>
+<td>MDPREP_0008</td>
+<td>P02_GADGVGKSAL_HLA_C_08_02_mutant_pmhc_3x10ns</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>mutant</td>
+<td>pMHC</td>
+<td>GADGVGKSAL</td>
+<td>openmm_prepare_existing_candidate_template</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_v2_sota_sprint_2026_05_09/tcr_extension/md_escalation/p0_structures/pilot_complexes/6UON_GADGVGKSAL_HLA-C0802_chainF.pdb</td>
+</tr>
+<tr>
+<td>MDPREP_0009</td>
+<td>P02_GADGVGKSAL_HLA_C_08_02_mutant_tcr_pmhc_3x10ns</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>mutant</td>
+<td>TCR-pMHC</td>
+<td>GADGVGKSAL</td>
+<td>openmm_prepare_existing_candidate_template</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_v2_sota_sprint_2026_05_09/tcr_extension/md_escalation/p0_structures/pilot_complexes/6UON_GADGVGKSAL_HLA-C0802_chainF.pdb</td>
+</tr>
+<tr>
+<td>MDPREP_0014</td>
+<td>P02_GADGVGKSAL_HLA_C_08_02_same_hla_positive_control_pMHC_3x10ns</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>same_or_similar_hla_positive_control</td>
+<td>pMHC</td>
+<td>GADGVGKSA</td>
+<td>openmm_prepare_existing_template</td>
+<td>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_md_audit_2026_05_10/counterfactual_design/positive_control_pdbs/extracted/6ULR_GADGVGKSA_HLA-C0802_chainC.pdb</td>
+</tr>
+</tbody></table>
+</section>
+<section><h2>Figure Gallery</h2><div class="figs"><article><img src='assets/cross_neo_md_audit/fig_md10_6uon_10ns_rmsd_contact_combo.png'><h3>fig_md10_6uon_10ns_rmsd_contact_combo</h3><a href='assets/cross_neo_md_audit/fig_md10_6uon_10ns_rmsd_contact_combo.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md11_anchor_tcr_contact_summary.png'><h3>fig_md11_anchor_tcr_contact_summary</h3><a href='assets/cross_neo_md_audit/fig_md11_anchor_tcr_contact_summary.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md12_evidence_score_components.png'><h3>fig_md12_evidence_score_components</h3><a href='assets/cross_neo_md_audit/fig_md12_evidence_score_components.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md13_visual_summary_dashboard.png'><h3>fig_md13_visual_summary_dashboard</h3><a href='assets/cross_neo_md_audit/fig_md13_visual_summary_dashboard.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md1_pipeline.png'><h3>fig_md1_pipeline</h3><a href='assets/cross_neo_md_audit/fig_md1_pipeline.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md2_peptide_rmsd.png'><h3>fig_md2_peptide_rmsd</h3><a href='assets/cross_neo_md_audit/fig_md2_peptide_rmsd.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md3_pmhc_contact_heatmap.png'><h3>fig_md3_pmhc_contact_heatmap</h3><a href='assets/cross_neo_md_audit/fig_md3_pmhc_contact_heatmap.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md4_tcr_peptide_contact_heatmap.png'><h3>fig_md4_tcr_peptide_contact_heatmap</h3><a href='assets/cross_neo_md_audit/fig_md4_tcr_peptide_contact_heatmap.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md5_mutant_wt_interface_delta.png'><h3>fig_md5_mutant_wt_interface_delta</h3><a href='assets/cross_neo_md_audit/fig_md5_mutant_wt_interface_delta.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md6_replicate_consistency.png'><h3>fig_md6_replicate_consistency</h3><a href='assets/cross_neo_md_audit/fig_md6_replicate_consistency.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md7_model_md_agreement.png'><h3>fig_md7_model_md_agreement</h3><a href='assets/cross_neo_md_audit/fig_md7_model_md_agreement.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md8_claim_boundary.png'><h3>fig_md8_claim_boundary</h3><a href='assets/cross_neo_md_audit/fig_md8_claim_boundary.png'>PNG</a></article>
+<article><img src='assets/cross_neo_md_audit/fig_md9_live_progress_temperature.png'><h3>fig_md9_live_progress_temperature</h3><a href='assets/cross_neo_md_audit/fig_md9_live_progress_temperature.png'>PNG</a></article></div></section>
+<section><h2>Source Paths</h2><p class="muted">/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_md_audit_2026_05_10</p></section>
+</main></body></html>

@@ -1,0 +1,10 @@
+# Counterfactual MD Report
+
+No WT or decoy trajectories were discovered in the current synced outputs.
+
+## TODO Manifest
+
+| candidate | needed_simulation | claim_boundary |
+| --- | --- | --- |
+| GADGVGKSAL/HLA-C*08:02 | WT pMHC and WT TCR-pMHC if peptide mutation mapping exists; scrambled peptide negative control; same HLA and TCR template. | No mutant-specific recognition claim without WT/decoy comparison. |
+| HMTEVVRHC/HLA-A*02:01 | WT pMHC and WT TCR-pMHC if peptide mutation mapping exists; scrambled peptide negative control; same HLA and TCR template. | No mutant-specific recognition claim without WT/decoy comparison. |
