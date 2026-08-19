@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper 1 Synthetic-Lethality Claim Boundary</title>
+  <style>
+    :root {
+      --bg: #111318;
+      --panel: #191d25;
+      --panel-2: #202631;
+      --ink: #ece7da;
+      --muted: #a7aebd;
+      --line: #343b49;
+      --gold: #d9ad5f;
+      --red: #ef6b62;
+      --green: #86d391;
+      --blue: #8ab7ff;
+      --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      --serif: "Cormorant Garamond", Georgia, serif;
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    code { font-family: var(--mono); color: #f2d395; font-size: .9em; }
+    .hero {
+      min-height: 58vh;
+      padding: 58px max(28px, 7vw) 34px;
+      background:
+        linear-gradient(90deg, rgba(17,19,24,.96), rgba(17,19,24,.76)),
+        url("assets/paper1/synthetic_lethality/prism_top_drugs.png") center/cover no-repeat;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    .kicker { font: 700 12px var(--mono); color: var(--gold); letter-spacing: 0; text-transform: uppercase; }
+    h1 {
+      font-family: var(--serif);
+      font-size: clamp(42px, 7vw, 92px);
+      line-height: .92;
+      letter-spacing: 0;
+      margin: 12px 0 18px;
+      max-width: 1050px;
+    }
+    .lead { max-width: 980px; color: #d8dde8; font-size: 19px; }
+    .crumbs { margin-top: 16px; color: var(--muted); font-family: var(--mono); font-size: 12px; }
+    .stats { display: grid; grid-template-columns: repeat(6, minmax(140px, 1fr)); gap: 10px; margin-top: 28px; max-width: 1250px; }
+    .stat { background: rgba(25,29,37,.88); border: 1px solid var(--line); padding: 14px; border-radius: 8px; min-height: 86px; }
+    .stat span { display:block; color: var(--muted); font: 700 11px var(--mono); text-transform: uppercase; }
+    .stat b { display:block; margin-top: 8px; font-size: 20px; color: var(--ink); }
+    .layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 28px; max-width: 1540px; margin: 0 auto; padding: 30px 26px 70px; }
+    nav { position: sticky; top: 12px; align-self: start; max-height: calc(100vh - 24px); overflow: auto; border-right: 1px solid var(--line); padding-right: 18px; }
+    nav b { display:block; color: var(--gold); font-family: var(--mono); font-size: 12px; margin-bottom: 12px; }
+    nav a { display:block; color: var(--muted); padding: 8px 0; border-bottom: 1px solid rgba(52,59,73,.55); font-size: 14px; }
+    section { margin: 0 0 42px; }
+    h2 { font-family: var(--serif); font-size: 38px; line-height: 1.05; margin: 0 0 16px; letter-spacing: 0; }
+    h2 .num { color: var(--gold); font-family: var(--mono); font-size: 18px; margin-right: 10px; }
+    .tl {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--gold);
+      border-radius: 8px;
+      padding: 18px 20px;
+      font-size: 18px;
+    }
+    .warn { border-left-color: var(--red); }
+    .ok { border-left-color: var(--green); }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .fig-card { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+    .fig-card img { width: 100%; display: block; background: #fff; }
+    figcaption { padding: 12px 14px; color: var(--muted); font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--panel); border: 1px solid var(--line); }
+    th, td { border-bottom: 1px solid var(--line); vertical-align: top; padding: 10px 12px; }
+    th { color: var(--gold); font-family: var(--mono); text-align: left; font-size: 11px; text-transform: uppercase; background: #151922; }
+    td.gold { background: rgba(217,173,95,.12); color: #f0d9a7; font-weight: 700; }
+    .table-wrap { overflow-x: auto; border-radius: 8px; }
+    .claim-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .claim { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; }
+    .claim b { display: block; color: var(--gold); margin-bottom: 8px; }
+    .claim .bad { color: var(--red); }
+    .claim .good { color: var(--green); }
+    .page-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+    .page-card { display:block; min-height: 112px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 15px; color: var(--ink); }
+    .page-card span { display:block; color: var(--muted); margin-top: 8px; font-size: 13px; }
+    .small { color: var(--muted); font-size: 13px; }
+    @media (max-width: 980px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 14px; }
+      .grid, .claim-grid, .page-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 46px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — Paper 1 Synthetic-Lethality Claim Boundary</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>4</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>2</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>9</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>Paper 1</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">100%</span> <span class="renewal0509-metric">7/11</span> <span class="renewal0509-metric">FDR&lt;0.05</span> <span class="renewal0509-metric">7/7</span> <span class="renewal0509-metric">d=-0.594</span> <span class="renewal0509-metric">FDR=5.88e-07</span> <span class="renewal0509-metric">rho=-0.236</span> <span class="renewal0509-metric">p=3.31e-10</span> <span class="renewal0509-metric">d=-0.499</span> <span class="renewal0509-metric">p=1.00e-11</span> <span class="renewal0509-metric">d=-0.445</span> <span class="renewal0509-metric">p=1.53e-09</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Active manuscript spine</span></div>
+      <div><b>Claim boundary</b><span>DM1 / 8-gene / Fig 8 mechanism pages are current only when read with the v13/v14 reviewer-defense layer; v15B-v18 spatial pages are caveat/autopsy support.</span></div>
+      <div><b>Next use</b><span>Use for Paper 1 review first. Keep mechanism interpretation prose in author-protected manuscript sections.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">GSE250521</span> <span class="renewal0509-term">GSE76039 / Landa advanced thyroid</span> <span class="renewal0509-term">Hugo/Riaz melanoma ICI pool</span> <span class="renewal0509-term">8-gene mini-index</span> <span class="renewal0509-term">RAI_8 / thyroid differentiation score</span> <span class="renewal0509-term">MAPK output score</span> <span class="renewal0509-term">Cohen&#x27;s d / Spearman rho / Cox HR</span> <span class="renewal0509-term">PRISM / DepMap</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>GSE250521</td><td>cohort</td><td>Thyroid spatial transcriptomics / Visium resource spanning thyroid progression contexts.</td><td>Spatial validation, spatial failure/rescue, lag pockets, and image-DM1 spatial checks.</td></tr>
+<tr><td>GSE76039 / Landa advanced thyroid</td><td>cohort</td><td>Advanced thyroid cancer expression resource used as a PDTC/ATC lineage-collapse benchmark.</td><td>Mechanism heterogeneity, advanced-disease comparisons, and reverse-causality boundary checks.</td></tr>
+<tr><td>Hugo/Riaz melanoma ICI pool</td><td>cohort</td><td>External melanoma immunotherapy RNA/clinical resources used as ICI-response context, not thyroid predictor proof.</td><td>Paper 3 vulnerability-only evidence and claim-boundary pages.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+<tr><td>PRISM / DepMap</td><td>external screen</td><td>Cancer dependency/drug-screen resources used for vulnerability prioritization and MAPK-inhibitor overlays.</td><td>Paper 1/9/10/11 synthetic-lethality and druggability pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> Synthetic-Lethality Boundary → 01 TL;DR → 02 Claim Boundary → 03 Decision Matrix → 04 Figures</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>Synthetic-Lethality Boundary</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>01 TL;DR</span></article>
+<article class="renewal0509-step"><b>03</b><em>H2</em><span>02 Claim Boundary</span></article>
+<article class="renewal0509-step"><b>04</b><em>H2</em><span>03 Decision Matrix</span></article>
+<article class="renewal0509-step"><b>05</b><em>H2</em><span>04 Figures</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>05 Wet-Lab Queue</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>06 Caveats</span></article>
+<article class="renewal0509-step"><b>08</b><em>H2</em><span>07 Related Pages</span></article>
+<article class="renewal0509-step renewal0509-step-more"><b>+1</b><span>More section headings are mapped in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/synthetic_lethality/prism_top_drugs.png" alt="PRISM top drugs Existing round6 figure showing DM1-high drug-sensitivity ranking." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Clinical endpoint evidence</div><h4>prism_top_drugs.png</h4><p>PRISM top drugs Existing round6 figure showing DM1-high drug-sensitivity ranking.</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/synthetic_lethality/depmap_dependencies.png" alt="DepMap dependencies Existing round6 figure summarizing DM1-high CRISPR dependency candidates." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Clinical endpoint evidence</div><h4>depmap_dependencies.png</h4><p>DepMap dependencies Existing round6 figure summarizing DM1-high CRISPR dependency candidates.</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/synthetic_lethality/paper9_lineage_dependency_heatmap.png" alt="Paper9 perturbation heatmap Local perturbation roadmap evidence used for SLC1A5 / GLUD1 / GLS triage." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Effect-size / forest evidence</div><h4>paper9_lineage_dependency_heatmap.png</h4><p>Paper9 perturbation heatmap Local perturbation roadmap evidence used for SLC1A5 / GLUD1 / GLS triage.</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/synthetic_lethality/v16_spatial_prism_diagnostics.png" alt="Spatial/PRISM diagnostics Useful caveat: spatial MAPK-panel anti-correlation was not rescued; PRISM wording was corrected." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Effect-size / forest evidence</div><h4>v16_spatial_prism_diagnostics.png</h4><p>Spatial/PRISM diagnostics Useful caveat: spatial MAPK-panel anti-correlation was not rescued; PRISM wording was corrected.</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p_deconv_2026_05_08/v16_spatial_prism_diagnostics_summary.json; project/results/p_deconv_2026_05_08/Fig_SX_v16_spatial_prism_diagnostics.png; project/results/p_deconv_2026_05_08/Fig_SX_v16_spatial_prism_diagnostics.pdf</dd></dl></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="gpl570_validation_pack.html">gpl570_validation_pack</a> <a class="renewal0509-chip" href="intro_strategy_audit.html">intro_strategy_audit</a> <a class="renewal0509-chip" href="paper1.html">paper1</a> <a class="renewal0509-chip" href="paper10_atlas.html">paper10_atlas</a> <a class="renewal0509-chip" href="paper11_pancancer.html">paper11_pancancer</a> <a class="renewal0509-chip" href="paper12_network.html">paper12_network</a> <a class="renewal0509-chip" href="paper1_deconvolution_rollup_v18.html">paper1_deconvolution_rollup_v18</a> <a class="renewal0509-chip" href="paper1_fig8_mechanism_dossier.html">paper1_fig8_mechanism_dossier</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/paper1_synthetic_lethality_dossier.html · Renewed page: project/papers_hub_2026_0509/paper1_synthetic_lethality_dossier.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+
+  <header class="hero">
+    <div class="kicker">Paper 1 / Paper 9 bridge · Claim-boundary dossier · 2026-05-09</div>
+    <h1>Synthetic-Lethality Boundary</h1>
+    <p class="lead">Local PRISM, DepMap, and Paper9 perturbation outputs support a focused vulnerability queue. They do not yet establish validated synthetic lethality. This page keeps the usable actionability signal and the forbidden overclaim in the same frame.</p>
+    <div class="crumbs">Source of truth: <code>project/results/p_synthetic_lethality_2026_05_09/</code></div>
+    <div class="stats"><div class="stat"><span>PRISM drugs</span><b>7/11 FDR hits canonical MAPK</b></div>
+<div class="stat"><span>AZD-0364</span><b>d -0.594; FDR 5.88e-07</b></div>
+<div class="stat"><span>MAPK LFC</span><b>rho -0.236; p 3.31e-10</b></div>
+<div class="stat"><span>MYC</span><b>d -0.499; p 1.00e-11</b></div>
+<div class="stat"><span>NAMPT</span><b>d -0.445; p 1.53e-09</b></div>
+<div class="stat"><span>Verdict</span><b>candidate prioritization, not validated SL</b></div></div>
+  </header>
+  <div class="layout">
+    <nav>
+      <b>Contents</b>
+      <a href="#tl">01 TL;DR</a>
+      <a href="#boundary">02 Claim Boundary</a>
+      <a href="#matrix">03 Decision Matrix</a>
+      <a href="#figures">04 Figures</a>
+      <a href="#wetlab">05 Wet-Lab Queue</a>
+      <a href="#caveats">06 Caveats</a>
+      <a href="#siblings">07 Related Pages</a>
+      <a href="#sources">08 Sources</a>
+    </nav>
+    <main>
+      <section id="tl">
+        <h2><span class="num">01</span>TL;DR</h2>
+        <div class="tl"><strong>Current verdict:</strong> strongest allowed claim is candidate vulnerability prioritization in DM1-high / lineage-silenced models. PRISM strongly prioritizes MAPK-axis inhibitors; DepMap prioritizes MYC/NAMPT; Paper9 prioritizes SLC1A5 &gt; GLUD1 &gt; GLS for wet-lab perturbation. None is validated synthetic lethality yet.</div>
+      </section>
+      <section id="boundary">
+        <h2><span class="num">02</span>Claim Boundary</h2>
+        <div class="claim-grid">
+          <div class="claim"><b class="good">Allowed</b>Pharmacologic vulnerability, CRISPR dependency prioritization, wet-lab perturbation roadmap, reviewer-reserve actionability.</div>
+          <div class="claim"><b class="bad">Forbidden</b>Validated synthetic lethality, clinical recommendation, patient-selection biomarker, treatment-induced thyroid-gene restoration.</div>
+          <div class="claim"><b>Safe Wording</b>DM1-high or lineage-silenced models show public-data vulnerability signals motivating focused perturbation experiments.</div>
+        </div>
+      </section>
+      <section id="matrix">
+        <h2><span class="num">03</span>Decision Matrix</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Tier</th><th>Candidate</th><th>Context</th><th>Perturbation</th><th>Headline metrics</th><th>Claim status</th><th>Disposition</th><th>Next validation</th><th>Sources</th></tr>
+            </thead>
+            <tbody><tr><td class="">T1</td><td class="">DM1-high / MAPK-axis pharmacologic vulnerability</td><td class="">DM1-high, lineage-silenced pan-cancer cell-line state</td><td class="">MEK/RAF/ERK inhibitors</td><td class="">PRISM 1518 drugs; FDR&lt;0.05 hits 11, canonical MAPK 7/11; top7 MAPK 7/7; AZD-0364 d=-0.594, FDR=5.88e-07; DM1 score x MAPK LFC rho=-0.236, p=3.31e-10</td><td class="">Allowed: pharmacologic vulnerability / actionability reserve. Forbidden: validated synthetic lethality.</td><td class="gold">KEEP AS REVIEWER-RESERVE, NOT MAIN SYNTHETIC-LETHAL CLAIM</td><td class="">Matched thyroid/DM1-high models, dose-response MEK/RAF/ERK, genetic MAPK rescue or bypass, and lineage-gene restoration readout.</td><td class="">v15C_prism_annotated_drugs.tsv; v16_prism_enrichment_sensitivity.tsv; v16_prism_lineage_sensitivity.tsv</td></tr>
+<tr><td class="">T2</td><td class="">DM1-high CRISPR dependency</td><td class="">DM1-high vs DM1-low DepMap cell lines</td><td class="">MYC and NAMPT genetic perturbation; inhibitor follow-up only as separate validation</td><td class="">n_high=372, n_low=394; MYC d=-0.499, p=1.00e-11; NAMPT d=-0.445, p=1.53e-09</td><td class="">Allowed: dependency prioritization. Forbidden: selective clinical target without pan-essentiality controls.</td><td class="gold">KEEP AS FUNCTIONAL PRIORITIZATION; MYC HAS PAN-ESSENTIAL RISK</td><td class="">Within-lineage matched models, CRISPRi/siRNA titration, rescue, viability plus apoptosis/colony assays, and toxicity window against lineage-high controls.</td><td class="">v15C_depmap_dependency_overlay.tsv; phase_D_depmap/dm1_high_low_dependency.tsv</td></tr>
+<tr><td class="">T3A</td><td class="">Glutamine transporter vulnerability</td><td class="">lineage-silenced thyroid cancer model</td><td class="">SLC1A5 KD/KO/CRISPRi; glutamine withdrawal; V-9302/GPNA only if metadata supports</td><td class="">SLC1A5 dependency rho=0.102, p=5.33e-04, n=1140; pan-cancer corrected rho=0.078, p=0.008; strict thyroid n=11 NS</td><td class="">Allowed: wet-lab priority. Forbidden: drug-response claim without matched response data.</td><td class="gold">TOP PAPER9 WET-LAB PRIORITY</td><td class="">Genetic perturbation plus glutamine or alpha-ketoglutarate rescue; viability/apoptosis/colony; SLC5A5/TPO/TSHR/TG/PAX8/NKX2-1 readout.</td><td class="">paper9_module_dependency_associations.tsv; paper9_drug_perturbation_go_no_go.md</td></tr>
+<tr><td class="">T3B</td><td class="">Glutamate/TCA anaplerosis vulnerability</td><td class="">lineage-silenced thyroid cancer model</td><td class="">GLUD1 KD/KO/CRISPRi; inhibitor only if specificity acceptable</td><td class="">GLUD1 dependency rho=0.075, p=0.011; pan-cancer corrected rho=0.062, p=0.037; strict thyroid n=11 NS</td><td class="">Allowed: wet-lab priority. Forbidden: inhibitor claim from weak metadata.</td><td class="gold">SECOND PAPER9 WET-LAB PRIORITY</td><td class="">GLUD1 perturbation with alpha-ketoglutarate/TCA rescue; OCR/ECAR; viability and lineage-gene readout.</td><td class="">paper9_module_dependency_associations.tsv; paper9_drug_perturbation_go_no_go.md</td></tr>
+<tr><td class="">T3C</td><td class="">Glutaminase vulnerability</td><td class="">lineage-silenced thyroid cancer model</td><td class="">GLS KD/KO/CRISPRi; BPTES/CB-839 style pharmacology only with caveat</td><td class="">GLS dependency rho=0.088, p=0.003; pan-cancer corrected rho=0.081, p=0.006; strict thyroid n=11 NS</td><td class="">Allowed: candidate. Forbidden: headline due to weak/discordant public drug concordance.</td><td class="gold">CANDIDATE, NOT HEADLINE</td><td class="">Concordant genetic and pharmacologic effect with rescue; resolve BPTES/CB-839 concordance before using as main story.</td><td class="">paper9_module_dependency_associations.tsv; paper9_perturbation_evidence_summary.md</td></tr>
+<tr><td class="">BOUNDARY</td><td class="">Spatial MAPK-panel test</td><td class="">GSE250521 thyroid Visium</td><td class="">None; observational spatial stress test</td><td class="">v16/v17 did not rescue spatial anti-correlation; 0/45 subset/adjustment tests negative in v16; full+detection residual rho ~0 in v17.</td><td class="">Allowed: caveat/reserve. Forbidden: mechanism support or synthetic lethality support.</td><td class="gold">USE AS HONEST NEGATIVE CAVEAT ONLY</td><td class="">Do not use for synthetic-lethality argument; separate from pharmacologic/CRISPR prioritization.</td><td class="">v16_spatial_prism_diagnostics_summary.json; v17_spatial_signal_decomposition_summary.json</td></tr>
+<tr><td class="">BOUNDARY</td><td class="">ICI vulnerability / immune phenotype</td><td class="">DM1 inflamed/dedifferentiated tumor state</td><td class="">Immune checkpoint therapy context</td><td class="">Project boundary map already separates immune vulnerability from synthetic-lethal and synthetic-rescue hypotheses.</td><td class="">Allowed: separate Paper 3 immune-vulnerability frame. Forbidden: calling ICI response synthetic lethality.</td><td class="gold">KEEP OUT OF SYNTHETIC-LETHALITY CLAIM SET</td><td class="">Treat as separate Paper 3 track; do not merge with DM1 perturbation vulnerability language.</td><td class="">project/reports/2026_05_06_ici_vs_synthetic_lethality_boundary_map.md</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+      <section id="figures">
+        <h2><span class="num">04</span>Figures</h2>
+        <div class="grid">
+    <figure class="fig-card">
+      <img src="assets/paper1/synthetic_lethality/prism_top_drugs.png" alt="PRISM top drugs">
+      <figcaption><strong>PRISM top drugs</strong><br>Existing round6 figure showing DM1-high drug-sensitivity ranking.</figcaption>
+    </figure>
+    
+
+    <figure class="fig-card">
+      <img src="assets/paper1/synthetic_lethality/depmap_dependencies.png" alt="DepMap dependencies">
+      <figcaption><strong>DepMap dependencies</strong><br>Existing round6 figure summarizing DM1-high CRISPR dependency candidates.</figcaption>
+    </figure>
+    
+
+    <figure class="fig-card">
+      <img src="assets/paper1/synthetic_lethality/paper9_lineage_dependency_heatmap.png" alt="Paper9 perturbation heatmap">
+      <figcaption><strong>Paper9 perturbation heatmap</strong><br>Local perturbation roadmap evidence used for SLC1A5 / GLUD1 / GLS triage.</figcaption>
+    </figure>
+    
+
+    <figure class="fig-card">
+      <img src="assets/paper1/synthetic_lethality/v16_spatial_prism_diagnostics.png" alt="Spatial/PRISM diagnostics">
+      <figcaption><strong>Spatial/PRISM diagnostics</strong><br>Useful caveat: spatial MAPK-panel anti-correlation was not rescued; PRISM wording was corrected.</figcaption>
+    </figure>
+    </div>
+      </section>
+      <section id="wetlab">
+        <h2><span class="num">05</span>Wet-Lab Queue</h2>
+        <div class="tl ok"><strong>Priority order:</strong> SLC1A5 &gt; GLUD1 &gt; GLS. The falsification design should pair genetic perturbation with glutamine or alpha-ketoglutarate rescue, viability/apoptosis/colony phenotypes, and thyroid-lineage readouts.</div>
+      </section>
+      <section id="caveats">
+        <h2><span class="num">06</span>Caveats</h2>
+        <div class="tl warn">Spatial GSE250521 does not support a local within-spot MAPK-panel anti-correlation and should remain a caveat/reserve result. ICI vulnerability belongs to Paper 3 immune framing, not synthetic lethality. TROP2/topo-I ADC work is a separate actionability track and should not be merged into this claim set.</div>
+      </section>
+      <section id="siblings">
+        <h2><span class="num">07</span>Related Pages</h2>
+        <div class="page-grid"><a class="page-card" href="paper1_fig8_mechanism_dossier.html"><b>Fig 8 Mechanism Dossier</b><span>v6-v17 mechanism evidence and caveats</span></a>
+<a class="page-card" href="paper1_reviewer_defense_dashboard.html"><b>Reviewer Defense Dashboard</b><span>Q1-Q14 factual answer surface</span></a>
+<a class="page-card" href="paper1_methods_reproducibility_dossier.html"><b>Methods Reproducibility</b><span>gene lists, formulas, filters, edge cases</span></a>
+<a class="page-card" href="paper1_spatial_signal_decomposition_v17.html"><b>Spatial Signal Decomposition</b><span>negative/caveat autopsy for GSE250521</span></a></div>
+      </section>
+      <section id="sources">
+        <h2><span class="num">08</span>Sources</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Key</th><th>Path</th></tr></thead>
+            <tbody><tr><td>prism</td><td><code>project/results/p_deconv_2026_05_08/v15C_prism_annotated_drugs.tsv</code></td></tr>
+<tr><td>prism_enrich</td><td><code>project/results/p_deconv_2026_05_08/v16_prism_enrichment_sensitivity.tsv</code></td></tr>
+<tr><td>prism_lineage</td><td><code>project/results/p_deconv_2026_05_08/v16_prism_lineage_sensitivity.tsv</code></td></tr>
+<tr><td>depmap</td><td><code>project/results/p_deconv_2026_05_08/v15C_depmap_dependency_overlay.tsv</code></td></tr>
+<tr><td>metabolic</td><td><code>project/results/p3_p9_full_execution/paper9_sprint2_metabolic/paper9_module_dependency_associations.tsv</code></td></tr>
+<tr><td>paper9_gene</td><td><code>project/results/p3_p9_full_execution/paper9/p9_candidate_dependency_associations.tsv</code></td></tr>
+<tr><td>paper9_go</td><td><code>project/results/paper9_perturbation_2026_05_06/paper9_drug_perturbation_go_no_go.md</code></td></tr>
+<tr><td>paper9_summary</td><td><code>project/results/paper9_perturbation_2026_05_06/paper9_perturbation_evidence_summary.md</code></td></tr></tbody>
+          </table>
+        </div>
+        <p class="small">Generated by <code>project/results/p_synthetic_lethality_2026_05_09/build_synthetic_lethality_dossier.py</code>. Live copy deployed to <code>/var/www/papers/papers_hub_2026_0509/paper1_synthetic_lethality_dossier.html</code>.</p>
+      </section>
+    </main>
+  </div>
+
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/synthetic_lethality/prism_top_drugs.png" alt="PRISM top drugs Existing round6 figure showing DM1-high drug-sensitivity ranking." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Clinical endpoint evidence</div><h4>prism_top_drugs.png</h4><p>PRISM top drugs Existing round6 figure showing DM1-high drug-sensitivity ranking.</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/synthetic_lethality/depmap_dependencies.png" alt="DepMap dependencies Existing round6 figure summarizing DM1-high CRISPR dependency candidates." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Clinical endpoint evidence</div><h4>depmap_dependencies.png</h4><p>DepMap dependencies Existing round6 figure summarizing DM1-high CRISPR dependency candidates.</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/synthetic_lethality/paper9_lineage_dependency_heatmap.png" alt="Paper9 perturbation heatmap Local perturbation roadmap evidence used for SLC1A5 / GLUD1 / GLS triage." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Effect-size / forest evidence</div><h4>paper9_lineage_dependency_heatmap.png</h4><p>Paper9 perturbation heatmap Local perturbation roadmap evidence used for SLC1A5 / GLUD1 / GLS triage.</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/synthetic_lethality/v16_spatial_prism_diagnostics.png" alt="Spatial/PRISM diagnostics Useful caveat: spatial MAPK-panel anti-correlation was not rescued; PRISM wording was corrected." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Effect-size / forest evidence</div><h4>v16_spatial_prism_diagnostics.png</h4><p>Spatial/PRISM diagnostics Useful caveat: spatial MAPK-panel anti-correlation was not rescued; PRISM wording was corrected.</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p_deconv_2026_05_08/v16_spatial_prism_diagnostics_summary.json; project/results/p_deconv_2026_05_08/Fig_SX_v16_spatial_prism_diagnostics.png; project/results/p_deconv_2026_05_08/Fig_SX_v16_spatial_prism_diagnostics.pdf</dd></dl></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td>1</td><td><a href="assets/paper1/synthetic_lethality/prism_top_drugs.png">assets/paper1/synthetic_lethality/prism_top_drugs.png</a></td><td>PRISM top drugs Existing round6 figure showing DM1-high drug-sensitivity ranking.</td><td>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>2</td><td><a href="assets/paper1/synthetic_lethality/depmap_dependencies.png">assets/paper1/synthetic_lethality/depmap_dependencies.png</a></td><td>DepMap dependencies Existing round6 figure summarizing DM1-high CRISPR dependency candidates.</td><td>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>3</td><td><a href="assets/paper1/synthetic_lethality/paper9_lineage_dependency_heatmap.png">assets/paper1/synthetic_lethality/paper9_lineage_dependency_heatmap.png</a></td><td>Paper9 perturbation heatmap Local perturbation roadmap evidence used for SLC1A5 / GLUD1 / GLS triage.</td><td>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>4</td><td><a href="assets/paper1/synthetic_lethality/v16_spatial_prism_diagnostics.png">assets/paper1/synthetic_lethality/v16_spatial_prism_diagnostics.png</a></td><td>Spatial/PRISM diagnostics Useful caveat: spatial MAPK-panel anti-correlation was not rescued; PRISM wording was corrected.</td><td>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</td><td>project/results/p_deconv_2026_05_08/v16_spatial_prism_diagnostics_summary.json; project/results/p_deconv_2026_05_08/Fig_SX_v16_spatial_prism_diagnostics.png; project/results/p_deconv_2026_05_08/Fig_SX_v16_spatial_prism_diagnostics.pdf</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>Synthetic-Lethality Boundary</td></tr>
+<tr><td>2</td><td>H2</td><td>01 TL;DR</td></tr>
+<tr><td>3</td><td>H2</td><td>02 Claim Boundary</td></tr>
+<tr><td>4</td><td>H2</td><td>03 Decision Matrix</td></tr>
+<tr><td>5</td><td>H2</td><td>04 Figures</td></tr>
+<tr><td>6</td><td>H2</td><td>05 Wet-Lab Queue</td></tr>
+<tr><td>7</td><td>H2</td><td>06 Caveats</td></tr>
+<tr><td>8</td><td>H2</td><td>07 Related Pages</td></tr>
+<tr><td>9</td><td>H2</td><td>08 Sources</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>1</td><td>paper1_fig8_mechanism_dossier.html</td></tr>
+<tr><td>2</td><td>paper1_reviewer_defense_dashboard.html</td></tr>
+<tr><td>3</td><td>paper1_methods_reproducibility_dossier.html</td></tr>
+<tr><td>4</td><td>paper1_spatial_signal_decomposition_v17.html</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="gpl570_validation_pack.html"><b>gpl570_validation_pack</b><span>3 figs · 3 tables</span></a><a class="renewal0509-card" href="intro_strategy_audit.html"><b>intro_strategy_audit</b><span>0 figs · 8 tables</span></a><a class="renewal0509-card" href="paper1.html"><b>paper1</b><span>25 figs · 17 tables</span></a><a class="renewal0509-card" href="paper1_deconvolution_rollup_v18.html"><b>paper1_deconvolution_rollup_v18</b><span>4 figs · 6 tables</span></a><a class="renewal0509-card" href="paper1_fig8_mechanism_dossier.html"><b>paper1_fig8_mechanism_dossier</b><span>9 figs · 26 tables</span></a><a class="renewal0509-card" href="paper1_k2_panel_overlay_v15.html"><b>paper1_k2_panel_overlay_v15</b><span>1 figs · 1 tables</span></a><a class="renewal0509-card" href="paper1_methods_reproducibility_dossier.html"><b>paper1_methods_reproducibility_dossier</b><span>0 figs · 15 tables</span></a><a class="renewal0509-card" href="paper1_nature_cancer_board.html"><b>paper1_nature_cancer_board</b><span>15 figs · 12 tables</span></a><a class="renewal0509-card" href="paper1_paper11_nature_master.html"><b>paper1_paper11_nature_master</b><span>17 figs · 5 tables</span></a><a class="renewal0509-card" href="paper1_paper2_braf_axis_takeover_dossier.html"><b>paper1_paper2_braf_axis_takeover_dossier</b><span>7 figs · 10 tables</span></a><a class="renewal0509-card" href="paper1_reviewer_defense_dashboard.html"><b>paper1_reviewer_defense_dashboard</b><span>0 figs · 14 tables</span></a><a class="renewal0509-card" href="paper1_spatial_failure_rescue_v16.html"><b>paper1_spatial_failure_rescue_v16</b><span>1 figs · 4 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body>
+</html>

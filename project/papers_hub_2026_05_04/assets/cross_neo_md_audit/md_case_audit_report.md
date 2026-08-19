@@ -8,17 +8,17 @@ MD evidence is used as structural audit evidence only. It is not an immunogenici
 
 ## Candidate-Level MD Evidence
 
-| candidate              | md_representative_run_id   | MD_evidence_label       |   MD_evidence_score |   pMHC_stability_score |   TCR_recognition_score |   runtime_fraction |   live_time_ps | md_interpretation                                  |
-|:-----------------------|:---------------------------|:------------------------|--------------------:|-----------------------:|------------------------:|-------------------:|---------------:|:---------------------------------------------------|
-| GADGVGKSAL/HLA-C*08:02 | prod_10ns_6UON_2fs300K     | MD_MODERATE             |            0.556608 |               0.520263 |                  0.4404 |              1     |          10000 | usable_structural_support_not_immunogenicity_proof |
-| HMTEVVRHC/HLA-A*02:01  | 6VRN_HMTEVVRHC             | MD_INSUFFICIENT_RUNTIME |            0.665516 |               0.988194 |                  1      |              1e-05 |           6600 | insufficient_runtime_or_missing_trajectory         |
+| candidate              | md_representative_run_id   | MD_evidence_label   |   MD_evidence_score |   pMHC_stability_score |   TCR_recognition_score |   runtime_fraction |   live_time_ps | md_interpretation                                  |
+|:-----------------------|:---------------------------|:--------------------|--------------------:|-----------------------:|------------------------:|-------------------:|---------------:|:---------------------------------------------------|
+| GADGVGKSAL/HLA-C*08:02 | prod_10ns_6UON_2fs300K     | MD_MODERATE         |            0.556608 |               0.520263 |                  0.4404 |                  1 |          10000 | usable_structural_support_not_immunogenicity_proof |
+| HMTEVVRHC/HLA-A*02:01  | prod_10ns_6VRN_1fs300K     | MD_STRONG           |            0.743344 |               0.666694 |                  1      |                  1 |          10000 | usable_structural_support_not_immunogenicity_proof |
 
 ## Joined Prediction Rows
 
 - prediction rows with MD candidate key: 484
-- MD-supported model-high rows: 17
-- model-high / MD-low-or-insufficient rows: 11
-- model-low / MD-high rows: 4
+- MD-supported model-high rows: 182
+- model-high / MD-low-or-insufficient rows: 0
+- model-low / MD-high rows: 48
 
 ## Interpretation
 

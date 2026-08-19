@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>arcasHLA × Pan-Asian · 2026-05-14 · RNA-seq HLA imputation pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.3px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:18px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.v-card{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.v-card.win{border-top:5px solid var(--green)}.v-card.warn{border-top:5px solid var(--gold)}
+.v-card h3{margin:0 0 8px;font-size:22px;color:#fff}
+.v-card p{margin:0;color:#cbd7df;font-size:14.5px}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:14px}
+.step{border:1px solid var(--line);border-radius:8px;padding:12px;background:#0d1823;min-height:140px}
+.step b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.step .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.step h4{margin:0 0 6px;font-size:14px;color:#fff}.step p{margin:0;color:#cbd7df;font-size:12.5px}
+.bullets{margin:8px 0 4px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.warn-box{border:1px solid rgba(255,138,107,.45);background:rgba(255,138,107,.05);border-radius:10px;padding:14px 18px;margin:14px 0}
+.warn-box b{color:var(--red)}
+.callout{border:1px solid var(--gold);background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));border-radius:10px;padding:18px 20px;margin-top:12px}
+.callout h3{margin:0 0 6px;color:var(--gold);font-family:"Cormorant Garamond",Georgia,serif;font-size:26px}
+.callout p{margin:0;color:#eaf2f7}
+.qa{border-left:3px solid var(--gold);padding:10px 14px;margin:10px 0;background:rgba(255,210,138,.04)}
+.qa b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.qa p{margin:0;color:#dde6ec;font-size:14px}
+.bar{position:relative;background:rgba(255,255,255,.06);border-radius:3px;height:18px;margin:4px 0}
+.bar i{display:block;height:100%;border-radius:3px}
+.bar.green i{background:var(--green)}.bar.gold i{background:var(--gold)}.bar.red i{background:var(--red)}.bar.blue i{background:var(--blue)}.bar.vio i{background:var(--violet)}
+.bar span{position:absolute;right:6px;top:0;color:#0a141d;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:900;line-height:18px}
+.gates{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.gate{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:160px}
+.gate.green{border-top:4px solid var(--green)}.gate.gold{border-top:4px solid var(--gold)}.gate.red{border-top:4px solid var(--red)}
+.gate b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.gate h4{margin:0 0 6px;font-size:15px;color:#fff}.gate p{margin:0;color:#cbd7df;font-size:12.5px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict,.gates{grid-template-columns:1fr}.steps{grid-template-columns:1fr 1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">arcasHLA × Pan-Asian baseline · 2026-05-14 · Seungho Cook · for HLA tracks</p>
+    <h1>arcasHLA × Pan-Asian — Korean K2 imputation done, Pan-Asian baseline 진행 중.</h1>
+    <p class="lead">
+      <b>arcasHLA</b>는 RNA-seq read를 IMGT/HLA reference로 직접 align해서 HLA class I/II 4-digit allele을 imputation한다. <b>PRJEB11591 (Korean K2 thyroid n=260)</b> 전수 처리 완료, Azure burst 1-run $4.80 패턴 검증. <b>DPB1*05:01 56%</b>로 Kim 2014 한국인 HT susceptibility 결과를 RNA-seq 단독으로 재현. K2 vs AFND South Korea pool ratio <b>0.93-1.22 (모두 p&gt;0.16)</b> — K2가 AFND 한국인 baseline 으로부터 통계적으로 벗어나지 않음. <b>cookHLA은 SNP genotype 요구 → 보류</b>. <b>Bundang은 outreach 단계</b>로 K2 ≠ Bundang 명시. Paper 4 backlog는 4/4 gating으로 잠겨 있다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>260</b><span>arcasHLA n done</span><small>PRJEB11591 thyroid Korean</small></div>
+      <div class="stat"><b>56%</b><span>DPB1*05:01 carrier</span><small>Kim 2014 replication, HT susceptibility</small></div>
+      <div class="stat"><b>$4.80</b><span>Azure burst / run</span><small>validated cost pattern</small></div>
+      <div class="stat"><b>AFND</b><span>Korean baseline</span><small>K2 vs AFND ratio 0.93-1.22</small></div>
+      <div class="stat"><b>4/4</b><span>Pan-Asian gating</span><small>BBJ · CGM · Vietnam · AFND</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#pipeline">arcasHLA pipeline</a>
+  <a class="primary" href="#cookhla">cookHLA 보류</a>
+  <a class="primary" href="#classes">HLA class 분포</a>
+  <a class="primary" href="#dpb1">DPB1*05:01 56%</a>
+  <a class="primary" href="#k2afnd">K2 vs AFND ratio</a>
+  <a class="primary" href="#panasian">Pan-Asian candidates</a>
+  <a class="primary" href="#bundang">Bundang outreach</a>
+  <a class="primary" href="#gating">Paper 4 gating</a>
+  <a class="primary" href="#qa">Reviewer Q&amp;A</a>
+  <a href="yu_meeting_brief_2026_05_14.html">유 미팅 브리핑</a>
+  <a href="image_fm_head_to_head_2026_05_14.html">Image FM h2h</a>
+  <a href="hla_pan_asian_strategy_2026_05_14.html">Pan-Asian HLA</a>
+  <a href="track3_hla_isolated_command_room.html">T3 HLA #1</a>
+  <a href="track4_korean_gd_command_room.html">T4 HLA #2</a>
+  <a href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+  <a href="methodology_atlas_2026_05_14.html">Methodology</a>
+  <a href="venue_strategy_2026_05_14.html">Venue</a>
+  <a href="risk_atlas_2026_05_14.html">Risk atlas</a>
+  <a href="honest_negatives_wall_2026_05_14.html">Honest negatives</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&amp;A bank</a>
+  <a href="bd_outreach_state_2026_05_14.html">BD state</a>
+  <a href="decision_board_2026_05_14.html">Decision board</a>
+  <a href="figure_gallery_2026_05_14.html">Figure gallery</a>
+  <a href="timeline_gantt_2026_05_14.html">90d Gantt</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="hla_atlas.html">HLA atlas</a>
+  <a href="hla_class_deep_dive.html">HLA class deep dive</a>
+  <a href="paper4-hla/index.html">P4 HLA dossier</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — K2 imputation 잠금 / Bundang outreach 보류</h2>
+  <p class="sub">two-card · green / gold</p>
+  <div class="verdict">
+    <div class="v-card win">
+      <h3 class="good">GREEN · arcasHLA Korean K2 imputation locked</h3>
+      <p>PRJEB11591 n=260 전수 처리 완료, 4-digit allele 분포 확보. <b>DPB1*05:01 56% = Kim 2014 replication</b>로 SNP-free RNA-seq imputation의 신뢰도가 thyroid Korean cohort에서 검증됨. K2 vs AFND ratio 0.93-1.22 (p&gt;0.16) → K2는 AFND South Korea pool 의 reasonable subset. Azure burst $4.80 비용 패턴 검증으로 향후 Pan-Asian RNA-seq 코호트 추가 자체 처리 가능.</p>
+    </div>
+    <div class="v-card warn">
+      <h3 class="hi">GOLD · Bundang outreach + Pan-Asian baseline 진행 중</h3>
+      <p>K2 ≠ Bundang 명시. Bundang은 아직 data agreement 단계, no data yet. Pan-Asian baseline 후보(Japan BBJ / China CGM / Vietnam reference / AFND multi-region pool) 중 BBJ는 가용성 가장 높음. Paper 4 backlog는 4/4 gating: Paper 1 bioRxiv + Paper 2 A/B/C + 명시 "Track B 시작" + Bundang outreach 결과 — 현재 1/4. 새 분석 추가는 paper-blocking only 원칙.</p>
+    </div>
+  </div>
+  <div class="callout">
+    <h3>한 줄</h3>
+    <p>arcasHLA Korean K2 (n=260) 잠금 + DPB1*05:01 56% 재현 + K2 vs AFND 통계적 동일성 → <b>HT-isolated PTC Paper 2 HLA Pillar I v2의 imputation 기반</b> 안정. Pan-Asian 확장은 Paper 4 backlog 으로 4/4 gating 후 발사.</p>
+  </div>
+</section>
+
+<section id="pipeline">
+  <h2>arcasHLA pipeline — RNA-seq 기반 4-digit HLA typing</h2>
+  <p class="sub">PRJEB11591 n=260 thyroid Korean · Azure burst $4.80/run · 6-step pipeline</p>
+  <div class="steps">
+    <div class="step"><b>Step 1</b><div class="n">1</div><h4>Raw FASTQ</h4><p>PRJEB11591 n=260 Korean thyroid RNA-seq (Yoo 2016 SNU-GMI). 33G FASTQ at <code>/data/thca/PRJEB11591_fastq/</code>.</p></div>
+    <div class="step"><b>Step 2</b><div class="n">2</div><h4>STAR align</h4><p>STAR --genomeDir hg38 --tmpdir /workspace/_tmp --compress; chr6 HLA region 추출.</p></div>
+    <div class="step"><b>Step 3</b><div class="n">3</div><h4>extract reads</h4><p>arcasHLA extract chr6:28477797-33448354 → unmapped + HLA-region reads.</p></div>
+    <div class="step"><b>Step 4</b><div class="n">4</div><h4>genotype</h4><p>arcasHLA genotype -g A,B,C,DPB1,DQB1,DRB1 --tolerance 0.1; IMGT/HLA reference v3.50.</p></div>
+    <div class="step"><b>Step 5</b><div class="n">5</div><h4>merge + QC</h4><p>per-sample.json → master TSV; coverage threshold ≥ 30x; ambiguity flag.</p></div>
+    <div class="step"><b>Step 6</b><div class="n">6</div><h4>compare</h4><p>K2 vs AFND South Korea pool; per-allele ratio + Fisher exact + Bonferroni.</p></div>
+  </div>
+  <table>
+    <thead><tr><th>설정</th><th>값</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>Tool</td><td>arcasHLA v0.5.0</td><td>Orenbuch 2019 Bioinformatics</td></tr>
+      <tr><td>Reference</td><td class="good">IMGT/HLA v3.50</td><td>2023 release, 4-digit</td></tr>
+      <tr><td>Aligner</td><td>STAR 2.7.10a</td><td>--tmpdir /workspace/_tmp</td></tr>
+      <tr><td>Genes typed</td><td>A, B, C, DPB1, DQB1, DRB1</td><td>class I 3 + class II 3</td></tr>
+      <tr><td>Cohort N</td><td class="good">260</td><td>PRJEB11591 thyroid</td></tr>
+      <tr><td>Coverage 최소</td><td>30x per locus</td><td>4-digit confident</td></tr>
+      <tr><td>Ambiguity rate</td><td>4.6%</td><td>flagged, 분석 제외</td></tr>
+      <tr><td>Azure burst</td><td class="good">$4.80 / 260 samples</td><td>1 hr B16ms VM</td></tr>
+      <tr><td>출력 형식</td><td>per-sample.json + master.tsv</td><td>repo_results/v17_korean/arcasHLA</td></tr>
+      <tr><td>Disk</td><td>/data/thca/_repo_offload/arcasHLA (8.4G)</td><td>bind-mounted</td></tr>
+    </tbody>
+  </table>
+  <h3>왜 arcasHLA — alternatives 비교</h3>
+  <table>
+    <thead><tr><th>Tool</th><th>Input</th><th>4-digit accuracy</th><th>비용</th><th>선택</th></tr></thead>
+    <tbody>
+      <tr><td class="good">arcasHLA</td><td>RNA-seq</td><td>96-98%</td><td class="good">free + $4.80 compute</td><td class="good">CHOSEN</td></tr>
+      <tr><td>cookHLA</td><td class="bad">SNP genotype required</td><td>97-99%</td><td>free</td><td class="bad">deferred (SNP 없음)</td></tr>
+      <tr><td>HLA-LA</td><td>WGS</td><td>99%+</td><td>WGS cost</td><td class="bad">no WGS</td></tr>
+      <tr><td>OptiType</td><td>RNA-seq</td><td>92-95% class I only</td><td>free</td><td class="bad">class II 미지원</td></tr>
+      <tr><td>seq2HLA</td><td>RNA-seq</td><td>89-92%</td><td>free</td><td class="bad">accuracy 낮음</td></tr>
+      <tr><td>HLAtyper</td><td>WES/RNA</td><td>94-96%</td><td>free</td><td class="bad">old maintenance</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="cookhla">
+  <h2>cookHLA 보류 — SNP genotyping 미보유</h2>
+  <p class="sub">왜 RNA-only path가 unavoidable · 대안 시나리오</p>
+  <div class="warn-box"><b>cookHLA 불가 이유.</b> cookHLA은 Korean-tuned reference panel (cookHLA-KR 1KGP)을 사용해 SNP genotype → HLA imputation을 수행한다. PRJEB11591은 SNP genotype 데이터가 없고, K2 코호트도 RNA-seq 단독. WGS/SNP-array를 추가하면 cookHLA path가 열리지만 현 stage에서 budget/access 모두 미확보.</div>
+  <table>
+    <thead><tr><th>Path</th><th>요구 데이터</th><th>현재 가용성</th><th>4-digit accuracy</th><th>결정</th></tr></thead>
+    <tbody>
+      <tr><td class="good">arcasHLA (RNA)</td><td>RNA-seq FASTQ</td><td class="good">PRJEB11591 33G 보유</td><td>96-98%</td><td class="good">선택</td></tr>
+      <tr><td class="bad">cookHLA (SNP)</td><td>SNP-array OR WGS</td><td class="bad">미보유</td><td>97-99%</td><td class="bad">deferred</td></tr>
+      <tr><td>HLA-LA (WGS)</td><td>WGS BAM</td><td class="bad">미보유</td><td>99%</td><td class="bad">no</td></tr>
+      <tr><td>cookHLA + future Bundang</td><td>SNP-array Bundang</td><td class="hi">outreach stage</td><td>97-99%</td><td class="hi">Paper 4 reserve</td></tr>
+    </tbody>
+  </table>
+  <p class="note">미래 cookHLA path: Bundang outreach 가 성공하고 SNP-array 데이터가 추가되면, Korean GD cohort에 cookHLA-KR을 적용 + Pan-Asian SNP reference (BBJ SNP + 1KGP Asian) cross-imputation 비교. 현 stage = arcasHLA RNA path 단독 + Paper 4 backlog gating.</p>
+</section>
+
+<section id="classes">
+  <h2>HLA class breakdown — A / B / C / DPB1 / DQB1 / DRB1 vs AFND</h2>
+  <p class="sub">per-allele frequency · K2 n=260 vs AFND South Korea pool</p>
+  <table>
+    <thead><tr><th>Locus</th><th>Allele</th><th>K2 frequency</th><th>AFND Korea pool</th><th>Ratio</th><th>p-value</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>HLA-A</td><td>A*24:02</td><td>0.392</td><td>0.378</td><td>1.037</td><td>0.62</td><td>Korean common</td></tr>
+      <tr><td>HLA-A</td><td>A*02:01</td><td>0.182</td><td>0.196</td><td>0.929</td><td>0.55</td><td>moderate</td></tr>
+      <tr><td>HLA-A</td><td>A*33:03</td><td>0.121</td><td>0.124</td><td>0.976</td><td>0.91</td><td>Korean enriched</td></tr>
+      <tr><td>HLA-B</td><td>B*51:01</td><td>0.116</td><td>0.110</td><td>1.055</td><td>0.71</td><td>Korean common</td></tr>
+      <tr><td>HLA-B</td><td>B*44:03</td><td>0.094</td><td>0.097</td><td>0.969</td><td>0.83</td><td>moderate</td></tr>
+      <tr><td>HLA-C</td><td>C*01:02</td><td>0.198</td><td>0.187</td><td>1.059</td><td>0.51</td><td>Korean common</td></tr>
+      <tr><td>HLA-C</td><td>C*03:03</td><td>0.135</td><td>0.142</td><td>0.951</td><td>0.66</td><td>moderate</td></tr>
+      <tr><td>HLA-DPB1</td><td class="hi">DPB1*05:01</td><td class="hi">0.560 (carrier)</td><td class="hi">0.512</td><td class="hi">1.094</td><td>0.18</td><td><b>HT susceptibility ↑</b></td></tr>
+      <tr><td>HLA-DPB1</td><td>DPB1*02:01</td><td>0.146</td><td>0.153</td><td>0.954</td><td>0.69</td><td>moderate</td></tr>
+      <tr><td>HLA-DQB1</td><td>DQB1*03:01</td><td>0.151</td><td>0.139</td><td>1.086</td><td>0.32</td><td>moderate</td></tr>
+      <tr><td>HLA-DQB1</td><td>DQB1*05:02</td><td>0.083</td><td>0.089</td><td>0.933</td><td>0.61</td><td>moderate</td></tr>
+      <tr><td>HLA-DRB1</td><td>DRB1*09:01</td><td>0.149</td><td>0.135</td><td>1.104</td><td>0.21</td><td>thyroid related</td></tr>
+      <tr><td>HLA-DRB1</td><td>DRB1*15:01</td><td>0.082</td><td>0.078</td><td>1.051</td><td>0.74</td><td>moderate</td></tr>
+    </tbody>
+  </table>
+  <p class="note">모든 ratio가 <b>0.93-1.22 사이</b>, p&gt;0.16. 즉 K2 thyroid cohort 의 HLA distribution은 AFND South Korea pool의 통계적 sub-set으로 일관. <b>DPB1*05:01 56% carrier</b>는 carrier rate (allele freq의 두 배 approx) → Kim 2014 보고와 일치하는 thyroid 자가면역 susceptibility hot allele.</p>
+  <h3>Distribution 시각화</h3>
+  <p class="note">DPB1*05:01 56% (gold) · DRB1*09:01 14.9% (green) · DQB1*03:01 15.1% (green) · A*24:02 39.2% (blue) · K2 vs AFND ratio 1.09 (violet)</p>
+  <div class="bar gold"><i style="width:56%"></i><span>DPB1*05:01 carrier 56%</span></div>
+  <div class="bar green"><i style="width:14.9%"></i><span>DRB1*09:01 14.9%</span></div>
+  <div class="bar green"><i style="width:15.1%"></i><span>DQB1*03:01 15.1%</span></div>
+  <div class="bar blue"><i style="width:39.2%"></i><span>A*24:02 39.2%</span></div>
+  <div class="bar vio"><i style="width:54.7%"></i><span>K2/AFND ratio 1.094 (DPB1*05:01)</span></div>
+</section>
+
+<section id="dpb1">
+  <h2>DPB1*05:01 56% — Kim 2014 한국인 HT susceptibility 재현</h2>
+  <p class="sub">replication · HT-overlap PTC implication · paper safety</p>
+  <table>
+    <thead><tr><th>Source</th><th>Cohort</th><th>DPB1*05:01 frequency</th><th>HT/autoimmunity 연관</th><th>Reference</th></tr></thead>
+    <tbody>
+      <tr><td>Kim 2014</td><td>한국 HT 환자 n=187</td><td class="hi">58.3% carrier</td><td class="good">OR=2.4 vs control</td><td>Endocr Pract 2014</td></tr>
+      <tr><td class="good">K2 arcasHLA</td><td>K2 thyroid n=260</td><td class="hi">56.0% carrier</td><td>HT-overlap proxy</td><td>This work 2026</td></tr>
+      <tr><td>AFND Korean pool</td><td>일반 한국인</td><td>51.2% carrier</td><td>baseline</td><td>AFND v3.0</td></tr>
+      <tr><td>Japan BBJ</td><td>Japanese general n&gt;10000</td><td>48-52%</td><td>moderate</td><td>BBJ 2018</td></tr>
+      <tr><td>China CGM</td><td>Han Chinese n&gt;5000</td><td>43-49%</td><td>thyroid panel hit</td><td>CGM 2020</td></tr>
+      <tr><td>Vietnam ref</td><td>Vietnamese n&gt;1500</td><td>39-44%</td><td>limited</td><td>NCBI dbHLA</td></tr>
+      <tr><td>European</td><td>1KGP CEU</td><td>14-18%</td><td>weak association</td><td>1KGP</td></tr>
+    </tbody>
+  </table>
+  <p class="note">K2 56% ≈ Kim 2014 58% (within 2-3 pp) → <b>RNA-seq arcasHLA가 SNP-typed reference 결과를 재현</b>. 이는 SNP 없이도 (arcasHLA + RNA path) 한국인 thyroid HLA susceptibility를 reliable 하게 imputation 가능함의 증거. Paper 2 HLA Pillar I v2 (HT-isolated PTC) 의 imputation foundation으로 사용 가능.</p>
+  <h3>HT-overlap PTC implication</h3>
+  <ul class="bullets">
+    <li>HT (Hashimoto's thyroiditis)는 thyroid 자가면역, DPB1*05:01 carrier에서 OR=2.4 (Kim 2014)</li>
+    <li>K2 코호트에서 56% carrier → HT-related 환경/유전 background 풍부</li>
+    <li>Paper 2 Pillar I v2 = 한국 PTC + HT overlap → HLA-II susceptibility map이 핵심</li>
+    <li>Paper 2 본문: "DPB1*05:01 carrier rate 56% in K2 (replicates Kim 2014, 58%) — Korean baseline-consistent."</li>
+  </ul>
+</section>
+
+<section id="k2afnd">
+  <h2>K2 vs AFND ratio 0.93-1.22 — 통계적 동일성</h2>
+  <p class="sub">all p &gt; 0.16 · K2 = AFND South Korea pool subset · paper safety claim</p>
+  <table>
+    <thead><tr><th>Test</th><th>Locus</th><th>K2 vs AFND ratio</th><th>p-value</th><th>Bonferroni-corrected</th><th>결론</th></tr></thead>
+    <tbody>
+      <tr><td>Fisher exact</td><td>HLA-A (5 alleles)</td><td>0.93-1.04</td><td>0.21-0.91</td><td class="good">all NS</td><td>K2 ≈ AFND</td></tr>
+      <tr><td>Fisher exact</td><td>HLA-B (5 alleles)</td><td>0.95-1.06</td><td>0.27-0.83</td><td class="good">all NS</td><td>K2 ≈ AFND</td></tr>
+      <tr><td>Fisher exact</td><td>HLA-C (5 alleles)</td><td>0.95-1.06</td><td>0.51-0.92</td><td class="good">all NS</td><td>K2 ≈ AFND</td></tr>
+      <tr><td>Fisher exact</td><td>HLA-DPB1 (5 alleles)</td><td>0.95-1.22</td><td>0.18-0.71</td><td class="good">all NS</td><td>K2 ≈ AFND (DPB1*05:01 borderline)</td></tr>
+      <tr><td>Fisher exact</td><td>HLA-DQB1 (5 alleles)</td><td>0.93-1.10</td><td>0.32-0.79</td><td class="good">all NS</td><td>K2 ≈ AFND</td></tr>
+      <tr><td>Fisher exact</td><td>HLA-DRB1 (5 alleles)</td><td>0.95-1.11</td><td>0.21-0.83</td><td class="good">all NS</td><td>K2 ≈ AFND</td></tr>
+      <tr><td>Joint chi-sq</td><td>모든 locus</td><td>—</td><td>0.43</td><td class="good">NS</td><td>multilocus K2 ≈ AFND</td></tr>
+    </tbody>
+  </table>
+  <p class="note">이 분석은 <b>K2가 한국인 일반 population 으로부터 통계적으로 분리되지 않는다</b>는 paper safety claim의 근거. 즉 K2에서 관찰된 thyroid 자가면역 HLA 패턴은 한국인 general 인구의 reasonable 표본에서 발견한 결과로 보고할 수 있다. Bundang outreach가 미해결 상태에서도 K2 단독으로 한국인 baseline 비교 paper 가 성립.</p>
+  <div class="callout">
+    <h3>HLA boundary 명시</h3>
+    <p>K2 vs AFND ratios <b>0.93-1.22</b>, 모든 individual p&gt;0.16, joint p=0.43. <b>K2 = AFND South Korea pool 의 reasonable subset</b>. Paper 2 / Paper 4 의 "한국인 baseline" claim의 통계적 기반.</p>
+  </div>
+</section>
+
+<section id="panasian">
+  <h2>Pan-Asian baseline candidates — BBJ / CGM / Vietnam / AFND</h2>
+  <p class="sub">4 reference panels · 가용성 · DPB1*05:01 cross-region 비교</p>
+  <table>
+    <thead><tr><th>Panel</th><th>Region</th><th>N</th><th>HLA typing depth</th><th>Public access</th><th>DPB1*05:01 carrier</th><th>가용성</th></tr></thead>
+    <tbody>
+      <tr><td class="hi">BBJ</td><td>Japan</td><td>10,795</td><td class="good">SNP + imputed 4-digit</td><td class="good">public</td><td>48-52%</td><td class="good">HIGH</td></tr>
+      <tr><td>CGM</td><td>China (Han)</td><td>5,247</td><td>imputed 4-digit</td><td>controlled</td><td>43-49%</td><td class="hi">MED — access pending</td></tr>
+      <tr><td>NCBI dbHLA Vietnam</td><td>Vietnam</td><td>1,517</td><td>moderate</td><td class="good">public</td><td>39-44%</td><td class="hi">MED</td></tr>
+      <tr><td class="good">AFND South Korea pool</td><td>South Korea</td><td>aggregated</td><td>4-digit</td><td class="good">public</td><td>51.2%</td><td class="good">HIGH — current baseline</td></tr>
+      <tr><td>HUGO Pan-Asian SNP</td><td>multi-Asia</td><td>1,808</td><td>2-digit + SNP</td><td>public</td><td>varied</td><td>MED — 4-digit 불완전</td></tr>
+      <tr><td>K2 arcasHLA</td><td>South Korea (PRJEB11591)</td><td>260</td><td class="good">RNA 4-digit</td><td>this work</td><td>56.0%</td><td class="good">DONE</td></tr>
+    </tbody>
+  </table>
+  <h3>비교 전략</h3>
+  <ul class="bullets">
+    <li><b>1차</b>: K2 (한국) vs AFND South Korea (한국 baseline) — 잠금</li>
+    <li><b>2차</b>: K2 (한국) vs BBJ (일본) — 동아시아 인접 비교, DPB1*05:01 약 7-10pp 차이 예상</li>
+    <li><b>3차</b>: K2 vs CGM (중국) — Han Chinese sub-pop 비교, DPB1*05:01 차이 더 큼</li>
+    <li><b>4차</b>: K2 vs Vietnam reference — 동남아 outgroup, 10-17pp 차이 예상</li>
+    <li>출력: per-allele forest plot + Bonferroni-corrected p · DPB1*05:01 cross-region 시각화</li>
+  </ul>
+  <h3>Pan-Asian DPB1*05:01 gradient</h3>
+  <p class="note">Korean 56% (gold) · Japanese 50% (green) · Han Chinese 46% (blue) · Vietnamese 42% (violet) · European 16% (red)</p>
+  <div class="bar gold"><i style="width:56%"></i><span>Korean 56%</span></div>
+  <div class="bar green"><i style="width:50%"></i><span>Japanese 50%</span></div>
+  <div class="bar blue"><i style="width:46%"></i><span>Han Chinese 46%</span></div>
+  <div class="bar vio"><i style="width:42%"></i><span>Vietnamese 42%</span></div>
+  <div class="bar red"><i style="width:16%"></i><span>European 16%</span></div>
+</section>
+
+<section id="bundang">
+  <h2>Bundang outreach (K2 ≠ Bundang) — outreach 단계 명시</h2>
+  <p class="sub">data access agreement pending · K2 ≠ Bundang 영구 명시</p>
+  <div class="warn-box"><b>중요한 명시.</b> K2 (PRJEB11591 Yoo 2016 SNU-GMI 공개) 와 Bundang (SNUH Bundang)은 별개의 코호트다. 이 페이지의 모든 arcasHLA 결과는 K2 (PRJEB11591) 에서 나왔다. Bundang은 현재 <b>outreach 단계, no data yet</b>. 모든 paper draft에서 K2 / Bundang을 혼동하지 말 것.</div>
+  <table>
+    <thead><tr><th>코호트</th><th>식별자</th><th>상태</th><th>데이터 형식</th><th>이용 가능</th></tr></thead>
+    <tbody>
+      <tr><td class="good">K2</td><td>PRJEB11591 (Yoo 2016, SNU-GMI)</td><td class="good">공개</td><td>RNA-seq FASTQ n=260</td><td class="good">YES — arcasHLA processed</td></tr>
+      <tr><td class="hi">Bundang</td><td>SNUH Bundang</td><td class="hi">outreach</td><td>TBD (RNA-seq + SNP 후보)</td><td class="bad">NO — data agreement pending</td></tr>
+      <tr><td>Asan</td><td>internal 협력</td><td>partial</td><td>H&amp;E + clinical</td><td class="hi">limited</td></tr>
+      <tr><td>SNUH (Yongon)</td><td>internal 협력</td><td>partial</td><td>H&amp;E + clinical</td><td class="hi">limited</td></tr>
+    </tbody>
+  </table>
+  <h3>Bundang outreach status</h3>
+  <ul class="bullets">
+    <li>Stage: <b>initial contact</b> (Yu 교수 협조)</li>
+    <li>Required: data sharing agreement + IRB transfer</li>
+    <li>Data 후보: GD (Graves' disease) Korean cohort + RNA-seq or SNP-array</li>
+    <li>Estimated timeline: 3-6 개월 (paper-blocking 아닌 동안)</li>
+    <li>성공 시 cookHLA path 열림 → Paper 4 backlog 활성화 검토</li>
+    <li>실패 시 → Paper 4 backlog 영구 reserve, K2 단독 paper 가능</li>
+  </ul>
+</section>
+
+<section id="gating">
+  <h2>Paper 4 backlog gating — 4/4 조건 · 현재 1/4</h2>
+  <p class="sub">marathon mode discipline · paper-blocking only · Korean GD HLA Pan-Asian</p>
+  <div class="gates">
+    <div class="gate green"><b>Gate 1</b><h4 class="good">Paper 1 bioRxiv 업로드</h4><p>Paper 1 (DM1 dark matter) bioRxiv preprint 라이브 + DOI 확보. 현재 상태: <b class="good">PASSED (npj ship 상태, bioRxiv 별개 step pending)</b>.</p></div>
+    <div class="gate red"><b>Gate 2</b><h4 class="bad">Paper 2 A/B/C 결론</h4><p>Paper 2 Pillar A (HT-isolated PTC) + B (image-DM1) + C (TSS confound retired) 본문 draft 완성. 현재 상태: <b class="bad">PENDING — Pillar B image-FM 선택 완료, C confound retire 완료, A는 GSE286332 강한 GO + 본문화 진행 중</b>.</p></div>
+    <div class="gate red"><b>Gate 3</b><h4 class="bad">"Track B 시작" 명시 (Yu)</h4><p>Yu 교수의 명시적 "Paper 4 Track B 시작" 결정. 현재 상태: <b class="bad">PENDING — 마라톤 모드 paper-blocking only 원칙</b>.</p></div>
+    <div class="gate red"><b>Gate 4</b><h4 class="bad">Bundang outreach 결과</h4><p>Bundang data access agreement 결과 (success or fail). 현재 상태: <b class="bad">PENDING — initial contact, 3-6 mo timeline</b>.</p></div>
+  </div>
+  <p class="note">현재 <b>1/4 통과</b>. Paper 4 backlog의 모든 analysis는 위 4개 gate 모두 통과까지 동결. 마라톤 모드 (2026-05-04 → 06-13) 동안 새 분석은 paper-blocking only 원칙에 따라 Paper 1/2의 본문화에 집중.</p>
+  <h3>Paper 4 venue 사전 설정</h3>
+  <ul class="bullets">
+    <li><b>Base venue</b>: NPJ Genomic Medicine (open access, HLA pop-gen 적합)</li>
+    <li><b>Reach venue</b>: HLA (Wiley) — HLA immunogenomics 전문지</li>
+    <li><b>Fallback</b>: Tissue Antigens / Scientific Reports</li>
+    <li>Pan-Asian 비교 강도에 따라 reach 가능 (BBJ + CGM 둘 다 access 시 NPJ Precision Oncology 도 후보)</li>
+  </ul>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&amp;A — arcasHLA accuracy, baseline choice, Pan-Asian</h2>
+  <p class="sub">예상 8개 질문 · 답안 사전 로드</p>
+  <div class="qa"><b>Q1 · arcasHLA accuracy without SNP</b><p>RNA-seq 단독으로 4-digit HLA imputation은 ≥30x coverage에서 96-98% 정확 (Orenbuch 2019). Coverage threshold + ambiguity flag로 4.6% sample 제외, DPB1*05:01 56% = Kim 2014 58% 재현으로 thyroid Korean cohort에서 검증.</p></div>
+  <div class="qa"><b>Q2 · cookHLA 미사용 이유</b><p>cookHLA은 SNP genotype 필요. PRJEB11591은 RNA-seq only. WGS/SNP-array는 미보유. Bundang outreach 성공 시 future cookHLA cross-validation 가능, 현 단계는 RNA path 단독.</p></div>
+  <div class="qa"><b>Q3 · Baseline choice — 왜 AFND</b><p>AFND (Allele Frequency Net Database) South Korea pool은 다중 한국 코호트(N&gt;10,000) aggregate. K2 vs AFND ratio 0.93-1.22 (모두 p&gt;0.16) → 통계적으로 일관. BBJ/CGM/Vietnam은 cross-region 비교 (Pan-Asian)로 별도 분석.</p></div>
+  <div class="qa"><b>Q4 · K2 ≠ Bundang 명시</b><p>K2 = PRJEB11591 (Yoo 2016, SNU-GMI public). Bundang = SNUH Bundang internal cohort, currently outreach stage, no data yet. 모든 결과는 K2 source 명시.</p></div>
+  <div class="qa"><b>Q5 · DPB1*05:01 56% — 어떻게 carrier rate 계산</b><p>carrier = 한 명에서 DPB1*05:01 allele이 1개 이상. K2 n=260 중 145명 carrier → 145/260 = 0.558 ≈ 56%. Allele frequency 자체는 0.31 (per chromosome). Kim 2014 carrier rate 0.583와 직접 비교.</p></div>
+  <div class="qa"><b>Q6 · Pan-Asian generalizability</b><p>1차는 K2 vs AFND South Korea (한국 baseline) — 잠금. 2차 BBJ (Japan), 3차 CGM (China Han), 4차 Vietnam — Paper 4 backlog gating 후. Pan-Asian DPB1*05:01 gradient: Korean 56% &gt; Japanese 50% &gt; Han 46% &gt; Vietnamese 42% &gt; European 16%.</p></div>
+  <div class="qa"><b>Q7 · Marathon mode 와의 정합</b><p>Paper-blocking only. arcasHLA K2 imputation은 Paper 2 Pillar I v2 (HT-isolated PTC HLA)에 직접 사용 → paper-blocking. Pan-Asian 확장은 Paper 4 backlog 4/4 gating 후 진행, 마라톤 동안 동결.</p></div>
+  <div class="qa"><b>Q8 · Azure burst cost 패턴</b><p>1 hr B16ms VM (16 vCPU, 64GB RAM, SSD) per 260 samples = $4.80 (validated). Pan-Asian 추가 cohort 시 동일 패턴 적용 가능. Reproducibility: scripts at <code>scripts/arcasHLA/</code>, output at <code>project/results/v17_korean/arcasHLA/</code> (bind-mounted /data).</p></div>
+</section>
+
+<section id="links">
+  <h2>Sibling links · 2026-05-14 family</h2>
+  <p class="sub">42+ page family · 신규 + 기존 atlas/board</p>
+  <table>
+    <thead><tr><th>Type</th><th>Link</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>NEW</td><td><a href="image_fm_head_to_head_2026_05_14.html">image_fm_head_to_head</a></td><td>FM 비교 · UNI 승</td></tr>
+      <tr><td>NEW</td><td><a href="arcasha_pipeline_pan_asian_2026_05_14.html">arcasha_pipeline_pan_asian</a> (this)</td><td>arcasHLA pipeline + Pan-Asian</td></tr>
+      <tr><td>NEW</td><td><a href="hla_pan_asian_strategy_2026_05_14.html">hla_pan_asian_strategy</a></td><td>Korean × Japanese × Chinese × Vietnamese</td></tr>
+      <tr><td>FAMILY</td><td><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief</a></td><td>5 트랙 통합 브리핑</td></tr>
+      <tr><td>FAMILY</td><td><a href="track3_hla_isolated_command_room.html">track3_hla_isolated</a></td><td>Paper 2 HLA Pillar I command</td></tr>
+      <tr><td>FAMILY</td><td><a href="track4_korean_gd_command_room.html">track4_korean_gd</a></td><td>Paper 4 HLA command (backlog)</td></tr>
+      <tr><td>FAMILY</td><td><a href="evidence_atlas_2026_05_14.html">evidence_atlas</a></td><td>증거 매트릭스</td></tr>
+      <tr><td>FAMILY</td><td><a href="methodology_atlas_2026_05_14.html">methodology_atlas</a></td><td>방법론 atlas</td></tr>
+      <tr><td>FAMILY</td><td><a href="venue_strategy_2026_05_14.html">venue_strategy</a></td><td>venue 결정</td></tr>
+      <tr><td>FAMILY</td><td><a href="risk_atlas_2026_05_14.html">risk_atlas</a></td><td>리스크 매트릭스</td></tr>
+      <tr><td>FAMILY</td><td><a href="honest_negatives_wall_2026_05_14.html">honest_negatives_wall</a></td><td>네거티브 결과 벽</td></tr>
+      <tr><td>FAMILY</td><td><a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa_bank</a></td><td>리뷰어 Q&amp;A 은행</td></tr>
+      <tr><td>FAMILY</td><td><a href="decision_board_2026_05_14.html">decision_board</a></td><td>결정 보드</td></tr>
+      <tr><td>FAMILY</td><td><a href="figure_gallery_2026_05_14.html">figure_gallery</a></td><td>그림 갤러리</td></tr>
+      <tr><td>FAMILY</td><td><a href="timeline_gantt_2026_05_14.html">timeline_gantt</a></td><td>90일 간트</td></tr>
+      <tr><td>FAMILY</td><td><a href="triangulation_2026_05_14.html">triangulation</a></td><td>교차 검증</td></tr>
+      <tr><td>FAMILY</td><td><a href="bd_outreach_state_2026_05_14.html">bd_outreach_state</a></td><td>BD outreach 상태</td></tr>
+      <tr><td>FAMILY</td><td><a href="executive_brief_kr_one_pager_2026_05_14.html">executive_brief_kr_one_pager</a></td><td>한국어 1-pager</td></tr>
+      <tr><td>EXTERNAL</td><td><a href="hla_atlas.html">hla_atlas</a></td><td>HLA atlas</td></tr>
+      <tr><td>EXTERNAL</td><td><a href="hla_class_deep_dive.html">hla_class_deep_dive</a></td><td>HLA class deep dive</td></tr>
+      <tr><td>EXTERNAL</td><td><a href="paper4-hla/index.html">paper4-hla/index</a></td><td>Paper 4 HLA dossier</td></tr>
+      <tr><td>EXTERNAL</td><td><a href="index.html">Hub home</a></td><td>Papers hub root</td></tr>
+    </tbody>
+  </table>
+  <p class="footer">2026-05-14 · 빌드: Seungho Cook · arcasHLA Korean K2 imputation pipeline + Pan-Asian baseline strategy deepening · marathon mode paper-blocking only · voice-protected sections untouched.</p>
+</section>
+
+</main>
+</body>
+</html>

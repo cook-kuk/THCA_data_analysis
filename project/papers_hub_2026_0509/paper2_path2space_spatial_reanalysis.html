@@ -1,0 +1,853 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper 2 Path2Space-Inspired Spatial Reanalysis</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #151b23;
+      --panel-2: #1c2430;
+      --ink: #e6edf3;
+      --muted: #97a3b6;
+      --line: #303846;
+      --gold: #d6b25e;
+      --blue: #57a6ff;
+      --teal: #63d5c4;
+      --red: #ff7b72;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      line-height: 1.55;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .hero {
+      min-height: 58vh;
+      display: grid;
+      align-items: end;
+      padding: 56px 5vw 44px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(13,17,23,0.18), rgba(13,17,23,0.96)),
+        url("assets/paper2_path2space/fig_path2space_inspired_reanalysis.png") center 36% / cover no-repeat;
+    }
+    .hero-inner { max-width: 1180px; }
+    .kicker {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 10px 0 14px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(42px, 7vw, 86px);
+      line-height: 0.95;
+      font-weight: 650;
+      letter-spacing: 0;
+      max-width: 1080px;
+    }
+    .lead {
+      max-width: 980px;
+      color: #d8dee8;
+      font-size: 18px;
+    }
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 26px;
+      max-width: 1120px;
+    }
+    .stat {
+      border: 1px solid rgba(214,178,94,0.45);
+      background: rgba(13,17,23,0.82);
+      padding: 14px;
+      min-height: 94px;
+    }
+    .stat .v { color: var(--gold); font-size: 24px; font-weight: 800; }
+    .stat .l { color: var(--muted); font-size: 12px; margin-top: 5px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 32px;
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 34px 24px 80px;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: 100vh;
+      overflow: auto;
+      padding: 18px 0;
+    }
+    nav a {
+      display: block;
+      padding: 9px 12px;
+      border-left: 2px solid transparent;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav a:hover { color: var(--ink); border-left-color: var(--gold); text-decoration: none; }
+    main { min-width: 0; }
+    section {
+      border-top: 1px solid var(--line);
+      padding: 34px 0;
+    }
+    section:first-child { border-top: 0; padding-top: 0; }
+    h2 {
+      margin: 0 0 18px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 34px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+    .num { color: var(--gold); margin-right: 10px; font-family: "JetBrains Mono", monospace; font-size: 18px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .card h3 { margin: 0 0 10px; font-size: 17px; color: #ffffff; }
+    .muted { color: var(--muted); }
+    .good { color: var(--teal); }
+    .warn { color: var(--gold); }
+    .bad { color: var(--red); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--gold); font-weight: 700; background: rgba(214,178,94,0.06); }
+    .figure {
+      border: 1px solid var(--line);
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 18px 0;
+    }
+    .figure img { width: 100%; display: block; border-radius: 4px; }
+    code {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #d8dee8;
+    }
+    .decision td:last-child {
+      color: var(--gold);
+      font-weight: 800;
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; max-height: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — Paper 2 Path2Space-Inspired Spatial Reanalysis</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>21</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>18</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>22</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>Paper 2</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">36%</span> <span class="renewal0509-metric">100%</span> <span class="renewal0509-metric">rho &gt; 0.2</span> <span class="renewal0509-metric">12/16</span> <span class="renewal0509-metric">3 / 0</span> <span class="renewal0509-metric">9/16</span> <span class="renewal0509-metric">p=0.108</span> <span class="renewal0509-metric">p=0.004</span> <span class="renewal0509-metric">p=0.908</span> <span class="renewal0509-metric">90.4%</span> <span class="renewal0509-metric">p=0.100</span> <span class="renewal0509-metric">489 / 4</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Bounded pilot / separated HLA track</span></div>
+      <div><b>Claim boundary</b><span>Image-DM1 is pilot-level until external H&amp;E/pathologist QC passes. HT/PTC immune-expression pages are separate from GD HLA genetics.</span></div>
+      <div><b>Next use</b><span>Use as evidence archive and validation queue, not as a flagship diagnostic claim.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">TCGA-THCA</span> <span class="renewal0509-term">GSE286332</span> <span class="renewal0509-term">GSE250521</span> <span class="renewal0509-term">GSE76039 / Landa advanced thyroid</span> <span class="renewal0509-term">Hugo/Riaz melanoma ICI pool</span> <span class="renewal0509-term">8-gene mini-index</span> <span class="renewal0509-term">RAI_8 / thyroid differentiation score</span> <span class="renewal0509-term">MAPK output score</span> <span class="renewal0509-term">Cohen&#x27;s d / Spearman rho / Cox HR</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>TCGA-THCA</td><td>cohort</td><td>TCGA thyroid carcinoma cohort; RNA-seq, clinical, mutation, methylation and cBioPortal-derived mutation/clinical slices depending on page.</td><td>Paper 1 DM1/DM2 derivation, survival, promoter methylation, driver strata, and several downstream reuse pages.</td></tr>
+<tr><td>GSE286332</td><td>cohort</td><td>Small Korean PTC +/- Hashimoto RNA-seq cohort used for HT-isolated signature discovery.</td><td>Paper 2 HT/HLA mechanism pages and TCGA transfer checks.</td></tr>
+<tr><td>GSE250521</td><td>cohort</td><td>Thyroid spatial transcriptomics / Visium resource spanning thyroid progression contexts.</td><td>Spatial validation, spatial failure/rescue, lag pockets, and image-DM1 spatial checks.</td></tr>
+<tr><td>GSE76039 / Landa advanced thyroid</td><td>cohort</td><td>Advanced thyroid cancer expression resource used as a PDTC/ATC lineage-collapse benchmark.</td><td>Mechanism heterogeneity, advanced-disease comparisons, and reverse-causality boundary checks.</td></tr>
+<tr><td>Hugo/Riaz melanoma ICI pool</td><td>cohort</td><td>External melanoma immunotherapy RNA/clinical resources used as ICI-response context, not thyroid predictor proof.</td><td>Paper 3 vulnerability-only evidence and claim-boundary pages.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> H&amp;E Carries A Spatial DM1 Signal → 01 TL;DR → What Changed → What Did Not Change → 02 Strategy</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>H&amp;E Carries A Spatial DM1 Signal</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>01 TL;DR</span></article>
+<article class="renewal0509-step"><b>03</b><em>H3</em><span>What Changed</span></article>
+<article class="renewal0509-step"><b>04</b><em>H3</em><span>What Did Not Change</span></article>
+<article class="renewal0509-step"><b>05</b><em>H2</em><span>02 Strategy</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>03 Prediction</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>04 SPAND-Like Heterogeneity</span></article>
+<article class="renewal0509-step"><b>08</b><em>H2</em><span>05 Spatial Clusters</span></article>
+<article class="renewal0509-step renewal0509-step-more"><b>+14</b><span>More section headings are mapped in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_inspired_reanalysis.png" alt="Path2Space-inspired reanalysis summary figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Spatial / anatomy evidence</div><h4>fig_path2space_inspired_reanalysis.png</h4><p>Path2Space-inspired reanalysis summary figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/fig_path2space_inspired_reanalysis.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_cluster_programs.png" alt="Predicted spatial cluster programs" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Matrix / clustering evidence</div><h4>fig_path2space_cluster_programs.png</h4><p>Predicted spatial cluster programs</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the row/column annotations and color scale first; the visual is about structure, not a single p-value.</dd><dt>Boundary</dt><dd>Cluster appearance should be paired with the linked table or statistic before manuscript-level use.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/fig_path2space_cluster_programs.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_strengthening_controls.png" alt="Path2Space strengthening controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Spatial / anatomy evidence</div><h4>fig_path2space_strengthening_controls.png</h4><p>Path2Space strengthening controls</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/strengthening_controls/fig_path2space_strengthening_controls.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse250521_random_module_specificity.png" alt="GSE250521 matched random-module specificity and spatial-smoothness adjustment" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Spatial / anatomy evidence</div><h4>fig_gse250521_random_module_specificity.png</h4><p>GSE250521 matched random-module specificity and spatial-smoothness adjustment</p><dl><dt>Data entered</dt><dd>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_gse250521_random_module_specificity_2026_05_09/fig_gse250521_random_module_specificity.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse250521_stage_generalization_controls.png" alt="GSE250521 stage stratified and leave-one-stage-out controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · Spatial / anatomy evidence</div><h4>fig_gse250521_stage_generalization_controls.png</h4><p>GSE250521 stage stratified and leave-one-stage-out controls</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_stage_generalization_controls_2026_05_09/fig_gse250521_stage_generalization_controls.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_pathology_thyroid_axis.png" alt="GSE230424 pathology to thyroid spatial axis controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · Spatial / anatomy evidence</div><h4>fig_gse230424_pathology_thyroid_axis.png</h4><p>GSE230424 pathology to thyroid spatial axis controls</p><dl><dt>Data entered</dt><dd>H&amp;E/image-DM1 audit outputs from TCGA slides, pathology/spatial scout tables, and CLAM/encoder experiments.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_pathology_thyroid_axis.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_sample_axis_context.png" alt="GSE230424 sample-level thyroid module context" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Spatial / anatomy evidence</div><h4>fig_gse230424_sample_axis_context.png</h4><p>GSE230424 sample-level thyroid module context</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_sample_axis_context.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_spatial_maps.png" alt="GSE230424 observed and predicted spatial maps" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Spatial / anatomy evidence</div><h4>fig_gse230424_spatial_maps.png</h4><p>GSE230424 observed and predicted spatial maps</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_spatial_maps.png</dd></dl></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 06</b><strong>Inline HTML table 6</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard renewal0509-step-more"><b>+12</b><strong>Additional tables</strong><span>Full table inventory appears in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="hla_beta_plan.html">hla_beta_plan</a> <a class="renewal0509-chip" href="ht_vs_gd_audit.html">ht_vs_gd_audit</a> <a class="renewal0509-chip" href="paper2_cv2_visual_summary.html">paper2_cv2_visual_summary</a> <a class="renewal0509-chip" href="paper2_gse248205_aitd_pathology_axis.html">paper2_gse248205_aitd_pathology_ax</a> <a class="renewal0509-chip" href="paper2_high_impact_journal_strategy.html">paper2_high_impact_journal_strateg</a> <a class="renewal0509-chip" href="paper2_hla.html">paper2_hla</a> <a class="renewal0509-chip" href="paper2_image_dm1.html">paper2_image_dm1</a> <a class="renewal0509-chip" href="paper2_image_dm1_audit_dossier.html">paper2_image_dm1_audit_dossier</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/paper2_path2space_spatial_reanalysis.html · Renewed page: project/papers_hub_2026_0509/paper2_path2space_spatial_reanalysis.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="kicker">Paper 2 · GSE250521 · Path2Space-Inspired Reanalysis</div>
+      <h1>H&amp;E Carries A Spatial DM1 Signal</h1>
+      <p class="lead">
+        Reanalysis after the Cell 2026 Path2Space paper: spatial smoothing converts the prior weak UNI scout into a weak-to-moderate image-to-spatial-RNA result, then GSE230424 adds a label-free external thyroid Visium control with a stronger DM1/RAI H&amp;E signal but a clear QC caveat.
+      </p>
+      <div class="stat-strip">
+        <div class="stat"><div class="v">3,200</div><div class="l">UNI-embedded spots</div></div>
+        <div class="stat"><div class="v">16</div><div class="l">GSE250521 slides</div></div>
+        <div class="stat"><div class="v">0.392</div><div class="l">DM1/RAI smoothed LOSO rho</div></div>
+        <div class="stat"><div class="v">+0.097</div><div class="l">smoothing gain over raw</div></div>
+        <div class="stat"><div class="v">0.581</div><div class="l">DM1 domain slide-centered rho</div></div>
+        <div class="stat"><div class="v">0.303</div><div class="l">DM1 rho after QC residualization</div></div>
+        <div class="stat"><div class="v">0.644</div><div class="l">GSE230424 DM1/RAI sample-centered rho</div></div>
+        <div class="stat"><div class="v">0.283</div><div class="l">GSE230424 coord+QC residual rho</div></div>
+        <div class="stat"><div class="v">0.232</div><div class="l">GSE230424 strict residual-target rho</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav>
+      <a href="#tl-dr">01 TL;DR</a>
+      <a href="#strategy">02 Strategy</a>
+      <a href="#prediction">03 Prediction</a>
+      <a href="#spand">04 SPAND</a>
+      <a href="#clusters">05 Clusters</a>
+      <a href="#controls">06 Controls</a>
+      <a href="#gse230424">07 GSE230424</a>
+      <a href="#gse248205">08 GSE248205</a>
+      <a href="#bootstrap">09 Bootstrap CI</a>
+      <a href="#hotspots">10 Hotspots</a>
+      <a href="#blocks">11 Spatial Blocks</a>
+      <a href="#distance">12 Distance Caveat</a>
+      <a href="#smoothness">13 Smoothness Caveat</a>
+      <a href="#decision">14 Decision</a>
+      <a href="#sources">15 Sources</a>
+    </nav>
+
+    <main>
+      <section id="tl-dr">
+        <h2><span class="num">01</span>TL;DR</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>What Changed</h3>
+            <p class="muted">The earlier scout evaluated raw spot RNA labels. The reanalysis follows the Path2Space paper's practical lesson: smooth local spatial labels before evaluating H&amp;E-to-expression prediction.</p>
+          </div>
+          <div class="card">
+            <h3>What Did Not Change</h3>
+            <p class="muted">The direct GSE250521 MAPK x Panel spatial anti-correlation remains closed from v15-v18. This page is Paper 2 support, not Paper 1 causal mechanism support.</p>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Top smoothed target</td><td><code>DM1_like_score</code></td><td><code>PATH2SPACE_REANALYSIS_SUMMARY.json</code></td></tr>
+            <tr><td>DM1/RAI raw LOSO Spearman rho</td><td>0.295</td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>DM1/RAI KNN-8 smoothed LOSO Spearman rho</td><td><strong class="good">0.392</strong></td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>Slides with DM1/RAI rho &gt; 0.2</td><td>12/16</td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>MAPK output smoothed LOSO Spearman rho</td><td>0.298</td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>Best spatial cluster k / silhouette</td><td>3 / 0.272</td><td><code>path2space_cluster_k_silhouette.tsv</code></td></tr>
+            <tr><td>DM1/RAI domain slide-centered rho</td><td><strong class="good">0.581</strong></td><td><code>path2space_strengthening_domain_summary.tsv</code></td></tr>
+            <tr><td>DM1/RAI residual alignment after QC adjustment</td><td>0.303</td><td><code>path2space_strengthening_residual_alignment.tsv</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="strategy">
+        <h2><span class="num">02</span>Strategy</h2>
+        <table>
+          <thead><tr><th>Path2Space idea</th><th>THCA port</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr><td>H&amp;E as low-cost spatial RNA surrogate</td><td>UNI tile embeddings predict measured ST module scores</td><td>Paper 2 image-DM1 needs pathology-to-RNA evidence</td></tr>
+            <tr><td>Spatial smoothing</td><td>KNN-8 smoothing of spot-level targets</td><td>Reduces Visium spot noise and improves biological interpretability</td></tr>
+            <tr><td>Held-out patient evaluation</td><td>Leave-one-slide-out validation</td><td>Blocks same-slide leakage</td></tr>
+            <tr><td>SPAND heterogeneity</td><td><code>1 - Moran's I</code> on rank-normalized predicted axes</td><td>Measures local intermixing rather than same-spot co-expression</td></tr>
+            <tr><td>Spatial cluster composition</td><td>KMeans on predicted multi-axis spatial programs</td><td>Tests architecture-level representation, not one correlation</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="prediction">
+        <h2><span class="num">03</span>Prediction</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_inspired_reanalysis.png" alt="Path2Space-inspired reanalysis summary figure">
+        </div>
+        <table>
+          <thead><tr><th>Rank</th><th>Smoothed target</th><th>LOSO rho</th><th>Median slide rho</th><th>Slides rho &gt; 0.2</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>DM1_like_score</td><td>0.392</td><td>0.373</td><td>12/16</td></tr>
+            <tr><td>2</td><td>TDS_like_score</td><td>0.381</td><td>0.338</td><td>12/16</td></tr>
+            <tr><td>3</td><td>CAF_ECM_score</td><td>0.318</td><td>0.289</td><td>9/16</td></tr>
+            <tr><td>4</td><td>MAPK_output_score</td><td>0.298</td><td>0.307</td><td>12/16</td></tr>
+            <tr><td>5</td><td>Epithelial_score</td><td>0.244</td><td>0.274</td><td>12/16</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="spand">
+        <h2><span class="num">04</span>SPAND-Like Heterogeneity</h2>
+        <p class="muted">Higher <code>1 - Moran's I</code> means less spatial autocorrelation and more local intermixing. The result is descriptive because the cohort has no treatment response endpoint.</p>
+        <table>
+          <thead><tr><th>Predicted axis</th><th>PT</th><th>PTC</th><th>LPTC</th><th>ATC</th></tr></thead>
+          <tbody>
+            <tr><td>DM1_like_score</td><td>0.450</td><td>0.313</td><td>0.278</td><td>0.506</td></tr>
+            <tr><td>TDS_like_score</td><td>0.426</td><td>0.336</td><td>0.282</td><td>0.519</td></tr>
+            <tr><td>MAPK_output_score</td><td>0.440</td><td>0.326</td><td>0.269</td><td>0.331</td></tr>
+            <tr><td>Epithelial_score</td><td>0.356</td><td>0.329</td><td>0.267</td><td>0.362</td></tr>
+            <tr><td>CAF_ECM_score</td><td>0.603</td><td>0.305</td><td>0.302</td><td>0.541</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="clusters">
+        <h2><span class="num">05</span>Spatial Clusters</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_cluster_programs.png" alt="Predicted spatial cluster programs">
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Architecture Signal</h3>
+            <p class="muted">The best unsupervised cluster count is k = 3 with silhouette 0.272. That is a modest architecture representation, not a stage classifier.</p>
+          </div>
+          <div class="card">
+            <h3>Stage Boundary</h3>
+            <p class="muted">Dominant cluster versus stage ARI is 0.000, so the representation should not be framed as cleanly staging PT/PTC/LPTC/ATC.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="controls">
+        <h2><span class="num">06</span>Strengthening Controls</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_strengthening_controls.png" alt="Path2Space strengthening controls">
+        </div>
+        <table>
+          <thead><tr><th>Control</th><th>DM1/RAI result</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>UNI H&amp;E, slide-centered</td><td>rho 0.440</td><td>Signal survives slide mean removal</td></tr>
+            <tr><td>Coordinate-only baseline</td><td>rho 0.133</td><td>Spatial coordinates alone do not explain it</td></tr>
+            <tr><td>ResNet50 H&amp;E baseline</td><td>rho 0.298</td><td>UNI improves over a generic ImageNet encoder</td></tr>
+            <tr><td>QC-only baseline</td><td>rho 0.476</td><td>Measured ST quality/cell-density axes are strong and must be disclosed</td></tr>
+            <tr><td>UNI after within-slide QC residualization</td><td>rho 0.303</td><td>A morphology-aligned component remains after removing QC covariation</td></tr>
+            <tr><td>Coordinate-domain aggregation</td><td>rho 0.581</td><td>Domain averaging strengthens the signal, matching Path2Space aggregation logic</td></tr>
+            <tr><td>GSE250521 matched random-module control</td><td>raw p=0.108; coord+QC residual-target p=0.004</td><td>Residual-layer specificity support; raw smoothness caveat</td></tr>
+            <tr><td>GSE250521 stage-generalization control</td><td>stage-centered rho 0.392; leave-one-stage-out raw rho 0.335</td><td>Not only stage mean; ATC/residual transfer caveat</td></tr>
+            <tr><td>Within-slide permutation null</td><td>empirical p 0.001</td><td>Local alignment is not random field matching</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">The safe claim is deliberately narrow: pathology carries a reproducible spatial DM1/RAI signal, but measured ST QC variables explain substantial variation. This is a Paper 2 reinforcement, not a Paper 1 causal mechanism rescue.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse250521_random_module_specificity.png" alt="GSE250521 matched random-module specificity and spatial-smoothness adjustment">
+        </div>
+        <table>
+          <thead><tr><th>GSE250521 specificity layer</th><th>Observed UNI rho</th><th>Random-module result</th><th>Smoothness adjustment</th></tr></thead>
+          <tbody>
+            <tr><td>Raw smoothed DM1/RAI</td><td>0.418</td><td>89.6th percentile; p=0.108</td><td><strong class="bad">fails</strong>: expected 0.491, adjusted residual -0.073, p=0.908</td></tr>
+            <tr><td>Coord+QC residual target</td><td>0.213</td><td><strong class="good">100.0th percentile; p=0.004</strong></td><td>directional support: expected 0.168, adjusted residual +0.045, percentile 90.4%, p=0.100</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">The matched-random-module layer separates two claims. Raw DM1/RAI predictability is partly a spatial-smoothness/tissue-state property. The stricter coordinate+QC residual target remains above all 250 matched random modules before smoothness adjustment and stays directionally high after smoothness adjustment, supporting a smaller residual image-aligned DM1/RAI component.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse250521_stage_generalization_controls.png" alt="GSE250521 stage stratified and leave-one-stage-out controls">
+        </div>
+        <table>
+          <thead><tr><th>Stage control</th><th>DM1/RAI result</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>Existing LOSO, stage-centered evaluation</td><td><strong class="good">rho 0.392</strong></td><td>Positive after removing stage means</td></tr>
+            <tr><td>Existing LOSO by stage</td><td>PT 0.246; PTC 0.487; LPTC 0.471; ATC 0.191</td><td>PTC/LPTC strongest; ATC is weak</td></tr>
+            <tr><td>Leave-one-stage-out raw target</td><td><strong class="good">pooled rho 0.335; stage-centered rho 0.401</strong></td><td>Raw cross-stage transfer support</td></tr>
+            <tr><td>Leave-one-stage-out coord+QC residual target</td><td>pooled rho 0.140; stage-centered rho 0.170</td><td>Residual transfer remains positive but weak</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Stage controls answer a direct reviewer objection: the GSE250521 image signal is not just global PT/PTC/LPTC/ATC stage means. Stage-centered evaluation and leave-one-stage-out raw transfer remain positive. The boundary is also clear: the strict residual target transfers weakly and ATC is the least stable stage.</p>
+      </section>
+
+      <section id="gse230424">
+        <h2><span class="num">07</span>GSE230424 External Thyroid Control</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_pathology_thyroid_axis.png" alt="GSE230424 pathology to thyroid spatial axis controls">
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
+          <tbody>
+            <tr><td>Modeled spots / samples</td><td>15,489 / 4</td><td><code>GSE230424_PATHOLOGY_THYROID_SUMMARY.json</code></td></tr>
+            <tr><td>Recovered disease labels</td><td>P1/P2 = PTC+HT; P3/P4 = HT</td><td><code>Supplementary Table S5</code></td></tr>
+            <tr><td>Top axis</td><td><code>DM1_low_RAI_score</code></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
+            <tr><td>H&amp;E sample-centered rho</td><td><strong class="good">0.644</strong></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
+            <tr><td>H&amp;E domain-centered rho</td><td><strong class="good">0.910</strong></td><td><code>gse230424_domain_summary.tsv</code></td></tr>
+            <tr><td>QC-only sample-centered rho</td><td><strong class="warn">0.732</strong></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
+            <tr><td>H&amp;E residual after coord+QC adjustment</td><td>0.283</td><td><code>gse230424_residual_alignment.tsv</code></td></tr>
+            <tr><td>Strict residual-target H&amp;E rho after coord+QC removal</td><td><strong class="good">0.232</strong></td><td><code>residual_target_controls/gse230424_residual_target_model_comparison.tsv</code></td></tr>
+            <tr><td>Feature-family ablation</td><td>r96-only residual rho 0.246; RGB residual rho 0.143; density/texture residual rho 0.174</td><td><code>feature_ablation_controls/</code></td></tr>
+            <tr><td>Matched random-module specificity</td><td>raw percentile 99.2% (p=0.012); residual percentile 100.0% (p=0.004)</td><td><code>random_module_specificity/</code></td></tr>
+            <tr><td>Spatial-smoothness-adjusted specificity</td><td><strong class="bad">does not pass</strong>: raw adjusted residual -0.121; strict residual-target adjusted residual -0.190</td><td><code>spatial_autocorr_specificity/</code></td></tr>
+            <tr><td>Article S6 PTC-marker module H&amp;E rho</td><td>0.159; strict residual-target 0.071</td><td><code>ptc_marker_extension/</code></td></tr>
+            <tr><td>Within-sample permutation p</td><td>0.001</td><td><code>gse230424_permutation_alignment.tsv</code></td></tr>
+          </tbody>
+        </table>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_sample_axis_context.png" alt="GSE230424 sample-level thyroid module context">
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Why It Helps</h3>
+            <p class="muted">This is an independent thyroid Visium cohort with raw H&amp;E images. It reproduces the central image-to-DM1/RAI spatial direction at a stronger effect size than GSE250521.</p>
+          </div>
+          <div class="card">
+            <h3>Boundary</h3>
+            <p class="muted">Supplementary Table S5 maps P1/P2 to PTC+HT and P3/P4 to HT, but disease groups are only n=2 slides each and QC-only is stronger than H&amp;E. Use it as local spatial support with explicit QC residualization, not robust disease-group validation.</p>
+          </div>
+        </div>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_spatial_maps.png" alt="GSE230424 observed and predicted spatial maps">
+        </div>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_residual_target_controls.png" alt="GSE230424 residual-target controls">
+        </div>
+        <p class="muted">The residual-target control is the strictest version of the test: observed DM1/low-RAI is first residualized within each sample against coordinates and ST QC variables, and H&amp;E is then trained to predict that residual. The retained rho 0.232 supports a smaller image-aligned component beyond the QC/tissue-density signal.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_feature_ablation_controls.png" alt="GSE230424 feature-family ablation controls">
+        </div>
+        <p class="muted">Feature-family ablation keeps the claim honest. Large-patch morphology at radius 96 is the strongest single family for both raw DM1/RAI (rho 0.645) and coord+QC residual DM1/RAI (rho 0.246), while RGB-only and density/texture-only features remain weaker. This argues against a single stain-summary artifact, but does not remove the QC/stain caveat.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_random_module_specificity.png" alt="GSE230424 matched random-module specificity controls">
+        </div>
+        <p class="muted">Matched random-module controls ask whether DM1/RAI is just another image-predictable spatial gene set. Among 250 expression/detection-matched random 8-gene modules, actual DM1/RAI sits at the 99.2nd percentile for raw H&amp;E prediction and above all matched null modules after coordinate+QC residualization. Leave-one-gene-out panel rho stays stable, arguing against single-gene dominance.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png" alt="GSE230424 spatial-autocorrelation-adjusted specificity caveat">
+        </div>
+        <p class="muted">Spatial-autocorrelation adjustment reverses the specificity readout. After modeling matched random-module H&amp;E predictability from neighbor autocorrelation, coordinate-block variance, and target standard deviation, DM1/RAI is below the expected random-module trend. This does not erase the positive H&amp;E signal, but it prevents a strong GSE230424-only molecular-specificity claim.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_ptc_marker_extension.png" alt="GSE230424 PTC marker extension">
+        </div>
+        <p class="muted">The article's own Supplementary Table S6 PTC-marker program is descriptively higher in PTC+HT than HT and modestly H&amp;E-predictable, but QC-only remains stronger and strict residual prediction is weak. Keep it as a supportive/caveat extension, not a main claim.</p>
+      </section>
+
+      <section id="gse248205">
+        <h2><span class="num">08</span>GSE248205 Negative Control</h2>
+        <div class="figure">
+          <img src="assets/paper2_gse248205_aitd/fig_gse248205_pathology_aitd_axis.png" alt="GSE248205 AITD pathology axis negative control">
+        </div>
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>Modeled spots / samples</td><td>16,985 / 8</td><td>Useful control set</td></tr>
+            <tr><td>AP/TLS H&amp;E pooled rho</td><td>0.590</td><td>Looks strong before centering</td></tr>
+            <tr><td>AP/TLS H&amp;E sample-centered rho</td><td><strong class="bad">-0.090</strong></td><td>No-go for local morphology claim</td></tr>
+            <tr><td>AP/TLS domain sample-centered rho</td><td><strong class="bad">-0.164</strong></td><td>No-go after domain aggregation</td></tr>
+            <tr><td>Final use</td><td><code>NO_GO_LOCAL_HE_CAVEAT_ONLY</code></td><td>Disclose as negative control if needed</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">This prevents overclaiming: not every thyroid autoimmune ST dataset gives a valid local H&amp;E signal. The Paper 2 evidence should lean on GSE250521 plus GSE230424, with GSE248205 retained as a caveat-only control.</p>
+      </section>
+
+      <section id="bootstrap">
+        <h2><span class="num">09</span>Bootstrap Uncertainty</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_bootstrap_uncertainty.png" alt="Bootstrap uncertainty for Path2Space-inspired evidence layers">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Centered rho</th><th>95% bootstrap CI</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI DM1/RAI smoothed spots</td><td>0.440</td><td>0.408 to 0.475</td></tr>
+            <tr><td>GSE250521 UNI DM1/RAI coordinate domains</td><td>0.581</td><td>0.381 to 0.729</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI smoothed spots</td><td>0.644</td><td>0.634 to 0.655</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI coordinate domains</td><td>0.910</td><td>0.788 to 0.956</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI coord+QC residual target</td><td>0.232</td><td>0.217 to 0.248</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Bootstrap intervals stay above zero across the main spot-level, domain-level, and strict residual-target evidence layers. Treat these as descriptive stability intervals; independent-cohort replication remains the stronger validation layer.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_downsample_robustness.png" alt="Spot-budget downsampling robustness for Path2Space-inspired evidence layers">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>200 spots/group median rho</th><th>95% interval</th><th>Median top-bottom</th><th>Median hotspot lift</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI raw DM1/RAI</td><td><strong class="good">0.442</strong></td><td>0.411 to 0.473</td><td>1.481</td><td>3.50x</td></tr>
+            <tr><td>GSE250521 UNI coord+QC residual DM1/RAI</td><td>0.214</td><td>0.178 to 0.246</td><td>0.129</td><td>2.53x</td></tr>
+            <tr><td>GSE230424 H&amp;E raw DM1/low-RAI</td><td><strong class="good">0.641</strong></td><td>0.602 to 0.683</td><td>0.712</td><td>3.25x</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual DM1/low-RAI</td><td>0.240</td><td>0.173 to 0.302</td><td>0.161</td><td>1.50x</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Spot-budget equalization asks whether the strong GSE230424 result is mainly a large-sample artifact. Repeated 200-spot-per-slide/sample resampling preserves the raw signal and the smaller residual correlation. The residual hotspot-lift interval is wider and can approach baseline, so this layer should be used as rho/top-bottom robustness rather than a standalone hotspot claim.</p>
+      </section>
+
+      <section id="hotspots">
+        <h2><span class="num">10</span>Hotspot Concordance</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_hotspot_concordance.png" alt="Hotspot concordance for predicted and observed high DM1 RAI regions">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Exact top-decile precision</th><th>Lift / OR / permutation p</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI DM1/RAI</td><td>0.350</td><td>3.50x / OR 6.92 / p=0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI</td><td>0.333</td><td>3.32x / OR 6.22 / p=0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual target</td><td>0.163</td><td>1.63x / OR 1.90 / p=0.001</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">This layer converts continuous prediction into a spatial localization question: do predicted high-DM1/RAI spots recover observed high-DM1/RAI hotspots within each slide/sample? Exact top-k thresholds avoid tie-inflated hotspot rates. The residual-target test is weaker but remains enriched above independence after coordinate+QC removal.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_decile_dose_response.png" alt="Predicted-decile dose response for Path2Space-inspired DM1 RAI signals">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Top-minus-bottom observed axis</th><th>Decile Spearman</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI raw DM1/RAI</td><td><strong class="good">1.479</strong></td><td>0.407</td><td>Strong threshold-independent ranking support</td></tr>
+            <tr><td>GSE250521 UNI coord+QC residual DM1/RAI</td><td>0.128</td><td>0.206</td><td>Small positive residual dose response</td></tr>
+            <tr><td>GSE230424 H&amp;E raw DM1/low-RAI</td><td><strong class="good">0.699</strong></td><td>0.607</td><td>Strong external ranking support</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual DM1/low-RAI</td><td>0.159</td><td>0.222</td><td>Small positive residual dose response</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Predicted-decile dose response avoids relying on a single top-decile hotspot threshold. Higher predicted bins carry progressively higher observed DM1/RAI within slide/sample. The raw layers are strong; residual layers remain positive but small, preserving the QC and spatial-smoothness caveats.</p>
+      </section>
+
+      <section id="blocks">
+        <h2><span class="num">11</span>Spatial-Block Controls</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_spatial_block_controls.png" alt="Spatial-block controls for image to DM1 RAI signal">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Block-centered rho</th><th>Block-stratified hotspot p</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI DM1/RAI</td><td>0.380</td><td>0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI</td><td>0.497</td><td>0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual target</td><td>0.198</td><td>0.001</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Spatial blocks remove broad coordinate-domain means before correlation and preserve broad hotspot density during permutation. Signal attenuation is expected, but the main and strict residual-target layers remain positive, arguing against a purely broad-domain artifact.</p>
+      </section>
+
+      <section id="distance">
+        <h2><span class="num">12</span>Nearest-Hotspot Distance Caveat</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_hotspot_distance_controls.png" alt="Nearest-hotspot distance controls for predicted and observed high DM1 RAI spots">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Observed median distance</th><th>Block-null mean</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI DM1/RAI</td><td>1.803 grid spacings</td><td>2.566</td><td>Pass; p=0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI</td><td>1.000 grid spacing</td><td>1.001</td><td>Caveat; p=0.998</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual target</td><td>2.236 grid spacings</td><td>1.421</td><td>Caveat; p=1.000</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">The distance test allows near-miss localization rather than exact spot overlap. GSE250521 passes this stricter spatial-proximity control. In GSE230424, exact hotspot overlap and block-centered correlation remain positive, but nearest-distance is dominated by dense block geometry; keep this as an honest caveat rather than a support claim.</p>
+      </section>
+
+      <section id="smoothness">
+        <h2><span class="num">13</span>Smoothness-Adjusted Specificity Caveat</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png" alt="Spatial autocorrelation adjusted random module specificity in GSE230424">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Observed H&amp;E rho</th><th>Expected from smoothness</th><th>Adjusted residual</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>GSE230424 raw smoothed DM1/RAI</td><td>0.644</td><td>0.765</td><td><strong class="bad">-0.121</strong></td><td>Below smoothness-matched expectation; percentile 1.6%, p=0.984</td></tr>
+            <tr><td>GSE230424 coord+QC residual target</td><td>0.232</td><td>0.422</td><td><strong class="bad">-0.190</strong></td><td>Below all matched random residuals; percentile 0.0%, p=1.000</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">This is the strongest anti-overclaim control on the GSE230424 external cohort. The matched random-module test is impressive before adjustment, but after accounting for target spatial autocorrelation, coordinate-block variance, and target scale, DM1/RAI is not exceptional. Safe framing: H&amp;E recovers a positive local thyroid DM1/RAI axis, but GSE230424 alone does not prove molecular specificity independent of spatial smoothness.</p>
+      </section>
+
+      <section id="decision">
+        <h2><span class="num">14</span>Decision Matrix</h2>
+        <table class="decision">
+          <thead><tr><th>Question</th><th>Evidence</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>Can H&amp;E recover local DM1/RAI spatial signal?</td><td>Smoothed LOSO rho 0.392; 12/16 slides rho &gt; 0.2</td><td>Use for Paper 2</td></tr>
+            <tr><td>Is the GSE250521 signal specific to DM1/RAI?</td><td>Raw matched-random p=0.108 and smoothness-adjusted residual -0.073; coord+QC residual target rho 0.213, matched-random p=0.004, smoothness-adjusted residual +0.045</td><td>Residual-layer support; raw caveat</td></tr>
+            <tr><td>Is GSE250521 only a stage classifier?</td><td>Stage-centered DM1/RAI rho 0.392; leave-one-stage-out raw rho 0.335; residual leave-one-stage-out rho 0.140</td><td>No for raw/local signal; residual transfer caveat</td></tr>
+            <tr><td>Does an independent thyroid Visium cohort support this?</td><td>GSE230424 DM1/low-RAI H&amp;E sample-centered rho 0.644; coord+QC residual rho 0.283; strict residual-target rho 0.232</td><td>Use as external support with QC caveat</td></tr>
+            <tr><td>Is the GSE230424 signal only a simple color/stain artifact?</td><td>r96-only morphology retains raw rho 0.645 and coord+QC residual rho 0.246; RGB-only residual rho 0.143</td><td>Not single-feature only; keep stain/QC caveat</td></tr>
+            <tr><td>Is DM1/RAI more specific than matched random modules?</td><td>250 matched random modules: raw percentile 99.2%, empirical p=0.012; residual-target percentile 100.0%, p=0.004</td><td>Unadjusted specificity support</td></tr>
+            <tr><td>Does that specificity survive spatial-smoothness adjustment?</td><td>Raw expected rho 0.765 vs observed 0.644, adjusted residual -0.121; residual-target expected 0.422 vs observed 0.232, adjusted residual -0.190</td><td>No; disclose caveat</td></tr>
+            <tr><td>Do the main effects survive bootstrap uncertainty?</td><td>GSE230424 residual-target rho 0.232, 95% CI 0.217 to 0.248; GSE250521 domain rho 0.581, CI 0.381 to 0.729</td><td>Stability support</td></tr>
+            <tr><td>Is GSE230424 only stronger because it has more spots?</td><td>After 1000 repeats at 200 spots/sample: raw median rho 0.641 [0.602, 0.683], residual median rho 0.240 [0.173, 0.302]</td><td>No for correlation robustness; residual hotspot lift remains weak</td></tr>
+            <tr><td>Do predicted high-DM1/RAI regions localize observed hotspots?</td><td>Exact top-decile lift: GSE250521 3.50x; GSE230424 3.32x; strict residual target 1.63x; all permutation p=0.001</td><td>Spatial localization support</td></tr>
+            <tr><td>Is hotspot support threshold-dependent?</td><td>Predicted-decile top-minus-bottom: GSE250521 raw 1.479 and residual 0.128; GSE230424 raw 0.699 and residual 0.159</td><td>No for raw signal; residual dose response is positive but small</td></tr>
+            <tr><td>Is the hotspot signal only broad coordinate-domain structure?</td><td>Block-centered rho remains 0.380 in GSE250521, 0.497 in GSE230424, and 0.198 in strict residual target; block-stratified hotspot p=0.001</td><td>Broad-domain artifact unlikely</td></tr>
+            <tr><td>Do predicted hotspots sit closer to observed hotspots under block nulls?</td><td>GSE250521 passes (1.803 vs 2.566 grid spacings, p=0.001); GSE230424 fails nearest-distance block null</td><td>Mixed; disclose caveat</td></tr>
+            <tr><td>Does smoothing matter?</td><td>DM1/RAI rho 0.295 to 0.392</td><td>Yes, keep</td></tr>
+            <tr><td>Does domain aggregation strengthen the signal?</td><td>DM1/RAI domain slide-centered rho 0.581</td><td>Strong supporting analysis</td></tr>
+            <tr><td>Is it only coordinate/stage?</td><td>Coordinate-only rho 0.133; stage-only near null</td><td>No</td></tr>
+            <tr><td>Is QC a serious confound?</td><td>QC-only rho 0.476; QC-residual UNI alignment rho 0.303</td><td>Disclose and residualize</td></tr>
+            <tr><td>Does every thyroid autoimmune ST dataset support local H&amp;E prediction?</td><td>GSE248205 AP/TLS pooled rho 0.590 but sample-centered rho -0.090</td><td>No; negative control/caveat</td></tr>
+            <tr><td>Can H&amp;E recover MAPK output?</td><td>Smoothed rho 0.298</td><td>Exploratory support only</td></tr>
+            <tr><td>Does this rescue Paper 1 spatial MAPK x Panel?</td><td>v15-v18 direct anti-correlation, lag, and pocket tests failed</td><td>Caveat-only</td></tr>
+            <tr><td>Is the spatial cluster architecture stage-defining?</td><td>Dominant-cluster/stage ARI 0.000</td><td>No</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sources">
+        <h2><span class="num">15</span>Sources And Paths</h2>
+        <table>
+          <thead><tr><th>Artifact</th><th>Path</th></tr></thead>
+          <tbody>
+            <tr><td>Reference PDF</td><td><code>AI-predicted spatial transcriptomics unlocks breast cancer biomarkers from pathology.pdf</code></td></tr>
+            <tr><td>Run script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/path2space_inspired_reanalysis.py</code></td></tr>
+            <tr><td>Report</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/PATH2SPACE_REANALYSIS_REPORT.md</code></td></tr>
+            <tr><td>Target summary</td><td><code>path2space_loso_target_summary.tsv</code></td></tr>
+            <tr><td>SPAND table</td><td><code>path2space_spand_by_slide.tsv</code></td></tr>
+            <tr><td>Cluster tables</td><td><code>path2space_spatial_cluster_*.tsv</code></td></tr>
+            <tr><td>Strengthening controls</td><td><code>analysis_supp/path2space_inspired_reanalysis_2026_05_09/strengthening_controls/</code></td></tr>
+            <tr><td>GSE250521 random-module specificity and smoothness adjustment</td><td><code>analysis_supp/path2space_gse250521_random_module_specificity_2026_05_09/</code></td></tr>
+            <tr><td>GSE250521 stage-generalization controls</td><td><code>analysis_supp/path2space_stage_generalization_controls_2026_05_09/</code></td></tr>
+            <tr><td>GSE230424 script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/gse230424_pathology_thyroid_axis.py</code></td></tr>
+            <tr><td>GSE230424 report</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/GSE230424_PATHOLOGY_THYROID_REPORT.md</code></td></tr>
+            <tr><td>GSE230424 residual-target controls</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/residual_target_controls/</code></td></tr>
+            <tr><td>GSE230424 feature-family ablation</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/feature_ablation_controls/</code></td></tr>
+            <tr><td>GSE230424 random-module specificity</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/random_module_specificity/</code></td></tr>
+            <tr><td>GSE230424 spatial-autocorrelation specificity caveat</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/spatial_autocorr_specificity/</code></td></tr>
+            <tr><td>GSE230424 PTC marker extension</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/ptc_marker_extension/</code></td></tr>
+            <tr><td>Bootstrap uncertainty</td><td><code>analysis_supp/path2space_bootstrap_uncertainty_2026_05_09/</code></td></tr>
+            <tr><td>Spot-budget downsampling robustness</td><td><code>analysis_supp/path2space_downsample_robustness_2026_05_09/</code></td></tr>
+            <tr><td>Hotspot concordance</td><td><code>analysis_supp/path2space_hotspot_concordance_2026_05_09/</code></td></tr>
+            <tr><td>Predicted-decile dose response</td><td><code>analysis_supp/path2space_decile_dose_response_2026_05_09/</code></td></tr>
+            <tr><td>Spatial-block controls</td><td><code>analysis_supp/path2space_spatial_block_controls_2026_05_09/</code></td></tr>
+            <tr><td>Nearest-hotspot distance controls</td><td><code>analysis_supp/path2space_hotspot_distance_controls_2026_05_09/</code></td></tr>
+            <tr><td>GSE248205 script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/gse248205_pathology_aitd_axis.py</code></td></tr>
+            <tr><td>GSE248205 report</td><td><code>analysis_supp/gse248205_pathology_aitd_axis_2026_05_09/GSE248205_PATHOLOGY_AITD_REPORT.md</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_inspired_reanalysis.png" alt="Path2Space-inspired reanalysis summary figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Spatial / anatomy evidence</div><h4>fig_path2space_inspired_reanalysis.png</h4><p>Path2Space-inspired reanalysis summary figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/fig_path2space_inspired_reanalysis.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_cluster_programs.png" alt="Predicted spatial cluster programs" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Matrix / clustering evidence</div><h4>fig_path2space_cluster_programs.png</h4><p>Predicted spatial cluster programs</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the row/column annotations and color scale first; the visual is about structure, not a single p-value.</dd><dt>Boundary</dt><dd>Cluster appearance should be paired with the linked table or statistic before manuscript-level use.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/fig_path2space_cluster_programs.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_strengthening_controls.png" alt="Path2Space strengthening controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Spatial / anatomy evidence</div><h4>fig_path2space_strengthening_controls.png</h4><p>Path2Space strengthening controls</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/strengthening_controls/fig_path2space_strengthening_controls.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse250521_random_module_specificity.png" alt="GSE250521 matched random-module specificity and spatial-smoothness adjustment" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Spatial / anatomy evidence</div><h4>fig_gse250521_random_module_specificity.png</h4><p>GSE250521 matched random-module specificity and spatial-smoothness adjustment</p><dl><dt>Data entered</dt><dd>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_gse250521_random_module_specificity_2026_05_09/fig_gse250521_random_module_specificity.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse250521_stage_generalization_controls.png" alt="GSE250521 stage stratified and leave-one-stage-out controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · Spatial / anatomy evidence</div><h4>fig_gse250521_stage_generalization_controls.png</h4><p>GSE250521 stage stratified and leave-one-stage-out controls</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_stage_generalization_controls_2026_05_09/fig_gse250521_stage_generalization_controls.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_pathology_thyroid_axis.png" alt="GSE230424 pathology to thyroid spatial axis controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · Spatial / anatomy evidence</div><h4>fig_gse230424_pathology_thyroid_axis.png</h4><p>GSE230424 pathology to thyroid spatial axis controls</p><dl><dt>Data entered</dt><dd>H&amp;E/image-DM1 audit outputs from TCGA slides, pathology/spatial scout tables, and CLAM/encoder experiments.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_pathology_thyroid_axis.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_sample_axis_context.png" alt="GSE230424 sample-level thyroid module context" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Spatial / anatomy evidence</div><h4>fig_gse230424_sample_axis_context.png</h4><p>GSE230424 sample-level thyroid module context</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_sample_axis_context.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_spatial_maps.png" alt="GSE230424 observed and predicted spatial maps" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Spatial / anatomy evidence</div><h4>fig_gse230424_spatial_maps.png</h4><p>GSE230424 observed and predicted spatial maps</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_spatial_maps.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_residual_target_controls.png" alt="GSE230424 residual-target controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 09 · Spatial / anatomy evidence</div><h4>fig_gse230424_residual_target_controls.png</h4><p>GSE230424 residual-target controls</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/residual_target_controls/fig_gse230424_residual_target_controls.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_feature_ablation_controls.png" alt="GSE230424 feature-family ablation controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 10 · Spatial / anatomy evidence</div><h4>fig_gse230424_feature_ablation_controls.png</h4><p>GSE230424 feature-family ablation controls</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/feature_ablation_controls/fig_gse230424_feature_ablation_controls.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_random_module_specificity.png" alt="GSE230424 matched random-module specificity controls" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 11 · Spatial / anatomy evidence</div><h4>fig_gse230424_random_module_specificity.png</h4><p>GSE230424 matched random-module specificity controls</p><dl><dt>Data entered</dt><dd>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/random_module_specificity/fig_gse230424_random_module_specificity.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png" alt="GSE230424 spatial-autocorrelation-adjusted specificity caveat" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 12 · Effect-size / forest evidence</div><h4>fig_gse230424_spatial_autocorr_specificity.png</h4><p>GSE230424 spatial-autocorrelation-adjusted specificity caveat</p><dl><dt>Data entered</dt><dd>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/spatial_autocorr_specificity/fig_gse230424_spatial_autocorr_specificity.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_ptc_marker_extension.png" alt="GSE230424 PTC marker extension" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 13 · Spatial / anatomy evidence</div><h4>fig_gse230424_ptc_marker_extension.png</h4><p>GSE230424 PTC marker extension</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/ptc_marker_extension/fig_gse230424_ptc_marker_extension.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_gse248205_aitd/fig_gse248205_pathology_aitd_axis.png" alt="GSE248205 AITD pathology axis negative control" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 14 · Spatial / anatomy evidence</div><h4>fig_gse248205_pathology_aitd_axis.png</h4><p>GSE248205 AITD pathology axis negative control</p><dl><dt>Data entered</dt><dd>H&amp;E/image-DM1 audit outputs from TCGA slides, pathology/spatial scout tables, and CLAM/encoder experiments.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse248205_pathology_aitd_axis_2026_05_09/fig_gse248205_pathology_aitd_axis.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_bootstrap_uncertainty.png" alt="Bootstrap uncertainty for Path2Space-inspired evidence layers" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 15 · Effect-size / forest evidence</div><h4>fig_path2space_bootstrap_uncertainty.png</h4><p>Bootstrap uncertainty for Path2Space-inspired evidence layers</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_bootstrap_uncertainty_2026_05_09/fig_path2space_bootstrap_uncertainty.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_downsample_robustness.png" alt="Spot-budget downsampling robustness for Path2Space-inspired evidence layers" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 16 · Effect-size / forest evidence</div><h4>fig_path2space_downsample_robustness.png</h4><p>Spot-budget downsampling robustness for Path2Space-inspired evidence layers</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_downsample_robustness_2026_05_09/fig_path2space_downsample_robustness.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_hotspot_concordance.png" alt="Hotspot concordance for predicted and observed high DM1 RAI regions" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 17 · Effect-size / forest evidence</div><h4>fig_path2space_hotspot_concordance.png</h4><p>Hotspot concordance for predicted and observed high DM1 RAI regions</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_hotspot_concordance_2026_05_09/fig_path2space_hotspot_concordance.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_decile_dose_response.png" alt="Predicted-decile dose response for Path2Space-inspired DM1 RAI signals" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 18 · Effect-size / forest evidence</div><h4>fig_path2space_decile_dose_response.png</h4><p>Predicted-decile dose response for Path2Space-inspired DM1 RAI signals</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_decile_dose_response_2026_05_09/fig_path2space_decile_dose_response.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_spatial_block_controls.png" alt="Spatial-block controls for image to DM1 RAI signal" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 19 · Effect-size / forest evidence</div><h4>fig_path2space_spatial_block_controls.png</h4><p>Spatial-block controls for image to DM1 RAI signal</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_spatial_block_controls_2026_05_09/fig_path2space_spatial_block_controls.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_path2space_hotspot_distance_controls.png" alt="Nearest-hotspot distance controls for predicted and observed high DM1 RAI spots" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 20 · Effect-size / forest evidence</div><h4>fig_path2space_hotspot_distance_controls.png</h4><p>Nearest-hotspot distance controls for predicted and observed high DM1 RAI spots</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_hotspot_distance_controls_2026_05_09/fig_path2space_hotspot_distance_controls.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png" alt="Spatial autocorrelation adjusted random module specificity in GSE230424" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 21 · Effect-size / forest evidence</div><h4>fig_gse230424_spatial_autocorr_specificity.png</h4><p>Spatial autocorrelation adjusted random module specificity in GSE230424</p><dl><dt>Data entered</dt><dd>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/spatial_autocorr_specificity/fig_gse230424_spatial_autocorr_specificity.png</dd></dl></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 06</b><strong>Inline HTML table 6</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 07</b><strong>Inline HTML table 7</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 08</b><strong>Inline HTML table 8</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 09</b><strong>Inline HTML table 9</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 10</b><strong>Inline HTML table 10</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 11</b><strong>Inline HTML table 11</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 12</b><strong>Inline HTML table 12</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 13</b><strong>Inline HTML table 13</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 14</b><strong>Inline HTML table 14</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 15</b><strong>Inline HTML table 15</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 16</b><strong>Inline HTML table 16</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 17</b><strong>Inline HTML table 17</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 18</b><strong>Inline HTML table 18</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td>1</td><td><a href="assets/paper2_path2space/fig_path2space_inspired_reanalysis.png">assets/paper2_path2space/fig_path2space_inspired_reanalysis.png</a></td><td>Path2Space-inspired reanalysis summary figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/fig_path2space_inspired_reanalysis.png</td></tr><tr><td>2</td><td><a href="assets/paper2_path2space/fig_path2space_cluster_programs.png">assets/paper2_path2space/fig_path2space_cluster_programs.png</a></td><td>Predicted spatial cluster programs</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/fig_path2space_cluster_programs.png</td></tr><tr><td>3</td><td><a href="assets/paper2_path2space/fig_path2space_strengthening_controls.png">assets/paper2_path2space/fig_path2space_strengthening_controls.png</a></td><td>Path2Space strengthening controls</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_inspired_reanalysis_2026_05_09/strengthening_controls/fig_path2space_strengthening_controls.png</td></tr><tr><td>4</td><td><a href="assets/paper2_path2space/fig_gse250521_random_module_specificity.png">assets/paper2_path2space/fig_gse250521_random_module_specificity.png</a></td><td>GSE250521 matched random-module specificity and spatial-smoothness adjustment</td><td>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_gse250521_random_module_specificity_2026_05_09/fig_gse250521_random_module_specificity.png</td></tr><tr><td>5</td><td><a href="assets/paper2_path2space/fig_gse250521_stage_generalization_controls.png">assets/paper2_path2space/fig_gse250521_stage_generalization_controls.png</a></td><td>GSE250521 stage stratified and leave-one-stage-out controls</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_stage_generalization_controls_2026_05_09/fig_gse250521_stage_generalization_controls.png</td></tr><tr><td>6</td><td><a href="assets/paper2_path2space/fig_gse230424_pathology_thyroid_axis.png">assets/paper2_path2space/fig_gse230424_pathology_thyroid_axis.png</a></td><td>GSE230424 pathology to thyroid spatial axis controls</td><td>H&amp;E/image-DM1 audit outputs from TCGA slides, pathology/spatial scout tables, and CLAM/encoder experiments.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_pathology_thyroid_axis.png</td></tr><tr><td>7</td><td><a href="assets/paper2_path2space/fig_gse230424_sample_axis_context.png">assets/paper2_path2space/fig_gse230424_sample_axis_context.png</a></td><td>GSE230424 sample-level thyroid module context</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_sample_axis_context.png</td></tr><tr><td>8</td><td><a href="assets/paper2_path2space/fig_gse230424_spatial_maps.png">assets/paper2_path2space/fig_gse230424_spatial_maps.png</a></td><td>GSE230424 observed and predicted spatial maps</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/fig_gse230424_spatial_maps.png</td></tr><tr><td>9</td><td><a href="assets/paper2_path2space/fig_gse230424_residual_target_controls.png">assets/paper2_path2space/fig_gse230424_residual_target_controls.png</a></td><td>GSE230424 residual-target controls</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/residual_target_controls/fig_gse230424_residual_target_controls.png</td></tr><tr><td>10</td><td><a href="assets/paper2_path2space/fig_gse230424_feature_ablation_controls.png">assets/paper2_path2space/fig_gse230424_feature_ablation_controls.png</a></td><td>GSE230424 feature-family ablation controls</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/feature_ablation_controls/fig_gse230424_feature_ablation_controls.png</td></tr><tr><td>11</td><td><a href="assets/paper2_path2space/fig_gse230424_random_module_specificity.png">assets/paper2_path2space/fig_gse230424_random_module_specificity.png</a></td><td>GSE230424 matched random-module specificity controls</td><td>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/random_module_specificity/fig_gse230424_random_module_specificity.png</td></tr><tr><td>12</td><td><a href="assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png">assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png</a></td><td>GSE230424 spatial-autocorrelation-adjusted specificity caveat</td><td>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/spatial_autocorr_specificity/fig_gse230424_spatial_autocorr_specificity.png</td></tr><tr><td>13</td><td><a href="assets/paper2_path2space/fig_gse230424_ptc_marker_extension.png">assets/paper2_path2space/fig_gse230424_ptc_marker_extension.png</a></td><td>GSE230424 PTC marker extension</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/ptc_marker_extension/fig_gse230424_ptc_marker_extension.png</td></tr><tr><td>14</td><td><a href="assets/paper2_gse248205_aitd/fig_gse248205_pathology_aitd_axis.png">assets/paper2_gse248205_aitd/fig_gse248205_pathology_aitd_axis.png</a></td><td>GSE248205 AITD pathology axis negative control</td><td>H&amp;E/image-DM1 audit outputs from TCGA slides, pathology/spatial scout tables, and CLAM/encoder experiments.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse248205_pathology_aitd_axis_2026_05_09/fig_gse248205_pathology_aitd_axis.png</td></tr><tr><td>15</td><td><a href="assets/paper2_path2space/fig_path2space_bootstrap_uncertainty.png">assets/paper2_path2space/fig_path2space_bootstrap_uncertainty.png</a></td><td>Bootstrap uncertainty for Path2Space-inspired evidence layers</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_bootstrap_uncertainty_2026_05_09/fig_path2space_bootstrap_uncertainty.png</td></tr><tr><td>16</td><td><a href="assets/paper2_path2space/fig_path2space_downsample_robustness.png">assets/paper2_path2space/fig_path2space_downsample_robustness.png</a></td><td>Spot-budget downsampling robustness for Path2Space-inspired evidence layers</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_downsample_robustness_2026_05_09/fig_path2space_downsample_robustness.png</td></tr><tr><td>17</td><td><a href="assets/paper2_path2space/fig_path2space_hotspot_concordance.png">assets/paper2_path2space/fig_path2space_hotspot_concordance.png</a></td><td>Hotspot concordance for predicted and observed high DM1 RAI regions</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_hotspot_concordance_2026_05_09/fig_path2space_hotspot_concordance.png</td></tr><tr><td>18</td><td><a href="assets/paper2_path2space/fig_path2space_decile_dose_response.png">assets/paper2_path2space/fig_path2space_decile_dose_response.png</a></td><td>Predicted-decile dose response for Path2Space-inspired DM1 RAI signals</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_decile_dose_response_2026_05_09/fig_path2space_decile_dose_response.png</td></tr><tr><td>19</td><td><a href="assets/paper2_path2space/fig_path2space_spatial_block_controls.png">assets/paper2_path2space/fig_path2space_spatial_block_controls.png</a></td><td>Spatial-block controls for image to DM1 RAI signal</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_spatial_block_controls_2026_05_09/fig_path2space_spatial_block_controls.png</td></tr><tr><td>20</td><td><a href="assets/paper2_path2space/fig_path2space_hotspot_distance_controls.png">assets/paper2_path2space/fig_path2space_hotspot_distance_controls.png</a></td><td>Nearest-hotspot distance controls for predicted and observed high DM1 RAI spots</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/path2space_hotspot_distance_controls_2026_05_09/fig_path2space_hotspot_distance_controls.png</td></tr><tr><td>21</td><td><a href="assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png">assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png</a></td><td>Spatial autocorrelation adjusted random module specificity in GSE230424</td><td>Paper 3 ICI vulnerability resources: thyroid-side RAI/HLA axes plus external ICI cohorts where explicitly named.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/spatial_autocorr_specificity/fig_gse230424_spatial_autocorr_specificity.png</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>3</td><td>Inline HTML table 3</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>4</td><td>Inline HTML table 4</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>5</td><td>Inline HTML table 5</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>6</td><td>Inline HTML table 6</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>7</td><td>Inline HTML table 7</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>8</td><td>Inline HTML table 8</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>9</td><td>Inline HTML table 9</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>10</td><td>Inline HTML table 10</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>11</td><td>Inline HTML table 11</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>12</td><td>Inline HTML table 12</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>13</td><td>Inline HTML table 13</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>14</td><td>Inline HTML table 14</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>15</td><td>Inline HTML table 15</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>16</td><td>Inline HTML table 16</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>17</td><td>Inline HTML table 17</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>18</td><td>Inline HTML table 18</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>H&amp;E Carries A Spatial DM1 Signal</td></tr>
+<tr><td>2</td><td>H2</td><td>01 TL;DR</td></tr>
+<tr><td>3</td><td>H3</td><td>What Changed</td></tr>
+<tr><td>4</td><td>H3</td><td>What Did Not Change</td></tr>
+<tr><td>5</td><td>H2</td><td>02 Strategy</td></tr>
+<tr><td>6</td><td>H2</td><td>03 Prediction</td></tr>
+<tr><td>7</td><td>H2</td><td>04 SPAND-Like Heterogeneity</td></tr>
+<tr><td>8</td><td>H2</td><td>05 Spatial Clusters</td></tr>
+<tr><td>9</td><td>H3</td><td>Architecture Signal</td></tr>
+<tr><td>10</td><td>H3</td><td>Stage Boundary</td></tr>
+<tr><td>11</td><td>H2</td><td>06 Strengthening Controls</td></tr>
+<tr><td>12</td><td>H2</td><td>07 GSE230424 External Thyroid Control</td></tr>
+<tr><td>13</td><td>H3</td><td>Why It Helps</td></tr>
+<tr><td>14</td><td>H3</td><td>Boundary</td></tr>
+<tr><td>15</td><td>H2</td><td>08 GSE248205 Negative Control</td></tr>
+<tr><td>16</td><td>H2</td><td>09 Bootstrap Uncertainty</td></tr>
+<tr><td>17</td><td>H2</td><td>10 Hotspot Concordance</td></tr>
+<tr><td>18</td><td>H2</td><td>11 Spatial-Block Controls</td></tr>
+<tr><td>19</td><td>H2</td><td>12 Nearest-Hotspot Distance Caveat</td></tr>
+<tr><td>20</td><td>H2</td><td>13 Smoothness-Adjusted Specificity Caveat</td></tr>
+<tr><td>21</td><td>H2</td><td>14 Decision Matrix</td></tr>
+<tr><td>22</td><td>H2</td><td>15 Sources And Paths</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>-</td><td>No explicit source/result links detected beyond embedded figures/tables.</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="hla_beta_plan.html"><b>hla_beta_plan</b><span>0 figs · 9 tables</span></a><a class="renewal0509-card" href="ht_vs_gd_audit.html"><b>ht_vs_gd_audit</b><span>0 figs · 5 tables</span></a><a class="renewal0509-card" href="paper2_cv2_visual_summary.html"><b>paper2_cv2_visual_summary</b><span>8 figs · 4 tables</span></a><a class="renewal0509-card" href="paper2_gse248205_aitd_pathology_axis.html"><b>paper2_gse248205_aitd_pathology_axis</b><span>2 figs · 5 tables</span></a><a class="renewal0509-card" href="paper2_high_impact_journal_strategy.html"><b>paper2_high_impact_journal_strategy</b><span>5 figs · 4 tables</span></a><a class="renewal0509-card" href="paper2_hla.html"><b>paper2_hla</b><span>16 figs · 10 tables</span></a><a class="renewal0509-card" href="paper2_image_dm1.html"><b>paper2_image_dm1</b><span>30 figs · 20 tables</span></a><a class="renewal0509-card" href="paper2_image_dm1_audit_dossier.html"><b>paper2_image_dm1_audit_dossier</b><span>8 figs · 18 tables</span></a><a class="renewal0509-card" href="paper2_image_dm1_clinical_business.html"><b>paper2_image_dm1_clinical_business</b><span>12 figs · 19 tables</span></a><a class="renewal0509-card" href="paper2_image_dm1_conclusion_root.html"><b>paper2_image_dm1_conclusion_root</b><span>1 figs · 1 tables</span></a><a class="renewal0509-card" href="paper2_master_view.html"><b>paper2_master_view</b><span>1 figs · 10 tables</span></a><a class="renewal0509-card" href="paper2_moonshot_editorial_pack.html"><b>paper2_moonshot_editorial_pack</b><span>8 figs · 8 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body>
+</html>

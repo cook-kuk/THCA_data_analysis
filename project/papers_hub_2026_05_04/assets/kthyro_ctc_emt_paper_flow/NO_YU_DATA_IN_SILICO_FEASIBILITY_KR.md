@@ -27,7 +27,7 @@
 
 ## 논문 급 판단
 
-**Preprint / methods-framework / translational rationale paper는 지금 가능.**
+**Preprint / methods-framework / translational rationale paper는 지금 가능.**  
 병원 raw CTC table 없이 high-impact mechanism paper는 어렵다. Yu raw data가 들어오면 같은 framework가 바로 `serial CTC-EMT transition + tissue genetic anchor` 논문으로 업그레이드된다.
 
 ## Generated outputs

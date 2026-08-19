@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Spatial Drug Vulnerability · Target And Cell-State Overlap</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=JetBrains+Mono:wght@400;600;700&family=Noto+Sans+KR:wght@500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#070d14;--panel:#0d1724;--panel2:#111d2b;--ink:#eef6ff;--muted:#9eb2ca;--line:#26384f;--gold:#ffd28a;--cyan:#7dd3fc;--green:#8ff0c4;--red:#ff9f9f}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",system-ui,sans-serif;line-height:1.55}
+    a{color:var(--cyan);text-decoration:none}
+    .wrap{max-width:1340px;margin:0 auto;padding:28px}
+    .hero{padding:34px 0 22px;border-bottom:1px solid var(--line)}
+    .kicker{font:700 12px/1 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--green)}
+    h1{font-family:"Cormorant Garamond",serif;font-size:clamp(40px,7vw,86px);line-height:.92;margin:12px 0 16px}
+    h2{font-family:"Cormorant Garamond",serif;font-size:34px;margin:0 0 14px}
+    .lead{max-width:1040px;font-size:18px;color:#d2e3f5}
+    .chips{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+    .chips a{border:1px solid var(--line);background:#0b1522;border-radius:6px;padding:9px 11px;font:700 12px/1 "JetBrains Mono",monospace;color:#dbeafe}
+    .chips a.primary{background:#142312;border-color:var(--green);color:#d8ffe9}
+    .stats{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;margin:24px 0}
+    .stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
+    .stat b{display:block;font:700 22px/1 "JetBrains Mono",monospace;color:var(--gold)}
+    .stat span{display:block;margin-top:7px;color:var(--muted);font-size:12px}
+    .grid{display:grid;grid-template-columns:250px 1fr;gap:28px;align-items:start}
+    nav{position:sticky;top:14px;background:#08131f;border:1px solid var(--line);border-radius:8px;padding:16px;max-height:calc(100vh - 28px);overflow:auto}
+    nav a{display:block;padding:7px 0;color:#c8d8ea;font-size:13px;border-bottom:1px solid rgba(35,54,79,.45)}
+    section{padding:28px 0;border-bottom:1px solid var(--line)}
+    .num{font:700 13px/1 "JetBrains Mono",monospace;color:var(--gold);margin-right:9px}
+    .callout{border:1px solid #735f35;background:#18150d;border-radius:8px;padding:14px;margin:16px 0;color:#ffe5b3}
+    .ok{border-color:#2d6b55;background:#0d1a16;color:#c8ffe6}
+    .danger{border-color:#6b2c2c;background:#1b0d0d;color:#ffd1d1}
+    table{width:100%;border-collapse:collapse;margin:12px 0 20px;font-size:13px}
+    th,td{border-bottom:1px solid var(--line);padding:9px 8px;text-align:left;vertical-align:top}
+    th{font:700 11px/1.2 "JetBrains Mono",monospace;text-transform:uppercase;color:var(--gold);background:#0b1522}
+    td{color:#d8e5f4}
+    .figgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+    figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px}
+    figure img{display:block;width:100%;height:auto;border-radius:4px;background:white}
+    figcaption{margin-top:9px;color:var(--muted);font-size:12px}
+    .wide{grid-column:1/-1}
+    .path{font-family:"JetBrains Mono",monospace;font-size:12px;color:#bad1ea;word-break:break-all}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}nav{position:relative;top:auto}.stats{grid-template-columns:repeat(2,1fr)}.figgrid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — Spatial Drug Vulnerability · Target And Cell-State Overlap</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>9</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>5</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>9</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>Spatial / Trajectory</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">100%</span> <span class="renewal0509-metric">288 / 0</span> <span class="renewal0509-metric">445 / 0</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Context / caveat support</span></div>
+      <div><b>Claim boundary</b><span>Spatial pages are valuable for anatomy and failure-mode explanation, but current GSE250521 evidence is not the primary Paper 1 lock.</span></div>
+      <div><b>Next use</b><span>Use to explain heterogeneity and caveats, not as the main mechanism proof.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">TCGA-THCA</span> <span class="renewal0509-term">TCGA-THCA HM450</span> <span class="renewal0509-term">GSE250521</span> <span class="renewal0509-term">GSE76039 / Landa advanced thyroid</span> <span class="renewal0509-term">AFND / Korean HLA references</span> <span class="renewal0509-term">8-gene mini-index</span> <span class="renewal0509-term">RAI_8 / thyroid differentiation score</span> <span class="renewal0509-term">MAPK output score</span> <span class="renewal0509-term">Cohen&#x27;s d / Spearman rho / Cox HR</span> <span class="renewal0509-term">PRISM / DepMap</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>TCGA-THCA</td><td>cohort</td><td>TCGA thyroid carcinoma cohort; RNA-seq, clinical, mutation, methylation and cBioPortal-derived mutation/clinical slices depending on page.</td><td>Paper 1 DM1/DM2 derivation, survival, promoter methylation, driver strata, and several downstream reuse pages.</td></tr>
+<tr><td>TCGA-THCA HM450</td><td>cohort</td><td>Illumina 450K methylation subset used for thyroid-lineage promoter beta values.</td><td>Paper 1 Fig 8 and mechanism-layer pages.</td></tr>
+<tr><td>GSE250521</td><td>cohort</td><td>Thyroid spatial transcriptomics / Visium resource spanning thyroid progression contexts.</td><td>Spatial validation, spatial failure/rescue, lag pockets, and image-DM1 spatial checks.</td></tr>
+<tr><td>GSE76039 / Landa advanced thyroid</td><td>cohort</td><td>Advanced thyroid cancer expression resource used as a PDTC/ATC lineage-collapse benchmark.</td><td>Mechanism heterogeneity, advanced-disease comparisons, and reverse-causality boundary checks.</td></tr>
+<tr><td>AFND / Korean HLA references</td><td>reference</td><td>Allele-frequency and literature-derived HLA reference material; some rows are registry/approval-gated rather than executable analysis inputs.</td><td>Paper 2 HLA and Paper 4 GD/Pan-Asian backlog pages.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+<tr><td>PRISM / DepMap</td><td>external screen</td><td>Cancer dependency/drug-screen resources used for vulnerability prioritization and MAPK-inhibitor overlays.</td><td>Paper 1/9/10/11 synthetic-lethality and druggability pages.</td></tr>
+<tr><td>Neoantigen / pMHC / TCR resources</td><td>external resource</td><td>Neoantigen, protein-language-model, structural, TCR and literature-corroboration resources used in the vaccine pages.</td><td>Cancer vaccine, neoantigen, TCR and pMHC pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> Drug Target And Cell-State Overlap Layer → 01 What Changed → 02 What To Click → 03 Target Overlap → 04 Cell-State Overlap</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>Drug Target And Cell-State Overlap Layer</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>01 What Changed</span></article>
+<article class="renewal0509-step"><b>03</b><em>H2</em><span>02 What To Click</span></article>
+<article class="renewal0509-step"><b>04</b><em>H2</em><span>03 Target Overlap</span></article>
+<article class="renewal0509-step"><b>05</b><em>H2</em><span>04 Cell-State Overlap</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>05 AZ 628 Interpretation</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>06 Evidence Matrix</span></article>
+<article class="renewal0509-step"><b>08</b><em>H2</em><span>07 Files</span></article>
+<article class="renewal0509-step renewal0509-step-more"><b>+1</b><span>More section headings are mapped in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig25_cv2_target_state_triptych_gallery.png" alt="Fig 25. CV2 triptych gallery showing drug vulnerability, drug target program, and tumor-state program on matched H&amp;E coordinates." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Effect-size / forest evidence</div><h4>fig25_cv2_target_state_triptych_gallery.png</h4><p>Fig 25. CV2 triptych gallery showing drug vulnerability, drug target program, and tumor-state program on matched H&amp;E coordinates.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png" alt="Fig 28. Target/state contour overlap layer: gold contours mark spots where high predicted vulnerability, directional target program, and directional tumor state overlap." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Effect-size / forest evidence</div><h4>fig28_cv2_drug_target_state_multilayer_contours.png</h4><p>Fig 28. Target/state contour overlap layer: gold contours mark spots where high predicted vulnerability, directional target program, and directional tumor state overlap.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png" alt="Fig 14. Drug vulnerability score vs target/pathway gene expression across 16 slides." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Effect-size / forest evidence</div><h4>fig14_drug_target_gene_overlap_heatmap.png</h4><p>Fig 14. Drug vulnerability score vs target/pathway gene expression across 16 slides.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png" alt="Fig 15. Drug vulnerability score vs cell-type and tumor-state proxy scores." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Effect-size / forest evidence</div><h4>fig15_drug_celltype_state_overlap_heatmap.png</h4><p>Fig 15. Drug vulnerability score vs cell-type and tumor-state proxy scores.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png" alt="Fig 16. AZ 628 vulnerability pockets compared with RAF/MAPK target-output expression in priority slides." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · Effect-size / forest evidence</div><h4>fig16_az628_target_gene_spatial_overlap.png</h4><p>Fig 16. AZ 628 vulnerability pockets compared with RAF/MAPK target-output expression in priority slides.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png" alt="Fig 17. Target-program overlap ranking for the 20 selected pilot drugs." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · Effect-size / forest evidence</div><h4>fig17_target_program_overlap_ranking.png</h4><p>Fig 17. Target-program overlap ranking for the 20 selected pilot drugs.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png" alt="Fig 18. Integrated evidence matrix: target overlap, hotspot enrichment, cell-state overlap, model agreement, and cell-line metric." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Matrix / clustering evidence</div><h4>fig18_drug_target_state_evidence_matrix.png</h4><p>Fig 18. Integrated evidence matrix: target overlap, hotspot enrichment, cell-state overlap, model agreement, and cell-line metric.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the row/column annotations and color scale first; the visual is about structure, not a single p-value.</dd><dt>Boundary</dt><dd>Cluster appearance should be paired with the linked table or statistic before manuscript-level use.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png" alt="Fig 19. Separates target-anchored exploratory drugs from state-driven validation candidates." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Effect-size / forest evidence</div><h4>fig19_target_vs_state_drug_classes.png</h4><p>Fig 19. Separates target-anchored exploratory drugs from state-driven validation candidates.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="spatial_drug_cv2_overlay_gallery.html">spatial_drug_cv2_overlay_gallery</a> <a class="renewal0509-chip" href="spatial_drug_famous_panel.html">spatial_drug_famous_panel</a> <a class="renewal0509-chip" href="spatial_drug_research_aligned_expansion.html">spatial_drug_research_aligned_expa</a> <a class="renewal0509-chip" href="spatial_drug_vulnerability_application.html">spatial_drug_vulnerability_applica</a> <a class="renewal0509-chip" href="spatial_drug_vulnerability_pilot.html">spatial_drug_vulnerability_pilot</a> <a class="renewal0509-chip" href="thca_cnv_spatial_immune_decision_2026_05_08.html">thca_cnv_spatial_immune_decision_2</a> <a class="renewal0509-chip" href="trajectory.html">trajectory</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/spatial_drug_target_celltype_overlap.html · Renewed page: project/papers_hub_2026_0509/spatial_drug_target_celltype_overlap.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+
+<div class="wrap">
+  <header class="hero">
+    <div class="kicker">Target/cell-state overlap · 20 pilot drugs · 16 thyroid Visium slides · 2026-05-09</div>
+    <h1>Drug Target And Cell-State Overlap Layer</h1>
+    <p class="lead">
+      This is the mechanistic overlay for the spatial drug vulnerability pipeline: predicted drug vulnerability scores are compared with target-gene programs, tumor-state scores, cell-type composition proxies, and high-score spatial pockets.
+    </p>
+    <div class="chips">
+      <a href="index.html">Hub home</a>
+      <a href="spatial_drug_vulnerability_application.html">Application playbook</a>
+      <a href="spatial_drug_vulnerability_pilot.html">Pilot dossier</a>
+      <a class="primary" href="spatial_drug_cv2_overlay_gallery.html">CV2 H&E overlay gallery</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig25_cv2_target_state_triptych_gallery.png">Open Fig 25 CV2 triptychs</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png">Open Fig 28 contour overlap</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png">Open Fig 14 target genes</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png">Open Fig 15 cell states</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png">Open Fig 16 AZ 628 overlay</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png">Open Fig 17 target ranking</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png">Open Fig 18 evidence matrix</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png">Open Fig 19 drug classes</a>
+      <a class="primary" href="assets/spatial_drug_vulnerability/fig20_az628_state_vs_target_gene_bars.png">Open Fig 20 AZ 628 bars</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>20</b><span>selected pilot drugs re-scored</span></div>
+      <div class="stat"><b>16</b><span>spatial slides tested</span></div>
+      <div class="stat"><b>160</b><span>baseline model bundles used</span></div>
+      <div class="stat"><b>784</b><span>drug-gene-slide tests</span></div>
+      <div class="stat"><b>2,560</b><span>drug-state-slide tests</span></div>
+      <div class="stat"><b>8</b><span>target/state figures linked</span></div>
+    </div>
+    <div class="callout danger">
+      Boundary: overlap means spatial association with a predicted vulnerability score. It is not measured drug response, true spot-level IC50, clinical treatment recommendation, patient selection, or a causal target-dependency claim.
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav>
+      <a href="#answer">01 What Changed</a>
+      <a href="#figures">02 What To Click</a>
+      <a href="#target">03 Target Overlap</a>
+      <a href="#state">04 Cell-State Overlap</a>
+      <a href="#az628">05 AZ 628 Interpretation</a>
+      <a href="#matrix">06 Evidence Matrix</a>
+      <a href="#files">07 Files</a>
+      <a href="#boundary">08 Claim Boundary</a>
+    </nav>
+    <main>
+      <section id="answer">
+        <h2><span class="num">01</span>What Changed</h2>
+        <div class="callout ok">
+          The strongest new use case is a target-aware spatial triage layer: some drugs show target-program or hotspot enrichment, while AZ 628 shows stronger overlap with DM1-like / low-differentiation tumor state than with bulk RAF/MAPK target-gene expression itself.
+        </div>
+        <table>
+          <tr><th>Layer</th><th>Best current readout</th><th>Interpretation</th></tr>
+          <tr><td>Target-program overlap</td><td>Imatinib, RBC8, Fedratinib, Romidepsin, ARV-825</td><td>Use as exploratory target-aware drug hypothesis signals, not retained clinical candidates.</td></tr>
+          <tr><td>Cell-state overlap</td><td>AZ 628 with DM1-like / low TDS / low RAI state</td><td>Most coherent with the thyroid dedifferentiation story and previous strict candidate filtering.</td></tr>
+          <tr><td>Hotspot enrichment</td><td>Imatinib ABL/KIT/PDGFR, RBC8 RAL/RAS, Fedratinib JAK/STAT</td><td>Worth manual annotation review and target curation before biological claims.</td></tr>
+        </table>
+      </section>
+
+      <section id="figures">
+        <h2><span class="num">02</span>What To Click</h2>
+        <div class="figgrid">
+          <figure class="wide">
+            <a href="spatial_drug_cv2_overlay_gallery.html"><img src="assets/spatial_drug_vulnerability/fig25_cv2_target_state_triptych_gallery.png" alt="CV2 target state triptych gallery" /></a>
+            <figcaption>Fig 25. CV2 triptych gallery showing drug vulnerability, drug target program, and tumor-state program on matched H&E coordinates.</figcaption>
+          </figure>
+          <figure class="wide">
+            <a href="assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png"><img src="assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png" alt="CV2 drug target state multilayer contours" /></a>
+            <figcaption>Fig 28. Target/state contour overlap layer: gold contours mark spots where high predicted vulnerability, directional target program, and directional tumor state overlap.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png"><img src="assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png" alt="Target gene overlap heatmap" /></a>
+            <figcaption>Fig 14. Drug vulnerability score vs target/pathway gene expression across 16 slides.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png"><img src="assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png" alt="Cell-state overlap heatmap" /></a>
+            <figcaption>Fig 15. Drug vulnerability score vs cell-type and tumor-state proxy scores.</figcaption>
+          </figure>
+          <figure class="wide">
+            <a href="assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png"><img src="assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png" alt="AZ 628 target spatial overlay" /></a>
+            <figcaption>Fig 16. AZ 628 vulnerability pockets compared with RAF/MAPK target-output expression in priority slides.</figcaption>
+          </figure>
+          <figure class="wide">
+            <a href="assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png"><img src="assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png" alt="Target program overlap ranking" /></a>
+            <figcaption>Fig 17. Target-program overlap ranking for the 20 selected pilot drugs.</figcaption>
+          </figure>
+          <figure class="wide">
+            <a href="assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png"><img src="assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png" alt="Target and state evidence matrix" /></a>
+            <figcaption>Fig 18. Integrated evidence matrix: target overlap, hotspot enrichment, cell-state overlap, model agreement, and cell-line metric.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png"><img src="assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png" alt="Target-driven vs state-driven drug classes" /></a>
+            <figcaption>Fig 19. Separates target-anchored exploratory drugs from state-driven validation candidates.</figcaption>
+          </figure>
+          <figure>
+            <a href="assets/spatial_drug_vulnerability/fig20_az628_state_vs_target_gene_bars.png"><img src="assets/spatial_drug_vulnerability/fig20_az628_state_vs_target_gene_bars.png" alt="AZ 628 state versus target gene bars" /></a>
+            <figcaption>Fig 20. AZ 628 is more strongly linked to DM1-like / low differentiation state than simple target expression.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="target">
+        <h2><span class="num">03</span>Target Overlap</h2>
+        <table>
+          <tr><th>Drug</th><th>Target program</th><th>Genes present</th><th>Median rho</th><th>Hotspot d</th><th>Use</th></tr>
+          <tr><td>RBC8</td><td>RAL/RAS effector</td><td>KRAS, NRAS, HRAS</td><td>0.221</td><td>0.287</td><td>Exploratory target-overlap signal; not retained by strict reliability filters.</td></tr>
+          <tr><td>Fedratinib</td><td>JAK/STAT inflammatory</td><td>JAK1, HLA-DRA, CD74</td><td>0.105</td><td>0.269</td><td>Target-aware immune/JAK hypothesis; needs annotation and confounder review.</td></tr>
+          <tr><td>Imatinib</td><td>ABL/KIT/PDGFR kinase</td><td>KIT, PDGFRA, PDGFRB, DDR1, DDR2</td><td>0.100</td><td>0.478</td><td>Strong hotspot enrichment; manual target curation required.</td></tr>
+          <tr><td>Romidepsin</td><td>HDAC / epigenetic-immune</td><td>HDAC1, MYC, CDKN1A, HLA-DRA, CD74</td><td>0.096</td><td>0.213</td><td>Potential epigenetic-state overlap, not a treatment claim.</td></tr>
+          <tr><td>ARV-825</td><td>BET/MYC dependency</td><td>MYC, CDK9, CCND1</td><td>0.082</td><td>0.121</td><td>Exploratory transcriptional-dependency signal.</td></tr>
+        </table>
+      </section>
+
+      <section id="state">
+        <h2><span class="num">04</span>Cell-State Overlap</h2>
+        <table>
+          <tr><th>Drug</th><th>State association</th><th>Median rho</th><th>Hotspot d</th><th>Interpretation</th></tr>
+          <tr><td>AZ 628</td><td>Lower thyroid differentiation state</td><td>-0.388</td><td>-0.843</td><td>High predicted vulnerability aligns with dedifferentiated spatial state.</td></tr>
+          <tr><td>AZ 628</td><td>Lower RAI/differentiation</td><td>-0.349</td><td>-0.847</td><td>Coherent with MAPK/dedifferentiation biology, still hypothesis-only.</td></tr>
+          <tr><td>AZ 628</td><td>Higher DM1-like state</td><td>0.349</td><td>0.847</td><td>Most paper-relevant overlap for DM1 spatial application.</td></tr>
+          <tr><td>ITD-1</td><td>Higher DM1-like and lower differentiation</td><td>0.332 / -0.344</td><td>0.651 / -0.636</td><td>Interesting but not retained by reliability filters.</td></tr>
+          <tr><td>Romidepsin</td><td>Epithelial/tumor-rich and hypoxia proxy</td><td>0.288 / 0.279</td><td>0.445 / 0.375</td><td>Needs tumor purity and hypoxia confounder scrutiny.</td></tr>
+        </table>
+      </section>
+
+      <section id="az628">
+        <h2><span class="num">05</span>AZ 628 Interpretation</h2>
+        <div class="callout">
+          Important split: AZ 628 remains the strict retained exemplar from the earlier validation filters, but this target-overlap layer says its strongest spatial association is with DM1-like / low-differentiation state, not simple positive correlation with RAF/MAPK target-gene expression. That is scientifically useful because it makes the hypothesis more state-specific and less like a naive target-expression claim.
+        </div>
+        <p>
+          The next validation should therefore compare AZ 628 high-score and low-score regions for DM1/TDS/RAI state markers plus MAPK pathway protein readouts such as pERK, rather than claiming that spot-level BRAF expression alone explains vulnerability.
+        </p>
+      </section>
+
+      <section id="matrix">
+        <h2><span class="num">06</span>Evidence Matrix</h2>
+        <div class="callout ok">
+          Candidate classification now separates one validation lead from exploratory mechanisms: AZ 628 is advance_state_driven_validation; RBC8, Romidepsin, JAK3_7406, Imatinib, Fedratinib, BAY-HDAC11_2, and ARV-825 are target-anchored exploratory; ITD-1 and TC-A-2317 are state-overlap exploratory.
+        </div>
+        <table>
+          <tr><th>Class</th><th>Drugs</th><th>Use</th></tr>
+          <tr><td>advance_state_driven_validation</td><td>AZ 628</td><td>Primary wet-lab and spatial validation exemplar.</td></tr>
+          <tr><td>target_anchored_exploratory</td><td>RBC8, Romidepsin, JAK3_7406, Imatinib, Fedratinib, BAY-HDAC11_2, ARV-825</td><td>Mechanism follow-up only after target annotation and confounder review.</td></tr>
+          <tr><td>state_overlap_exploratory</td><td>ITD-1, TC-A-2317, A12B4C3, DMPS</td><td>Useful for state biology and attrition, not immediate drug claims.</td></tr>
+          <tr><td>hold_or_negative_control</td><td>Other pilot drugs</td><td>Use as conservative negative-control or missing-target-annotation examples.</td></tr>
+        </table>
+      </section>
+
+      <section id="files">
+        <h2><span class="num">07</span>Files</h2>
+        <table>
+          <tr><th>Artifact</th><th>Path</th></tr>
+          <tr><td>Target signature summary</td><td class="path">project/spatial_drug_vulnerability/results/tables/drug_target_signature_overlap_summary.tsv</td></tr>
+          <tr><td>Gene-level summary</td><td class="path">project/spatial_drug_vulnerability/results/tables/drug_target_gene_overlap_summary.tsv</td></tr>
+          <tr><td>Cell-state summary</td><td class="path">project/spatial_drug_vulnerability/results/tables/drug_celltype_state_overlap_summary.tsv</td></tr>
+          <tr><td>Hotspot target enrichment</td><td class="path">project/spatial_drug_vulnerability/results/tables/drug_hotspot_target_enrichment_summary.tsv</td></tr>
+          <tr><td>Evidence matrix</td><td class="path">project/spatial_drug_vulnerability/results/tables/drug_target_state_evidence_matrix.tsv</td></tr>
+          <tr><td>Candidate classes</td><td class="path">project/spatial_drug_vulnerability/results/tables/drug_application_candidate_classes.tsv</td></tr>
+          <tr><td>Markdown report</td><td class="path">project/spatial_drug_vulnerability/results/reports/SPATIAL_DRUG_TARGET_CELLTYPE_OVERLAP_REPORT.md</td></tr>
+          <tr><td>Evidence matrix report</td><td class="path">project/spatial_drug_vulnerability/results/reports/DRUG_TARGET_STATE_EVIDENCE_MATRIX_REPORT.md</td></tr>
+        </table>
+      </section>
+
+      <section id="boundary">
+        <h2><span class="num">08</span>Claim Boundary</h2>
+        <div class="callout ok">
+          Allowed: target-aware hypothesis generation, spatial co-localization analysis, experimental prioritization, and validation roadmap design.
+        </div>
+        <div class="callout danger">
+          Not allowed: clinical treatment recommendation, true measured IC50 per spot, patient selection, or causal target-dependency claim without perturbation validation.
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig25_cv2_target_state_triptych_gallery.png" alt="Fig 25. CV2 triptych gallery showing drug vulnerability, drug target program, and tumor-state program on matched H&amp;E coordinates." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Effect-size / forest evidence</div><h4>fig25_cv2_target_state_triptych_gallery.png</h4><p>Fig 25. CV2 triptych gallery showing drug vulnerability, drug target program, and tumor-state program on matched H&amp;E coordinates.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png" alt="Fig 28. Target/state contour overlap layer: gold contours mark spots where high predicted vulnerability, directional target program, and directional tumor state overlap." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Effect-size / forest evidence</div><h4>fig28_cv2_drug_target_state_multilayer_contours.png</h4><p>Fig 28. Target/state contour overlap layer: gold contours mark spots where high predicted vulnerability, directional target program, and directional tumor state overlap.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png" alt="Fig 14. Drug vulnerability score vs target/pathway gene expression across 16 slides." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Effect-size / forest evidence</div><h4>fig14_drug_target_gene_overlap_heatmap.png</h4><p>Fig 14. Drug vulnerability score vs target/pathway gene expression across 16 slides.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png" alt="Fig 15. Drug vulnerability score vs cell-type and tumor-state proxy scores." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Effect-size / forest evidence</div><h4>fig15_drug_celltype_state_overlap_heatmap.png</h4><p>Fig 15. Drug vulnerability score vs cell-type and tumor-state proxy scores.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png" alt="Fig 16. AZ 628 vulnerability pockets compared with RAF/MAPK target-output expression in priority slides." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · Effect-size / forest evidence</div><h4>fig16_az628_target_gene_spatial_overlap.png</h4><p>Fig 16. AZ 628 vulnerability pockets compared with RAF/MAPK target-output expression in priority slides.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png" alt="Fig 17. Target-program overlap ranking for the 20 selected pilot drugs." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · Effect-size / forest evidence</div><h4>fig17_target_program_overlap_ranking.png</h4><p>Fig 17. Target-program overlap ranking for the 20 selected pilot drugs.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png" alt="Fig 18. Integrated evidence matrix: target overlap, hotspot enrichment, cell-state overlap, model agreement, and cell-line metric." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Matrix / clustering evidence</div><h4>fig18_drug_target_state_evidence_matrix.png</h4><p>Fig 18. Integrated evidence matrix: target overlap, hotspot enrichment, cell-state overlap, model agreement, and cell-line metric.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the row/column annotations and color scale first; the visual is about structure, not a single p-value.</dd><dt>Boundary</dt><dd>Cluster appearance should be paired with the linked table or statistic before manuscript-level use.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png" alt="Fig 19. Separates target-anchored exploratory drugs from state-driven validation candidates." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Effect-size / forest evidence</div><h4>fig19_target_vs_state_drug_classes.png</h4><p>Fig 19. Separates target-anchored exploratory drugs from state-driven validation candidates.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/spatial_drug_vulnerability/fig20_az628_state_vs_target_gene_bars.png" alt="Fig 20. AZ 628 is more strongly linked to DM1-like / low differentiation state than simple target expression." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 09 · Effect-size / forest evidence</div><h4>fig20_az628_state_vs_target_gene_bars.png</h4><p>Fig 20. AZ 628 is more strongly linked to DM1-like / low differentiation state than simple target expression.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td>1</td><td><a href="assets/spatial_drug_vulnerability/fig25_cv2_target_state_triptych_gallery.png">assets/spatial_drug_vulnerability/fig25_cv2_target_state_triptych_gallery.png</a></td><td>Fig 25. CV2 triptych gallery showing drug vulnerability, drug target program, and tumor-state program on matched H&amp;E coordinates.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>2</td><td><a href="assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png">assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png</a></td><td>Fig 28. Target/state contour overlap layer: gold contours mark spots where high predicted vulnerability, directional target program, and directional tumor state overlap.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>3</td><td><a href="assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png">assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png</a></td><td>Fig 14. Drug vulnerability score vs target/pathway gene expression across 16 slides.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>4</td><td><a href="assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png">assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png</a></td><td>Fig 15. Drug vulnerability score vs cell-type and tumor-state proxy scores.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>5</td><td><a href="assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png">assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png</a></td><td>Fig 16. AZ 628 vulnerability pockets compared with RAF/MAPK target-output expression in priority slides.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>6</td><td><a href="assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png">assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png</a></td><td>Fig 17. Target-program overlap ranking for the 20 selected pilot drugs.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>7</td><td><a href="assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png">assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png</a></td><td>Fig 18. Integrated evidence matrix: target overlap, hotspot enrichment, cell-state overlap, model agreement, and cell-line metric.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>8</td><td><a href="assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png">assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png</a></td><td>Fig 19. Separates target-anchored exploratory drugs from state-driven validation candidates.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>9</td><td><a href="assets/spatial_drug_vulnerability/fig20_az628_state_vs_target_gene_bars.png">assets/spatial_drug_vulnerability/fig20_az628_state_vs_target_gene_bars.png</a></td><td>Fig 20. AZ 628 is more strongly linked to DM1-like / low differentiation state than simple target expression.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>3</td><td>Inline HTML table 3</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>4</td><td>Inline HTML table 4</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>5</td><td>Inline HTML table 5</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>Drug Target And Cell-State Overlap Layer</td></tr>
+<tr><td>2</td><td>H2</td><td>01 What Changed</td></tr>
+<tr><td>3</td><td>H2</td><td>02 What To Click</td></tr>
+<tr><td>4</td><td>H2</td><td>03 Target Overlap</td></tr>
+<tr><td>5</td><td>H2</td><td>04 Cell-State Overlap</td></tr>
+<tr><td>6</td><td>H2</td><td>05 AZ 628 Interpretation</td></tr>
+<tr><td>7</td><td>H2</td><td>06 Evidence Matrix</td></tr>
+<tr><td>8</td><td>H2</td><td>07 Files</td></tr>
+<tr><td>9</td><td>H2</td><td>08 Claim Boundary</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>1</td><td>index.html</td></tr>
+<tr><td>2</td><td>spatial_drug_vulnerability_application.html</td></tr>
+<tr><td>3</td><td>spatial_drug_vulnerability_pilot.html</td></tr>
+<tr><td>4</td><td>spatial_drug_cv2_overlay_gallery.html</td></tr>
+<tr><td>5</td><td>assets/spatial_drug_vulnerability/fig25_cv2_target_state_triptych_gallery.png</td></tr>
+<tr><td>6</td><td>assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png</td></tr>
+<tr><td>7</td><td>assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png</td></tr>
+<tr><td>8</td><td>assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png</td></tr>
+<tr><td>9</td><td>assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png</td></tr>
+<tr><td>10</td><td>assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png</td></tr>
+<tr><td>11</td><td>assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png</td></tr>
+<tr><td>12</td><td>assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png</td></tr>
+<tr><td>13</td><td>assets/spatial_drug_vulnerability/fig20_az628_state_vs_target_gene_bars.png</td></tr>
+<tr><td>14</td><td>spatial_drug_cv2_overlay_gallery.html</td></tr>
+<tr><td>15</td><td>assets/spatial_drug_vulnerability/fig28_cv2_drug_target_state_multilayer_contours.png</td></tr>
+<tr><td>16</td><td>assets/spatial_drug_vulnerability/fig14_drug_target_gene_overlap_heatmap.png</td></tr>
+<tr><td>17</td><td>assets/spatial_drug_vulnerability/fig15_drug_celltype_state_overlap_heatmap.png</td></tr>
+<tr><td>18</td><td>assets/spatial_drug_vulnerability/fig16_az628_target_gene_spatial_overlap.png</td></tr>
+<tr><td>19</td><td>assets/spatial_drug_vulnerability/fig17_target_program_overlap_ranking.png</td></tr>
+<tr><td>20</td><td>assets/spatial_drug_vulnerability/fig18_drug_target_state_evidence_matrix.png</td></tr>
+<tr><td>21</td><td>assets/spatial_drug_vulnerability/fig19_target_vs_state_drug_classes.png</td></tr>
+<tr><td>22</td><td>assets/spatial_drug_vulnerability/fig20_az628_state_vs_target_gene_bars.png</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="spatial_drug_cv2_overlay_gallery.html"><b>spatial_drug_cv2_overlay_gallery</b><span>58 figs · 5 tables</span></a><a class="renewal0509-card" href="spatial_drug_famous_panel.html"><b>spatial_drug_famous_panel</b><span>6 figs · 4 tables</span></a><a class="renewal0509-card" href="spatial_drug_research_aligned_expansion.html"><b>spatial_drug_research_aligned_expansion</b><span>6 figs · 2 tables</span></a><a class="renewal0509-card" href="spatial_drug_vulnerability_application.html"><b>spatial_drug_vulnerability_application</b><span>14 figs · 5 tables</span></a><a class="renewal0509-card" href="spatial_drug_vulnerability_pilot.html"><b>spatial_drug_vulnerability_pilot</b><span>13 figs · 4 tables</span></a><a class="renewal0509-card" href="thca_cnv_spatial_immune_decision_2026_05_08.html"><b>thca_cnv_spatial_immune_decision_2026_05_08</b><span>3 figs · 22 tables</span></a><a class="renewal0509-card" href="trajectory.html"><b>trajectory</b><span>0 figs · 0 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paper 1 v17 spatial signal decomposition</title><style>
+    :root{--bg:#0d1117;--panel:#151b23;--line:#30363d;--text:#e6edf3;--muted:#9ba7b4;--gold:#f6c85f;--blue:#67a9cf;--red:#ef8a62}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:"JetBrains Mono",ui-monospace,Menlo,monospace;line-height:1.55}
+    .hero{padding:56px 7vw 32px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#111a24,#0d1117)}
+    .kicker{color:var(--gold);text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:700}
+    h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:44px;line-height:1.05;margin:10px 0 14px}
+    .lead{max-width:1100px;color:#c8d1dc}.crumbs{margin-top:18px;color:var(--muted);font-size:12px}.crumbs a{color:var(--blue)}
+    .stats{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr));gap:10px;margin-top:24px}.stat{border:1px solid var(--line);background:#111821;padding:12px;border-radius:6px}
+    .stat b{display:block;color:var(--gold);font-size:20px}.stat span{font-size:11px;color:var(--muted)}
+    .wrap{display:grid;grid-template-columns:260px 1fr;gap:28px;padding:26px 7vw 60px}.toc{position:sticky;top:16px;align-self:start;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:14px}
+    .toc a{display:block;color:#c8d1dc;text-decoration:none;font-size:12px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+    section{margin-bottom:28px;border-top:1px solid var(--line);padding-top:20px}.num{color:var(--gold);font-weight:700;margin-right:8px} h2{font-size:22px;margin:0 0 12px}
+    .box{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:16px;margin:14px 0}.warn{border-color:#7c4b17;background:#21170c}.good{border-color:#345d40;background:#101d16}
+    table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0} th,td{border:1px solid var(--line);padding:7px 8px;text-align:left} th{color:var(--gold);background:#111821}
+    img{max-width:100%;border:1px solid var(--line);border-radius:6px;background:#fff}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{border:1px solid var(--line);background:#111821;border-radius:6px;padding:13px;text-decoration:none;color:var(--text)}.card b{display:block;color:var(--gold);margin-bottom:4px}.card span{font-size:12px;color:var(--muted)}
+    code{color:#ffd98a}.small{font-size:12px;color:var(--muted)}@media(max-width:900px){.wrap{grid-template-columns:1fr}.toc{position:relative}.stats,.cards{grid-template-columns:1fr}h1{font-size:34px}}
+    </style></head>
+<body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — Paper 1 v17 spatial signal decomposition</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>1</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>7</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>10</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>Paper 1</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">100%</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Active manuscript spine</span></div>
+      <div><b>Claim boundary</b><span>DM1 / 8-gene / Fig 8 mechanism pages are current only when read with the v13/v14 reviewer-defense layer; v15B-v18 spatial pages are caveat/autopsy support.</span></div>
+      <div><b>Next use</b><span>Use for Paper 1 review first. Keep mechanism interpretation prose in author-protected manuscript sections.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">GSE250521</span> <span class="renewal0509-term">8-gene mini-index</span> <span class="renewal0509-term">RAI_8 / thyroid differentiation score</span> <span class="renewal0509-term">MAPK output score</span> <span class="renewal0509-term">Cohen&#x27;s d / Spearman rho / Cox HR</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>GSE250521</td><td>cohort</td><td>Thyroid spatial transcriptomics / Visium resource spanning thyroid progression contexts.</td><td>Spatial validation, spatial failure/rescue, lag pockets, and image-DM1 spatial checks.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> Spatial signal decomposition dossier → 01 TL;DR → 02 Composite Figure → 03 Adjustment Components → Covariate R2</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>Spatial signal decomposition dossier</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>01 TL;DR</span></article>
+<article class="renewal0509-step"><b>03</b><em>H2</em><span>02 Composite Figure</span></article>
+<article class="renewal0509-step"><b>04</b><em>H2</em><span>03 Adjustment Components</span></article>
+<article class="renewal0509-step"><b>05</b><em>H3</em><span>Covariate R2</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>04 QC and Detection</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>05 MAPK Submodules + Gene Pairs</span></article>
+<article class="renewal0509-step"><b>08</b><em>H2</em><span>06 Random-Module Null</span></article>
+<article class="renewal0509-step renewal0509-step-more"><b>+2</b><span>More section headings are mapped in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/Fig_SX_v17_spatial_signal_decomposition.png" alt="v17 spatial signal decomposition figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Spatial / anatomy evidence</div><h4>Fig_SX_v17_spatial_signal_decomposition.png</h4><p>v17 spatial signal decomposition figure</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p_deconv_2026_05_08/Fig_SX_v17_spatial_signal_decomposition.png</dd></dl></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 06</b><strong>Inline HTML table 6</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard renewal0509-step-more"><b>+1</b><strong>Additional tables</strong><span>Full table inventory appears in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="gpl570_validation_pack.html">gpl570_validation_pack</a> <a class="renewal0509-chip" href="intro_strategy_audit.html">intro_strategy_audit</a> <a class="renewal0509-chip" href="paper1.html">paper1</a> <a class="renewal0509-chip" href="paper10_atlas.html">paper10_atlas</a> <a class="renewal0509-chip" href="paper11_pancancer.html">paper11_pancancer</a> <a class="renewal0509-chip" href="paper12_network.html">paper12_network</a> <a class="renewal0509-chip" href="paper1_deconvolution_rollup_v18.html">paper1_deconvolution_rollup_v18</a> <a class="renewal0509-chip" href="paper1_fig8_mechanism_dossier.html">paper1_fig8_mechanism_dossier</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/paper1_spatial_signal_decomposition_v17.html · Renewed page: project/papers_hub_2026_0509/paper1_spatial_signal_decomposition_v17.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+
+<div class="hero">
+  <div class="kicker">Paper 1 · Fig 8 reserve · v17</div>
+  <h1>Spatial signal decomposition dossier</h1>
+  <p class="lead">v17 decomposes the failed GSE250521 spatial anti-correlation test. The result is stronger as a caveat: the raw positive MAPK-panel co-localization is broad detection/covariate structure, and rank-partial plus random-module checks do not reveal a hidden module-level anti-correlation.</p>
+  <div class="stats">
+    <div class="stat"><b>0.208</b><span>raw tumor epi rho</span></div>
+    <div class="stat"><b>0.064</b><span>full rank-partial rho</span></div>
+    <div class="stat"><b>0.383</b><span>detect-breadth rho</span></div>
+    <div class="stat"><b>0.099</b><span>random raw median</span></div>
+    <div class="stat"><b>0.006</b><span>random full median</span></div>
+    <div class="stat"><b>-0.096</b><span>CCND1_vs_TPO</span></div>
+  </div>
+  <div class="crumbs"><a href="index.html">hub</a> / <a href="paper1_spatial_failure_rescue_v16.html">v16 failure rescue</a> / v17 decomposition</div>
+</div>
+<div class="wrap">
+  <nav class="toc">
+    <a href="#tldr">TL;DR</a><a href="#figure">Figure</a><a href="#components">Components</a><a href="#qc">QC/detection</a><a href="#modules">Submodules</a><a href="#null">Random null</a><a href="#decision">Decision</a><a href="#sources">Sources</a>
+  </nav>
+  <main>
+    <section id="tldr"><h2><span class="num">01</span>TL;DR</h2>
+      <div class="box warn"><b>No hidden rescue.</b> Rank-partial Spearman and submodule checks do not recover the hypothesized within-spot MAPK-high / Panel-low relation. The honest result remains caveat/reserve.</div>
+      <div class="box good"><b>Better defense.</b> The raw positive result behaves like generic detection/covariate co-localization: random module pairs also show positive raw correlations, then collapse toward null after the same adjustment.</div>
+    </section>
+    <section id="figure"><h2><span class="num">02</span>Composite Figure</h2>
+      <img src="assets/paper1/Fig_SX_v17_spatial_signal_decomposition.png" alt="v17 spatial signal decomposition figure">
+    </section>
+    <section id="components"><h2><span class="num">03</span>Adjustment Components</h2>
+      <table><thead><tr><th>adjustment</th><th>rho_linear_resid_spearman</th><th>rho_rank_partial_spearman</th><th>n_linear</th></tr></thead><tbody><tr><td>raw</td><td>0.2085</td><td>0.2085</td><td>20569</td></tr><tr><td>epithelial</td><td>0.2019</td><td>0.1991</td><td>20569</td></tr><tr><td>qc</td><td>0.0632</td><td>0.07085</td><td>20569</td></tr><tr><td>microenv</td><td>0.1723</td><td>0.1606</td><td>20569</td></tr><tr><td>spatial</td><td>0.2108</td><td>0.2124</td><td>20569</td></tr><tr><td>detection</td><td>0.04127</td><td>0.05152</td><td>20569</td></tr><tr><td>epithelial_qc</td><td>0.06062</td><td>0.06765</td><td>20569</td></tr><tr><td>epithelial_qc_microenv</td><td>0.05241</td><td>0.06374</td><td>20569</td></tr><tr><td>epithelial_qc_microenv_spatial</td><td>0.05637</td><td>0.06612</td><td>20569</td></tr><tr><td>epithelial_qc_microenv_spatial_detection</td><td>0.007158</td><td>0.05355</td><td>20569</td></tr></tbody></table>
+      <h3>Covariate R2</h3>
+      <table><thead><tr><th>covariate_family</th><th>target</th><th>r2</th></tr></thead><tbody><tr><td>detection</td><td>MAPK_z</td><td>0.7322</td></tr><tr><td>detection</td><td>Panel8_z</td><td>0.6196</td></tr><tr><td>epithelial</td><td>MAPK_z</td><td>0.001535</td></tr><tr><td>epithelial</td><td>Panel8_z</td><td>0.006271</td></tr><tr><td>epithelial_qc_microenv</td><td>MAPK_z</td><td>0.1808</td></tr><tr><td>epithelial_qc_microenv</td><td>Panel8_z</td><td>0.2445</td></tr><tr><td>epithelial_qc_microenv_spatial_detection</td><td>MAPK_z</td><td>0.8089</td></tr><tr><td>epithelial_qc_microenv_spatial_detection</td><td>Panel8_z</td><td>0.6831</td></tr><tr><td>microenv</td><td>MAPK_z</td><td>0.0639</td></tr><tr><td>microenv</td><td>Panel8_z</td><td>0.07916</td></tr><tr><td>qc</td><td>MAPK_z</td><td>0.1645</td></tr><tr><td>qc</td><td>Panel8_z</td><td>0.1236</td></tr><tr><td>spatial</td><td>MAPK_z</td><td>0.03962</td></tr><tr><td>spatial</td><td>Panel8_z</td><td>0.05178</td></tr></tbody></table>
+    </section>
+    <section id="qc"><h2><span class="num">04</span>QC and Detection</h2>
+      <table><thead><tr><th>metric</th><th>rho</th></tr></thead><tbody><tr><td>Panel8_z_vs_panel_detect</td><td>0.8647</td></tr><tr><td>MAPK_z_vs_MAPK_detect</td><td>0.8386</td></tr><tr><td>MAPK_detect_vs_panel_detect</td><td>0.3831</td></tr><tr><td>MAPK_z_vs_log1p_total</td><td>0.3361</td></tr><tr><td>Panel8_z_vs_log1p_total</td><td>0.2957</td></tr><tr><td>MAPK_z_vs_Epithelial_score</td><td>0.04806</td></tr><tr><td>Panel8_z_vs_Epithelial_score</td><td>-0.01915</td></tr></tbody></table>
+    </section>
+    <section id="modules"><h2><span class="num">05</span>MAPK Submodules + Gene Pairs</h2>
+      <table><thead><tr><th>module</th><th>adjustment</th><th>rho_mapk_module_panel</th></tr></thead><tbody><tr><td>CCND1_only</td><td>full</td><td>-0.04877</td></tr><tr><td>CCND1_only</td><td>raw</td><td>-0.009032</td></tr><tr><td>MAPK_all9</td><td>full</td><td>-0.004452</td></tr><tr><td>MAPK_all9</td><td>raw</td><td>0.1095</td></tr><tr><td>feedback_DUSP_SPRY</td><td>full</td><td>0.01301</td></tr><tr><td>feedback_DUSP_SPRY</td><td>raw</td><td>0.114</td></tr><tr><td>no_CCND1</td><td>full</td><td>0.009423</td></tr><tr><td>no_CCND1</td><td>raw</td><td>0.1168</td></tr><tr><td>transcriptional_ETV_PHLDA1</td><td>full</td><td>0.02008</td></tr><tr><td>transcriptional_ETV_PHLDA1</td><td>raw</td><td>0.09851</td></tr></tbody></table>
+      <table><thead><tr><th>mapk_gene</th><th>panel_gene</th><th>median_rho</th><th>mean_rho</th><th>n_samples</th><th>n_negative</th><th>n_positive</th><th>frac_negative</th><th>binom_p_negative</th><th>binom_fdr_negative</th></tr></thead><tbody><tr><td>CCND1</td><td>TPO</td><td>-0.09555</td><td>-0.07968</td><td>12</td><td>10</td><td>1</td><td>0.8333</td><td>0.01929</td><td>0.6943</td></tr><tr><td>DUSP6</td><td>TPO</td><td>-0.07191</td><td>-0.07201</td><td>12</td><td>10</td><td>1</td><td>0.8333</td><td>0.01929</td><td>0.6943</td></tr><tr><td>ETV5</td><td>TPO</td><td>-0.04065</td><td>-0.002764</td><td>12</td><td>8</td><td>3</td><td>0.6667</td><td>0.1938</td><td>0.9998</td></tr><tr><td>CCND1</td><td>TG</td><td>-0.03918</td><td>-0.03734</td><td>12</td><td>9</td><td>3</td><td>0.75</td><td>0.073</td><td>0.876</td></tr><tr><td>PHLDA1</td><td>TSHR</td><td>-0.03902</td><td>-0.01116</td><td>12</td><td>7</td><td>4</td><td>0.5833</td><td>0.3872</td><td>0.9998</td></tr><tr><td>CCND1</td><td>TSHR</td><td>-0.0378</td><td>-0.03003</td><td>12</td><td>9</td><td>2</td><td>0.75</td><td>0.073</td><td>0.876</td></tr><tr><td>DUSP6</td><td>SLC5A5</td><td>-0.0366</td><td>-0.02754</td><td>12</td><td>6</td><td>1</td><td>0.5</td><td>0.6128</td><td>0.9998</td></tr><tr><td>SPRY4</td><td>NKX2-1</td><td>-0.03633</td><td>-0.05155</td><td>12</td><td>7</td><td>4</td><td>0.5833</td><td>0.3872</td><td>0.9998</td></tr><tr><td>PHLDA1</td><td>DIO1</td><td>-0.03514</td><td>-0.0313</td><td>12</td><td>8</td><td>3</td><td>0.6667</td><td>0.1938</td><td>0.9998</td></tr><tr><td>SPRY4</td><td>TSHR</td><td>-0.02761</td><td>-0.05176</td><td>12</td><td>8</td><td>3</td><td>0.6667</td><td>0.1938</td><td>0.9998</td></tr><tr><td>ETV4</td><td>DIO1</td><td>-0.02726</td><td>-0.02033</td><td>12</td><td>6</td><td>5</td><td>0.5</td><td>0.6128</td><td>0.9998</td></tr><tr><td>DUSP5</td><td>DIO1</td><td>-0.02681</td><td>-0.02981</td><td>12</td><td>9</td><td>2</td><td>0.75</td><td>0.073</td><td>0.876</td></tr></tbody></table>
+    </section>
+    <section id="null"><h2><span class="num">06</span>Random-Module Null</h2>
+      <p class="small">Random draws use 9-gene and 8-gene non-mitochondrial expressed modules per tumor sample, repeated 50 times per sample.</p>
+      <table><thead><tr><th>metric</th><th>rho</th><th>percentile_vs_random</th></tr></thead><tbody><tr><td>observed raw per-sample median</td><td>0.1095</td><td>0.545</td></tr><tr><td>random raw median</td><td>0.09926</td><td>nan</td></tr><tr><td>observed full-resid per-sample median</td><td>-0.004452</td><td>0.3433</td></tr><tr><td>random full-resid median</td><td>0.006011</td><td>nan</td></tr></tbody></table>
+    </section>
+    <section id="decision"><h2><span class="num">07</span>Decision</h2>
+      <table><thead><tr><th>Question</th><th>Answer</th><th>Disposition</th></tr></thead><tbody>
+        <tr><td>Can GSE250521 be turned into a positive Fig 8 mechanism result?</td><td>No. Full rank-partial rho is 0.064.</td><td>Keep out of positive mechanism chain.</td></tr>
+        <tr><td>Can the failure be defended?</td><td>Yes. Detection breadth and covariates explain broad positive co-localization; random modules show the same behavior.</td><td>Use only as caveat/reserve.</td></tr>
+        <tr><td>Is there any local foothold?</td><td>Weak gene-pair hints, top CCND1_vs_TPO rho -0.096.</td><td>Do not overclaim.</td></tr>
+      </tbody></table>
+      <div class="cards">
+        <a class="card" href="paper1_spatial_failure_rescue_v16.html"><b>v16 failure rescue</b><span>Adjustment ladder and near-null containment.</span></a>
+        <a class="card" href="paper1_fig8_mechanism_dossier.html"><b>Fig 8 mechanism dossier</b><span>Primary positive mechanism layer.</span></a>
+        <a class="card" href="paper1_methods_reproducibility_dossier.html"><b>Methods reproducibility</b><span>Gene lists, formulas, and cohort filters.</span></a>
+      </div>
+    </section>
+    <section id="sources"><h2><span class="num">08</span>Sources + Paths</h2>
+      <div class="box small">
+        <p><code>project/data/processed/GSE250521/*/*.scored.h5ad</code></p>
+        <p><code>project/results/p_deconv_2026_05_08/run_v17_spatial_signal_decomposition.py</code></p>
+        <p><code>v17_spatial_component_ladder_pooled.tsv</code>, <code>v17_spatial_covariate_r2.tsv</code>, <code>v17_spatial_random_module_null.tsv</code>, <code>v17_spatial_signal_decomposition_summary.json</code></p>
+      </div>
+    </section>
+  </main>
+</div>
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper1/Fig_SX_v17_spatial_signal_decomposition.png" alt="v17 spatial signal decomposition figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Spatial / anatomy evidence</div><h4>Fig_SX_v17_spatial_signal_decomposition.png</h4><p>v17 spatial signal decomposition figure</p><dl><dt>Data entered</dt><dd>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p_deconv_2026_05_08/Fig_SX_v17_spatial_signal_decomposition.png</dd></dl></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 06</b><strong>Inline HTML table 6</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 07</b><strong>Inline HTML table 7</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td>1</td><td><a href="assets/paper1/Fig_SX_v17_spatial_signal_decomposition.png">assets/paper1/Fig_SX_v17_spatial_signal_decomposition.png</a></td><td>v17 spatial signal decomposition figure</td><td>Paper 1 THCA lineage axis: TCGA/K2/Lee/GSE76039/spatial/DepMap inputs as named by asset and caption.</td><td>project/results/p_deconv_2026_05_08/Fig_SX_v17_spatial_signal_decomposition.png</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>3</td><td>Inline HTML table 3</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>4</td><td>Inline HTML table 4</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>5</td><td>Inline HTML table 5</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>6</td><td>Inline HTML table 6</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>7</td><td>Inline HTML table 7</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>Spatial signal decomposition dossier</td></tr>
+<tr><td>2</td><td>H2</td><td>01 TL;DR</td></tr>
+<tr><td>3</td><td>H2</td><td>02 Composite Figure</td></tr>
+<tr><td>4</td><td>H2</td><td>03 Adjustment Components</td></tr>
+<tr><td>5</td><td>H3</td><td>Covariate R2</td></tr>
+<tr><td>6</td><td>H2</td><td>04 QC and Detection</td></tr>
+<tr><td>7</td><td>H2</td><td>05 MAPK Submodules + Gene Pairs</td></tr>
+<tr><td>8</td><td>H2</td><td>06 Random-Module Null</td></tr>
+<tr><td>9</td><td>H2</td><td>07 Decision</td></tr>
+<tr><td>10</td><td>H2</td><td>08 Sources + Paths</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>1</td><td>index.html</td></tr>
+<tr><td>2</td><td>paper1_spatial_failure_rescue_v16.html</td></tr>
+<tr><td>3</td><td>paper1_spatial_failure_rescue_v16.html</td></tr>
+<tr><td>4</td><td>paper1_fig8_mechanism_dossier.html</td></tr>
+<tr><td>5</td><td>paper1_methods_reproducibility_dossier.html</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="gpl570_validation_pack.html"><b>gpl570_validation_pack</b><span>3 figs · 3 tables</span></a><a class="renewal0509-card" href="intro_strategy_audit.html"><b>intro_strategy_audit</b><span>0 figs · 8 tables</span></a><a class="renewal0509-card" href="paper1.html"><b>paper1</b><span>25 figs · 17 tables</span></a><a class="renewal0509-card" href="paper1_deconvolution_rollup_v18.html"><b>paper1_deconvolution_rollup_v18</b><span>4 figs · 6 tables</span></a><a class="renewal0509-card" href="paper1_fig8_mechanism_dossier.html"><b>paper1_fig8_mechanism_dossier</b><span>9 figs · 26 tables</span></a><a class="renewal0509-card" href="paper1_k2_panel_overlay_v15.html"><b>paper1_k2_panel_overlay_v15</b><span>1 figs · 1 tables</span></a><a class="renewal0509-card" href="paper1_methods_reproducibility_dossier.html"><b>paper1_methods_reproducibility_dossier</b><span>0 figs · 15 tables</span></a><a class="renewal0509-card" href="paper1_nature_cancer_board.html"><b>paper1_nature_cancer_board</b><span>15 figs · 12 tables</span></a><a class="renewal0509-card" href="paper1_paper11_nature_master.html"><b>paper1_paper11_nature_master</b><span>17 figs · 5 tables</span></a><a class="renewal0509-card" href="paper1_paper2_braf_axis_takeover_dossier.html"><b>paper1_paper2_braf_axis_takeover_dossier</b><span>7 figs · 10 tables</span></a><a class="renewal0509-card" href="paper1_reviewer_defense_dashboard.html"><b>paper1_reviewer_defense_dashboard</b><span>0 figs · 14 tables</span></a><a class="renewal0509-card" href="paper1_spatial_failure_rescue_v16.html"><b>paper1_spatial_failure_rescue_v16</b><span>1 figs · 4 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body></html>

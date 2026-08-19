@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper 2 Separated Figure Browser</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #151b23;
+      --panel2: #1c2430;
+      --ink: #e6edf3;
+      --muted: #98a6ba;
+      --line: #303846;
+      --gold: #d6b25e;
+      --teal: #63d5c4;
+      --blue: #57a6ff;
+      --red: #ff7b72;
+      --green: #35d39d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      line-height: 1.55;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .hero {
+      min-height: 64vh;
+      display: grid;
+      align-items: end;
+      padding: 58px 5vw 42px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(13,17,23,0.05), rgba(13,17,23,0.96)),
+        url("assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980864_PTC-1.png") center 35% / cover no-repeat;
+    }
+    .hero-inner { max-width: 1220px; }
+    .kicker {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    h1 {
+      margin: 10px 0 14px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(42px, 7vw, 88px);
+      line-height: 0.96;
+      font-weight: 650;
+      letter-spacing: 0;
+      max-width: 1120px;
+    }
+    .lead {
+      max-width: 980px;
+      color: #d8dee8;
+      font-size: 18px;
+    }
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 26px;
+      max-width: 1180px;
+    }
+    .stat {
+      border: 1px solid rgba(214,178,94,0.45);
+      background: rgba(13,17,23,0.84);
+      padding: 14px;
+      min-height: 92px;
+    }
+    .stat .v { color: var(--gold); font-size: 23px; font-weight: 900; }
+    .stat .l { color: var(--muted); font-size: 12px; margin-top: 5px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 32px;
+      max-width: 1540px;
+      margin: 0 auto;
+      padding: 34px 24px 84px;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: 100vh;
+      overflow: auto;
+      padding: 18px 0;
+    }
+    nav a {
+      display: block;
+      padding: 9px 12px;
+      border-left: 2px solid transparent;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav a:hover { color: var(--ink); border-left-color: var(--gold); text-decoration: none; }
+    section {
+      border-top: 1px solid var(--line);
+      padding: 34px 0;
+    }
+    section:first-child { border-top: 0; padding-top: 0; }
+    h2 {
+      margin: 0 0 18px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 34px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+    h3 { margin: 0 0 10px; font-size: 17px; }
+    .num { color: var(--gold); margin-right: 10px; font-family: "JetBrains Mono", monospace; font-size: 18px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .muted { color: var(--muted); }
+    .good { color: var(--teal); }
+    .warn { color: var(--gold); }
+    .bad { color: var(--red); }
+    .figure {
+      border: 1px solid var(--line);
+      background: #100d0b;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 18px 0;
+    }
+    .figure img {
+      width: 100%;
+      display: block;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--gold); font-weight: 800; background: rgba(214,178,94,0.06); }
+    code {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #d8dee8;
+    }
+    .decision td:last-child {
+      color: var(--gold);
+      font-weight: 800;
+    }
+    .explorer {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 16px;
+      min-height: 720px;
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 10px;
+    }
+    .filter-btn {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: #202938;
+    }
+    .search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      margin: 0 0 16px;
+    }
+    .search-row input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #090b10;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 13px;
+    }
+    .count-chip {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 9px 10px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .explorer-list {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      max-height: 760px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+    .figure-option {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 10px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+    .figure-option:hover,
+    .figure-option.active {
+      border-color: var(--gold);
+      background: #202938;
+    }
+    .figure-option img {
+      width: 78px;
+      height: 58px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #ffffff;
+      display: block;
+    }
+    .figure-option strong {
+      display: block;
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+    .figure-option span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    .figure-option .group {
+      color: var(--gold);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    .explorer-stage {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: #090b10;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .explorer-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+    .explorer-title {
+      flex: 1 1 360px;
+      min-width: 240px;
+    }
+    .explorer-title strong { display: block; color: var(--ink); font-size: 14px; }
+    .explorer-title span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .source-path {
+      color: #6e7681;
+      overflow-wrap: anywhere;
+    }
+    .viewer-btn {
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .viewer-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .viewer-window {
+      height: min(76vh, 820px);
+      overflow: auto;
+      padding: 16px;
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+        #090b10;
+      background-size: 20px 20px;
+    }
+    .viewer-window img {
+      display: block;
+      width: 100%;
+      max-width: none;
+      min-width: 420px;
+      height: auto;
+      margin: 0 auto;
+      cursor: zoom-in;
+      transform-origin: top center;
+    }
+    .lightbox[hidden] { display: none; }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(4, 6, 9, 0.94);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    .lightbox-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #0b1018;
+    }
+    .lightbox-title { flex: 1 1 420px; color: var(--ink); font-weight: 800; }
+    .lightbox-canvas {
+      overflow: auto;
+      padding: 18px;
+    }
+    .lightbox-canvas img {
+      display: block;
+      width: 100%;
+      min-width: 720px;
+      max-width: none;
+      height: auto;
+      margin: 0 auto;
+      transform-origin: top center;
+    }
+    .mini-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .mini-gallery a {
+      display: block;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 8px;
+      color: var(--ink);
+      font-size: 12px;
+    }
+    .mini-gallery img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; max-height: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+      .explorer { grid-template-columns: 1fr; }
+      .search-row { grid-template-columns: 1fr; }
+      .explorer-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-height: none;
+      }
+      .mini-gallery { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — Paper 2 Separated Figure Browser</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>8</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>4</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>10</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>Paper 2</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">35%</span> <span class="renewal0509-metric">100%</span> <span class="renewal0509-metric">25%</span> <span class="renewal0509-metric">4 / 3</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Bounded pilot / separated HLA track</span></div>
+      <div><b>Claim boundary</b><span>Image-DM1 is pilot-level until external H&amp;E/pathologist QC passes. HT/PTC immune-expression pages are separate from GD HLA genetics.</span></div>
+      <div><b>Next use</b><span>Use as evidence archive and validation queue, not as a flagship diagnostic claim.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">TCGA-THCA</span> <span class="renewal0509-term">GSE250521</span> <span class="renewal0509-term">GSE76039 / Landa advanced thyroid</span> <span class="renewal0509-term">Hugo/Riaz melanoma ICI pool</span> <span class="renewal0509-term">8-gene mini-index</span> <span class="renewal0509-term">RAI_8 / thyroid differentiation score</span> <span class="renewal0509-term">MAPK output score</span> <span class="renewal0509-term">Cohen&#x27;s d / Spearman rho / Cox HR</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>TCGA-THCA</td><td>cohort</td><td>TCGA thyroid carcinoma cohort; RNA-seq, clinical, mutation, methylation and cBioPortal-derived mutation/clinical slices depending on page.</td><td>Paper 1 DM1/DM2 derivation, survival, promoter methylation, driver strata, and several downstream reuse pages.</td></tr>
+<tr><td>GSE250521</td><td>cohort</td><td>Thyroid spatial transcriptomics / Visium resource spanning thyroid progression contexts.</td><td>Spatial validation, spatial failure/rescue, lag pockets, and image-DM1 spatial checks.</td></tr>
+<tr><td>GSE76039 / Landa advanced thyroid</td><td>cohort</td><td>Advanced thyroid cancer expression resource used as a PDTC/ATC lineage-collapse benchmark.</td><td>Mechanism heterogeneity, advanced-disease comparisons, and reverse-causality boundary checks.</td></tr>
+<tr><td>Hugo/Riaz melanoma ICI pool</td><td>cohort</td><td>External melanoma immunotherapy RNA/clinical resources used as ICI-response context, not thyroid predictor proof.</td><td>Paper 3 vulnerability-only evidence and claim-boundary pages.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> Paper 2 Figures, Split Back Into Inspectable Panels → 01 Verdict → What This Adds → Use Pattern → 02 Separated Figure Browser</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>Paper 2 Figures, Split Back Into Inspectable Panels</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>01 Verdict</span></article>
+<article class="renewal0509-step"><b>03</b><em>H3</em><span>What This Adds</span></article>
+<article class="renewal0509-step"><b>04</b><em>H3</em><span>Use Pattern</span></article>
+<article class="renewal0509-step"><b>05</b><em>H2</em><span>02 Separated Figure Browser</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>03 Separated Source Sets</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>04 CV2 Summary Boards Kept Separate</span></article>
+<article class="renewal0509-step"><b>08</b><em>H3</em><span>Not The Primary Browser</span></article>
+<article class="renewal0509-step renewal0509-step-more"><b>+2</b><span>More section headings are mapped in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png" alt="Paper 2 selected figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Page visual evidence</div><h4>phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png</h4><p>Paper 2 selected figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the asset path, caption, and surrounding section heading as the binding context for the figure.</dd><dt>Boundary</dt><dd>If no upstream TSV/JSON match is listed, treat the embedded page asset as the immediate provenance row.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Effect-size / forest evidence</div><h4>fig01_paper2_cv2_evidence_scorecard.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig01_paper2_cv2_evidence_scorecard.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Clinical endpoint evidence</div><h4>fig02_gse230424_cv2_he_overlay_mosaic.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig02_gse230424_cv2_he_overlay_mosaic.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Clinical endpoint evidence</div><h4>fig03_gse250521_cv2_uni_slide_mosaic.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig03_gse250521_cv2_uni_slide_mosaic.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · Page visual evidence</div><h4>fig04_paper2_cv2_result_gallery.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the asset path, caption, and surrounding section heading as the binding context for the figure.</dd><dt>Boundary</dt><dd>If no upstream TSV/JSON match is listed, treat the embedded page asset as the immediate provenance row.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig04_paper2_cv2_result_gallery.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · Spatial / anatomy evidence</div><h4>fig05_gse230424_cv2_hotspot_contours.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig05_gse230424_cv2_hotspot_contours.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Effect-size / forest evidence</div><h4>fig08_paper2_cv2_onepage_storyboard.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig08_paper2_cv2_onepage_storyboard.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png" alt="Paper 2 enlarged figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Page visual evidence</div><h4>phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png</h4><p>Paper 2 enlarged figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the asset path, caption, and surrounding section heading as the binding context for the figure.</dd><dt>Boundary</dt><dd>If no upstream TSV/JSON match is listed, treat the embedded page asset as the immediate provenance row.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="hla_beta_plan.html">hla_beta_plan</a> <a class="renewal0509-chip" href="ht_vs_gd_audit.html">ht_vs_gd_audit</a> <a class="renewal0509-chip" href="paper2_gse248205_aitd_pathology_axis.html">paper2_gse248205_aitd_pathology_ax</a> <a class="renewal0509-chip" href="paper2_high_impact_journal_strategy.html">paper2_high_impact_journal_strateg</a> <a class="renewal0509-chip" href="paper2_hla.html">paper2_hla</a> <a class="renewal0509-chip" href="paper2_image_dm1.html">paper2_image_dm1</a> <a class="renewal0509-chip" href="paper2_image_dm1_audit_dossier.html">paper2_image_dm1_audit_dossier</a> <a class="renewal0509-chip" href="paper2_image_dm1_clinical_business.html">paper2_image_dm1_clinical_business</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/paper2_cv2_visual_summary.html · Renewed page: project/papers_hub_2026_0509/paper2_cv2_visual_summary.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="kicker">Paper 2 · separated figure browser · 2026-05-10</div>
+      <h1>Paper 2 Figures, Split Back Into Inspectable Panels</h1>
+      <p class="lead">
+        The CV2 board was too flattened. This version publishes the original/source PNGs as separate web assets and loads them into one interactive component, so each slide, figure, control, and external-cohort panel can be selected and enlarged on its own.
+      </p>
+      <div class="stat-strip">
+        <div class="stat"><div class="v">81</div><div class="l">separated source PNGs</div></div>
+        <div class="stat"><div class="v">16</div><div class="l">GSE250521 slide overlays</div></div>
+        <div class="stat"><div class="v">0</div><div class="l">primary-browser composite boards</div></div>
+        <div class="stat"><div class="v">1</div><div class="l">click-to-zoom component</div></div>
+        <div class="stat"><div class="v">9</div><div class="l">CV2 summary boards kept separate</div></div>
+        <div class="stat"><div class="v">200</div><div class="l">public HTTP asset check</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav>
+      <a href="#verdict">01 Verdict</a>
+      <a href="#figure-explorer">02 Separated Browser</a>
+      <a href="#source-sets">03 Source Sets</a>
+      <a href="#legacy-composites">04 CV2 Summary Boards</a>
+      <a href="#boundary">05 Boundary</a>
+      <a href="#sources">06 Sources</a>
+    </nav>
+
+    <main>
+      <section id="verdict">
+        <h2><span class="num">01</span>Verdict</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>What This Adds</h3>
+            <p class="muted">The Paper 2 figure stack is now restored as separated image assets rather than one flattened visual board. The browser loads 81 source PNGs, including the individual GSE250521 slide overlays and the original analysis/control figures.</p>
+          </div>
+          <div class="card">
+            <h3>Use Pattern</h3>
+            <p class="muted">Pick a group, search by sample or figure name, then open the selected panel full-screen. The old 9-image CV2 storyboard remains available only as a separate summary-board appendix.</p>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Layer</th><th>Headline</th><th>Use</th></tr></thead>
+          <tbody>
+            <tr><td>TCGA H&amp;E image-DM1</td><td>UNI LOTO pooled AUC <strong class="good">0.852</strong></td><td>Image classifier anchor</td></tr>
+            <tr><td>GSE250521 spatial RNA</td><td>Smoothed DM1/RAI rho <strong class="good">0.392</strong>; slide-centered 0.440</td><td>Path2Space-style spatial projection</td></tr>
+            <tr><td>GSE230424 external Visium</td><td>H&amp;E sample-centered rho <strong class="good">0.644</strong>; 200-spot downsample median 0.641</td><td>External thyroid support</td></tr>
+            <tr><td>Residual layer</td><td>GSE230424 downsample residual rho <strong class="warn">0.240</strong></td><td>Smaller signal beyond coord+QC</td></tr>
+            <tr><td>Smoothness adjustment</td><td>GSE230424 adjusted residual <strong class="bad">-0.121</strong></td><td>Specificity caveat, not hidden</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="figure-explorer">
+        <h2><span class="num">02</span>Separated Figure Browser</h2>
+        <div class="filter-row" id="figureFilters" aria-label="Figure group filters"></div>
+        <div class="search-row">
+          <input id="figureSearch" type="search" placeholder="Search sample, figure, cohort, control, or source path">
+          <div class="count-chip" id="figureCount">Loading figures</div>
+        </div>
+        <div class="explorer" data-figure-explorer>
+          <div class="explorer-list" id="figureList" aria-label="Paper 2 figure list"></div>
+          <div class="explorer-stage">
+            <div class="explorer-toolbar">
+              <div class="explorer-title">
+                <strong id="figureTitle">Figure</strong>
+                <span id="figureCaption">Select a panel to inspect it.</span>
+                <span id="figureSource" class="source-path"></span>
+              </div>
+              <button class="viewer-btn" type="button" data-zoom-out>Zoom out</button>
+              <button class="viewer-btn" type="button" data-zoom-reset>Reset</button>
+              <button class="viewer-btn" type="button" data-zoom-in>Zoom in</button>
+              <button class="viewer-btn" type="button" data-open-lightbox>Full screen</button>
+            </div>
+            <div class="viewer-window" id="figureViewport">
+              <img id="figureImage" src="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png" alt="Paper 2 selected figure">
+            </div>
+          </div>
+        </div>
+        <p class="muted">This is the primary review component. It does not use the 9 CV2 composite summary boards as the figure list; it loads the separated source PNG manifest instead.</p>
+      </section>
+
+      <section id="source-sets">
+        <h2><span class="num">03</span>Separated Source Sets</h2>
+        <table>
+          <thead><tr><th>Set</th><th>What Opens In The Browser</th><th>Why It Is Split</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 slide overlays</td><td>16 individual UNI-DM1 spatial overlay PNGs</td><td>Each slide can be inspected without compressing it into a 16-panel mosaic.</td></tr>
+            <tr><td>Paper 2 main figures</td><td>Main figure PNGs from the image-DM1 pipeline</td><td>Each original figure remains a selectable unit for manuscript triage.</td></tr>
+            <tr><td>Path2Space spatial reanalysis</td><td>Spatial projection, decile, bootstrap, block, downsample, hotspot, and specificity controls</td><td>Controls are separated so reviewer-defense pieces do not get buried in a storyboard.</td></tr>
+            <tr><td>GSE230424 external thyroid</td><td>External H&amp;E/Visium support, residual controls, feature ablation, marker extension, and smoothness caveat figures</td><td>The support and caveat panels stay inspectable side by side.</td></tr>
+            <tr><td>Classifier audit controls</td><td>UNI LOTO, permutation, fold composition, retrain, confounding, and baseline figures</td><td>The audit layer is available without flattening it into a scorecard.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="legacy-composites">
+        <h2><span class="num">04</span>CV2 Summary Boards Kept Separate</h2>
+        <div class="card">
+          <h3>Not The Primary Browser</h3>
+          <p class="muted">These 9 OpenCV boards are retained as summary boards only. They are intentionally not used as the main figure list, because the review workflow now starts from the separated source assets above.</p>
+          <div class="mini-gallery">
+            <a href="assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png"><img src="assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png" alt="">Evidence scorecard</a>
+            <a href="assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png"><img src="assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png" alt="">GSE230424 H&amp;E overlay mosaic</a>
+            <a href="assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png"><img src="assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png" alt="">GSE250521 UNI mosaic</a>
+            <a href="assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png"><img src="assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png" alt="">Figure map</a>
+            <a href="assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png"><img src="assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png" alt="">Hotspot contours</a>
+            <a href="assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png"><img src="assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png" alt="">One-page storyboard</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="boundary">
+        <h2><span class="num">05</span>Claim Boundary</h2>
+        <table class="decision">
+          <thead><tr><th>Question</th><th>Answer</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>Is this visually compelling?</td><td>Yes: direct H&amp;E overlays and slide mosaics now show the signal, not only tables.</td><td>Use for Paper 2</td></tr>
+            <tr><td>Is it statistically reinforced?</td><td>Yes: decile dose-response and 200-spot downsampling support robustness.</td><td>Use</td></tr>
+            <tr><td>Is molecular specificity fully proven?</td><td>No: GSE230424 smoothness-adjusted specificity fails.</td><td>Disclose caveat</td></tr>
+            <tr><td>Does this rescue Paper 1 MAPK x Panel spatial mechanism?</td><td>No: this visual pack is image-to-spatial-RNA support only.</td><td>Do not overclaim</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sources">
+        <h2><span class="num">06</span>Sources And Paths</h2>
+        <table>
+          <thead><tr><th>Artifact</th><th>Path</th></tr></thead>
+          <tbody>
+            <tr><td>CV2 script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/paper2_cv2_visual_summary.py</code></td></tr>
+            <tr><td>Separated figure publisher</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/build_paper2_individual_figure_manifest.py</code></td></tr>
+            <tr><td>Separated web assets</td><td><code>project/papers_hub_2026_0509/assets/paper2_individual_figures/</code></td></tr>
+            <tr><td>Separated manifest</td><td><code>assets/paper2_individual_figures/manifest.js</code></td></tr>
+            <tr><td>CV2 output dir</td><td><code>analysis_supp/paper2_cv2_visual_summary_2026_05_10/</code></td></tr>
+            <tr><td>Existing Path2Space dossier</td><td><code>project/papers_hub_2026_0509/paper2_path2space_spatial_reanalysis.html</code></td></tr>
+            <tr><td>GSE230424 raw H&amp;E</td><td><code>project/data/external/GSE230424/raw/*_HE.jpg.gz</code></td></tr>
+            <tr><td>GSE250521 predictions</td><td><code>analysis_supp/path2space_inspired_reanalysis_2026_05_09/path2space_spot_predictions.tsv.gz</code></td></tr>
+            <tr><td>GSE230424 predictions</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/gse230424_pathology_predictions.tsv.gz</code></td></tr>
+            <tr><td>GSE230424 hotspot contour table</td><td><code>analysis_supp/paper2_cv2_visual_summary_2026_05_10/paper2_cv2_gse230424_hotspot_contours.tsv</code></td></tr>
+            <tr><td>Caption scaffold</td><td><code>analysis_supp/paper2_cv2_visual_summary_2026_05_10/PAPER2_CV2_CAPTION_SCAFFOLD.md</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+  <div class="lightbox" id="figureLightbox" hidden>
+    <div class="lightbox-bar">
+      <div class="lightbox-title" id="lightboxTitle">Figure</div>
+      <button class="viewer-btn" type="button" data-lightbox-zoom-out>Zoom out</button>
+      <button class="viewer-btn" type="button" data-lightbox-reset>Reset</button>
+      <button class="viewer-btn" type="button" data-lightbox-zoom-in>Zoom in</button>
+      <button class="viewer-btn" type="button" data-lightbox-close>Close</button>
+    </div>
+    <div class="lightbox-canvas" id="lightboxCanvas">
+      <img id="lightboxImage" src="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png" alt="Paper 2 enlarged figure">
+    </div>
+  </div>
+  <script src="assets/paper2_individual_figures/manifest.js"></script>
+  <script>
+    const paper2Figures = window.paper2IndividualFigures || [];
+    const figureList = document.getElementById("figureList");
+    const figureFilters = document.getElementById("figureFilters");
+    const figureSearch = document.getElementById("figureSearch");
+    const figureCount = document.getElementById("figureCount");
+    const figureTitle = document.getElementById("figureTitle");
+    const figureCaption = document.getElementById("figureCaption");
+    const figureSource = document.getElementById("figureSource");
+    const figureImage = document.getElementById("figureImage");
+    const figureViewport = document.getElementById("figureViewport");
+    const lightbox = document.getElementById("figureLightbox");
+    const lightboxTitle = document.getElementById("lightboxTitle");
+    const lightboxImage = document.getElementById("lightboxImage");
+    const lightboxCanvas = document.getElementById("lightboxCanvas");
+    let activeFigure = 0;
+    let activeGroup = "All";
+    let filteredFigures = [];
+    let zoom = 1;
+    let lightboxZoom = 1;
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function setZoom(next) {
+      zoom = clamp(next, 0.7, 3.2);
+      figureImage.style.width = `${zoom * 100}%`;
+    }
+
+    function setLightboxZoom(next) {
+      lightboxZoom = clamp(next, 0.7, 4.5);
+      lightboxImage.style.width = `${lightboxZoom * 100}%`;
+    }
+
+    function groupCounts() {
+      const counts = new Map();
+      paper2Figures.forEach((fig) => counts.set(fig.group, (counts.get(fig.group) || 0) + 1));
+      return counts;
+    }
+
+    function renderFilters() {
+      const counts = groupCounts();
+      const groups = ["All", ...counts.keys()];
+      figureFilters.textContent = "";
+      groups.forEach((group) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "filter-btn";
+        const count = group === "All" ? paper2Figures.length : counts.get(group);
+        button.textContent = `${group} (${count})`;
+        button.classList.toggle("active", group === activeGroup);
+        button.addEventListener("click", () => {
+          activeGroup = group;
+          renderFilters();
+          applyFilters();
+        });
+        figureFilters.appendChild(button);
+      });
+    }
+
+    function applyFilters() {
+      const query = figureSearch.value.trim().toLowerCase();
+      filteredFigures = paper2Figures.filter((fig) => {
+        const groupMatch = activeGroup === "All" || fig.group === activeGroup;
+        const haystack = `${fig.title} ${fig.caption} ${fig.group} ${fig.sourcePath}`.toLowerCase();
+        return groupMatch && (!query || haystack.includes(query));
+      });
+      renderFigureList();
+      renderFigure(0);
+    }
+
+    function renderFigureList() {
+      figureList.textContent = "";
+      figureCount.textContent = `${filteredFigures.length} of ${paper2Figures.length} separated figures`;
+      if (!filteredFigures.length) {
+        const empty = document.createElement("div");
+        empty.className = "card muted";
+        empty.textContent = "No figures match this filter.";
+        figureList.appendChild(empty);
+        return;
+      }
+      filteredFigures.forEach((fig, index) => {
+        const button = document.createElement("button");
+        const thumb = document.createElement("img");
+        const meta = document.createElement("span");
+        const title = document.createElement("strong");
+        const group = document.createElement("span");
+        const caption = document.createElement("span");
+        button.type = "button";
+        button.className = "figure-option";
+        thumb.src = fig.src;
+        thumb.alt = "";
+        title.textContent = `${String(index + 1).padStart(2, "0")}. ${fig.title}`;
+        group.className = "group";
+        group.textContent = fig.group;
+        caption.textContent = fig.caption;
+        meta.appendChild(title);
+        meta.appendChild(group);
+        meta.appendChild(caption);
+        button.appendChild(thumb);
+        button.appendChild(meta);
+        button.addEventListener("click", () => renderFigure(index));
+        figureList.appendChild(button);
+      });
+    }
+
+    function renderFigure(index) {
+      if (!filteredFigures.length) {
+        activeFigure = 0;
+        figureTitle.textContent = "No figure selected";
+        figureCaption.textContent = "Change the group filter or search query.";
+        figureSource.textContent = "";
+        figureImage.removeAttribute("src");
+        return;
+      }
+      activeFigure = index;
+      const fig = filteredFigures[index];
+      figureTitle.textContent = fig.title;
+      figureCaption.textContent = fig.caption;
+      figureSource.textContent = fig.sourcePath;
+      figureImage.src = fig.src;
+      figureImage.alt = fig.title;
+      figureViewport.scrollTo({ top: 0, left: 0 });
+      setZoom(1);
+      [...figureList.querySelectorAll("button")].forEach((button, i) => {
+        button.classList.toggle("active", i === index);
+      });
+    }
+
+    function openLightbox() {
+      if (!filteredFigures.length) return;
+      const fig = filteredFigures[activeFigure];
+      lightboxTitle.textContent = fig.title;
+      lightboxImage.src = fig.src;
+      lightboxImage.alt = fig.title;
+      lightbox.hidden = false;
+      document.body.style.overflow = "hidden";
+      lightboxCanvas.scrollTo({ top: 0, left: 0 });
+      setLightboxZoom(1);
+    }
+
+    function closeLightbox() {
+      lightbox.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    document.querySelector("[data-zoom-out]").addEventListener("click", () => setZoom(zoom - 0.2));
+    document.querySelector("[data-zoom-reset]").addEventListener("click", () => {
+      setZoom(1);
+      figureViewport.scrollTo({ top: 0, left: 0 });
+    });
+    document.querySelector("[data-zoom-in]").addEventListener("click", () => setZoom(zoom + 0.2));
+    document.querySelector("[data-open-lightbox]").addEventListener("click", openLightbox);
+    figureImage.addEventListener("click", openLightbox);
+    document.querySelector("[data-lightbox-close]").addEventListener("click", closeLightbox);
+    document.querySelector("[data-lightbox-zoom-out]").addEventListener("click", () => setLightboxZoom(lightboxZoom - 0.25));
+    document.querySelector("[data-lightbox-reset]").addEventListener("click", () => {
+      setLightboxZoom(1);
+      lightboxCanvas.scrollTo({ top: 0, left: 0 });
+    });
+    document.querySelector("[data-lightbox-zoom-in]").addEventListener("click", () => setLightboxZoom(lightboxZoom + 0.25));
+    figureSearch.addEventListener("input", applyFilters);
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !lightbox.hidden) closeLightbox();
+      if (event.key === "ArrowDown") renderFigure(clamp(activeFigure + 1, 0, filteredFigures.length - 1));
+      if (event.key === "ArrowUp") renderFigure(clamp(activeFigure - 1, 0, filteredFigures.length - 1));
+    });
+
+    renderFilters();
+    applyFilters();
+  </script>
+
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png" alt="Paper 2 selected figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Page visual evidence</div><h4>phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png</h4><p>Paper 2 selected figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the asset path, caption, and surrounding section heading as the binding context for the figure.</dd><dt>Boundary</dt><dd>If no upstream TSV/JSON match is listed, treat the embedded page asset as the immediate provenance row.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Effect-size / forest evidence</div><h4>fig01_paper2_cv2_evidence_scorecard.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig01_paper2_cv2_evidence_scorecard.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Clinical endpoint evidence</div><h4>fig02_gse230424_cv2_he_overlay_mosaic.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig02_gse230424_cv2_he_overlay_mosaic.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Clinical endpoint evidence</div><h4>fig03_gse250521_cv2_uni_slide_mosaic.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig03_gse250521_cv2_uni_slide_mosaic.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · Page visual evidence</div><h4>fig04_paper2_cv2_result_gallery.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the asset path, caption, and surrounding section heading as the binding context for the figure.</dd><dt>Boundary</dt><dd>If no upstream TSV/JSON match is listed, treat the embedded page asset as the immediate provenance row.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig04_paper2_cv2_result_gallery.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · Spatial / anatomy evidence</div><h4>fig05_gse230424_cv2_hotspot_contours.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig05_gse230424_cv2_hotspot_contours.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png" alt="No caption/alt detected in the source HTML." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Effect-size / forest evidence</div><h4>fig08_paper2_cv2_onepage_storyboard.png</h4><p>No caption/alt detected in the source HTML.</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig08_paper2_cv2_onepage_storyboard.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png" alt="Paper 2 enlarged figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Page visual evidence</div><h4>phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png</h4><p>Paper 2 enlarged figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the asset path, caption, and surrounding section heading as the binding context for the figure.</dd><dt>Boundary</dt><dd>If no upstream TSV/JSON match is listed, treat the embedded page asset as the immediate provenance row.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td>1</td><td><a href="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png">assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png</a></td><td>Paper 2 selected figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>2</td><td><a href="assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png">assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png</a></td><td>No source caption/alt detected.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig01_paper2_cv2_evidence_scorecard.png</td></tr><tr><td>3</td><td><a href="assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png">assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png</a></td><td>No source caption/alt detected.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig02_gse230424_cv2_he_overlay_mosaic.png</td></tr><tr><td>4</td><td><a href="assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png">assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png</a></td><td>No source caption/alt detected.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig03_gse250521_cv2_uni_slide_mosaic.png</td></tr><tr><td>5</td><td><a href="assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png">assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png</a></td><td>No source caption/alt detected.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig04_paper2_cv2_result_gallery.png</td></tr><tr><td>6</td><td><a href="assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png">assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png</a></td><td>No source caption/alt detected.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig05_gse230424_cv2_hotspot_contours.png</td></tr><tr><td>7</td><td><a href="assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png">assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png</a></td><td>No source caption/alt detected.</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/analysis_supp/paper2_cv2_visual_summary_2026_05_10/fig08_paper2_cv2_onepage_storyboard.png</td></tr><tr><td>8</td><td><a href="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png">assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png</a></td><td>Paper 2 enlarged figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>3</td><td>Inline HTML table 3</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>4</td><td>Inline HTML table 4</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>Paper 2 Figures, Split Back Into Inspectable Panels</td></tr>
+<tr><td>2</td><td>H2</td><td>01 Verdict</td></tr>
+<tr><td>3</td><td>H3</td><td>What This Adds</td></tr>
+<tr><td>4</td><td>H3</td><td>Use Pattern</td></tr>
+<tr><td>5</td><td>H2</td><td>02 Separated Figure Browser</td></tr>
+<tr><td>6</td><td>H2</td><td>03 Separated Source Sets</td></tr>
+<tr><td>7</td><td>H2</td><td>04 CV2 Summary Boards Kept Separate</td></tr>
+<tr><td>8</td><td>H3</td><td>Not The Primary Browser</td></tr>
+<tr><td>9</td><td>H2</td><td>05 Claim Boundary</td></tr>
+<tr><td>10</td><td>H2</td><td>06 Sources And Paths</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>1</td><td>assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png</td></tr>
+<tr><td>2</td><td>assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png</td></tr>
+<tr><td>3</td><td>assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png</td></tr>
+<tr><td>4</td><td>assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png</td></tr>
+<tr><td>5</td><td>assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png</td></tr>
+<tr><td>6</td><td>assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="hla_beta_plan.html"><b>hla_beta_plan</b><span>0 figs · 9 tables</span></a><a class="renewal0509-card" href="ht_vs_gd_audit.html"><b>ht_vs_gd_audit</b><span>0 figs · 5 tables</span></a><a class="renewal0509-card" href="paper2_gse248205_aitd_pathology_axis.html"><b>paper2_gse248205_aitd_pathology_axis</b><span>2 figs · 5 tables</span></a><a class="renewal0509-card" href="paper2_high_impact_journal_strategy.html"><b>paper2_high_impact_journal_strategy</b><span>5 figs · 4 tables</span></a><a class="renewal0509-card" href="paper2_hla.html"><b>paper2_hla</b><span>16 figs · 10 tables</span></a><a class="renewal0509-card" href="paper2_image_dm1.html"><b>paper2_image_dm1</b><span>30 figs · 20 tables</span></a><a class="renewal0509-card" href="paper2_image_dm1_audit_dossier.html"><b>paper2_image_dm1_audit_dossier</b><span>8 figs · 18 tables</span></a><a class="renewal0509-card" href="paper2_image_dm1_clinical_business.html"><b>paper2_image_dm1_clinical_business</b><span>12 figs · 19 tables</span></a><a class="renewal0509-card" href="paper2_image_dm1_conclusion_root.html"><b>paper2_image_dm1_conclusion_root</b><span>1 figs · 1 tables</span></a><a class="renewal0509-card" href="paper2_master_view.html"><b>paper2_master_view</b><span>1 figs · 10 tables</span></a><a class="renewal0509-card" href="paper2_moonshot_editorial_pack.html"><b>paper2_moonshot_editorial_pack</b><span>8 figs · 8 tables</span></a><a class="renewal0509-card" href="paper2_path2space_spatial_reanalysis.html"><b>paper2_path2space_spatial_reanalysis</b><span>21 figs · 18 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body>
+</html>

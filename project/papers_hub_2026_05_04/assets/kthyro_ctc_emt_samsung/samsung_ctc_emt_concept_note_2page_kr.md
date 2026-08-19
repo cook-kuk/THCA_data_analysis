@@ -2,7 +2,7 @@
 
 ## Title
 
-**Serial Genetic Mapping of CTC-EMT State Transitions After Thyroidectomy in Papillary Thyroid Cancer**
+**Serial Genetic Mapping of CTC-EMT State Transitions After Thyroidectomy in Papillary Thyroid Cancer**  
 **갑상선절제술 전후 유두갑상선암 CTC-EMT 상태전이와 유전지도의 연속 해독**
 
 ## Problem

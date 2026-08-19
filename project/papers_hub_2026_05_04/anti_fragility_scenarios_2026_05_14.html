@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Anti-fragility scenarios · 2026-05-14 · 20 risks × 어떻게 살아남는가</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:64px;line-height:.98;margin:0 0 16px;letter-spacing:-1.4px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:#fff;margin:14px 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.verdict.red{border-color:var(--red);background:linear-gradient(135deg,rgba(255,138,107,.07),rgba(255,138,107,.02))}
+.verdict h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold)}
+.verdict.red h3{color:var(--red)}
+.verdict p{margin:0;color:#eaf2f7}
+.scenario{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;margin:14px 0}
+.scenario.critical{border-top:5px solid var(--red)}
+.scenario.medium{border-top:5px solid var(--gold)}
+.scenario.low{border-top:5px solid var(--green)}
+.scenario.antifragile{border-top:5px solid var(--violet)}
+.scenario h3{margin:0 0 6px;font-size:24px;color:#fff}
+.scenario .tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.scenario.critical .tag{border-color:rgba(255,138,107,.4);color:var(--red)}
+.scenario.medium .tag{border-color:rgba(255,210,138,.4);color:var(--gold)}
+.scenario.low .tag{border-color:rgba(147,226,170,.4);color:var(--green)}
+.scenario.antifragile .tag{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.patterns{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.pat{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:200px;border-top:4px solid var(--violet)}
+.pat b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);margin-bottom:6px}
+.pat .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--violet);font-weight:700;line-height:1;margin-bottom:6px}
+.pat h4{margin:0 0 6px;font-size:16px;color:#fff}
+.pat p{margin:0;color:#cbd7df;font-size:13px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  main{padding:22px 18px 60px}.patterns{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">anti-fragility scenarios · 2026-05-14 · 20 risks × 어떻게 살아남는가 · for yu meeting</p>
+    <h1>위험이 터져도 살아남는 5트랙. 각 risk마다 plan B.</h1>
+    <p class="lead">
+      20개 risk를 scope했다. 1개 critical (R1 K2 access), 6개 medium, 9개 low, 4개 anti-fragile by design. 이 페이지는 <b>위험이 실제로 터졌을 때 어떻게 살아남는가</b>를 risk마다 명시한다. <b>R1 K2 H&E access 실패</b>는 single point of failure이지만 Plan B (P1 ST1 흡수 + LUAD/BRCA methods route)가 이미 잠겨 있다. 5개 anti-fragile design pattern으로 portfolio가 fragile하지 않게 만들어졌다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>20</b><span>risks scoped</span><small>R1-R20 full register</small></div>
+      <div class="stat"><b>1</b><span>critical</span><small>R1 K2 H&E access</small></div>
+      <div class="stat"><b>6</b><span>medium</span><small>R2-R7 outreach + claim battles</small></div>
+      <div class="stat"><b>9</b><span>low</span><small>R10-R20 minor revision risks</small></div>
+      <div class="stat"><b>5</b><span>anti-fragile patterns</span><small>single-axis / triangulation / honest-neg / claim ladder / PI redundancy</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">정직 verdict</a>
+  <a class="primary" href="#r1">R1 K2 access</a>
+  <a class="primary" href="#r2">R2 Bundang</a>
+  <a class="primary" href="#r3">R3 Samsung small-N</a>
+  <a class="primary" href="#r4">R4 polarity flip</a>
+  <a class="primary" href="#r5">R5 sprint creep</a>
+  <a class="primary" href="#r7">R7 n=18 attack</a>
+  <a class="primary" href="#r8">R8 HLA-II null</a>
+  <a class="primary" href="#r9">R9 MAPK I²</a>
+  <a class="primary" href="#r20">R20 cover timing</a>
+  <a class="primary" href="#patterns">5 anti-fragile patterns</a>
+  <a href="#siblings">Sibling links</a>
+  <a href="yu_meeting_brief_2026_05_14.html">미팅 브리핑</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>정직 verdict — anti-fragile design</h2>
+  <p class="sub">설계는 anti-fragile · R1만 진짜 single point of failure</p>
+  <div class="verdict">
+    <h3>Anti-fragile design — risk가 터져도 portfolio가 무너지지 않는다.</h3>
+    <p>portfolio는 5트랙 사이가 <b>독립적이고 cross-cut</b>이다. Paper 1이 흔들리면 Paper 2가 받쳐주고, HLA #1이 무너져도 Paper 1 supplementary로 흡수된다. Samsung은 Yu-Cook dual PI 구조라 single-PI exposure가 줄어든다. HLA #2는 backlog로 보호되어 마라톤 기간 손해가 없다. <b class="vio">5개 anti-fragile pattern</b>이 작동: single-axis story / cross-track triangulation / honest-negative wall / claim ladder / Yu-Cook PI redundancy.</p>
+  </div>
+  <div class="verdict red">
+    <h3>그러나 R1 = single point of failure.</h3>
+    <p><b class="bad">R1 K2 H&E access 실패</b>만은 진짜 critical. Bundang SNUH outreach 무산되면 Paper 2의 정체성이 흔들린다. 그래서 <b>Plan B (Paper 1 ST1 흡수 + LUAD/BRCA methods route)</b>가 사전에 잠겨 있고, 그 plan이 본 페이지의 첫 scenario.</p>
+  </div>
+</section>
+
+<section id="r1">
+  <h2>R1 — K2 H&E access 실패 시 어떻게 살아남는가</h2>
+  <p class="sub">single point of failure · Bundang outreach stage · 다중 Plan B</p>
+  <div class="scenario critical">
+    <span class="tag">CRITICAL · R1 · risk = high</span>
+    <h3>What if R1 K2 H&E access FAILS?</h3>
+    <div class="kv">
+      <div class="k">현재 status</div><div class="v">Bundang SNUH outreach-stage · 데이터 미수령 · K2 ≠ Bundang</div>
+      <div class="k">실패 시 영향</div><div class="v">Paper 2 external 검증 부재 → 등급 B+ → B 또는 P1 supplementary로 흡수</div>
+      <div class="k">venue 영향</div><div class="v">NPJ → Sci Rep / methods journal로 fallback</div>
+      <div class="k">timeline 영향</div><div class="v">6주 마라톤 안에서 직접 차이 없음 (Plan B가 즉시 작동)</div>
+    </div>
+    <h3 style="margin-top:14px;color:var(--green)">Plan B — 살아남는 방법</h3>
+    <ul class="bullets">
+      <li><b class="good">Plan B-1 — Paper 1 ST1 흡수:</b> Paper 2 정체성을 잃지만 N=59 mean AUC 0.83 결과는 Paper 1의 supplementary로 흡수. Paper 1 단독으로 NComm급 유지.</li>
+      <li><b class="cool">Plan B-2 — LUAD/BRCA methods route:</b> 동일 audit framework를 LUAD/BRCA에 적용 → "method paper" 형태로 NPJ Digital Medicine / Med Image Anal 권역. UNI license는 동일하게 disclosed.</li>
+      <li><b class="hi">Plan B-3 — honest closure:</b> Paper 2를 단독 submission 하지 않고 "thyroid H&E pilot — N=59 internal LOTO 0.85"로만 reference. 외부 검증 부재를 명시적 limitation으로 노출. Submission하지 않는 옵션도 정직 verdict로 인정.</li>
+      <li><b class="vio">Plan B-4 — TCGA-THCA H&E open data 대체:</b> TCIA TCGA-THCA slide subset (n≈100, 일부 contaminated) audit + diversity 보충 → 외부성 일부 회복. 단 reviewer가 "TCGA cohort confound"로 공격할 수 있어 honest disclose 필요.</li>
+    </ul>
+    <p class="note"><b class="vio">Anti-fragile insight:</b> R1이 터져도 5트랙 portfolio는 무너지지 않는다. Paper 2가 fragile하지만 Paper 1이 받쳐주고, Yu lab 자존심은 NComm급 1편으로 충족.</p>
+  </div>
+</section>
+
+<section id="r2">
+  <h2>R2 — Bundang outreach 정체 시</h2>
+  <p class="sub">outreach-stage · 어떤 plan으로 dual-track 유지하는가</p>
+  <div class="scenario medium">
+    <span class="tag">MEDIUM · R2 · risk = medium</span>
+    <h3>What if R2 Bundang outreach STALLS?</h3>
+    <div class="kv">
+      <div class="k">현재 status</div><div class="v">Bundang SNUH outreach-stage · 응답 timeline 미정</div>
+      <div class="k">stalls 영향</div><div class="v">HLA #2 (Paper 4 backlog)에 직접 영향, Pan-Asian-only로 축소</div>
+      <div class="k">venue 영향</div><div class="v">Sci Rep base; Cell Rep Med reach venue 손상 risk 가능</div>
+    </div>
+    <h3 style="margin-top:14px;color:var(--green)">Plan — 살아남는 방법</h3>
+    <ul class="bullets">
+      <li><b class="good">Plan R2-1 — Pan-Asian-only HLA #2:</b> AFND South Korea pool + Pan-Asian public datasets로만 HLA #2 작성. Bundang 없어도 publication 가능. Reduced venue로 Sci Rep / NPJ.</li>
+      <li><b class="cool">Plan R2-2 — 4/4 gating 연장:</b> HLA #2는 backlog로 이미 gating되어 있으므로 unblock 보류 → 손해 없음. 마라톤 기간 자동 보호.</li>
+      <li><b class="hi">Plan R2-3 — Korean K2 PRJEB11591 단독 anchor:</b> n=260 RNA-seq + arcasHLA imputation은 이미 완료 — Bundang 없어도 Korean cohort 정체성은 살아 있음.</li>
+      <li><b class="vio">Plan R2-4 — 대안 Korean cohort:</b> 다른 한국 thyroid cohort (예: SNU 별도, AMC, Severance) outreach 병렬화. 단일 PI 의존이 아닌 다중 PI exposure로 risk 분산.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="r3">
+  <h2>R3 — Samsung 약점 #1 (small-N) 공격 성공 시</h2>
+  <p class="sub">small-N 공격은 grant 심사에서 가장 흔한 패턴 · WP2 retrofit으로 대비</p>
+  <div class="scenario medium">
+    <span class="tag">MEDIUM · R3 · risk = medium</span>
+    <h3>What if R3 Samsung weakness #1 (small-N) attacks succeed?</h3>
+    <div class="kv">
+      <div class="k">약점</div><div class="v">K-Thyro CTC/EMT 62명은 grant size 30억 대비 작아 보임</div>
+      <div class="k">공격 시 영향</div><div class="v">선정 가능성 60-70% → 40-50%로 하락</div>
+      <div class="k">대비책</div><div class="v">WP2 retrofit + E-value + tipping point + power analysis 추가</div>
+    </div>
+    <h3 style="margin-top:14px;color:var(--green)">Plan — 살아남는 방법</h3>
+    <ul class="bullets">
+      <li><b class="good">Plan R3-1 — WP2 retrofit:</b> work package 2에 explicit causal claim ladder + E-value + tipping point + power analysis 추가. small-N도 정직하게 power 계산하면 well-designed로 인정.</li>
+      <li><b class="cool">Plan R3-2 — MAeSTro-only validation으로 downsize:</b> 처음부터 large cohort를 약속하지 않고 MAeSTro 자체 cohort + Yu lab 62명 + Mun 2025 proteogenomics만으로 사례 빌드. 약속을 작게 잡고 deliverable을 확실히.</li>
+      <li><b class="hi">Plan R3-3 — Korean overdiagnosis paradigm 활용:</b> K2 88.8% DM2 finding (Round 5)을 grant hook로 — "Korean cohort는 N이 작아도 DM2 enrichment로 statistical power가 높다"는 정직한 framing.</li>
+      <li><b class="vio">Plan R3-4 — Pan-Asian collaboration:</b> Singapore/Taiwan/Japan thyroid groups outreach로 cohort size 확대 약속. 단 6주 마라톤에서는 voice section 작성이 우선.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="r4">
+  <h2>R4 — Methylation polarity sign-flip 실수 surface 시</h2>
+  <p class="sub">H13 polarity correction은 이미 완료 · figure 포팅에서만 사소한 risk</p>
+  <div class="scenario low">
+    <span class="tag">LOW · R4 · risk = low</span>
+    <h3>What if R4 methylation polarity flip surfaces in fig?</h3>
+    <div class="kv">
+      <div class="k">현재 status</div><div class="v">H13 corrected — Round4 d=-1.75는 label-flip artifact, r9_1 master 기준 DM1=HIGH-β/silenced cPTC d=+1.50</div>
+      <div class="k">surface 시 영향</div><div class="v">paper 1 figure 1건 minor revision; paper damage 없음</div>
+      <div class="k">대비책</div><div class="v">sign-flip checklist 존재; figure 포팅 시 자동 검증</div>
+    </div>
+    <h3 style="margin-top:14px;color:var(--green)">Plan — 살아남는 방법</h3>
+    <ul class="bullets">
+      <li><b class="good">Plan R4-1 — sign-flip checklist:</b> Round4 deep dive 페이지에 polarity-flip checklist가 잠겨 있고 figure 포팅마다 자동 verification.</li>
+      <li><b class="cool">Plan R4-2 — minor revision only:</b> 만약 figure 포팅 후 sign 오류 발견 시 minor revision으로 처리. paper damage 없음.</li>
+      <li><b class="hi">Plan R4-3 — Landa GSE76039 reference:</b> PDTC vs ATC d=+3.47이 동일 polarity로 잠겨 있어 cross-check 자동.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="r5">
+  <h2>R5 — Sprint creep / voice section 침범 시</h2>
+  <p class="sub">"고고!" 패턴은 voice section 권한 부여 NOT · 룰 자동 작동</p>
+  <div class="scenario low">
+    <span class="tag">LOW · R5 · risk = low</span>
+    <h3>What if R5 sprint creep happens?</h3>
+    <div class="kv">
+      <div class="k">위협</div><div class="v">"faster!!! 모든 리소스 다 써야해" 형태의 sprint 압력</div>
+      <div class="k">위험</div><div class="v">voice-protected 6 sections에 Claude가 prose 생성</div>
+      <div class="k">대비책</div><div class="v">voice-protected 룰 (v17_sprint_vs_marathon_violation)이 default block</div>
+    </div>
+    <h3 style="margin-top:14px;color:var(--green)">Plan — 살아남는 방법</h3>
+    <ul class="bullets">
+      <li><b class="good">Plan R5-1 — voice-protected default:</b> Hook / Aim / Disc 3.1 / Limitations / Cover Para 1 / Q9는 author-keyboard only. Claude는 scaffolding/infra만 작성.</li>
+      <li><b class="cool">Plan R5-2 — 명시적 override 필요:</b> "고고/faster/다 해줘"는 권한 부여 NOT. 명시적 "voice section X를 sprint 모드로 작성하라" 발화가 있어야만 override.</li>
+      <li><b class="hi">Plan R5-3 — Marathon mode dashboard:</b> marathon_mode_dashboard_2026_05_14.html이 위반 status를 추적.</li>
+      <li><b class="vio">Plan R5-4 — scaffolding 친화도:</b> 본 페이지(이것)와 같은 brutal grade card / scenarios / pitches는 scaffolding 영역이라 sprint OK.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="r6">
+  <h2>R6 — UNI license 제한 surface 시</h2>
+  <p class="sub">Paper 2 encoder license risk · ViT-L honest-negative로 대비</p>
+  <div class="scenario low">
+    <span class="tag">LOW · R6 · risk = low</span>
+    <h3>What if R6 UNI license terms change or attack surfaces?</h3>
+    <div class="kv">
+      <div class="k">현재</div><div class="v">UNI gated → ViT-L+CLAM PASS_LAUNCH_PAPER2 closure 이미 완료</div>
+      <div class="k">surface 시 영향</div><div class="v">paper 본문 evidence는 잠겼으므로 license risk는 limited</div>
+    </div>
+    <ul class="bullets">
+      <li><b class="good">Plan R6-1 — encoder-dependent disclosed:</b> ViT-L LOTO 0.308 honest negative가 paper에 명시되어 있어 UNI 의존이 한 인코더 결과임을 disclosed.</li>
+      <li><b class="cool">Plan R6-2 — ViT-L+CLAM 단독 path:</b> license trouble 시 ViT-L+CLAM 결과만으로도 PASS_LAUNCH_PAPER2 유지 가능.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="r7">
+  <h2>R7 — n=18 단일 코호트 공격 시</h2>
+  <p class="sub">HLA #1의 가장 흔한 공격 · D4-P2 transfer로 대비</p>
+  <div class="scenario medium">
+    <span class="tag">MEDIUM · R7 · risk = medium</span>
+    <h3>What if R7 single-cohort n=18 attacked?</h3>
+    <div class="kv">
+      <div class="k">위협</div><div class="v">"n=18 single cohort → underpowered"가 가장 흔한 reviewer 공격</div>
+      <div class="k">대비책</div><div class="v">D4-P2 TCGA transfer + DM1 sub-B NBNR cluster + 4-pillar triangulation</div>
+    </div>
+    <ul class="bullets">
+      <li><b class="good">Plan R7-1 — D4-P2 TCGA transfer:</b> GSE286332 PTC+HT signature → TCGA에서 DM2 enrichment OR up to 5× p=6e-10. n=18 fragility가 외부 cohort transfer로 보강.</li>
+      <li><b class="cool">Plan R7-2 — DM1 sub-B NBNR cluster:</b> n=56, 96% mutation-negative — TCGA 안에서도 별도 NBNR equivalent cluster가 존재 (D6-P7). single-cohort 약점이 portfolio level에서 사라짐.</li>
+      <li><b class="hi">Plan R7-3 — 4-pillar triangulation:</b> Mun 2025 proteogenomics + HM450 methylation + spatial GSE250521 + RNA — n=18 단독이 아닌 multi-modality.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="r8">
+  <h2>R8 — HLA-II null surface 시</h2>
+  <p class="sub">HLA-II OR=1.02 p=0.84 · 명시적 disclose 룰</p>
+  <div class="scenario antifragile">
+    <span class="tag">ANTI-FRAGILE · R8 · risk = handled-by-honesty</span>
+    <h3>What if R8 HLA-II null disclosed and weaponized?</h3>
+    <div class="kv">
+      <div class="k">사실</div><div class="v">Paper 3 Phase C v2 — HLA-II OR=1.02 p=0.84 (n=421, 4 ICI cohorts pooled)</div>
+      <div class="k">위협</div><div class="v">reviewer가 "HLA-II = load-bearing 아님"으로 공격</div>
+      <div class="k">대비책</div><div class="v">HLA-I load-bearing framing + HLA-II null 명시적 claim ladder 포함</div>
+    </div>
+    <ul class="bullets">
+      <li><b class="good">Plan R8-1 — HLA-I load-bearing framing:</b> HLA-I OR=1.35 p=0.014가 강한 신호. HLA-II는 보조 신호로 framing.</li>
+      <li><b class="cool">Plan R8-2 — claim ladder 명시:</b> Q9 reviewer prep에 "HLA-II null은 portfolio의 honest 결과이며 weakness가 아닌 정직"으로 prep.</li>
+      <li><b class="hi">Plan R8-3 — defense 회피:</b> defensiveness를 피하고 "정직한 결과 + portfolio level에서 HLA-I이 load-bearing"으로 답.</li>
+      <li><b class="vio">Plan R8-4 — Paper 11 다른 HLA-II 결과:</b> 19/33 lineages FDR&lt;0.1로 thyroid HLA-II null이 lineage-specific weakness임을 disclosed.</li>
+    </ul>
+    <p class="note"><b class="vio">Anti-fragile pattern:</b> honest disclose는 attack을 absorb한다. 약점을 처음부터 명시한 paper는 reviewer가 공격할 수 없다.</p>
+  </div>
+</section>
+
+<section id="r9">
+  <h2>R9 — MAPK × Panel I²=72.9% 공격 시</h2>
+  <p class="sub">cross-cohort heterogeneity · v12-predicted</p>
+  <div class="scenario antifragile">
+    <span class="tag">ANTI-FRAGILE · R9 · risk = handled-by-prediction</span>
+    <h3>What if R9 MAPK × Panel I²=72.9% attacked?</h3>
+    <div class="kv">
+      <div class="k">사실</div><div class="v">deconv v14 pooled MAPK × Panel-8 ρ=−0.327 n=1,287, 5 cohorts, I²=72.9%</div>
+      <div class="k">v12 prediction</div><div class="v">HT-route GSE286332 decouples + advanced GSE76039 saturates — heterogeneity가 예측된 결과</div>
+      <div class="k">대비책</div><div class="v">per-cohort breakdown + v12-predicted framing</div>
+    </div>
+    <ul class="bullets">
+      <li><b class="good">Plan R9-1 — per-cohort breakdown:</b> Fig 8 dossier §10에 5 cohorts × MAPK × Panel breakdown 시각화. I² 72.9%가 random heterogeneity가 아닌 cohort-route-specific pattern임을 보여줌.</li>
+      <li><b class="cool">Plan R9-2 — v12-predicted framing:</b> HT-route는 immune-driven (MAPK 의존도 약함), advanced는 MAPK saturation. 두 route가 함께 있으면 heterogeneity가 예측된 결과 — 못 본 결과가 아니다.</li>
+      <li><b class="hi">Plan R9-3 — Reviewer Q14 lock:</b> deconv v14 cross-cohort forest는 Reviewer Q14 답안으로 잠겨 있음.</li>
+    </ul>
+    <p class="note"><b class="vio">Anti-fragile pattern:</b> heterogeneity를 처음부터 모델에 넣은 paper는 reviewer 공격에 강하다. v12 prediction → v14 confirmation은 model-driven analysis로 평가됨.</p>
+  </div>
+</section>
+
+<section id="r10">
+  <h2>R10-R19 — 9개 minor risks 한 줄 summary</h2>
+  <p class="sub">low-risk family · 각 항목 plan B 1줄로 잠김</p>
+  <table>
+    <thead><tr><th>#</th><th>Risk</th><th>Severity</th><th>Plan B (1줄)</th><th>잠긴 페이지</th></tr></thead>
+    <tbody>
+      <tr><td>R10</td><td>spatial GSE250521 rescue 실패 surface</td><td class="good">LOW</td><td>v16-v18 closure로 reviewer caveat/reserve로 격리</td><td>deconv_v18_spatial_lag_pockets</td></tr>
+      <tr><td>R11</td><td>Mun 2025 metabolomics token block</td><td class="good">LOW</td><td>RNA + protein + phospho + HM450 4-pillar로 충족</td><td>proteogenomic_v1_2026_05_08</td></tr>
+      <tr><td>R12</td><td>TCGA H&E cohort confound</td><td class="good">LOW</td><td>TCIA TCGA-THCA 일부 subset만 reference로 사용</td><td>v19_paper2_image_dm1_pass</td></tr>
+      <tr><td>R13</td><td>RunPod GPU instance 종료 / 데이터 소실</td><td class="good">LOW</td><td>A6000 v4 stable + /data 512G SSD bind mount</td><td>v19_runpod_a6000_2026_05_07</td></tr>
+      <tr><td>R14</td><td>git tracking 깨짐 (bind mount issue)</td><td class="good">LOW</td><td>findmnt verification + /etc/fstab nofail 설정</td><td>CLAUDE.md disk layout</td></tr>
+      <tr><td>R15</td><td>papers_hub 배포 404</td><td class="good">LOW</td><td>cp to /var/www/papers/ 의무, deploy verification 룰</td><td>papers_hub_deploy_target</td></tr>
+      <tr><td>R16</td><td>weasyprint Unifont 에러</td><td class="good">LOW</td><td>CSS font-family에서 Unifont 제거</td><td>weasyprint_unifont_gotcha</td></tr>
+      <tr><td>R17</td><td>K2 STAR /tmp overflow re-run</td><td class="good">LOW</td><td>--tmpdir /workspace/_tmp --compress 적용</td><td>v17_pod_D_k2_star_tmp_failure</td></tr>
+      <tr><td>R18</td><td>arcasHLA cookHLA 대체 요구</td><td class="good">LOW</td><td>SNP 데이터 없음 명시 — RNA-seq only로 충족</td><td>v17_arcasHLA_korean_k2</td></tr>
+      <tr><td>R19</td><td>data registry boundary audit 실패</td><td class="good">LOW</td><td>scripts/boundary_audit/ exit 0 의무 (Paper 1 commit 전)</td><td>data_registry_boundary_audit</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="r20">
+  <h2>R20 — Cover letter timing decision flip 시</h2>
+  <p class="sub">submission 시점 venue 선택 risk · bioRxiv preprint 보험</p>
+  <div class="scenario medium">
+    <span class="tag">MEDIUM · R20 · risk = medium</span>
+    <h3>What if R20 cover letter timing decision flips bad?</h3>
+    <div class="kv">
+      <div class="k">위협</div><div class="v">Nature Cancer vs Nat Commun vs CRM 선택 시 잘못된 venue로 reject 받음</div>
+      <div class="k">대비책</div><div class="v">bioRxiv preprint이 보험 — flip이 일어나도 record는 잠김</div>
+    </div>
+    <ul class="bullets">
+      <li><b class="good">Plan R20-1 — dual-track bioRxiv preprint:</b> Paper 1 bioRxiv 먼저 → venue submission. flip이 발생해도 priority date는 보존.</li>
+      <li><b class="cool">Plan R20-2 — venue strategy 페이지 사용:</b> venue_strategy_2026_05_14.html에 reach venue / floor venue 의 sequence 잠김.</li>
+      <li><b class="hi">Plan R20-3 — Cover Para 1 voice-protected:</b> cover letter para 1은 author-keyboard only — Claude가 잘못된 framing으로 flip 유도하지 못하게 룰.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="patterns">
+  <h2>5 anti-fragile design patterns</h2>
+  <p class="sub">portfolio의 anti-fragility 보장 · 룰로 잠김</p>
+  <div class="patterns">
+    <div class="pat">
+      <b>Pattern #1</b>
+      <div class="n">1</div>
+      <h4>Single-axis story</h4>
+      <p>DM1 dark matter라는 단일 axis가 5트랙 모두를 관통. Paper 1 / Paper 2 / HLA #1 / Samsung 모두 같은 axis. 한 트랙이 흔들려도 axis 자체가 흔들리지 않음.</p>
+    </div>
+    <div class="pat">
+      <b>Pattern #2</b>
+      <div class="n">2</div>
+      <h4>Cross-track triangulation</h4>
+      <p>Paper 1 RNA + Mun 2025 protein + HM450 methylation + Paper 2 H&E imaging + spatial GSE250521 — 5개 modality가 같은 axis를 다른 방향에서 확인. 하나 fail해도 4개가 받침.</p>
+    </div>
+    <div class="pat">
+      <b>Pattern #3</b>
+      <div class="n">3</div>
+      <h4>Honest-negative wall</h4>
+      <p>ViT-L LOTO 0.308, HLA-II null OR=1.02, permutation null p=0.29, phospho honest-neg 모두 명시적 wall로 노출. honest-negative를 처음부터 보여주는 paper는 reviewer 공격을 absorb.</p>
+    </div>
+    <div class="pat">
+      <b>Pattern #4</b>
+      <div class="n">4</div>
+      <h4>Claim ladder</h4>
+      <p>"DM1 → FVPTC OR=17.9", "TERT⁺ → HR=7.57", "MYC/NAMPT druggable"로 claim이 ladder. 각 rung별로 외부 검증이 붙어 있어 reviewer가 한 rung만 공격해도 다른 rung이 살아남.</p>
+    </div>
+    <div class="pat">
+      <b>Pattern #5</b>
+      <div class="n">5</div>
+      <h4>Yu-Cook PI redundancy</h4>
+      <p>Samsung grant는 Yu single PI가 아닌 Yu-Cook dual PI. R3 small-N 공격 / single-PI exposure 둘 다 redundancy로 막힘. Paper 1/2의 Yu lab validation pillar도 동일 redundancy.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>Pattern</th><th>위협 absorb 방식</th><th>증거</th><th>잠긴 페이지</th></tr></thead>
+    <tbody>
+      <tr><td>1. Single-axis story</td><td>한 axis로 5트랙 통합, axis 자체가 안 흔들림</td><td>DM1 dark matter axis</td><td>paper1_paper11_nature_master</td></tr>
+      <tr><td>2. Cross-track triangulation</td><td>5 modality 중 1개 fail해도 4개 살아남</td><td>4-pillar locked</td><td>dm1_round3-r8 deep dives</td></tr>
+      <tr><td>3. Honest-negative wall</td><td>reviewer 공격 absorb — 약점을 먼저 노출</td><td>ViT-L 0.308, HLA-II OR=1.02</td><td>honest_negatives_wall_2026_05_14</td></tr>
+      <tr><td>4. Claim ladder</td><td>rung별로 외부 검증 — 한 rung 공격해도 다른 rung 살아남</td><td>FVPTC OR=17.9 + TERT HR=7.57 + DepMap MYC</td><td>paper1_nature_cancer_board</td></tr>
+      <tr><td>5. Yu-Cook PI redundancy</td><td>single-PI exposure 제거</td><td>Samsung dual PI + Yu lab pillar</td><td>grant_samsung_causal_kthyro_2026_05_14</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="siblings">
+  <h2>Sibling links</h2>
+  <p class="sub">2026-05-14 family · 50+ pages</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800">
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Yu meeting brief</a>
+    <a href="brutal_grade_card_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Brutal grade card</a>
+    <a href="elevator_pitches_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Elevator pitches</a>
+    <a href="risk_atlas_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Risk atlas</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Honest negatives wall</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Decision board</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Evidence atlas</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">90-day Gantt</a>
+    <a href="reviewer_qa_bank_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Reviewer Q&A bank</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Figure gallery</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Methodology atlas</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--blue);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--blue)">Venue strategy</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html" style="border:1px solid var(--blue);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--blue)">KR 1-pager</a>
+    <a href="investor_pitch_en_2026_05_14.html" style="border:1px solid var(--blue);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--blue)">EN investor pitch</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--violet);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--violet)">Triangulation</a>
+    <a href="bd_outreach_state_2026_05_14.html" style="border:1px solid var(--violet);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--violet)">BD outreach state</a>
+    <a href="marathon_mode_dashboard_2026_05_14.html" style="border:1px solid var(--violet);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--violet)">Marathon dashboard</a>
+    <a href="data_registry_map_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Data registry map</a>
+    <a href="grant_samsung_causal_kthyro_2026_05_14.html" style="border:1px solid var(--blue);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--blue)">Samsung grant page</a>
+    <a href="number_cosmos_2026_05_14.html" style="border:1px solid var(--violet);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--violet)">Number cosmos</a>
+    <a href="cohort_gse286332_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">GSE286332 deep dive</a>
+    <a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">GSE250521 spatial deep dive</a>
+    <a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">DepMap deep dive</a>
+    <a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Pancancer Phase E</a>
+    <a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Mun 2025 proteomics</a>
+    <a href="index.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Hub home</a>
+  </div>
+  <p class="footer">anti_fragility_scenarios_2026_05_14.html · built 2026-05-14 · dark theme · sticky tocbar · 20 risks scoped · 5 anti-fragile patterns</p>
+</section>
+
+</main>
+</body>
+</html>

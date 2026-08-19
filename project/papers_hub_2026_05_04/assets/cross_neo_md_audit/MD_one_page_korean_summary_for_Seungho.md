@@ -4,7 +4,7 @@
 
 `GADGVGKSAL / HLA-C*08:02`는 10 ns explicit-solvent CUDA run이 완료됐고, MD evidence는 `MD_MODERATE`입니다. peptide RMSD final은 0.139 nm이고, peptide-MHC anchor와 TCR-peptide contact가 유지되는 쪽으로 보입니다. 이건 wetlab 우선순위 근거로 좋습니다.
 
-`HMTEVVRHC / HLA-A*02:01`는 아직 running입니다. 최신 동기화 기준 6600.0 ps, 온도 300.40 K라서 run 자체는 정상입니다. 하지만 DCD 전체 분석 전에는 contact/RMSD claim을 하지 않는 게 맞습니다.
+`HMTEVVRHC / HLA-A*02:01`는 아직 running입니다. 최신 동기화 기준 10000.0 ps, 온도 299.89 K라서 run 자체는 정상입니다. 하지만 DCD 전체 분석 전에는 contact/RMSD claim을 하지 않는 게 맞습니다.
 
 다음 액션은 3개입니다. 1) HMTEVVRHC 10 ns 끝나면 DCD sync 후 전체 분석 재실행. 2) GADGVGKSAL과 HMTEVVRHC에 WT/decoy/same-HLA positive control을 붙여 3x10 ns batch 실행. 3) 그 다음에만 50-100 ns 장기 MD로 승격합니다.
 
