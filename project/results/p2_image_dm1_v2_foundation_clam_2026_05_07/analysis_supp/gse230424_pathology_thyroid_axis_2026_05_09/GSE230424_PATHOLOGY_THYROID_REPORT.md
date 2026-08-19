@@ -3,7 +3,8 @@
 ## Verdict
 
 - Dataset: 4 Visium thyroid slides from GSE230424 with shipped H&E JPEGs, matrices, barcodes, features, and tissue positions.
-- GEO sample records expose P1-P4 but do not map P1-P4 to HT versus PTC+HT; primary tests are label-free LOSO and sample-centered.
+- GEO sample records expose P1-P4 only; Supplementary Table S5 recovers sample labels: P1/P2 = PTC+HT, P3/P4 = HT.
+- Primary tests remain label-free LOSO and sample-centered because disease groups are only n=2 slides per group.
 - Spots modeled: 15,489; samples: 4.
 - Top H&E-predictable axis: **DM1_low_RAI_score** with pooled rho **0.626**, sample-centered rho **0.644**, domain-centered rho **0.910**.
 - QC-only is stronger for this axis (sample-centered rho **0.732**; coord+QC **0.723**), so the conservative claim is morphology/QC-aligned tissue state plus a residual H&E component.
@@ -12,7 +13,7 @@
 
 ## Interpretation Boundary
 
-This is useful as a label-free external spatial thyroid control for Paper 2's image-to-spatial-RNA direction. The strongest raw prediction tracks QC/tissue-density structure, but a smaller H&E-aligned residual remains after coordinate+QC adjustment. Because slide-level disease labels are absent from the GEO sample fields, it should not be used as a disease-group validation unless labels are recovered from the article or authors. It is not Paper 1 causal mechanism evidence.
+This is useful as an external spatial thyroid control for Paper 2's image-to-spatial-RNA direction. The strongest raw prediction tracks QC/tissue-density structure, but a smaller H&E-aligned residual remains after coordinate+QC adjustment. Disease labels were recovered from Supplementary Table S5, but with only two PTC+HT and two HT slides this should not be framed as a robust disease-group validation. It is not Paper 1 causal mechanism evidence.
 
 ## Model Comparison
 
@@ -116,9 +117,9 @@ This is useful as a label-free external spatial thyroid control for Paper 2's im
 
 ## Sample Context
 
-| sample   |   RAI8_lineage_score |   MAPK_output_score |   HLA_II_AP_score |   B_TLS_score |   T_cell_score |   CD36_SPP1_macrophage_score |   Tumor_ZCCHC12_score |   DM1_low_RAI_score |   AP_TLS_composite_score |   total_counts |   n_genes_by_counts |   pct_counts_mt |
-|:---------|---------------------:|--------------------:|------------------:|--------------:|---------------:|-----------------------------:|----------------------:|--------------------:|-------------------------:|---------------:|--------------------:|----------------:|
-| P1       |               0.1418 |              0.0685 |            0.038  |        0.181  |         0.0874 |                       0.0635 |               -0.0112 |             -0.1418 |                   0.1022 |        6006.85 |             2036.02 |          5.3295 |
-| P2       |              -0.0286 |             -0.0247 |            0.0002 |        0.1493 |         0.0175 |                       0.1805 |                0.1086 |              0.0286 |                   0.0557 |        4539.17 |             1662.24 |          2.5275 |
-| P3       |              -0.3473 |             -0.1586 |           -0.179  |       -0.0423 |         0.0037 |                      -0.1694 |               -0.2497 |              0.3473 |                  -0.0725 |        3210.83 |             1166.36 |          4.1937 |
-| P4       |               0.2128 |              0.1022 |            0.1271 |       -0.2074 |        -0.0842 |                      -0.0243 |                0.154  |             -0.2128 |                  -0.0548 |        4306.64 |             1769.11 |          2.7499 |
+| sample   | disease_group   |   RAI8_lineage_score |   MAPK_output_score |   HLA_II_AP_score |   B_TLS_score |   T_cell_score |   CD36_SPP1_macrophage_score |   Tumor_ZCCHC12_score |   DM1_low_RAI_score |   AP_TLS_composite_score |   total_counts |   n_genes_by_counts |   pct_counts_mt |
+|:---------|:----------------|---------------------:|--------------------:|------------------:|--------------:|---------------:|-----------------------------:|----------------------:|--------------------:|-------------------------:|---------------:|--------------------:|----------------:|
+| P1       | PTC+HT          |               0.1418 |              0.0685 |            0.038  |        0.181  |         0.0874 |                       0.0635 |               -0.0112 |             -0.1418 |                   0.1022 |        6006.85 |             2036.02 |          5.3295 |
+| P2       | PTC+HT          |              -0.0286 |             -0.0247 |            0.0002 |        0.1493 |         0.0175 |                       0.1805 |                0.1086 |              0.0286 |                   0.0557 |        4539.17 |             1662.24 |          2.5275 |
+| P3       | HT              |              -0.3473 |             -0.1586 |           -0.179  |       -0.0423 |         0.0037 |                      -0.1694 |               -0.2497 |              0.3473 |                  -0.0725 |        3210.83 |             1166.36 |          4.1937 |
+| P4       | HT              |               0.2128 |              0.1022 |            0.1271 |       -0.2074 |        -0.0842 |                      -0.0243 |                0.154  |             -0.2128 |                  -0.0548 |        4306.64 |             1769.11 |          2.7499 |

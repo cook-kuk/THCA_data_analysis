@@ -1,0 +1,17 @@
+# Paper 2 CV2 caption scaffold
+
+Scaffold only. Convert to final author voice later.
+
+| figure_id   | working_title              | caption_scaffold                                                                             | source                                                   |
+|:------------|:---------------------------|:---------------------------------------------------------------------------------------------|:---------------------------------------------------------|
+| Fig CV2-01  | Evidence scorecard         | Single-board summary of classifier, spatial projection, external support, and caveat layers. | PAPER2_CV2_VISUAL_SUMMARY.json                           |
+| Fig CV2-02  | GSE230424 H&E overlay      | Observed and H&E-predicted DM1/low-RAI spot overlays on raw GSE230424 H&E crops.             | gse230424_pathology_predictions.tsv.gz; *_HE.jpg.gz      |
+| Fig CV2-03  | GSE250521 UNI mosaic       | Observed versus predicted DM1/RAI spatial maps across 16 GSE250521 slides.                   | path2space_spot_predictions.tsv.gz                       |
+| Fig CV2-04  | Result gallery             | Index of the Paper 2 evidence and control panels.                                            | hub assets and analysis_supp outputs                     |
+| Fig CV2-05  | GSE230424 hotspot contours | Top-decile observed and predicted hotspot contours on true H&E.                              | paper2_cv2_gse230424_hotspot_contours.tsv                |
+| Fig CV2-06  | Claim ladder               | Reviewer-facing claim ladder with caveats co-located.                                        | summary JSON files                                       |
+| Fig CV2-07  | Sample matrix              | Slide/sample-level rho heatmap for GSE250521 and GSE230424.                                  | path2space_loso_slide_summary.tsv; gse230424 predictions |
+| Fig CV2-08  | One-page storyboard        | Presentation-ready one-page Paper 2 visual board.                                            | CV2 generated from local outputs                         |
+| Fig CV2-09  | Reviewer objection grid    | Attack-response grid for figure planning and reviewer defense.                               | CV2 generated from local outputs                         |
+
+Safe claim boundary: Paper 2 image-to-spatial-RNA support; QC/smoothness caveats remain explicit; not Paper 1 MAPK mechanism rescue.

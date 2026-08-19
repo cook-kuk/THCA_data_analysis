@@ -58,6 +58,8 @@ TARGETS = [
     "CD36_SPP1_macrophage_score",
     "Tumor_ZCCHC12_score",
 ]
+DISEASE_BY_SAMPLE = {"P1": "PTC+HT", "P2": "PTC+HT", "P3": "HT", "P4": "HT"}
+DISEASE_LABEL_SOURCE = "Supplementary Table S5 from Zhang et al. Cancer Immunol Res 2024 / Figshare DOI 10.1158/2326-6066.27601837"
 
 SMOOTH_K = 8
 PATCH_RADII = [48, 96]
@@ -175,6 +177,7 @@ def load_spot_table() -> pd.DataFrame:
         pos = read_positions(prefix)
         meta = expr.merge(pos, on="barcode", how="left")
         meta.insert(0, "sample", sample)
+        meta.insert(1, "disease_group", DISEASE_BY_SAMPLE.get(sample, "unknown"))
         meta.insert(1, "geo_accession", prefix.split("_")[0])
         rows.append(meta)
     df = pd.concat(rows, ignore_index=True)
@@ -319,7 +322,7 @@ def run_models(df: pd.DataFrame, feats: pd.DataFrame) -> tuple[pd.DataFrame, pd.
             merged["pct_counts_mt"].to_numpy(dtype=float),
         ]), False),
     }
-    pred_df = merged[["sample", "geo_accession", "barcode", "array_row", "array_col", "total_counts", "n_genes_by_counts", "pct_counts_mt"]].copy()
+    pred_df = merged[["sample", "disease_group", "geo_accession", "barcode", "array_row", "array_col", "total_counts", "n_genes_by_counts", "pct_counts_mt"]].copy()
     rows = []
     for target in TARGETS:
         y = merged[f"{target}_smooth{SMOOTH_K}"].to_numpy(dtype=float)
@@ -400,7 +403,7 @@ def domain_aggregation(pred_df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFram
         labs = KMeans(n_clusters=n_domains, n_init=50, random_state=RANDOM_SEED).fit_predict(StandardScaler().fit_transform(coords))
         for lab in np.unique(labs):
             mask = labs == lab
-            row = {"sample": sample, "domain": int(lab + 1), "n_spots": int(mask.sum())}
+            row = {"sample": sample, "disease_group": str(sub["disease_group"].iloc[0]), "domain": int(lab + 1), "n_spots": int(mask.sum())}
             for target in TARGETS:
                 row[f"obs_{target}"] = float(np.nanmean(sub[f"obs_{target}_smooth{SMOOTH_K}"].to_numpy(dtype=float)[mask]))
                 row[f"pred_{target}"] = float(np.nanmean(sub[f"pred_{target}_HE_tile_features"].to_numpy(dtype=float)[mask]))
@@ -550,6 +553,9 @@ def write_report(model_df: pd.DataFrame, residual_df: pd.DataFrame, domain_df: p
         "dm1_low_rai_sample_centered_rho": float(dm1["sample_centered_rho"]),
         "ap_tls_sample_centered_rho": float(ap["sample_centered_rho"]),
         "disease_labels_available_in_geo": False,
+        "disease_labels_recovered_from_supplement": True,
+        "disease_label_source": DISEASE_LABEL_SOURCE,
+        "sample_disease_map": DISEASE_BY_SAMPLE,
         "verdict": "LABEL_FREE_SPATIAL_HE_SIGNAL" if float(top["sample_centered_rho"]) > 0.2 else "WEAK_OR_NEGATIVE_LABEL_FREE_SIGNAL",
     }
     lines = [
@@ -558,7 +564,8 @@ def write_report(model_df: pd.DataFrame, residual_df: pd.DataFrame, domain_df: p
         "## Verdict",
         "",
         "- Dataset: 4 Visium thyroid slides from GSE230424 with shipped H&E JPEGs, matrices, barcodes, features, and tissue positions.",
-        "- GEO sample records expose P1-P4 but do not map P1-P4 to HT versus PTC+HT; primary tests are label-free LOSO and sample-centered.",
+        "- GEO sample records expose P1-P4 only; Supplementary Table S5 recovers sample labels: P1/P2 = PTC+HT, P3/P4 = HT.",
+        "- Primary tests remain label-free LOSO and sample-centered because disease groups are only n=2 slides per group.",
         f"- Spots modeled: {summary['n_spots']:,}; samples: {summary['n_samples']}.",
         f"- Top H&E-predictable axis: **{top_target}** with pooled rho **{summary['top_he_pooled_rho']:.3f}**, sample-centered rho **{summary['top_he_sample_centered_rho']:.3f}**, domain-centered rho **{summary['top_domain_sample_centered_rho']:.3f}**.",
         f"- QC-only is stronger for this axis (sample-centered rho **{summary['top_qc_only_sample_centered_rho']:.3f}**; coord+QC **{summary['top_coord_qc_sample_centered_rho']:.3f}**), so the conservative claim is morphology/QC-aligned tissue state plus a residual H&E component.",
@@ -567,7 +574,7 @@ def write_report(model_df: pd.DataFrame, residual_df: pd.DataFrame, domain_df: p
         "",
         "## Interpretation Boundary",
         "",
-        "This is useful as a label-free external spatial thyroid control for Paper 2's image-to-spatial-RNA direction. The strongest raw prediction tracks QC/tissue-density structure, but a smaller H&E-aligned residual remains after coordinate+QC adjustment. Because slide-level disease labels are absent from the GEO sample fields, it should not be used as a disease-group validation unless labels are recovered from the article or authors. It is not Paper 1 causal mechanism evidence.",
+        "This is useful as an external spatial thyroid control for Paper 2's image-to-spatial-RNA direction. The strongest raw prediction tracks QC/tissue-density structure, but a smaller H&E-aligned residual remains after coordinate+QC adjustment. Disease labels were recovered from Supplementary Table S5, but with only two PTC+HT and two HT slides this should not be framed as a robust disease-group validation. It is not Paper 1 causal mechanism evidence.",
         "",
         "## Model Comparison",
         "",
@@ -599,6 +606,9 @@ def main() -> None:
     spot_path = OUT / "gse230424_spot_module_scores.tsv.gz"
     if spot_path.exists():
         df = pd.read_csv(spot_path, sep="\t")
+        if "disease_group" not in df.columns:
+            df.insert(1, "disease_group", df["sample"].map(DISEASE_BY_SAMPLE))
+            df.to_csv(spot_path, sep="\t", index=False, compression="gzip", na_rep="NA")
     else:
         df = load_spot_table()
     df = spatial_smooth(df, TARGETS)
@@ -611,7 +621,13 @@ def main() -> None:
 
     sample_cols = ["sample"] + [c for c in MODULES] + ["DM1_low_RAI_score", "AP_TLS_composite_score", "total_counts", "n_genes_by_counts", "pct_counts_mt"]
     sample_df = df[sample_cols].groupby("sample", as_index=False).mean(numeric_only=True)
+    group_cols = [c for c in sample_cols if c != "sample"]
+    group_df = df[sample_cols].copy()
+    group_df.insert(1, "disease_group", df["disease_group"].to_numpy())
+    group_summary = group_df.groupby("disease_group", as_index=False).mean(numeric_only=True)
+    sample_df.insert(1, "disease_group", sample_df["sample"].map(DISEASE_BY_SAMPLE))
     sample_df.to_csv(OUT / "gse230424_sample_axis_summary.tsv", sep="\t", index=False, na_rep="NA")
+    group_summary.to_csv(OUT / "gse230424_disease_group_axis_summary.tsv", sep="\t", index=False, na_rep="NA")
 
     model_df, pred_df = run_models(df, feats)
     residual_df = residual_alignment(pred_df)

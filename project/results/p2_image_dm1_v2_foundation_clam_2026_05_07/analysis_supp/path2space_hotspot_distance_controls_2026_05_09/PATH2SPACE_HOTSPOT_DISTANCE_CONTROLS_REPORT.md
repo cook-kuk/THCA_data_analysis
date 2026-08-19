@@ -1,0 +1,48 @@
+# Path2Space-inspired nearest-hotspot distance controls
+
+## Verdict
+
+- GSE250521 predicted top-decile hotspots median distance to observed hotspots: **1.803 grid spacings** vs block-null mean **2.566**; p = **0.0010**.
+- GSE230424 predicted top-decile hotspots median distance: **1.000** vs block-null mean **1.001**; p = **0.9980**.
+- GSE230424 coord+QC residual predicted top-decile hotspots median distance: **2.236** vs block-null mean **1.421**; p = **1.0000**.
+
+## Interpretation
+
+Overlap asks whether the same spots are recovered. The nearest-hotspot distance test asks whether predicted hotspots are spatially proximal to observed hotspots, allowing small localization error. Block-stratified nulls preserve broad regional hotspot density before testing whether predicted hotspots are unusually close to observed hotspots. GSE250521 passes this proximity test. In dense GSE230424 arrays, the exact hotspot-overlap and block-centered correlation layers remain positive, but nearest-distance is dominated by spatial block density and should be treated as a caveat rather than support.
+
+## Summary
+
+| evidence                                    |     n |   n_groups |   n_spatial_blocks |   n_pred_hotspots |   n_obs_hotspots |   median_nearest_norm_dist |   frac_pred_hotspots_within_2_grid |   sample_null_median_dist_mean |   sample_null_median_dist_p05 |   sample_null_frac2_mean |   sample_stratified_perm_p_lower_dist |   sample_stratified_perm_p_higher_frac2 |   block_null_median_dist_mean |   block_null_median_dist_p05 |   block_null_frac2_mean |   block_stratified_perm_p_lower_dist |   block_stratified_perm_p_higher_frac2 |
+|:--------------------------------------------|------:|-----------:|-------------------:|------------------:|-----------------:|---------------------------:|-----------------------------------:|-------------------------------:|------------------------------:|-------------------------:|--------------------------------------:|----------------------------------------:|------------------------------:|-----------------------------:|------------------------:|-------------------------------------:|---------------------------------------:|
+| GSE250521 UNI DM1/RAI smoothed              |  3200 |         16 |                 64 |               320 |              320 |                     1.8028 |                             0.5469 |                         3.1626 |                        2.7358 |                   0.304  |                                 0.001 |                                   0.001 |                        2.5656 |                       2.2361 |                  0.4121 |                                0.001 |                                  0.001 |
+| GSE230424 H&E DM1/low-RAI smoothed          | 15489 |          4 |                 43 |              1551 |             1551 |                     1      |                             0.6809 |                         1.4142 |                        1.4142 |                   0.7252 |                                 0.001 |                                   0.984 |                        1.0008 |                       1      |                  0.7647 |                                0.998 |                                  1     |
+| GSE230424 H&E DM1/low-RAI coord+QC residual | 15489 |          4 |                 43 |              1551 |             1551 |                     2.2361 |                             0.4797 |                         1.4142 |                        1.4142 |                   0.7283 |                                 1     |                                   1     |                        1.4207 |                       1.4142 |                  0.6245 |                                1     |                                  1     |
+
+## Per-Slide/Sample Detail
+
+| evidence                                    | group             |    n |   n_pred_hot |   n_obs_hot |   grid_spacing |   median_nearest_norm_dist |   mean_nearest_norm_dist |   frac_within_1_grid |   frac_within_2_grid |
+|:--------------------------------------------|:------------------|-----:|-------------:|------------:|---------------:|---------------------------:|-------------------------:|---------------------:|---------------------:|
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980860_N-1    |  200 |           20 |          20 |         3.1623 |                     1.2107 |                  10.349  |               0.5    |               0.55   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980861_N-2    |  200 |           20 |          20 |         3.1623 |                     1.6291 |                   2.5149 |               0.4    |               0.6    |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980862_N-3    |  200 |           20 |          20 |         3.1623 |                     2.3443 |                   3.0626 |               0.2    |               0.45   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980863_N-4    |  200 |           20 |          20 |         2.9954 |                     1.4142 |                   1.5446 |               0.45   |               0.65   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980864_PTC-1  |  200 |           20 |          20 |         2      |                     5.9093 |                   7.2898 |               0.25   |               0.25   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980865_PTC-2  |  200 |           20 |          20 |         3.1623 |                     0      |                   0.9928 |               0.6    |               0.85   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980866_PTC-3  |  200 |           20 |          20 |         3.1623 |                     0      |                   1.4268 |               0.6    |               0.85   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980867_PTC-4  |  200 |           20 |          20 |         3.1623 |                     0.9487 |                   2.6075 |               0.5    |               0.55   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980868_LPTC-1 |  200 |           20 |          20 |         2      |                     0      |                   2.0105 |               0.7    |               0.8    |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980869_LPTC-2 |  200 |           20 |          20 |         3.1623 |                     5.831  |                   5.3004 |               0.1    |               0.15   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980870_LPTC-3 |  200 |           20 |          20 |         3.1623 |                     2.5003 |                   3.3356 |               0.1    |               0.4    |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980871_LPTC-4 |  200 |           20 |          20 |         3.1623 |                     1.1708 |                   2.7632 |               0.5    |               0.55   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980872_ATC-1  |  200 |           20 |          20 |         3.1623 |                     2.3829 |                   2.6616 |               0.35   |               0.45   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980873_ATC-2  |  200 |           20 |          20 |         2.8284 |                     2.5248 |                   2.7053 |               0.1    |               0.35   |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980874_ATC-3  |  200 |           20 |          20 |         2      |                     2.872  |                   3.9997 |               0.25   |               0.3    |
+| GSE250521 UNI DM1/RAI smoothed              | GSM7980875_ATC-4  |  200 |           20 |          20 |         2.8284 |                     0      |                   0.16   |               0.9    |               1      |
+| GSE230424 H&E DM1/low-RAI smoothed          | P1                | 3647 |          365 |         365 |         1.4142 |                     1      |                   3.0992 |               0.5123 |               0.6603 |
+| GSE230424 H&E DM1/low-RAI smoothed          | P2                | 3154 |          316 |         316 |         1.4142 |                     1      |                   5.0995 |               0.5095 |               0.6234 |
+| GSE230424 H&E DM1/low-RAI smoothed          | P3                | 4062 |          407 |         407 |         1.4142 |                     1      |                   1.61   |               0.5995 |               0.7494 |
+| GSE230424 H&E DM1/low-RAI smoothed          | P4                | 4626 |          463 |         463 |         1.4142 |                     1      |                   2.2436 |               0.5572 |               0.676  |
+| GSE230424 H&E DM1/low-RAI coord+QC residual | P1                | 3647 |          365 |         365 |         1.4142 |                     4.1231 |                   6.974  |               0.2849 |               0.3507 |
+| GSE230424 H&E DM1/low-RAI coord+QC residual | P2                | 3154 |          316 |         316 |         1.4142 |                     2.9142 |                   4.2067 |               0.2437 |               0.4019 |
+| GSE230424 H&E DM1/low-RAI coord+QC residual | P3                | 4062 |          407 |         407 |         1.4142 |                     2.8284 |                   2.9338 |               0.1597 |               0.3563 |
+| GSE230424 H&E DM1/low-RAI coord+QC residual | P4                | 4626 |          463 |         463 |         1.4142 |                     1      |                   1.6303 |               0.5702 |               0.743  |
