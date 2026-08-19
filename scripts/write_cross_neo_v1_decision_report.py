@@ -34,6 +34,7 @@ def main() -> None:
     tesla = source[source["split_name"].str.contains("TESLA", na=False)].sort_values("AUPRC", ascending=False)
     pu = comp[(comp["family"] == "v1_pu_ranking") & (comp["split_name"].str.contains("TESLA", na=False))].sort_values("top10_precision", ascending=False)
     decoy = comp[comp["family"] == "v1_decoy_focal"].sort_values(["AUPRC", "top10_precision"], ascending=False)
+    hard_decoy = comp[comp["family"] == "v1_hard_decoy_focal"].sort_values(["AUPRC", "top10_precision"], ascending=False)
     overlap_manifest = pd.read_csv(V1 / "public_overlap_download_manifest_needed.tsv", sep="\t") if (V1 / "public_overlap_download_manifest_needed.tsv").exists() else pd.DataFrame()
     qk_rescue = pd.read_csv(V1 / "qk_rescue_cases.tsv", sep="\t") if (V1 / "qk_rescue_cases.tsv").exists() else pd.DataFrame()
     qk_harm = pd.read_csv(V1 / "qk_harm_cases.tsv", sep="\t") if (V1 / "qk_harm_cases.tsv").exists() else pd.DataFrame()
@@ -115,6 +116,12 @@ def main() -> None:
         "## Decoy / Focal Positive-Pattern Branch",
         "",
         decoy.head(12).to_markdown(index=False) if len(decoy) else "Decoy/focal branch not run.",
+        "",
+        "## Hard-Decoy / Bounded Auxiliary Branch",
+        "",
+        hard_decoy.head(12).to_markdown(index=False) if len(hard_decoy) else "Hard-decoy branch not run.",
+        "",
+        "Hard-decoy/focal is designed as a bounded auxiliary contrastive signal on top of C+QK, not as a standalone motif classifier. This is the practical repair for the weak decoy result.",
         "",
         "Source-heldout remains a stress-test weakness if top-k stays near zero on NEPdb/TESLA. This blocks any external-valid claim even when internal/HLA-stratified metrics improve.",
         "",

@@ -1,0 +1,57 @@
+model_name: CROSS-Neo-v0
+
+paths:
+  input_root: project/results/p_neo_bayesian_2026_05_09
+  output_dir: project/results/cross_neo_v0
+  figure_dir: figures/cross_neo_v0
+
+forbidden_feature_sources:
+  - MHCflurry
+  - NetMHCpan
+  - NetMHCstabpan
+  - BigMHC
+  - PRIME
+  - MixMHCpred
+  - any public pretrained predictor score used as direct model feature
+
+allowed_inputs:
+  - mutant peptide
+  - WT peptide
+  - HLA allele
+  - HLA pseudo/full sequence
+  - source protein ID
+  - source protein window
+  - train-only retrieval evidence
+  - predicted pMHC geometry features
+  - structure-token embeddings if generated from allowed structures
+  - quantum fixed features
+
+primary_metrics:
+  - AUPRC
+  - top5_precision
+  - top10_precision
+  - enrichment_over_prevalence
+
+secondary_metrics:
+  - AUROC
+  - calibration_error
+  - Brier
+  - abstention_coverage
+
+required_splits:
+  - repeated_stratified_5x5_internal
+  - hla_stratified_group_5fold
+  - hla_supertype_heldout
+  - exact_peptide_hla_holdout
+  - near_peptide_cluster_holdout
+  - source_protein_window_holdout
+  - study_heldout
+  - time_heldout_if_date_available
+
+locked_hyperparameters:
+  quantum_kernel_gamma: 1.0
+  random_seed: 20260509
+  max_tree_depth: 3
+  no_public_predictor_features: true
+  no_test_fold_feature_selection: true
+  no_test_fold_threshold_tuning: true

@@ -30,6 +30,7 @@ def collect_predictions() -> pd.DataFrame:
         (V1 / "pu_ranking_predictions.tsv", "v1_pu_ranking"),
         (V1 / "source_balanced_predictions.tsv", "v1_source_bias_corrected"),
         (V1 / "decoy_focal_predictions.tsv", "v1_decoy_focal"),
+        (V1 / "hard_decoy_focal_predictions.tsv", "v1_hard_decoy_focal"),
     ]:
         if path.exists():
             p = pd.read_csv(path, sep="\t")

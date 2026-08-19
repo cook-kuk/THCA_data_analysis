@@ -1,0 +1,140 @@
+# Priority datasets for the RAI Response Genomics Atlas
+# Tiers reference docs/rai_response_label_taxonomy.md
+
+datasets:
+
+  GSE151179:
+    accession: GSE151179
+    superseries_of: null
+    parent_superseries: GSE151181
+    cancer_type: papillary_thyroid_carcinoma
+    omics: bulk_mRNA
+    platform_hint: Affymetrix or Illumina (verify on download)
+    sample_count_hint: ~50_PTC_primary_metastasis_pairs
+    label_tier: Tier_2_RAI_avidity
+    expected_labels:
+      - RAI_avid_vs_refractory
+      - metastatic_uptake_yes_no
+      - sample_type (primary_tumor / lymph_node_metastasis / distant_metastasis)
+      - remission_persistence (some samples)
+    access: public
+    priority: 1
+    next_action: download_and_validate_panel
+
+  GSE151180:
+    accession: GSE151180
+    parent_superseries: GSE151181
+    omics: miRNA
+    label_tier: Tier_2_RAI_avidity
+    access: public
+    priority: 3
+    next_action: defer_until_mRNA_results
+
+  GSE151181:
+    accession: GSE151181
+    role: superseries
+    contains: [GSE151179, GSE151180]
+
+  Boucai_2023_CCR:
+    accession: request
+    paper: "Boucai et al. Clin Cancer Res 2023, exceptional RAI responders"
+    cancer_type: metastatic_differentiated_thyroid_cancer
+    omics: bulk_RNA_seq + WES
+    label_tier: Tier_1_direct_clinical_RAI_response
+    expected_labels:
+      - exceptional_responder_vs_non_responder (RECIST v1.1)
+    access: supplement_plus_request
+    priority: 1
+    next_action: docs/data_request_boucai.md
+
+  Mu_2024_JCEM:
+    accession: HRA004166
+    repository: NGDC (China National GeneBank)
+    paper: "Mu et al. JCEM 2024, distant metastatic DTC RAI uptake patterns"
+    cancer_type: distant_metastatic_differentiated_thyroid_cancer
+    sample_count: 220
+    omics: targeted_NGS (ThyroLead-like)
+    label_tier: Tier_2_RAI_avidity (with gray-zone subgroups)
+    expected_labels:
+      - initially_RAI_refractory
+      - continually_RAI_avid
+      - gradually_RAI_refractory
+      - partly_RAI_refractory
+    driver_panel:
+      - BRAF
+      - RAS (NRAS/KRAS/HRAS)
+      - TERT_promoter
+      - TP53
+      - PIK3CA
+      - TSHR
+      - RET_fusion
+      - NTRK_fusion
+      - ALK_fusion
+      - PPARG_fusion
+    access: controlled (HRA usually requires DAC application)
+    priority: 1
+    next_action: docs/data_request_mu_hra004166.md
+
+  GSE299988:
+    accession: GSE299988
+    cancer_type: papillary_thyroid_carcinoma
+    omics: bulk_expression
+    sample_count_hint: small (~10-30, verify)
+    label_tier: Tier_2_RAI_avidity
+    expected_labels:
+      - RAI_avid_vs_non_avid
+      - adjacent_normal_present
+    access: public
+    priority: 2
+    next_action: download_supportive_validation
+
+  TCGA-THCA:
+    accession: TCGA-THCA
+    repository: GDC
+    cancer_type: papillary_thyroid_carcinoma_majority
+    sample_count: ~504
+    omics: RNA_seq + WES + HM450 + CNV + clinical
+    label_tier: Tier_4_molecular_proxy_only
+    expected_labels:
+      - no_direct_RAI_response_field
+      - weak_proxies: recurrence, DFI, PFI, progression, residual_disease
+    access: public
+    priority: 1
+    next_action: discovery_context_panel_score + driver_stratification (no overclaim)
+
+  GSE112202:
+    accession: GSE112202
+    paper_hint: digoxin redifferentiation + RAI
+    cancer_type: thyroid_cancer_cell_lines_or_tumors
+    label_tier: Tier_5_redifferentiation
+    expected_labels:
+      - treatment_vs_control
+      - restored_iodide_handling
+    access: public
+    priority: 2
+    next_action: download_and_check_panel_directionality
+
+  GSE184362:
+    accession: GSE184362
+    paper_hint: Pu 2021 PTC scRNA + lymph node + RAI-refractory distant met
+    cancer_type: papillary_thyroid_carcinoma
+    omics: single_cell_RNA_seq
+    label_tier: Tier_2_RAI_avidity (per-sample) + cell_state_mechanism
+    expected_labels:
+      - primary_tumor / paratumor / LN_met / RAI_refractory_distant_met
+    access: public
+    priority: 3
+    next_action: plan_scRNA_workflow_before_download (heavy)
+
+  Redifferentiation_trials:
+    examples:
+      - Ho_2013_Selumetinib_NEJM
+      - Rothenberg_2015_Dabrafenib_RAI
+      - Leboulleux_2023_MERAIODE_dabrafenib_trametinib
+      - Vemurafenib_BRAF_RAI_refractory
+    label_tier: Tier_5_redifferentiation
+    expected_labels:
+      - restored_RAI_uptake_post_MAPK_inhibition
+    access: paper_supplement_only_usually
+    priority: 2
+    next_action: scan_supplements + 04_redifferentiation_dataset_scan.ipynb

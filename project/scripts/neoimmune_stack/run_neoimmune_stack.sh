@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="/home/seungho/personal/THCA_data_analysis"
+PY="$ROOT/.venv/bin/python"
+OUT="${1:-$ROOT/project/results/neoimmune_stack_2026_05_10}"
+
+cd "$ROOT"
+"$PY" project/scripts/neoimmune_stack/00_repo_audit.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/01_build_model_registry.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/02_build_canonical_candidate_table.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/03_run_external_adapters.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/04_collect_local_model_outputs.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/05_leakage_audit.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/06_train_clean_ranker.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/07_train_production_stack.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/08_evaluate_patient_topn.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/09_failure_case_audit.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/17_apply_ga_rl_algorithm.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/18_train_nmi_clean_method.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/19_build_imneo_public_reconstruction.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/20_source_transfer_gap_audit.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/21_build_source_rescue_queue.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/22_build_collaborator_handoff.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/14_build_blockbuster_layer.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/16_moderna_like_top34.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/10_generate_strategy_report.py --outdir "$OUT"
+"$PY" project/scripts/neoimmune_stack/11_build_web_dashboard.py --outdir "$OUT"
+
+echo "$OUT"

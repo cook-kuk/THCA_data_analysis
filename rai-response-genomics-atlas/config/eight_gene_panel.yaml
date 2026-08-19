@@ -1,0 +1,97 @@
+# Eight-gene thyroid differentiation / iodide-handling panel
+# Canonical Paper 1 set — confirmed against
+#   project/results/p3_gse286332/8gene_panel_per_sample.tsv
+#   project/submission/npj/tables/AMP4_8gene_model_coefficients.tsv
+#
+# This is NOT a placeholder. DIO1 is included (not DUOX2 as in early specs).
+# Manuscript framing: "differentiation-silencing axis" / "iodide-handling program".
+
+panel_name: thyroid_differentiation_iodide_panel_v1
+n_genes: 8
+status: confirmed_paper1
+provenance:
+  - "Paper 1 (Cook & Yu 2026, THCA DM1 dark-matter analysis)"
+  - "Validated cross-cohort in TCGA-THCA, Lee 2024 GSE213647, GSE286332 Korean PTC vs PTC+HT, Mun 2025 proteome, Lu 2023 sc"
+
+genes:
+  - symbol: SLC5A5
+    alias: NIS
+    role: iodide_uptake
+    notes: "Sodium-iodide symporter; classical RAI gateway gene"
+  - symbol: TPO
+    alias: TPO
+    role: organification
+    notes: "Thyroid peroxidase; iodide-to-thyroglobulin organification"
+  - symbol: TG
+    alias: TG
+    role: storage
+    notes: "Thyroglobulin; iodine storage scaffold"
+  - symbol: TSHR
+    alias: TSHR
+    role: stimulation_receptor
+    notes: "TSH receptor; upstream signal that maintains differentiation"
+  - symbol: PAX8
+    alias: PAX8
+    role: lineage_TF
+    notes: "Master thyroid lineage transcription factor"
+  - symbol: NKX2-1
+    alias: TTF1
+    role: lineage_TF
+    notes: "Thyroid + lung lineage TF; binds TG/TPO promoters"
+  - symbol: FOXE1
+    alias: TTF2
+    role: lineage_TF
+    notes: "Forkhead lineage TF; thyroid migration + maturation"
+  - symbol: DIO1
+    alias: 5DI
+    role: thyroid_hormone_metabolism
+    notes: "Type-1 deiodinase; downstream of differentiated thyrocyte program"
+
+# How to score
+scoring:
+  method: mean_zscore
+  steps:
+    - "Restrict to panel genes present on the platform; record n_genes_available."
+    - "Within-cohort: log2-normalize if raw counts; otherwise use platform-normalized matrix."
+    - "Per gene: z-score across samples in the cohort (mean=0, sd=1)."
+    - "Per sample: mean of available z-scored panel genes (skip NaN)."
+    - "Output column: panel_z (high = preserved differentiation, low = silenced / DM1-like)."
+  polarity_note: |
+    Memory DM1 Round 4 / 2026-05-09 polarity correction: panel_z high = preserved RAI;
+    panel_z low = silenced ("DM1-like"). For Paper 1's DM1/DM2 convention,
+    DM1 = silenced (low panel_z). Some legacy files used the inverse convention;
+    always check the polarity_note column in derived tables.
+
+# Aliases / symbol harmonization
+aliases:
+  TTF1: NKX2-1
+  TITF1: NKX2-1
+  TTF2: FOXE1
+  FKHL15: FOXE1
+  NIS: SLC5A5
+  PDS: SLC26A4   # related, NOT in core panel
+  THOX2: DUOX2   # related, NOT in core panel
+
+# Related genes (NOT in core panel; for sensitivity analysis / iodide axis context)
+extended_iodide_axis:
+  - DUOX1
+  - DUOX2
+  - DUOXA1
+  - DUOXA2
+  - IYD
+  - SLC26A4
+  - SLC26A7
+  - SCGN
+  - DIO2
+
+# Driver-status fields for stratified analysis
+driver_stratification_keys:
+  - BRAF_V600E
+  - RAS_any        # NRAS / KRAS / HRAS
+  - TERT_promoter  # C228T / C250T
+  - TP53
+  - PIK3CA
+  - RET_fusion
+  - NTRK_fusion
+  - ALK_fusion
+  - PPARG_fusion

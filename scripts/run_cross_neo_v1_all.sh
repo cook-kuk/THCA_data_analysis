@@ -15,10 +15,12 @@ python scripts/train_cross_neo_v1_gated_moe.py
 python scripts/train_cross_neo_v1_source_bias_corrected.py
 python scripts/train_cross_neo_v1_pu_ranking.py
 python scripts/train_cross_neo_v1_decoy_focal.py
+python scripts/train_cross_neo_v1_hard_decoy_focal.py
 python scripts/build_cross_neo_v1_public_overlap_audit.py
 python scripts/evaluate_cross_neo_v1_contract.py
 python scripts/make_cross_neo_v1_figures.py
 python scripts/write_cross_neo_v1_decision_report.py
+python scripts/build_cross_neo_v1_business_package.py
 
 python - <<'PY'
 from pathlib import Path
@@ -52,6 +54,9 @@ if len(source):
     print(f"best source-heldout model: {r['family']} / {r['model']} split={r['split_name']} AUPRC={r['AUPRC']:.3f} top10={r['top10_precision']:.3f}")
 print(f"v1 beats v0 fixed late fusion on HLA-stratified AUPRC: {beats_fixed}")
 print(f"final KEEP/HOLD/KILL: {decision}")
+business = out / "business_package"
+if business.exists():
+    print(f"business package: {business}")
 if len(manifest):
     print("next missing data/downloads:")
     print(manifest[["dataset", "status", "local_target_path"]].to_string(index=False))

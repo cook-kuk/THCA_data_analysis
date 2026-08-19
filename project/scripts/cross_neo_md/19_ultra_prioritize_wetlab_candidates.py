@@ -238,6 +238,7 @@ def score_candidates(df: pd.DataFrame) -> pd.DataFrame:
 
     conditions = [
         (out["peptide"].eq("GADGVGKSAL") & out["hla_4digit"].eq("HLA-C*08:02")),
+        (out["peptide"].eq("HMTEVVRHC") & out["hla_4digit"].eq("HLA-A*02:01") & (out["md_structural_score"] >= 0.45)),
         (out["peptide"].eq("HMTEVVRHC") & out["hla_4digit"].eq("HLA-A*02:01")),
         (out["ultra_priority_score"] >= 0.62) & (out["confidence_score"] >= 0.55),
         (out["ultra_priority_score"] >= 0.50),
@@ -245,6 +246,7 @@ def score_candidates(df: pd.DataFrame) -> pd.DataFrame:
     ]
     choices = [
         "TIER_A_EXPERIMENT_NOW_WITH_CONTROLS",
+        "TIER_A_MD_STRONG_CONTROL_CURATION_FIRST",
         "TIER_A_PENDING_MD_COMPLETION_THEN_EXPERIMENT",
         "TIER_B_EXPERIMENT_AFTER_CONTROL_MD",
         "TIER_C_MD_OR_STRUCTURE_SCREEN_FIRST",
@@ -259,6 +261,9 @@ def score_candidates(df: pd.DataFrame) -> pd.DataFrame:
     out.loc[out["recommendation_tier"].str.contains("PENDING_MD"), "why"] = (
         "strong TCR/resource evidence and active stable MD; wait for completed trajectory before final ranking"
     )
+    out.loc[out["recommendation_tier"].eq("TIER_A_MD_STRONG_CONTROL_CURATION_FIRST"), "why"] = (
+        "completed strong MD support and strong paired TCR evidence; WT/decoy curation remains the blocker before experiment-now status"
+    )
     out.loc[out["recommendation_tier"].eq("TIER_B_EXPERIMENT_AFTER_CONTROL_MD"), "why"] = (
         "high integrated score but needs control MD or claim-risk reduction before expensive wetlab"
     )
@@ -271,11 +276,12 @@ def score_candidates(df: pd.DataFrame) -> pd.DataFrame:
     out.loc[out["recommendation_tier"].eq("HOLD_FOR_NOW"), "why"] = "insufficient integrated evidence for priority wetlab"
     tier_order = {
         "TIER_A_EXPERIMENT_NOW_WITH_CONTROLS": 0,
-        "TIER_A_PENDING_MD_COMPLETION_THEN_EXPERIMENT": 1,
-        "TIER_B_EXPERIMENT_AFTER_CONTROL_MD": 2,
-        "TIER_C_MD_OR_STRUCTURE_SCREEN_FIRST": 3,
-        "TIER_D_TCR_OR_WT_CURATION_FIRST": 4,
-        "HOLD_FOR_NOW": 5,
+        "TIER_A_MD_STRONG_CONTROL_CURATION_FIRST": 1,
+        "TIER_A_PENDING_MD_COMPLETION_THEN_EXPERIMENT": 2,
+        "TIER_B_EXPERIMENT_AFTER_CONTROL_MD": 3,
+        "TIER_C_MD_OR_STRUCTURE_SCREEN_FIRST": 4,
+        "TIER_D_TCR_OR_WT_CURATION_FIRST": 5,
+        "HOLD_FOR_NOW": 6,
     }
     out["tier_order"] = out["recommendation_tier"].map(tier_order).fillna(9).astype(int)
     return out.sort_values(["tier_order", "ultra_priority_score"], ascending=[True, False])
@@ -285,6 +291,7 @@ def assay_plan(prioritized: pd.DataFrame) -> pd.DataFrame:
     rows = []
     top = prioritized[prioritized["recommendation_tier"].isin([
         "TIER_A_EXPERIMENT_NOW_WITH_CONTROLS",
+        "TIER_A_MD_STRONG_CONTROL_CURATION_FIRST",
         "TIER_A_PENDING_MD_COMPLETION_THEN_EXPERIMENT",
         "TIER_B_EXPERIMENT_AFTER_CONTROL_MD",
     ])].head(12)
@@ -396,7 +403,7 @@ def write_reports(prioritized: pd.DataFrame, assays: pd.DataFrame) -> None:
         "## Top Decision",
         "",
         "- `GADGVGKSAL / HLA-C*08:02`: experiment-priority candidate now, with controls. It has completed moderate MD support and TCR evidence, but WT/decoy assays remain required.",
-        "- `HMTEVVRHC / HLA-A*02:01`: highest-value pending candidate. Do not finalize until the active 10 ns MD trajectory and replicate screen are analyzed.",
+        "- `HMTEVVRHC / HLA-A*02:01`: completed strong MD support and strong paired TCR evidence. The blocker is no longer MD completion; it is WT/decoy/control curation before experiment-now status.",
         "",
         "## Tier Counts",
         "",

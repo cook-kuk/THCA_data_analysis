@@ -10,6 +10,15 @@ status: v3 — Landa 2016 cite save + Yoo/TCGA/Pu/Bradley/Wirth 5 cites + Fig 1 
 
 # Paper 1 (manuscript v8) — single-page outline (v3)
 
+## 0c. Narrative tightening priority (2026-05-11)
+
+| priority | change | reason |
+|---|---|---|
+| 1 | Treat the paper as a selection-layer paper, not a platform paper | tighter claim boundary, easier reviewer defense |
+| 2 | Keep main figure flow discovery → clinical relevance → portability → mechanism | gives a cleaner story arc |
+| 3 | Push niche stress tests and caveats to supplement or reserve | keeps the main text readable and defensible |
+| 4 | Use the reviewer's attack points as explicit cross-references | shortens revision cycles and prevents drift |
+
 ## 0a. v2 → v3 변경 7건 (web Claude 2차 review)
 
 | # | 변경 | 근거 |

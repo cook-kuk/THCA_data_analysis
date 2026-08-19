@@ -342,6 +342,53 @@ def fig_claim_safe_top(explain: pd.DataFrame, fig_dir: Path, asset_dir: Path) ->
     return save(fig, fig_dir, asset_dir, "fig12_barneo_x_claim_safe_top.png")
 
 
+def fig_stress_actions(stress_scores: pd.DataFrame, fig_dir: Path, asset_dir: Path) -> str:
+    fig, ax = plt.subplots(figsize=(10.5, 5.4))
+    if stress_scores.empty or "stress_guarded_action" not in stress_scores:
+        ax.text(0.5, 0.5, "No stress-guarded scores", color=INK, ha="center")
+    else:
+        counts = stress_scores["stress_guarded_action"].value_counts().sort_values()
+        colors = [GREEN if "claim_safe" in x else GOLD if "priority" in x else CYAN if "support" in x else RED if "abstain" in x else BLUE for x in counts.index]
+        ax.barh(counts.index.astype(str), counts.values, color=colors, alpha=0.9)
+        ax.set_xlabel("Candidates", color=MUTED)
+        for i, v in enumerate(counts.values):
+            ax.text(v + max(counts.values) * 0.015, i, f"{int(v):,}", color=INK, va="center", fontsize=9)
+    prep_ax(ax, "Stress-guarded BAR-Neo actions", "Action bins after source/HLA/leakage-aware method downweighting.")
+    return save(fig, fig_dir, asset_dir, "fig13_stress_guarded_actions.png")
+
+
+def fig_stress_top(stress_scores: pd.DataFrame, fig_dir: Path, asset_dir: Path) -> str:
+    fig, ax = plt.subplots(figsize=(11, 6.5))
+    if stress_scores.empty:
+        ax.text(0.5, 0.5, "No stress-guarded scores", color=INK, ha="center")
+    else:
+        df = stress_scores.sort_values("stress_guarded_rank_global").head(18).iloc[::-1].copy()
+        labels = df["candidate_id"].astype(str) + " · " + df["hla_allele_4digit"].astype(str)
+        y = np.arange(len(df))
+        ax.barh(y, nnum(df, "stress_guarded_discovery_score"), color=BLUE, alpha=0.40, label="discovery")
+        ax.barh(y, nnum(df, "stress_guarded_claim_safe_score"), color=GREEN, alpha=0.82, label="claim-safe")
+        ax.set_yticks(y)
+        ax.set_yticklabels(labels)
+        ax.set_xlim(0, 1.0)
+        ax.legend(frameon=False, fontsize=8, labelcolor=INK)
+        ax.set_xlabel("Stress-guarded score", color=MUTED)
+    prep_ax(ax, "Stress-guarded top candidates", "Top rows are manual-audit research triage candidates, not clinical selections.")
+    return save(fig, fig_dir, asset_dir, "fig14_stress_guarded_top_candidates.png")
+
+
+def fig_stress_method_weights(method_weights: pd.DataFrame, fig_dir: Path, asset_dir: Path) -> str:
+    fig, ax = plt.subplots(figsize=(11, 7))
+    if method_weights.empty:
+        ax.text(0.5, 0.5, "No stress-guarded method weights", color=INK, ha="center")
+    else:
+        df = method_weights.sort_values("stress_guarded_base_weight", ascending=False).head(18).iloc[::-1].copy()
+        colors = [ROLE_COLORS.get(str(x), MUTED) for x in df["method_role"]]
+        ax.barh(df["method_name"], nnum(df, "stress_guarded_base_weight"), color=colors, alpha=0.9)
+        ax.set_xlabel("Stress-guarded base weight", color=MUTED)
+    prep_ax(ax, "Stress-guarded method weights", "Weights reward methods that survive source/HLA stress and cap public/fallback support.")
+    return save(fig, fig_dir, asset_dir, "fig15_stress_guarded_method_weights.png")
+
+
 def write_html(hub_root: Path, output_root: Path, figures: list[str], stats: dict[str, int]) -> None:
     cards = "\n".join(f'<section><img src="assets/{ASSET_DIR}/{html.escape(f)}"><p>{html.escape(f)}</p></section>' for f in figures)
     stat_html = "".join(f"<div><b>{v:,}</b><span>{html.escape(k)}</span></div>" for k, v in stats.items())
@@ -385,6 +432,10 @@ def main() -> None:
     metrics = read_tsv(output_root / "clean_neobench_split_metrics.tsv")
     ctx_weights = read_tsv(output_root / "barneo_contextual_bma_method_weights.tsv")
     x_explain = read_tsv(output_root / "barneo_x_candidate_explanations.tsv")
+    stress_scores = read_tsv(output_root / "barneo_stress_guarded_candidate_scores.tsv")
+    stress_weights = read_tsv(output_root / "barneo_stress_guarded_method_weights.tsv")
+    high_impact = read_tsv(output_root / "barneo_high_impact_lead_candidates.tsv")
+    reviewer_kill = read_tsv(output_root / "barneo_high_impact_reviewer_kill_audit.tsv")
 
     figures = [
         fig_leaderboard(lb, fig_dir, asset_dir),
@@ -399,6 +450,9 @@ def main() -> None:
         fig_delta_anchor(metrics, lb, fig_dir, asset_dir),
         fig_context_weight_heatmap(ctx_weights, fig_dir, asset_dir),
         fig_claim_safe_top(x_explain, fig_dir, asset_dir),
+        fig_stress_actions(stress_scores, fig_dir, asset_dir),
+        fig_stress_top(stress_scores, fig_dir, asset_dir),
+        fig_stress_method_weights(stress_weights, fig_dir, asset_dir),
     ]
 
     if not public.empty and "uses_public_pretraining" in public:
@@ -416,6 +470,9 @@ def main() -> None:
         "Challenge Rows": safe_int(challenge["n_unique_candidates"].sum()) if "n_unique_candidates" in challenge else 0,
         "Contextual Clean Claims": int(ctx["contextual_clean_claim_allowed"].astype(bool).sum()) if "contextual_clean_claim_allowed" in ctx else 0,
         "X Priority": int((xscore.get("barneo_x_primary_action", pd.Series(dtype=str)) == "priority_review_candidate").sum()) if not xscore.empty else 0,
+        "Stress Claim-Audit": int((stress_scores.get("stress_guarded_action", pd.Series(dtype=str)) == "claim_safe_candidate_after_manual_audit").sum()) if not stress_scores.empty else 0,
+        "HI Leads": len(high_impact),
+        "Kill Pass": int((reviewer_kill.get("reviewer_kill_disposition", pd.Series(dtype=str)) == "passes_current_reviewer_kill_audit").sum()) if not reviewer_kill.empty else 0,
         "Public Clean Allowed": public_clean_allowed,
     }
     write_html(hub_root, output_root, figures, stats)

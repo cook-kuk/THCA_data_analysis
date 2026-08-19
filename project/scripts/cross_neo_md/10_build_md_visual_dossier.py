@@ -103,6 +103,34 @@ def main() -> None:
         OUT / "dl_first_funnel/dl_first_md_escalation_candidates.tsv",
         OUT / "dl_first_funnel/dl_first_wetlab_shortlist.tsv",
         OUT / "dl_first_funnel/dl_first_culled_candidates.tsv",
+        OUT / "baker_rosetta_filter/baker_rosetta_filter_report.md",
+        OUT / "baker_rosetta_filter/baker_rosetta_tool_audit.tsv",
+        OUT / "baker_rosetta_filter/runpod_pod_status.tsv",
+        OUT / "baker_rosetta_filter/baker_rosetta_filter_manifest.tsv",
+        OUT / "baker_rosetta_filter/baker_rosetta_fallback_interface_scores.tsv",
+        OUT / "baker_rosetta_filter/baker_rosetta_summary.json",
+        OUT / "baker_rosetta_filter/baker_rosetta_runpod_package.tar.gz",
+        OUT / "dl_threshold_optimization/threshold_optimization_report.md",
+        OUT / "dl_threshold_optimization/threshold_recommended_presets.tsv",
+        OUT / "dl_threshold_optimization/threshold_recommended_presets.json",
+        OUT / "dl_threshold_optimization/threshold_pareto_frontier.tsv",
+        OUT / "dl_threshold_optimization/threshold_random_search_results.tsv",
+        OUT / "decision_storyboard/CROSS_Neo_decision_storyboard_overview_KR.md",
+        OUT / "decision_storyboard/data_usage_manifest.tsv",
+        OUT / "decision_storyboard/figure_table_explanation_master.tsv",
+        OUT / "decision_storyboard/representative_candidate_evidence_table.tsv",
+        OUT / "decision_storyboard/stage_label_composition_for_slides.tsv",
+        OUT / "decision_storyboard/threshold_preset_summary_for_slides.tsv",
+        OUT / "decision_storyboard/storyboard_summary.json",
+        OUT / "high_impact_decision_package/HIGH_IMPACT_DECISION_REPORT.md",
+        OUT / "high_impact_decision_package/no_false_positive_top13_candidates.tsv",
+        OUT / "high_impact_decision_package/optimized_preset_candidate_lists.tsv",
+        OUT / "high_impact_decision_package/preset_source_stratified_performance.tsv",
+        OUT / "high_impact_decision_package/wetlab_validation_plate_plan.tsv",
+        OUT / "high_impact_decision_package/claim_ladder.tsv",
+        OUT / "high_impact_decision_package/external_validation_plan.tsv",
+        OUT / "high_impact_decision_package/reviewer_risk_register.tsv",
+        OUT / "high_impact_decision_package/high_impact_summary.json",
         OUT / "watchers/hmtevvrhc_autowatch_latest.json",
     ]:
         if p.exists():
@@ -125,6 +153,19 @@ def main() -> None:
     dl_first = pd.read_csv(OUT / "dl_first_funnel/dl_first_candidate_funnel.tsv", sep="\t") if (OUT / "dl_first_funnel/dl_first_candidate_funnel.tsv").exists() else pd.DataFrame()
     dl_first_stages = pd.read_csv(OUT / "dl_first_funnel/dl_first_stage_counts.tsv", sep="\t") if (OUT / "dl_first_funnel/dl_first_stage_counts.tsv").exists() else pd.DataFrame()
     dl_first_counts = pd.read_csv(OUT / "dl_first_funnel/dl_first_decision_counts.tsv", sep="\t") if (OUT / "dl_first_funnel/dl_first_decision_counts.tsv").exists() else pd.DataFrame()
+    baker_scores = pd.read_csv(OUT / "baker_rosetta_filter/baker_rosetta_fallback_interface_scores.tsv", sep="\t") if (OUT / "baker_rosetta_filter/baker_rosetta_fallback_interface_scores.tsv").exists() else pd.DataFrame()
+    baker_tools = pd.read_csv(OUT / "baker_rosetta_filter/baker_rosetta_tool_audit.tsv", sep="\t") if (OUT / "baker_rosetta_filter/baker_rosetta_tool_audit.tsv").exists() else pd.DataFrame()
+    baker_manifest = pd.read_csv(OUT / "baker_rosetta_filter/baker_rosetta_filter_manifest.tsv", sep="\t") if (OUT / "baker_rosetta_filter/baker_rosetta_filter_manifest.tsv").exists() else pd.DataFrame()
+    threshold_presets = pd.read_csv(OUT / "dl_threshold_optimization/threshold_recommended_presets.tsv", sep="\t") if (OUT / "dl_threshold_optimization/threshold_recommended_presets.tsv").exists() else pd.DataFrame()
+    data_usage = pd.read_csv(OUT / "decision_storyboard/data_usage_manifest.tsv", sep="\t") if (OUT / "decision_storyboard/data_usage_manifest.tsv").exists() else pd.DataFrame()
+    figtab = pd.read_csv(OUT / "decision_storyboard/figure_table_explanation_master.tsv", sep="\t") if (OUT / "decision_storyboard/figure_table_explanation_master.tsv").exists() else pd.DataFrame()
+    rep_candidates = pd.read_csv(OUT / "decision_storyboard/representative_candidate_evidence_table.tsv", sep="\t") if (OUT / "decision_storyboard/representative_candidate_evidence_table.tsv").exists() else pd.DataFrame()
+    high_top13 = pd.read_csv(OUT / "high_impact_decision_package/no_false_positive_top13_candidates.tsv", sep="\t") if (OUT / "high_impact_decision_package/no_false_positive_top13_candidates.tsv").exists() else pd.DataFrame()
+    source_perf = pd.read_csv(OUT / "high_impact_decision_package/preset_source_stratified_performance.tsv", sep="\t") if (OUT / "high_impact_decision_package/preset_source_stratified_performance.tsv").exists() else pd.DataFrame()
+    wetlab_plan = pd.read_csv(OUT / "high_impact_decision_package/wetlab_validation_plate_plan.tsv", sep="\t") if (OUT / "high_impact_decision_package/wetlab_validation_plate_plan.tsv").exists() else pd.DataFrame()
+    claim_ladder = pd.read_csv(OUT / "high_impact_decision_package/claim_ladder.tsv", sep="\t") if (OUT / "high_impact_decision_package/claim_ladder.tsv").exists() else pd.DataFrame()
+    validation_plan = pd.read_csv(OUT / "high_impact_decision_package/external_validation_plan.tsv", sep="\t") if (OUT / "high_impact_decision_package/external_validation_plan.tsv").exists() else pd.DataFrame()
+    reviewer_risks = pd.read_csv(OUT / "high_impact_decision_package/reviewer_risk_register.tsv", sep="\t") if (OUT / "high_impact_decision_package/reviewer_risk_register.tsv").exists() else pd.DataFrame()
     figs = [p.name for p in sorted((OUT / "figures").glob("fig_md*.png"))]
     fig_cards = "\n".join(
         f"<article><img src='assets/cross_neo_md_audit/{esc(name)}'><h3>{esc(name.replace('.png',''))}</h3><a href='assets/cross_neo_md_audit/{esc(name)}'>PNG</a></article>"
@@ -173,6 +214,17 @@ img{{width:100%;background:white;border-radius:6px}} .warn{{border-left:4px soli
 <a class="pill" href="assets/cross_neo_md_audit/ultra_wetlab_priority_report.md">Ultra priority</a>
 <a class="pill" href="assets/cross_neo_md_audit/small_dataset_uncertainty_funnel_report.md">Bayesian/dropout funnel</a>
 <a class="pill" href="assets/cross_neo_md_audit/dl_first_funnel_report.md">DL-first funnel</a>
+<a class="pill" href="cross_neo_dl_first_slider_dashboard.html">DL slider dashboard</a>
+<a class="pill" href="assets/cross_neo_md_audit/threshold_optimization_report.md">Threshold optimizer</a>
+<a class="pill" href="cross_neo_high_impact_decision.html">High-impact decision page</a>
+<a class="pill" href="assets/cross_neo_md_audit/HIGH_IMPACT_DECISION_REPORT.md">High-impact report</a>
+<a class="pill" href="assets/cross_neo_md_audit/no_false_positive_top13_candidates.tsv">Top-13 no-FP candidates</a>
+<a class="pill" href="assets/cross_neo_md_audit/wetlab_validation_plate_plan.tsv">Wetlab plate plan</a>
+<a class="pill" href="assets/cross_neo_md_audit/CROSS_Neo_decision_storyboard_overview_KR.md">Story overview KR</a>
+<a class="pill" href="assets/cross_neo_md_audit/figure_table_explanation_master.tsv">Fig/Table master</a>
+<a class="pill" href="assets/cross_neo_md_audit/data_usage_manifest.tsv">Data usage</a>
+<a class="pill" href="assets/cross_neo_md_audit/baker_rosetta_filter_report.md">Baker/Rosetta filter</a>
+<a class="pill" href="assets/cross_neo_md_audit/baker_rosetta_runpod_package.tar.gz">RunPod package</a>
 <a class="pill" href="assets/cross_neo_md_audit/hmtevvrhc_autowatch_latest.json">6VRN watcher JSON</a>
 </div>
 </section>
@@ -213,6 +265,34 @@ img{{width:100%;background:white;border-radius:6px}} .warn{{border-left:4px soli
 {table(dl_first_stages, ['stage','n'], 12)}
 {table(dl_first_counts, ['decision','n'], 12)}
 {table(dl_first, ['row_id','peptide','hla_4digit','dl_first_decision','next_action','dl_first_priority_score','main_dl_score','bayes_mean','bayes_q05','bayes_q95','perturb_prob_gt_050','tcr_augmented_score_mean','paired_tcr_evidence_count','md_label'], 18)}
+</section>
+<section><h2>Threshold Optimization Presets</h2>
+<p class="muted">Label-aware random search over slider settings. These presets are decision-support operating points, not externally validated clinical thresholds.</p>
+{table(threshold_presets, ['preset_name','call_rule','called_positive','TP','TN','FP','FN','precision','recall','F1','specificity','FPR','enrichment_over_prevalence'], 12)}
+</section>
+<section><h2>High-Impact Decision Package</h2>
+<p class="muted">The strict current-label operating point selects a Top-13 list with zero false positives in the available labels. This is a wetlab triage list and reviewer-facing decision package, not an external-validation result.</p>
+{table(high_top13, ['priority_order','row_id','peptide','hla_4digit','source_dataset','actual_label','prediction_outcome','main_dl_score','bayes_mean','tcr_augmented_score_mean','paired_tcr_evidence_count','baker_structural_score','md_label','recommendation_tier','why'], 13)}
+<p class="muted">Source-stratified behavior of the recommended presets.</p>
+{table(source_perf, ['preset_name','source_dataset','n','positive','negative','called_positive','TP','TN','FP','FN','precision','recall','FPR'], 18)}
+<p class="muted">Wetlab ordering and required controls for the selected candidates.</p>
+{table(wetlab_plan, ['plate_order','tier','row_id','peptide','hla_4digit','source_dataset','recommended_assays','required_controls','go_no_go','why_this_candidate'], 13)}
+<p class="muted">Claim ladder and reviewer risks.</p>
+{table(claim_ladder, ['claim_level','claim','supporting_artifacts','required_before_stronger_claim','risk'], 8)}
+{table(validation_plan, ['validation_axis','dataset_needed','metric','success_criterion','owner'], 8)}
+{table(reviewer_risks, ['risk','why_reviewer_will_ask','defense','next_action'], 8)}
+</section>
+<section><h2>Storyboard Package</h2>
+<p class="muted">Presentation/manuscript-ready explanation layer: overview figures, figure/table captions, and data lineage.</p>
+{table(figtab, ['id','title','main_message','use_in_slide','claim_boundary'], 12)}
+{table(data_usage, ['artifact','rows','used_for','pipeline_stage','claim_boundary'], 12)}
+{table(rep_candidates, ['row_id','peptide','hla_4digit','label_binary','dl_first_decision','main_dl_score','bayes_mean','tcr_augmented_score_mean','baker_structural_score','md_label','completion_fraction'], 8)}
+</section>
+<section><h2>Baker/Rosetta Cheap Structural Filter</h2>
+<p class="muted">Rosetta/PyRosetta are not currently installed locally or on the reachable RunPod, so this page reports command manifests plus static contact fallback scores. These are triage signals only.</p>
+{table(baker_tools[baker_tools['available'].astype(str).str.lower().isin(['true','1'])] if not baker_tools.empty else baker_tools, ['environment','host','tool_type','tool','path_or_version','gpu'], 18)}
+{table(baker_manifest, ['filter_id','row_id','peptide','hla_4digit','control_type','complex_kind','sequence','input_pdb','peptide_chain','mhc_chain','tcr_chains'], 12)}
+{table(baker_scores, ['filter_id','sequence','candidate_key','control_type','complex_kind','fallback_structural_score','pmhc_residue_pair_contacts_4A','tcr_peptide_residue_pair_contacts_4A','cross_chain_clashes_2A'], 12)}
 </section>
 <section><h2>Figure Gallery</h2><div class="figs">{fig_cards}</div></section>
 <section><h2>Source Paths</h2><p class="muted">{esc(OUT)}</p></section>

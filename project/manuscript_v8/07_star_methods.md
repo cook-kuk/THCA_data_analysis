@@ -36,7 +36,7 @@ status: clean draft
 | cBioPortal SV (RET/NTRK/ALK/BRAF fusions) | cBioPortal API | `thca_tcga_pub` study, SV endpoint |
 | HM450 promoter methylation (Illumina HumanMethylation450) | cBioPortal API | `thca_tcga` legacy study |
 | **Source code (this paper)** | | |
-| 8-gene panel + DM cluster pipeline | Cook et al., this paper | repository and archival DOI to be released at submission or acceptance |
+| 8-gene panel + DM cluster pipeline | Cook et al., this paper | [TODO: insert public code repository URL on submission]; [TODO: insert Zenodo DOI on submission] |
 
 ---
 
@@ -46,7 +46,7 @@ status: clean draft
 
 **Materials availability.** This study did not generate new unique reagents. All analyses were performed on publicly accessible datasets (TCGA, GEO, ENA, cBioPortal). Korean cohort access (K2 / PRJEB11591, GSE213647, GSE286332 reference arm) is available via the listed repositories.
 
-**Data and code availability.** Public source data are available from TCGA, GEO, ENA, and cBioPortal under the identifiers listed above. Analysis code and figure-generation scripts will be released in a public repository together with an archival DOI at submission or acceptance. Intermediate data tables used in the manuscript, including per-sample DM scores, fusion annotations, methylation summaries, and meta-analysis inputs, are provided through Supplementary Tables S1-S10.
+**Data and code availability.** Public source data are available from TCGA, GEO, ENA, and cBioPortal under the identifiers listed above. Analysis code and figure-generation scripts will be released in a public repository together with an archival DOI at submission or acceptance ([TODO: insert public code repository URL on submission]; [TODO: insert Zenodo DOI on submission]). Intermediate data tables used in the manuscript, including per-sample DM scores, fusion annotations, methylation summaries, and meta-analysis inputs, are provided through Supplementary Tables S1-S10.
 
 ---
 
@@ -56,9 +56,9 @@ This study uses publicly available genomic and transcriptomic data from previous
 
 - **TCGA-THCA** (n = 504 with overall survival annotation; 513 primary tumors total). Discovery cohort. Publicly available via The Cancer Genome Atlas (Cancer Genome Atlas Research Network, 2014).
 - **MSK-IMPACT thyroid** (n = 117; advanced disease, mostly PDTC + ATC). Validation cohort. (Landa et al., 2016).
-- **K2 / PRJEB11591** (n = 260; primary Korean PTC). Validation cohort. (Yoo et al., 2016).
-- **Lee / GSE213647** (n = 632; Korean PTC). Validation cohort.
-- **GSE286332 reference arm** (n = 9 Korean PTC). Small external Korean reference set used for calibration and score-portability checks. <em>Not aggregated into the Korean cohort summary statistic n = 865 (K2 + Lee) to preserve scope separation from Paper 2 (GSE286332 PTC vs PTC+HT main cohort, n = 18).</em>
+- **K2 / PRJEB11591** (n = 235; primary Korean PTC, post-QC). Validation cohort. (Yoo et al., 2016).
+- **Lee / GSE213647** (n = 630; Korean PTC, post-QC). Validation cohort.
+- **GSE286332 reference arm** (n = 9 Korean PTC). Small external Korean reference set retained here for calibration and score-portability description only; <em>dropped from the Paper 1 Korean validation total per the 2026-05-07 P1-2 audit. The canonical Paper 1 Korean validation cohort = K2 (n = 235) + Lee et al. (n = 630) = n = 865. GSE286332 PTC samples are retained in Paper 2 scope (GSE286332 PTC vs PTC+HT main cohort, n = 18).</em>
 - **GSE184362 Pu 2021** (n = 7 PTC patients; single-cell). External validation.
 - **GSE193581 Lu 2023** (n = 23 single-cell samples). External validation.
 - **GSE241184** (n = 1; Phase 1 single-cell). Internal pilot.
@@ -138,7 +138,7 @@ For per-cell-type granularity beyond the immune-residualization analysis, bulk R
 
 **DM1 sub-A vs sub-B teaser.** Sub-cluster labels from `d6p7_dm1_subcluster/dm1_subcluster_labels.tsv` (sub-A n = 84, sub-B n = 56) were intersected with cell-type fractions; Cohen's d and Mann-Whitney U two-sided p were reported per cell type. Sub-A is Malignant-cell rich (d = +1.22, p = 2.5 × 10⁻⁹) and Epithelial-poor (d = −1.26, p = 5.2 × 10⁻¹⁰); immune compartment differences are not significant — defining the sub-A/B split as a tumor-purity-vs-thyrocyte split rather than immune-hot vs immune-cold (Paper-2 boundary marker; Supplementary Figure SX panel J).
 
-**Pseudotime trajectory.** Samples were ranked by canonical 8-gene score (TCGA `rai_score_recalc` n = 513; Lee/GSE213647 `panel_z` n = 632), binned into 10 deciles, and mean per-decile cell-type fraction was computed. Decile-level Spearman ρ between mean score and mean fraction quantifies monotonic trajectory; four compartments — Malignant (↓), Epithelial (↑), Myeloid (↓), Endothelial (↑) — show |ρ| ≥ 0.95 in both cohorts (Supplementary Figure SX panel K).
+**Pseudotime trajectory.** Samples were ranked by canonical 8-gene score (TCGA `rai_score_recalc` n = 513; Lee/GSE213647 `panel_z` n = 630), binned into 10 deciles, and mean per-decile cell-type fraction was computed. Decile-level Spearman ρ between mean score and mean fraction quantifies monotonic trajectory; four compartments — Malignant (↓), Epithelial (↑), Myeloid (↓), Endothelial (↑) — show |ρ| ≥ 0.95 in both cohorts (Supplementary Figure SX panel K).
 
 **Full-transcriptome reference robustness.** Pu 2021 raw counts (33,694 genes × 66,015 cells) were subsampled to 5,000 cells balanced across 7 patients (seed = 42); each cell was assigned a Lu 2023 `author_celltype` label by maximum cosine similarity over the Lu HVG ∩ Pu intersection (1,898 genes after Ensembl → symbol conversion). A full-transcriptome pseudobulk per cell type was constructed (per-cell-type log-normalized mean, library-size-corrected, n_genes = 33,694; `Pu_pseudobulk_full`). TCGA bulk was re-deconvolved by NNLS over the 21,369-gene Pu × TCGA intersection (`scipy.optimize.nnls`, sum-to-one normalization). Per-cell-type Cohen's d (DM1 − DM2) was compared to the v2 Lu HVG nu-SVR primary result; all four informative axes (Malignant, Epithelial, Myeloid, Endothelial) sign-match between the two references with Pu full NNLS magnitudes ≥ Lu HVG. NNLS sparse-collapse zeros the B / Fibroblast / NK / T compartments in the full-transcriptome regime; these are interrogated by the v2 nu-SVR Lu HVG primary instead.
 

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lumenix · Cancer Vaccine Project · Master Index</title>
+<script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+<style>
+:root{
+  --ink:#0e1828; --paper:#fbf6ec; --muted:#576275; --line:#d6c8b3;
+  --emerald:#1c8e6d; --rose:#7B1F2A; --violet:#4f2db5; --gold:#b58534;
+  --coal:#0c1422; --sky:#3d6b8e;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--coal);color:var(--paper);font-family:"Newsreader","Noto Sans KR",serif;overflow-x:hidden}
+
+/* ===================== HERO ===================== */
+.hero{
+  position:relative;min-height:100vh;
+  background:radial-gradient(circle at 30% 40%, #1a2a40 0%, #0c1422 60%, #050811 100%);
+  overflow:hidden;
+}
+.hero-bg{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0.25}
+.hero-bg svg{width:100%;height:100%}
+.particles{position:absolute;width:100%;height:100%;top:0;left:0;pointer-events:none}
+.particle{position:absolute;border-radius:50%;background:rgba(255,200,150,0.6);
+  animation:float 20s infinite ease-in-out}
+@keyframes float{
+  0%,100%{transform:translate(0,0) scale(1);opacity:0.5}
+  50%{transform:translate(40px,-60px) scale(1.4);opacity:1}
+}
+@keyframes spin360{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+@keyframes glow{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
+@keyframes slidein{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+@keyframes shimmer{0%{background-position:-1000px 0}100%{background-position:1000px 0}}
+
+.hero-content{position:relative;max-width:1280px;margin:0 auto;padding:48px 32px 80px;z-index:2}
+.kicker{font-family:'JetBrains Mono',monospace;color:#ffd28a;letter-spacing:.3em;font-size:11px;font-weight:700;
+  text-transform:uppercase;margin-bottom:20px;animation:pulse 2.5s infinite}
+.hero h1{font-family:"Cormorant Garamond",serif;font-size:90px;line-height:1;font-weight:700;
+  margin:0 0 18px;color:#fff8e7;letter-spacing:-2px;animation:slidein 1.4s ease-out}
+.hero h1 .accent{color:#ffd28a;font-style:italic}
+.hero .lead{font-size:22px;color:#d6c8b3;font-style:italic;max-width:880px;line-height:1.55;
+  margin-bottom:36px;animation:slidein 1.8s ease-out}
+.hero .lead b{color:#ffe8c8;font-style:normal}
+
+.hero-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin:32px 0 12px;animation:slidein 2.2s ease-out}
+.hs{background:rgba(255,255,255,0.04);border:1px solid rgba(255,200,140,0.2);border-radius:14px;padding:14px 16px;
+  backdrop-filter:blur(10px)}
+.hs b{display:block;font-family:"Cormorant Garamond",serif;font-size:34px;color:#ffd28a;font-weight:700;line-height:1;margin-bottom:6px}
+.hs span{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#a8b4c4;letter-spacing:.08em;text-transform:uppercase}
+
+.hero-cta{margin-top:32px;display:flex;gap:14px;flex-wrap:wrap;animation:slidein 2.6s ease-out}
+.cta{padding:14px 24px;border-radius:99px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;text-decoration:none;transition:all .2s;border:2px solid transparent}
+.cta-primary{background:#ffd28a;color:#0c1422}
+.cta-primary:hover{background:#fff;transform:translateY(-2px) scale(1.03);box-shadow:0 8px 30px rgba(255,210,140,0.4)}
+.cta-ghost{background:transparent;color:#fff8e7;border-color:rgba(255,210,140,0.5)}
+.cta-ghost:hover{background:rgba(255,210,140,0.1);transform:translateY(-2px)}
+
+.scroll-down{position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:#ffd28a;
+  font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;animation:pulse 2s infinite;text-decoration:none}
+
+/* ===================== STRUCTURE PREVIEW ===================== */
+.struct-section{background:linear-gradient(180deg,#0c1422 0%,#1a2438 100%);padding:80px 0;position:relative}
+.section-wrap{max-width:1280px;margin:0 auto;padding:0 32px;color:var(--paper)}
+.section-wrap h2{font-family:"Cormorant Garamond",serif;font-size:48px;color:#ffd28a;margin:0 0 12px;font-weight:700}
+.section-wrap .desc{color:#a8b4c4;font-size:17px;font-style:italic;margin-bottom:32px;max-width:880px}
+
+.struct-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.struct-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,210,140,0.2);border-radius:14px;
+  padding:18px;backdrop-filter:blur(10px);transition:transform .2s}
+.struct-card:hover{transform:translateY(-3px);border-color:#ffd28a}
+.struct-viewer{height:280px;width:100%;border-radius:8px;overflow:hidden;position:relative;background:#000}
+.struct-card h3{font-family:'JetBrains Mono',monospace;font-size:14px;color:#ffd28a;margin:14px 0 4px;letter-spacing:.1em}
+.struct-card p{font-size:13px;color:#a8b4c4;margin:0 0 4px;line-height:1.5}
+.struct-card .sub{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#7a8597;letter-spacing:.05em}
+
+/* ===================== TIMELINE ===================== */
+.timeline-section{background:#fbf5e8;color:var(--ink);padding:80px 0}
+.timeline-section h2{color:var(--coal);font-family:"Cormorant Garamond",serif;font-size:48px;margin:0 0 12px}
+.timeline-section .desc{color:var(--muted);font-size:17px;font-style:italic;margin-bottom:32px;max-width:880px}
+.timeline{position:relative;max-width:1100px;margin:30px auto;padding:0 32px}
+.timeline::before{content:'';position:absolute;left:32px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#1c8e6d 0%,#4f2db5 50%,#7B1F2A 100%);border-radius:3px}
+.tline-item{position:relative;padding-left:60px;margin-bottom:30px;animation:slidein 0.8s}
+.tline-item::before{content:'';position:absolute;left:24px;top:6px;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--rose);box-shadow:0 0 0 4px rgba(123,31,42,0.15)}
+.tline-item.emerald::before{border-color:var(--emerald);box-shadow:0 0 0 4px rgba(28,142,109,0.15)}
+.tline-item.violet::before{border-color:var(--violet);box-shadow:0 0 0 4px rgba(79,45,181,0.15)}
+.tline-item.gold::before{border-color:var(--gold);box-shadow:0 0 0 4px rgba(181,133,52,0.15)}
+.tline-item h3{font-family:"Cormorant Garamond",serif;font-size:24px;color:var(--coal);margin:0 0 6px;font-weight:700}
+.tline-item p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+.tline-item .stamp{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--rose);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+
+/* ===================== ANALYSIS GRID ===================== */
+.ag-section{background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 50%,#e8d8be 100%);padding:80px 0;color:var(--ink)}
+.ag-section h2{color:var(--coal);font-family:"Cormorant Garamond",serif;font-size:48px;margin:0 0 12px}
+.ag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin:30px 0}
+.ag-card{background:#fff;border:2px solid var(--line);border-radius:14px;padding:16px 18px;
+  transition:all .25s;text-decoration:none;color:var(--ink);display:block;position:relative;overflow:hidden}
+.ag-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--coal);transition:height .2s}
+.ag-card.emerald::before{background:var(--emerald)}
+.ag-card.violet::before{background:var(--violet)}
+.ag-card.rose::before{background:var(--rose)}
+.ag-card.gold::before{background:var(--gold)}
+.ag-card:hover{transform:translateY(-4px);box-shadow:0 14px 30px rgba(12,20,34,0.15);border-color:var(--coal)}
+.ag-card:hover::before{height:8px}
+.ag-card .num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--rose);font-weight:700;letter-spacing:.15em;margin-bottom:6px;text-transform:uppercase}
+.ag-card h4{font-family:"Cormorant Garamond",serif;font-size:22px;color:var(--coal);margin:0 0 8px;line-height:1.15;font-weight:700}
+.ag-card p{font-size:13px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+.ag-card .arrow{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--rose);font-weight:700;letter-spacing:.1em}
+
+.metric-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:18px 0 22px}
+.metric-strip div{background:#fff;border:2px solid var(--coal);border-radius:10px;padding:11px 13px;box-shadow:4px 4px 0 rgba(12,20,34,0.07)}
+.metric-strip b{display:block;font-family:"Cormorant Garamond",serif;font-size:30px;color:var(--rose);line-height:1;font-weight:700}
+.metric-strip span{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:6px;letter-spacing:.07em;text-transform:uppercase}
+
+/* ===================== DELIVERABLES ===================== */
+.del-section{background:var(--coal);color:var(--paper);padding:80px 0}
+.del-section h2{color:#ffd28a;font-family:"Cormorant Garamond",serif;font-size:48px;margin:0 0 12px}
+.del-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:30px}
+.del-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,210,140,0.2);border-radius:14px;padding:22px;
+  transition:all .25s}
+.del-card:hover{border-color:#ffd28a}
+.del-card h3{font-family:"Cormorant Garamond",serif;font-size:28px;color:#ffd28a;margin:0 0 8px;font-weight:700}
+.del-card .tag{display:inline-block;background:#ffd28a;color:var(--coal);padding:3px 9px;border-radius:99px;
+  font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:.07em;margin-bottom:8px}
+.del-card p{color:#d6c8b3;margin:6px 0;font-size:14px;line-height:1.6}
+.del-card code{font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:3px;color:#ffd28a;font-size:11.5px}
+
+/* ===================== DECISIONS ===================== */
+.decisions-section{background:linear-gradient(180deg,#fbf5e8 0%,#fff 100%);color:var(--ink);padding:80px 0}
+.decisions-section h2{color:var(--coal);font-family:"Cormorant Garamond",serif;font-size:48px;margin:0 0 12px}
+.dec-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:24px}
+.dec-card{background:#fff;border-left:5px solid var(--rose);border-radius:8px;padding:18px 22px;
+  box-shadow:6px 6px 0 rgba(12,20,34,0.06)}
+.dec-card.emerald{border-color:var(--emerald)}
+.dec-card.violet{border-color:var(--violet)}
+.dec-card.gold{border-color:var(--gold)}
+.dec-card h3{font-family:"Cormorant Garamond",serif;font-size:22px;color:var(--coal);margin:0 0 6px;font-weight:700}
+.dec-card .id{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--rose);font-weight:700;letter-spacing:.15em;text-transform:uppercase;margin-bottom:8px}
+.dec-card p{margin:5px 0;font-size:13.5px;color:var(--ink);line-height:1.55}
+.dec-card .rec{font-style:italic;color:var(--emerald);font-weight:700;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line)}
+
+/* ===================== FOOTER ===================== */
+footer{background:var(--coal);color:#a8b4c4;padding:50px 32px 60px;font-size:13px}
+footer .ftw{max-width:1280px;margin:0 auto}
+footer h3{color:#ffd28a;font-family:"Cormorant Garamond",serif;margin:0 0 8px;font-size:22px}
+footer .citations{font-size:11.5px;color:#7a8597;line-height:1.7;margin-top:20px}
+footer code{color:#ffd28a;font-family:'JetBrains Mono',monospace}
+footer a{color:#ffd28a;text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* DNA double-helix loader */
+.dna{display:inline-block;animation:spin360 8s linear infinite;font-size:36px;margin-right:14px}
+.fade-in{animation:slidein 0.8s ease-out}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#ffd28a" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#7B1F2A" stop-opacity="0.05"/>
+        </linearGradient>
+      </defs>
+      <circle cx="300" cy="200" r="180" fill="url(#g1)" opacity="0.4">
+        <animate attributeName="r" values="180;220;180" dur="8s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="1500" cy="700" r="240" fill="url(#g1)" opacity="0.3">
+        <animate attributeName="r" values="240;200;240" dur="10s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="1700" cy="200" r="120" fill="url(#g1)" opacity="0.5">
+        <animate attributeName="cy" values="200;240;200" dur="6s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  </div>
+  <div class="particles" id="particles"></div>
+
+  <div class="hero-content">
+    <div class="kicker">Lumenix · Cancer Vaccine Project · 2026-05-07</div>
+    <h1><span class="dna">⌬</span>Cancer Vaccine.<br><span class="accent">data, structure, agent — all unified.</span></h1>
+    <p class="lead">Post-TESLA neoantigen-vaccine prediction platform. <b>13 sources · 119,237 records · 19,817 leakage-free benchmark · 44 analyses · 115 ESMFold structures · 4,000 ESM2 embeddings · 9 live web pages</b>. Honest cross-source benchmarks (LOSO 0.40-0.55), Simpson's-paradox confounder check, and a concrete <b>10-epitope KRAS PAAD vaccine candidate</b>.</p>
+
+    <div class="hero-stats">
+      <div class="hs"><b>119,237</b><span>master records</span></div>
+      <div class="hs"><b>13</b><span>data sources</span></div>
+      <div class="hs"><b>19,817</b><span>leakage-free</span></div>
+      <div class="hs"><b>44</b><span>analyses</span></div>
+      <div class="hs"><b>115</b><span>ESMFold structures</span></div>
+      <div class="hs"><b>0.854</b><span>RF AUROC ± 0.008</span></div>
+    </div>
+
+    <div class="hero-cta">
+      <a class="cta cta-primary" href="#deliverables">▶ See KRAS vaccine candidate</a>
+      <a class="cta cta-ghost" href="#analyses">44 analyses</a>
+      <a class="cta cta-ghost" href="neoantigen_demo_full.html">Master demo →</a>
+      <a class="cta cta-ghost" href="cancer_vaccine_agent.html">SPARK agent →</a>
+      <a class="cta cta-ghost" href="neoantigen_3d_viewer.html">3D viewer →</a>
+    </div>
+  </div>
+  <a class="scroll-down" href="#structures">scroll · ↓</a>
+</section>
+
+
+<!-- pMHC + TCR-pMHC STRUCTURES -->
+<section class="struct-section" id="structures">
+  <div class="section-wrap">
+    <h2>★ Real pMHC + TCR-pMHC structures (RCSB)</h2>
+    <p class="desc">Real crystal structures from PDB · drag to rotate, scroll to zoom. <b>HLA heavy chain (grey)</b> + <b>β2-microglobulin (light blue)</b> + <b>peptide (red sticks)</b> + <b>TCR Vα (gold)</b> / <b>Vβ (orange)</b> where applicable.</p>
+    <div class="struct-grid" style="grid-template-columns:repeat(3,1fr)">
+      
+    <div class="struct-card">
+      <div class="struct-viewer" id="v1" 
+           data-pdb-url="neoantigen_hub_data/pdb_pmhc/1HHK.pdb" 
+           data-hla="A" data-b2m="B" data-pep="C"
+           data-tcra="" data-tcrb=""></div>
+      <h3>★ HLA-A*02:01 + neoantigen peptide</h3>
+      <p>HLA heavy chain (grey cartoon) + β2-microglobulin (light blue) + 9-mer peptide (red sticks) wedged in α1/α2 groove.</p>
+      <span class="sub">PDB 1HHK · MAGE-A4 9-mer · classic pMHC class I</span>
+    </div>
+    <div class="struct-card">
+      <div class="struct-viewer" id="v2" 
+           data-pdb-url="neoantigen_hub_data/pdb_pmhc/3I6L.pdb" 
+           data-hla="D" data-b2m="E" data-pep="F"
+           data-tcra="" data-tcrb=""></div>
+      <h3>HLA-A*24:02 + peptide (Korean common)</h3>
+      <p>Korean predominant allele · per-allele AUROC 0.743 in our benchmark — Korean K2 cohort potential.</p>
+      <span class="sub">PDB 3I6L · A*24:02 18.5% Korean SK pop</span>
+    </div>
+    <div class="struct-card">
+      <div class="struct-viewer" id="v3" 
+           data-pdb-url="neoantigen_hub_data/pdb_pmhc/1Q94.pdb" 
+           data-hla="A" data-b2m="B" data-pep="C"
+           data-tcra="" data-tcrb=""></div>
+      <h3>HLA-A*11:01 + peptide</h3>
+      <p>Asian + global common allele · 1,915 master records.</p>
+      <span class="sub">PDB 1Q94 · A*11:01 9.0% SK / 9.6% World</span>
+    </div>
+    <div class="struct-card">
+      <div class="struct-viewer" id="v4" 
+           data-pdb-url="neoantigen_hub_data/pdb_pmhc/3VCL.pdb" 
+           data-hla="A" data-b2m="B" data-pep="C"
+           data-tcra="" data-tcrb=""></div>
+      <h3>HLA-B*07:02 + 12-mer peptide</h3>
+      <p>HLA-B class I · 12-aa peptide bulges out of groove.</p>
+      <span class="sub">PDB 3VCL · longer peptide bulge</span>
+    </div>
+    <div class="struct-card">
+      <div class="struct-viewer" id="v5" 
+           data-pdb-url="neoantigen_hub_data/pdb_pmhc/1AO7.pdb" 
+           data-hla="A" data-b2m="B" data-pep="C"
+           data-tcra="D" data-tcrb="E"></div>
+      <h3>★ TCR-pMHC complex · HTLV-1 Tax</h3>
+      <p><b>3-component view</b>: HLA (grey) + β2m (blue) + peptide (red sticks) + TCR Vα (gold) + TCR Vβ (orange).</p>
+      <span class="sub">PDB 1AO7 · A6 TCR + HLA-A*02:01 + Tax</span>
+    </div>
+    <div class="struct-card">
+      <div class="struct-viewer" id="v6" 
+           data-pdb-url="neoantigen_hub_data/pdb_pmhc/2BNQ.pdb" 
+           data-hla="A" data-b2m="B" data-pep="C"
+           data-tcra="D" data-tcrb="E"></div>
+      <h3>★ TCR-pMHC · EBV peptide</h3>
+      <p>Second TCR-pMHC. Different HLA, different TCR. Same architecture.</p>
+      <span class="sub">PDB 2BNQ · LC13 TCR + HLA-B*8:01 + EBV FLR</span>
+    </div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#0a1020;color:#fbf6ec;padding:60px 0">
+  <div class="section-wrap">
+    <h2 style="color:#ffd28a;font-size:36px">Compare · ESMFold isolated peptides (the LIMITATION)</h2>
+    <p class="desc" style="color:#a8b4c4">ESMFold on isolated 9-15mers (without HLA context) — what we used for 30 TESLA peptides + 79 CDR3β. Mean pLDDT 0.66-0.72, RMSD same-vs-diff TCRs 7.5 vs 8.0Å (p=0.30 ns) — peptide-only structure carries weak signal. The real pMHC structures above show what production needs.</p>
+    <p style="margin-top:14px"><a href="neoantigen_3d_viewer.html" style="color:#ffd28a;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase">▶ See 30 ESMFold peptide structures</a> · <a href="tcr_3d_viewer.html" style="color:#ffd28a;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-left:18px">▶ See 60 ESMFold CDR3β loops</a></p>
+  </div>
+</section>
+
+
+<!-- TIMELINE -->
+<section class="timeline-section" id="timeline">
+  <div class="section-wrap">
+    <h2>Timeline · 13 datasets ingested → 44 analyses → vaccine deliverable</h2>
+    <p class="desc">From the user's brief ("post-TESLA neoantigen + structure + agent") through 5 rounds of "더 더 더" — every analysis batch built on the previous.</p>
+
+    <div class="timeline">
+      <div class="tline-item emerald"><span class="stamp">Stage 0 · brief</span>
+        <h3>SPARK agent + pancreatic PoC + post-TESLA hub</h3>
+        <p>Berbís 2026 Nat Med <code>s41591-026-04357-y</code> Planner/ToolRouter/Verifier/Memory pattern. TCGA-PAAD KRAS G12D Cox HR=2.17 (p=0.002). 13 sources targeted.</p></div>
+
+      <div class="tline-item violet"><span class="stamp">Stage 1 · ingest</span>
+        <h3>13 sources · 119,237 records · 13-source registry</h3>
+        <p>TESLA + IEDB + NEPdb + McPAS-TCR + IMPROVE + Neodb + dbPepNeo (rescued from Neodb zip!) + TSNAdb + CEDAR + BigMHC + NeoRanking + VDJdb + clinical. <b>dbPepNeo dead-site database recovered inside Neodb Zenodo zip</b>.</p></div>
+
+      <div class="tline-item gold"><span class="stamp">Stage 2 · audit</span>
+        <h3>Leakage-free benchmark · 19,817 cleaned</h3>
+        <p>test_set_safety field: TRAINING_OVERLAP 62k / HELD_OUT 16k / EXTERNAL_TEST 3.4k / PARTIAL_OVERLAP 5k. IEDB is training corpus of NetMHCpan/MHCflurry/PRIME/BigMHC — flagged. 2,221 cross-source conflict peptides preserved (HONEST).</p></div>
+
+      <div class="tline-item"><span class="stamp">Stage 3 · structure</span>
+        <h3>30 peptide + 79 CDR3β + 6 pMHC ESMFold</h3>
+        <p>4-thread API parallel · 105 sec for 79 CDR3β · interactive 3Dmol.js viewers. Same-peptide TCRs are sequence-closer (Lev μ 9.0 vs 10.4, <b>p=1.0e-32</b>); structurally directionally closer (RMSD 7.5 vs 8.0Å).</p></div>
+
+      <div class="tline-item emerald"><span class="stamp">Stage 4 · ML</span>
+        <h3>44 analyses (A-P + S1-S5 + Q-X + Y-DD + EE-JJ + KK-PP + ESM2)</h3>
+        <p>5-fold CV biophysics-only RF <b>AUROC=0.854 ± 0.008</b> [bootstrap 95% CI 0.826-0.869]. XGBoost+SHAP, L1 logistic, per-allele, calibration, active-learning, KRAS pan-cancer scoring.</p></div>
+
+      <div class="tline-item violet"><span class="stamp">Stage 5 · honest caveats</span>
+        <h3>LOSO + Simpson's paradox + ESM2 partial fix</h3>
+        <p>LOSO AUROC 0.40-0.55 (NEPdb-out 0.40 — actively below random!) → ESM2-35M lifts to 0.48 partial. Histidine SHAP-top signal turns out to be HLA-distribution Simpson's paradox (per-allele Δf_H ≈ 0). Aromatic Δ holds up per-allele. Domain-adapt re-weighting did NOT help (Δ ≈ -0.007).</p></div>
+
+      <div class="tline-item gold"><span class="stamp">Stage 6 · deliverable</span>
+        <h3>10-epitope KRAS PAAD vaccine + 50 active-learning</h3>
+        <p>Concatemer 150 aa GGSGGSGG-linker. 5 TESLA-validated + 4 KRAS predicted (G12D GADGVGKSA family). PAAD/COAD/HNSC = G12D · LUAD = G12C (smoking sig). 290 cancer peptides exact-match in VDJdb (independent TCR validation). 43 self-similar autoimmunity-risk flags.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ANALYSIS GRID -->
+<section class="ag-section" id="analyses">
+  <div class="section-wrap">
+    <h2>★ All 9 analysis reports + supporting pages</h2>
+    <p class="desc">44 analyses partitioned across 7 reports. Click any card to open the live HTML.</p>
+
+    <div class="metric-strip">
+      <div><b>0.854</b><span>RF AUROC (CV)</span></div>
+      <div><b>0.847</b><span>XGBoost AUROC</span></div>
+      <div><b>p=1e-32</b><span>same-pep TCR seq</span></div>
+      <div><b>p=4.8e-22</b><span>hydrophobicity Δ</span></div>
+      <div><b>290</b><span>VDJdb cross-match</span></div>
+    </div>
+
+    <div class="ag-grid">
+      <a class="ag-card emerald" href="neoantigen_demo_full.html">
+        <div class="num">★ Master · Hub</div>
+        <h4>Master demo (15 cards)</h4>
+        <p>Single-page navigation hub with all KPIs, source table, conflicts, benchmark.</p>
+        <div class="arrow">▶ open hub →</div>
+      </a>
+      <a class="ag-card" href="neoantigen_analyses_full.html">
+        <div class="num">A-P + S1-S5 · 21 analyses</div>
+        <h4>Comprehensive A-P + TCR struct</h4>
+        <p>Biophys, HLA, drivers, structure, PSSM, repertoire, RF baseline, mutation type, supertype, Balachandran, TCR ESMFold.</p>
+        <div class="arrow">▶ open report →</div>
+      </a>
+      <a class="ag-card violet" href="neoantigen_analyses_qx.html">
+        <div class="num">Q-X · 8 analyses</div>
+        <h4>UMAP · 5-fold CV · LOSO</h4>
+        <p>UMAP 4,487 peptides · 5-fold AUROC 0.854±0.008 · LOSO 0.40-0.55 · A*02:01 P2 L=59% / P9 V=42% · per-allele.</p>
+        <div class="arrow">▶ open report →</div>
+      </a>
+      <a class="ag-card rose" href="neoantigen_analyses_yz.html">
+        <div class="num">Y-DD · 6 analyses</div>
+        <h4>XGBoost · SHAP · KRAS · active learning</h4>
+        <p>XGBoost AUROC=0.847 · 1000-bootstrap 95% CI [0.826, 0.869] · KRAS G12D GADGVGKSAL proba=0.871.</p>
+        <div class="arrow">▶ open report →</div>
+      </a>
+      <a class="ag-card violet" href="neoantigen_analyses_eejj.html">
+        <div class="num">EE-JJ · 6 analyses</div>
+        <h4>VDJdb · autoimmunity · TCR clonotype</h4>
+        <p>43 self-similar autoimmunity flags · Chou-Fasman α-helix p=2.7e-4 · 101 VDJdb exact + KRAS Lev=1 hit · 2974 CDR3β UMAP.</p>
+        <div class="arrow">▶ open report →</div>
+      </a>
+      <a class="ag-card gold" href="neoantigen_analyses_kkpp.html">
+        <div class="num">KK-PP · 6 analyses</div>
+        <h4>★ Pan-cancer KRAS · vaccine concatemer</h4>
+        <p>Full VDJdb 290 overlaps · LUAD G12C vs PAAD G12D · 10-epitope 150aa concatemer · Simpson's paradox confounder check.</p>
+        <div class="arrow">▶ open report →</div>
+      </a>
+      <a class="ag-card rose" href="neoantigen_analyses_esm2.html">
+        <div class="num">ESM2-35M</div>
+        <h4>★ Protein-LM benchmark</h4>
+        <p>33.5M-param ESM2 480-d embeddings · 5-fold CV 0.828 · NEPdb LOSO partial fix 0.40 → 0.48 (+0.073). Cached .npy reusable.</p>
+        <div class="arrow">▶ open report →</div>
+      </a>
+      <a class="ag-card emerald" href="neoantigen_3d_viewer.html">
+        <div class="num">3D viewer · peptide</div>
+        <h4>30 TESLA peptide ESMFold</h4>
+        <p>15 T-cell-validated + 15 non-validated · in-browser 3Dmol.js cartoon · POS=green, NEG=red · per-peptide FOREIGNNESS/AGRETOPICITY.</p>
+        <div class="arrow">▶ open viewer →</div>
+      </a>
+      <a class="ag-card violet" href="tcr_3d_viewer.html">
+        <div class="num">3D viewer · TCR</div>
+        <h4>60 CDR3β ESMFold loops</h4>
+        <p>McPAS Cancer + NEPdb pos paired CDR3β · color = bound peptide · same-peptide TCRs cluster.</p>
+        <div class="arrow">▶ open viewer →</div>
+      </a>
+      <a class="ag-card gold" href="cancer_vaccine_agent.html">
+        <div class="num">SPARK · agent · 21 scenarios</div>
+        <h4>Cancer Vaccine Agent</h4>
+        <p>Berbís 2026 Nat Med Planner/ToolRouter/Verifier/Memory · 31 tools registered · interactive demo.</p>
+        <div class="arrow">▶ open agent →</div>
+      </a>
+      <a class="ag-card" href="lumenix_demo_report.html">
+        <div class="num">PoC · pancreatic</div>
+        <h4>Lumenix Demo Report</h4>
+        <p>21-scenario chatbot · DIAL_u uncertainty audit · TCGA-PAAD multivariable Cox · multi-process build pipeline.</p>
+        <div class="arrow">▶ open PoC →</div>
+      </a>
+      <a class="ag-card" href="neoantigen_full_session_2026_05_07.md">
+        <div class="num">★ Session · MD</div>
+        <h4>Full session record (markdown)</h4>
+        <p>312-line MD with TL;DR, 13 sources, 44 analyses, deliverables, caveats, 9 judgment-call decisions.</p>
+        <div class="arrow">▶ download MD →</div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- DELIVERABLES -->
+<section class="del-section" id="deliverables">
+  <div class="section-wrap">
+    <h2>★ Concrete deliverables (downloadable)</h2>
+    <p class="desc" style="color:#a8b4c4">Every output is wet-lab-ready — peptide sequences, scoring, autoimmunity flags, leakage audits.</p>
+
+    <div class="del-grid">
+      <div class="del-card">
+        <span class="tag">★ vaccine candidate</span>
+        <h3>10-epitope KRAS PAAD vaccine concatemer</h3>
+        <p>150 aa with GGSGGSGG flexible linkers · 5 TESLA-validated + 4 KRAS XGBoost-predicted + 1 hot · diverse HLA (A*03:01, A*02:01, C*06:02, A*68:01).</p>
+        <p>Cancer-specific: <b>G12D · GADGVGKSA</b> for PAAD/COAD/HNSC · <b>G12C · GACGVGKSALT</b> for LUAD (smoking signature).</p>
+        <p>External corroboration: <b>GAAGVGKSAL Lev=1</b> already in VDJdb HomoSapiens-recognized.</p>
+        <p>DNA synthesis ~$200 IDT gBlock · ready for in-vitro / mouse HLA-tg.</p>
+      </div>
+
+      <div class="del-card">
+        <span class="tag">★ wet-lab queue</span>
+        <h3>50 active-learning peptides</h3>
+        <p>RF probability ≈ 0.5 (most uncertain) unlabeled candidates — best information-yield for next experiment.</p>
+        <p>Top: MLFSHGLVK (0.501) · CTLLGIVVCAV (0.503) · KALARALKEGRIR (0.495) — all from dbPepNeo MHC-I/II.</p>
+        <p>Tetramer / IFN-γ ELISpot pilot ~$5k for 50 peptides.</p>
+        <p>Download: <code>neoantigen_hub_data/active_learning_top50.tsv</code></p>
+      </div>
+
+      <div class="del-card">
+        <span class="tag">audit · honest</span>
+        <h3>Leakage audit + cross-source conflicts</h3>
+        <p><b>62,376</b> TRAINING_OVERLAP records flagged (IEDB is training corpus of NetMHCpan/MHCflurry/PRIME/BigMHC).</p>
+        <p><b>19,817</b> leakage-free benchmark (HELD_OUT 16k + EXTERNAL_TEST 3.4k).</p>
+        <p><b>2,221</b> cross-source conflict peptides preserved (NEPdb↔dbPepNeo n=23 max disagreement).</p>
+        <p>Download: <code>neoantigen_hub_data/leakage_audit.json</code> + <code>source_x_test_set_safety.csv</code></p>
+      </div>
+
+      <div class="del-card">
+        <span class="tag">safety</span>
+        <h3>43 autoimmunity-risk flags</h3>
+        <p>Positive peptides Lev≤1 to self-WT pool — must filter before vaccine design.</p>
+        <p>Self pool n=1,212 WT-version peptides · 43 immunogenic-positive overlap vs only 4 negative — clear self-tolerance leak.</p>
+        <p>Pre-flight check for clinical safety.</p>
+      </div>
+
+      <div class="del-card">
+        <span class="tag">structure · 115 PDB</span>
+        <h3>ESMFold structures (re-usable)</h3>
+        <p><b>30 TESLA peptide</b> structures (pLDDT 0.72) · <b>79 McPAS+NEPdb CDR3β</b> loops · <b>6 pseudo-pMHC</b> complexes.</p>
+        <p>Total folding time: 105 + 53 + 16 = ~3 minutes parallel. Stored as PDB · live 3Dmol.js viewers.</p>
+        <p>Cached: <code>data_raw/tesla/structures/*.pdb</code> · <code>data_raw/tcr/structures/*.pdb</code></p>
+      </div>
+
+      <div class="del-card">
+        <span class="tag">embeddings · re-usable</span>
+        <h3>4,000 ESM2-35M embeddings</h3>
+        <p>480-d mean-pooled per-residue embeddings · CPU 30 sec for 4,000 peptides on 8 cores.</p>
+        <p>5-fold CV AUROC 0.828 · NEPdb LOSO partial fix 0.40 → 0.48.</p>
+        <p>Cached: <code>data_processed/esm2_embeddings.npy</code> 7.3 MB</p>
+      </div>
+
+      <div class="del-card">
+        <span class="tag">scored cohort</span>
+        <h3>180 KRAS G12 peptides scored</h3>
+        <p>9-, 10-, 11-mers spanning codon-12 mutations (G12D/V/C/R/A/S) · all XGBoost-scored.</p>
+        <p>Top: G12D · GADGVGKSAL <b>proba=0.871</b>.</p>
+        <p>Download: <code>neoantigen_hub_data/kras_g12_predictions.tsv</code></p>
+      </div>
+
+      <div class="del-card">
+        <span class="tag">re-runnable</span>
+        <h3>Reproducible pipeline (scripts)</h3>
+        <p><code>parallel_ingest_and_fold.py</code> · <code>build_master_dataset.py</code> · <code>assign_test_set_safety.py</code> · <code>clean_and_dedupe.py</code> · <code>benchmark_models.py</code> · 7 analysis scripts (A-P, Q-X, Y-DD, EE-JJ, KK-PP, ESM2).</p>
+        <p>From scratch ~10 min CPU + 2 min API + 30 sec ESM2 on 8 cores.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DECISIONS -->
+<section class="decisions-section" id="decisions">
+  <div class="section-wrap">
+    <h2>★ 9 judgment calls (Seungho 결정 필요)</h2>
+    <p class="desc" style="color:var(--muted)">Decision tree at the end of session. Each branch has cost/risk/upside.</p>
+
+    <div class="dec-grid">
+      <div class="dec-card emerald"><div class="id">7.1 · paper venue</div>
+        <h3>Cell Rep Med vs NAR Database vs Bioinformatics?</h3>
+        <p>Multi-source neoantigen + leakage audit + vaccine candidate paper. ML novelty 약함 (LOSO 0.40 정직 보고).</p>
+        <p class="rec">추천: <b>NAR Database Issue + Sci Rep companion</b> (확실 acceptance, IF 6+)</p></div>
+
+      <div class="dec-card violet"><div class="id">7.2 · KRAS PAAD wet-lab</div>
+        <h3>Wet-lab 갈건지? 협업?</h3>
+        <p>GADGVGKSAL/ADGVGKSALT 합성 + HLA-A*11 mouse + ELISpot. 비용 ~$10k · 시간 3-6개월.</p>
+        <p class="rec">결정 필요: Yu 교수 / 서울대 / Bundang / Korea-Sweden 협업?</p></div>
+
+      <div class="dec-card"><div class="id">7.3 · Korean K2 separate</div>
+        <h3>Korean K2/Bundang FFPE 별도 paper?</h3>
+        <p>Master에 thyroid-relevant n=0 · Korean A*24:02 per-allele AUROC 0.743 신호 강.</p>
+        <p class="rec">유지: Paper 4 backlog (이미 v19 트랙)</p></div>
+
+      <div class="dec-card violet"><div class="id">7.4 · ESM2 / AlphaFold-Multimer GPU</div>
+        <h3>다음 라운드 GPU?</h3>
+        <p>ESM2-35M done · partial LOSO fix 확인. ESM2-650M GPU (~$5 Azure) → 5-10% 더 가능. AlphaFold-Multimer pMHC+TCR ~$100-300.</p>
+        <p class="rec">추천: ESM2-650M 먼저 (cheap, big upside)</p></div>
+
+      <div class="dec-card gold"><div class="id">7.5 · autoimmunity flags</div>
+        <h3>43개 self-similar 어떻게?</h3>
+        <p>Lev≤1 to self pool · 43 pos vs 4 neg · 백신 디자인 전 risk flag.</p>
+        <p class="rec">추천: 단순 필터 + 별도 명시</p></div>
+
+      <div class="dec-card emerald"><div class="id">7.6 · LUAD separate line</div>
+        <h3>LUAD G12C 별도 백신 line?</h3>
+        <p>LUAD top KRAS는 G12C (smoking signature) — PAAD/COAD G12D와 다름.</p>
+        <p class="rec">추천: 별도 cancer-specific line · sotorasib 표적 환자 stratify</p></div>
+
+      <div class="dec-card"><div class="id">7.7 · active learning wet-lab</div>
+        <h3>50개 우선순위 wet-lab?</h3>
+        <p>proba ≈ 0.5 가장 모호한 50개 unlabeled · tetramer + ELISpot ~$5k.</p>
+        <p class="rec">추천: 협업 lab + Azure burst 비용처럼 1회 투자</p></div>
+
+      <div class="dec-card gold"><div class="id">7.8 · agent T31 tool</div>
+        <h3>SPARK agent에 TCR-structure tool 추가?</h3>
+        <p>T31 = TCR-structure prediction (ESMFold CDR3β + similarity).</p>
+        <p class="rec">추천: 다음 라운드 (~30분 작업)</p></div>
+
+      <div class="dec-card emerald"><div class="id">7.9 · submission timing</div>
+        <h3>지금 vs ESM2 + per-allele 후 제출?</h3>
+        <p>지금: 충분. ESM2 + per-allele HLA-stratified 학습 추가하면 AUROC 0.5+ 개선 (2-3일).</p>
+        <p class="rec">추천: <b>ESM2-650M + per-allele 재학습 후 제출</b> (Cell Rep Med fit 강해짐)</p></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- QQ-VV NEW RESULTS -->
+<section style="background:linear-gradient(180deg,#1a2438 0%,#0c1422 100%);color:#fbf6ec;padding:80px 0">
+  <div class="section-wrap">
+    <h2>★ Latest results · ESM2 + set-cover + TCR signature</h2>
+    <p class="desc" style="color:#a8b4c4">Just-in QQ-VV analyses (run after the 9 reports). Three big wins.</p>
+
+    <div class="metric-strip" style="grid-template-columns:repeat(5,1fr)">
+      <div style="background:rgba(255,255,255,0.04);border-color:rgba(255,210,140,0.3)">
+        <b style="color:#ffd28a">0.832</b><span>QQ · ESM2 full 4,487</span></div>
+      <div style="background:rgba(255,255,255,0.04);border-color:rgba(255,210,140,0.3)">
+        <b style="color:#ffd28a">0.833</b><span>RR · ESM2+biophys concat</span></div>
+      <div style="background:rgba(255,255,255,0.04);border-color:rgba(255,210,140,0.3)">
+        <b style="color:#ffd28a">66.3%</b><span>SS · 7-pep World cov</span></div>
+      <div style="background:rgba(255,255,255,0.04);border-color:rgba(255,210,140,0.3)">
+        <b style="color:#ffd28a">82.95×</b><span>VV · TRBV6 OR cancer</span></div>
+      <div style="background:rgba(255,255,255,0.04);border-color:rgba(255,210,140,0.3)">
+        <b style="color:#ffd28a">7</b><span>SS · vaccine peptides</span></div>
+    </div>
+
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#ffd28a;margin:30px 0 8px">SS · HLA set-cover greedy 7-peptide vaccine</h3>
+    <p style="color:#a8b4c4">66.3% any-allele World population coverage with 7 carefully-chosen peptides. Beats single-allele approach by 3×.</p>
+    <table style="background:rgba(255,255,255,0.04);color:#fbf6ec">
+      <tr><th>peptide</th><th>HLA</th><th>World freq</th><th>RF score</th></tr>
+      <tr><td class='mono'><b>TLWCSPIKV</b></td><td class='mono'>HLA-A*02:01</td><td>29.2%</td><td>0.942</td></tr><tr><td class='mono'><b>FSADIFFFF</b></td><td class='mono'>HLA-A*01:01</td><td>13.1%</td><td>0.932</td></tr><tr><td class='mono'><b>SPPHPGRLPDL</b></td><td class='mono'>HLA-B*07:02</td><td>12.0%</td><td>1.000</td></tr><tr><td class='mono'><b>ITGALVLFMK</b></td><td class='mono'>HLA-A*03:01</td><td>11.0%</td><td>0.969</td></tr><tr><td class='mono'><b>IPVAIKTSPK</b></td><td class='mono'>HLA-A*11:01</td><td>9.6%</td><td>0.958</td></tr><tr><td class='mono'><b>FFFFKTTAL</b></td><td class='mono'>HLA-C*07:01</td><td>11.0%</td><td>0.753</td></tr><tr><td class='mono'><b>DKESEEEVS</b></td><td class='mono'>HLA-C*04:01</td><td>13.0%</td><td>0.629</td></tr>
+    </table>
+
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#ffd28a;margin:30px 0 8px">VV · Cancer-specific TRBV signature</h3>
+    <p style="color:#a8b4c4">Odds ratio vs non-cancer pathologies in McPAS-TCR (n=2,813 cancer vs 30,108 non-cancer). <b>TRBV6 / TRBV3 / TRBV4</b> are massively over-represented in cancer TCR repertoires — candidate biomarker + TCR-engineering scaffolds.</p>
+    <table style="background:rgba(255,255,255,0.04);color:#fbf6ec">
+      <tr><th>V gene</th><th>cancer n</th><th>non-cancer n</th><th>OR</th><th></th></tr>
+      <tr><td class='mono'><b>TRBV6</b></td><td>93</td><td>12</td><td><b style='color:#ffd28a'>82.95×</b></td><td><div style='display:inline-block;width:100px;height:6px;background:#ffd28a;border-radius:2px'></div></td></tr><tr><td class='mono'><b>TRBV3</b></td><td>127</td><td>17</td><td><b style='color:#ffd28a'>79.96×</b></td><td><div style='display:inline-block;width:100px;height:6px;background:#ffd28a;border-radius:2px'></div></td></tr><tr><td class='mono'><b>TRBV4</b></td><td>29</td><td>18</td><td><b style='color:#ffd28a'>17.24×</b></td><td><div style='display:inline-block;width:34px;height:6px;background:#ffd28a;border-radius:2px'></div></td></tr><tr><td class='mono'><b>TRBV20</b></td><td>30</td><td>35</td><td><b style='color:#ffd28a'>9.17×</b></td><td><div style='display:inline-block;width:18px;height:6px;background:#ffd28a;border-radius:2px'></div></td></tr><tr><td class='mono'><b>TRBV12-3,12-4</b></td><td>36</td><td>46</td><td><b style='color:#ffd28a'>8.38×</b></td><td><div style='display:inline-block;width:17px;height:6px;background:#ffd28a;border-radius:2px'></div></td></tr><tr><td class='mono'><b>TRBV13</b></td><td>67</td><td>112</td><td><b style='color:#ffd28a'>6.40×</b></td><td><div style='display:inline-block;width:13px;height:6px;background:#ffd28a;border-radius:2px'></div></td></tr><tr><td class='mono'><b>TRBV7-02</b></td><td>35</td><td>108</td><td><b style='color:#ffd28a'>3.47×</b></td><td><div style='display:inline-block;width:7px;height:6px;background:#ffd28a;border-radius:2px'></div></td></tr><tr><td class='mono'><b>TRBV7-9</b></td><td>170</td><td>912</td><td><b style='color:#ffd28a'>2.00×</b></td><td><div style='display:inline-block;width:4px;height:6px;background:#ffd28a;border-radius:2px'></div></td></tr>
+    </table>
+
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:28px;color:#ffd28a;margin:30px 0 8px">TT · TCGA-PAAD survival link</h3>
+    <p style="color:#a8b4c4">Top 4 XGBoost-predicted KRAS G12 peptides → all G12D family. Same KRAS G12D subgroup has TCGA-PAAD multivariable Cox <b>HR=2.17 (p=0.002, n=185)</b> + meta-cohort <b>HR=1.41 (n=3,113)</b>.</p>
+    <p style="color:#fbf6ec;font-style:italic;border-left:3px solid #ffd28a;padding-left:14px;margin:10px 0">Top XGBoost-predicted KRAS G12D peptides (GADGVGKSAL family) come from the same KRAS G12D patient subgroup that has TCGA-PAAD multivariable Cox HR=2.17 (p=0.002, n=185) and meta-cohort HR=1.41 (n=3,113). The vaccine target hits the highest-mortality molecular subgroup.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ftw">
+    <h3>Lumenix Cancer Vaccine Project · 2026-05-07</h3>
+    <p>Seungho Cook · <code>kukshomr@gmail.com</code> · Public hub: <a href="http://40.82.129.113/papers_hub_2026_05_04/">40.82.129.113/papers_hub_2026_05_04/</a></p>
+    <p style="margin-top:10px">Status: <b>★ Ready for paper submission</b> OR for next-round ESM2-650M + wet-lab pilot.</p>
+    <p class="citations">
+    Sources: TESLA Wells 2020 Cell · IEDB Vita 2019 NAR · NEPdb Xia 2021 NAR · McPAS-TCR Tickotsky 2017 Bioinformatics · IMPROVE Borch 2024 Front Immunol · Neodb Wu 2025 Zenodo 16892216 · dbPepNeo Wu 2020 Brief Bioinf · TSNAdb Wu 2018 GPB · CEDAR Koşaloğlu-Yalçın 2023 NAR · BigMHC Albert 2023 Nat Mach Intell · NeoRanking Müller 2023 Cell Rep Med · VDJdb Bagaev 2020 NAR · ESMFold Lin 2023 Science · ESM2 Lin 2023 Science · SPARK Berbís 2026 Nat Med <code>s41591-026-04357-y</code> · Balachandran 2017 Nature · TCRdist3 Mayer-Blackwell 2021 eLife
+    </p>
+  </div>
+</footer>
+
+<script>
+// Animated particles
+const N=24, container=document.getElementById('particles');
+for(let i=0;i<N;i++){
+  const p=document.createElement('div');
+  p.className='particle';
+  const s=Math.random()*4+2;
+  p.style.width=p.style.height=s+'px';
+  p.style.left=Math.random()*100+'%';
+  p.style.top=Math.random()*100+'%';
+  p.style.animationDuration=(15+Math.random()*15)+'s';
+  p.style.animationDelay=(Math.random()*5)+'s';
+  container.appendChild(p);
+}
+
+// Load 3D pMHC structures from URL
+async function loadPMHCViewers(){
+  const viewers = document.querySelectorAll('.struct-viewer[data-pdb-url]');
+  for(const el of viewers){
+    try{
+      const url = el.dataset.pdbUrl;
+      const r = await fetch(url);
+      if(!r.ok){ el.innerHTML = '<div style="color:#ffd28a;padding:120px 20px;text-align:center;font-family:monospace">PDB load failed: '+url+'</div>'; continue; }
+      const pdb = await r.text();
+      const hlaCh = el.dataset.hla, b2mCh = el.dataset.b2m, pepCh = el.dataset.pep;
+      const tcraCh = el.dataset.tcra, tcrbCh = el.dataset.tcrb;
+      const v = $3Dmol.createViewer(el, {backgroundColor:'#0a0f1a'});
+      v.addModel(pdb, 'pdb');
+      v.setStyle({}, {cartoon:{color:'#aab5c4', opacity:0.6}});
+      if(hlaCh) v.setStyle({chain:hlaCh}, {cartoon:{color:'#cdd6e0', opacity:0.85}});
+      if(b2mCh) v.setStyle({chain:b2mCh}, {cartoon:{color:'#7fbcd4', opacity:0.9}});
+      if(pepCh){
+        v.setStyle({chain:pepCh}, {cartoon:{color:'#e84a5f', thickness:1.5}, stick:{colorscheme:'redCarbon', radius:0.3}});
+      }
+      if(tcraCh) v.setStyle({chain:tcraCh}, {cartoon:{color:'#ffd28a', opacity:0.85}});
+      if(tcrbCh) v.setStyle({chain:tcrbCh}, {cartoon:{color:'#f59042', opacity:0.85}});
+      v.zoomTo();
+      v.spin('y', 0.4);
+      v.render();
+    }catch(e){
+      console.error('pMHC viewer error '+el.id, e);
+      el.innerHTML = '<div style="color:#e84a5f;padding:120px 20px;text-align:center;font-family:monospace">3D render error · check console</div>';
+    }
+  }
+}
+window.addEventListener('load', loadPMHCViewers);
+
+
+</script>
+</body>
+</html>

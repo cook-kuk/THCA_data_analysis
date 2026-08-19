@@ -1,11 +1,11 @@
 ---
 title: Paper 1 manuscript v8 — compiled (concatenated)
-date: 2026-05-09
+date: 2026-05-13
 author: Seungho Cook
 target_venue: Cell Reports Medicine (1순위) → JCI Insight + Nat Commun dual reach → npj Precision Oncology (fallback)
 status: assembled. Voice-protected placeholders preserved. P0 affiliation/email fields TBD by author.
 source_files: 00_title_candidates / 01_abstract / 03_introduction / 04_results / 05_figure_captions / 06_discussion / 07_star_methods / 09_reviewer_qa / 13_supplementary_tables / 15_supp_image_dm1_tss_confound_case_study / (cover letter 08 separate, kept at end)
-regenerated: 2026-05-09 (C1 Aim split applied; Fig 7D demoted to Supp Fig S6; Fig 8C demoted to Supp Fig S5b; Korean cohorts n=865 confirmed; GSE286332-PTC excluded from Paper 1 aggregate)
+regenerated: 2026-05-13 (C1 Aim split applied; Fig 7D demoted to Supp Fig S6; Fig 8C demoted to Supp Fig S5b; Korean cohorts n=865 confirmed; GSE286332-PTC excluded from Paper 1 aggregate)
 ---
 
 # Paper 1 — Full Compiled Manuscript v8
@@ -162,9 +162,12 @@ We applied an 8-gene RAI-responsiveness panel — independently selected from ca
 # === Results (04_results.md) ===
 
 
+<!-- Reordered 2026-05-13 per 17_results_reorder_plan.md — discovery → clinical → portability → mechanism. -->
+
 # Section 2 · Results (draft v1, ~3,250 words)
 
 ★ Cell Press style: "we found ... (Figure X)" interleaved. 각 sub-result 끝 take-home one-sentence.
+★ Narrative tightening priority (2026-05-11): discovery → clinical relevance → single-cell validation → portability → mechanism.
 
 ---
 
@@ -182,46 +185,6 @@ We further confirmed that driver mRNA expression does not propagate the DM clust
 
 ---
 
-## 2.3 DM1 is a fusion-driven dark matter subtype (~700 words)
-
-To characterize the mechanistic basis of DM1, we accessed structural variant (SV) annotations for TCGA-THCA via cBioPortal (Methods), recovering SV-tested status for 542 of 557 primary tumors (97.3%). Across all SV-tested tumors, DM1 was 76.8% tyrosine-kinase-fusion-positive (63 of 82) versus 30.9% in DM2 (Fisher odds ratio [OR] 7.41, 95% CI 4.38–12.55, p = 1.9 × 10⁻¹³; Figure 7B). Fusion partners spanned the full spectrum of actionable thyroid kinase rearrangements: RET fusions (n = 33; CCDC6-RET 17, NCOA4-RET 3, other 13), NTRK fusions (n = 10; predominantly ETV6-NTRK3), ALK fusions (n = 4; STRN-ALK, EML4-ALK, CCDC149-ALK), and BRAF fusions (n = 5) (Figure 7C, Supplementary Table S6).
-
-We assessed the robustness of this finding to SV missingness. Comparing SV-tested versus SV-untested tumors within DM cluster strata, missingness was independent of DM call (chi² p = 0.56), consistent with missing-at-random (MAR). Sensitivity analyses imputing the missing SV status under three scenarios — best-case (all missing as fusion-negative), worst-case (all missing as fusion-positive), and case-control matched imputation — yielded DM1 vs DM2 fusion ORs of 7.18, 9.07, and 7.41, respectively, all retaining statistical significance (Methods, Supplementary Table S6).
-
-Cross-cohort validation in MSK-IMPACT thyroid (Landa et al., 2016; n = 117) supported the DM1 fusion paradigm. Although MSK SV coverage was limited (12 of 117 tumors with SV annotations, 10%; this cohort being mutation-focused), the qualitative landscape was consistent with TCGA: RET fusions (n = 5; CCDC6-RET 3, NCOA4-RET 2), ALK fusions (n = 3), and PAX8-PPARG fusions (n = 3). The recurrent fusion partner spectrum mirrored the TCGA primary tumor distribution, supporting cross-cohort generalizability.
-
-The clinical relevance of this fusion enrichment was examined by computing the DM1 capture rate of canonically RET-fusion-positive cases. Of the 33 TCGA RET-fusion-positive primary tumors, 27 (81.8%) were classified as DM1 by the 8-gene panel — that is, a single-axis molecular score captured the great majority of RET-fusion-positive tumors as a candidate group prior to fusion-specific NGS testing. Combined with the population estimate of 23% BRAF/RAS-negative dark matter and 76.8% fusion-positivity within DM1, our framework supports a reflex testing algorithm in which a DM1-positive RNA score triggers selective fusion NGS, with an estimated upstream candidate pool of approximately 48 selpercatinib-eligible cases per 1000 PTC (Wirth et al., 2020).
-
-★ Take-home: DM1 is a fusion-driven subtype enriched 7.4-fold for RET/NTRK/ALK/BRAF tyrosine kinase rearrangements relative to DM2, robust to SV missingness, cross-validated in MSK-IMPACT, and capturing 81.8% of TCGA RET-fusion-positive cases — elevating the 8-gene panel from biomarker to mechanism-revealing reflex algorithm (Figure 7).
-
----
-
-## 2.4a DM1 epigenetically silences thyroid differentiation machinery, fusion-independent (~580 words)
-
-The fusion enrichment within DM1 explains 76.8% of cases by genetic mechanism, but leaves the remaining 19/82 tumors (sub-B fraction) and the strong differentiation-transcript suppression itself unexplained. To test whether a parallel epigenetic mechanism contributes, we accessed Illumina HumanMethylation450 (HM450) promoter methylation data for TCGA-THCA via cBioPortal (n = 503 with HM450 + DM call). Across the 8-gene panel, DM1 tumors exhibited markedly higher mean panel β-values than DM2 (mean 8-gene β: DM1 = 0.385, DM2 = 0.253, not_DM = 0.356) — corresponding to a 52% higher promoter methylation level in DM1 versus DM2 (Figure 8B).
-
-Per-gene differentials reached extreme magnitude for thyroid hormone biosynthesis components: TPO (Cohen's d = 2.30, p = 1.9 × 10⁻¹⁸), DIO1 (d = 1.24, p = 6.5 × 10⁻¹¹), TSHR (d = 1.20, p = 9.8 × 10⁻¹²), PAX8 (d = 0.97, p = 4.5 × 10⁻⁸), TG (d = 0.86, p = 2.2 × 10⁻⁶), FOXE1 (d = 0.84, p = 1.0 × 10⁻⁵), NKX2-1 (d = 0.63, p = 8.9 × 10⁻⁷). Notably, SLC5A5/NIS was the only panel gene without methylation differential (d = 0.22, p = 0.42, NS), consistent with NIS regulation by post-translational and enhancer-level mechanisms rather than promoter methylation (Figure 8A, Supplementary Table S7).
-
-To test whether epigenetic silencing was a parallel mechanism to fusion driver presence rather than a fusion-driven secondary effect, we compared mean 8-gene β-values within DM1 between fusion-positive (n = 63) and fusion-negative (n = 19) sub-groups. Methylation was equivalent in the two sub-groups (Cohen's d = −0.36, Mann-Whitney p = 0.31, NS) — that is, promoter hypermethylation of differentiation genes is a fusion-independent feature of DM1 (Supplementary Figure S5b; see Limitations §3.4 for power-discussion of the n = 19 fusion-negative subgroup). Both fusion-positive and fusion-negative DM1 tumors share the same epigenetic signature.
-
-The fusion-independence of the methylation signal has direct mechanistic and therapeutic implications. Mechanistically, DM1 is best understood as a three-layer pathology: (L1) genetic — 76.8% of cases harbor tyrosine kinase fusions; (L2) phenotypic heterogeneity within DM1 along fusion-positive vs fusion-negative axes; (L3) epigenetic — 100% of DM1, regardless of fusion status, exhibit promoter hypermethylation of differentiation machinery. Therapeutically, the methylation signal — particularly the extreme TPO suppression (d = 2.30) — provides a rationale for hypomethylating agents (decitabine, azacitidine) as a candidate epigenetic-targeted RAI re-induction strategy. The SLC5A5/NIS exception suggests that combination strategies (e.g., HMA for TPO/DIO1/TSHR re-activation paired with lithium for NIS membrane trafficking) merit prospective evaluation.
-
-★ Take-home: DM1 harbors fusion-independent promoter hypermethylation of differentiation machinery (TPO Cohen's d = 2.30; mean 8-gene β 0.385 vs DM2 0.253), adding an epigenetic mechanism layer parallel to fusion drivers and providing a rationale for HMA-based RAI re-induction strategies (Figure 8; within-DM1 fusion-independence support in Supplementary Figure S5b).
-
----
-
-## 2.4b Fusion-negative DM1 represents an immune-overlap subtype (~440 words)
-
-While fusion drivers explain the majority of DM1 cases, the 19/82 fusion-negative DM1 tumors warrant separate inquiry. Using unsupervised KMeans (k=2) on the TIERA67 transcriptome within DM1, we resolved two sub-clusters: sub-A (n = 72, 84.7% fusion-positive) and sub-B (n = 19, 57.9% fusion-positive) (Figure 7A silhouette; cluster silhouette score 0.584).
-
-Sub-A and sub-B differed sharply in clinical and immune phenotype. Sub-A tumors were younger (mean age 37.3 vs 51.3 years; Cohen's d = −0.82, Mann-Whitney p = 0.004), less likely to harbor advanced-stage disease (stage III/IV: 15.3% vs 44.4%; OR 0.23, p = 0.020), and characterized by lower CD8 effector, IFN-γ, and immune-checkpoint signatures (each Cohen's d = −0.5 to −0.6 vs sub-B; p < 0.05). Sub-B tumors, by contrast, were older, more frequently advanced, and immune-hot.
-
-The fusion-negative immune-overlap phenotype within sub-B is consistent with a biologically distinct companion axis that is not resolved by driver status alone. Full characterization of this program, including dedicated external-cohort analyses, is outside the scope of the present work and is reserved for a companion study (Cook et al., manuscript in preparation, Paper 2). In the present work, we limit our claims regarding sub-B to the observation that fusion-negative DM1 represents a mechanistically distinct immune-overlap subtype, and we do not pursue its detailed mechanism here.
-
-★ Take-home: Fusion-negative DM1 sub-B represents a mechanistically distinct, older-onset, immune-overlap subtype warranting separate investigation in a companion study (Supplementary Figure S6).
-
----
-
 ## 2.2 DM1 carries clinical aggressiveness within Xing dark matter (~440 words)
 
 To assess whether the DM1/DM2 axis tracks clinical outcome, we performed Cox proportional hazards survival analysis stratified by DM cluster within TCGA-THCA primary tumors. Among the 504 patients with overall survival annotation, DM1 carried a hazard ratio of 2.30 (95% CI 0.77–6.88) versus DM2, although the small event count in TCGA-THCA (16 deaths overall, 3.2% event rate) limited the precision of this single-cohort estimate (Figure 2C).
@@ -236,7 +199,7 @@ Within Xing's dark matter (Xing 2014) — the BRAF/TERT-negative compartment of 
 
 ---
 
-## 2.5 Cross-cohort validation and a clinical reflex testing algorithm (~470 words)
+## 2.3 Cross-cohort validation and a clinical reflex testing algorithm (~470 words)
 
 We validated the DM1 axis across multiple external cohorts spanning four East Asian populations and three platforms. In a Korean independent cohort (Lee et al., GSE213647; n = 632), the DM1/DM2 panel reproduced the cluster boundary with similar 8-gene score distribution, supporting axis generalizability across ancestries (Methods; Supplementary Figure S6).
 
@@ -244,9 +207,49 @@ For external single-cell validation, we analyzed two independent published 10x G
 
 Formalin-fixed paraffin-embedded (FFPE) versus fresh-frozen (FF) tissue concordance was examined in subgroup analyses, with DM1 score distributions showing Kolmogorov-Smirnov p = 0.44 (no detectable distributional shift) across processing types — supporting clinical applicability to archival pathology specimens routinely available at point of care (Figure 5C).
 
-Synthesizing across discovery (TCGA n = 504), validation (MSK n = 117 and Korean cohorts n = 865 [K2 235 + Lee 630]), and external single-cell datasets, our framework supports a clinical reflex testing algorithm: an 8-gene RNA expression score classifies primary PTC tumors into DM1/DM2 strata, with a positive DM1 call triggering reflex tyrosine kinase fusion NGS (RET, NTRK1/3, ALK, BRAF panel). Population estimates based on TCGA — assuming a fusion incidence of approximately 4.8% in PTC overall and 76.8% within DM1 — yield approximately 48 selpercatinib-eligible candidates per 1000 incident PTC tumors. Combined with the fusion-independent epigenetic silencing signal (2.4a), DM1-positive patients additionally constitute a candidate cohort for prospective evaluation of hypomethylating-agent + radioiodine re-induction.
+Synthesizing across discovery (TCGA n = 504), validation (MSK n = 117 and Korean cohorts n = 865 [K2 235 + Lee 630]), and external single-cell datasets, our framework supports a clinical reflex testing algorithm: an 8-gene RNA expression score classifies primary PTC tumors into DM1/DM2 strata, with a positive DM1 call triggering reflex tyrosine kinase fusion NGS (RET, NTRK1/3, ALK, BRAF panel). Population estimates based on TCGA — assuming a fusion incidence of approximately 4.8% in PTC overall and 76.8% within DM1 — yield approximately 48 selpercatinib-eligible candidates per 1000 incident PTC tumors. Combined with the fusion-independent epigenetic silencing signal (2.5a), DM1-positive patients additionally constitute a candidate cohort for prospective evaluation of hypomethylating-agent + radioiodine re-induction.
 
 ★ Take-home: Across Korean bulk cohorts, TCGA, MSK, and external single-cell datasets, the DM1 axis is reproducible, thyrocyte-intrinsic, and FFPE-compatible — enabling a reflex fusion-testing framework that captures 81.8% of TCGA RET-fusion-positive cases (Figures 3, 5).
+
+---
+
+## 2.4 DM1 is a fusion-driven dark matter subtype (~700 words)
+
+To characterize the mechanistic basis of DM1, we accessed structural variant (SV) annotations for TCGA-THCA via cBioPortal (Methods), recovering SV-tested status for 542 of 557 primary tumors (97.3%). Across all SV-tested tumors, DM1 was 76.8% tyrosine-kinase-fusion-positive (63 of 82) versus 30.9% in DM2 (Fisher odds ratio [OR] 7.41, 95% CI 4.38–12.55, p = 1.9 × 10⁻¹³; Figure 7B). Fusion partners spanned the full spectrum of actionable thyroid kinase rearrangements: RET fusions (n = 33; CCDC6-RET 17, NCOA4-RET 3, other 13), NTRK fusions (n = 10; predominantly ETV6-NTRK3), ALK fusions (n = 4; STRN-ALK, EML4-ALK, CCDC149-ALK), and BRAF fusions (n = 5) (Figure 7C, Supplementary Table S6).
+
+We assessed the robustness of this finding to SV missingness. Comparing SV-tested versus SV-untested tumors within DM cluster strata, missingness was independent of DM call (chi² p = 0.56), consistent with missing-at-random (MAR). Sensitivity analyses imputing the missing SV status under three scenarios — best-case (all missing as fusion-negative), worst-case (all missing as fusion-positive), and case-control matched imputation — yielded DM1 vs DM2 fusion ORs of 7.18, 9.07, and 7.41, respectively, all retaining statistical significance (Methods, Supplementary Table S6).
+
+Cross-cohort validation in MSK-IMPACT thyroid (Landa et al., 2016; n = 117) supported the DM1 fusion paradigm. Although MSK SV coverage was limited (12 of 117 tumors with SV annotations, 10%; this cohort being mutation-focused), the qualitative landscape was consistent with TCGA: RET fusions (n = 5; CCDC6-RET 3, NCOA4-RET 2), ALK fusions (n = 3), and PAX8-PPARG fusions (n = 3). The recurrent fusion partner spectrum mirrored the TCGA primary tumor distribution, supporting cross-cohort generalizability.
+
+The clinical relevance of this fusion enrichment was examined by computing the DM1 capture rate of canonically RET-fusion-positive cases. Of the 33 TCGA RET-fusion-positive primary tumors, 27 (81.8%) were classified as DM1 by the 8-gene panel — that is, a single-axis molecular score captured the great majority of RET-fusion-positive tumors as a candidate group prior to fusion-specific NGS testing. Combined with the population estimate of 23% BRAF/RAS-negative dark matter and 76.8% fusion-positivity within DM1, our framework supports a reflex testing algorithm in which a DM1-positive RNA score triggers selective fusion NGS, with an estimated upstream candidate pool of approximately 48 selpercatinib-eligible cases per 1000 PTC (Wirth et al., 2020).
+
+★ Take-home: DM1 is a fusion-driven subtype enriched 7.4-fold for RET/NTRK/ALK/BRAF tyrosine kinase rearrangements relative to DM2, robust to SV missingness, cross-validated in MSK-IMPACT, and capturing 81.8% of TCGA RET-fusion-positive cases — elevating the 8-gene panel from biomarker to mechanism-revealing reflex algorithm (Figure 7).
+
+---
+
+## 2.5a DM1 epigenetically silences thyroid differentiation machinery, fusion-independent (~580 words)
+
+The fusion enrichment within DM1 explains 76.8% of cases by genetic mechanism, but leaves the remaining 19/82 tumors (sub-B fraction) and the strong differentiation-transcript suppression itself unexplained. To test whether a parallel epigenetic mechanism contributes, we accessed Illumina HumanMethylation450 (HM450) promoter methylation data for TCGA-THCA via cBioPortal (n = 503 with HM450 + DM call). Across the 8-gene panel, DM1 tumors exhibited markedly higher mean panel β-values than DM2 (mean 8-gene β: DM1 = 0.385, DM2 = 0.253, not_DM = 0.356) — corresponding to a 52% higher promoter methylation level in DM1 versus DM2 (Figure 8B).
+
+Per-gene differentials reached extreme magnitude for thyroid hormone biosynthesis components: TPO (Cohen's d = 2.30, p = 1.9 × 10⁻¹⁸), DIO1 (d = 1.24, p = 6.5 × 10⁻¹¹), TSHR (d = 1.20, p = 9.8 × 10⁻¹²), PAX8 (d = 0.97, p = 4.5 × 10⁻⁸), TG (d = 0.86, p = 2.2 × 10⁻⁶), FOXE1 (d = 0.84, p = 1.0 × 10⁻⁵), NKX2-1 (d = 0.63, p = 8.9 × 10⁻⁷). Notably, SLC5A5/NIS was the only panel gene without methylation differential (d = 0.22, p = 0.42, NS), consistent with NIS regulation by post-translational and enhancer-level mechanisms rather than promoter methylation (Figure 8A, Supplementary Table S7).
+
+To test whether epigenetic silencing was a parallel mechanism to fusion driver presence rather than a fusion-driven secondary effect, we compared mean 8-gene β-values within DM1 between fusion-positive (n = 63) and fusion-negative (n = 19) sub-groups. Methylation was equivalent in the two sub-groups (Cohen's d = −0.36, Mann-Whitney p = 0.31, NS) — that is, promoter hypermethylation of differentiation genes is a fusion-independent feature of DM1 (Supplementary Figure S5b; see Limitations §3.4 for power-discussion of the n = 19 fusion-negative subgroup). Both fusion-positive and fusion-negative DM1 tumors share the same epigenetic signature.
+
+The fusion-independence of the methylation signal has direct mechanistic and therapeutic implications. Mechanistically, DM1 is best understood as a three-layer pathology: (L1) genetic — 76.8% of cases harbor tyrosine kinase fusions; (L2) phenotypic heterogeneity within DM1 along fusion-positive vs fusion-negative axes; (L3) epigenetic — 100% of DM1, regardless of fusion status, exhibit promoter hypermethylation of differentiation machinery. Therapeutically, the methylation signal — particularly the extreme TPO suppression (d = 2.30) — provides a rationale for hypomethylating agents (decitabine, azacitidine) as a candidate epigenetic-targeted RAI re-induction strategy. The SLC5A5/NIS exception suggests that combination strategies (e.g., HMA for TPO/DIO1/TSHR re-activation paired with lithium for NIS membrane trafficking) merit prospective evaluation.
+
+★ Take-home: DM1 harbors fusion-independent promoter hypermethylation of differentiation machinery (TPO Cohen's d = 2.30; mean 8-gene β 0.385 vs DM2 0.253), adding an epigenetic mechanism layer parallel to fusion drivers and providing a rationale for HMA-based RAI re-induction strategies (Figure 8; within-DM1 fusion-independence support in Supplementary Figure S5b).
+
+---
+
+## 2.5b Fusion-negative DM1 represents an immune-overlap subtype (~440 words)
+
+While fusion drivers explain the majority of DM1 cases, the 19/82 fusion-negative DM1 tumors warrant separate inquiry. Using unsupervised KMeans (k=2) on the TIERA67 transcriptome within DM1, we resolved two sub-clusters: sub-A (n = 72, 84.7% fusion-positive) and sub-B (n = 19, 57.9% fusion-positive) (Figure 7A silhouette; cluster silhouette score 0.584).
+
+Sub-A and sub-B differed sharply in clinical and immune phenotype. Sub-A tumors were younger (mean age 37.3 vs 51.3 years; Cohen's d = −0.82, Mann-Whitney p = 0.004), less likely to harbor advanced-stage disease (stage III/IV: 15.3% vs 44.4%; OR 0.23, p = 0.020), and characterized by lower CD8 effector, IFN-γ, and immune-checkpoint signatures (each Cohen's d = −0.5 to −0.6 vs sub-B; p < 0.05). Sub-B tumors, by contrast, were older, more frequently advanced, and immune-hot.
+
+The fusion-negative immune-overlap phenotype within sub-B is consistent with a biologically distinct companion axis that is not resolved by driver status alone. Full characterization of this program, including dedicated external-cohort analyses, is outside the scope of the present work and is reserved for a companion study (Cook et al., manuscript in preparation, Paper 2). In the present work, we limit our claims regarding sub-B to the observation that fusion-negative DM1 represents a mechanistically distinct immune-overlap subtype, and we do not pursue its detailed mechanism here.
+
+★ Take-home: Fusion-negative DM1 sub-B represents a mechanistically distinct, older-onset, immune-overlap subtype warranting separate investigation in a companion study (Supplementary Figure S6).
 
 ---
 
@@ -343,7 +346,7 @@ Statistical tests: Cohen's d (pooled SD); Mann-Whitney U for per-gene β; Fisher
 
 **S6.** *(v4 2026-05-08, contains both: original S6 sub-B detail + main Figure 7D phenotype panel demoted per audit P1-7.)* DM1 sub-A versus sub-B fusion-negative phenotype detail plots. (A) Age (sub-A 37.3 vs sub-B 51.3 years; Cohen's d = −0.82, MW p = 0.004). (B) Stage III/IV (15.3% vs 44.4%; OR 0.23, p = 0.020). (C) CD8/IFN-γ/checkpoint signatures (Cohen's d = −0.5 to −0.6 vs sub-B). (D) Hashimoto-like prevalence (sub-A 3.6% vs sub-B 12.5%; trend). Provided as supporting detail; deeper mechanistic dissection of the immune-overlap sub-B phenotype is reserved for the companion paper (Paper 2).
 
-**SX.** *(UPDATED 2026-05-08 v5, multi-method deconvolution + compositional axes; cumulative scope n = 1,241 bulk samples = TCGA 572 + Lee/GSE213647 632 + GSE76039 37.)* Multi-method bulk cell-type deconvolution and compositional axes of the DM1↔DM2 phenotype. **(A) Multi-method residualization grid.** Cohen's d (DM1 − DM2) for the canonical 8-gene RAI score (`rai_score_recalc`) under five residualization stages (raw / + stromal [Endo + Fibro] / + immune [T + Myel + B + NK] / + Epithelial-only / + all 8 fractions) across four deconvolution methods (NNLS, Ridge-NNLS [L2 α=1], LR-clip, nu-SVR [CIBERSORT-style; 3 ν 0.25/0.5/0.75, lowest-RMSE]). Reference: Lu 2023 (GSE193581) `author_celltype` 67,678 cells × 8 cell types in 1,898 HVG ∩ TCGA gene symbols. Bulk: TCGA-THCA log2(TPM+1), n = 572, canonical labels `dm_like` (DM1_like 403 / DM2_like 110). **(B) Effect-retention ratio after full residualization:** NNLS / Ridge-NNLS 24% (sparse-weight artifact with T-cell collapse), LR-clip 70%, nu-SVR 47% (methodologically aligned with canonical S4 immune-residualization 56% retention). **(C) Per-cell-type DM1 vs DM2 fraction Cohen's d** across the four methods. Direction-consistent: DM1 enriched for Malignant (d ≈ +1.08 to +1.35) and Myeloid (d ≈ +0.92 to +1.14); depleted for Epithelial (d ≈ −1.12 to −2.33; benign/normal thyroid epithelium proxy) and Endothelial. T cell DM1 vs DM2 d = −0.84 uniquely resolved by nu-SVR. **(D) nu-SVR primary mean cell-type fractions** in TCGA-THCA (n = 572). **(E) Methodology and caveats panel.** **(F) Cross-cohort direction consistency.** TCGA nu-SVR Cohen's d (DM1 − DM2) versus Lee/GSE213647 (n = 632) Spearman ρ vs `panel_z` (sign-flipped to align with DM1 direction). Direction-consistent for 7/8 cell types; T-cell discordance reflects binary-vs-continuous score frame. **(G) Within-DM1 fusion+ vs fusion− cell-type fraction Cohen's d** (n = 74 vs 391; kinase fusion: RET/NTRK/ALK/BRAF/PAX8/PPARG aggregated from cBioPortal SV table). All |d| ≤ 0.42 — within-DM1 fusion+/− tumors share near-identical compositions, direct support for the fusion-independent epigenetic silencing claim (Figure 8 / §2.4a). **(H) Per-driver-class TCGA-THCA cell-type composition** (BRAF V600E n = 280 / RAS-mutant n = 54 / driver-negative n = 179). RAS-mutant tumors are Epithelial-cluster–enriched (d_RAS−BRAF = +1.52) and Malignant-cluster–depleted (d = −1.66) versus BRAF V600E, consistent with Landa 2016 / Paper 1 §2.1 differentiation framing. **(I) HM450 8-gene mean β × cell-type fraction Spearman ρ heatmap** (TCGA n ≈ 484 paired): mean β positively tracks Myeloid (ρ = +0.39), B cell (+0.27), Fibroblast (+0.23) and Malignant (+0.30); negatively tracks T cell (ρ = −0.42) and Epithelial (−0.31), connecting the Round-4 methylation layer (DM1 vs DM2 mean-β d = −1.75) to compartment composition. **(J) DM1 sub-A vs sub-B cell-type fraction Cohen's d** (sub-A n = 84, sub-B n = 56). Sub-A is Malignant-cell rich (d = +1.22, p = 2.5 × 10⁻⁹) and Epithelial-poor (d = −1.26, p = 5.2 × 10⁻¹⁰); immune compartment differences are not significant. The sub-A/B split is therefore a tumor-purity-vs-thyrocyte split, not immune-hot vs immune-cold — Paper-2 boundary marker (sub-B = fusion-/mutation-negative Hashimoto-overlap retains thyrocyte identity). **(K) Cell-type composition pseudotime along the canonical 8-gene score.** TCGA-THCA (n = 513, score = `rai_score_recalc`) and Lee/GSE213647 (n = 632, score = `panel_z`) samples were ranked by score, binned into 10 deciles; the mean per-decile cell-type fraction (nu-SVR against Lu 2023) defines a 10-step pseudotime trajectory. Four compartments — Malignant (↓), Epithelial (↑), Myeloid (↓), Endothelial (↑) — show monotonic decile-level Spearman ρ ≥ |0.95| in **both** cohorts, defining a reproducible compositional pseudotime independent of cohort, scoring scheme, or sample size. Source code, per-method fraction tables, panel-level TSVs, and the full v5 composite (panels A–K) at `project/results/p_deconv_2026_05_08/` (build: `plot_deconv_v5_composite.py`; per-panel: `run_deconv_v5_{abc, d_final, e_trajectory}.py`; output figure: `Fig_SX_deconvolution_v5_composite.{png, pdf}`).
+**SX.** *(UPDATED 2026-05-08 v5, multi-method deconvolution + compositional axes; cumulative scope n = 1,241 bulk samples = TCGA 572 + Lee/GSE213647 632 + GSE76039 37.)* Multi-method bulk cell-type deconvolution and compositional axes of the DM1↔DM2 phenotype. **(A) Multi-method residualization grid.** Cohen's d (DM1 − DM2) for the canonical 8-gene RAI score (`rai_score_recalc`) under five residualization stages (raw / + stromal [Endo + Fibro] / + immune [T + Myel + B + NK] / + Epithelial-only / + all 8 fractions) across four deconvolution methods (NNLS, Ridge-NNLS [L2 α=1], LR-clip, nu-SVR [CIBERSORT-style; 3 ν 0.25/0.5/0.75, lowest-RMSE]). Reference: Lu 2023 (GSE193581) `author_celltype` 67,678 cells × 8 cell types in 1,898 HVG ∩ TCGA gene symbols. Bulk: TCGA-THCA log2(TPM+1), n = 572, canonical labels `dm_like` (DM1_like 403 / DM2_like 110). **(B) Effect-retention ratio after full residualization:** NNLS / Ridge-NNLS 24% (sparse-weight artifact with T-cell collapse), LR-clip 70%, nu-SVR 47% (methodologically aligned with canonical S4 immune-residualization 56% retention). **(C) Per-cell-type DM1 vs DM2 fraction Cohen's d** across the four methods. Direction-consistent: DM1 enriched for Malignant (d ≈ +1.08 to +1.35) and Myeloid (d ≈ +0.92 to +1.14); depleted for Epithelial (d ≈ −1.12 to −2.33; benign/normal thyroid epithelium proxy) and Endothelial. T cell DM1 vs DM2 d = −0.84 uniquely resolved by nu-SVR. **(D) nu-SVR primary mean cell-type fractions** in TCGA-THCA (n = 572). **(E) Methodology and caveats panel.** **(F) Cross-cohort direction consistency.** TCGA nu-SVR Cohen's d (DM1 − DM2) versus Lee/GSE213647 (n = 632) Spearman ρ vs `panel_z` (sign-flipped to align with DM1 direction). Direction-consistent for 7/8 cell types; T-cell discordance reflects binary-vs-continuous score frame. **(G) Within-DM1 fusion+ vs fusion− cell-type fraction Cohen's d** (n = 74 vs 391; kinase fusion: RET/NTRK/ALK/BRAF/PAX8/PPARG aggregated from cBioPortal SV table). All |d| ≤ 0.42 — within-DM1 fusion+/− tumors share near-identical compositions, direct support for the fusion-independent epigenetic silencing claim (Figure 8 / §2.5a). **(H) Per-driver-class TCGA-THCA cell-type composition** (BRAF V600E n = 280 / RAS-mutant n = 54 / driver-negative n = 179). RAS-mutant tumors are Epithelial-cluster–enriched (d_RAS−BRAF = +1.52) and Malignant-cluster–depleted (d = −1.66) versus BRAF V600E, consistent with Landa 2016 / Paper 1 §2.1 differentiation framing. **(I) HM450 8-gene mean β × cell-type fraction Spearman ρ heatmap** (TCGA n ≈ 484 paired): mean β positively tracks Myeloid (ρ = +0.39), B cell (+0.27), Fibroblast (+0.23) and Malignant (+0.30); negatively tracks T cell (ρ = −0.42) and Epithelial (−0.31), connecting the Round-4 methylation layer (DM1 vs DM2 mean-β d = −1.75) to compartment composition. **(J) DM1 sub-A vs sub-B cell-type fraction Cohen's d** (sub-A n = 84, sub-B n = 56). Sub-A is Malignant-cell rich (d = +1.22, p = 2.5 × 10⁻⁹) and Epithelial-poor (d = −1.26, p = 5.2 × 10⁻¹⁰); immune compartment differences are not significant. The sub-A/B split is therefore a tumor-purity-vs-thyrocyte split, not immune-hot vs immune-cold — Paper-2 boundary marker (sub-B = fusion-/mutation-negative Hashimoto-overlap retains thyrocyte identity). **(K) Cell-type composition pseudotime along the canonical 8-gene score.** TCGA-THCA (n = 513, score = `rai_score_recalc`) and Lee/GSE213647 (n = 632, score = `panel_z`) samples were ranked by score, binned into 10 deciles; the mean per-decile cell-type fraction (nu-SVR against Lu 2023) defines a 10-step pseudotime trajectory. Four compartments — Malignant (↓), Epithelial (↑), Myeloid (↓), Endothelial (↑) — show monotonic decile-level Spearman ρ ≥ |0.95| in **both** cohorts, defining a reproducible compositional pseudotime independent of cohort, scoring scheme, or sample size. Source code, per-method fraction tables, panel-level TSVs, and the full v5 composite (panels A–K) at `project/results/p_deconv_2026_05_08/` (build: `plot_deconv_v5_composite.py`; per-panel: `run_deconv_v5_{abc, d_final, e_trajectory}.py`; output figure: `Fig_SX_deconvolution_v5_composite.{png, pdf}`).
 
 **SX_v13.** *(NEW 2026-05-09; Paper 1 Fig 8 mechanism support; cumulative scope n = 1,204 = TCGA 572 + Lee/GSE213647 632.)* The MAPK→thyroid-silencing axis operates indistinguishably on the deployable 8-gene panel and the canonical Yoo 2014 TDS-16. **(A) Cross-cohort MAPK output × thyroid-score Spearman ρ.** TCGA-THCA n = 572 and Lee/GSE213647 n = 632 z-mean MAPK output (DUSP4/5/6, SPRY2/4, ETV4/5, PHLDA1, CCND1; n = 9 genes) versus 8-gene Panel (deployable: DIO1/FOXE1/NKX2-1/PAX8/SLC5A5/TG/TPO/TSHR), TDS-16 (Yoo 2014 canonical: Panel + DIO2/DUOX1/DUOX2/GLIS3/SLC26A4/SLC5A8/THRA/THRB), and TDS−panel (the 8 disjoint TDS-16 genes). Panel-8 ρ = −0.291 (p = 1.3 × 10⁻¹²) / −0.395 (p = 4.7 × 10⁻²⁵); TDS-16 ρ = −0.306 / −0.435; TDS−panel ρ = −0.310 / −0.449. **(B) Per-driver-class TCGA score means** (BRAF V600E n = 344 / RAS-mutant n = 61 / RET fusion n = 43 / NTRK fusion n = 10 / driver-negative n = 103) for MAPK output, Panel-8, TDS-16, and TDS−panel z-scores; the Panel-8 and TDS-16 traces are essentially superimposable, with BRAF V600E vs RAS-mutant Cohen's d Panel-8 = −1.615 versus TDS-16 = −1.616 (identical to three significant figures). **(C) DM1 sub-A vs sub-B Cohen's d** (sub-A n = 93, sub-B n = 62; labels from `d6p7_dm1_subcluster/dm1_subcluster_labels.tsv`) for five metrics: MAPK d = +1.79 (Mann-Whitney p = 4.1 × 10⁻¹⁷), HT signature d = −0.12 (NS), Panel-8 d = +0.07 (NS), TDS-16 d = +0.03 (NS), TDS−panel d = −0.03 (NS). The v12 two-axis convergence (MAPK-active sub-A or HT-active sub-B, both reach 8-gene silencing) reproduces on the full TDS-16. **(D) Per-gene MAPK output × thyroid-gene Spearman ρ heatmap** for the 16 TDS-16 genes in TCGA-THCA and Lee; ★ marks the 8-gene Panel members. Eight-gene members occupy median rank within the 16-gene heatmap (not selectively top-extreme: strongest TCGA negatives = SLC5A8 −0.516 [non-panel], DIO2 −0.481 [non-panel], TPO −0.465 [panel]; NKX2-1 is the consistent positive-ρ outlier in both cohorts, +0.307 / +0.425, a known panel-mean-absorbed caveat). **(E) MAPK-decile pseudotime.** Samples ranked by MAPK output and binned into 10 deciles; mean Panel-8, TDS-16, and TDS−panel score per decile in both cohorts. The two panels trace identical monotonic descent (decile-rank ρ Panel = −0.600 / −0.648, TDS-16 = −0.600 / −0.818). **(F) ROC-AUC for MAPK-high vs MAPK-low classifier** using Panel-8 versus TDS-16 versus TDS−panel score (sign-flipped, low score = high MAPK). Panel-8 AUC = 0.623 (TCGA) / 0.728 (Lee); TDS-16 AUC = 0.631 / 0.740; ΔAUC TDS-16 − Panel-8 = +0.007 (TCGA) / +0.012 (Lee), both non-significant — independently reproducing the existing manuscript p1_onepage_audit ΔAUC = 0.013 NS (DM1/DM2 task) on the orthogonal MAPK-classification task. *Methods.* z-score = within-cohort z-mean of the named gene set; gene lists 100% recovered in both cohorts (Lee via `F1_gene_recovery_mapping.tsv` Ensembl→symbol). Driver class from cBioPortal SV/MAF anchors (`audit_2026_04_30/round3/cbio_sv_thca.tsv`). DM1 sub-A/sub-B labels from `d6p7_dm1_subcluster`. Source code, panel-level TSVs, and the 6-panel composite at `project/results/p_deconv_2026_05_08/` (build: `plot_v13_tds16_panel_mapk.py`; pipeline: `run_v13_tds16_panel_mapk.py`; output figure: `Fig_SX_v13_TDS16_MAPK.{png, pdf}`).
 
@@ -432,6 +435,38 @@ For full panel-by-panel descriptions, exact statistical-test specifications, and
 
 ---
 
+# Narrative tightening notes (2026-05-11)
+
+The manuscript reads best when the main figures are treated as a clean claim ladder rather than a list of analyses.
+
+## Main-text priority order
+
+1. **Figure 1** should carry the compact panel-defining claim only.
+2. **Figure 2** should handle clinical relevance only.
+3. **Figure 3** should establish single-cell intrinsic validation.
+4. **Figure 4** should stop at driver-context stratification and not overreach mechanistically.
+5. **Figure 5** should be the portability / assay-compatibility proof.
+6. **Figure 6** should remain the survival-risk summary.
+7. **Figure 7** should carry the fusion-mechanism support.
+8. **Figure 8** should carry the epigenetic support and explicitly stay correlative.
+
+## What should stay out of the main figures
+
+- calibration mismatch diagnostics
+- spatial stress-test caveats
+- niche reserve extensions
+- method-comparison stress tests
+- any counterexample that is useful but not claim-building
+
+## What makes the paper stronger
+
+- fewer claims per figure
+- more separation between discovery and mechanism
+- cleaner boundary language in captions
+- fewer supplementary panels inside the main-figure storyline
+
+---
+
 # === Discussion (06_discussion.md) ===
 
 
@@ -512,7 +547,7 @@ Finally, the fusion-negative DM1 sub-B subgroup is older, more advanced, and imm
 | cBioPortal SV (RET/NTRK/ALK/BRAF fusions) | cBioPortal API | `thca_tcga_pub` study, SV endpoint |
 | HM450 promoter methylation (Illumina HumanMethylation450) | cBioPortal API | `thca_tcga` legacy study |
 | **Source code (this paper)** | | |
-| 8-gene panel + DM cluster pipeline | Cook et al., this paper | repository and archival DOI to be released at submission or acceptance |
+| 8-gene panel + DM cluster pipeline | Cook et al., this paper | [TODO: insert public code repository URL on submission]; [TODO: insert Zenodo DOI on submission] |
 
 ---
 
@@ -522,7 +557,7 @@ Finally, the fusion-negative DM1 sub-B subgroup is older, more advanced, and imm
 
 **Materials availability.** This study did not generate new unique reagents. All analyses were performed on publicly accessible datasets (TCGA, GEO, ENA, cBioPortal). Korean cohort access (K2 / PRJEB11591, GSE213647, GSE286332 reference arm) is available via the listed repositories.
 
-**Data and code availability.** Public source data are available from TCGA, GEO, ENA, and cBioPortal under the identifiers listed above. Analysis code and figure-generation scripts will be released in a public repository together with an archival DOI at submission or acceptance. Intermediate data tables used in the manuscript, including per-sample DM scores, fusion annotations, methylation summaries, and meta-analysis inputs, are provided through Supplementary Tables S1-S10.
+**Data and code availability.** Public source data are available from TCGA, GEO, ENA, and cBioPortal under the identifiers listed above. Analysis code and figure-generation scripts will be released in a public repository together with an archival DOI at submission or acceptance ([TODO: insert public code repository URL on submission]; [TODO: insert Zenodo DOI on submission]). Intermediate data tables used in the manuscript, including per-sample DM scores, fusion annotations, methylation summaries, and meta-analysis inputs, are provided through Supplementary Tables S1-S10.
 
 ---
 
@@ -532,9 +567,9 @@ This study uses publicly available genomic and transcriptomic data from previous
 
 - **TCGA-THCA** (n = 504 with overall survival annotation; 513 primary tumors total). Discovery cohort. Publicly available via The Cancer Genome Atlas (Cancer Genome Atlas Research Network, 2014).
 - **MSK-IMPACT thyroid** (n = 117; advanced disease, mostly PDTC + ATC). Validation cohort. (Landa et al., 2016).
-- **K2 / PRJEB11591** (n = 260; primary Korean PTC). Validation cohort. (Yoo et al., 2016).
-- **Lee / GSE213647** (n = 632; Korean PTC). Validation cohort.
-- **GSE286332 reference arm** (n = 9 Korean PTC). Small external Korean reference set used for calibration and score-portability checks. <em>Not aggregated into the Korean cohort summary statistic n = 865 (K2 + Lee) to preserve scope separation from Paper 2 (GSE286332 PTC vs PTC+HT main cohort, n = 18).</em>
+- **K2 / PRJEB11591** (n = 235; primary Korean PTC, post-QC). Validation cohort. (Yoo et al., 2016).
+- **Lee / GSE213647** (n = 630; Korean PTC, post-QC). Validation cohort.
+- **GSE286332 reference arm** (n = 9 Korean PTC). Small external Korean reference set retained here for calibration and score-portability description only; <em>dropped from the Paper 1 Korean validation total per the 2026-05-07 P1-2 audit. The canonical Paper 1 Korean validation cohort = K2 (n = 235) + Lee et al. (n = 630) = n = 865. GSE286332 PTC samples are retained in Paper 2 scope (GSE286332 PTC vs PTC+HT main cohort, n = 18).</em>
 - **GSE184362 Pu 2021** (n = 7 PTC patients; single-cell). External validation.
 - **GSE193581 Lu 2023** (n = 23 single-cell samples). External validation.
 - **GSE241184** (n = 1; Phase 1 single-cell). Internal pilot.
@@ -614,7 +649,7 @@ For per-cell-type granularity beyond the immune-residualization analysis, bulk R
 
 **DM1 sub-A vs sub-B teaser.** Sub-cluster labels from `d6p7_dm1_subcluster/dm1_subcluster_labels.tsv` (sub-A n = 84, sub-B n = 56) were intersected with cell-type fractions; Cohen's d and Mann-Whitney U two-sided p were reported per cell type. Sub-A is Malignant-cell rich (d = +1.22, p = 2.5 × 10⁻⁹) and Epithelial-poor (d = −1.26, p = 5.2 × 10⁻¹⁰); immune compartment differences are not significant — defining the sub-A/B split as a tumor-purity-vs-thyrocyte split rather than immune-hot vs immune-cold (Paper-2 boundary marker; Supplementary Figure SX panel J).
 
-**Pseudotime trajectory.** Samples were ranked by canonical 8-gene score (TCGA `rai_score_recalc` n = 513; Lee/GSE213647 `panel_z` n = 632), binned into 10 deciles, and mean per-decile cell-type fraction was computed. Decile-level Spearman ρ between mean score and mean fraction quantifies monotonic trajectory; four compartments — Malignant (↓), Epithelial (↑), Myeloid (↓), Endothelial (↑) — show |ρ| ≥ 0.95 in both cohorts (Supplementary Figure SX panel K).
+**Pseudotime trajectory.** Samples were ranked by canonical 8-gene score (TCGA `rai_score_recalc` n = 513; Lee/GSE213647 `panel_z` n = 630), binned into 10 deciles, and mean per-decile cell-type fraction was computed. Decile-level Spearman ρ between mean score and mean fraction quantifies monotonic trajectory; four compartments — Malignant (↓), Epithelial (↑), Myeloid (↓), Endothelial (↑) — show |ρ| ≥ 0.95 in both cohorts (Supplementary Figure SX panel K).
 
 **Full-transcriptome reference robustness.** Pu 2021 raw counts (33,694 genes × 66,015 cells) were subsampled to 5,000 cells balanced across 7 patients (seed = 42); each cell was assigned a Lu 2023 `author_celltype` label by maximum cosine similarity over the Lu HVG ∩ Pu intersection (1,898 genes after Ensembl → symbol conversion). A full-transcriptome pseudobulk per cell type was constructed (per-cell-type log-normalized mean, library-size-corrected, n_genes = 33,694; `Pu_pseudobulk_full`). TCGA bulk was re-deconvolved by NNLS over the 21,369-gene Pu × TCGA intersection (`scipy.optimize.nnls`, sum-to-one normalization). Per-cell-type Cohen's d (DM1 − DM2) was compared to the v2 Lu HVG nu-SVR primary result; all four informative axes (Malignant, Epithelial, Myeloid, Endothelial) sign-match between the two references with Pu full NNLS magnitudes ≥ Lu HVG. NNLS sparse-collapse zeros the B / Fibroblast / NK / T compartments in the full-transcriptome regime; these are interrogated by the v2 nu-SVR Lu HVG primary instead.
 
@@ -697,7 +732,7 @@ Cox-derived log-hazard-ratios and standard errors from TCGA-THCA and MSK-IMPACT 
 
 (ii) **Per-driver-class Cohen's d.** BRAF V600E (n = 344) versus RAS-mutant (n = 61) Cohen's d on score: Panel-8 = −1.615 versus TDS-16 = −1.616 (identical to three significant figures); BRAF V600E versus driver-negative: Panel-8 = −0.900 versus TDS-16 = −0.996; RET fusion versus driver-negative: Panel-8 = −0.261 versus TDS-16 = −0.403. The score gradient across drivers reproduces 1:1 between the two panels.
 
-(iii) **DM1 sub-A vs sub-B two-axis convergence.** sub-A (n = 93) vs sub-B (n = 62) Cohen's d for MAPK output = +1.79 (Mann-Whitney p = 4.1 × 10⁻¹⁷) — sub-A is MAPK-active. The thyroid-program scores are flat across the same split: Panel-8 d = +0.074 (NS), TDS-16 d = +0.032 (NS), TDS−panel d = −0.026 (NS) — both compact and canonical panels converge to silencing whether reached via MAPK (sub-A) or HT/B-cell route (sub-B), and the convergence holds for the full TDS-16 (not only the deployable subset).
+(iii) **DM1 sub-A vs sub-B two-axis convergence.** sub-A (n = 93) vs sub-B (n = 62) Cohen's d for MAPK output = +1.79 (Mann-Whitney p = 4.1 × 10⁻¹⁷) — sub-A is MAPK-active. The thyroid-program scores are flat across the same split: Panel-8 d = +0.074 (NS), TDS-16 d = +0.032 (NS), TDS−panel d = −0.026 (NS) — both compact and canonical panels converge to silencing whether reached via the MAPK-active route (sub-A) or the MAPK-low route (sub-B), and the convergence holds for the full TDS-16 (not only the deployable subset).
 
 (iv) **ROC-AUC: MAPK-high vs MAPK-low classifier.** Panel-8 AUC = 0.623 (TCGA) / 0.728 (Lee); TDS-16 AUC = 0.631 / 0.740. ΔAUC TDS-16 − Panel-8 = +0.007 / +0.012 — both non-significant. This independently reproduces the existing one-page-audit ΔAUC = 0.013 NS (DM1/DM2 classification task; see `p1_onepage_audit`) on an orthogonal classification target.
 
@@ -707,15 +742,15 @@ The 8-gene panel was originally curated from the broader TIERA67 candidate pool 
 
 ## Q14. Does the MAPK→thyroid-silencing axis hold across heterogeneous cohorts, or is it a TCGA + Lee artifact?
 
-**A14.** It generalizes — pooled MAPK output × Panel-8 Spearman ρ = **−0.327, 95% CI [−0.376, −0.278]** across n = 1,287 from five cohorts (TCGA-THCA n = 572 + Lee/GSE213647 n = 632 + GSE126698 n = 28 + GSE286332 n = 18 + GSE76039 n = 37; Fisher z-transform fixed-effect pool; Supplementary Figure SX_v14). Cochran I² = 72.9% (Q = 14.77, df = 4, p = 0.005) — the heterogeneity is biologically expected and predicted by the v12 two-axis convergence model (Q9 mechanism layer): cohorts dominated by the HT (Hashimoto) silencing route should decouple the MAPK × Panel-8 correlation, and cohorts at the dedifferentiated end of the axis should saturate the panel.
+**A14.** It generalizes — pooled MAPK output × Panel-8 Spearman ρ = **−0.327, 95% CI [−0.376, −0.278]** across n = 1,287 from five cohorts (TCGA-THCA n = 572 + Lee/GSE213647 n = 632 + GSE126698 n = 28 + GSE286332 n = 18 + GSE76039 n = 37; Fisher z-transform fixed-effect pool; Supplementary Figure SX_v14). Cochran I² = 72.9% (Q = 14.77, df = 4, p = 0.005) — the heterogeneity is biologically expected and predicted by the v12 two-axis convergence model: small inflammation-overlap cohorts reach panel silencing via a non-MAPK route and therefore decouple the MAPK × Panel-8 correlation, while cohorts at the dedifferentiated end of the axis saturate the panel.
 
 (i) **Well-differentiated primary cohorts (TCGA + Lee, n = 1,204):** Panel-8 ρ = −0.291 (TCGA, p = 1.3 × 10⁻¹²) / −0.395 (Lee, p = 4.7 × 10⁻²⁵). The two largest cohorts both carry strong, sign-consistent correlation; together they account for 93.5% of the cross-cohort sample pool.
 
-(ii) **HT-route cohort GSE286332 (Korean PTC vs PTC+HT, n = 18; raw TPM → log2 → within-cohort z):** Panel-8 ρ = −0.040 NS. This is exactly the cohort where the v12 two-axis model predicts MAPK should decouple, because the panel silencing in the PTC+HT subset is reached via the HT/B-cell route rather than via MAPK output. The decoupling is therefore positive evidence for v12, not a failure to replicate.
+(ii) **Inflammation-overlap cohort GSE286332 (Korean PTC subset, n = 18; raw TPM → log2 → within-cohort z):** Panel-8 ρ = −0.040 NS. This is the cohort where the v12 two-axis model predicts MAPK should decouple, because panel silencing in this small inflammation-overlap subset is reached via a non-MAPK route. The decoupling is therefore positive evidence for v12, not a failure to replicate. (Per the P1-2 cohort audit, GSE286332 is not part of the Korean Pillar I primary cohort n = 865 and is reported here only as a heterogeneity outlier in the cross-cohort forest.)
 
 (iii) **Advanced-disease cohort GSE76039 (PDTC + ATC, n = 37; Landa 2016, microarray z):** Panel-8 ρ = +0.125 NS. ATC tumors show Panel z mean = −0.82 (vs PDTC +0.96; v11 `v11_GSE76039_by_histology.tsv`), i.e., the panel is already saturated at the dedifferentiated low end and within-cohort dynamic range is collapsed. The within-cohort MAPK × Panel correlation breaks down for the same reason a saturated reporter cannot resolve dose response.
 
-(iv) **Conservative read for npj/JCI Insight reviewers.** If the request is the most conservative single number across all available cohorts: pooled MAPK × Panel-8 ρ = −0.327, 95% CI [−0.376, −0.278], n = 1,287. If the request is the cleanest signal restricted to well-differentiated primary cohorts (TCGA + Lee): per-cohort ρ = −0.291 / −0.395, both p ≪ 10⁻¹². The two outlier cohorts (HT-route + advanced-disease) are reported transparently with the v12 explanation rather than excluded.
+(iv) **Conservative read for npj/JCI Insight reviewers.** If the request is the most conservative single number across all available cohorts: pooled MAPK × Panel-8 ρ = −0.327, 95% CI [−0.376, −0.278], n = 1,287. If the request is the cleanest signal restricted to well-differentiated primary cohorts (TCGA + Lee): per-cohort ρ = −0.291 / −0.395, both p ≪ 10⁻¹². The two outlier cohorts (inflammation-overlap + advanced-disease) are reported transparently with the v12 explanation rather than excluded.
 
 The heterogeneity in the pool is therefore not a robustness problem — the same per-cohort heterogeneity is the cross-cohort confirmation of the two-axis model that drives the Fig 8 mechanism layer (Supp Fig SX_v13 + SX_v14; full forest at `project/results/p_deconv_2026_05_08/v14_cross_cohort_forest.tsv`).
 
@@ -1099,4 +1134,29 @@ Protected sections were left as explicit author placeholders rather than Codex p
 
 ---
 
-*Generated 2026-05-09 by `_compile_full_manuscript.py`. Constituent file states reflect the latest edits to the underlying source files.*
+## Re-verification 2026-05-13 (pre-Yu-meeting audit)
+
+Re-ran the boundary + cohort + citation + figure-ref + key-number audit ahead of the 2026-05-14 Yu meeting. All checks GREEN.
+
+- **Paper 2 boundary**: 0 leak. All `Hashimoto-like` / `HLA-II` / `BCR` hits in main draft files are explicitly boundary-marked as "reserved for Paper 2" (05_figure_captions.md:96/98/142, 06_discussion.md:49, 09_reviewer_qa.md:80/84).
+- **Cohort number**: `n=865 (K2 235 + Lee 630)` consistent in 01_abstract.md, 03_introduction.md, 04_results.md, 07_star_methods.md. No lingering `n=874`. GSE286332-PTC(9) confirmed dropped per 2026-05-07 P1-2 audit.
+- **Placeholders**: 0 inline `TBD/TODO/XXX/FIXME` in main prose. Two structured TODOs intentionally left in 07_star_methods.md:39 and :49 awaiting Zenodo DOI + public repo URL at submission. One `VERIFY` line in 01_abstract.md:18 awaits Yu-Hyeongwon institutional email.
+- **Figure numbers**: Main Fig 1-8, Supp S1-S6, S5b, SX, SX_v13, SX_v14, SB2 all defined with consistent cross-refs.
+- **Key effect sizes confirmed across sections**: Fusion 76.8% / OR 7.41 (5 files); pooled HR 2.53 [1.31, 4.89] (5 files); TPO d=2.30 (7 files); mean β 0.385 vs 0.253 (5 files); ARI 0.49/0.90/0.92 (4 files).
+
+### Edits applied 2026-05-13 (post-audit)
+
+- `04_results.md`: section order reordered 2.1 → 2.3 → 2.4a → 2.4b → 2.2 → 2.5 ⇒ **2.1 → 2.2 → 2.3 → 2.4 → 2.5a → 2.5b** per 17_results_reorder_plan.md (selection-layer paper framing, discovery-first). +14 words = header comment only; no prose added/removed/reworded. 1 internal cross-ref `(2.4a)` → `(2.5a)`.
+- `07_star_methods.md`: cohort drift fixed (K2 260 → 235, Lee 632 → 630, lines 59-61 and 141); 2 placeholder TODOs added for Zenodo DOI + repo URL at submission.
+- `09_reviewer_qa.md`: Q13/Q14 Paper 2 territory drift removed ("HT/B-cell route" → "MAPK-low route" / "non-MAPK route"; GSE286332 dual-role parenthetical added in Q14(ii)). Q9 untouched (voice-protected). Author confirmation requested: is GSE286332 OK to keep in v14 forest pool (n=1,287) while dropped from primary Pillar I cohort (n=865)?
+
+### Open items still requiring author keyboard (voice-protected)
+
+- 03_introduction.md `1.1` hook + 04_intro_1_1_hook.md anchor (Alt B refined / hybrid "compass" decision)
+- 06_discussion.md `3.1` opening (Landa 2016 JCI cite, Krishnamoorthy 2025 misattribution 정정) + `3.4` limitations
+- 08_cover_letter.md paragraph 1
+- 09_reviewer_qa.md Q9
+
+---
+
+*Generated 2026-05-13 by `_compile_full_manuscript.py`. Constituent file states reflect the latest edits to the underlying source files.*

@@ -68,3 +68,28 @@ Protected sections were left as explicit author placeholders rather than Codex p
 - Confirm the final public repository URL and archival DOI language in [07_star_methods.md](/home/seungho/personal/THCA_data_analysis/project/manuscript_v8/07_star_methods.md)
 - Fill affiliations and corresponding-author email in [08_cover_letter.md](/home/seungho/personal/THCA_data_analysis/project/manuscript_v8/08_cover_letter.md)
 - Final supplement numbering can be re-tuned once figure build is complete
+
+---
+
+## Re-verification 2026-05-13 (pre-Yu-meeting audit)
+
+Re-ran the boundary + cohort + citation + figure-ref + key-number audit ahead of the 2026-05-14 Yu meeting. All checks GREEN.
+
+- **Paper 2 boundary**: 0 leak. All `Hashimoto-like` / `HLA-II` / `BCR` hits in main draft files are explicitly boundary-marked as "reserved for Paper 2" (05_figure_captions.md:96/98/142, 06_discussion.md:49, 09_reviewer_qa.md:80/84).
+- **Cohort number**: `n=865 (K2 235 + Lee 630)` consistent in 01_abstract.md, 03_introduction.md, 04_results.md, 07_star_methods.md. No lingering `n=874`. GSE286332-PTC(9) confirmed dropped per 2026-05-07 P1-2 audit.
+- **Placeholders**: 0 inline `TBD/TODO/XXX/FIXME` in main prose. Two structured TODOs intentionally left in 07_star_methods.md:39 and :49 awaiting Zenodo DOI + public repo URL at submission. One `VERIFY` line in 01_abstract.md:18 awaits Yu-Hyeongwon institutional email.
+- **Figure numbers**: Main Fig 1-8, Supp S1-S6, S5b, SX, SX_v13, SX_v14, SB2 all defined with consistent cross-refs.
+- **Key effect sizes confirmed across sections**: Fusion 76.8% / OR 7.41 (5 files); pooled HR 2.53 [1.31, 4.89] (5 files); TPO d=2.30 (7 files); mean β 0.385 vs 0.253 (5 files); ARI 0.49/0.90/0.92 (4 files).
+
+### Edits applied 2026-05-13 (post-audit)
+
+- `04_results.md`: section order reordered 2.1 → 2.3 → 2.4a → 2.4b → 2.2 → 2.5 ⇒ **2.1 → 2.2 → 2.3 → 2.4 → 2.5a → 2.5b** per 17_results_reorder_plan.md (selection-layer paper framing, discovery-first). +14 words = header comment only; no prose added/removed/reworded. 1 internal cross-ref `(2.4a)` → `(2.5a)`.
+- `07_star_methods.md`: cohort drift fixed (K2 260 → 235, Lee 632 → 630, lines 59-61 and 141); 2 placeholder TODOs added for Zenodo DOI + repo URL at submission.
+- `09_reviewer_qa.md`: Q13/Q14 Paper 2 territory drift removed ("HT/B-cell route" → "MAPK-low route" / "non-MAPK route"; GSE286332 dual-role parenthetical added in Q14(ii)). Q9 untouched (voice-protected). Author confirmation requested: is GSE286332 OK to keep in v14 forest pool (n=1,287) while dropped from primary Pillar I cohort (n=865)?
+
+### Open items still requiring author keyboard (voice-protected)
+
+- 03_introduction.md `1.1` hook + 04_intro_1_1_hook.md anchor (Alt B refined / hybrid "compass" decision)
+- 06_discussion.md `3.1` opening (Landa 2016 JCI cite, Krishnamoorthy 2025 misattribution 정정) + `3.4` limitations
+- 08_cover_letter.md paragraph 1
+- 09_reviewer_qa.md Q9

@@ -102,6 +102,47 @@ def load_inputs() -> pd.DataFrame:
         present = [c for c in keep if c in controls.columns]
         out = out.merge(controls[present].drop_duplicates("pmhc_key"), on="pmhc_key", how="left", suffixes=("", "_control"))
 
+    md = read_tsv(MD_OUT / "md_evidence_scores.tsv")
+    if not md.empty:
+        md = md.copy()
+        md["pmhc_key"] = md["candidate"].astype(str).str.replace("/", "|", regex=False).str.upper()
+        md["_runtime"] = pd.to_numeric(md.get("runtime_fraction", 0), errors="coerce").fillna(0)
+        md["_score"] = pd.to_numeric(md.get("MD_evidence_score", 0), errors="coerce").fillna(0)
+        md["md_usable_current"] = (
+            md["MD_evidence_label"].astype(str).str.startswith("MD_")
+            & ~md["MD_evidence_label"].astype(str).str.contains("INSUFFICIENT|FAIL", regex=True, na=False)
+        )
+        md = md.sort_values(["pmhc_key", "md_usable_current", "_runtime", "_score"], ascending=[True, False, False, False])
+        md = md.groupby("pmhc_key", as_index=False).head(1)
+        md = md.rename(
+            columns={
+                "run_id": "current_md_run_id",
+                "MD_evidence_label": "current_md_label",
+                "MD_evidence_score": "current_md_score",
+                "runtime_fraction": "current_md_runtime_fraction",
+            }
+        )
+        out = out.merge(
+            md[
+                [
+                    "pmhc_key",
+                    "current_md_run_id",
+                    "current_md_label",
+                    "current_md_score",
+                    "current_md_runtime_fraction",
+                    "md_usable_current",
+                ]
+            ],
+            on="pmhc_key",
+            how="left",
+        )
+        for col in ["md_label", "md_score", "live_completion_fraction"]:
+            if col not in out.columns:
+                out[col] = np.nan
+        out["md_label"] = out["current_md_label"].combine_first(out.get("md_label"))
+        out["md_score"] = out["current_md_score"].combine_first(out.get("md_score"))
+        out["live_completion_fraction"] = out["current_md_runtime_fraction"].combine_first(out.get("live_completion_fraction"))
+
     return out
 
 
