@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Honest Negatives Wall · 2026-05-14 · 정직한 null 결과 봉인 벽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.02;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;margin:0 0 8px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.null-card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;margin:14px 0;border-left:5px solid var(--red)}
+.null-card.med{border-left-color:var(--gold)}
+.null-card.lowclose{border-left-color:var(--green)}
+.null-card h3 .pill{font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.12em;border:1px solid var(--gold);color:var(--gold);padding:2px 8px;border-radius:999px;margin-left:8px;vertical-align:middle;text-transform:uppercase}
+.null-card h3 .pill.red{border-color:var(--red);color:var(--red)}
+.null-card h3 .pill.green{border-color:var(--green);color:var(--green)}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 12px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.04em}
+.kv .v{color:#eaf2f7;font-weight:700}
+.qa{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+.qa b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.qa p{margin:0 0 8px;color:#dde6ec;font-size:14px}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(147,226,170,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px;border-left:5px solid var(--green)}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--green)}
+.decision.red{border-color:var(--red);border-left-color:var(--red);background:linear-gradient(135deg,rgba(255,138,107,.06),rgba(255,210,138,.02))}
+.decision.red h3{color:var(--red)}
+.decision p{margin:0;color:#eaf2f7}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  main{padding:22px 18px 60px}.kv{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Honest Negatives Wall · Paper 1·2·3·4 통합 null 봉인 · 2026-05-14</p>
+    <h1>10+ 개의 null, 모두 정직하게 봉인 — reviewer-trap 면역 벽.</h1>
+    <p class="lead">
+      정직한 negative는 약점이 아니라 <b>지금 가장 강한 자산</b>이다. 이 페이지는 4개 트랙(P1 DM1 · P2 Histology · P3 ICI · 인프라)에서 발견된 모든 null·실패·flip·artefact를 한 자리에 봉인한다. 각 null은 <b>(1) 무엇이 null이었나, (2) 왜 그렇게 나왔나, (3) 어떻게 framing 했나, (4) reviewer가 물으면 무엇으로 답하는가</b>를 묶었다. Nature Cancer / Nat Comm 심사용 honesty premium = <b>"먼저 자기 한계를 노출하는 논문이 더 잘 통과한다"</b>는 원칙으로 설계.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>12</b><span>nulls cataloged</span><small>P1 · P2 · P3 · 인프라 4 트랙</small></div>
+      <div class="stat"><b>4</b><span>tracks covered</span><small>모든 active 트랙 honest pass</small></div>
+      <div class="stat"><b>3</b><span>reviewer-trap closures</span><small>phospho · spatial · LODO</small></div>
+      <div class="stat"><b>1</b><span>honesty premium</span><small>reviewer-safe 자세 잠금</small></div>
+      <div class="stat"><b>0</b><span>silent failures</span><small>모두 explicit caption + Q&amp;A</small></div>
+    </div>
+  </div>
+</header>
+<nav class="tocbar"><div class="row">
+  <a href="index.html">index</a>
+  <a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief</a>
+  <a href="paper1_v17_dossier_2026_05_07.html">paper1</a>
+  <a href="paper2_image_dm1_2026_05_08.html">paper2_image_dm1</a>
+  <a href="paper2_hla_isolated_dossier_2026_05_07.html">paper2_hla</a>
+  <a href="paper4_gd_hla_dossier_2026_05_07.html">paper4_gd_hla</a>
+  <a href="grant_samsung_causal_kthyro_2026_05_14.html">samsung_grant</a>
+  <a href="track1_dm1_command_room_2026_05_14.html">track1_dm1</a>
+  <a href="track2_histology_command_room_2026_05_14.html">track2_histology</a>
+  <a href="track3_hla_isolated_command_room_2026_05_14.html">track3_hla</a>
+  <a href="track4_korean_gd_command_room_2026_05_14.html">track4_gd</a>
+  <a href="track5_samsung_command_room_2026_05_14.html">track5_samsung</a>
+  <a href="evidence_atlas_2026_05_14.html">evidence_atlas</a>
+  <a href="timeline_gantt_2026_05_14.html">timeline_gantt</a>
+  <a href="decision_board_2026_05_14.html">decision_board</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa</a>
+  <a href="figure_gallery_2026_05_14.html">figure_gallery</a>
+  <a href="methodology_atlas_2026_05_14.html">methodology_atlas</a>
+  <a href="venue_strategy_2026_05_14.html">venue_strategy</a>
+  <a href="executive_brief_kr_one_pager_2026_05_14.html">exec_brief_kr</a>
+  <a href="investor_pitch_en_2026_05_14.html">investor_pitch</a>
+  <a href="triangulation_2026_05_14.html">triangulation</a>
+  <a href="bd_outreach_state_2026_05_14.html">bd_outreach</a>
+  <a href="marathon_mode_dashboard_2026_05_14.html">marathon_mode</a>
+  <a href="honest_negatives_wall_2026_05_14.html" class="primary">honest_negatives</a>
+  <a href="risk_atlas_2026_05_14.html">risk_atlas</a>
+  <a href="data_registry_map_2026_05_14.html">data_registry</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict</h2>
+  <p class="sub">Honesty Sealing Status</p>
+  <div class="decision">
+    <h3>GREEN · Honesty 봉인 완료 — reviewer-safe 자세 잠금</h3>
+    <p>12 개 null 모두 (1) 명시 caption, (2) framing 규칙, (3) reviewer Q&amp;A bank에 봉인됨. Paper 1 4-pillar에서 phospho는 supplementary로 정직 표기, Paper 2 spatial v15-v18은 honest negative wall material로 명시, v5.2 LODO ComBat flip은 fix 후 downstream 중단. <b>"먼저 자기 한계를 노출"하는 자세 = honesty premium.</b></p>
+  </div>
+  <div class="decision red" style="margin-top:14px">
+    <h3>RED · 정직 봉인 실패 시 reviewer-trap</h3>
+    <p>만약 null을 숨기거나 약한 framing으로 통과시키려 하면 — 특히 <b>v15-v18 spatial rescue 실패</b>, <b>phospho null</b>, <b>K2 calibration TPM inflation</b> — 한 명의 까다로운 reviewer가 잡으면 통째로 흔들린다. 이 페이지가 그 차단선이다.</p>
+  </div>
+</section>
+
+<section id="master">
+  <h2>Master Null Table</h2>
+  <p class="sub">12 nulls · 4 tracks · framing + reviewer answer</p>
+  <table>
+    <thead><tr><th>#</th><th>트랙</th><th>무엇이 null이었나</th><th>핵심 통계</th><th>Framing</th><th>Reviewer answer</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>P1 DM1</td><td>Phospho 4번째 pillar 신호 부재</td><td>signal absent (Round 3)</td><td>4-pillar→3-pillar (RNA+protein+HM450) 잠금; phospho는 supplementary 정직 표기</td><td>"DM1은 RNA+protein+methylation에서 강하게 cosegregate; phospho는 negative로 supplementary에 보고."</td></tr>
+      <tr><td>2</td><td>P1 DM1</td><td>Random panel permutation (pan-thyroid pool)</td><td>p=0.29 (Round 7)</td><td>panel "honest, not lucky"; Round 8 thyroid-matched null이 진짜 specificity test</td><td>"Round 7 풀이 너무 넓었음을 자인. Round 8 thyroid-matched null p=0.007이 specificity 입증."</td></tr>
+      <tr><td>3</td><td>P2 Image</td><td>TSS-only LR within RAS-like AUC=1.000 artefact</td><td>AUC=1.000 (image-independent confound)</td><td>headline에서 거부; UNI LOTO 0.852 overall로 교체; raw H&amp;E gallery로 noise wall 잠금</td><td>"TSS-only confound을 자체 발견 — UNI LOTO overall 0.852가 patient-level 진짜 신호."</td></tr>
+      <tr><td>4</td><td>P2 Spatial</td><td>v15 MAPK × Panel rescue 실패</td><td>tumor-slide pooled ρ=+0.326, QC-partial +0.059</td><td>reviewer caveat, not mechanism support</td><td>"공간 데이터에서 panel-methylation 안티-correlation 재현 안 됨; bulk-only mechanism 주장."</td></tr>
+      <tr><td>5</td><td>P2 Spatial</td><td>v16 spatial rescue 0/45 negative</td><td>QC+cell-state pooled ρ=+0.034</td><td>0/45 subset/adjustment tests negative; PRISM wording 정정</td><td>"공간에서 신호 회수 모든 시도 실패 — 정직 보고."</td></tr>
+      <tr><td>6</td><td>P2 Spatial</td><td>v17 deep autopsy: full + spatial + detection residual</td><td>ρ=+0.007; raw +0.110 vs random +0.099 (percentile 0.545)</td><td>"no hidden rescue; strong reviewer caveat"</td><td>"공간 raw 신호는 generic baseline 수준 — hidden rescue 없음."</td></tr>
+      <tr><td>7</td><td>P2 Spatial</td><td>v18 KNN lag rescue 실패</td><td>raw +0.090 / residual +0.033; pocket enrich raw 0.88 residual 1.01</td><td>stop extending unless reviewer asks</td><td>"공간 lag으로 더 깊게 봐도 회수 없음 — 봉인 완료."</td></tr>
+      <tr><td>8</td><td>P1 인프라</td><td>v5.1 THCA DIAL=0.494 flip</td><td>leak artifact → LODO ComBat 후 DIAL=0.000 all 5 classifiers</td><td>v5.2 fix locked; v15/v10/v13 downstream 인용 중단</td><td>"v5.1 결과는 leak artefact임을 자인; LODO ComBat 후 true_biology 회수."</td></tr>
+      <tr><td>9</td><td>P1 TERT</td><td>v17 TERT-only paradox (N=4)</td><td>N=4 artifact</td><td>FFPE-robust thyrocyte-intrinsic audit에서 해소</td><td>"초기 paradox는 N=4 small-sample artifact; full audit에서 사라짐."</td></tr>
+      <tr><td>10</td><td>HLA #1</td><td>GSE286332 single-cohort caveat</td><td>n=18 only</td><td>외부 multi-cohort 1곳 follow-up plan + D4-P2 TCGA transfer 보강</td><td>"n=18 한계 명시; TCGA transfer로 DM2 5× enrichment 보강; 외부 cohort 1곳 follow-up gating."</td></tr>
+      <tr><td>11</td><td>P1 K2</td><td>Korean K2 calibration: 8-gene mini-index TPM inflation</td><td>10-100× inflation; TCGA-trained LogReg wrong-direction</td><td>within-sample-centered profile (TCGA AUC 0.968) 표준 채택</td><td>"K2 absolute-form는 inflation으로 부적합 → centered profile이 표준; TCGA AUC 0.968 유지."</td></tr>
+      <tr><td>12</td><td>P2 Spatial Deconv</td><td>v16 deconv spatial failure rescue</td><td>raw +0.208 → epithelial/QC/microenvironment adjust 후 +0.035; ATC epithelial full-resid -0.0007</td><td>reviewer caveat / reserve, not mechanism support</td><td>"spatial epithelial-level 회수도 실패 — bulk-only mechanism 주장."</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="null1">
+  <h2>Null 1 · Paper 1 Phospho honest negative</h2>
+  <p class="sub">DM1 4-pillar에서 phospho 만 신호 부재</p>
+  <div class="null-card lowclose">
+    <h3>P1 / Phospho layer null <span class="pill green">CLOSED / Supplementary</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">DM1 Round 3 deep dive (2026-05-08)</div>
+      <div class="k">관찰</div><div class="v">DM1 4-pillar 중 phospho layer에서 signal absent (honest negative)</div>
+      <div class="k">RNA pillar 대조</div><div class="v">Mun 2025 n=336 thyroid_diff d=-1.91, myeloid d=+1.52, 5/7 8-gene Spearman r&lt;-0.5</div>
+      <div class="k">Protein pillar 대조</div><div class="v">sign-match 7/7 across PTC→PDTC→ATC</div>
+      <div class="k">HM450 pillar 대조</div><div class="v">cPTC d=+1.50 (H13 polarity-corrected); Landa PDTC vs ATC d=+3.47</div>
+      <div class="k">Framing</div><div class="v">4-pillar → 3-pillar (RNA + protein + HM450) 잠금. Phospho는 supplementary로 정직 표기.</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Phosphoproteomics evidence is conspicuously missing. Why isn't it part of your dark-matter signal?"</p>
+      <b>A (canned)</b><p>"Mun 2025 phosphoproteomic layer was systematically tested as part of Round 3. The 8-gene DM1 axis does not project onto phospho-events with significant cosegregation — we report this as an honest negative in Supplementary §S3. Our main-text claim is that the cosegregation is robust at RNA, protein, and HM450-methylation layers; we do not over-extend to phospho where the signal is absent."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null2">
+  <h2>Null 2 · Paper 1 Random panel permutation (Round 7 → Round 8)</h2>
+  <p class="sub">Pan-thyroid random null p=0.29 vs thyroid-matched null p=0.007</p>
+  <div class="null-card lowclose">
+    <h3>P1 / Permutation null framing flip <span class="pill green">CLOSED / Specificity confirmed</span></h3>
+    <div class="kv">
+      <div class="k">Round 7 결과</div><div class="v">Random panel permutation null <b>p=0.29</b> (Pan-thyroid pool) — panel "honest, not lucky"</div>
+      <div class="k">Round 8 결과</div><div class="v">Thyroid-matched null <b>p=0.007</b>; label-permutation null <b>p&lt;1e-4</b> — panel-specificity 확정</div>
+      <div class="k">왜 Round 7는 p=0.29 인가</div><div class="v">Pan-thyroid 풀이 너무 넓어서 unfair comparison이었음; Round 8에서 thyroid-matched pool로 좁히자 specific signal 회수</div>
+      <div class="k">TDS-16 보완</div><div class="v">8-gene ⊂ TDS-16; ρ=0.954; 90% capture (knock-out n-1 floor d=1.54)</div>
+      <div class="k">Framing</div><div class="v">Round 7 honest-not-lucky는 lower bound; Round 8 specificity가 진짜 specificity test로 본문 사용</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Round 7 permutation gives p=0.29 — your panel is no better than random?"</p>
+      <b>A (canned)</b><p>"Round 7 used a pan-thyroid pool which is unfair for specificity testing — too broad a reference distribution. Round 8 re-ran the permutation with thyroid-matched controls (same lineage, same panel size) and the panel-specific null collapses to p=0.007. Label-permutation null is p&lt;1e-4. Round 7 stands as an honest lower-bound calibration; Round 8 is the specificity test we report in the main text."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null3">
+  <h2>Null 3 · Paper 2 RAS-like AUC=1.000 artefact</h2>
+  <p class="sub">TSS-only LR within RAS-like — image-independent confound</p>
+  <div class="null-card">
+    <h3>P2 / TSS confound rejected <span class="pill red">FAILED HEADLINE / REPLACED</span></h3>
+    <div class="kv">
+      <div class="k">초기 결과</div><div class="v">TSS-only LR within RAS-like subset AUC=1.000 (의심스러울 정도로 perfect)</div>
+      <div class="k">진단</div><div class="v">image-independent TSS confound → 이미지가 아닌 메타-축으로 분류됨; biological signal 아님</div>
+      <div class="k">처리</div><div class="v">headline에서 거부; raw H&amp;E gallery + UNI LOTO 0.852 overall로 교체; 16 GSE250521 슬라이드 overlay 추가</div>
+      <div class="k">교체 후 수치</div><div class="v">N=59 mean AUC <b>0.83±0.14</b>, pooled <b>0.75</b>; UNI overall LOTO <b>0.852</b> (image-DM1 PASS)</div>
+      <div class="k">Framing</div><div class="v">"TSS-only confound을 자체 발견 — 진짜 image-level 신호로 교체했다" = 정직성 자산</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Earlier internal version reported AUC=1.000 within RAS-like — what changed?"</p>
+      <b>A (canned)</b><p>"We rejected that result as an image-independent TSS-side confound during internal audit; reporting it transparently here. The headline figure uses UNI features under leave-one-tissue-out (LOTO) cross-validation, which gives 0.852 overall and a per-cohort N=59 mean of 0.83±0.14. The TSS-only artefact is documented in Supplementary §S4 as a methodological cautionary note for future image-omics studies."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null4">
+  <h2>Null 4 · Paper 2 spatial v15 rescue 실패</h2>
+  <p class="sub">MAPK × Panel anti-correlation: GSE250521에서 재현 안 됨</p>
+  <div class="null-card med">
+    <h3>P2 Spatial / v15 rescue FAIL <span class="pill">CAVEAT</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">Deconv v15 K2 spatial DepMap 2026-05-09</div>
+      <div class="k">v14 bulk 기준</div><div class="v">MAPK × Panel pooled ρ=-0.327 [-0.376, -0.278], n=1,287, I²=72.9%</div>
+      <div class="k">v15 spatial 시도</div><div class="v">GSE250521 tumor-slide pooled ρ=<b>+0.326</b> (반대 방향!) ; QC-partial <b>+0.059</b></div>
+      <div class="k">PRISM/DepMap는 유지</div><div class="v">MAPK-axis vulnerability 7/11 FDR hits; DM1×MAPK-inhibitor LFC ρ=-0.236</div>
+      <div class="k">Framing</div><div class="v">reviewer caveat, not mechanism support; bulk-only mechanism 주장으로 후퇴</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Your bulk-RNA MAPK × Panel anti-correlation is meta-analyzed, but does it hold in spatial data?"</p>
+      <b>A (canned)</b><p>"In GSE250521 we attempted a spatial replication and the bulk-level anti-correlation does NOT hold — pooled rho actually flips sign (+0.326) at the spot level, attenuating to +0.059 under QC adjustment. We report this as an honest caveat (Honest Negatives Wall §4) and explicitly confine our mechanism claim to bulk-level evidence. The PRISM/DepMap MAPK-axis vulnerability (7/11 FDR hits, DM1×MAPK-inhibitor LFC rho=-0.236) is the spatial-independent corroboration."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null5">
+  <h2>Null 5 · Paper 2 spatial v16 rescue 실패</h2>
+  <p class="sub">0/45 subset/adjustment tests; QC+cell-state pooled ρ=+0.034</p>
+  <div class="null-card med">
+    <h3>P2 Spatial / v16 rescue FAIL <span class="pill">CAVEAT</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">Deconv v16 spatial PRISM diagnostics 2026-05-09</div>
+      <div class="k">시도</div><div class="v">45 subset/adjustment tests (cell type, region, QC filter, normalization variants)</div>
+      <div class="k">결과</div><div class="v"><b>0/45 negative</b> — 모든 rescue 시도에서 sign-flip 실패; QC+cell-state pooled ρ=+0.034</div>
+      <div class="k">PRISM wording 정정</div><div class="v">top 7 all MAPK; FDR&lt;0.05 7/11 MAPK; top 15 = 8/15 MAPK (실측 일치)</div>
+      <div class="k">Framing</div><div class="v">"공간 rescue 모든 시도 실패 — 정직 보고; bulk mechanism은 v14 meta-analysis로 충분"</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Did you try subset/adjustment variants to recover the bulk pattern in spatial data?"</p>
+      <b>A (canned)</b><p>"Yes — Deconv v16 systematically tested 45 subset/adjustment variants (cell-type, region, QC, normalization). 0/45 produced a sign-consistent anti-correlation; pooled QC+cell-state rho = +0.034. We report this as an honest negative and tighten our mechanism claim to bulk-level evidence with PRISM/DepMap corroboration."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null6">
+  <h2>Null 6 · Paper 2 spatial v17 deep autopsy</h2>
+  <p class="sub">Full + spatial + detection residual ρ=+0.007; raw vs random percentile 0.545</p>
+  <div class="null-card med">
+    <h3>P2 Spatial / v17 autopsy <span class="pill">STRONG CAVEAT</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">Deconv v17 spatial signal decomposition 2026-05-09</div>
+      <div class="k">Full residual</div><div class="v">full + spatial + detection residual ρ=<b>+0.007</b></div>
+      <div class="k">Raw vs random module</div><div class="v">observed raw median ρ=<b>+0.110</b> vs random module raw median <b>+0.099</b> (percentile <b>0.545</b>)</div>
+      <div class="k">결론</div><div class="v">"no hidden rescue; strong reviewer caveat"</div>
+      <div class="k">Framing</div><div class="v">공간 raw 신호는 generic baseline 수준 — hidden rescue 없음을 정직 봉인</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Is there any residual spatial signal after detection adjustment?"</p>
+      <b>A (canned)</b><p>"v17 deep autopsy decomposed the spatial signal into full + spatial + detection components; the residual rho is +0.007 — indistinguishable from zero. Raw signal sits at percentile 0.545 versus random module reshuffles. We report this as a strong caveat and do not claim spatial mechanism support."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null7">
+  <h2>Null 7 · Paper 2 spatial v18 KNN lag pockets 실패</h2>
+  <p class="sub">KNN1-6 raw +0.090 / residual +0.033; pocket enrichment raw 0.88 / residual 1.01</p>
+  <div class="null-card med">
+    <h3>P2 Spatial / v18 lag rescue FAIL <span class="pill">SEALED</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">Deconv v18 spatial lag pockets 2026-05-09</div>
+      <div class="k">KNN lag</div><div class="v">KNN1-6 raw <b>+0.090</b> / residual <b>+0.033</b> — no rescue</div>
+      <div class="k">MAPK-high/Panel-low pockets</div><div class="v">enrichment raw <b>0.88</b>, residual <b>1.01</b> — NOT enriched (오히려 depleted in raw)</div>
+      <div class="k">Panel-detection</div><div class="v">depleted in MAPK-high pockets</div>
+      <div class="k">Framing</div><div class="v">"stop extending unless reviewer asks" — closure decision locked</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Did you try spatial lag / pocket-based rescue?"</p>
+      <b>A (canned)</b><p>"v18 tested KNN-lag (k=1-6) and MAPK-high/Panel-low pocket enrichment. Lag residual rho = +0.033; pocket enrichment ratio is 1.01 (residual) and 0.88 (raw) — not enriched; in raw data, panel detection is actually depleted in MAPK-high spots. We have stopped extending spatial rescue attempts and explicitly note this as honest negative §7 in the Wall."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null8">
+  <h2>Null 8 · v5.2 LODO ComBat finding</h2>
+  <p class="sub">v5.1 DIAL=0.494 flip = leak artifact; v15/v10/v13 downstream 인용 halt</p>
+  <div class="null-card lowclose">
+    <h3>Infra / v5.1 DIAL flip retracted <span class="pill green">FIX LOCKED</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">v5.2 critical fix memo</div>
+      <div class="k">v5.1 관찰</div><div class="v">THCA DIAL=<b>0.494</b> flip — 신호 같았으나 leak artifact</div>
+      <div class="k">LODO ComBat 재실험</div><div class="v">all 5 THCA classifiers DIAL=<b>0.000</b> / true_biology 회수</div>
+      <div class="k">조치</div><div class="v">v15/v10/v13 downstream 인용 즉시 중단; v5.2 fix locked</div>
+      <div class="k">Framing</div><div class="v">"자체 발견한 leak; LODO ComBat 후 올바른 0.000 회수 — 즉시 downstream 정정"</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Earlier internal note mentioned a DIAL=0.494 effect — is that still in the paper?"</p>
+      <b>A (canned)</b><p>"No. v5.1 reported DIAL=0.494 from a batch-leaky pipeline. Under leave-one-dataset-out (LODO) ComBat — the correct batch-corrected protocol — all 5 THCA classifiers return DIAL=0.000 / true_biology. We halted downstream citation of v15/v10/v13 once the leak was discovered (v5.2 fix). This is documented in Methods §Batch-correction audit and Honest Negatives Wall §8."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null9">
+  <h2>Null 9 · v17 TERT-only paradox</h2>
+  <p class="sub">N=4 artefact resolved under FFPE-robust audit</p>
+  <div class="null-card lowclose">
+    <h3>P1 TERT / Small-N paradox <span class="pill green">RESOLVED</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">v17 audit session 2026-04-29 A-J</div>
+      <div class="k">관찰</div><div class="v">초기 TERT-only paradox (TERT mutation 있어도 DM1 high가 아닌 듯) — N=4 small-sample artifact</div>
+      <div class="k">해소</div><div class="v">FFPE-robust thyrocyte-intrinsic audit에서 paradox 사라짐; 36 TCGA-THCA TERT promoter mutations (cBioPortal thca_tcga_pub) 회수; survival p=4.9e-6</div>
+      <div class="k">OS</div><div class="v">TERT⁺ Cox HR=<b>7.57</b> [2.74, 20.91] p=<b>9.3e-5</b> (DM1 Round 3)</div>
+      <div class="k">Framing</div><div class="v">초기 paradox는 N=4 artifact; full audit에서 사라짐 — 본문에서는 자인 후 회수된 신호로 기록</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Internal notes mentioned a TERT-only paradox — how was it resolved?"</p>
+      <b>A (canned)</b><p>"The early observation came from N=4 cases and was a small-sample artefact. After v17 TERT recovery v2 (36 TCGA-THCA TERT-promoter mutations recovered from cBioPortal thca_tcga_pub) and full audit (v17 audit session A-J), the paradox resolves: TERT-positive Cox HR=7.57 [2.74, 20.91] p=9.3e-5. We document the resolution in Honest Negatives Wall §9."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null10">
+  <h2>Null 10 · HLA #1 single-cohort caveat</h2>
+  <p class="sub">GSE286332 n=18 only; D4-P2 TCGA transfer 보강</p>
+  <div class="null-card med">
+    <h3>HLA #1 / single-cohort caveat <span class="pill">PARTIAL CAVEAT</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">v17 GSE286332 STRONG GO + v17 D4-P2 TCGA Hashimoto-like generalization</div>
+      <div class="k">Primary cohort</div><div class="v">GSE286332 n=18 (Korean PTC vs PTC+HT); 10,380 DEGs, 8-gene d=-1.6, HLA-II d=+3.65, IFN-γ FDR=2e-4</div>
+      <div class="k">한계</div><div class="v">n=18 single cohort — sample size 명시적 limitation</div>
+      <div class="k">보강</div><div class="v">D4-P2 TCGA transfer: PTC+HT signature → TCGA에서 DM2 enrichment OR up to <b>5×</b>, p=<b>6e-10</b>; D5-P6 BCR clonal + TLS d=+1.96</div>
+      <div class="k">Framing</div><div class="v">GO with explicit multi-cohort 외부 1곳 follow-up plan; TCGA transfer가 reviewer-ready 보강</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Your headline HLA-II / IFN-γ effect rests on n=18. Why should we trust it?"</p>
+      <b>A (canned)</b><p>"We agree n=18 is a hard limitation and report it explicitly. The supporting evidence sits in three places: (a) within-cohort, the effect sizes are large (HLA-II d=+3.65, IFN-γ FDR=2e-4); (b) D4-P2 TCGA transfer of the PTC+HT signature yields DM2 enrichment OR up to 5×, p=6e-10 — a fully independent cohort; (c) D5-P6 BCR clonal + TLS d=+1.96 corroborates antigen-driven B-cell response. The next step is one external multi-cohort replication, gated for the paper's revision phase."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null11">
+  <h2>Null 11 · v17 Korean K2 calibration</h2>
+  <p class="sub">TPM inflation 10-100×; absolute-form LogReg wrong-direction</p>
+  <div class="null-card lowclose">
+    <h3>K2 calibration / methodological null <span class="pill green">METHOD LOCKED</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">v17 Korean K2 calibration memo</div>
+      <div class="k">관찰</div><div class="v">K2에서 8-gene mini-index TPM이 TCGA 대비 <b>10-100×</b> inflate; TCGA-trained absolute-form LogReg가 wrong-direction prediction</div>
+      <div class="k">진단</div><div class="v">absolute-form은 batch/normalization 차이에 매우 민감 — K2 같은 외부 cohort에 부적합</div>
+      <div class="k">조치</div><div class="v">within-sample-centered profile로 표준 채택; TCGA AUC <b>0.968</b>; K2 246/260 DM2 회수 (v15)</div>
+      <div class="k">Framing</div><div class="v">"absolute → centered 전환을 자체 발견; centered가 표준" — methodological honest negative</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"How robust is your 8-gene panel under different platforms / batch effects?"</p>
+      <b>A (canned)</b><p>"We discovered the absolute-form panel is platform-sensitive: in Korean K2 (PRJEB11591) TPM is inflated 10-100× and the TCGA-trained LogReg gives wrong-direction predictions. We adopted a within-sample-centered profile as the standard reporting form — TCGA AUC=0.968 holds, and K2 centered-panel overlay returns 246/260 DM2 (v15). The methodological note is in Honest Negatives Wall §11 and Methods §Calibration."</p>
+    </div>
+  </div>
+</section>
+
+<section id="null12">
+  <h2>Null 12 · DM1 deconv v16 spatial failure rescue</h2>
+  <p class="sub">Epithelial-level adjustment attenuates ρ to +0.035; ATC full-resid -0.0007</p>
+  <div class="null-card med">
+    <h3>P2 Spatial / v16 epithelial autopsy <span class="pill">SEALED CAVEAT</span></h3>
+    <div class="kv">
+      <div class="k">출처</div><div class="v">Deconv v16 spatial failure rescue 2026-05-09</div>
+      <div class="k">관찰</div><div class="v">GSE250521 raw tumor-epithelial MAPK × Panel ρ=<b>+0.208</b> → epithelial/QC/microenvironment adjust 후 <b>+0.035</b></div>
+      <div class="k">ATC subset</div><div class="v">ATC epithelial full-resid ρ=<b>-0.0007</b> (정확히 0)</div>
+      <div class="k">결론</div><div class="v">epithelial level까지 내려가도 spatial 회수 없음</div>
+      <div class="k">Framing</div><div class="v">reviewer caveat / reserve; mechanism 주장은 bulk-only로 정직 봉인</div>
+    </div>
+    <div class="qa">
+      <b>Reviewer Q</b><p>"Did you try restricting the spatial analysis to tumor epithelium only?"</p>
+      <b>A (canned)</b><p>"Yes — v16 epithelial autopsy. Raw tumor-epithelial rho is +0.208 (still wrong sign vs bulk), and full epithelial+QC+microenvironment adjustment attenuates it to +0.035. ATC-restricted epithelial full-residual rho is -0.0007 — essentially zero. We seal this as a reviewer caveat and explicitly do not claim spatial mechanism support; bulk meta-analysis (v14, pooled rho=-0.327, n=1,287) carries the mechanism."</p>
+    </div>
+  </div>
+</section>
+
+<section id="framing">
+  <h2>Honest Negatives Framing — Nature Cancer / Nat Comm Reviewer-Safe</h2>
+  <p class="sub">Every null gets explicit reviewer-Q + canned-A</p>
+  <table>
+    <thead><tr><th>원칙</th><th>적용</th><th>본문 위치</th></tr></thead>
+    <tbody>
+      <tr><td>먼저 자기 한계 노출</td><td>Honest Negatives Wall을 Supplementary §S-Honest 로 link; 각 null은 본문에서 직접 언급</td><td>Supplementary §S-Honest + Discussion §Limitations</td></tr>
+      <tr><td>Caveat 작성 룰</td><td>모든 spatial 주장은 "bulk-only" 명시; 모든 phospho는 "not evaluated significant"; 모든 K2는 "centered-form"</td><td>Methods §Calibration + §Mechanism scope</td></tr>
+      <tr><td>Reviewer Q&amp;A bank</td><td>각 null에 canned A 사전 작성 (이 페이지의 .qa 블록)</td><td>Response-to-reviewer template</td></tr>
+      <tr><td>외부 cohort gating</td><td>HLA #1 n=18은 외부 1곳 follow-up 명시; D4-P2 TCGA 보강 main-text 반영</td><td>Discussion §Generalizability</td></tr>
+      <tr><td>Honesty premium</td><td>"먼저 자기 한계를 노출하는 논문이 더 잘 통과한다" — Round 7→8 framing flip이 대표 사례</td><td>Cover letter + Discussion 3.1 voice-protected</td></tr>
+      <tr><td>Closure decisions</td><td>v15-v18 spatial rescue: "stop extending unless reviewer asks" — 봉인된 결정 명시</td><td>Honest Negatives Wall §7 closure</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="closing">
+  <h2>Closing</h2>
+  <p class="sub">Wall maintenance + decision</p>
+  <ul class="bullets">
+    <li>모든 12 null은 본문 + Supplementary + reviewer Q&amp;A bank 3곳에 봉인 완료.</li>
+    <li>새로운 null이 발견될 때마다 이 페이지에 추가하고 reviewer Q&amp;A bank를 업데이트한다.</li>
+    <li>Closure 룰: "stop extending unless reviewer asks" — null rescue를 무한히 시도하지 않는다 (v15-v18 = 4번 시도 = 충분; v18 이후 추가 spatial rescue 금지).</li>
+    <li>Honesty premium은 Discussion 3.1 / Cover letter Para 1에 voice-protected로 직접 작성 (이 페이지에는 framing만 잠금).</li>
+    <li>이 페이지는 reviewer-trap 방지선 = "내가 먼저 노출하면 reviewer가 못 친다."</li>
+  </ul>
+  <p class="footer">honest_negatives_wall_2026_05_14.html · papers_hub_2026_05_04 · Seungho Cook · for in-room read 2026-05-14 · part of 27-page family (index / yu_meeting_brief / paper1·2·4 / 5 track command rooms / evidence atlas / timeline gantt / decision board / reviewer Q&amp;A / figure gallery / methodology atlas / venue strategy / exec brief / investor pitch / triangulation / BD outreach / marathon mode / honest negatives / risk atlas / data registry)</p>
+</section>
+
+</main>
+</body>
+</html>

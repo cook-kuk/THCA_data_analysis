@@ -12,5 +12,8 @@
 - `figures/fig10_delta_vs_structure_lr.png`
 - `figures/fig11_contextual_method_weights.png`
 - `figures/fig12_barneo_x_claim_safe_top.png`
+- `figures/fig13_stress_guarded_actions.png`
+- `figures/fig14_stress_guarded_top_candidates.png`
+- `figures/fig15_stress_guarded_method_weights.png`
 
 HTML: `project/papers_hub_2026_05_04/clean_neobench_visual_dashboard_2026_05_10.html`

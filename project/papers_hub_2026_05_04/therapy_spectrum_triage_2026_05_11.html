@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Therapy Spectrum Triage · Expanded GEO Agent Map</title>
+<style>
+:root{--bg:#061019;--panel:#0d1726;--line:#23324a;--ink:#eaf1fb;--muted:#94a5ba;--gold:#ffd28a;--teal:#35d39d;--red:#ff8a6b;--blue:#7eb6ff}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.55 Inter,"Noto Sans KR",-apple-system,sans-serif}
+a{color:var(--teal);text-decoration:none} a:hover{color:var(--gold);text-decoration:underline}
+code,pre,.mono{font-family:"JetBrains Mono","SF Mono",Menlo,monospace;font-size:12px}
+h1,h2,h3{font-family:"Cormorant Garamond","Newsreader",serif;letter-spacing:-.02em;color:#fff7dd}
+.hero{padding:64px 34px 44px;background:radial-gradient(circle at top left,#162540 0%,#0a1220 60%,#050810 100%);border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><g fill='none' stroke='%23ffd28a' stroke-width='0.45' opacity='0.12'><circle cx='55' cy='55' r='38'/><circle cx='165' cy='50' r='24'/><circle cx='68' cy='168' r='30'/><circle cx='164' cy='162' r='48'/><path d='M55 55 L165 162 M165 50 L68 168'/></g></svg>");pointer-events:none}
+.hero-inner{position:relative;max-width:1380px;margin:0 auto;z-index:2}
+.kicker{font:700 11px "JetBrains Mono",monospace;color:var(--gold);letter-spacing:.24em;text-transform:uppercase}
+h1{font-size:64px;line-height:.98;margin:12px 0 12px}
+.lead{max-width:1040px;color:#cad5e5;font:18px/1.65 "Newsreader",serif}
+.lead b{color:#fff7dd}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:24px}
+.stat{background:rgba(255,255,255,.04);border:1px solid rgba(255,210,138,.18);padding:13px 14px;border-radius:10px}
+.stat b{display:block;color:var(--gold);font:700 28px "Cormorant Garamond",serif;line-height:1}
+.stat span{display:block;color:var(--muted);font:700 10px "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.crumbs{margin-top:18px;color:var(--muted);font:12px "JetBrains Mono",monospace}
+.wrap{max-width:1380px;margin:0 auto;display:grid;grid-template-columns:260px 1fr;gap:34px;padding:0 34px 80px}
+.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;border-right:1px solid var(--line);padding:28px 18px 28px 0}
+.toc h4{font:700 10px "JetBrains Mono",monospace;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin:0 0 12px}
+.toc a{display:block;color:#cbd5e5;padding:5px 0;font-size:12px}
+main{min-width:0;padding-top:24px}
+section{padding:32px 0;border-bottom:1px solid var(--line)}
+h2{font-size:36px;margin:0 0 6px}
+h2 .num{font:700 13px "JetBrains Mono",monospace;color:var(--gold);letter-spacing:.18em;margin-right:10px}
+.sub{font:700 10px "JetBrains Mono",monospace;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:16px}
+.t{width:100%;border-collapse:collapse;margin:12px 0 16px;font-size:12px}
+.t th,.t td{border:1px solid var(--line);padding:8px 9px;vertical-align:top}
+.t th{background:#16243a;color:var(--gold);font:700 10px "JetBrains Mono",monospace;letter-spacing:.05em;text-transform:uppercase;text-align:left}
+.t tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font:700 10px "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;margin-right:4px;border:1px solid transparent}
+.tag.go{background:rgba(53,211,157,.12);border-color:rgba(53,211,157,.28);color:var(--teal)}
+.tag.watch{background:rgba(255,210,138,.12);border-color:rgba(255,210,138,.28);color:var(--gold)}
+.tag.reserve{background:rgba(255,138,107,.12);border-color:rgba(255,138,107,.28);color:var(--red)}
+.box{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:0 8px 8px 0;padding:14px 16px;margin:14px 0}
+.box.good{border-left-color:var(--teal);background:#0a1a16}
+.box.warn{border-left-color:var(--red);background:#1d1310}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h3{margin:0 0 8px}
+pre{white-space:pre-wrap;background:#08101a;border:1px solid var(--line);padding:14px;border-radius:8px;color:#d8e2f0;overflow:auto}
+.small{color:var(--muted);font-size:12px}
+@media(max-width:1100px){.grid{grid-template-columns:1fr 1fr}}
+@media(max-width:980px){.wrap{display:block;padding:0 20px 60px}.toc{display:none}.stats{grid-template-columns:repeat(2,1fr)}h1{font-size:42px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="kicker">GEO / therapy-spectrum triage · expanded · 2026-05-11</div>
+    <h1>Therapy Spectrum<br/><em>Expanded for Agentic GEO Scanning</em></h1>
+    <p class="lead">
+      This is the expanded version of the triage pack. The platform should be driven by
+      <b>therapy triage, response prediction, biomarker selection, potency/QC, and combo prioritization</b>.
+      The strongest lanes are the neoantigen / mRNA vaccine / ICI family, engineered cell therapy, PARP/DDR and kinase inhibition, and the cross-modal response / resistance meta-platform.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>16</b><span>Modalities triaged</span></div>
+      <div class="stat"><b>10</b><span>Go lanes</span></div>
+      <div class="stat"><b>5</b><span>Watch lanes</span></div>
+      <div class="stat"><b>1</b><span>Reserve lanes</span></div>
+      <div class="stat"><b>GEO</b><span>Daily-updated source</span></div>
+      <div class="stat"><b>agent</b><span>Query-driven screening</span></div>
+    </div>
+    <div class="crumbs"><a href="index.html">← Hub index</a> · <a href="therapy_spectrum_recent_registry_2026_05_11.html">recent GEO registry</a> · <a href="therapy_spectrum_go_shortlist_2026_05_11.html">GO shortlist</a> · <a href="therapy_spectrum_ready_split_2026_05_11.html">paper/validation/BD split</a> · <a href="assets/therapy_spectrum_triage_2026_05_11/therapy_spectrum_triage.tsv">raw TSV</a> · <a href="assets/therapy_spectrum_triage_2026_05_11/therapy_spectrum_query_templates.tsv">query TSV</a> · <a href="assets/therapy_spectrum_triage_2026_05_11/SUMMARY.md">summary</a></div>
+  </div>
+</header>
+<div class="wrap">
+<nav class="toc">
+  <h4>Contents</h4>
+  <a href="#tldr">01 TL;DR</a>
+  <a href="#rules">02 Rules</a>
+  <a href="#top">03 Top lanes</a>
+  <a href="#matrix">04 Modality matrix</a>
+  <a href="#pipeline">05 Agent pipeline</a>
+  <a href="#queries">06 Query templates</a>
+  <a href="#decision">07 Decision summary</a>
+</nav>
+<main>
+<section id="tldr">
+  <h2><span class="num">01</span>TL;DR</h2>
+  <div class="sub">The right question is not "what is the coolest therapy"; it is "what becomes a reproducible decision system"</div>
+  <table class="t">
+    <thead><tr><th>Lane</th><th>Total score</th><th>Paperability</th><th>Validation</th><th>BD</th><th>Disposition</th></tr></thead>
+    <tbody>
+      <tr><td>neoantigen / mRNA vaccine / ICI combo</td><td>15</td><td>5</td><td>5</td><td>5</td><td><span class="tag go">Go</span></td></tr>
+      <tr><td>CAR-T / CAR-NK / CAR-NKT / TIL / TCR-T</td><td>14</td><td>5</td><td>4</td><td>5</td><td><span class="tag go">Go</span></td></tr>
+      <tr><td>PARP / DNA damage response / radiosensitizer</td><td>14</td><td>5</td><td>5</td><td>4</td><td><span class="tag go">Go</span></td></tr>
+      <tr><td>kinase / MAPK / RTK inhibition</td><td>14</td><td>5</td><td>5</td><td>4</td><td><span class="tag go">Go</span></td></tr>
+      <tr><td>resistance / combo prioritization / response modeling</td><td>15</td><td>5</td><td>5</td><td>5</td><td><span class="tag go">Go</span></td></tr>
+    </tbody>
+  </table>
+  <div class="box good"><b>Best business frame:</b> sell a decision engine that ranks therapies, selects companion biomarkers, and prioritizes potency/QC or combo follow-up. That is easier to validate and productize than generic GEO mining.</div>
+</section>
+
+<section id="rules">
+  <h2><span class="num">02</span>Rules</h2>
+  <div class="sub">Promotion requires intervention plus response readout plus a deployable output</div>
+  <div class="grid">
+    <div class="card"><h3>Paperable</h3><p>Coherent mechanism, replication, and a figure/table story.</p><p class="small">Paired pre/post, responder vs non-responder, or orthogonal validation strengthen this lane.</p></div>
+    <div class="card"><h3>Validation-ready</h3><p>Cheap orthogonal assay or external cohort is feasible.</p><p class="small">This is the sweet spot for biomarkers, potency/QC, and combo ranking.</p></div>
+    <div class="card"><h3>BD-ready</h3><p>Output changes a decision or becomes a product artifact.</p><p class="small">Companion diagnostic, batch release, candidate ranking, or responder selection.</p></div>
+  </div>
+</section>
+
+<section id="top">
+  <h2><span class="num">03</span>Top Lanes</h2>
+  <div class="sub">The six lanes that should be searched first every time</div>
+  <div class="grid">
+    <div class='card'><h3>1. neoantigen / mRNA vaccine / ICI combo</h3><p><b>Score:</b> 15 | <b>Status:</b> GO</p><p>response ranking, T cell state, clonality, combo prioritization</p><p class='small'>response-linked paired samples, TCR/scRNA hooks, and a direct companion biomarker path</p></div><div class='card'><h3>2. resistance / combo prioritization / response modeling</h3><p><b>Score:</b> 15 | <b>Status:</b> GO</p><p>therapy triage, responder ranking, decision support across modalities</p><p class='small'>highest generality and best fit for an agentic ranking framework</p></div><div class='card'><h3>3. CAR-T / CAR-NK / CAR-NKT / TIL / TCR-T</h3><p><b>Score:</b> 14 | <b>Status:</b> GO</p><p>potency, exhaustion, manufacturing QC, response stratification</p><p class='small'>strong transcriptomic signal, clear ex vivo readouts, and direct translational relevance</p></div><div class='card'><h3>4. PARP / DNA damage response / radiosensitizer</h3><p><b>Score:</b> 14 | <b>Status:</b> GO</p><p>resistance, sensitization, combo design, biomarker discovery</p><p class='small'>large public footprint, repeatable perturbation logic, and easy cross-cohort tests</p></div><div class='card'><h3>5. kinase / MAPK / RTK inhibition</h3><p><b>Score:</b> 14 | <b>Status:</b> GO</p><p>pathway response, resistance, combo prioritization</p><p class='small'>clean perturbational logic and high reuse across cancer types</p></div><div class='card'><h3>6. cell therapy manufacturing / bioreactor / expansion</h3><p><b>Score:</b> 14 | <b>Status:</b> GO</p><p>manufacturing QC, expansion efficiency, process optimization</p><p class='small'>clear process metric and direct industrial relevance</p></div>
+  </div>
+</section>
+
+<section id="matrix">
+  <h2><span class="num">04</span>Modality Matrix</h2>
+  <div class="sub">Expanded lane map with query hooks</div>
+  <table class="t">
+    <thead>
+      <tr><th>Modality</th><th>Group</th><th>Total</th><th>Status</th><th>Best task</th><th>Example GEO</th><th>Query keywords</th><th>Why it works</th><th>Caveat</th><th>Agent query</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>neoantigen / mRNA vaccine / ICI combo</td><td>immune-vaccine</td><td>5</td><td>5</td><td>5</td><td>15</td><td><span class='tag go'>GO</span></td><td>response ranking, T cell state, clonality, combo prioritization</td><td>GSE222011; GSE249674; GSE303153; GSE260817</td><td>neoantigen, mRNA vaccine, ICI, combo, TCR, scRNA</td><td>response-linked paired samples, TCR/scRNA hooks, and a direct companion biomarker path</td><td>avoid claiming generalized vaccine efficacy from a single cohort</td><td><code>site:ncbi.nlm.nih.gov/geo neoantigen vaccine ICI mRNA TCR scRNA</code></td></tr>
+<tr><td>resistance / combo prioritization / response modeling</td><td>meta-platform</td><td>5</td><td>5</td><td>5</td><td>15</td><td><span class='tag go'>GO</span></td><td>therapy triage, responder ranking, decision support across modalities</td><td>GSE130157; GSE249630; GSE217387; GSE185205</td><td>response modeling, resistance, therapy prioritization, combo, triage</td><td>highest generality and best fit for an agentic ranking framework</td><td>best positioned as decision support, not therapy invention</td><td><code>site:ncbi.nlm.nih.gov/geo response modeling resistance therapy prioritization combo</code></td></tr>
+<tr><td>CAR-T / CAR-NK / CAR-NKT / TIL / TCR-T</td><td>cell-therapy</td><td>5</td><td>4</td><td>5</td><td>14</td><td><span class='tag go'>GO</span></td><td>potency, exhaustion, manufacturing QC, response stratification</td><td>GSE266618; GSE278506; GSE223071; GSE217387; GSE185205</td><td>CAR-T, CAR-NK, CAR-NKT, TIL, TCR-T, exhaustion, potency</td><td>strong transcriptomic signal, clear ex vivo readouts, and direct translational relevance</td><td>BD should be potency/QC/selection, not de novo cell-product invention</td><td><code>site:ncbi.nlm.nih.gov/geo CAR-T CAR-NK CAR-NKT TIL TCR-T exhaustion potency</code></td></tr>
+<tr><td>PARP / DNA damage response / radiosensitizer</td><td>small-molecule-ddr</td><td>5</td><td>5</td><td>4</td><td>14</td><td><span class='tag go'>GO</span></td><td>resistance, sensitization, combo design, biomarker discovery</td><td>GSE289437; GSE315883; GSE233820; GSE285648</td><td>PARP inhibitor, DDR, radiosensitizer, resistance, sensitivity</td><td>large public footprint, repeatable perturbation logic, and easy cross-cohort tests</td><td>BD is narrower unless tied to a clear biomarker or drug-sensitivity panel</td><td><code>site:ncbi.nlm.nih.gov/geo PARP inhibitor DNA damage response radiosensitizer resistance</code></td></tr>
+<tr><td>kinase / MAPK / RTK inhibition</td><td>small-molecule-kinase</td><td>5</td><td>5</td><td>4</td><td>14</td><td><span class='tag go'>GO</span></td><td>pathway response, resistance, combo prioritization</td><td>GSE289437; GSE315883; GSE260551</td><td>MEK, ERK, RAF, RTK, kinase inhibitor, MAPK</td><td>clean perturbational logic and high reuse across cancer types</td><td>separate pathway response from direct therapeutic efficacy claims</td><td><code>site:ncbi.nlm.nih.gov/geo MEK ERK RAF kinase inhibitor MAPK</code></td></tr>
+<tr><td>cell therapy manufacturing / bioreactor / expansion</td><td>platform-qc</td><td>4</td><td>5</td><td>5</td><td>14</td><td><span class='tag go'>GO</span></td><td>manufacturing QC, expansion efficiency, process optimization</td><td>GSE261103; GSE295031; GSE266618</td><td>manufacturing, bioreactor, expansion, QC, process optimization</td><td>clear process metric and direct industrial relevance</td><td>BD should focus on process analytics, not therapy claim escalation</td><td><code>site:ncbi.nlm.nih.gov/geo CAR T manufacturing bioreactor expansion QC</code></td></tr>
+<tr><td>adoptive cell state / exhaustion / TCR dynamics</td><td>state-modeling</td><td>4</td><td>4</td><td>4</td><td>12</td><td><span class='tag go'>GO</span></td><td>state scoring, clone expansion, post-treatment trajectory</td><td>GSE123813; GSE156728; GSE185205; GSE221776</td><td>T cell state, TCR dynamics, exhaustion, clonotype, trajectory</td><td>excellent for trajectory modeling and response-state interpretation</td><td>clone expansion is not itself proof of better treatment efficacy</td><td><code>site:ncbi.nlm.nih.gov/geo T cell state TCR dynamics exhaustion clonotype</code></td></tr>
+<tr><td>ADC / radioligand / cell-surface targeting</td><td>targeted-delivery</td><td>4</td><td>3</td><td>4</td><td>11</td><td><span class='tag watch'>WATCH</span></td><td>target expression, lineage plasticity, payload sensitivity</td><td>GSE274871; GSE289746; GSE236808; GSE264573</td><td>ADC, radioligand, cell-surface target, lineage plasticity</td><td>strong for target prioritization and resistance logic</td><td>BD strongest when framed as companion diagnostics or target selection</td><td><code>site:ncbi.nlm.nih.gov/geo antibody-drug conjugate radioligand lineage plasticity</code></td></tr>
+<tr><td>T cell engager / bispecific / checkpoint / agonist antibody</td><td>antibody-therapy</td><td>4</td><td>3</td><td>4</td><td>11</td><td><span class='tag watch'>WATCH</span></td><td>target selection, TME rewiring, resistance mapping</td><td>GSE189359; GSE260674; GSE292621; GSE260817</td><td>bispecific, checkpoint, CD3 engager, agonist antibody, TME</td><td>actionable mechanism and combo logic, often paired with immune signatures</td><td>validation often depends on model system, not direct patient response</td><td><code>site:ncbi.nlm.nih.gov/geo bispecific CD3 engager checkpoint agonist antibody</code></td></tr>
+<tr><td>cytokine engineering / costimulation / immune agonist</td><td>immune-engineering</td><td>4</td><td>3</td><td>4</td><td>11</td><td><span class='tag watch'>WATCH</span></td><td>potency augmentation, T cell expansion, exhaustion rescue</td><td>GSE249674; GSE260817; GSE189359</td><td>IL-15, IL-21, 4-1BB, cytokine engineering, costimulation</td><td>good for mechanism and combo ranking, especially in immune contexts</td><td>validation is often preclinical and needs orthogonal support</td><td><code>site:ncbi.nlm.nih.gov/geo cytokine engineering 4-1BB IL-15 IL-21 costimulation</code></td></tr>
+<tr><td>epigenetic priming / chromatin therapy</td><td>epigenetic</td><td>4</td><td>4</td><td>3</td><td>11</td><td><span class='tag go'>GO</span></td><td>priming, reactivation, immune-rewiring signatures</td><td>GSE168225; GSE179674; GSE188249</td><td>DNMT inhibitor, HDAC inhibitor, epigenetic priming, chromatin</td><td>works well as a response-enabling layer with transcriptomic readouts</td><td>avoid overcalling direct causality from methylation/transcript changes alone</td><td><code>site:ncbi.nlm.nih.gov/geo epigenetic priming DNMT HDAC chromatin</code></td></tr>
+<tr><td>hormone / endocrine / AR / ER</td><td>endocrine-therapy</td><td>4</td><td>4</td><td>3</td><td>11</td><td><span class='tag go'>GO</span></td><td>lineage-state shifts, resistance, biomarker discovery</td><td>GSE80077; GSE289437</td><td>hormone therapy, AR, ER, endocrine resistance, lineage state</td><td>well-defined treatment states with straightforward responder/non-responder logic</td><td>BD needs a sharply defined clinical indication, not a pan-cancer claim</td><td><code>site:ncbi.nlm.nih.gov/geo hormone therapy AR ER endocrine resistance</code></td></tr>
+<tr><td>radiotherapy / radiosensitizer / IO combo</td><td>combo-radiation</td><td>4</td><td>4</td><td>3</td><td>11</td><td><span class='tag go'>GO</span></td><td>synergy ranking, immune activation, chemokine induction</td><td>GSE233820; GSE260674; GSE189359</td><td>radiotherapy, radiosensitizer, anti-PD-L1, chemokine, synergy</td><td>combination logic is explicit and the transcriptional response is assayable</td><td>avoid extrapolating from model-level synergy to universal clinical benefit</td><td><code>site:ncbi.nlm.nih.gov/geo radiotherapy radiosensitizer immune combo chemokine</code></td></tr>
+<tr><td>stromal / TME reprogramming</td><td>tme-reprogramming</td><td>4</td><td>4</td><td>3</td><td>11</td><td><span class='tag watch'>WATCH</span></td><td>fibroblast / endothelial / stromal response mapping</td><td>GSE196065; GSE168225; GSE260674</td><td>stroma, fibroblast, endothelial, TME, reprogramming</td><td>turns resistance and microenvironment state into a computable axis</td><td>needs careful separation of stroma-specific and tumor-intrinsic effects</td><td><code>site:ncbi.nlm.nih.gov/geo stroma fibroblast endothelial TME reprogramming</code></td></tr>
+<tr><td>innate immune agonist / myeloid reprogramming</td><td>innate-immunity</td><td>4</td><td>3</td><td>3</td><td>10</td><td><span class='tag watch'>WATCH</span></td><td>TME reprogramming, myeloid suppression, combo selection</td><td>GSE281467; GSE184009; GSE222002</td><td>myeloid, innate immune agonist, CD40, TLR, STING, macrophage</td><td>routes directly into TME remodeling and IO-combo logic</td><td>interpretation often depends on mouse model choice and dosing</td><td><code>site:ncbi.nlm.nih.gov/geo CD40 TLR STING myeloid reprogramming</code></td></tr>
+<tr><td>oncolytic virus</td><td>viral-therapy</td><td>3</td><td>3</td><td>3</td><td>9</td><td><span class='tag reserve'>RESERVE</span></td><td>permissivity, immune remodeling, viral susceptibility</td><td>GSE244034; GSE260516; GSE223395; GSE222002</td><td>oncolytic virus, viral permissivity, immune remodeling</td><td>fascinating biology, but cohort sizes and model diversity vary widely</td><td>best used as a special-case module, not the platform center</td><td><code>site:ncbi.nlm.nih.gov/geo oncolytic virus permissivity immune remodeling</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="pipeline">
+  <h2><span class="num">05</span>Agent Pipeline</h2>
+  <div class="sub">Search, filter, score, route, gate</div>
+  <pre>1. Search GEO by modality keyword families
+   - vaccine / neoantigen / mRNA / ICI / TCR
+   - CAR-T / CAR-NK / TIL / TCR-T / exhaustion / potency
+   - bispecific / checkpoint / ADC / radioligand
+   - PARP / MEK / ERK / hormone / epigenetic
+   - oncolytic / radiotherapy / cytokine / myeloid / stroma
+
+2. Filter by study geometry
+   - keep intervention + control
+   - keep pre/post or responder/non-responder
+   - prefer paired human samples, then humanized models, then informative preclinical systems
+
+3. Score evidence
+   - paired design
+   - sample size
+   - orthogonal validation
+   - independent replication
+   - clinical actionability
+
+4. Route to task
+   - response ranking
+   - potency / QC
+   - resistance mapping
+   - target prioritization
+   - combo prioritization
+
+5. Gate output
+   - paperable only if mechanism + replication + clear figure exist
+   - validation-ready only if a cheap orthogonal test exists
+   - BD-ready only if the output guides a decision or workflow</pre>
+  <div class="box warn"><b>Important.</b> Atlas-only or descriptive studies stay background unless they convert into a decision artifact. This keeps the agent from generating pretty but non-actionable GEO summaries.</div>
+</section>
+
+<section id="queries">
+  <h2><span class="num">06</span>Query Templates</h2>
+  <div class="sub">Directly reusable search strings</div>
+  <table class="t">
+    <thead><tr><th>Modality</th><th>Agent query</th><th>Use case</th></tr></thead>
+    <tbody>
+      <tr><td>neoantigen / mRNA vaccine / ICI combo</td><td><code>site:ncbi.nlm.nih.gov/geo neoantigen vaccine ICI mRNA TCR scRNA</code></td><td>response ranking, T cell state, clonality, combo prioritization</td></tr><tr><td>resistance / combo prioritization / response modeling</td><td><code>site:ncbi.nlm.nih.gov/geo response modeling resistance therapy prioritization combo</code></td><td>therapy triage, responder ranking, decision support across modalities</td></tr><tr><td>CAR-T / CAR-NK / CAR-NKT / TIL / TCR-T</td><td><code>site:ncbi.nlm.nih.gov/geo CAR-T CAR-NK CAR-NKT TIL TCR-T exhaustion potency</code></td><td>potency, exhaustion, manufacturing QC, response stratification</td></tr><tr><td>PARP / DNA damage response / radiosensitizer</td><td><code>site:ncbi.nlm.nih.gov/geo PARP inhibitor DNA damage response radiosensitizer resistance</code></td><td>resistance, sensitization, combo design, biomarker discovery</td></tr><tr><td>kinase / MAPK / RTK inhibition</td><td><code>site:ncbi.nlm.nih.gov/geo MEK ERK RAF kinase inhibitor MAPK</code></td><td>pathway response, resistance, combo prioritization</td></tr><tr><td>cell therapy manufacturing / bioreactor / expansion</td><td><code>site:ncbi.nlm.nih.gov/geo CAR T manufacturing bioreactor expansion QC</code></td><td>manufacturing QC, expansion efficiency, process optimization</td></tr><tr><td>adoptive cell state / exhaustion / TCR dynamics</td><td><code>site:ncbi.nlm.nih.gov/geo T cell state TCR dynamics exhaustion clonotype</code></td><td>state scoring, clone expansion, post-treatment trajectory</td></tr><tr><td>ADC / radioligand / cell-surface targeting</td><td><code>site:ncbi.nlm.nih.gov/geo antibody-drug conjugate radioligand lineage plasticity</code></td><td>target expression, lineage plasticity, payload sensitivity</td></tr><tr><td>T cell engager / bispecific / checkpoint / agonist antibody</td><td><code>site:ncbi.nlm.nih.gov/geo bispecific CD3 engager checkpoint agonist antibody</code></td><td>target selection, TME rewiring, resistance mapping</td></tr><tr><td>cytokine engineering / costimulation / immune agonist</td><td><code>site:ncbi.nlm.nih.gov/geo cytokine engineering 4-1BB IL-15 IL-21 costimulation</code></td><td>potency augmentation, T cell expansion, exhaustion rescue</td></tr><tr><td>epigenetic priming / chromatin therapy</td><td><code>site:ncbi.nlm.nih.gov/geo epigenetic priming DNMT HDAC chromatin</code></td><td>priming, reactivation, immune-rewiring signatures</td></tr><tr><td>hormone / endocrine / AR / ER</td><td><code>site:ncbi.nlm.nih.gov/geo hormone therapy AR ER endocrine resistance</code></td><td>lineage-state shifts, resistance, biomarker discovery</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="decision">
+  <h2><span class="num">07</span>Decision Summary</h2>
+  <div class="sub">Build order</div>
+  <table class="t">
+    <thead><tr><th>Priority</th><th>Build</th><th>Reason</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>neoantigen / vaccine / ICI triage engine</td><td>Best overlap between paperability, validation, and BD</td></tr>
+      <tr><td>2</td><td>cell-therapy potency / QC scorer</td><td>Clear industrial use case and strong translational value</td></tr>
+      <tr><td>3</td><td>PARP / kinase / endocrine / epigenetic response ranker</td><td>Best reusable cross-cancer validation layer</td></tr>
+      <tr><td>4</td><td>bispecific / ADC / target-selection module</td><td>Useful commercial and mechanism module, but should stay modular</td></tr>
+      <tr><td>5</td><td>oncolytic / radioligand reserve module</td><td>Interesting but lower-density and more heterogeneous</td></tr>
+    </tbody>
+  </table>
+  <div class="box good"><b>Bottom line.</b> GEO is a source for building a therapy triage engine, not a magic therapy discovery engine. The winning product is a reproducible decision system with modality-specific routes.</div>
+</section>
+</main>
+</div>
+</body>
+</html>

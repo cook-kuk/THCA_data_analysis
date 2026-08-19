@@ -1,0 +1,840 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CROSS-Neo Darwin-RL Blueprint</title>
+  <style>
+    :root { --bg:#101418; --panel:#151c22; --ink:#e9edf0; --muted:#9aa7af; --gold:#c59b3b; --line:#29343c; --teal:#69a7a2; --red:#d16b5f; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+    header { padding:42px 5vw 30px; background:#0c1115; border-bottom:1px solid var(--line); }
+    .kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.12em; font-weight:700; font-size:12px; }
+    h1 { margin:.3rem 0 .65rem; font-size:clamp(30px,4vw,54px); line-height:1.05; }
+    .lead { color:#d0d8dd; max-width:1040px; font-size:18px; }
+    .stats { display:grid; grid-template-columns:repeat(5,minmax(130px,1fr)); gap:10px; margin-top:22px; }
+    .stat { border:1px solid var(--line); background:var(--panel); padding:13px 14px; border-radius:8px; }
+    .stat b { display:block; font-size:23px; }
+    .stat span { color:var(--muted); font-size:12px; }
+    main { padding:30px 5vw 60px; display:grid; grid-template-columns:270px minmax(0,1fr); gap:28px; }
+    nav { position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto; padding:14px; border:1px solid var(--line); border-radius:8px; background:#111820; }
+    nav a { display:block; color:#d6dee2; text-decoration:none; padding:7px 0; border-bottom:1px solid #202b32; }
+    h2 { border-bottom:1px solid var(--line); padding-bottom:8px; }
+    .num { color:var(--gold); margin-right:8px; }
+    .note { border-left:3px solid var(--gold); background:#171f26; padding:10px 14px; color:#dce3e7; }
+    table.data { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0 28px; }
+    table.data th, table.data td { border-bottom:1px solid var(--line); padding:7px 8px; text-align:left; vertical-align:top; }
+    table.data th { color:#f4d891; background:#141b21; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    img { max-width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; }
+    code { color:#f4d891; }
+    @media(max-width:900px) { main { grid-template-columns:1fr; } nav { position:static; } .stats { grid-template-columns:repeat(2,1fr); } .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="kicker">CROSS-Neo · web-mined methods · GA/RL algorithm discovery</div>
+  <h1>Darwin-RL blueprint for a new immunogenicity algorithm</h1>
+  <p class="lead">Public AI and biomedical methods are decomposed into preprocessing, modality, encoder, fusion, reward and guardrail primitives. GA searches pipeline genomes; an RL controller learns which search actions to use under leakage and wetlab constraints.</p>
+  <div class="stats">
+    <div class="stat"><b>12</b><span>source method cards</span></div>
+    <div class="stat"><b>250</b><span>KG nodes</span></div>
+    <div class="stat"><b>447</b><span>KG edges</span></div>
+    <div class="stat"><b>7</b><span>action families</span></div>
+    <div class="stat"><b>8</b><span>guardrails</span></div>
+  </div>
+</header>
+<main>
+<nav>
+  <a href="#summary">01 Summary</a>
+  <a href="#figures">02 Figures</a>
+  <a href="#methods">03 Method Cards</a>
+  <a href="#actions">04 RL/GA Actions</a>
+  <a href="#reward">05 Reward</a>
+  <a href="#guards">06 Guardrails</a>
+  <a href="#primitives">07 Primitive Library</a>
+</nav>
+<article>
+<section id="summary">
+  <h2><span class="num">01</span>Summary</h2>
+  <p class="note">This is the next algorithm concept: not a weighted ensemble, but a literature-mined method graph with GA/RL search over preprocessing, modality, architecture, fusion and assay-validation choices.</p>
+</section>
+<section id="figures">
+  <h2><span class="num">02</span>Figures</h2>
+  <div class="grid">
+    <img src="assets/cross_neo_method_mining_rl_ga_blueprint/fig1_method_modality_matrix.png" alt="method modality matrix">
+    <img src="assets/cross_neo_method_mining_rl_ga_blueprint/fig2_reward_stack.png" alt="reward stack">
+  </div>
+  <div class="grid">
+    <img src="assets/cross_neo_method_mining_rl_ga_blueprint/fig4_darwin_rl_loop.png" alt="Darwin RL loop">
+    <img src="assets/cross_neo_method_mining_rl_ga_blueprint/fig5_risk_guard_surface.png" alt="risk guard surface">
+  </div>
+  <img src="assets/cross_neo_method_mining_rl_ga_blueprint/fig3_method_knowledge_graph.png" alt="method knowledge graph">
+</section>
+<section id="methods">
+  <h2><span class="num">03</span>Source Method Cards</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>method</th>
+      <th>domain</th>
+      <th>source_type</th>
+      <th>source_url</th>
+      <th>paper_anchor</th>
+      <th>core_primitives</th>
+      <th>preprocessing_primitives</th>
+      <th>modalities</th>
+      <th>search_gene</th>
+      <th>risk_guard</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BigMHC</td>
+      <td>neoantigen_immunogenicity</td>
+      <td>biomedical_ai</td>
+      <td>https://doi.org/10.1038/s42256-023-00694-6</td>
+      <td>Nature Machine Intelligence 2023</td>
+      <td>MS_EL_pretraining;immunogenicity_transfer_learning;seven_model_ensemble;pan_allelic_peptide_HLA_encoder</td>
+      <td>class_I_filter;8_15mer_peptide_filter;HLA_normalization;EL_random_negative_design</td>
+      <td>peptide_sequence;HLA_allele;MS_eluted_ligand;immune_response_label</td>
+      <td>two_stage_EL_to_IM_transfer;public_prior_score;ensemble_diversity_weight</td>
+      <td>training_overlap_audit;public_tool_dependency_boundary</td>
+    </tr>
+    <tr>
+      <td>ImmunoStruct</td>
+      <td>neoantigen_immunogenicity</td>
+      <td>biomedical_ai</td>
+      <td>https://www.nature.com/articles/s42256-025-01163-y</td>
+      <td>Nature Machine Intelligence 2025</td>
+      <td>multimodal_sequence_structure_biochemistry;interpretable_pMHC_features;multi_allele_class_I_prediction</td>
+      <td>pMHC_structure_standardization;biochemical_descriptor_generation;allele_stratified_split</td>
+      <td>peptide_sequence;HLA_allele;pMHC_structure;biochemical_features;immune_response_label</td>
+      <td>structure_branch;biochemistry_branch;late_fusion_attention;structure_uncertainty_gate</td>
+      <td>structure_availability_bias;allele_coverage_check</td>
+    </tr>
+    <tr>
+      <td>DeepImmuno</td>
+      <td>neoantigen_immunogenicity</td>
+      <td>biomedical_ai</td>
+      <td>https://pmc.ncbi.nlm.nih.gov/articles/PMC7781330/</td>
+      <td>Frontiers Immunology 2021</td>
+      <td>CNN_immunogenicity_model;physiochemical_aware_encoding;top_k_sensitivity_benchmark</td>
+      <td>beta_binomial_response_confidence;HLA_peptide_pair_encoding;low_confidence_label_filter</td>
+      <td>peptide_sequence;HLA_allele;amino_acid_properties;immune_response_label</td>
+      <td>AA_property_channel;confidence_weighted_label;small_CNN_branch;top_k_reward</td>
+      <td>small_data_overfit_check;threshold_sensitivity_audit</td>
+    </tr>
+    <tr>
+      <td>PRIME</td>
+      <td>neoantigen_immunogenicity</td>
+      <td>biomedical_ai</td>
+      <td>https://www.sciencedirect.com/science/article/pii/S2666379121000057</td>
+      <td>Cell Reports Medicine 2021</td>
+      <td>presentation_plus_TCR_recognition_propensity;TCR_recognition_determinants;immunoediting_signal</td>
+      <td>TCR_facing_residue_features;presentation_rank_features;neoepitope_label_harmonization</td>
+      <td>peptide_sequence;HLA_presentation_score;TCR_recognition_features;immune_response_label</td>
+      <td>TCR_propensity_branch;TCR_facing_position_mask;immunoediting_prior</td>
+      <td>non_tumor_training_boundary;label_context_check</td>
+    </tr>
+    <tr>
+      <td>NetMHCpan_4_1</td>
+      <td>antigen_presentation</td>
+      <td>biomedical_ai</td>
+      <td>https://doi.org/10.1093/nar/gkaa379</td>
+      <td>Nucleic Acids Research 2020</td>
+      <td>motif_deconvolution;binding_affinity_plus_EL_integration;pan_specific_MHC_prediction</td>
+      <td>allele_resolution_normalization;peptide_length_windows;MS_EL_and_BA_label_merge</td>
+      <td>peptide_sequence;HLA_allele;binding_affinity;MS_eluted_ligand</td>
+      <td>presentation_gate;motif_deconvolution_prior;BA_EL_dual_score</td>
+      <td>presentation_not_immunogenicity_boundary</td>
+    </tr>
+    <tr>
+      <td>pMTnet</td>
+      <td>TCR_pMHC_recognition</td>
+      <td>biomedical_ai</td>
+      <td>https://www.nature.com/articles/s42256-021-00383-2</td>
+      <td>Nature Machine Intelligence 2021</td>
+      <td>transfer_learning_TCR_pMHC;CDR3beta_peptide_HLA_input;pairing_specificity_prediction</td>
+      <td>CDR3beta_normalization;peptide_HLA_pairing;TCR_pair_availability_gate</td>
+      <td>TCR_CDR3beta;peptide_sequence;HLA_allele;pMHC_context</td>
+      <td>TCR_expert_branch;TCR_missingness_policy;pairing_affinity_gate</td>
+      <td>TCR_sparse_proxy_guard;HLA_A02_bias_check</td>
+    </tr>
+    <tr>
+      <td>Harmonized_Neoantigen_ML</td>
+      <td>patient_level_neoantigen_selection</td>
+      <td>biomedical_dataset_method</td>
+      <td>https://doi.org/10.1016/j.immuni.2023.09.002</td>
+      <td>Immunity 2023</td>
+      <td>WES_RNA_reprocessing;presentation_hotspots;binding_promiscuity;oncogenicity_context</td>
+      <td>matched_WES_RNA_harmonization;patient_cohort_split;SNV_to_neopeptide_expansion;expression_filter</td>
+      <td>DNA_variant;RNA_expression;peptide_sequence;HLA_allele;gene_context;patient_context</td>
+      <td>expression_gate;hotspot_feature;binding_promiscuity_feature;oncogenicity_prior</td>
+      <td>patient_level_leakage_guard;cohort_generalization_split</td>
+    </tr>
+    <tr>
+      <td>CEDAR</td>
+      <td>curated_cancer_epitope_data</td>
+      <td>biomedical_database</td>
+      <td>https://pmc.ncbi.nlm.nih.gov/articles/PMC9825495/</td>
+      <td>Nucleic Acids Research 2023</td>
+      <td>curated_cancer_epitope_labels;antigen_subtype_taxonomy;assay_metadata</td>
+      <td>neoantigen_viral_self_other_taxonomy;assay_type_filter;full_HLA_resolution_filter</td>
+      <td>peptide_sequence;HLA_allele;assay_metadata;antigen_subtype;response_label</td>
+      <td>label_provenance_node;assay_confidence_weight;antigen_subtype_gate</td>
+      <td>publication_overlap_audit;assay_context_stratification</td>
+    </tr>
+    <tr>
+      <td>AutoML_Zero</td>
+      <td>ai_algorithm_discovery</td>
+      <td>ai_method</td>
+      <td>https://arxiv.org/abs/2003.03384</td>
+      <td>ICML 2020</td>
+      <td>evolve_learning_algorithms_from_math_ops;low_human_bias_search;emergent_regularization</td>
+      <td>primitive_operation_library;task_suite_curriculum;program_safety_checks</td>
+      <td>algorithm_code;math_operations;validation_tasks</td>
+      <td>program_tree_gene;loss_function_gene;optimizer_gene;regularizer_gene</td>
+      <td>compute_budget_cap;invalid_program_rejection;complexity_penalty</td>
+    </tr>
+    <tr>
+      <td>NAS_RL</td>
+      <td>ai_architecture_search</td>
+      <td>ai_method</td>
+      <td>https://research.google/pubs/neural-architecture-search-with-reinforcement-learning/</td>
+      <td>ICLR 2017</td>
+      <td>RNN_controller_generates_architecture;validation_reward;policy_gradient_search</td>
+      <td>architecture_tokenization;child_model_training_budget;reward_normalization</td>
+      <td>architecture_tokens;validation_metric;training_trace</td>
+      <td>RL_controller_action;mutation_policy_learning;reward_shaping</td>
+      <td>validation_overfit_guard;early_stop_fidelity_check</td>
+    </tr>
+    <tr>
+      <td>Regularized_Evolution</td>
+      <td>ai_architecture_search</td>
+      <td>ai_method</td>
+      <td>https://arxiv.org/abs/1802.01548</td>
+      <td>AAAI 2019</td>
+      <td>aging_evolution;tournament_selection;architecture_mutation;limited_compute_efficiency</td>
+      <td>population_initialization;age_tracking;fitness_cache</td>
+      <td>genotype;fitness_metric;age_metadata</td>
+      <td>aging_selection;diversity_preserving_mutation;fitness_cache_reuse</td>
+      <td>random_search_baseline;search_cost_reporting</td>
+    </tr>
+    <tr>
+      <td>Deep_Distilling</td>
+      <td>ai_algorithm_discovery</td>
+      <td>ai_method</td>
+      <td>https://www.nature.com/articles/s43588-024-00593-9</td>
+      <td>Nature Computational Science 2024</td>
+      <td>distill_neural_solution_to_code;symbolic_essence_network;human_comprehensible_algorithm</td>
+      <td>task_trace_generation;symbolic_program_extraction;OOD_generalization_test</td>
+      <td>training_data;neural_parameters;distilled_code;OOD_task_suite</td>
+      <td>distill_to_interpretable_rule;posthoc_code_simplification;OOD_reward</td>
+      <td>equivalence_test;overcompression_failure_check</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="actions">
+  <h2><span class="num">04</span>RL/GA Action Space</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>action_family</th>
+      <th>action</th>
+      <th>choices</th>
+      <th>borrowed_from</th>
+      <th>rl_state_dependency</th>
+      <th>guardrail</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>preprocessing</td>
+      <td>choose_label_confidence_model</td>
+      <td>binary;beta_binomial;assay_weighted;patient_weighted</td>
+      <td>DeepImmuno;CEDAR</td>
+      <td>assay metadata completeness, replicate count, source label noise</td>
+      <td>no label-confidence feature may encode source-only positives</td>
+    </tr>
+    <tr>
+      <td>preprocessing</td>
+      <td>choose_split_policy</td>
+      <td>source_holdout;patient_holdout;HLA_holdout;peptide_cluster_holdout;low_leakage_holdout</td>
+      <td>Harmonized_Neoantigen_ML;AutoML_review</td>
+      <td>source imbalance, HLA skew, duplicate peptide/HLA pairs</td>
+      <td>all score claims report source and leakage split</td>
+    </tr>
+    <tr>
+      <td>modality</td>
+      <td>activate_modality_branches</td>
+      <td>sequence;HLA;MS_EL;RNA_expression;TCR;structure;biochemistry;gene_context;assay_metadata</td>
+      <td>BigMHC;ImmunoStruct;pMTnet;Harmonized_Neoantigen_ML</td>
+      <td>candidate has modality available, missingness pattern, wetlab budget</td>
+      <td>missing modality branch must have explicit missingness policy</td>
+    </tr>
+    <tr>
+      <td>encoder</td>
+      <td>choose_encoder_family</td>
+      <td>tabular_GBDT;small_CNN;LSTM;transformer;protein_LM_embedding;structure_GNN;late_fusion_MLP</td>
+      <td>BigMHC;DeepImmuno;ImmunoStruct;pMTnet</td>
+      <td>sample size, modality count, HLA diversity, compute budget</td>
+      <td>deep encoder requires nested validation and calibration check</td>
+    </tr>
+    <tr>
+      <td>fusion</td>
+      <td>choose_fusion_rule</td>
+      <td>weighted_sum;mixture_of_experts;late_attention;rank_aggregation;claim_safe_cap;Pareto_front</td>
+      <td>BigMHC ensemble;CROSS-Neo;AutoML</td>
+      <td>comparator disagreement, failure mode, claim layer</td>
+      <td>single-concept dominance cap</td>
+    </tr>
+    <tr>
+      <td>search</td>
+      <td>choose_search_operator</td>
+      <td>aging_evolution;mutation;cross_over;RL_policy_mutation;Bayesian_local_search;random_baseline</td>
+      <td>Regularized_Evolution;NAS_RL;AutoML_Zero</td>
+      <td>search stagnation, diversity, compute budget</td>
+      <td>random search and fixed ensemble baselines always reported</td>
+    </tr>
+    <tr>
+      <td>reward</td>
+      <td>compose_reward</td>
+      <td>AUPRC;source_balanced_AUPRC;low_leakage_AUPRC;top96_precision;wetlab_hit_yield;complexity_penalty;novelty_bonus</td>
+      <td>AutoML_review;CROSS-Neo v6;Deep_Distilling</td>
+      <td>train/validation split, assay objective, product claim boundary</td>
+      <td>reward must include at least one leakage-resistant metric</td>
+    </tr>
+    <tr>
+      <td>wetlab</td>
+      <td>allocate_96_well_arms</td>
+      <td>clean_discovery;TCR_MD_mechanism;label_rescue;specificity_moat;positive_QC;model_boundary</td>
+      <td>CROSS-Neo v6 interpreter</td>
+      <td>model uncertainty, comparator disagreement, claim blocker</td>
+      <td>every claimed hit needs matched control route</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="reward">
+  <h2><span class="num">05</span>Reward</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>reward_component</th>
+      <th>weight</th>
+      <th>purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>source_balanced_AUPRC</td>
+      <td>0.240</td>
+      <td>prevents CEDAR/TESLA/source dominance</td>
+    </tr>
+    <tr>
+      <td>low_leakage_AUPRC</td>
+      <td>0.180</td>
+      <td>rewards clean generalization</td>
+    </tr>
+    <tr>
+      <td>top96_precision</td>
+      <td>0.180</td>
+      <td>matches 96-well wetlab yield</td>
+    </tr>
+    <tr>
+      <td>wetlab_interpreter_hit_yield</td>
+      <td>0.140</td>
+      <td>direct assay utility after v6</td>
+    </tr>
+    <tr>
+      <td>external_comparator_delta</td>
+      <td>0.100</td>
+      <td>must beat or complement BigMHC/PRIME/NetMHCpan</td>
+    </tr>
+    <tr>
+      <td>modality_completeness</td>
+      <td>0.060</td>
+      <td>penalizes impossible candidates</td>
+    </tr>
+    <tr>
+      <td>novelty_diversity</td>
+      <td>0.050</td>
+      <td>prevents copying one public model</td>
+    </tr>
+    <tr>
+      <td>interpretability</td>
+      <td>0.030</td>
+      <td>supports reviewer defense</td>
+    </tr>
+    <tr>
+      <td>complexity_penalty</td>
+      <td>0.020</td>
+      <td>keeps deployable search</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="guards">
+  <h2><span class="num">06</span>Guardrails</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>guardrail</th>
+      <th>rule</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>public_secret_boundary</td>
+      <td>Use public papers/code/features only; no proprietary extraction.</td>
+    </tr>
+    <tr>
+      <td>source_leakage_guard</td>
+      <td>Patient/source/HLA/peptide-cluster splits are separate required reports.</td>
+    </tr>
+    <tr>
+      <td>sparse_proxy_guard</td>
+      <td>Sparse features such as TCR availability cannot dominate without ablation.</td>
+    </tr>
+    <tr>
+      <td>single_concept_cap</td>
+      <td>No primitive family can exceed a prespecified weight cap in claim-safe mode.</td>
+    </tr>
+    <tr>
+      <td>random_search_baseline</td>
+      <td>GA/RL gains must beat fixed ensemble and random search under same budget.</td>
+    </tr>
+    <tr>
+      <td>locked_wetlab_validation</td>
+      <td>Prospective claims require locked score before v6 wetlab results.</td>
+    </tr>
+    <tr>
+      <td>modality_missingness_audit</td>
+      <td>Every modality branch needs missingness and availability stratification.</td>
+    </tr>
+    <tr>
+      <td>complexity_budget</td>
+      <td>Report search generations, population, model count and CPU/GPU budget.</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="primitives">
+  <h2><span class="num">07</span>Primitive Library</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>primitive_type</th>
+      <th>primitive</th>
+      <th>n_methods</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>core_primitives</td>
+      <td>CDR3beta_peptide_HLA_input</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>CNN_immunogenicity_model</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>MS_EL_pretraining</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>RNN_controller_generates_architecture</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>TCR_recognition_determinants</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>WES_RNA_reprocessing</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>aging_evolution</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>antigen_subtype_taxonomy</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>architecture_mutation</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>assay_metadata</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>binding_affinity_plus_EL_integration</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>binding_promiscuity</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>curated_cancer_epitope_labels</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>distill_neural_solution_to_code</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>emergent_regularization</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>evolve_learning_algorithms_from_math_ops</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>human_comprehensible_algorithm</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>immunoediting_signal</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>immunogenicity_transfer_learning</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>interpretable_pMHC_features</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>limited_compute_efficiency</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>low_human_bias_search</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>motif_deconvolution</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>multi_allele_class_I_prediction</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>multimodal_sequence_structure_biochemistry</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>oncogenicity_context</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>pairing_specificity_prediction</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>pan_allelic_peptide_HLA_encoder</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>pan_specific_MHC_prediction</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>physiochemical_aware_encoding</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>policy_gradient_search</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>presentation_hotspots</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>presentation_plus_TCR_recognition_propensity</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>seven_model_ensemble</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>symbolic_essence_network</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>top_k_sensitivity_benchmark</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>tournament_selection</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>transfer_learning_TCR_pMHC</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>core_primitives</td>
+      <td>validation_reward</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>peptide_sequence</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>HLA_allele</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>immune_response_label</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>MS_eluted_ligand</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>DNA_variant</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>HLA_presentation_score</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>OOD_task_suite</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>RNA_expression</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>TCR_CDR3beta</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>TCR_recognition_features</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>age_metadata</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>algorithm_code</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>amino_acid_properties</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>antigen_subtype</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>architecture_tokens</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>assay_metadata</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>binding_affinity</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>biochemical_features</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>distilled_code</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>fitness_metric</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>gene_context</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>genotype</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>math_operations</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>neural_parameters</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>pMHC_context</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>pMHC_structure</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>patient_context</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>response_label</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>training_data</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>training_trace</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>validation_metric</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>modalities</td>
+      <td>validation_tasks</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>8_15mer_peptide_filter</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>CDR3beta_normalization</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>EL_random_negative_design</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>HLA_normalization</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>HLA_peptide_pair_encoding</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>MS_EL_and_BA_label_merge</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>OOD_generalization_test</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>SNV_to_neopeptide_expansion</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>preprocessing_primitives</td>
+      <td>TCR_facing_residue_features</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+</article>
+</main>
+</body>
+</html>

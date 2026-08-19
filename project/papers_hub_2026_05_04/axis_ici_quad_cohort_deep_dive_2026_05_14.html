@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Axis · ICI quad-cohort DM1_inflam deep dive · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:.98;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vi{color:var(--violet);font-weight:900}.te{color:var(--teal);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:12px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.vbox.g{border-top:5px solid var(--green)}
+.vbox.y{border-top:5px solid var(--gold)}
+.vbox.r{border-top:5px solid var(--red)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;color:#fff}
+.vbox p{margin:0;color:#dde6ec;font-size:13.5px}
+.qa{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 18px;margin:10px 0}
+.qa b{color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px}
+.qa p{margin:0;font-size:14px;color:#dde6ec}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:170px}
+.rung.g{border-top:5px solid var(--green)}
+.rung.y{border-top:5px solid var(--gold)}
+.rung.r{border-top:5px solid var(--red)}
+.rung.c{border-top:5px solid var(--blue)}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:16px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.callout{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:16px 20px;margin:14px 0}
+.callout b{color:var(--gold)}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}.ladder{grid-template-columns:1fr 1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Axis deep dive · ICI quad-cohort · Paper 3 ICI · Paper 11 Phase C v2 · 2026-05-14</p>
+    <h1>ICI quad-cohort meta — n=421, DM1_inflam composite 4/4 sign.</h1>
+    <p class="lead">
+      Paper 3 ICI vulnerability axis와 Paper 11 Phase C v2 cross-cut의 핵심. <b>Hugo 2016 + Riaz 2017 + Liu 2019 + MGH GSE115821</b> 4 cohort 합치면 n=421. <b>IFNG OR=1.53 p=3.7e-4</b>, <b>HLA-I OR=1.35 p=0.014</b>, <b>checkpoint OR=1.32 p=0.020</b>, <b>cytolytic OR=1.27 p=0.046</b>가 모두 4/4 sign-consistent로 통과. 그러나 <b class="bad">HLA-II OR=1.02 p=0.84 null</b>은 load-bearing 정직 보고 의무라 composite는 <b class="hi">YELLOW</b>이다. Cohort substitution(IMvigor URL `packageVersions/` 문제로 MGH GSE115821이 Gide 대체) 도 같이 잠근다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>4</b><span>ICI cohorts pooled</span><small>Hugo / Riaz / Liu / MGH GSE115821</small></div>
+      <div class="stat"><b>421</b><span>pooled n</span><small>melanoma / NSCLC / pan-melanoma</small></div>
+      <div class="stat"><b>1.53</b><span>IFNG OR · p=3.7e-4</span><small>strongest single marker</small></div>
+      <div class="stat"><b>1.35</b><span>HLA-I OR · p=0.014</span><small>load-bearing · sig</small></div>
+      <div class="stat"><b>1.02</b><span>HLA-II OR · p=0.84</span><small>NULL · 정직 보고 의무</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#cohorts">Cohort meta</a>
+  <a class="primary" href="#effects">Effect-size table</a>
+  <a class="primary" href="#composite">DM1_inflam composite</a>
+  <a class="primary" href="#hla2null">HLA-II null fact</a>
+  <a class="primary" href="#trackb">Track B-lite</a>
+  <a class="primary" href="#rai">RAI-dediff (GSE151179)</a>
+  <a class="primary" href="#status">Paper 3 status</a>
+  <a class="primary" href="#qa">Reviewer Q&amp;A</a>
+  <a class="primary" href="#siblings">Sibling links</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>1 · Verdict — composite sign-consistent (green) / HLA-II null (red) / YELLOW grade</h2>
+  <p class="sub">three-color verdict · 한 화면에서 강점과 약점을 같이</p>
+  <div class="verdict">
+    <div class="vbox g">
+      <h3 class="good">GREEN — composite 4/4 sign-consistent</h3>
+      <p>4 cohort × 4 marker (IFNG / HLA-I / checkpoint / cytolytic) 모두 <b class="good">sign-consistent</b>이며 p&lt;0.05. DM1_inflam composite 가 4 cohort에 걸쳐 같은 방향을 가리킨다는 fact는 단일 cohort cherry-pick 우려를 정면으로 차단.</p>
+    </div>
+    <div class="vbox r">
+      <h3 class="bad">RED — HLA-II null is load-bearing</h3>
+      <p><b class="bad">HLA-II OR=1.02 p=0.84</b>는 hide할 수 없는 null 결과다. HLA-II axis가 ICI 반응에 기여한다는 주장은 이 4-cohort data로는 만들 수 없다. manuscript 와 dashboard에서 정직 보고가 의무.</p>
+    </div>
+    <div class="vbox y">
+      <h3 class="hi">YELLOW — overall grade not GREEN</h3>
+      <p>composite 4/4 sign + HLA-I OR=1.35 sig 강점에도 불구하고 HLA-II null이 같이 있으므로 <b class="hi">YELLOW</b>가 정확한 그레이드. Paper 3 ICI status dossier (2026-05-09) 와 일치. "ICI response predictor" 표현은 금지.</p>
+    </div>
+  </div>
+  <div class="callout">
+    <b>Reviewer-safe one-liner.</b> "Across 4 ICI cohorts (n=421), DM1_inflam composite is sign-consistent (4/4) with significant single-marker contributions from IFNG (OR=1.53, p=3.7e-4), HLA-I (OR=1.35, p=0.014), checkpoint (OR=1.32, p=0.020), and cytolytic (OR=1.27, p=0.046); HLA-II is reported as a load-bearing null (OR=1.02, p=0.84). Composite grade is YELLOW, not GREEN; we make no thyroid ICI response-predictor claim."
+  </div>
+</section>
+
+<section id="cohorts">
+  <h2>2 · Cohort meta — Hugo / Riaz / Liu / MGH GSE115821 (Gide 대체)</h2>
+  <p class="sub">cohort substitution · IMvigor URL packageVersions/ 문제 · MGH GSE115821 substituted for Gide</p>
+  <table>
+    <thead><tr><th>#</th><th>Cohort</th><th>Indication</th><th>Treatment</th><th>n</th><th>Endpoint</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Hugo 2016</td><td>melanoma</td><td>anti-PD-1 (nivolumab / pembrolizumab)</td><td>~37</td><td>response (R/NR)</td><td>seminal ICI gene-expression cohort</td></tr>
+      <tr><td>2</td><td>Riaz 2017</td><td>melanoma</td><td>anti-PD-1 (nivolumab post-ipilimumab)</td><td>~68</td><td>response (R/NR)</td><td>pre/on-treatment matched samples</td></tr>
+      <tr><td>3</td><td>Liu 2019</td><td>melanoma</td><td>anti-PD-1</td><td>~121</td><td>response / OS</td><td>largest single cohort in meta</td></tr>
+      <tr><td>4</td><td>MGH GSE115821</td><td>melanoma</td><td>anti-PD-1</td><td>~80-100</td><td>response (R/NR)</td><td><b class="hi">substitute for Gide</b> — corrected per memory</td></tr>
+      <tr><td>—</td><td><b>Gide 2019 (NOT used)</b></td><td>melanoma</td><td>—</td><td>—</td><td>—</td><td>access failure; replaced</td></tr>
+      <tr><td>—</td><td><b>IMvigor210 (NOT used in this meta)</b></td><td>urothelial</td><td>atezolizumab</td><td>—</td><td>—</td><td>URL `packageVersions/` 수정 후에도 melanoma-comparable label 정합성 위해 본 meta에서 제외; supplementary로 분리</td></tr>
+      <tr><th colspan="4">Pooled total</th><th>n=421</th><th>logistic / random-effects</th><th>composite + per-marker</th></tr>
+    </tbody>
+  </table>
+  <p class="note">Cohort substitution 사유는 memory에 명시: IMvigor URL `packageVersions/` 수정 후에도 indication 정합성 위해 본 4-cohort meta는 melanoma 단일로 잠그고, MGH GSE115821이 Gide 대체. Reviewer Q1에서 이 substitution이 가장 먼저 도전될 항목.</p>
+</section>
+
+<section id="effects">
+  <h2>3 · Effect-size table — 5 markers · OR · p · cohort-level sign</h2>
+  <p class="sub">single-marker forest summary · 4/4 sign vs HLA-II null</p>
+  <table>
+    <thead><tr><th>Marker</th><th>OR</th><th>95% CI (approx)</th><th>p</th><th>4-cohort sign</th><th>Grade</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td><b>IFNG</b></td><td><b class="good">1.53</b></td><td>~[1.21, 1.94]</td><td>3.7e-4</td><td>4/4</td><td><b class="good">SIG</b></td><td>strongest single marker; Th1 axis</td></tr>
+      <tr><td><b>HLA-I composite</b></td><td><b class="good">1.35</b></td><td>~[1.06, 1.71]</td><td>0.014</td><td>4/4</td><td><b class="good">SIG</b></td><td><b class="hi">load-bearing for "ICI-ready" wording</b></td></tr>
+      <tr><td><b>Checkpoint</b> (PD-L1 / PD-L2 / LAG3 / TIGIT)</td><td>1.32</td><td>~[1.05, 1.66]</td><td>0.020</td><td>4/4</td><td><b class="good">SIG</b></td><td>composite axis confirmed</td></tr>
+      <tr><td><b>Cytolytic</b> (GZMA · PRF1)</td><td>1.27</td><td>~[1.01, 1.59]</td><td>0.046</td><td>4/4</td><td><b class="good">SIG</b></td><td>borderline sig but sign-consistent</td></tr>
+      <tr><td><b class="bad">HLA-II composite</b></td><td><b class="bad">1.02</b></td><td>~[0.86, 1.21]</td><td><b class="bad">0.84</b></td><td>mixed</td><td><b class="bad">NULL</b></td><td>load-bearing null; 정직 보고 의무</td></tr>
+      <tr><td><b>DM1_inflam composite</b></td><td>—</td><td>—</td><td>—</td><td><b class="hi">4/4 sign</b></td><td><b class="hi">YELLOW</b></td><td>not GREEN due to HLA-II null</td></tr>
+    </tbody>
+  </table>
+  <p class="note">CI 표기는 OR과 p 로부터 역산한 근사치이며 manuscript에는 정확한 random-effects estimate를 보고. IFNG·HLA-I·checkpoint·cytolytic 4 marker × 4 cohort sign-consistent fact는 이 page 의 가장 큰 anchor.</p>
+</section>
+
+<section id="composite">
+  <h2>4 · DM1_inflam composite — 4/4 sign-consistent across cohorts</h2>
+  <p class="sub">composite definition · cohort × marker sign matrix · YELLOW</p>
+  <table>
+    <thead><tr><th>Cohort \ Marker</th><th>IFNG</th><th>HLA-I</th><th>Checkpoint</th><th>Cytolytic</th><th>HLA-II</th><th>Composite sign</th></tr></thead>
+    <tbody>
+      <tr><td>Hugo 2016</td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="hi">↔/↓</b></td><td><b class="good">↑</b></td></tr>
+      <tr><td>Riaz 2017</td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="hi">↔</b></td><td><b class="good">↑</b></td></tr>
+      <tr><td>Liu 2019</td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="hi">↔</b></td><td><b class="good">↑</b></td></tr>
+      <tr><td>MGH GSE115821</td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="good">↑</b></td><td><b class="hi">↔/↑</b></td><td><b class="good">↑</b></td></tr>
+      <tr><th>pooled OR</th><th>1.53</th><th>1.35</th><th>1.32</th><th>1.27</th><th>1.02</th><th>YELLOW</th></tr>
+      <tr><th>pooled p</th><th>3.7e-4</th><th>0.014</th><th>0.020</th><th>0.046</th><th>0.84</th><th>—</th></tr>
+    </tbody>
+  </table>
+  <p class="note">4 marker × 4 cohort = 16 cell이 모두 같은 방향(↑) — 단일 cohort dominance 우려 차단. HLA-II 5번째 marker는 모든 cohort에서 ↔/약함이며 pooled OR=1.02 → composite는 YELLOW로 잠금.</p>
+  <p class="callout"><b>Composite wording.</b> "DM1_inflam composite is sign-consistent across all 4 ICI cohorts (16/16 cells positive) and pooled significantly via IFNG/HLA-I/checkpoint/cytolytic; HLA-II remains an honest null and downgrades the overall grade to YELLOW."</p>
+</section>
+
+<section id="hla2null">
+  <h2>5 · HLA-II null load-bearing fact — 가릴 수 없다</h2>
+  <p class="sub">explicit null reporting · why this matters · paper-safe handling</p>
+  <table>
+    <thead><tr><th>Item</th><th>Value</th><th>Implication</th></tr></thead>
+    <tbody>
+      <tr><td>HLA-II composite OR</td><td><b class="bad">1.02</b></td><td>effectively no effect</td></tr>
+      <tr><td>HLA-II p</td><td><b class="bad">0.84</b></td><td>far from significance</td></tr>
+      <tr><td>HLA-I (comparison)</td><td>OR=1.35, p=0.014</td><td>HLA-I이 load-bearing significant fact</td></tr>
+      <tr><td>HLA-I vs HLA-II asymmetry</td><td>5×10 fold p 차이</td><td>class asymmetry는 melanoma ICI literature와 일치</td></tr>
+      <tr><td>Paper 1 / 3 wording</td><td>"HLA-I load-bearing, HLA-II null reported"</td><td>reviewer Q5 사전 방어</td></tr>
+      <tr><td>금지 표현</td><td>"DM1 / HLA axis predicts ICI response"</td><td>HLA-II null이 있는 한 단정 wording 금지</td></tr>
+      <tr><td>허용 표현</td><td>"composite sign-consistent across 4 cohorts with HLA-II null; YELLOW grade"</td><td>safe</td></tr>
+    </tbody>
+  </table>
+  <p class="callout"><b>왜 load-bearing이라 하는가.</b> HLA-II null이 (a) ICI response-predictor 명제, (b) HLA axis universality 명제, (c) thyroid ICI 일반화 명제 세 가지를 동시에 깬다. 따라서 이 한 줄을 manuscript에서 가리면 reviewer Q5가 무조건 들어온다. 정직 보고가 곧 안전 보고.</p>
+</section>
+
+<section id="trackb">
+  <h2>6 · Cross-track ICI cohort signal — Track B-lite findings (2026-05-06)</h2>
+  <p class="sub">ATC immune signal · DIAL-lite Hugo+Riaz 4/7 FLIP · DIAL audit 필요성</p>
+  <table>
+    <thead><tr><th>Item</th><th>Cohort</th><th>Effect</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>ATC myeloid signature</td><td>thyroid (pooled 4 cohorts, n=415)</td><td><b class="good">d=+2.53</b></td><td>4/4 sign-consistent</td></tr>
+      <tr><td>ATC thyroid_diff signature</td><td>thyroid (pooled)</td><td><b class="bad">d=-2.51</b></td><td>4/4 sign-consistent</td></tr>
+      <tr><td>DIAL-lite Hugo+Riaz module flip</td><td>melanoma ICI 2-cohort</td><td><b class="bad">4/7 modules FLIP</b></td><td>DIAL audit necessity 증명</td></tr>
+      <tr><td>Conclusion</td><td>—</td><td>DIAL ComBat-style adjustment 검증 의무 발생</td><td><b class="hi">YELLOW</b></td></tr>
+    </tbody>
+  </table>
+  <p class="note">v52 lesson (LODO ComBat) 와 합쳐 보면 melanoma ICI 2-cohort 에서 4/7 module이 batch-style adjustment 후 sign 이 flip한다는 fact는 thyroid 적용 시 DIAL audit이 필수임을 의미한다. v52 critical fix 의 "DIAL=0.494 flip is leak artifact" lesson과 정합.</p>
+  <p class="callout"><b>Track B-lite frame.</b> "DM1 axis가 thyroid 안에서는 ATC myeloid +2.53 / thyroid_diff -2.51로 4/4 sign-consistent이며, melanoma ICI 2-cohort 에서 DIAL-lite 4/7 module flip이 관찰되어 thyroid 적용 시 DIAL audit이 필수." (Track B-lite 2026-05-06)</p>
+</section>
+
+<section id="rai">
+  <h2>7 · GSE151179 RAI-dediff axis — RAI-refractoriness = partial-ATC immunogenomic phenotype</h2>
+  <p class="sub">post-RAI vs pre-RAI · same DM1 axis · Bonferroni-significant</p>
+  <table>
+    <thead><tr><th>Signature</th><th>Direction (post-RAI vs pre-RAI)</th><th>d</th><th>p</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>thyroid_diff</td><td><b class="bad">↓</b></td><td><b class="bad">-1.01</b></td><td><b class="good">0.0001 (Bonferroni-sig)</b></td><td>dediff axis 양적 확인</td></tr>
+      <tr><td>HLA-II</td><td><b class="good">↑</b></td><td><b class="good">+0.62</b></td><td>—</td><td>same axis</td></tr>
+      <tr><td>myeloid</td><td><b class="good">↑</b></td><td><b class="good">+0.55</b></td><td>—</td><td>same axis</td></tr>
+    </tbody>
+  </table>
+  <p class="callout"><b>한 줄.</b> "GSE151179 post-RAI 환자군에서 thyroid_diff가 d=-1.01 (p=0.0001, Bonferroni-sig)로 감소하고 HLA-II +0.62 · myeloid +0.55가 같은 방향으로 동반된다. 따라서 RAI-refractoriness는 partial-ATC immunogenomic phenotype과 같은 axis 위에 있다."</p>
+  <p class="note">이 결과는 DM1 axis가 thyroid 안에서도 임상적 의미를 갖는 axis임을 보여주는 piece이지만, ICI 임상 적용을 직접 의미하지는 않는다. RAI → ICI 임상 transition wording은 금지.</p>
+</section>
+
+<section id="status">
+  <h2>8 · Paper 3 ICI status dossier — Track B-lite + Phase C v2 + HLA Track18 + BRAF H27/R5/R10</h2>
+  <p class="sub">verdict: strong vulnerability/readiness story · NO thyroid ICI response-predictor claim</p>
+  <div class="ladder">
+    <div class="rung g"><b>Layer 1 · Track B-lite</b><h4>ATC immune sign 4/4</h4><p>myeloid +2.53 / thyroid_diff -2.51 · DIAL-lite 4/7 flip → DIAL audit 필수</p></div>
+    <div class="rung g"><b>Layer 2 · Phase C v2</b><h4>IFNG/HLA-I/checkpoint/cytolytic 4/4 sign</h4><p>n=421 4 cohort · composite YELLOW · HLA-II null</p></div>
+    <div class="rung y"><b>Layer 3 · HLA Track18</b><h4>HLA class-spec asymmetry</h4><p>HLA-I load-bearing significant, HLA-II null — class asymmetry honest 보고</p></div>
+    <div class="rung c"><b>Layer 4 · BRAF H27/R5/R10</b><h4>BRAF axis cross-cut</h4><p>BRAF=1% DM1 fact + ICI response의 BRAF V600 mutation literature와 일치 검사</p></div>
+  </div>
+  <p class="callout"><b>Verdict (Paper 3 ICI status dossier 2026-05-09).</b> "Strong vulnerability/readiness story (DM1 axis → ICI-related machinery sign-consistent across 4 cohorts + thyroid 4-cohort myeloid +2.53), but NO thyroid ICI response-predictor claim. HLA-I is load-bearing (OR=1.35 p=0.014), HLA-II null (OR=1.02 p=0.84), DM1 composite 4/4 sign but YELLOW."</p>
+  <p class="note">Paper 3는 ICI vulnerability axis 로 잠고 ICI response predictor 로 끌고 가지 않는다 — 이 line은 Track A FROZEN frame (paper3_ici 디렉토리 chmod 444)과 정합.</p>
+</section>
+
+<section id="markercross">
+  <h2>8a · Marker cross-comparison · ICI vs vulnerability vs survival</h2>
+  <p class="sub">DM1 module의 ICI 신호 강도를 다른 외부검증 wing과 비교</p>
+  <table>
+    <thead><tr><th>Axis</th><th>Effect size</th><th>p</th><th>Layer</th><th>Verdict</th><th>Linked axis page</th></tr></thead>
+    <tbody>
+      <tr><td>ICI IFNG (this page)</td><td>OR=1.53</td><td>3.7e-4</td><td>4-cohort meta</td><td><b class="good">SIG</b></td><td>this</td></tr>
+      <tr><td>ICI HLA-I (this page)</td><td>OR=1.35</td><td>0.014</td><td>4-cohort meta</td><td><b class="good">SIG</b></td><td>this</td></tr>
+      <tr><td>ICI HLA-II (this page)</td><td>OR=1.02</td><td>0.84</td><td>4-cohort meta</td><td><b class="bad">NULL</b></td><td>this · load-bearing</td></tr>
+      <tr><td>Pan-cancer Phase E v2</td><td>10/32 prognostic</td><td>FDR&lt;0.1</td><td>pan-cancer 32 × 10,978</td><td><b class="good">PASS</b></td><td>axis_pancancer_phase_e</td></tr>
+      <tr><td>LGG DSS</td><td>HR=44.7</td><td>—</td><td>single-lineage Cox</td><td><b class="bad">HIGH=bad</b></td><td>axis_pancancer_phase_e</td></tr>
+      <tr><td>SKCM OS</td><td>HR=0.78</td><td>—</td><td>single-lineage Cox</td><td><b class="good">protective · immune-hot</b></td><td>axis_pancancer_phase_e · ICI 연결</td></tr>
+      <tr><td>DepMap MYC dep</td><td>d=-0.50</td><td>1e-11</td><td>1,141 lines</td><td><b class="good">PASS</b></td><td>axis_depmap</td></tr>
+      <tr><td>DepMap NAMPT dep</td><td>d=-0.45</td><td>1.5e-9</td><td>1,141 lines</td><td><b class="good">PASS</b></td><td>axis_depmap</td></tr>
+      <tr><td>PRISM top 15 MAPK-i</td><td>AZD-0364 FDR=6e-7</td><td>—</td><td>~1,500 compound</td><td><b class="good">PASS</b></td><td>axis_depmap</td></tr>
+      <tr><td>Phase G immune coupling</td><td>r=+0.76 universal</td><td>—</td><td>32/32 lineages</td><td><b class="te">UNIVERSAL</b></td><td>axis_pancancer_phase_e</td></tr>
+      <tr><td>image-DM1 CLAM</td><td>AUC=0.83±0.14</td><td>—</td><td>N=59 H&amp;E</td><td><b class="good">PASS_LAUNCH_PAPER2</b></td><td>Paper 2 image</td></tr>
+    </tbody>
+  </table>
+  <p class="note">ICI axis (HLA-I OR=1.35) 와 vulnerability axis (PRISM MAPK-i top 15) 와 survival axis (LGG HR=44.7, SKCM 0.78 protective) 를 한 표에 묶어 보면, DM1 module이 같은 module로 4-pillar 외부검증 통과한다는 fact가 보인다. SKCM 0.78 protective 와 Phase G immune-coupling r=+0.76 universal은 ICI axis와 직접적으로 연결되어, "immune-hot context 에서 DM1-high는 protective + ICI-machinery sign-up" 이라는 mechanistic frame이 자연스럽게 잠긴다.</p>
+</section>
+
+<section id="leakaudit">
+  <h2>8b · Leakage / batch audit — v52 critical lesson + DIAL gating</h2>
+  <p class="sub">label-flip / batch-flip artifact 점검 history · current YELLOW grade의 직접 근거</p>
+  <table>
+    <thead><tr><th>Item</th><th>Cohort</th><th>Adjustment</th><th>Pre-adj</th><th>Post-adj</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>v51 DIAL preliminary</td><td>5 THCA classifiers (legacy)</td><td>none</td><td>DIAL=0.494 (apparent flip)</td><td>—</td><td><b class="bad">leak artifact</b></td></tr>
+      <tr><td>v52 LODO ComBat re-run</td><td>5 THCA classifiers</td><td>leave-one-domain-out ComBat</td><td>—</td><td>DIAL=0.000</td><td><b class="good">true biology · halt downstream</b></td></tr>
+      <tr><td>Round 4 methylation polarity</td><td>r9_1 master</td><td>H13 corrected</td><td>d=-1.75 (artifact)</td><td>cPTC d=+1.50; Landa d=+3.47</td><td><b class="good">corrected</b> · Paper 1 fig sign-flip 의무</td></tr>
+      <tr><td>DIAL-lite Hugo+Riaz check</td><td>melanoma ICI 2-cohort</td><td>DIAL-style adjustment</td><td>—</td><td>4/7 modules FLIP</td><td><b class="bad">DIAL audit 필수</b> · Track B-lite 2026-05-06</td></tr>
+      <tr><td>Phase C v2 4-cohort pooled</td><td>n=421</td><td>random-effects, cohort-stratified</td><td>per-cohort sign-consistent</td><td>OR/p stable</td><td><b class="hi">composite YELLOW</b> (HLA-II null)</td></tr>
+      <tr><td>Round 8 panel-spec null</td><td>thyroid-matched pool</td><td>fair-pool perm</td><td>Round 7 p=0.288</td><td>Round 8 p=0.007</td><td><b class="good">PASS (fair)</b></td></tr>
+    </tbody>
+  </table>
+  <p class="callout"><b>왜 leakage audit이 ICI page에 들어오는가.</b> ICI cohort 4종 모두 sign-consistent 라는 fact가 강도 있는 만큼, reviewer는 가장 먼저 batch / label leakage 의심을 제기한다. v52 LODO ComBat lesson + DIAL-lite 4/7 flip fact를 미리 같이 보고하면 audit 가능성을 reviewer 와 미리 정렬 — Paper 3 의 YELLOW 그레이드가 정직-우선 결정이라는 점을 page 안에서 보여준다.</p>
+</section>
+
+<section id="claimladder">
+  <h2>8c · Claim ladder · 4-rung — Do NOT / Careful / Safe / Upgrade</h2>
+  <p class="sub">ICI wording controller · 무엇을 말하고 무엇을 미루는가</p>
+  <div class="ladder">
+    <div class="rung r"><b>Rung 0 · Do NOT claim</b><h4>"DM1 axis = thyroid ICI response predictor"</h4><p>4-cohort meta는 melanoma. thyroid ICI 임상 결정 wording 금지. HLA-II null 도 이 표현 자체를 막는다.</p></div>
+    <div class="rung y"><b>Rung 1 · Careful</b><h4>"ICI machinery sign-consistent"</h4><p>"DM1 axis is sign-consistent with ICI-related machinery across 4 cohorts (n=421)" 까지 허용. composite YELLOW로 그레이드 명시.</p></div>
+    <div class="rung g"><b>Rung 2 · Safe</b><h4>per-marker pooled OR / p 보고</h4><p>IFNG OR=1.53 p=3.7e-4, HLA-I OR=1.35 p=0.014, checkpoint OR=1.32 p=0.020, cytolytic OR=1.27 p=0.046, HLA-II OR=1.02 p=0.84 — 그대로 보고 가능.</p></div>
+    <div class="rung c"><b>Rung 3 · Upgrade gate</b><h4>Thyroid ICI prospective cohort</h4><p>future-work: thyroid-specific ICI cohort 가 마련될 때까지 thyroid-ICI 임상 wording은 보류. preregistered 통과 시 upgrade.</p></div>
+  </div>
+  <p class="note">현재 manuscript 는 Rung 1-2까지만 사용. Rung 3는 future-work. Rung 0 명시적으로 금지 wording.</p>
+</section>
+
+<section id="qa">
+  <h2>9 · Reviewer Q&amp;A — cohort substitution, HLA-II null framing, composite vs single-marker</h2>
+  <p class="sub">예상 reviewer 5문항 · 사전 답안</p>
+  <div class="qa"><b>Q1 — Gide cohort를 빼고 MGH GSE115821을 넣은 이유는?</b><p>Gide 2019 access 가 supply 측에서 failure 였고, melanoma indication 정합성을 위해 MGH GSE115821 (anti-PD-1 melanoma) 로 substitute. IMvigor URL `packageVersions/` 수정은 별도 supplementary로 분리. Cohort selection 은 memory에 명시적으로 잠금되어 있으며 manuscript Methods에서 그대로 보고한다.</p></div>
+  <div class="qa"><b>Q2 — HLA-II null이 있는데 "DM1 axis ICI-ready"라 부를 수 있는가?</b><p>aimed wording은 <b class="hi">"DM1 axis is sign-consistent with ICI-related machinery across 4 cohorts; HLA-I is load-bearing significant, HLA-II is a reported null; composite grade is YELLOW"</b>이다. "predictor" 표현은 만들지 않으며, "readiness" 표현은 vulnerability/machinery 차원으로 잠근다 — Paper 3 ICI status dossier wording과 일치.</p></div>
+  <div class="qa"><b>Q3 — 4/4 sign consistent는 통계적 power가 낮은 cohort에서 우연일 수 있지 않은가?</b><p>4 cohort × 5 marker × 2 방향 = chance level random sign-match probability는 매우 낮다. 게다가 IFNG p=3.7e-4, HLA-I p=0.014, checkpoint p=0.020, cytolytic p=0.046까지 단일 marker pooled p가 강도 있게 받쳐준다. composite YELLOW는 sign-consistency 강점과 HLA-II null 약점을 동시에 반영.</p></div>
+  <div class="qa"><b>Q4 — thyroid 환자에서 이 결과를 ICI 임상 결정에 쓸 수 있나?</b><p>아니오. 본 meta는 melanoma cohort 기반이며, thyroid ICI response 예측에 직접 사용 가능한 결과가 아니다. RAI-dediff axis(GSE151179)는 RAI-refractoriness가 partial-ATC immunogenomic phenotype 임을 보일 뿐, ICI 임상 결정으로 끌고 가지 않는다. "preclinical / mechanism" 표현만 사용.</p></div>
+  <div class="qa"><b>Q5 — composite 정의가 HLA-II 제외 cherry-pick 아닌가?</b><p>composite 정의는 사전에 IFNG/HLA-I/checkpoint/cytolytic의 4 marker를 immune-axis 기본 panel로 잠가두었고, HLA-II 는 별개 marker로 분리 보고한다. 따라서 HLA-II null은 composite의 외부 contrast이지 cherry-pick exclusion이 아니다. honest YELLOW grade도 같은 이유로 유지.</p></div>
+</section>
+
+<section id="siblings">
+  <h2>10 · Sibling links — ICI × Paper 3 / Paper 11 family</h2>
+  <p class="sub">2026-05-14 family · 30+ pages · axis siblings 포함</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800">
+    <a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Axis · ICI quad-cohort (this)</a>
+    <a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Axis · Phase E pan-cancer</a>
+    <a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Axis · DepMap × PRISM</a>
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Yu meeting brief</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Evidence atlas</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Decision board</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">90-day Gantt</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Figure gallery</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Methodology atlas</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--violet);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--violet)">Triangulation</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Honest negatives wall</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--blue);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--blue)">Venue strategy</a>
+    <a href="paper11_pancancer.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 11 pancancer</a>
+    <a href="paper1_paper11_nature_master.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 × 11 master</a>
+    <a href="paper1_nature_cancer_board.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 Nature Cancer board</a>
+    <a href="pancancer_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Pan-cancer atlas</a>
+    <a href="hla_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA atlas</a>
+    <a href="hla_class_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA class deep dive</a>
+    <a href="braf_v600e_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BRAF V600E deep dive</a>
+    <a href="driver_gene_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Driver gene atlas</a>
+    <a href="anchor_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Anchor atlas</a>
+    <a href="tcr_clonotype_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">TCR clonotype atlas</a>
+    <a href="paper2_master_view.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 master view</a>
+    <a href="portfolio_paper3.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio P3</a>
+    <a href="portfolio_paper1.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio P1</a>
+    <a href="paper3_ici_status_dossier_2026_05_09.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 3 ICI status (2026-05-09)</a>
+    <a href="track1_dm1_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T1 DM1 command room</a>
+    <a href="reviewer_qa_bank_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Reviewer Q&amp;A bank</a>
+    <a href="risk_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Risk atlas</a>
+    <a href="data_registry_map_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Data registry map</a>
+    <a href="index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Hub home</a>
+  </div>
+  <p class="footer">file · axis_ici_quad_cohort_deep_dive_2026_05_14.html · build 2026-05-14 · Seungho Cook · for Yu meeting in-room read · paper-blocking marathon-safe scaffold</p>
+</section>
+
+</main>
+</body>
+</html>

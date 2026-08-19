@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Decision Board · Yu 결정 큐 · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#0e2333 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}.lead em{color:var(--teal);font-style:normal}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;margin:14px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.tl{display:inline-flex;align-items:center;gap:6px}
+.tl i{display:inline-block;width:10px;height:10px;border-radius:50%}
+.tl i.g{background:var(--green)}.tl i.y{background:var(--gold)}.tl i.r{background:var(--red)}.tl i.b{background:var(--blue)}
+.single{border:2px solid var(--red);border-radius:12px;background:linear-gradient(135deg,rgba(255,138,107,.08),rgba(255,138,107,.02));padding:24px 26px;margin-top:8px}
+.single .kicker2{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--red);letter-spacing:.18em;text-transform:uppercase;font-size:11px;font-weight:900;margin-bottom:8px}
+.single h3{margin:0 0 8px;font-size:30px;color:var(--red)}
+.single p{margin:0;color:#eaf2f7;font-size:16.5px;line-height:1.6}
+.single p b{color:var(--gold)}
+.matrix{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:6px;margin-top:12px;font-size:12.5px}
+.matrix .h{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:9px;border:1px solid var(--line);text-align:center}
+.matrix .h.row{text-align:left}
+.matrix .c{background:#0d1823;border:1px solid var(--line);padding:9px 10px;color:#d4dee5}
+.matrix .c.head{background:#101e2c;color:#fff;font-weight:700}
+.matrix .c.good{background:rgba(147,226,170,.08);border-left:3px solid var(--green)}
+.matrix .c.warn{background:rgba(255,210,138,.07);border-left:3px solid var(--gold)}
+.matrix .c.bad{background:rgba(255,138,107,.07);border-left:3px solid var(--red)}
+.matrix .c.cool{background:rgba(139,188,255,.07);border-left:3px solid var(--blue)}
+.path{position:relative;padding:20px;border:1px solid var(--line);border-radius:10px;background:#0d1823;margin-top:14px}
+.path .row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px}
+.path .node{padding:14px 12px;border-radius:8px;border:1px solid var(--line);background:#101e2c;text-align:center;position:relative;min-height:88px}
+.path .node b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;color:var(--gold);margin-bottom:5px}
+.path .node span{display:block;font-weight:800;color:#eaf2f7;font-size:13.5px;line-height:1.25}
+.path .node small{display:block;color:var(--muted);font-size:10.5px;margin-top:4px;font-family:"JetBrains Mono","SF Mono",monospace}
+.path .node::after{content:"\2192";position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:var(--gold);font-weight:900;font-size:22px;text-shadow:0 0 6px rgba(255,210,138,.45)}
+.path .node:last-child::after{display:none}
+.path .branch{border:1px dashed var(--blue);background:rgba(139,188,255,.04)}
+.path .branch b{color:var(--blue)}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:16px 18px}
+.card.s1{border-top:5px solid var(--green)}
+.card.s2{border-top:5px solid var(--gold)}
+.card.s3{border-top:5px solid var(--blue)}
+.card.s4{border-top:5px solid var(--red)}
+.card h3{margin:0 0 6px;font-size:22px}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:5px 12px;font-size:13.5px;margin-top:8px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}
+.kv .v{color:#eaf2f7;font-weight:600}
+.bullets{margin:6px 0 0;padding-left:18px;color:#cbd7df;font-size:13.5px}
+.tracker{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.tbox{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:16px 18px}
+.tbox h3{margin:0 0 8px;font-size:22px}
+.bar{display:flex;gap:4px;margin:8px 0 4px}
+.bar span{height:14px;flex:1;background:rgba(255,255,255,.06);border-radius:3px;position:relative}
+.bar span i{position:absolute;left:0;top:0;height:100%;background:var(--gold);display:block;border-radius:3px}
+.bar span.g i{background:var(--green)}
+.bar span.r i{background:var(--red)}
+.bar span.b i{background:var(--blue)}
+.bar small{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px;display:block;margin-top:4px}
+.risks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
+.risks .r{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 16px;border-left:5px solid var(--red)}
+.risks .r.med{border-left-color:var(--gold)}
+.risks .r.low{border-left-color:var(--green)}
+.risks h4{margin:0 0 5px;font-size:17px;color:#fff}
+.risks p{margin:0;color:#cbd7df;font-size:13.5px}
+.risks .meta{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px;margin-top:6px;letter-spacing:.06em;text-transform:uppercase}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.callout{border:1px dashed var(--gold);border-radius:10px;padding:14px 18px;margin-top:12px;background:rgba(255,210,138,.04)}
+.callout b{color:var(--gold)}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .matrix{grid-template-columns:1fr 1fr}.path .row{grid-template-columns:1fr 1fr}
+  .cards{grid-template-columns:1fr}.tracker{grid-template-columns:1fr}.risks{grid-template-columns:1fr}
+  main{padding:22px 18px 60px}.kv{grid-template-columns:1fr}
+  .path .node::after{display:none}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Decision Board · Yu 미팅 결정 큐 · 2026-05-14 · for in-room read</p>
+    <h1>Yu 미팅 결정 큐 — 6개 결정, 순서대로.</h1>
+    <p class="lead">
+      이 페이지는 <em>방 안에서 그대로 펴서 짚어나갈 수 있는</em> 결정 큐다. 6개 결정은 우선순위 순으로 정렬됐고, <b>가장 단일하게 critical한 결정</b>은 <b>K2 H&E access 확정 가능성</b> — 이 하나가 <em>Paper 2 venue</em>와 <em>Samsung Yu validation pillar</em>를 동시에 결정한다. Marathon mode(2026-05-04 → 06-13)의 잔여 4주에서 분기점 노드는 이 결정이다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>6</b><span>대기 결정</span><small>K2 H&E · access 4건 · 외부검증 · WP 수정 · 제출 timing · marathon protect</small></div>
+      <div class="stat"><b>4</b><span>트랙 영향</span><small>Paper 1 · Paper 2 · Paper 4 · Samsung</small></div>
+      <div class="stat"><b>1</b><span>critical path</span><small>K2 H&E access → Paper 2 venue + Samsung Yu pillar</small></div>
+      <div class="stat"><b>4 weeks</b><span>마라톤 잔여</span><small>~2026-05-14 → 06-13 (30일)</small></div>
+      <div class="stat"><b>1</b><span>single load-bearing</span><small>K2 H&E access — 하나에 두 트랙 collapse</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a href="index.html">index</a>
+  <a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief</a>
+  <a href="paper1.html">paper1</a>
+  <a href="paper2_image_dm1.html">paper2_image_dm1</a>
+  <a href="paper2_hla.html">paper2_hla</a>
+  <a href="paper4_gd_hla.html">paper4_gd_hla</a>
+  <a href="grant_samsung_causal_kthyro_2026_05_14.html">grant_samsung_audit</a>
+  <a href="track1_dm1_command_room.html">track1_dm1</a>
+  <a href="track2_histology_command_room.html">track2_histology</a>
+  <a href="track3_hla_isolated_command_room.html">track3_hla_isolated</a>
+  <a href="track4_korean_gd_command_room.html">track4_korean_gd</a>
+  <a href="track5_samsung_command_room.html">track5_samsung</a>
+  <a href="evidence_atlas_2026_05_14.html">evidence_atlas</a>
+  <a class="primary" href="decision_board_2026_05_14.html">decision_board</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa</a>
+</div></nav>
+
+<main>
+
+<section id="single">
+  <h2>Single Load-Bearing Decision</h2>
+  <p class="sub">하나에 두 트랙이 collapse되는 결정</p>
+  <div class="single">
+    <div class="kicker2">SINGLE DECISION · 4 weeks horizon</div>
+    <h3>다음 4주 안에 K2 H&E access를 확정 가능한가?</h3>
+    <p>
+      이 하나가 <b>Paper 2 venue</b>(npj Digital Med vs Nat Commun reach)와 <b>Samsung Yu validation pillar</b>(BABA 5,000례 surgical readout + CTC 62 분자 readout이 어떤 K2 image cohort에 anchor 되는가)를 <em>동시에</em> 결정한다. <b>YES</b>면 Paper 2가 ST1 흡수 없이 external validation까지 가고, Samsung WP2 monitoring-aligned emulation의 surgical anchor가 잠긴다. <b>NO</b>면 Paper 2는 npj Digital Med + ST1 흡수 fallback, Samsung은 MAeSTro/MASTER만으로 validation pillar 재설계가 필요하다. 답이 <em>불확실</em>이면 Plan A/Plan B를 둘 다 평행 진행해야 한다.
+    </p>
+  </div>
+</section>
+
+<section id="queue">
+  <h2>Decision Queue — 6 rows</h2>
+  <p class="sub">우선순위 · 영향 트랙 · 대안 · Yu confirm 필요 · 기한</p>
+  <table>
+    <thead><tr><th>#</th><th>결정</th><th>영향 트랙</th><th>대안</th><th>Yu confirm 필요</th><th>기한</th><th>상태</th></tr></thead>
+    <tbody>
+    <tr>
+      <td><b class="bad">D1</b></td>
+      <td><b>K2 H&E access</b> 4주 내 확정 여부</td>
+      <td>Paper 2 venue · Samsung Yu pillar</td>
+      <td>NO일 시 ST1 흡수 + Pan-Asian fallback</td>
+      <td>K2 H&E IRB 가능 여부 · 사본/원본 routing</td>
+      <td>2026-06-13</td>
+      <td><span class="tl"><i class="r"></i><b class="bad">CRIT</b></span></td>
+    </tr>
+    <tr>
+      <td><b class="hi">D2</b></td>
+      <td>Samsung <b>access 4건</b> 확답 (MAeSTro/MASTER/KoMPASS/BABA·CTC)</td>
+      <td>Samsung 60–65% 권역 진입</td>
+      <td>3건만 확답 시 → MASTER 또는 외부검증 보강</td>
+      <td>각 데이터 access MOU · IRB cross-cover</td>
+      <td>2026-05-28</td>
+      <td><span class="tl"><i class="y"></i><b class="hi">PEND</b></span></td>
+    </tr>
+    <tr>
+      <td><b class="hi">D3</b></td>
+      <td>Samsung <b>외부검증 1곳</b> 사전합의 (cap → 70%)</td>
+      <td>Samsung ladder cap</td>
+      <td>없으면 65–70%에서 천장</td>
+      <td>후보 기관 1·2순위 · MOU timeline</td>
+      <td>2026-06-13</td>
+      <td><span class="tl"><i class="r"></i><b class="bad">OPEN</b></span></td>
+    </tr>
+    <tr>
+      <td><b class="cool">D4</b></td>
+      <td>Samsung <b>WP1/WP2/WP3 수정 + WP4 신설</b> 승인</td>
+      <td>Samsung 약점 5건 답안</td>
+      <td>수정 없이 제출 = ladder rung 1 (45–50%)</td>
+      <td>pan-cancer pretrain 사용 동의 · WP4 신설 동의</td>
+      <td>2026-05-21</td>
+      <td><span class="tl"><i class="y"></i><b class="hi">PEND</b></span></td>
+    </tr>
+    <tr>
+      <td><b class="vio">D5</b></td>
+      <td>Paper 1 <b>bioRxiv 제출 timing</b></td>
+      <td>Paper 1 venue priority · Paper 2 dependency</td>
+      <td>marathon 종료 직전 vs 직후</td>
+      <td>저자 순서 confirm · IRB acknowledgment</td>
+      <td>2026-06-06</td>
+      <td><span class="tl"><i class="g"></i><b class="good">PLAN</b></span></td>
+    </tr>
+    <tr>
+      <td><b class="vio">D6</b></td>
+      <td>Marathon mode <b>voice-protect rule 유지</b></td>
+      <td>5트랙 manuscript voice integrity</td>
+      <td>없음 — non-negotiable</td>
+      <td>Hook/Aim/Disc 3.1/Limitations/Cover Para 1/Q9 = 본인 키보드</td>
+      <td>2026-06-13 (rolling)</td>
+      <td><span class="tl"><i class="g"></i><b class="good">LOCK</b></span></td>
+    </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="gng-matrix">
+  <h2>Go/No-Go Matrix — 5 트랙 × 4 단계</h2>
+  <p class="sub">분석 · writing · submission · revision</p>
+  <div class="matrix">
+    <div class="h row">트랙</div>
+    <div class="h">분석</div>
+    <div class="h">Writing</div>
+    <div class="h">Submission</div>
+    <div class="h">Revision</div>
+
+    <div class="c head">Paper 1 · DM1 dark matter</div>
+    <div class="c good">GO · Round 8까지 lock<br>thyroid-matched null p=0.007</div>
+    <div class="c good">GO · marathon writing<br>voice-protect 가동</div>
+    <div class="c good">GO · bioRxiv timing(D5)</div>
+    <div class="c warn">대기 · venue 결정 후</div>
+
+    <div class="c head">Paper 2 · Histology DM1</div>
+    <div class="c good">GO · UNI LOTO 0.852<br>N=59 mean 0.83±0.14</div>
+    <div class="c warn">writing on hold pending D1</div>
+    <div class="c warn">D1=YES → Nat Commun reach<br>D1=NO → npj Digital Med + ST1</div>
+    <div class="c cool">대기</div>
+
+    <div class="c head">HLA #1 · HT-isolated</div>
+    <div class="c good">GO · n=18 10,380 DEGs<br>HLA-II d=+3.65 IFN-γ FDR=2e-4</div>
+    <div class="c good">GO</div>
+    <div class="c warn">2026-06-13 직후</div>
+    <div class="c cool">대기</div>
+
+    <div class="c head">HLA #2 · Korean GD (Paper 4)</div>
+    <div class="c warn">backlog · 4/4 gating<br>DPB1*05:01 56% (Kim 2014 replicate)</div>
+    <div class="c bad">BLOCKED · gating clear 전</div>
+    <div class="c bad">대기</div>
+    <div class="c bad">대기</div>
+
+    <div class="c head">Samsung 30억</div>
+    <div class="c warn">분석은 보강 단계<br>약점 5건 답안 draft</div>
+    <div class="c warn">제안서 draft v2 작성 중</div>
+    <div class="c warn">D2/D3/D4 확답 후 lock</div>
+    <div class="c cool">대기</div>
+  </div>
+</section>
+
+<section id="critical-path">
+  <h2>Critical Path — Paper 1 → bioRxiv → Paper 2 K2 → Paper 4 unblock → Samsung 제출</h2>
+  <p class="sub">CSS-only flowchart · no SVG/PNG</p>
+  <div class="path">
+    <div class="row">
+      <div class="node"><b>NODE 1</b><span>Paper 1 marathon writing</span><small>~2026-05-30</small></div>
+      <div class="node"><b>NODE 2</b><span>Paper 1 bioRxiv 제출 (D5)</span><small>~2026-06-06</small></div>
+      <div class="node"><b>NODE 3</b><span>Paper 2 K2 H&E access 결정 (D1)</span><small>~2026-06-13</small></div>
+      <div class="node"><b>NODE 4</b><span>Paper 4 gating 4/4 unblock</span><small>D1·D2 결과 의존</small></div>
+      <div class="node"><b>NODE 5</b><span>Samsung 30억 제출</span><small>D2/D3/D4 lock 후</small></div>
+    </div>
+    <div class="row">
+      <div class="node branch"><b>BRANCH 1A</b><span>D1=YES → Paper 2 Nat Commun reach</span><small>UNI LOTO 0.852 + K2 external</small></div>
+      <div class="node branch"><b>BRANCH 1B</b><span>D1=NO → Paper 2 npj Digital Med + ST1 흡수</span><small>UNI LOTO + N=59 pilot 만으로</small></div>
+      <div class="node branch"><b>BRANCH 2A</b><span>D2=4/4 → Samsung 65–70%</span><small>access ladder 진입</small></div>
+      <div class="node branch"><b>BRANCH 2B</b><span>D3=external 합의 → Samsung 70% cap</span><small>천장</small></div>
+      <div class="node branch"><b>BRANCH 3</b><span>HLA#1 별도 trail · 6-13 직후 제출</span><small>NODE 1 종속성 없음</small></div>
+    </div>
+  </div>
+  <div class="callout"><b>읽는 법:</b> 상단 5-node row = 직렬 critical path. 하단 5-branch row = 조건부 분기. NODE 3(K2 H&E)이 두 BRANCH(1A/1B + 2A/2B 부분)를 동시에 결정하는 single load-bearing node다.</div>
+</section>
+
+<section id="access">
+  <h2>Yu Access Asks — 4 + 1</h2>
+  <p class="sub">traffic light · ask · downstream impact</p>
+  <table>
+    <thead><tr><th>#</th><th>자산</th><th>현재 상태</th><th>Ask (Yu 확답)</th><th>Downstream impact</th></tr></thead>
+    <tbody>
+    <tr><td>A1</td><td><b>MAeSTro</b></td><td><span class="tl"><i class="y"></i><span class="hi">YELLOW</span></span></td><td>access MOU · 변수 사전정의 · DSMB</td><td>Samsung WP2 target trial primary cohort</td></tr>
+    <tr><td>A2</td><td><b>MASTER</b></td><td><span class="tl"><i class="y"></i><span class="hi">YELLOW</span></span></td><td>raw vs derived feature scope · IRB cross-cover</td><td>Samsung WP2 external replication</td></tr>
+    <tr><td>A3</td><td><b>KoMPASS</b></td><td><span class="tl"><i class="g"></i><span class="good">GREEN</span></span></td><td>quantum sidecar 사용 시 IRB cap</td><td>Samsung WP1 PTC fine-tune anchor</td></tr>
+    <tr><td>A4</td><td><b>BABA 5,000례 + 62 CTC/EMT</b></td><td><span class="tl"><i class="g"></i><span class="good">GREEN</span></span></td><td>BABA 변수 dict 공개범위 · CTC raw 사용동의</td><td>Samsung WP3 biological/surgical readout</td></tr>
+    <tr><td>A5</td><td><b>K2 H&E (Paper 2)</b></td><td><span class="tl"><i class="r"></i><span class="bad">RED</span></span></td><td>4주 내 access 가능 여부 · 사본 routing</td><td>Paper 2 venue 결정 + Samsung WP3 surgical anchor</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="tradeoff">
+  <h2>Trade-off Scenarios — A / B / C / D</h2>
+  <p class="sub">분기조건 × 후속 액션</p>
+  <div class="cards">
+    <div class="card s1"><h3>Scenario A · K2 access 성공</h3>
+      <div class="kv"><div class="k">분기조건</div><div class="v">D1 = YES (K2 H&E access 4주 내 확정)</div>
+      <div class="k">Paper 2</div><div class="v">UNI LOTO 0.852 + N=59 pilot + K2 external → <span class="good">Nat Commun reach 권역</span></div>
+      <div class="k">Samsung</div><div class="v">WP3 surgical readout anchor 잠김 → ladder rung 3로 직행</div>
+      <div class="k">후속 액션</div><div class="v">Paper 2 K2 cohort spec + IRB note + venue letter 동시 진행</div></div>
+    </div>
+    <div class="card s2"><h3>Scenario B · K2 access 실패</h3>
+      <div class="kv"><div class="k">분기조건</div><div class="v">D1 = NO</div>
+      <div class="k">Paper 2</div><div class="v">npj Digital Med + ST1 흡수 fallback → <span class="hi">honest pilot framing</span></div>
+      <div class="k">Samsung</div><div class="v">WP3 surgical anchor를 MAeSTro/MASTER로 재배치 → ladder rung 2 유지 가능</div>
+      <div class="k">후속 액션</div><div class="v">Paper 2 limitations §에 K2 access gap 명시 + Paper 2 abstract reframe</div></div>
+    </div>
+    <div class="card s3"><h3>Scenario C · Bundang outreach 성공</h3>
+      <div class="kv"><div class="k">분기조건</div><div class="v">Bundang SNUH 정식 데이터 outreach 합의</div>
+      <div class="k">Paper 4 (Korean GD)</div><div class="v">Pan-Asian only 한계 해소 → backlog gating 4/4 unblock 가시화</div>
+      <div class="k">HLA #1</div><div class="v">HT-isolated finding의 institutional external replication 후보</div>
+      <div class="k">후속 액션</div><div class="v">PRJEB11591 + AFND pool 외 Bundang track 추가 — backlog active 전환</div></div>
+    </div>
+    <div class="card s4"><h3>Scenario D · Bundang outreach 실패</h3>
+      <div class="kv"><div class="k">분기조건</div><div class="v">Bundang outreach 정체</div>
+      <div class="k">Paper 4 (Korean GD)</div><div class="v">Pan-Asian only — backlog 그대로 유지</div>
+      <div class="k">HLA #1</div><div class="v">GSE286332 + TCGA Hashimoto-like generalization으로 한정</div>
+      <div class="k">후속 액션</div><div class="v">Paper 4 backlog 유지 + HLA #1 단독 venue 결정</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="marathon">
+  <h2>Marathon Mode Tracker</h2>
+  <p class="sub">2026-05-04 → 2026-06-13 · voice-protected sections lock</p>
+  <div class="tracker">
+    <div class="tbox">
+      <h3>Window progress — Day 10 / 40</h3>
+      <p class="note">Marathon mode는 2026-05-04에 시작되어 2026-06-13에 종료된다. 오늘(2026-05-14)은 <b class="hi">Day 10</b>, 진행률 <b class="good">25%</b>. 남은 30일이 D1/D2/D3 결정 + 5트랙 writing의 핵심 구간.</p>
+      <div class="bar"><span class="g"><i style="width:25%"></i></span></div>
+      <small>Day 10/40 · 25% · 남은 30일</small>
+
+      <p class="note" style="margin-top:14px">진행률 by 결정:</p>
+      <div class="bar"><span class="b"><i style="width:60%"></i></span></div>
+      <small>D2 access 4건 · 60% (KoMPASS·BABA GREEN, MAeSTro·MASTER YELLOW)</small>
+      <div class="bar"><span class="r"><i style="width:0%"></i></span></div>
+      <small>D1 K2 H&E · 0% · 답을 받아야 시작</small>
+      <div class="bar"><span><i style="width:30%"></i></span></div>
+      <small>D4 WP1–WP4 수정 · 30% · WP1 pan-cancer + WP4 신설 draft 중</small>
+      <div class="bar"><span><i style="width:50%"></i></span></div>
+      <small>D5 Paper 1 marathon writing · 50%</small>
+    </div>
+
+    <div class="tbox">
+      <h3>Voice-Protect rule</h3>
+      <p class="note">Marathon mode 동안 <b class="hi">Hook / Aim / Disc §3.1 / Limitations / Cover Para 1 / Q9</b>는 <em>본인 키보드 only</em>. Claude는 scaffolding/infra/figure-table/citation/proofread만. "고고/faster/다 해줘"는 voice-protect sprint 권한 NOT.</p>
+      <table style="margin-top:8px">
+        <thead><tr><th>섹션</th><th>권한</th></tr></thead>
+        <tbody>
+        <tr><td>Hook (모든 paper)</td><td><span class="bad">본인 키보드</span></td></tr>
+        <tr><td>Aim / Significance Statement</td><td><span class="bad">본인 키보드</span></td></tr>
+        <tr><td>Discussion §3.1 (limitation framing)</td><td><span class="bad">본인 키보드</span></td></tr>
+        <tr><td>Limitations §</td><td><span class="bad">본인 키보드</span></td></tr>
+        <tr><td>Cover letter para 1</td><td><span class="bad">본인 키보드</span></td></tr>
+        <tr><td>Reviewer Q9 (anticipated)</td><td><span class="bad">본인 키보드</span></td></tr>
+        <tr><td>나머지 (methods/figures/tables/proofread/scaffolding)</td><td><span class="good">Claude OK</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="risk">
+  <h2>Risk Register — R1 ~ R10</h2>
+  <p class="sub">위험 · 영향 · mitigation owner</p>
+  <div class="risks">
+    <div class="r"><h4>R1 · K2 H&E access 거부</h4><p>Paper 2 venue + Samsung WP3 surgical anchor 동시 collapse. Plan B(Scenario B)로 즉시 fallback.</p><div class="meta">owner: Yu · mitigation: Scenario B draft 준비</div></div>
+    <div class="r"><h4>R2 · MAeSTro/MASTER MOU 지연</h4><p>Samsung ladder rung 2→3 진입 차단. 6-13 marathon 종료 전 미해결 시 제출 지연.</p><div class="meta">owner: Yu · mitigation: 2주 buffer + KoMPASS-only fallback</div></div>
+    <div class="r med"><h4>R3 · 외부검증 1곳 미합의</h4><p>Samsung ladder cap이 70%에서 65%로 내려옴. 제출은 가능하나 reviewer 2 천장 효과.</p><div class="meta">owner: Yu · mitigation: 2 후보 기관 parallel outreach</div></div>
+    <div class="r med"><h4>R4 · methylation polarity flip (H13)</h4><p>Paper 1 fig 포팅 시 sign flip 누락 → reviewer Q에서 잡힘. v17 Landa 2016 cite save와 함께 footnote 처리.</p><div class="meta">owner: Cook · mitigation: H13 정정 본문 + figure caption check 의무화</div></div>
+    <div class="r"><h4>R5 · Quantum sidecar reviewer 2 잡힘</h4><p>임상 우위 주장으로 제출하면 ladder rung 1로 추락. NISQ pilot framing으로 즉시 톤다운.</p><div class="meta">owner: Cook · mitigation: track5 W4 카드 본문 박기</div></div>
+    <div class="r med"><h4>R6 · Paper 1 bioRxiv timing miss</h4><p>Paper 2 dependency가 Paper 1 priority 후순위로 밀림. 6-06 마감 push.</p><div class="meta">owner: Cook · mitigation: D5 결정 lock + draft v2 freeze</div></div>
+    <div class="r med"><h4>R7 · HLA #1 single-cohort n=18 challenge</h4><p>GSE286332 단일. TCGA Hashimoto-like generalization으로 OR=5x로 보강 + Paper 4 backlog와 연계.</p><div class="meta">owner: Cook · mitigation: TCGA D4-P2 결과 본문 + Reviewer Q canned</div></div>
+    <div class="r low"><h4>R8 · data registry/boundary audit 실패</h4><p>386 datasets / 5 zones / scripts/boundary_audit/ exit 0 fail 시 Paper 1 commit 차단. 현재 grEEN.</p><div class="meta">owner: Cook · mitigation: 매주 audit re-run</div></div>
+    <div class="r"><h4>R9 · self-extinguishing data reviewer 공격</h4><p>Samsung W5. 답안 layer A(historical natural experiment) + layer B(transfer) 없이는 ladder rung 1.</p><div class="meta">owner: Cook · mitigation: WP4 신설 동의 (D4)</div></div>
+    <div class="r low"><h4>R10 · marathon voice-protect 위반</h4><p>Hook/Aim/Disc §3.1 sprint generate 시 voice 불일치 + reviewer Q9 노출. Lock 유지.</p><div class="meta">owner: Cook · mitigation: scaffolding-only 디폴트 유지</div></div>
+  </div>
+</section>
+
+<section id="rules">
+  <h2>Decision Rules — 방 안에서 즉시 적용</h2>
+  <p class="sub">상황 → 어떤 결정으로 진입할 것인가</p>
+  <table>
+    <thead><tr><th>상황</th><th>적용 결정</th><th>즉시 액션</th><th>참고</th></tr></thead>
+    <tbody>
+    <tr><td>Yu가 "K2 H&E 가능할 듯" 시그널</td><td><b class="bad">D1 → Scenario A</b></td><td>Paper 2 venue Nat Commun reach 권역 / Samsung WP3 surgical anchor 박기 / K2 IRB 사본 routing draft 1주 내</td><td>track5 §access A5, track2_histology</td></tr>
+    <tr><td>Yu가 "K2 H&E 어려움" 시그널</td><td><b class="bad">D1 → Scenario B</b></td><td>Paper 2 npj Digital Med + ST1 흡수 / Samsung WP3 anchor를 MAeSTro/MASTER 재배치 / abstract reframe 1주 내</td><td>track2_histology limitations §</td></tr>
+    <tr><td>Yu가 access 4건 모두 GREEN 신호</td><td><b class="hi">D2 = 4/4</b></td><td>Samsung ladder rung 3 진입 / D3 외부검증 1곳으로 cap 진입 시도</td><td>track5 ladder · §access</td></tr>
+    <tr><td>access 중 일부만 YELLOW/RED</td><td><b class="hi">D2 = partial</b></td><td>MAeSTro/MASTER 부분 → ladder rung 2 유지 / 부족분은 외부검증 1곳으로 보강 시도</td><td>track5 ladder Rung 2</td></tr>
+    <tr><td>Bundang outreach 가능 시그널</td><td><b class="cool">Scenario C</b></td><td>Paper 4 backlog active 전환 검토 / HLA #1 institutional replication 후보로 push</td><td>track4_korean_gd</td></tr>
+    <tr><td>methylation polarity flip 본문 누락 감지</td><td><b class="bad">R4 mitigation</b></td><td>Paper 1 figure caption + Disc §3.1 footnote 즉시 박기 / v17 Landa 2016 cite save 같이 정정 / reviewer Q1 trap 방어</td><td>reviewer_qa_bank §verdict gotcha</td></tr>
+    <tr><td>Marathon mode sprint 요청 ("고고/faster/다 해줘")</td><td><b class="bad">D6 LOCK</b></td><td>Voice-protected sections는 본인 키보드 only / Claude는 scaffolding/infra만</td><td>v17 sprint vs marathon violation memory</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="weekly">
+  <h2>Weekly Cadence — 마라톤 4주 잔여</h2>
+  <p class="sub">주차별 결정 게이트와 deliverable</p>
+  <table>
+    <thead><tr><th>Week</th><th>일자</th><th>결정 게이트</th><th>핵심 deliverable</th><th>위험</th></tr></thead>
+    <tbody>
+    <tr><td><b>W-11</b></td><td>2026-05-14 → 05-20</td><td>D4 (WP1/WP4 수정 동의) · D6 voice-protect</td><td>Samsung 제안서 v2 draft + WP4 신설 outline + Paper 1 marathon writing 70%</td><td>D4 미동의 시 약점 답안 미완</td></tr>
+    <tr><td><b>W-10</b></td><td>2026-05-21 → 05-27</td><td>D2 (access 4건 확답)</td><td>access MOU draft 4건 · MAeSTro/MASTER 1차 IRB cross-cover · KoMPASS confirm</td><td>MAeSTro/MASTER MOU 지연 시 W-9 push</td></tr>
+    <tr><td><b>W-9</b></td><td>2026-05-28 → 06-03</td><td>D3 (외부검증 1곳) · D5 Paper 1 bioRxiv timing</td><td>외부검증 후보 1·2순위 outreach · Paper 1 draft v2 freeze · Paper 2 K2 access status check (D1 pre-flag)</td><td>외부검증 무응답 시 ladder cap 65%</td></tr>
+    <tr><td><b>W-8</b></td><td>2026-06-04 → 06-10</td><td>D5 Paper 1 bioRxiv 제출 · D1 K2 H&E 사전결과</td><td>Paper 1 bioRxiv live · Paper 2 venue 결정 (Scenario A vs B) · Samsung 제안서 v3 lock</td><td>Paper 2 venue 미결정 시 marathon 종료 후 풀리는 backlog</td></tr>
+    <tr><td><b>W-7</b></td><td>2026-06-11 → 06-13</td><td>Marathon mode 종료 · D1 final</td><td>Samsung 제안서 submission-ready · Paper 4 backlog unblock 검토 · HLA #1 manuscript submission queue</td><td>제출 timing 충돌</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="confirm-checklist">
+  <h2>In-Room Confirmation Checklist — Yu에게 한 줄씩</h2>
+  <p class="sub">방 안에서 짚으면서 YES/NO/NEED-INFO 받는 12-line cheat sheet</p>
+  <table>
+    <thead><tr><th>#</th><th>한 줄 질문</th><th>예상 답</th><th>연동 결정</th></tr></thead>
+    <tbody>
+    <tr><td>C1</td><td>K2 H&E IRB 4주 내 사본/원본 access 가능한가요?</td><td>YES / NO / NEED-INFO</td><td>D1</td></tr>
+    <tr><td>C2</td><td>MAeSTro 사용 MOU 5월 내 도장 가능한가요?</td><td>YES / NO / NEED-INFO</td><td>D2 A1</td></tr>
+    <tr><td>C3</td><td>MASTER registry derived feature 사용 가능한가요?</td><td>YES / NO / NEED-INFO</td><td>D2 A2</td></tr>
+    <tr><td>C4</td><td>KoMPASS 사용은 IRB cap 만 명시하면 되나요?</td><td>YES / NEED-CAP</td><td>D2 A3</td></tr>
+    <tr><td>C5</td><td>BABA 5,000례 변수 dict 공개 가능 범위는?</td><td>BOUNDARY 정의</td><td>D2 A4</td></tr>
+    <tr><td>C6</td><td>62 CTC/EMT raw data 사용 동의 가능한가요?</td><td>YES / NO / NEED-INFO</td><td>D2 A4</td></tr>
+    <tr><td>C7</td><td>외부검증 1곳 (서울 외/영남) 후보 1순위는?</td><td>기관명</td><td>D3</td></tr>
+    <tr><td>C8</td><td>WP1 pan-cancer pretrain (TCGA 11k + CELLxGENE) 동의?</td><td>YES / NO</td><td>D4</td></tr>
+    <tr><td>C9</td><td>WP4 신설 (prostate/DCIS/lymphoma transfer) 동의?</td><td>YES / NO</td><td>D4 / W5</td></tr>
+    <tr><td>C10</td><td>Quantum sidecar는 NISQ pilot framing + claim cap 동의?</td><td>YES / NO</td><td>D4 / W4</td></tr>
+    <tr><td>C11</td><td>Paper 1 bioRxiv 2026-06-06 lock 동의?</td><td>YES / NO / TIMING</td><td>D5</td></tr>
+    <tr><td>C12</td><td>Bundang outreach 추가 진행 의향은?</td><td>YES / NO / LATER</td><td>Scenario C/D</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="dependency">
+  <h2>Dependency Lattice — 결정 → 결정</h2>
+  <p class="sub">어느 결정이 어느 결정을 활성화하는가</p>
+  <table>
+    <thead><tr><th>From</th><th>활성화</th><th>To</th><th>조건</th></tr></thead>
+    <tbody>
+    <tr><td><b>D1</b> K2 H&E access</td><td>→</td><td>Paper 2 venue · Samsung WP3 anchor</td><td>YES → Scenario A · NO → Scenario B</td></tr>
+    <tr><td><b>D2</b> access 4건</td><td>→</td><td>D3 외부검증 합의 의미</td><td>D2=4/4 없으면 D3는 ladder 영향 절반으로 감소</td></tr>
+    <tr><td><b>D4</b> WP1/WP4 수정</td><td>→</td><td>D2 효과 증폭</td><td>D4 동의 후 D2 access가 ladder rung 3 진입에 가시화</td></tr>
+    <tr><td><b>D5</b> Paper 1 bioRxiv</td><td>→</td><td>Paper 2 + HLA #1 submission queue · Paper 4 unblock</td><td>D5 lock 후 Paper 2/HLA #1 의 본문 cross-reference 가능</td></tr>
+    <tr><td><b>D6</b> voice-protect</td><td>→</td><td>모든 트랙 voice integrity</td><td>Non-negotiable · D6 위반은 marathon 자체 무효화</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="links">
+  <h2>형제 페이지</h2>
+  <p class="sub">cross-cut navigation</p>
+  <ul>
+    <li><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief_2026_05_14</a> · 5-트랙 통합 브리핑</li>
+    <li><a href="track5_samsung_command_room.html">track5_samsung_command_room</a> · Samsung 30억 in-room pitch + 5 약점</li>
+    <li><a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa_bank_2026_05_14</a> · 5트랙 × 20+ Q&A</li>
+    <li><a href="evidence_atlas_2026_05_14.html">evidence_atlas</a> · 트랙별 evidence 한장</li>
+    <li><a href="grant_samsung_causal_kthyro_2026_05_14.html">grant_samsung_audit</a> · 30억 audit dossier</li>
+    <li><a href="paper1.html">paper1</a> · <a href="paper2_image_dm1.html">paper2_image_dm1</a> · <a href="paper2_hla.html">paper2_hla</a> · <a href="paper4_gd_hla.html">paper4_gd_hla</a></li>
+  </ul>
+  <p class="footer">© 2026-05-14 · Seungho Cook · Decision Board · 6 decisions · 1 single load-bearing · 4 weeks horizon · marathon Day 10/40</p>
+</section>
+
+</main>
+</body>
+</html>

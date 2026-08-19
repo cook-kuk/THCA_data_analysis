@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>COS-12 · Spatial transcriptomics vendor comparison · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:18px 0 8px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.label{display:inline-block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.06em;text-transform:uppercase;margin-right:4px;vertical-align:1px}
+.label.fb{background:rgba(147,226,170,.15);color:var(--green);border:1px solid rgba(147,226,170,.5)}
+.label.lit{background:rgba(139,188,255,.15);color:var(--blue);border:1px solid rgba(139,188,255,.5)}
+.label.ic{background:rgba(255,210,138,.12);color:var(--gold);border:1px solid rgba(255,210,138,.5)}
+.label.hyp{background:rgba(201,167,255,.15);color:var(--violet);border:1px solid rgba(201,167,255,.5)}
+.label.pp{background:rgba(101,220,200,.12);color:var(--teal);border:1px solid rgba(101,220,200,.5)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:16px 18px}
+.card.top{border-top:5px solid var(--gold)}
+.card h4{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;color:#fff}
+.card p{margin:0 0 8px;color:#cbd7df;font-size:13.5px}
+.verdict{border:1px solid var(--gold);border-radius:12px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 22px;margin:8px 0 0}
+.verdict h3{margin-top:0;color:var(--gold)}
+.email{background:#0a141d;border:1px solid var(--line);border-radius:8px;padding:16px 18px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:12.5px;color:#dde6ec;white-space:pre-wrap;line-height:1.55;margin:10px 0}
+.risk{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.risk .r{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px;border-top:4px solid var(--red)}
+.risk .r.med{border-top-color:var(--gold)}.risk .r.low{border-top-color:var(--green)}
+.risk h4{margin:0 0 6px;font-size:16px;color:#fff}.risk p{margin:0;color:#cbd7df;font-size:13.5px}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:160px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:16px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 4px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+ul.bullets{margin:8px 0 14px;padding-left:20px;color:#d4dee5;font-size:14px}
+ul.bullets li{margin:4px 0}
+.siblings{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.siblings a{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#0d1823;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:#d3dee5}
+.siblings a:hover{border-color:var(--gold);color:var(--gold)}
+@media(max-width:980px){
+  h1{font-size:40px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}.risk{grid-template-columns:1fr}.ladder{grid-template-columns:1fr 1fr}
+  .siblings{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">COS-12 · Samsung CTC-Spatial supplementary · 2026-05-14 · Seungho Cook</p>
+    <h1>Spatial transcriptomics vendor comparison — 6 platforms × 8 criteria.</h1>
+    <p class="lead">
+      Samsung CTC-Spatial Oncology FM 제안서의 <b>Aim 2 (tissue spatial transcriptomics)</b> 와 Aim 1 bridge(CTC cell-block spatial)에서 어떤 spatial platform이 fit인지 결정한다. 현 우리 evidence는 <b>10x Visium 기반</b> (GSE250521 · 16 slide · 57,144 spot, <span class="label fb">file</span>). 신규 platform 옵션: <b>Visium HD</b> (2×2 µm subcellular bin), <b>Curio Seeker</b> (single-cell beads), <b>NanoString GeoMx</b> (ROI), <b>CosMx</b> (6000-gene single-cell), <b>Vizgen MERSCOPE</b> (500-gene MERFISH single-cell). 이 페이지는 6개 platform × 8개 기준 매트릭스 + n=50 patient project cost + Korean access + outreach template을 제공한다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>6</b><span>spatial platforms</span><small>Visium · Visium HD · Curio · GeoMx · CosMx · MERSCOPE</small></div>
+      <div class="stat"><b>8</b><span>comparison criteria</span><small>resolution · WTA vs targeted · cost · KR · CTC fit · existing data · downstream · IP</small></div>
+      <div class="stat"><b>16/16</b><span>GSE250521 niche z>2</span><small>Visium baseline file-backed · same-niche coherence</small></div>
+      <div class="stat"><b>57,144</b><span>spots analyzed</span><small>4 conditions × 4 slides each</small></div>
+      <div class="stat"><b>$75-250K</b><span>n=50 project est.</span><small>Visium vs CosMx range</small></div>
+    </div>
+    <div class="legend" style="margin-top:14px">
+      <span><span class="label fb">file</span> repo data</span>
+      <span><span class="label lit">lit</span> peer-reviewed</span>
+      <span><span class="label ic">ic</span> internal claim</span>
+      <span><span class="label pp">pp</span> public proxy</span>
+      <span><span class="label hyp">hyp</span> hypothesis · ASK vendor</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#matrix">Vendor matrix</a>
+  <a class="primary" href="#res">Resolution</a>
+  <a class="primary" href="#wta">WTA vs targeted</a>
+  <a class="primary" href="#ctc">CTC pellet fit</a>
+  <a class="primary" href="#existing">Existing data</a>
+  <a href="#price">n=50 pricing</a>
+  <a href="#korea">Korean access</a>
+  <a href="#decision">Decision matrix</a>
+  <a href="#email">Outreach email</a>
+  <a href="#risk">Risk register</a>
+  <a href="#siblings">Sibling links</a>
+</div></nav>
+
+<main>
+
+<section id="overview">
+  <h2>1 · Hero — Spatial transcriptomics vendor comparison</h2>
+  <p class="sub">Samsung Aim 2 + Aim 1 bridge platform 결정용</p>
+  <div class="verdict">
+    <h3>Top-line recommendation (not yet locked)</h3>
+    <p><b>Primary lane</b>: 10x Visium HD (WTA + 2µm bins) <span class="label ic">ic</span> — GSE250521 Visium 기존 분석 호환 + sub-cellular resolution 으로 reviewer Q "single-cell이 아닌가?" 차단. <b>Selective deep lane</b>: NanoString GeoMx ROI — invasive front / TLS / niche-specific deep transcriptome. <b>CTC pellet lane (ASK)</b>: 모든 vendor에 cell-block FFPE compatibility 문의 필요 <span class="label hyp">hyp</span>. Visium FFPE Cytassist는 published <span class="label lit">lit</span> — cell-block 호환 가능성 가장 높음.</p>
+  </div>
+</section>
+
+<section id="matrix">
+  <h2>2 · Vendor matrix — 6 platforms × 8 criteria</h2>
+  <p class="sub">셀별 evidence label · vendor 답 필요 항목은 hypothesis</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Platform</th>
+        <th>Resolution</th>
+        <th>Gene panel</th>
+        <th>FFPE support</th>
+        <th>Cost/slide (est.)</th>
+        <th>Korean availability</th>
+        <th>CTC cell-block fit</th>
+        <th>Existing thyroid data</th>
+        <th>Downstream analysis</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>10x Visium (v2)</b></td>
+        <td>55 µm spots · ~5000/slide <span class="label lit">lit</span></td>
+        <td>Whole transcriptome (WTA) <span class="label lit">lit</span></td>
+        <td>FFPE Cytassist supported <span class="label lit">lit</span></td>
+        <td>~$1,500/slide <span class="label pp">pp</span></td>
+        <td>Macrogen · DNA Link · Theragen <span class="label pp">pp</span></td>
+        <td>Likely OK (Cytassist FFPE) <span class="label hyp">hyp</span></td>
+        <td><span class="label fb">file</span> GSE250521 16 slides — our baseline</td>
+        <td>Squidpy/Seurat/MOSCOT mature <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>10x Visium HD</b></td>
+        <td>2×2 µm bins (recommended 8/16µm) <span class="label lit">lit</span></td>
+        <td>WTA <span class="label lit">lit</span></td>
+        <td>FFPE supported <span class="label lit">lit</span></td>
+        <td>~$2,500/slide <span class="label pp">pp</span></td>
+        <td>Macrogen + DNA Link (newer) <span class="label hyp">hyp</span></td>
+        <td>Likely OK (FFPE compatible) <span class="label hyp">hyp</span></td>
+        <td>None for thyroid yet <span class="label hyp">hyp</span></td>
+        <td>10x SpaceRanger + HD bin tools <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>Curio Seeker</b></td>
+        <td>10 µm beads · ~1M beads/slide <span class="label lit">lit</span></td>
+        <td>WTA (Slide-seqV2 lineage) <span class="label lit">lit</span></td>
+        <td>Fresh-frozen primary <span class="label lit">lit</span></td>
+        <td>~$2,000/slide <span class="label pp">pp</span></td>
+        <td>Korean distributor TBD <span class="label hyp">hyp</span></td>
+        <td>Fresh-frozen — cell-block fit unclear <span class="label hyp">hyp</span></td>
+        <td>None for thyroid <span class="label hyp">hyp</span></td>
+        <td>Curio Trekker + Seurat <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>NanoString GeoMx DSP</b></td>
+        <td>User-defined ROI (50-600 µm) · aggregate <span class="label lit">lit</span></td>
+        <td>WTA panel (18,000+) or Cancer Transcriptome Atlas (1,800) <span class="label lit">lit</span></td>
+        <td>FFPE supported <span class="label lit">lit</span></td>
+        <td>~$3,000/slide <span class="label pp">pp</span></td>
+        <td>CJ Bio + Theragen Bio <span class="label pp">pp</span></td>
+        <td>Slide-based — cell-block OK <span class="label hyp">hyp</span></td>
+        <td>None thyroid; CRC/lung primary <span class="label lit">lit</span></td>
+        <td>NanoString DA + GeoScript <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>NanoString CosMx</b></td>
+        <td>Single-cell 200-500 nm <span class="label lit">lit</span></td>
+        <td>1000-6000 gene panel <span class="label lit">lit</span></td>
+        <td>FFPE supported <span class="label lit">lit</span></td>
+        <td>~$5,000/slide <span class="label pp">pp</span></td>
+        <td>NanoString Korea via CJ <span class="label hyp">hyp</span></td>
+        <td>FFPE — likely cell-block OK <span class="label hyp">hyp</span></td>
+        <td>None thyroid published yet <span class="label hyp">hyp</span></td>
+        <td>AtoMx + Squidpy <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>Vizgen MERSCOPE</b></td>
+        <td>Single-molecule single-cell <span class="label lit">lit</span></td>
+        <td>140-500 gene panel <span class="label lit">lit</span></td>
+        <td>Fresh-frozen primary; FFPE in dev <span class="label lit">lit</span></td>
+        <td>~$4,000/slide <span class="label pp">pp</span></td>
+        <td>Korean distributor TBD <span class="label hyp">hyp</span></td>
+        <td>Cell-block fit unclear <span class="label hyp">hyp</span></td>
+        <td>None thyroid <span class="label hyp">hyp</span></td>
+        <td>Vizgen software + Squidpy <span class="label lit">lit</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">Cost는 모두 <span class="label pp">pp</span> public proxy. 실측은 §9 outreach email 발송 후 confirm.</p>
+</section>
+
+<section id="res">
+  <h2>3 · Resolution comparison — what each platform actually measures</h2>
+  <p class="sub">spot vs bin vs single-cell vs ROI aggregate</p>
+  <table>
+    <thead>
+      <tr><th>Platform</th><th>Spatial unit</th><th>Unit size</th><th>Cells per unit (est.)</th><th>Pros</th><th>Cons</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Visium (v2)</td><td>Spot</td><td>55 µm</td><td>~3-30 (thyroid follicle scale)</td><td>WTA · mature pipeline</td><td>Sub-spot mixture</td></tr>
+      <tr><td>Visium HD</td><td>Bin (2×2 µm native)</td><td>2-16 µm</td><td>~1-3 (8µm bin)</td><td>WTA + subcellular bins</td><td>Sparser per-bin reads; newer pipeline</td></tr>
+      <tr><td>Curio Seeker</td><td>Bead</td><td>10 µm</td><td>~1-3</td><td>WTA · near single-cell</td><td>Fresh-frozen only · bead loss</td></tr>
+      <tr><td>GeoMx</td><td>User ROI</td><td>50-600 µm</td><td>10-1000</td><td>Targeted ROI selection · WTA panel</td><td>Aggregated · not per-cell</td></tr>
+      <tr><td>CosMx</td><td>Single cell (segmentation)</td><td>cell-level</td><td>1</td><td>True single-cell · 6000 genes</td><td>Cost · targeted panel · cell segmentation noise</td></tr>
+      <tr><td>MERSCOPE</td><td>Single molecule → cell</td><td>cell-level</td><td>1</td><td>True single-cell · single-molecule</td><td>500-gene cap · fresh-frozen primary</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="wta">
+  <h2>4 · Whole-transcriptome vs targeted — claim implication</h2>
+  <p class="sub">discovery 와 confirmation 의 axis</p>
+  <ul class="bullets">
+    <li><b>Visium / Visium HD / Curio</b> = WTA <span class="label lit">lit</span> — discovery-mode. 우리가 prespecify 안 한 gene도 retrieved. Reviewer Q "왜 그 panel인가?" 차단.</li>
+    <li><b>GeoMx WTA panel</b> = 18,000+ targeted but WTA-class panel <span class="label lit">lit</span> — ROI 별 deep coverage.</li>
+    <li><b>GeoMx CTA</b> = 1,800 gene panel <span class="label lit">lit</span> — cost-effective confirmation.</li>
+    <li><b>CosMx</b> = 1000-6000 gene panel <span class="label lit">lit</span> — single-cell ground truth.</li>
+    <li><b>MERSCOPE</b> = 140-500 gene <span class="label lit">lit</span> — depth + spatial precision, narrow panel.</li>
+  </ul>
+  <p class="note"><span class="label ic">ic</span> 우리 cohort는 <b>WTA primary + targeted confirmation</b> 조합이 최선. Visium HD WTA → discovery + CosMx single-cell → confirmation.</p>
+</section>
+
+<section id="ctc">
+  <h2>5 · CTC-pellet feasibility per vendor — hypothesis ladder</h2>
+  <p class="sub">cell-block FFPE on spatial platform — 모두 ASK</p>
+  <table>
+    <thead>
+      <tr><th>Platform</th><th>FFPE base assay</th><th>Cell-block FFPE 가능성</th><th>ASK item</th><th>Risk</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Visium FFPE Cytassist</td>
+        <td>Tissue FFPE 1cm² slide <span class="label lit">lit</span></td>
+        <td>Cell-block thin section 가능 추정 <span class="label hyp">hyp</span></td>
+        <td>Cell-block 최소 cell density · 최소 section area</td>
+        <td>Cell-block 보통 6mm² — Visium 1cm² 영역 미달 가능</td>
+      </tr>
+      <tr>
+        <td>Visium HD FFPE</td>
+        <td>FFPE 6.5×6.5mm <span class="label lit">lit</span></td>
+        <td>Cell-block fit 가능성 가장 높음 <span class="label hyp">hyp</span></td>
+        <td>Cell-block thin section integrity test</td>
+        <td>HD bin density 가 cell-block sparse area 에서 noisy</td>
+      </tr>
+      <tr>
+        <td>Curio Seeker</td>
+        <td>Fresh-frozen primary <span class="label lit">lit</span></td>
+        <td>FFPE cell-block 미지원 <span class="label lit">lit</span></td>
+        <td>Frozen CTC pellet workflow 존재?</td>
+        <td>Live CTC harvest → frozen pellet 매우 까다로움</td>
+      </tr>
+      <tr>
+        <td>GeoMx</td>
+        <td>FFPE supported <span class="label lit">lit</span></td>
+        <td>Cell-block ROI fit 가능 <span class="label hyp">hyp</span></td>
+        <td>Cell-block ROI 최소 cell count</td>
+        <td>ROI 당 cell이 5-10 미만이면 signal noisy</td>
+      </tr>
+      <tr>
+        <td>CosMx</td>
+        <td>FFPE supported <span class="label lit">lit</span></td>
+        <td>Cell-block fit 가능성 높음 <span class="label hyp">hyp</span></td>
+        <td>Cell-block 최소 area · density</td>
+        <td>Cost — n=50 CTC × cell-block은 budget bust</td>
+      </tr>
+      <tr>
+        <td>MERSCOPE</td>
+        <td>Fresh-frozen primary <span class="label lit">lit</span></td>
+        <td>FFPE cell-block 미지원 <span class="label hyp">hyp</span></td>
+        <td>FFPE roadmap</td>
+        <td>FFPE 미지원이면 우리 cohort 부적합</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="existing">
+  <h2>6 · Existing thyroid spatial data — what we already own</h2>
+  <p class="sub">file-backed pilot · proposal feasibility 근거</p>
+  <table>
+    <thead><tr><th>Dataset</th><th>Platform</th><th>N</th><th>Spots/cells</th><th>Conditions</th><th>Key finding</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>GSE250521 (Lu 2023)</td>
+        <td>10x Visium</td>
+        <td>16 slides</td>
+        <td>57,144 spots</td>
+        <td>Normal/PTC/LPTC/ATC each n=4</td>
+        <td>16/16 same-niche coherence z &gt; 2 (median 22.0, max 43.16)</td>
+        <td><span class="label fb">file</span> kthyro_public_pilot/results/spatial_pilot_v2</td>
+      </tr>
+      <tr>
+        <td>PantheonOS LPTC TLS (MOSCOT+Squidpy)</td>
+        <td>10x Visium (reanalysis)</td>
+        <td>16 slides</td>
+        <td>57,144 spots</td>
+        <td>Same as above</td>
+        <td>LPTC ligand-receptor peak ~2,512 sig LR; CXCL13↔CCR6/CCR7 TLS axis</td>
+        <td><span class="label fb">file</span> pantheonos_lptc_tls_finding_2026_05_08</td>
+      </tr>
+      <tr>
+        <td>Deconv v15 spatial K2 overlay</td>
+        <td>10x Visium</td>
+        <td>16 slides</td>
+        <td>Pooled tumor</td>
+        <td>Same</td>
+        <td>MAPK×Panel anti-correlation fails (raw +0.326 / partial +0.059); reviewer caveat</td>
+        <td><span class="label fb">file</span> deconv_v15-v18 spatial autopsy memos</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">우리는 이미 Visium ecosystem 안에서 작업 중 — Aim 2 spatial primary가 <b>Visium 계열</b>이면 분석 stack 재사용 가능. CosMx/MERSCOPE 으로 전환 시 pipeline 재구축 cost 있음.</p>
+</section>
+
+<section id="price">
+  <h2>7 · Pricing per n=50 patient project</h2>
+  <p class="sub">50 patients × 1 tissue slide each + selective CTC cell-block</p>
+  <table>
+    <thead>
+      <tr><th>Platform</th><th>Per slide</th><th>50 tissue slides</th><th>+ 20 CTC cell-block slides</th><th>+ analysis labor</th><th>Total est.</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Visium v2</td><td>$1,500 <span class="label pp">pp</span></td><td>$75K</td><td>$30K</td><td>$15K</td><td><b>$120K</b></td></tr>
+      <tr><td>Visium HD</td><td>$2,500 <span class="label pp">pp</span></td><td>$125K</td><td>$50K</td><td>$20K</td><td><b>$195K</b></td></tr>
+      <tr><td>Curio Seeker</td><td>$2,000 <span class="label pp">pp</span></td><td>$100K</td><td>N/A (fresh-frozen)</td><td>$15K</td><td><b>$115K</b></td></tr>
+      <tr><td>GeoMx WTA (ROI based)</td><td>$3,000 <span class="label pp">pp</span></td><td>$150K (selective)</td><td>$60K (selective)</td><td>$20K</td><td><b>$230K</b></td></tr>
+      <tr><td>CosMx 6K</td><td>$5,000 <span class="label pp">pp</span></td><td>$250K</td><td>$100K</td><td>$25K</td><td><b>$375K</b></td></tr>
+      <tr><td>MERSCOPE</td><td>$4,000 <span class="label pp">pp</span></td><td>$200K</td><td>N/A</td><td>$20K</td><td><b>$220K</b></td></tr>
+    </tbody>
+  </table>
+  <p class="note">Samsung 30억 spatial line 약 3.6억 KRW (~$270K) 범위. <b>Visium HD primary + GeoMx selective deep</b> 조합이 budget-fit. CosMx pure는 over-budget.</p>
+</section>
+
+<section id="korea">
+  <h2>8 · Korean availability — distributor / service map</h2>
+  <p class="sub">실제 ordering 경로</p>
+  <table>
+    <thead><tr><th>Platform</th><th>Korean service provider</th><th>Status</th><th>ASK</th></tr></thead>
+    <tbody>
+      <tr><td>Visium / Visium HD</td><td>Macrogen, DNA Link, Theragen Bio <span class="label pp">pp</span></td><td>Mature service; multiple Korean publications</td><td>HD pipeline 시작 여부, TAT</td></tr>
+      <tr><td>Curio Seeker</td><td>Korean distributor TBD <span class="label hyp">hyp</span></td><td>Likely direct Curio Bio US</td><td>한국 academic users, 단가</td></tr>
+      <tr><td>GeoMx</td><td>CJ Bio, Theragen Bio <span class="label pp">pp</span></td><td>Established service</td><td>WTA panel TAT, n=50 batch</td></tr>
+      <tr><td>CosMx</td><td>CJ Bio (NanoString Korea ally) <span class="label hyp">hyp</span></td><td>Newer; access TBD</td><td>한국 instrument 보유 lab, demo</td></tr>
+      <tr><td>MERSCOPE</td><td>Korean distributor TBD <span class="label hyp">hyp</span></td><td>Vizgen direct</td><td>한국 user, FFPE 일정</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="decision">
+  <h2>9 · Decision matrix — proposal Aim 2 spatial budget allocation</h2>
+  <p class="sub">primary lane + selective deep lane + CTC bridge</p>
+  <div class="cards">
+    <div class="card top">
+      <h4>Primary lane (recommended)</h4>
+      <p><b>Visium HD WTA</b> · 50 tissue slides · ~$195K</p>
+      <p><span class="label ic">ic</span> 우리 기존 Visium pipeline 호환 + 2µm bin으로 sub-cellular claim 가능 + WTA discovery 유지</p>
+    </div>
+    <div class="card">
+      <h4>Selective deep lane</h4>
+      <p><b>GeoMx ROI-WTA</b> · 10-15 selective cases (invasive front / TLS / niche) · ~$45K</p>
+      <p><span class="label ic">ic</span> Visium HD에서 뽑은 hot ROI를 GeoMx로 deep 시퀀싱</p>
+    </div>
+    <div class="card">
+      <h4>CTC cell-block bridge</h4>
+      <p><b>Visium HD on CTC cell-block</b> · 10-20 selected CTC pellets · ~$50K</p>
+      <p><span class="label hyp">hyp</span> cell-block FFPE 호환 ASK — Aim 1↔Aim 2 bridge proof-of-concept</p>
+    </div>
+  </div>
+  <p class="note" style="margin-top:14px"><b>Total spatial spend ≈ $290K / ~3.8억 KRW</b> — Samsung Aim 2 budget 범위 내. CosMx는 advisory deep dive only (1-2 slide pilot, $10K).</p>
+</section>
+
+<section id="email">
+  <h2>10 · Vendor outreach email template</h2>
+  <p class="sub">10x · NanoString · Curio · Vizgen 동시 발송</p>
+  <div class="email">Subject: Spatial transcriptomics quote — thyroid tissue + CTC cell-block (n=50, Samsung grant)
+
+Dear [Spatial Vendor Sales / Scientific Contact],
+
+I am a postdoctoral researcher (Seungho Cook) preparing a Samsung Future Technology Foundation grant (30억 KRW / 3 years):
+
+   "Serial Genetic Mapping of CTC-EMT State Transitions After Thyroidectomy in
+    Papillary Thyroid Cancer"
+
+We have an existing public Visium pilot (GSE250521, 16 slides, 57,144 spots,
+4 conditions) and are evaluating spatial platforms for Aim 2 (tissue spatial)
+and an Aim 1 bridge (CTC cell-block spatial). Technical questions:
+
+  1. Resolution and gene coverage
+     - Native unit and recommended bin / ROI / cell size for thyroid follicular
+       tissue.
+     - WTA vs targeted panel options; thyroid-specific panel availability.
+
+  2. FFPE support
+     - Confirmed FFPE protocol version.
+     - Minimum tissue area / cell density for reliable signal.
+     - Cell-block (cytology FFPE) compatibility — has anyone profiled CTC or
+       cytology cell-blocks?
+
+  3. Korean availability
+     - Korean service provider / distributor / closest demo instrument.
+     - Any Korean academic users we may consult.
+
+  4. Pricing
+     - Per-slide cost for academic research use.
+     - Quote for 50 tissue slides + 10-20 CTC cell-block slides.
+     - Volume discount / multi-year terms.
+
+  5. Turnaround
+     - Sample-in to data-out TAT per batch size 10, 25, 50.
+     - QC failure policy.
+
+  6. Downstream analysis
+     - Native software + interoperability with Squidpy / Seurat / Scanpy / MOSCOT.
+     - Per-cell or per-spot segmentation tools.
+
+  7. Data ownership / IP
+     - Raw image and sequencing data ownership.
+     - Publication acknowledgment.
+     - Cross-border data transfer for Korean samples.
+
+  8. Roadmap items relevant to our project
+     - New panels (thyroid / CTC specific).
+     - HD bin / single-cell improvements.
+
+We plan vendor decision within 4 weeks. Existing Visium-based analysis at
+http://40.82.129.113/spatial-full/ shows our team is operational on this stack.
+
+Best regards,
+Seungho Cook, PhD
+kukshomr@gmail.com</div>
+</section>
+
+<section id="risk">
+  <h2>11 · Risk register</h2>
+  <div class="risk">
+    <div class="r">
+      <h4>Cell-block FFPE incompatibility</h4>
+      <p><span class="label hyp">hyp</span> CTC cell-block이 너무 작거나 sparse → spatial signal 미달. <b>완화</b>: Stage 2 pilot에서 cell-block 1-2개 trial, fail시 GeoMx ROI 로 pivot.</p>
+    </div>
+    <div class="r med">
+      <h4>Cost overrun</h4>
+      <p><span class="label ic">ic</span> 실가격이 estimate 1.5×이면 slide 수 조정. CosMx 옵션은 budget bust 위험.</p>
+    </div>
+    <div class="r med">
+      <h4>Pipeline drift</h4>
+      <p><span class="label ic">ic</span> Visium HD 신규 pipeline — 3년간 software 변경. <b>완화</b>: 초기 version lock + reproducibility container.</p>
+    </div>
+    <div class="r">
+      <h4>Korean reg cross-border</h4>
+      <p><span class="label hyp">hyp</span> 일부 vendor 한국 데이터 해외 처리. <b>완화</b>: 가능한 한 Korean service provider 우선.</p>
+    </div>
+    <div class="r low">
+      <h4>WTA vs targeted mismatch</h4>
+      <p><span class="label ic">ic</span> Aim 2 가설이 명확하면 targeted (GeoMx CTA) 가 cost-effective. WTA primary + targeted confirmation 분리로 완화.</p>
+    </div>
+    <div class="r med">
+      <h4>Vendor termination</h4>
+      <p><span class="label ic">ic</span> 신생 platform (Curio, MERSCOPE) 의 비즈니스 risk. <b>완화</b>: primary lane은 mature platform(Visium HD)으로.</p>
+    </div>
+  </div>
+</section>
+
+<section id="deep">
+  <h2>12 · Deep-dive — per-platform reviewer dossier</h2>
+  <p class="sub">claim 가능 범위와 한계</p>
+  <h3>12.1 10x Visium v2 — 우리 baseline, FFPE Cytassist</h3>
+  <p><span class="label lit">lit</span> 55µm spot · 5,000 spot/slide · WTA · FFPE Cytassist. GSE250521 이 우리 baseline (<span class="label fb">file</span>). <b>Claim</b>: "tissue niche-level WTA". <b>Limit</b>: spot 안 cell mixture · sub-spot biology blind. <b>우리 cohort 사용</b>: 가장 cost-effective primary, 단 HD가 곧 표준.</p>
+  <h3>12.2 10x Visium HD — 2µm bins, FFPE</h3>
+  <p><span class="label lit">lit</span> 2×2µm native bin (보통 8/16µm), FFPE, WTA. Subcellular-class resolution + WTA. <b>Claim</b>: "near-single-cell WTA on FFPE". <b>Limit</b>: per-bin sparse reads · 신규 pipeline. <b>우리 cohort 사용</b>: <b>primary 권장</b> — claim ceiling 가장 높음.</p>
+  <h3>12.3 Curio Seeker — beads, fresh-frozen</h3>
+  <p><span class="label lit">lit</span> 10µm bead (Slide-seqV2 후속) · WTA · fresh-frozen primary. <b>Claim</b>: "single-cell scale WTA". <b>Limit</b>: fresh-frozen 만 — 우리 FFPE 갑상선 archive 비호환. <b>우리 cohort 사용</b>: not fit unless fresh-frozen workflow 도입.</p>
+  <h3>12.4 NanoString GeoMx DSP — ROI-based, WTA panel</h3>
+  <p><span class="label lit">lit</span> User ROI 50-600µm · WTA Atlas (18,000+ genes) 또는 CTA (1,800). FFPE supported. <b>Claim</b>: "ROI-specific deep transcriptome". <b>Limit</b>: ROI aggregate · not per-cell. <b>우리 cohort 사용</b>: invasive front / TLS / EMT niche deep dive에 최적.</p>
+  <h3>12.5 NanoString CosMx — single-cell, 6000 gene panel</h3>
+  <p><span class="label lit">lit</span> Single-cell · 1000-6000 gene panel · FFPE. <b>Claim</b>: "single-cell spatial transcriptome FFPE". <b>Limit</b>: 단가 · targeted panel · segmentation noise. <b>우리 cohort 사용</b>: 1-2 sample pilot으로 advisory deep only.</p>
+  <h3>12.6 Vizgen MERSCOPE — MERFISH 500-gene</h3>
+  <p><span class="label lit">lit</span> Single-molecule MERFISH · 140-500 gene · fresh-frozen primary. <b>Claim</b>: "true single-molecule single-cell". <b>Limit</b>: fresh-frozen · narrow panel. <b>우리 cohort 사용</b>: not fit unless FFPE roadmap delivers in time.</p>
+</section>
+
+<section id="evidence">
+  <h2>13 · Evidence label legend</h2>
+  <p class="sub">never fabricate · 모든 셀 labeled</p>
+  <table>
+    <thead><tr><th>Label</th><th>의미</th><th>이 페이지 사용 예</th></tr></thead>
+    <tbody>
+      <tr><td><span class="label fb">file</span></td><td>repo file-backed</td><td>GSE250521 16 slides 57,144 spots · PantheonOS LPTC TLS · deconv v15-v18</td></tr>
+      <tr><td><span class="label lit">lit</span></td><td>peer-reviewed literature</td><td>10x Visium HD, Curio, GeoMx, CosMx, MERSCOPE 기술 spec / FFPE 지원</td></tr>
+      <tr><td><span class="label ic">ic</span></td><td>internal claim</td><td>"Visium HD primary 권장" · "WTA discovery + targeted confirmation"</td></tr>
+      <tr><td><span class="label pp">pp</span></td><td>public proxy</td><td>vendor cost · Korean distributor (Macrogen/DNA Link/CJ Bio)</td></tr>
+      <tr><td><span class="label hyp">hyp</span></td><td>hypothesis · ASK</td><td>cell-block FFPE 호환 · 한국 distributor · CTC pellet workflow</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="claims">
+  <h2>15 · Claim ceiling per platform — reviewer defense</h2>
+  <p class="sub">platform 별 reviewer 가 받아들이는 claim 한계</p>
+  <table>
+    <thead>
+      <tr><th>Platform</th><th>Allowed claim</th><th>Forbidden claim</th><th>Required caveat</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Visium v2</td>
+        <td>"Niche-level WTA on thyroid tissue; same-niche coherence z &gt; 2"</td>
+        <td>"Single-cell resolution" / "per-cell phenotype"</td>
+        <td>Spot covers ~3-30 cells; sub-spot mixture explicitly acknowledged</td>
+      </tr>
+      <tr>
+        <td>Visium HD</td>
+        <td>"Sub-cellular bin WTA; near-single-cell resolution on FFPE"</td>
+        <td>"True single-cell" without segmentation</td>
+        <td>Bin sparsity at 2µm; 8/16µm bin used for analysis</td>
+      </tr>
+      <tr>
+        <td>Curio Seeker</td>
+        <td>"Bead-level near-single-cell WTA"</td>
+        <td>"FFPE compatible"</td>
+        <td>Fresh-frozen only; bead loss QC</td>
+      </tr>
+      <tr>
+        <td>GeoMx WTA</td>
+        <td>"ROI-aggregate deep WTA"</td>
+        <td>"Per-cell expression"</td>
+        <td>ROI-defined; aggregation explicit</td>
+      </tr>
+      <tr>
+        <td>CosMx 6K</td>
+        <td>"Single-cell spatial transcriptome FFPE for 6000 genes"</td>
+        <td>"Whole transcriptome"</td>
+        <td>Targeted panel; segmentation noise</td>
+      </tr>
+      <tr>
+        <td>MERSCOPE</td>
+        <td>"Single-molecule MERFISH for 500 genes"</td>
+        <td>"FFPE" / "whole transcriptome"</td>
+        <td>Fresh-frozen; narrow panel</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="ladder">
+  <h2>16 · Spatial decision ladder — 4 stages</h2>
+  <p class="sub">stage gate · vendor lock 시점 결정</p>
+  <div class="ladder">
+    <div class="rung">
+      <b>Stage 1 · 4 weeks</b>
+      <div class="n">1</div>
+      <h4>Outreach 4 platforms</h4>
+      <p>10x (Visium + HD), NanoString (GeoMx + CosMx), Curio, Vizgen 동시 contact. 응답 + 30분 call 4건.</p>
+    </div>
+    <div class="rung">
+      <b>Stage 2 · 6 weeks</b>
+      <div class="n">2</div>
+      <h4>FFPE pilot 2 slides</h4>
+      <p>Visium HD 1 slide + GeoMx 1 slide paid pilot. QC + cell-block compatibility 확인.</p>
+    </div>
+    <div class="rung">
+      <b>Stage 3 · 4 months</b>
+      <div class="n">3</div>
+      <h4>Primary lane lock</h4>
+      <p>Visium HD 50 tissue slides commit. GeoMx 15 selective deep commit.</p>
+    </div>
+    <div class="rung">
+      <b>Stage 4 · 12 months</b>
+      <div class="n">4</div>
+      <h4>CTC cell-block bridge</h4>
+      <p>10-20 CTC pellet cell-block → Visium HD. Aim 1↔Aim 2 bridge proof-of-concept.</p>
+    </div>
+  </div>
+</section>
+
+<section id="bridge">
+  <h2>17 · Aim 1↔Aim 2 bridge — CTC cell-block spatial proof-of-concept</h2>
+  <p class="sub">CTC enrichment vendor (COS-11) × spatial vendor (this page) 교차</p>
+  <p>제안서의 가장 differentiated claim 후보는 <b>"CTC enrichment → cell-block → spatial transcriptomics"</b> bridge. 이는 COS-11 vendor와 COS-12 vendor 의 두 단계 ASK 가 모두 필요하다.</p>
+  <table>
+    <thead>
+      <tr><th>Step</th><th>Vendor responsibility</th><th>Open question</th><th>Validation gate</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>① CTC enrichment</td>
+        <td>COS-11 vendor (Vortex / Parsortix / CytoTrack 등)</td>
+        <td>CTC harvest 후 cell pellet 의 morphology / live vs fixed</td>
+        <td>≥100 CTC per pellet · CD45-/PAX8+ confirmed</td>
+      </tr>
+      <tr>
+        <td>② Cell-block formation</td>
+        <td>Hospital pathology lab</td>
+        <td>Plasma+thrombin clot 또는 agarose embedding 적정 protocol</td>
+        <td>FFPE block + H&amp;E 에서 CTC visible</td>
+      </tr>
+      <tr>
+        <td>③ Cell-block sectioning</td>
+        <td>Pathology lab</td>
+        <td>Spatial assay 호환 두께 (5-10µm) · area</td>
+        <td>Section 위에서 PAX8/TG/EpCAM/VIM IHC 가능</td>
+      </tr>
+      <tr>
+        <td>④ Spatial assay</td>
+        <td>COS-12 vendor (Visium HD primary · GeoMx fallback)</td>
+        <td>Cell-block 최소 area / cell density 충족 여부</td>
+        <td>Vendor QC pass + per-cell transcript count ≥ vendor 기준</td>
+      </tr>
+      <tr>
+        <td>⑤ Per-CTC overlay</td>
+        <td>Our analysis</td>
+        <td>CTC ID → spatial spot → transcriptome matching</td>
+        <td>≥50% CTC mapped to spatial unit with ≥100 UMI</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note"><span class="label hyp">hyp</span> 이 5단계 ladder는 모두 <b>hypothesis</b>이고, Stage 2 pilot에서 가장 먼저 검증해야 한다. 실패 시 Aim 1↔Aim 2 bridge는 "literature-anchored" framing 으로 축소.</p>
+</section>
+
+<section id="boundaries">
+  <h2>18 · Claim boundary table — what spatial does NOT prove</h2>
+  <p class="sub">reviewer-defensible · honest framing</p>
+  <table>
+    <thead>
+      <tr><th>Spatial does prove</th><th>Spatial does NOT prove</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Tissue niche transcriptional state organization</td><td>CTC shedding causality</td></tr>
+      <tr><td>Where EMT / TLS / barrier states concentrate</td><td>Which spot becomes CTC source</td></tr>
+      <tr><td>Spatial correlation of state and morphology</td><td>Patient outcome prediction</td></tr>
+      <tr><td>WTA discovery of novel niche markers</td><td>Drug efficacy</td></tr>
+      <tr><td>Aim 1 marker logic (which proteins to phenotype on CTC)</td><td>CTC genotype identity</td></tr>
+      <tr><td>Cell-block CTC transcriptome IF feasibility gate passes</td><td>Population-level CTC biology generalization</td></tr>
+    </tbody>
+  </table>
+  <p class="note"><span class="label ic">ic</span> proposal 문장에서 spatial 결과는 <b>"tissue-state context that guides CTC phenotyping"</b>로 한정하고, "spatial proves CTC biology" 는 forbidden claim 으로 명시한다 (master pitch pack §10 Forbidden Claims 와 일치).</p>
+</section>
+
+<section id="siblings">
+  <h2>14 · Sibling links — Chief-of-Staff family</h2>
+  <p class="sub">cos_ supplementary + chief_of_staff core + yu_meeting + launchpad</p>
+  <div class="siblings">
+    <a href="chief_of_staff_00_package_index_2026_05_14.html">cos-00 · package index</a>
+    <a href="chief_of_staff_01_repo_audit_2026_05_14.html">cos-01 · repo audit</a>
+    <a href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html">cos-04 · DM1/DM2 signature</a>
+    <a href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html">cos-05 · Samsung proposal</a>
+    <a href="cos_11_ctc_enrichment_vendor_comparison_2026_05_14.html">cos-11 · CTC enrichment</a>
+    <a href="cos_12_spatial_vendor_comparison_2026_05_14.html" style="border-color:var(--gold);color:var(--gold)">cos-12 · THIS PAGE</a>
+    <a href="cos_13_foundation_model_literature_scan_2026_05_14.html">cos-13 · FM lit scan</a>
+    <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+    <a href="rehearsal_script_yu_meeting_2026_05_14.html">Rehearsal script</a>
+    <a href="yu_meeting_minutes_template_2026_05_14.html">Minutes template</a>
+    <a href="mega_launchpad_2026_05_14.html">Mega launchpad</a>
+    <a href="index.html">Hub home</a>
+  </div>
+  <p class="footer">COS-12 · Spatial transcriptomics vendor comparison · six platforms × eight criteria · thyroid + CTC bridge · 2026-05-14 · evidence-labeled · Seungho Cook</p>
+</section>
+
+</main>
+
+</body>
+</html>

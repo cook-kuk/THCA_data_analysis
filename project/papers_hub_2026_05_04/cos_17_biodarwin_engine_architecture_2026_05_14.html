@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Chief of Staff #17 · BioDarwin 엔진 아키텍처 — 자가진화 발견 루프 · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:58px;line-height:1.02;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:30px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.warn{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;position:relative;overflow:hidden}
+.card.gold{border-top:5px solid var(--gold)}
+.card.blue{border-top:5px solid var(--blue)}
+.card.green{border-top:5px solid var(--green)}
+.card.violet{border-top:5px solid var(--violet)}
+.card.teal{border-top:5px solid var(--teal)}
+.card.red{border-top:5px solid var(--red)}
+.card h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:#fff;line-height:1.1}
+.card .one{color:#d7e1e8;margin:0 0 10px;font-size:14.5px}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.tag.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:8px 0 12px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.bullets{margin:6px 0 12px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:800}
+.linkrow a{border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5}
+.linkrow a.gold{border-color:var(--gold);color:var(--gold)}
+.linkrow a.teal{border-color:var(--teal);color:var(--teal)}
+.label{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;margin-left:6px}
+.label.file-backed{border-color:rgba(147,226,170,.5);color:var(--green)}
+.label.internal-claim{border-color:rgba(255,210,138,.5);color:var(--gold)}
+.label.public-proxy{border-color:rgba(139,188,255,.5);color:var(--blue)}
+.label.literature{border-color:rgba(201,167,255,.5);color:var(--violet)}
+.label.hypothesis{border-color:rgba(255,138,107,.5);color:var(--red)}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:160px;position:relative}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:15px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.topo{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:14px 0 8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.topo .node{border:1px solid var(--line);border-radius:8px;padding:10px 6px;background:#0d1823;text-align:center;min-height:88px}
+.topo .node.feyn{border-top:5px solid var(--violet)}
+.topo .node.hyena{border-top:5px solid var(--gold)}
+.topo .node.fisher{border-top:5px solid var(--blue)}
+.topo .node.bayes{border-top:5px solid var(--teal)}
+.topo .node.curie{border-top:5px solid var(--red)}
+.topo .node.mendel{border-top:5px solid var(--green)}
+.topo .node.turing{border-top:5px solid #cdd5dc}
+.topo .node b{display:block;color:var(--gold);font-size:11px;letter-spacing:.04em;margin-bottom:4px}
+.topo .node small{display:block;color:var(--muted);font-size:10px;line-height:1.35}
+.flow{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;color:#d7e1e8;background:#0a1620;border:1px dashed var(--line);border-radius:8px;padding:14px 16px;margin:10px 0 14px;white-space:pre-wrap;line-height:1.6}
+.boxgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:8px 0 14px}
+.box{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:12px 14px;min-height:120px}
+.box b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.box p{margin:0;font-size:13px;color:#cbd7df}
+@media(max-width:980px){
+  h1{font-size:40px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}
+  .ladder{grid-template-columns:1fr 1fr}
+  .topo{grid-template-columns:repeat(2,1fr)}
+  .boxgrid{grid-template-columns:1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Chief of Staff · #17 · BioDarwin Engine Architecture · 2026-05-14</p>
+    <h1>BioDarwin — 자가진화 생의학 발견 엔진 (내부 코드명 전용)</h1>
+    <p class="lead"><b>BioDarwin</b>은 외부에 노출하지 않는 <b>내부 엔진 코드명</b>이다. 외부 브랜드는 <b>Lumenix</b>(빛 기반)이며, BioDarwin은 가설 생성 → 데이터 결합 → 통계 검정 → 인과 대비 → 검증 큐로 이어지는 5-stage <b>다윈식 자가진화 루프</b>를 7개 에이전트로 구현한다. 본 페이지는 그 루프의 토폴로지, 메모리/상태, 4개 트랙 통합, 그리고 <code>project/lumenix_*</code> 디렉터리와의 매핑을 정리한다. <span class="label internal-claim">internal claim</span></p>
+    <div class="stats">
+      <div class="stat"><b>5</b><span>loop stages</span><small>generation → bind → test → contrast → validate</small></div>
+      <div class="stat"><b>7</b><span>agents</span><small>BioFeynman/Mendel/Bayes/Curie/Fisher/Turing + DataHyena</small></div>
+      <div class="stat"><b>4</b><span>tracks</span><small>A DM1 paper · B CTC-Spatial · C 2D-to-3D · D brand</small></div>
+      <div class="stat"><b>3</b><span>repo dirs</span><small>lumenix_demo / lumenix_platform / lumenix_spark</small></div>
+      <div class="stat"><b>0</b><span>external usage</span><small>BioDarwin = 내부 전용. 외부엔 Lumenix만</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar">
+  <div class="row">
+    <a href="#hero" class="primary">#17 · BioDarwin engine</a>
+    <a href="#verdict">2 verdict</a>
+    <a href="#philosophy">3 philosophy</a>
+    <a href="#loop">4 loop</a>
+    <a href="#topology">5 topology</a>
+    <a href="#memory">6 memory</a>
+    <a href="#evolve">7 self-evolve</a>
+    <a href="#track-a">8 Track A</a>
+    <a href="#track-b">9 Track B</a>
+    <a href="#track-c">10 Track C</a>
+    <a href="#track-d">11 Track D</a>
+    <a href="#repo">12 repo map</a>
+    <a href="#repro">13 reproducibility</a>
+    <a href="#siblings">14 siblings</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="verdict">
+  <h2>2 · Verdict — BioDarwin = 내부 엔진명, 외부 브랜드 ≠ BioDarwin</h2>
+  <p class="sub">internal-claim · 외부 사용 금지 / 내부 코드 / 문서 전용</p>
+  <div class="decision">
+    <h3>판정</h3>
+    <p><b>BioDarwin</b>은 외부 marketing, pitch deck, paper byline, 도메인, 상표 출원에 사용하지 않는다. 외부 브랜드는 <b>Lumenix</b>(light-based) — <code>cos_19_lumenix_legal_ip_trademark_2026_05_14.html</code> 참조. 내부 문서·아키텍처 다이어그램·repo README 한정으로 <b>BioDarwin</b>은 "자가진화 발견 루프 엔진"을 지칭하는 코드명으로만 쓴다. 비유는 다윈(<i>variation · selection · heritability</i>)이며, AI 가설을 생물학적 진화 메커니즘에 빗대 표현한 것이지 다윈 가문/저작권/상표와 충돌하지 않는다. <span class="label internal-claim">internal claim</span></p>
+  </div>
+  <table>
+    <thead><tr><th>구분</th><th>외부 (Lumenix)</th><th>내부 (BioDarwin)</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>용도</td><td>회사/플랫폼 브랜드, 상표, 도메인, 논문 acknowledgements</td><td>엔진 코드명, 내부 아키텍처 문서, agents/luminescent loop 기술</td><td>cos_07 brand architecture <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>금지 영역</td><td>NA</td><td>외부 pitch, 도메인 등록, 상표 출원, paper title</td><td>본 페이지 §2 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>비유</td><td>빛 · 빛으로 보이지 않던 것을 보이게</td><td>다윈 · 가설들의 변이/선택/유전</td><td>§3 philosophy <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>식별자</td><td><code>lumenix</code> namespace</td><td><code>biodarwin/</code> internal package (예정)</td><td>repo 후속 작업 <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>법적 위험</td><td>상표 사전조사 필수</td><td>다윈 어휘는 generic, biotech class에 다수 사례</td><td>cos_19 §3 <span class="label public-proxy">public proxy</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="philosophy">
+  <h2>3 · Engine philosophy — variation × selection × heritability</h2>
+  <p class="sub">internal-claim · 다윈식 자가진화 루프를 생의학 가설 공간에 이식</p>
+  <p class="note">BioDarwin은 single-shot LLM이 "정답"을 한 번에 생성하는 모델이 아니다. 한 코호트의 가설이 다음 코호트로 <b>유전(heritable)</b>되고, 통계/인과/실험 게이트에서 <b>선택(selection)</b>되며, 실패한 가설은 사후 분석을 거쳐 <b>변이(variation)</b> 풀로 환원된다. 본 엔진의 자가진화 정당성은 다음 세 가지 다윈 공리에 기반한다. <span class="label internal-claim">internal claim</span></p>
+  <div class="boxgrid">
+    <div class="box"><b>Variation</b><p>BioFeynman이 매 사이클당 6–10개 가설 변이를 생성. SPARK 프레임워크의 idea generation cycle 구조와 동형. <span class="label public-proxy">public proxy</span></p></div>
+    <div class="box"><b>Selection</b><p>BioFisher (FDR · permutation · LOSO/LOTO) + BioBayes (인과 · 민감도 · E-value)가 가설 군집을 filtering. 통과한 것만 다음 세대에 진입. <span class="label file-backed">file-backed</span></p></div>
+    <div class="box"><b>Heritability</b><p>통과한 가설은 <code>memory/</code>의 claims registry에 기록되어 다음 분석 cycle의 prior로 재사용. v17→v18→v19 진화 계보 보존. <span class="label file-backed">file-backed</span></p></div>
+  </div>
+  <table>
+    <thead><tr><th>다윈 공리</th><th>BioDarwin 구현</th><th>실제 예시 (Paper 1)</th></tr></thead>
+    <tbody>
+      <tr><td>유전 (heritable)</td><td>claims registry → MEMORY.md index</td><td>v17 8-gene panel → v18 driver-exclusion audit로 계승 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>변이 (variation)</td><td>BioFeynman idea cycle · SPARK 4-cycle 구조</td><td>RAI panel × 100 random panel 비교 → curated panel 효과 검증 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>선택 (selection)</td><td>BioFisher · BioBayes 게이트</td><td>D4-P2 generalization · multivariate Cox HR=0.530 p=0.036 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>적응도 (fitness)</td><td>publication readiness · reviewer-survival</td><td>npj submission 후 reviewer Q1–Q14 통과 여부 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>종 분화 (speciation)</td><td>Track A/B/C/D 분기</td><td>DM1 paper → CTC-Spatial pivot → 2D-to-3D 확장 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>멸종 (extinction)</td><td>honest negatives wall</td><td>ResNet50 AUROC 0.51 · spatial v15 ρ=+0.326 폐기 <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="loop">
+  <h2>4 · Loop architecture — 5 stages</h2>
+  <p class="sub">internal-claim · generation → bind → test → contrast → validate, 실패는 variation pool로 환원</p>
+  <div class="ladder">
+    <div class="rung"><b>Stage 1</b><div class="n">01</div><h4>Hypothesis generation</h4><p>BioFeynman이 mechanism candidates 6–10개 변이 생성. SPARK idea cycle 4-pass.</p></div>
+    <div class="rung"><b>Stage 2</b><div class="n">02</div><h4>Data binding</h4><p>DataHyena가 GEO/cBioPortal/DepMap/ENA에서 검증 코호트 매칭. data_registry/manifests 갱신.</p></div>
+    <div class="rung"><b>Stage 3</b><div class="n">03</div><h4>Statistical test</h4><p>BioFisher가 FDR / permutation / LOTO 게이트 · BioMendel은 HLA/imputation contrasts 처리.</p></div>
+    <div class="rung"><b>Stage 4</b><div class="n">04</div><h4>Causal contrast</h4><p>BioBayes target trial emulation · doubly robust · E-value · tipping point.</p></div>
+    <div class="rung"><b>Stage 5</b><div class="n">05</div><h4>Validation queue</h4><p>BioCurie가 wet-lab 우선순위 · BioMendel(HLA cohort lock) · BioTuring(reproducibility audit).</p></div>
+  </div>
+  <div class="flow">[stage 1] BioFeynman ──hypotheses──▶ [stage 2] DataHyena ──cohorts──▶ [stage 3] BioFisher ──p, FDR──▶ [stage 4] BioBayes ──HR, E-value──▶ [stage 5] BioCurie + BioMendel ──assay/HLA──▶ ┐
+                                                                                                                                                                                                       │
+        ┌──── variation pool ◀── failed hypotheses ◀── honest negatives wall ◀── claims registry ◀── BioTuring (boundary audit, exit-0 gate) ◀────────────────────────────────────────────────────────┘</div>
+  <table>
+    <thead><tr><th>Stage</th><th>Owner</th><th>Input</th><th>Output</th><th>Pass criterion</th><th>Fail action</th></tr></thead>
+    <tbody>
+      <tr><td>1 · generation</td><td>BioFeynman</td><td>open question</td><td>6–10 hypotheses</td><td>≥3 testable</td><td>re-prompt with stricter scope <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>2 · binding</td><td>DataHyena</td><td>hypothesis list</td><td>cohort/dataset map</td><td>≥1 file-backed cohort</td><td>flag as hypothesis-only <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>3 · test</td><td>BioFisher</td><td>cohort + signature</td><td>p, FDR, effect size</td><td>FDR&lt;0.1 + LOTO sign-consistent</td><td>archive to negatives wall <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>4 · contrast</td><td>BioBayes</td><td>positive test</td><td>HR, E-value, posterior</td><td>E-value &gt;1.5 · tipping safe</td><td>downgrade to internal-claim <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>5 · validate</td><td>BioCurie + BioMendel</td><td>causal claim</td><td>assay plan or HLA lock</td><td>protocol + IRB ready</td><td>park to backlog <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>* · gate</td><td>BioTuring</td><td>any stage commit</td><td>boundary audit log</td><td>exit-0</td><td>block commit · CI fail <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="topology">
+  <h2>5 · Agent topology — 7 nodes, CSS-only diagram</h2>
+  <p class="sub">internal-claim · BioFeynman(생성) → DataHyena(데이터) → BioFisher(통계)/BioMendel(유전) → BioBayes(인과) → BioCurie(검증) | BioTuring은 모든 단계 audit</p>
+  <div class="topo">
+    <div class="node feyn"><b>BioFeynman</b><small>generative<br/>mechanism<br/>hypotheses</small></div>
+    <div class="node hyena"><b>DataHyena</b><small>cohort hunt<br/>GEO/ENA<br/>DepMap</small></div>
+    <div class="node fisher"><b>BioFisher</b><small>FDR<br/>permutation<br/>LOTO</small></div>
+    <div class="node mendel"><b>BioMendel</b><small>HLA<br/>imputation<br/>inheritance</small></div>
+    <div class="node bayes"><b>BioBayes</b><small>target trial<br/>E-value<br/>posterior</small></div>
+    <div class="node curie"><b>BioCurie</b><small>wet-lab<br/>assay design<br/>IRB</small></div>
+    <div class="node turing"><b>BioTuring</b><small>CI/CD<br/>boundary audit<br/>reproducibility</small></div>
+  </div>
+  <div class="flow">          generate ───────────► bind ─────────► test ─────► contrast ─────► validate
+          BioFeynman           DataHyena         BioFisher   BioBayes        BioCurie
+                                                 BioMendel                   BioMendel
+                  ▲                                                                │
+                  │                                                                ▼
+                  └────────── variation pool ◀────── claims registry ◀───── BioTuring (audit)</div>
+  <table>
+    <thead><tr><th>From</th><th>To</th><th>Payload</th><th>Channel</th><th>Storage</th></tr></thead>
+    <tbody>
+      <tr><td>BioFeynman</td><td>DataHyena</td><td>hypothesis cards</td><td>JSON · idea_cards.json</td><td>lumenix_spark/spark_dm_evidence.json <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>DataHyena</td><td>BioFisher · BioMendel</td><td>cohort manifests</td><td>CSV · master_dataset_catalog</td><td>data_registry/manifests/ <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioFisher</td><td>BioBayes</td><td>p, FDR, d, HR</td><td>TSV · per-test</td><td>project/results/ <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioMendel</td><td>BioBayes</td><td>HLA freq · imputation</td><td>JSON · genotype</td><td>arcasHLA / GSE213647 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioBayes</td><td>BioCurie</td><td>causal claim</td><td>memo · MD</td><td>cos_05 CTC-Spatial proposal <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioCurie</td><td>BioMendel</td><td>cohort lock req</td><td>memo</td><td>cohort agreements <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>BioTuring</td><td>모든 노드</td><td>boundary audit log</td><td>CLI · exit-0 gate</td><td>scripts/boundary_audit/ <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>negatives wall</td><td>BioFeynman</td><td>failure priors</td><td>memory MD</td><td>~/.claude/memory/ <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="memory">
+  <h2>6 · Memory &amp; state — claims registry · negatives wall · evidence labels · boundary audit</h2>
+  <p class="sub">file-backed · 영속 메모리(persistent memory)와 트랙별 상태 머신</p>
+  <p class="note">BioDarwin의 자가진화 동력은 "메모리"다. 모든 통과한 claim은 다음 cycle의 prior로 작동하며, 실패는 negatives wall로 영구 기록되어 동일 변이의 재시도를 차단한다. <span class="label file-backed">file-backed</span></p>
+  <table>
+    <thead><tr><th>Store</th><th>역할</th><th>경로</th><th>현재 상태</th></tr></thead>
+    <tbody>
+      <tr><td>Claims registry</td><td>통과한 claim과 evidence label 보존</td><td><code>memory/MEMORY.md</code> + topic .md</td><td>v17–v19 약 60 entry <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Honest negatives wall</td><td>폐기된 가설/접근 기록</td><td>memory + dossier 페이지 §honest caveats</td><td>ResNet50 chance · spatial v15 pos ρ <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Evidence labels</td><td>file-backed · internal-claim · public-proxy · literature · hypothesis</td><td>HTML 페이지 inline label</td><td>모든 cos_* 페이지 적용 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>Boundary audit</td><td>zone 누출 차단 (paper1↔hla↔autoimmune)</td><td>scripts/boundary_audit/</td><td>commit 전 exit-0 필수 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Data registry</td><td>358–386 dataset · 5 zone</td><td>data_registry/manifests/master_dataset_catalog.csv</td><td>cos_02 참조 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Track state machine</td><td>Track A/B/C/D 진행 상태</td><td>HANDOFF_2026_05_09.md + cos_04</td><td>A=ship · B=pitch · C=plan · D=brand <span class="label internal-claim">internal claim</span></td></tr>
+    </tbody>
+  </table>
+  <div class="boxgrid">
+    <div class="box"><b>State · Track A</b><p>Manuscript v8 marathon mode. signature locked = DM1; voice-protected sections author-keyboard only.</p></div>
+    <div class="box"><b>State · Track B</b><p>Samsung CTC-Spatial 30억 pitch (cos_05). agent ensemble = 7개 모두 활용 예정.</p></div>
+    <div class="box"><b>State · Track C</b><p>2D→3D extension. BioCurie + BioFeynman 비중 상승 (organoid · spatial-volumetric).</p></div>
+  </div>
+</section>
+
+<section id="evolve">
+  <h2>7 · Self-evolving aspect — 실패가 다음 변이의 prior가 된다</h2>
+  <p class="sub">internal-claim · meta-learning over claim space, 폐기된 가설은 reframing되어 새 트랙으로 진입</p>
+  <p class="note">BioDarwin의 자가진화는 "실패한 가설 → 새로운 objective"의 transition으로 작동한다. 다음 두 사례는 실제 repo 안에서 일어난 변이/선택 다이내믹스를 보여준다. <span class="label file-backed">file-backed</span></p>
+  <table>
+    <thead><tr><th>Cycle</th><th>실패한 가설</th><th>폐기 근거</th><th>변이 (새 objective)</th><th>다음 트랙</th></tr></thead>
+    <tbody>
+      <tr><td>2026-05-04 closure battery</td><td>image-DM1 = direct prediction</td><td>D=폐기, 학습신호 부족</td><td>prediction → reconstruction objective shift</td><td>Track C (2D→3D) <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>2026-05-08 Phase A</td><td>ResNet50 H&amp;E → DM1/DM2</td><td>AUROC 0.51 (chance)</td><td>foundation model upgrade (UNI/DINOv2)</td><td>Pod DM Phase B <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>2026-05-09 deconv v15</td><td>spatial MAPK × Panel anti-corr</td><td>pooled ρ=+0.326 (sign flip)</td><td>reviewer caveat / 검토 reserve</td><td>cos_04 caveat lane <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>2026-04-29 K2 STAR</td><td>K2 cohort full-mRNA re-align</td><td>/tmp overflow · 9hr · sunk cost</td><td>tmpdir + compress convention</td><td>Pod 운영 룰 lock <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>2026-05-10 method-matrix stacker</td><td>cross-neo stacker AUPRC 향상</td><td>best OOF AUPRC ~0.323 (악화)</td><td>score-booster calibration 단순화</td><td>cross-neo v8 finetune <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>2026-05-04 paper2 framing</td><td>GD comparator 1차</td><td>Yu meeting feedback</td><td>HT-isolated PTC re-frame</td><td>v18 paper2 lock <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="track-a">
+  <h2>8 · Track A integration — DM1 paper · BioFisher × BioBayes × DataHyena</h2>
+  <p class="sub">file-backed · 8-gene panel + DM1 dark-matter signature paper</p>
+  <p class="note">Paper 1 (DM1 dark matter / 8-gene panel / fusion-driven thyroid dedifferentiation)은 BioDarwin 루프 중 stage 3·4가 결정적. BioFeynman은 마라톤 모드에서 보조적 역할이며, voice-protected section은 사람 키보드 전용. <span class="label file-backed">file-backed</span></p>
+  <table>
+    <thead><tr><th>분석 산출물</th><th>주도 agent</th><th>경로</th><th>현재 상태</th></tr></thead>
+    <tbody>
+      <tr><td>8-gene panel 잠금</td><td>BioFisher</td><td>project/results/ + manuscript_v8/</td><td>signature locked <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>TERT promoter OS HR</td><td>BioBayes</td><td>v17_tert_recovery_v2</td><td>HR 4.33 · p=4.9e-6 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>코호트 정렬 (TCGA + Lee + Mun + K2)</td><td>DataHyena</td><td>master_dataset_catalog.csv</td><td>3–4 코호트 sign-consistent <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>boundary audit (paper1 zone)</td><td>BioTuring</td><td>scripts/boundary_audit/audit_paper1_no_hla_contamination.py</td><td>exit-0 gate <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>HM450 methylation polarity</td><td>BioMendel + BioFisher</td><td>dm1_round4_2026_05_08</td><td>polarity corrected <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>multivariate Cox DSS</td><td>BioBayes</td><td>spark_dm_paper_report</td><td>M1/M2 HR=0.530 p=0.036 <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="track-b">
+  <h2>9 · Track B integration — Samsung CTC-Spatial · 모든 7 agent</h2>
+  <p class="sub">internal-claim · cos_05 pitch deck 와 동기화</p>
+  <p class="note">Samsung Future Tech (30억 규모, hypothetical scale) CTC-Spatial pitch는 BioDarwin 루프 7-agent 전부를 1프로젝트에서 결합하는 첫 사례다. <span class="label internal-claim">internal claim</span></p>
+  <table>
+    <thead><tr><th>Pillar</th><th>리딩 agent</th><th>지원 agent</th><th>증거 라벨</th></tr></thead>
+    <tbody>
+      <tr><td>CTC enrichment 전략</td><td>BioCurie</td><td>BioFeynman (mechanism)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>EMT signature 정의</td><td>BioFeynman</td><td>BioFisher</td><td><span class="label public-proxy">public proxy</span></td></tr>
+      <tr><td>Spatial Visium bridge</td><td>DataHyena</td><td>BioFisher</td><td>GSE250521 16-slide <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>HLA presentation lock</td><td>BioMendel</td><td>BioBayes</td><td>arcasHLA K2 n=260 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>multivariate adjustment</td><td>BioBayes</td><td>BioFisher</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>boundary audit · reproducibility</td><td>BioTuring</td><td>전체</td><td><span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>IRB · cohort 협의</td><td>BioCurie</td><td>BioMendel</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="track-c">
+  <h2>10 · Track C integration — 2D→3D · BioCurie + BioFeynman</h2>
+  <p class="sub">internal-claim · spatial-volumetric / organoid / patient-derived tissue geometry</p>
+  <p class="note">Track C는 image-DM1 closure battery에서 D=폐기된 prediction objective를 reconstruction objective로 전환한 결과. tissue geometry (2D Visium → 3D volumetric reconstruction)는 BioFeynman의 path-integral 비유와 결합되어 새로운 작업 가설을 생성한다. <span class="label internal-claim">internal claim</span></p>
+  <table>
+    <thead><tr><th>모듈</th><th>주도 agent</th><th>예시 작업</th><th>현재 상태</th></tr></thead>
+    <tbody>
+      <tr><td>Organoid assay</td><td>BioCurie</td><td>protocol draft · IRB · 시약 list</td><td>scaffolding <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>3D tissue mechanism</td><td>BioFeynman</td><td>diffusion / Wnt gradient / ECM stiffness</td><td>idea generation <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>2D ST + 3D registration</td><td>DataHyena + BioFeynman</td><td>visium serial section stack</td><td>plan <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>statistical baseline</td><td>BioFisher</td><td>per-z-axis effect size</td><td>plan <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>HLA per-section</td><td>BioMendel</td><td>per slide HLA imputation</td><td>plan <span class="label hypothesis">hypothesis</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="track-d">
+  <h2>11 · Track D integration — Brand 엔진 wrapper</h2>
+  <p class="sub">internal-claim · Lumenix brand = BioDarwin engine wrapper, 별도 agent 아님</p>
+  <p class="note">Track D (brand)는 BioDarwin agent topology 외부에 존재하는 wrapping layer다. 즉 Lumenix 브랜드는 "engine을 외부에 어떻게 표현할 것인가"의 문제이며, 7 agent 중 어디에도 속하지 않고 chief-of-staff 레벨에서 관리한다. <span class="label internal-claim">internal claim</span></p>
+  <table>
+    <thead><tr><th>Brand element</th><th>responsible</th><th>artifact</th><th>경로</th></tr></thead>
+    <tbody>
+      <tr><td>brand architecture</td><td>chief of staff</td><td>cos_07</td><td>papers_hub_2026_05_04/ <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>legal / IP / trademark</td><td>chief of staff</td><td>cos_19</td><td>papers_hub_2026_05_04/ <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>engine architecture (internal)</td><td>chief of staff</td><td>cos_17 (본 문서)</td><td>papers_hub_2026_05_04/ <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>agent 7-namespace</td><td>chief of staff</td><td>cos_18</td><td>papers_hub_2026_05_04/ <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>public demo</td><td>BioFeynman (engine)</td><td>lumenix_spark/dm_idea_generator.html</td><td>repo <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>landing page</td><td>chief of staff</td><td>lumenix_platform/index.html</td><td>repo <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="repo">
+  <h2>12 · Code repo mapping — lumenix_demo · lumenix_platform · lumenix_spark</h2>
+  <p class="sub">file-backed · 현재 3 디렉터리, BioDarwin 엔진은 점차 이들을 consolidate</p>
+  <p class="note">현재 repo는 세 디렉터리로 분기돼 있다. BioDarwin 엔진이 안정화되면 <code>biodarwin/</code> 단일 패키지로 consolidate하는 것이 목표다 (목표일 미정). <span class="label file-backed">file-backed</span></p>
+  <table>
+    <thead><tr><th>디렉터리</th><th>현재 내용</th><th>BioDarwin 매핑</th><th>주도 agent</th></tr></thead>
+    <tbody>
+      <tr><td><code>project/lumenix_demo/</code></td><td><code>build_demo_data.py</code> · <code>run_lumenix_demo.py</code> · <code>output/</code></td><td>stage 1·5 demo harness · BioFeynman idea cycle 시연</td><td>BioFeynman <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><code>project/lumenix_platform/</code></td><td><code>index.html</code> (landing page)</td><td>외부 wrapper · brand 표면</td><td>Track D <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><code>project/lumenix_spark/</code></td><td>SPARK_DM_FULL_FLOW.md · PAPER_DRAFT_OUTLINE.md · dm_idea_generator.html · spark_dm_evidence.json · spark_dm_paper_report.html</td><td>stage 1 idea generation + stage 3 paper report</td><td>BioFeynman + BioFisher <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><code>scripts/boundary_audit/</code></td><td><code>audit_paper1_no_hla_contamination.py</code> 등 zone audit</td><td>BioTuring · exit-0 gate</td><td>BioTuring <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><code>data_registry/manifests/</code></td><td>master_dataset_catalog.csv · zone manifests</td><td>DataHyena 카탈로그</td><td>DataHyena <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><code>project/results/v17_korean/arcasHLA/</code></td><td>K2 n=260 HLA genotype</td><td>BioMendel 산출물</td><td>BioMendel <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><code>project/manuscript_v8/</code></td><td>Paper 1 본문 + figures + reviewer QA</td><td>stage 5 publication readiness</td><td>BioCurie + chief of staff <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><code>kthyro_ctc_emt_samsung_proposal/</code></td><td>Samsung pitch package</td><td>Track B integration</td><td>BioCurie + 전체 <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="repro">
+  <h2>13 · Reproducibility — 모든 BioDarwin claim은 file + zone + label로 추적</h2>
+  <p class="sub">file-backed · boundary audit exit-0 필수, claim마다 evidence label 표시</p>
+  <p class="note">BioDarwin이 자가진화하면서도 "헛소리 진화"가 되지 않으려면, 모든 claim은 (a) 출처 파일, (b) zone 경계, (c) evidence label 세 가지가 명시되어야 한다. <span class="label file-backed">file-backed</span></p>
+  <table>
+    <thead><tr><th>요건</th><th>실제 구현</th><th>검증 방법</th></tr></thead>
+    <tbody>
+      <tr><td>모든 claim → file 추적</td><td>HTML inline에 <code>경로/.tsv</code> 또는 memory MD 경로 표시</td><td>grep + 수동 spot-check <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>zone 경계 보존</td><td>paper1 / paper2 / paper3 / Korean_K2 / open_data 5 zone manifest</td><td>boundary_audit/*.py exit-0 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>evidence label 5종</td><td>file-backed / internal-claim / public-proxy / literature / hypothesis</td><td>HTML class .label.* lint <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>negatives wall 보존</td><td>honest caveats 인라인 + memory MD 별도</td><td>dossier 페이지 패턴 (validated) <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>cohort version pin</td><td>data_registry/manifests/ + GEO/cBio 버전</td><td>master_dataset_catalog.csv <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>RunPod ephemeral 차단</td><td>--tmpdir /workspace/_tmp --compress · /data 마운트</td><td>CLAUDE.md / AGENTS.md <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>commit 게이트</td><td>pre-commit hook · boundary audit</td><td>실패 시 fix → new commit <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>voice-protected section</td><td>Hook · Aim · §3.1 · Limitations · Cover ¶1 · Q9</td><td>author keyboard only · AI 금지 <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+  <div class="decision">
+    <h3>한 줄</h3>
+    <p>BioDarwin은 "self-evolving"하지만 모든 변이는 file + zone + label로 봉인된다. 메모리 없는 자가진화는 hallucination이다. <span class="label internal-claim">internal claim</span></p>
+  </div>
+</section>
+
+<section id="siblings">
+  <h2>14 · Sibling pages</h2>
+  <p class="sub">chief_of_staff family 00–19 · yu_meeting · mega_launchpad · index</p>
+  <div class="linkrow">
+    <a href="index.html" class="gold">papers_hub index</a>
+    <a href="chief_of_staff_00_package_index_2026_05_14.html">#00 package index</a>
+    <a href="chief_of_staff_01_repo_audit_2026_05_14.html">#01 repo audit</a>
+    <a href="chief_of_staff_02_data_evidence_registry_2026_05_14.html">#02 data registry</a>
+    <a href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html">#04 DM1/DM2 decision</a>
+    <a href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html">#05 Samsung CTC-Spatial</a>
+    <a href="chief_of_staff_07_brand_architecture_lumenix_biodarwin_2026_05_14.html" class="teal">#07 brand architecture</a>
+    <a href="cos_17_biodarwin_engine_architecture_2026_05_14.html" class="gold">#17 BioDarwin engine (이 페이지)</a>
+    <a href="cos_18_seven_agent_deep_dives_2026_05_14.html">#18 7 agent deep dives</a>
+    <a href="cos_19_lumenix_legal_ip_trademark_2026_05_14.html">#19 Lumenix legal/IP</a>
+    <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+    <a href="rehearsal_script_yu_meeting_2026_05_14.html">Yu meeting rehearsal</a>
+    <a href="yu_meeting_minutes_template_2026_05_14.html">Yu meeting minutes</a>
+    <a href="mega_launchpad_2026_05_14.html">Mega launchpad</a>
+  </div>
+  <p class="footer">cos_17_biodarwin_engine_architecture_2026_05_14.html · BioDarwin internal engine codename · 본 문서 외부 유출 금지. Track D 외부 노출은 Lumenix 브랜드로만 진행. evidence label scheme: file-backed / internal-claim / public-proxy / literature / hypothesis. <br/>이 페이지의 trademark/legal-adjacent 표현은 informational only, not legal advice — cos_19 참조.</p>
+</section>
+
+</main>
+</body>
+</html>

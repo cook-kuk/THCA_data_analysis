@@ -1,0 +1,495 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CROSS-Neo Assay Feedback Loop</title>
+<style>
+body{margin:0;background:#07111f;color:#edf5ff;font-family:Inter,Arial,sans-serif;line-height:1.55}
+a{color:#39d4b5;text-decoration:none} header{padding:40px 30px;background:#0f2035;border-bottom:1px solid #26364d}
+.wrap{max-width:1360px;margin:0 auto;padding:24px 30px 70px} h1{font-family:Georgia,serif;font-size:44px;margin:0;color:#fff8e8}
+h2{font-family:Georgia,serif;color:#fff2d0} .lead,.muted{color:#aebdd1} section{border-bottom:1px solid #26364d;padding:22px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:18px} .stat{background:#101d30;border:1px solid #293b55;border-radius:8px;padding:12px}
+.stat b{display:block;color:#f2c46d;font-size:26px} table{border-collapse:collapse;width:100%;font-size:12px} th,td{border:1px solid #293b55;padding:7px;vertical-align:top} th{background:#13243a;color:#f2c46d}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px} article{background:#101d30;border:1px solid #293b55;border-radius:8px;padding:13px} img{width:100%;background:white;border-radius:6px}
+.ok{border-left:4px solid #39d4b5;background:#111d2e;padding:12px 14px} .warn{border-left:4px solid #ff7b72;background:#111d2e;padding:12px 14px}
+.links{display:flex;flex-wrap:wrap;gap:10px} .pill{border:1px solid #395170;border-radius:999px;padding:7px 10px;background:#101d30}
+@media(max-width:900px){.grid2{grid-template-columns:1fr} h1{font-size:32px}}
+</style></head><body>
+<header><div class="wrap">
+<h1>CROSS-Neo Assay Feedback Loop</h1>
+<p class="lead">Closed-loop data-driven neoantigen triage: model prior -> WT/decoy assay rows -> posterior readiness -> claim state -> next experiment.</p>
+<div class="stats">
+<div class="stat"><b>13</b><span>candidate rows</span></div>
+<div class="stat"><b>0</b><span>real assay summaries</span></div>
+<div class="stat"><b>1</b><span>claim states</span></div>
+<div class="stat"><b>13</b><span>next experiment rows</span></div>
+</div></div></header>
+<main class="wrap">
+<section><h2>Decision</h2>
+<div class="ok">The loop is now operational. Add real rows to <code>/home/seungho/personal/THCA_data_analysis/project/data/cross_neo_assay_feedback/assay_feedback.tsv</code>, rerun the script, and the posterior/claim/next-experiment tables update automatically.</div>
+<div class="warn">Blank templates are never treated as labels. The posterior is a decision-support readiness score, not a clinical or universal immunogenicity probability.</div>
+<div class="links">
+<a class="pill" href="assets/cross_neo_md_audit/ASSAY_FEEDBACK_LEARNER_REPORT.md">Full report</a>
+<a class="pill" href="assets/cross_neo_md_audit/ASSAY_FEEDBACK_ONE_PAGE_KR.md">Korean brief</a>
+<a class="pill" href="assets/cross_neo_md_audit/assay_feedback_template.tsv">assay feedback template</a>
+<a class="pill" href="cross_neo_assay_feedback_scenarios.html">what-if scenario simulator</a>
+<a class="pill" href="cross_neo_physics_gate.html">physics gate</a>
+<a class="pill" href="cross_neo_high_impact_decision.html">high-impact decision page</a>
+</div></section>
+<section><h2>Figures</h2><div class="grid2">
+        <article>
+          <img src="assets/cross_neo_md_audit/fig_md56_assay_feedback_closed_loop.png" alt="Closed Loop">
+          <h3>Closed Loop</h3>
+          <p>How CROSS-Neo priors, assay rows, posterior updates, and next experiments connect.</p>
+          <a href="assets/cross_neo_md_audit/fig_md56_assay_feedback_closed_loop.png">PNG</a>
+          <a href="assets/cross_neo_md_audit/fig_md56_assay_feedback_closed_loop.pdf">PDF</a>
+        </article>
+        
+
+        <article>
+          <img src="assets/cross_neo_md_audit/fig_md57_prior_posterior_update.png" alt="Prior-To-Posterior">
+          <h3>Prior-To-Posterior</h3>
+          <p>Candidate readiness before and after available assay evidence.</p>
+          <a href="assets/cross_neo_md_audit/fig_md57_prior_posterior_update.png">PNG</a>
+          <a href="assets/cross_neo_md_audit/fig_md57_prior_posterior_update.pdf">PDF</a>
+        </article>
+        
+
+        <article>
+          <img src="assets/cross_neo_md_audit/fig_md58_active_learning_queue.png" alt="Next Experiment Queue">
+          <h3>Next Experiment Queue</h3>
+          <p>Which assay should be run next for each candidate.</p>
+          <a href="assets/cross_neo_md_audit/fig_md58_active_learning_queue.png">PNG</a>
+          <a href="assets/cross_neo_md_audit/fig_md58_active_learning_queue.pdf">PDF</a>
+        </article>
+        
+
+        <article>
+          <img src="assets/cross_neo_md_audit/fig_md59_claim_state_distribution.png" alt="Claim State">
+          <h3>Claim State</h3>
+          <p>Current allowed claim state across candidates.</p>
+          <a href="assets/cross_neo_md_audit/fig_md59_claim_state_distribution.png">PNG</a>
+          <a href="assets/cross_neo_md_audit/fig_md59_claim_state_distribution.pdf">PDF</a>
+        </article>
+        </div></section>
+<section><h2>Posterior Updates</h2><table><thead><tr>
+<th>row id</th>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>prior cross neo i readiness</th>
+<th>posterior immunogenicity readiness</th>
+<th>posterior uncertainty</th>
+<th>assay rows observed</th>
+<th>claim state</th>
+<th>next experiment</th>
+<th>active learning utility</th>
+</tr></thead><tbody>
+<tr>
+<td>CNV0_01132</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>0.611</td>
+<td>0.583</td>
+<td>0.243</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>1.104</td>
+</tr>
+<tr>
+<td>CNV0_01151</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>0.606</td>
+<td>0.579</td>
+<td>0.244</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>1.100</td>
+</tr>
+<tr>
+<td>CNV0_02398</td>
+<td>KLILWRGLK</td>
+<td>HLA-A*03:01</td>
+<td>0.269</td>
+<td>0.327</td>
+<td>0.220</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.739</td>
+</tr>
+<tr>
+<td>CNV0_02448</td>
+<td>ILDKVLVHL</td>
+<td>HLA-A*02:01</td>
+<td>0.261</td>
+<td>0.320</td>
+<td>0.218</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.728</td>
+</tr>
+<tr>
+<td>CNV0_02478</td>
+<td>YVDFREYEYY</td>
+<td>HLA-A*01:01</td>
+<td>0.225</td>
+<td>0.293</td>
+<td>0.207</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.682</td>
+</tr>
+<tr>
+<td>CNV0_01118</td>
+<td>GADGVGKSA</td>
+<td>HLA-C*08:02</td>
+<td>0.219</td>
+<td>0.289</td>
+<td>0.205</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.674</td>
+</tr>
+<tr>
+<td>CNV0_01439</td>
+<td>SYLDSGIHF</td>
+<td>HLA-A*24:02</td>
+<td>0.202</td>
+<td>0.277</td>
+<td>0.200</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.652</td>
+</tr>
+<tr>
+<td>CNV0_02479</td>
+<td>ILDTAGREEY</td>
+<td>HLA-A*01:01</td>
+<td>0.200</td>
+<td>0.275</td>
+<td>0.199</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.649</td>
+</tr>
+<tr>
+<td>CNV0_01044</td>
+<td>ALDPHSGHFV</td>
+<td>HLA-A*02:01</td>
+<td>0.177</td>
+<td>0.258</td>
+<td>0.191</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.619</td>
+</tr>
+<tr>
+<td>CNV0_01129</td>
+<td>KLYGLDWAEL</td>
+<td>HLA-A*02:01</td>
+<td>0.161</td>
+<td>0.245</td>
+<td>0.185</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.596</td>
+</tr>
+<tr>
+<td>CNV0_02405</td>
+<td>KMIGNHLWV</td>
+<td>HLA-A*02:01</td>
+<td>0.155</td>
+<td>0.241</td>
+<td>0.183</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.588</td>
+</tr>
+<tr>
+<td>CNV0_01193</td>
+<td>VVGAVGVGK</td>
+<td>HLA-A*11:01</td>
+<td>0.148</td>
+<td>0.236</td>
+<td>0.180</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.579</td>
+</tr>
+<tr>
+<td>CNV0_02708</td>
+<td>ALDPLLLRI</td>
+<td>HLA-A*02:01</td>
+<td>0.140</td>
+<td>0.230</td>
+<td>0.177</td>
+<td>0.000</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.568</td>
+</tr>
+</tbody></table></section>
+<section><h2>Claim States</h2><table><thead><tr>
+<th>row id</th>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>claim state</th>
+<th>allowed claim now</th>
+<th>required next gate</th>
+</tr></thead><tbody>
+<tr>
+<td>CNV0_01132</td>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_01151</td>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_02398</td>
+<td>KLILWRGLK</td>
+<td>HLA-A*03:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_02448</td>
+<td>ILDKVLVHL</td>
+<td>HLA-A*02:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_02478</td>
+<td>YVDFREYEYY</td>
+<td>HLA-A*01:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_01118</td>
+<td>GADGVGKSA</td>
+<td>HLA-C*08:02</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_01439</td>
+<td>SYLDSGIHF</td>
+<td>HLA-A*24:02</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_02479</td>
+<td>ILDTAGREEY</td>
+<td>HLA-A*01:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_02405</td>
+<td>KMIGNHLWV</td>
+<td>HLA-A*02:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_01044</td>
+<td>ALDPHSGHFV</td>
+<td>HLA-A*02:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_01193</td>
+<td>VVGAVGVGK</td>
+<td>HLA-A*11:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_02708</td>
+<td>ALDPLLLRI</td>
+<td>HLA-A*02:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+<tr>
+<td>CNV0_01129</td>
+<td>KLYGLDWAEL</td>
+<td>HLA-A*02:01</td>
+<td>PRIOR_ONLY_NO_ASSAY_LABEL</td>
+<td>computational prioritization only</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+</tr>
+</tbody></table></section>
+<section><h2>Next Experiment Queue</h2><table><thead><tr>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>next experiment</th>
+<th>active learning utility</th>
+<th>utility reason</th>
+</tr></thead><tbody>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>1.104</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>1.100</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>KLILWRGLK</td>
+<td>HLA-A*03:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.739</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>ILDKVLVHL</td>
+<td>HLA-A*02:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.728</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>YVDFREYEYY</td>
+<td>HLA-A*01:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.682</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>GADGVGKSA</td>
+<td>HLA-C*08:02</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.674</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>SYLDSGIHF</td>
+<td>HLA-A*24:02</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.652</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>ILDTAGREEY</td>
+<td>HLA-A*01:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.649</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>ALDPHSGHFV</td>
+<td>HLA-A*02:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.619</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>KLYGLDWAEL</td>
+<td>HLA-A*02:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.596</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>KMIGNHLWV</td>
+<td>HLA-A*02:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.588</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>VVGAVGVGK</td>
+<td>HLA-A*11:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.579</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+<tr>
+<td>ALDPLLLRI</td>
+<td>HLA-A*02:01</td>
+<td>WT/decoy-controlled HLA stability or pHLA binding</td>
+<td>0.568</td>
+<td>cheapest gate before T-cell assays</td>
+</tr>
+</tbody></table></section>
+<section><h2>Feedback Rules</h2><table><thead><tr>
+<th>observed pattern</th>
+<th>model update</th>
+<th>interpretation</th>
+</tr></thead><tbody>
+<tr>
+<td>mutant positive, WT negative, decoy negative</td>
+<td>increase posterior; allow next gate</td>
+<td>mutant-specific signal</td>
+</tr>
+<tr>
+<td>mutant positive, WT positive</td>
+<td>penalize posterior; hold specificity claim</td>
+<td>WT cross-reactivity risk</td>
+</tr>
+<tr>
+<td>mutant positive, decoy positive</td>
+<td>penalize posterior; repeat with orthogonal decoy</td>
+<td>nonspecific or motif artifact</td>
+</tr>
+<tr>
+<td>presentation positive, activation negative</td>
+<td>downgrade to presentation-only</td>
+<td>presentation is not recognition/activation</td>
+</tr>
+<tr>
+<td>recognition positive, activation negative</td>
+<td>mark as binding without productive activation</td>
+<td>TCR binding may be nonproductive</td>
+</tr>
+<tr>
+<td>activation positive, killing missing</td>
+<td>promote to killing assay</td>
+<td>activation is not functional killing</td>
+</tr>
+<tr>
+<td>killing positive with clean controls</td>
+<td>promote to functional specificity claim in tested context</td>
+<td>strongest preclinical claim</td>
+</tr>
+</tbody></table></section>
+</main></body></html>

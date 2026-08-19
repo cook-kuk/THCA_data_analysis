@@ -1,0 +1,331 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CROSS-Neo Assay Scenario Simulator</title>
+<style>
+body{margin:0;background:#07111f;color:#edf5ff;font-family:Inter,Arial,sans-serif;line-height:1.55}
+a{color:#39d4b5;text-decoration:none} header{padding:40px 30px;background:#0f2035;border-bottom:1px solid #26364d}
+.wrap{max-width:1360px;margin:0 auto;padding:24px 30px 70px} h1{font-family:Georgia,serif;font-size:44px;margin:0;color:#fff8e8}
+h2{font-family:Georgia,serif;color:#fff2d0} .lead,.muted{color:#aebdd1} section{border-bottom:1px solid #26364d;padding:22px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:18px} .stat{background:#101d30;border:1px solid #293b55;border-radius:8px;padding:12px}
+.stat b{display:block;color:#f2c46d;font-size:26px} table{border-collapse:collapse;width:100%;font-size:12px} th,td{border:1px solid #293b55;padding:7px;vertical-align:top} th{background:#13243a;color:#f2c46d}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px} article{background:#101d30;border:1px solid #293b55;border-radius:8px;padding:13px} img{width:100%;background:white;border-radius:6px}
+.warn{border-left:4px solid #ff7b72;background:#111d2e;padding:12px 14px} .links{display:flex;flex-wrap:wrap;gap:10px} .pill{border:1px solid #395170;border-radius:999px;padding:7px 10px;background:#101d30}
+@media(max-width:900px){.grid2{grid-template-columns:1fr} h1{font-size:32px}}
+</style></head><body>
+<header><div class="wrap">
+<h1>CROSS-Neo Assay Scenario Simulator</h1>
+<p class="lead">Planning-only what-if layer for mutant/WT/decoy assay outcomes. It shows how posterior readiness, claim state, and next experiment would change.</p>
+<div class="stats">
+<div class="stat"><b>13</b><span>candidate rows</span></div>
+<div class="stat"><b>8</b><span>what-if scenarios</span></div>
+<div class="stat"><b>104</b><span>scenario outcomes</span></div>
+<div class="stat"><b>260</b><span>simulated assay rows</span></div>
+</div></div></header>
+<main class="wrap">
+<section><h2>Boundary</h2>
+<div class="warn">Every row here is SIMULATED_NOT_REAL_ASSAY_LABEL. Use this for planning and reviewer explanation only; do not train or claim from it.</div>
+<div class="links">
+<a class="pill" href="assets/cross_neo_md_audit/ASSAY_FEEDBACK_SCENARIO_SIMULATOR_REPORT.md">Full report</a>
+<a class="pill" href="assets/cross_neo_md_audit/ASSAY_FEEDBACK_SCENARIO_ONE_PAGE_KR.md">Korean brief</a>
+<a class="pill" href="cross_neo_assay_feedback_loop.html">Real assay feedback loop</a>
+<a class="pill" href="cross_neo_physics_gate.html">Physics gate</a>
+<a class="pill" href="assets/cross_neo_md_audit/assay_feedback_scenario_outcomes.tsv">scenario outcomes TSV</a>
+</div></section>
+<section><h2>Figures</h2><div class="grid2">
+        <article>
+          <img src="assets/cross_neo_md_audit/fig_md60_assay_scenario_posterior_heatmap.png" alt="Scenario Posterior Heatmap">
+          <h3>Scenario Posterior Heatmap</h3>
+          <p>How flagship candidates move under different assay outcomes.</p>
+          <a href="assets/cross_neo_md_audit/fig_md60_assay_scenario_posterior_heatmap.png">PNG</a>
+          <a href="assets/cross_neo_md_audit/fig_md60_assay_scenario_posterior_heatmap.pdf">PDF</a>
+        </article>
+        
+
+        <article>
+          <img src="assets/cross_neo_md_audit/fig_md61_assay_scenario_claim_transitions.png" alt="Claim Transitions">
+          <h3>Claim Transitions</h3>
+          <p>Allowed and blocked claim states under each scenario.</p>
+          <a href="assets/cross_neo_md_audit/fig_md61_assay_scenario_claim_transitions.png">PNG</a>
+          <a href="assets/cross_neo_md_audit/fig_md61_assay_scenario_claim_transitions.pdf">PDF</a>
+        </article>
+        
+
+        <article>
+          <img src="assets/cross_neo_md_audit/fig_md62_scenario_posterior_delta.png" alt="Posterior Delta">
+          <h3>Posterior Delta</h3>
+          <p>Which scenarios raise or lower readiness the most.</p>
+          <a href="assets/cross_neo_md_audit/fig_md62_scenario_posterior_delta.png">PNG</a>
+          <a href="assets/cross_neo_md_audit/fig_md62_scenario_posterior_delta.pdf">PDF</a>
+        </article>
+        
+
+        <article>
+          <img src="assets/cross_neo_md_audit/fig_md63_assay_scenario_simulator_flow.png" alt="Simulator Flow">
+          <h3>Simulator Flow</h3>
+          <p>Planning-only path from what-if assay result to next move.</p>
+          <a href="assets/cross_neo_md_audit/fig_md63_assay_scenario_simulator_flow.png">PNG</a>
+          <a href="assets/cross_neo_md_audit/fig_md63_assay_scenario_simulator_flow.pdf">PDF</a>
+        </article>
+        </div></section>
+<section><h2>Flagship Scenario Outcomes</h2><table><thead><tr>
+<th>peptide</th>
+<th>hla 4digit</th>
+<th>scenario</th>
+<th>prior cross neo i readiness</th>
+<th>scenario posterior</th>
+<th>posterior delta</th>
+<th>claim state</th>
+<th>allowed claim if real</th>
+<th>next step if real</th>
+</tr></thead><tbody>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>presentation_fail</td>
+<td>0.611</td>
+<td>0.518</td>
+<td>-0.092</td>
+<td>PRESENTATION_FAILED</td>
+<td>no biological claim; hold or repeat presentation</td>
+<td>reagent QC or deprioritize</td>
+</tr>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>presentation_only</td>
+<td>0.611</td>
+<td>0.629</td>
+<td>0.019</td>
+<td>PRESENTATION_SUPPORTED</td>
+<td>presentation plausibility only</td>
+<td>mutant/WT/decoy multimer or TCR reporter</td>
+</tr>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>recognition_positive_activation_missing</td>
+<td>0.611</td>
+<td>0.743</td>
+<td>0.133</td>
+<td>RECOGNITION_PLAUSIBLE</td>
+<td>mutant-specific recognition plausibility in tested context</td>
+<td>ELISpot/ICS/CD137 activation assay</td>
+</tr>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>activation_specific_positive</td>
+<td>0.611</td>
+<td>0.791</td>
+<td>0.181</td>
+<td>ASSAY_SPECIFIC_IMMUNOGENICITY_SUPPORTED</td>
+<td>assay-specific immunogenicity in tested context</td>
+<td>matched HLA/mutation killing assay</td>
+</tr>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>functional_best_case</td>
+<td>0.611</td>
+<td>0.833</td>
+<td>0.223</td>
+<td>FUNCTIONAL_SPECIFICITY_SUPPORTED</td>
+<td>functional specificity in tested HLA/mutation system</td>
+<td>independent replicate or external validation</td>
+</tr>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>recognition_positive_activation_negative</td>
+<td>0.611</td>
+<td>0.604</td>
+<td>-0.007</td>
+<td>RECOGNITION_WITHOUT_ACTIVATION</td>
+<td>recognition without productive activation; no immunogenicity claim</td>
+<td>dose response, alternate TCR context, or downgrade</td>
+</tr>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>wt_cross_reactive</td>
+<td>0.611</td>
+<td>0.535</td>
+<td>-0.076</td>
+<td>SPECIFICITY_RISK_HOLD_WT_POSITIVE</td>
+<td>no mutant-specific claim; WT cross-reactivity risk</td>
+<td>hold candidate; investigate WT cross-reactivity</td>
+</tr>
+<tr>
+<td>GADGVGKSAL</td>
+<td>HLA-C*08:02</td>
+<td>decoy_positive</td>
+<td>0.611</td>
+<td>0.535</td>
+<td>-0.076</td>
+<td>SPECIFICITY_RISK_HOLD_DECOY_POSITIVE</td>
+<td>no specificity claim; decoy/nonspecific signal risk</td>
+<td>repeat with orthogonal decoy and artifact controls</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>presentation_fail</td>
+<td>0.606</td>
+<td>0.515</td>
+<td>-0.091</td>
+<td>PRESENTATION_FAILED</td>
+<td>no biological claim; hold or repeat presentation</td>
+<td>reagent QC or deprioritize</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>presentation_only</td>
+<td>0.606</td>
+<td>0.626</td>
+<td>0.020</td>
+<td>PRESENTATION_SUPPORTED</td>
+<td>presentation plausibility only</td>
+<td>mutant/WT/decoy multimer or TCR reporter</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>recognition_positive_activation_missing</td>
+<td>0.606</td>
+<td>0.741</td>
+<td>0.135</td>
+<td>RECOGNITION_PLAUSIBLE</td>
+<td>mutant-specific recognition plausibility in tested context</td>
+<td>ELISpot/ICS/CD137 activation assay</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>activation_specific_positive</td>
+<td>0.606</td>
+<td>0.790</td>
+<td>0.184</td>
+<td>ASSAY_SPECIFIC_IMMUNOGENICITY_SUPPORTED</td>
+<td>assay-specific immunogenicity in tested context</td>
+<td>matched HLA/mutation killing assay</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>functional_best_case</td>
+<td>0.606</td>
+<td>0.832</td>
+<td>0.226</td>
+<td>FUNCTIONAL_SPECIFICITY_SUPPORTED</td>
+<td>functional specificity in tested HLA/mutation system</td>
+<td>independent replicate or external validation</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>recognition_positive_activation_negative</td>
+<td>0.606</td>
+<td>0.602</td>
+<td>-0.004</td>
+<td>RECOGNITION_WITHOUT_ACTIVATION</td>
+<td>recognition without productive activation; no immunogenicity claim</td>
+<td>dose response, alternate TCR context, or downgrade</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>wt_cross_reactive</td>
+<td>0.606</td>
+<td>0.533</td>
+<td>-0.072</td>
+<td>SPECIFICITY_RISK_HOLD_WT_POSITIVE</td>
+<td>no mutant-specific claim; WT cross-reactivity risk</td>
+<td>hold candidate; investigate WT cross-reactivity</td>
+</tr>
+<tr>
+<td>HMTEVVRHC</td>
+<td>HLA-A*02:01</td>
+<td>decoy_positive</td>
+<td>0.606</td>
+<td>0.533</td>
+<td>-0.072</td>
+<td>SPECIFICITY_RISK_HOLD_DECOY_POSITIVE</td>
+<td>no specificity claim; decoy/nonspecific signal risk</td>
+<td>repeat with orthogonal decoy and artifact controls</td>
+</tr>
+</tbody></table></section>
+<section><h2>Claim Transitions</h2><table><thead><tr>
+<th>scenario</th>
+<th>claim state</th>
+<th>allowed claim if real</th>
+<th>n candidates</th>
+<th>mean posterior</th>
+<th>mean delta</th>
+</tr></thead><tbody>
+<tr>
+<td>activation_specific_positive</td>
+<td>ASSAY_SPECIFIC_IMMUNOGENICITY_SUPPORTED</td>
+<td>assay-specific immunogenicity in tested context</td>
+<td>13.000</td>
+<td>0.660</td>
+<td>0.400</td>
+</tr>
+<tr>
+<td>decoy_positive</td>
+<td>SPECIFICITY_RISK_HOLD_DECOY_POSITIVE</td>
+<td>no specificity claim; decoy/nonspecific signal risk</td>
+<td>13.000</td>
+<td>0.424</td>
+<td>0.165</td>
+</tr>
+<tr>
+<td>functional_best_case</td>
+<td>FUNCTIONAL_SPECIFICITY_SUPPORTED</td>
+<td>functional specificity in tested HLA/mutation system</td>
+<td>13.000</td>
+<td>0.728</td>
+<td>0.468</td>
+</tr>
+<tr>
+<td>presentation_fail</td>
+<td>PRESENTATION_FAILED</td>
+<td>no biological claim; hold or repeat presentation</td>
+<td>13.000</td>
+<td>0.284</td>
+<td>0.025</td>
+</tr>
+<tr>
+<td>presentation_only</td>
+<td>PRESENTATION_SUPPORTED</td>
+<td>presentation plausibility only</td>
+<td>13.000</td>
+<td>0.395</td>
+<td>0.136</td>
+</tr>
+<tr>
+<td>recognition_positive_activation_missing</td>
+<td>RECOGNITION_PLAUSIBLE</td>
+<td>mutant-specific recognition plausibility in tested context</td>
+<td>13.000</td>
+<td>0.581</td>
+<td>0.322</td>
+</tr>
+<tr>
+<td>recognition_positive_activation_negative</td>
+<td>RECOGNITION_WITHOUT_ACTIVATION</td>
+<td>recognition without productive activation; no immunogenicity claim</td>
+<td>13.000</td>
+<td>0.472</td>
+<td>0.213</td>
+</tr>
+<tr>
+<td>wt_cross_reactive</td>
+<td>SPECIFICITY_RISK_HOLD_WT_POSITIVE</td>
+<td>no mutant-specific claim; WT cross-reactivity risk</td>
+<td>13.000</td>
+<td>0.424</td>
+<td>0.165</td>
+</tr>
+</tbody></table></section>
+</main></body></html>

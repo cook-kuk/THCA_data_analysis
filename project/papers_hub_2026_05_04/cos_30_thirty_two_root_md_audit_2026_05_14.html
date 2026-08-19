@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>COS-30 · 32 root .md audit · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:56px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:106px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:30px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:18px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 16px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13px}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+pre{background:#0a1219;border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;color:#cfdbe3;margin:8px 0 14px}
+.note{color:#cbd7df}
+.callout{border-left:4px solid var(--gold);background:rgba(255,210,138,.05);padding:12px 16px;margin:12px 0;border-radius:0 8px 8px 0}
+.callout.red{border-left-color:var(--red);background:rgba(255,138,107,.05)}
+.callout.green{border-left-color:var(--green);background:rgba(147,226,170,.05)}
+.callout.blue{border-left-color:var(--blue);background:rgba(139,188,255,.05)}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:16px 18px}
+.card h4{margin:0 0 8px;font-size:16px;color:#fff}
+.card p{margin:0 0 6px;color:#cbd7df;font-size:13.5px}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:2px 8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.06em;margin-right:4px}
+.tag.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.act-keep{color:var(--green);font-weight:800}
+.act-docs{color:var(--gold);font-weight:800}
+.act-arc{color:var(--blue);font-weight:800}
+.act-del{color:var(--red);font-weight:800}
+.sibgrid{display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.sibgrid a{border:1px solid var(--line);border-radius:5px;padding:6px 9px;background:#0d1823;color:#d3dee5;font-weight:700}
+.sibgrid a.cos{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.sibgrid a.chf{border-color:rgba(255,210,138,.4);color:var(--gold)}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px;text-align:center;padding:24px 0}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">COS-30 · supplementary chief-of-staff · 32 root .md audit · 2026-05-14 · Seungho Cook</p>
+    <h1>Root MD audit — 32 markdown files at repo root.</h1>
+    <p class="lead">
+      <code>/home/seungho/personal/THCA_data_analysis/</code> root에는 markdown 파일이 <b>32개</b> 있다. 일부는 항상 root에 있어야 한다(<code>CLAUDE.md</code>, <code>README.md</code>, <code>QUICKSTART.md</code>, <code>REPRODUCIBILITY.md</code>). 나머지는 <b>session recap / track-specific dossier / closed verdict</b>이고 root에 노출할 이유가 없다. 이 페이지는 32개를 한 줄씩 감사하고 <i>4-bucket action</i> (keep / move to /docs / archive / delete)을 권고한다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>32</b><span>root .md files</span><small>file-backed (stat 결과 직접 카운트)</small></div>
+      <div class="stat"><b>4</b><span>keep at root</span><small>CLAUDE · README · QUICKSTART · REPRODUCIBILITY</small></div>
+      <div class="stat"><b>18</b><span>move to /docs</span><small>track-specific dossier · session recap</small></div>
+      <div class="stat"><b>10</b><span>archive</span><small>closed-verdict, superseded session, stale background</small></div>
+      <div class="stat"><b>0</b><span>delete</span><small>이력 가치가 있어 모두 보존; rename·move만</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">1 · 감사 결론</a>
+  <a class="primary" href="#table32">2 · 32개 테이블</a>
+  <a href="#root4">3 · root 4종</a>
+  <a href="#decisions">4 · 결정/CV (4)</a>
+  <a href="#paper1">5 · Paper 1 (3)</a>
+  <a href="#pathology">6 · Pathology (3)</a>
+  <a href="#kthyro">7 · K-Thyro (2)</a>
+  <a href="#sessions">8 · Session recap (8)</a>
+  <a href="#dark">9 · Dark matter (3)</a>
+  <a href="#pods">10 · Pod state (4)</a>
+  <a href="#gigatime">11 · GigaTIME (2)</a>
+  <a href="#ext-st">12 · External ST (2)</a>
+  <a href="#reorg">13 · git mv 계획</a>
+  <a href="#docs-tree">14 · /docs 트리</a>
+  <a href="#dup-detect">14A · 중복 감지</a>
+  <a href="#naming-conv">14B · 명명 컨벤션</a>
+  <a href="#evidence-labels">14C · evidence label</a>
+  <a href="#siblings">16 · Sibling links</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>1 · 감사 결론</h2>
+  <p class="sub">audit verdict · 32 → 4 root, rest into /docs/{by_topic,by_date,archive}</p>
+  <div class="callout red">
+    <b>문제:</b> 32개 root .md는 "지금 작업해야 하는 문서"와 "session recap" / "verdict report" / "stale background"가 한 평면에 섞여 있다. 신규 contributor(또는 본인 2주 후)는 어느 것이 살아있는지 모른다. 특히 <code>SITUATION_FULL_2026_05_04.md</code> / <code>SITUATION_FULL_2026_05_07.md</code> 같이 같은 이름·다른 날짜가 root에 동거.
+  </div>
+  <div class="callout green">
+    <b>권고:</b>
+    <ol>
+      <li><b>root에 keep:</b> <code>CLAUDE.md</code>, <code>README.md</code>, <code>QUICKSTART.md</code>, <code>REPRODUCIBILITY.md</code>, <code>AGENTS.md</code> (5개)</li>
+      <li><b>/docs/decisions/</b>: 결정/Verdict 보고 (CLOSURE_BATTERY · DECISIONS_PENDING · PHASE_A_NOGO · dark_matter_go_no_go)</li>
+      <li><b>/docs/papers/paper1/</b>: PAPER1_DM1_FULL · PAPER1_SPATIAL_SUPPLEMENT_FREEZE · dark_matter_feasibility</li>
+      <li><b>/docs/track_b_kthyro/</b>: KTHYRO_PUBLIC_PILOT · KTHYRO_SAMSUNG_PPT</li>
+      <li><b>/docs/track_c_pathology/</b>: PATHOLOGY_DM1_FEASIBILITY</li>
+      <li><b>/docs/track_d_vaccine/</b>: CANCER_VACCINE_PROJECT_FULL · CROSS_Neo_MD_audit_decision_report · CROSS_Neo_TCR_extension_decision_report</li>
+      <li><b>/docs/sessions/by_date/</b>: SITUATION_FULL_2026_05_04 · 2026_05_07 · SHARE_2026_05_04 · SITUATION_BACKGROUND · SESSION_FULL_2026_05_07 · MARATHON_REENTRY_FINAL</li>
+      <li><b>/docs/archive/</b>: GIGATIME_STRATEGY · GIGATIME_BUNDLE · EXTERNAL_ST_TRIAGE_ALL · GSE250521_ALL · PAPERS_5_OVERVIEW · POD_CD_RUNNING_STATE · POD_CLEANUP_AND_PAPER1_LOCK · professor_summary_kr</li>
+    </ol>
+  </div>
+</section>
+
+<section id="table32">
+  <h2>2 · 32개 root .md 전수 테이블</h2>
+  <p class="sub">file · size · date · purpose · track · action</p>
+  <table>
+    <thead><tr><th>#</th><th>파일</th><th>크기</th><th>최종 수정</th><th>용도 (file-backed head)</th><th>트랙</th><th>action</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><code>AGENTS.md</code></td><td>8 KB</td><td>2026-05-09</td><td>Agent (Claude/Codex/etc) 사용 가이드</td><td>infra</td><td class="act-keep">KEEP root</td></tr>
+      <tr><td>2</td><td><code>CANCER_VACCINE_PROJECT_FULL.md</code></td><td>27 KB</td><td>2026-05-07</td><td>Lumenix vaccine 119,237 master / 13 sources / 50 analyses 종합</td><td>D (vaccine)</td><td class="act-docs">/docs/track_d_vaccine/</td></tr>
+      <tr><td>3</td><td><code>CLAUDE.md</code></td><td>4.7 KB</td><td>2026-05-07</td><td>repo + Claude project context (disk layout · RunPod conventions · Marathon mode)</td><td>infra</td><td class="act-keep">KEEP root</td></tr>
+      <tr><td>4</td><td><code>CLOSURE_BATTERY_2026_05_04.md</code></td><td>7.8 KB</td><td>2026-05-04</td><td>H&E → DM1 closure verdict D 폐기 (5 실패 원인 + 매트릭스)</td><td>C (pathology, closed)</td><td class="act-docs">/docs/decisions/</td></tr>
+      <tr><td>5</td><td><code>CROSS_Neo_MD_audit_decision_report.md</code></td><td>18 KB</td><td>2026-05-10</td><td>cancer vaccine cross-neo MD audit 결정 보고</td><td>D (vaccine)</td><td class="act-docs">/docs/track_d_vaccine/</td></tr>
+      <tr><td>6</td><td><code>CROSS_Neo_TCR_extension_decision_report.md</code></td><td>7.1 KB</td><td>2026-05-09</td><td>cross-neo TCR extension 결정 보고</td><td>D (vaccine)</td><td class="act-docs">/docs/track_d_vaccine/</td></tr>
+      <tr><td>7</td><td><code>DECISIONS_PENDING_2026_05_07.md</code></td><td>10 KB</td><td>2026-05-07</td><td>Paper 1 ship pending decisions (D-A voice protected, D-B factual, D-C aim split, D-D figure rearrange...)</td><td>A (Paper 1)</td><td class="act-docs">/docs/decisions/ · cos_09 next actions로 lift</td></tr>
+      <tr><td>8</td><td><code>EXTERNAL_ST_TRIAGE_ALL_2026_05_03.md</code></td><td>52 KB</td><td>2026-05-03</td><td>외부 spatial transcriptomics triage 전체</td><td>A (spatial)</td><td class="act-arc">/docs/archive/spatial_triage/</td></tr>
+      <tr><td>9</td><td><code>GIGATIME_BUNDLE_2026_05_04.md</code></td><td>15 KB</td><td>2026-05-04</td><td>GigaTIME 적용 번들 plan</td><td>C (pathology)</td><td class="act-arc">/docs/archive/gigatime/</td></tr>
+      <tr><td>10</td><td><code>GIGATIME_STRATEGY_2026_05_04.md</code></td><td>10 KB</td><td>2026-05-04</td><td>GigaTIME 전략 doc</td><td>C (pathology)</td><td class="act-arc">/docs/archive/gigatime/</td></tr>
+      <tr><td>11</td><td><code>GSE250521_ALL_2026_05_03.md</code></td><td>46 KB</td><td>2026-05-03</td><td>GSE250521 (16 spatial slides) 전체 분석 노트</td><td>A (spatial)</td><td class="act-arc">/docs/archive/gse250521/</td></tr>
+      <tr><td>12</td><td><code>KTHYRO_PUBLIC_PILOT_WEB_REVIEW_CONTEXT.md</code></td><td>15 KB</td><td>2026-05-09</td><td>K-Thyro 공개 pilot 웹 리뷰 컨텍스트</td><td>B (Samsung)</td><td class="act-docs">/docs/track_b_kthyro/ <i>또는</i> kthyro_public_pilot/docs/</td></tr>
+      <tr><td>13</td><td><code>KTHYRO_SAMSUNG_PPT_MASTER_CONTEXT.md</code></td><td>28 KB</td><td>2026-05-09</td><td>삼성 PPT master context</td><td>B (Samsung)</td><td class="act-docs">/docs/track_b_kthyro/ <i>또는</i> kthyro_ctc_emt_samsung_proposal/docs/</td></tr>
+      <tr><td>14</td><td><code>MARATHON_REENTRY_FINAL_2026_05_04.md</code></td><td>12 KB</td><td>2026-05-04</td><td>marathon mode 재진입 final note</td><td>strategic</td><td class="act-docs">/docs/sessions/by_date/2026_05_04/</td></tr>
+      <tr><td>15</td><td><code>PAPER1_DM1_FULL_2026_05_04.md</code></td><td>24 KB</td><td>2026-05-04</td><td>Paper 1 DM1 full working doc</td><td>A (Paper 1)</td><td class="act-docs">/docs/papers/paper1/</td></tr>
+      <tr><td>16</td><td><code>PAPER1_SPATIAL_SUPPLEMENT_FREEZE_2026_05_03.md</code></td><td>32 KB</td><td>2026-05-03</td><td>Paper 1 spatial supplement freeze</td><td>A (Paper 1)</td><td class="act-docs">/docs/papers/paper1/</td></tr>
+      <tr><td>17</td><td><code>PAPERS_5_OVERVIEW_2026_05_04.md</code></td><td>13 KB</td><td>2026-05-04</td><td>5 papers overview (canonical numbering 적용 전 버전 가능 · needs verification)</td><td>strategic</td><td class="act-arc">/docs/archive/</td></tr>
+      <tr><td>18</td><td><code>PATHOLOGY_DM1_FEASIBILITY_2026_05_03.md</code></td><td>14 KB</td><td>2026-05-03</td><td>Pathology DM1 feasibility (Track C 발화점)</td><td>C (pathology)</td><td class="act-docs">/docs/track_c_pathology/</td></tr>
+      <tr><td>19</td><td><code>PHASE_A_NOGO_REPORT_2026_05_04.md</code></td><td>13 KB</td><td>2026-05-04</td><td>Phase A NOGO 보고 (CLOSURE_BATTERY 자매)</td><td>C (pathology, closed)</td><td class="act-docs">/docs/decisions/</td></tr>
+      <tr><td>20</td><td><code>POD_CD_RUNNING_STATE_2026_05_04.md</code></td><td>13 KB</td><td>2026-05-04</td><td>RunPod C/D state · v17_pod_D_k2_star_tmp_failure 시점</td><td>infra</td><td class="act-arc">/docs/archive/pods/</td></tr>
+      <tr><td>21</td><td><code>POD_CLEANUP_AND_PAPER1_LOCK_2026_05_04.md</code></td><td>11 KB</td><td>2026-05-04</td><td>Pod cleanup + Paper 1 lock</td><td>infra</td><td class="act-arc">/docs/archive/pods/</td></tr>
+      <tr><td>22</td><td><code>QUICKSTART.md</code></td><td>3.5 KB</td><td>2026-04-24</td><td>repo quickstart</td><td>infra</td><td class="act-keep">KEEP root</td></tr>
+      <tr><td>23</td><td><code>README.md</code></td><td>3.5 KB</td><td>2026-04-24</td><td>repo README</td><td>infra</td><td class="act-keep">KEEP root</td></tr>
+      <tr><td>24</td><td><code>REPRODUCIBILITY.md</code></td><td>4.4 KB</td><td>2026-04-24</td><td>repro guide</td><td>infra</td><td class="act-keep">KEEP root</td></tr>
+      <tr><td>25</td><td><code>SESSION_FULL_2026_05_07_DISK_POD_HUB.md</code></td><td>19 KB</td><td>2026-05-07</td><td>2026-05-07 session full recap (disk reorg · pod · hub)</td><td>session</td><td class="act-docs">/docs/sessions/by_date/2026_05_07/</td></tr>
+      <tr><td>26</td><td><code>SHARE_2026_05_04_SESSION_RECAP.md</code></td><td>10 KB</td><td>2026-05-04</td><td>2026-05-04 session recap 공유본</td><td>session</td><td class="act-docs">/docs/sessions/by_date/2026_05_04/</td></tr>
+      <tr><td>27</td><td><code>SITUATION_BACKGROUND_ACTIVITY_2026_05_04.md</code></td><td>11 KB</td><td>2026-05-04</td><td>2026-05-04 background activity</td><td>session</td><td class="act-docs">/docs/sessions/by_date/2026_05_04/</td></tr>
+      <tr><td>28</td><td><code>SITUATION_FULL_2026_05_04.md</code></td><td>22 KB</td><td>2026-05-04</td><td>2026-05-04 situation full</td><td>session</td><td class="act-docs">/docs/sessions/by_date/2026_05_04/</td></tr>
+      <tr><td>29</td><td><code>SITUATION_FULL_2026_05_07.md</code></td><td>16 KB</td><td>2026-05-07</td><td>2026-05-07 situation full (paper numbering · marathon · voice-protected rule reminder)</td><td>session</td><td class="act-docs">/docs/sessions/by_date/2026_05_07/</td></tr>
+      <tr><td>30</td><td><code>dark_matter_feasibility_report.md</code></td><td>15 KB</td><td>2026-05-06</td><td>BRAF/RAS-neg taxonomy feasibility · TCGA 137/482 BRAF/RAS-neg · DICER1/EIF1AX/PPM1D Fisher p=0.0175</td><td>A (Paper 1)</td><td class="act-docs">/docs/papers/paper1/ <i>또는</i> /docs/track_a/</td></tr>
+      <tr><td>31</td><td><code>dark_matter_go_no_go_criteria.md</code></td><td>4.4 KB</td><td>2026-05-06</td><td>BRAF/RAS-neg taxonomy go/no-go criteria · GO with restrained molecular-taxonomy frame</td><td>A (Paper 1)</td><td class="act-docs">/docs/decisions/</td></tr>
+      <tr><td>32</td><td><code>professor_summary_kr.md</code></td><td>4.2 KB</td><td>2026-05-06</td><td>유 교수님께 보내는 한 페이지 요약</td><td>strategic</td><td class="act-arc">/docs/archive/professor_summaries/</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Action color: <span class="act-keep">KEEP root</span> / <span class="act-docs">move to /docs</span> / <span class="act-arc">archive (/docs/archive)</span> / <span class="act-del">delete</span>. 32개 중 delete = 0.</p>
+</section>
+
+<section id="root4">
+  <h2>3 · root에 KEEP할 4-5종</h2>
+  <p class="sub">project loads these · do not move</p>
+  <table>
+    <thead><tr><th>파일</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><td><code>CLAUDE.md</code></td><td>Claude Code가 매 세션 시작 시 자동 로드 (project instruction). 경로 이동하면 작동 안 함.</td></tr>
+      <tr><td><code>README.md</code></td><td>GitHub/contributor 표준. root이 표준 위치.</td></tr>
+      <tr><td><code>QUICKSTART.md</code></td><td>onboarding entry. root이 표준.</td></tr>
+      <tr><td><code>REPRODUCIBILITY.md</code></td><td>reproducibility guide. root이 표준.</td></tr>
+      <tr><td><code>AGENTS.md</code></td><td>agent (Claude / Codex 등) usage guide. root이 표준 (codex CLI 등 자동 검색 위치).</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="decisions">
+  <h2>4 · 결정/CV 보고 (4종) → /docs/decisions/</h2>
+  <p class="sub">closure verdicts · go/no-go criteria · pending decisions</p>
+  <table>
+    <thead><tr><th>파일</th><th>주제</th><th>현 상태</th></tr></thead>
+    <tbody>
+      <tr><td><code>CLOSURE_BATTERY_2026_05_04.md</code></td><td>image-DM1 verdict D (ResNet50 closure)</td><td>archived decision · 후속 ViT-L+CLAM PASS_LAUNCH_PAPER2로 overturned (참고 메모리 v19_paper2_image_dm1_pass)</td></tr>
+      <tr><td><code>PHASE_A_NOGO_REPORT_2026_05_04.md</code></td><td>Phase A NOGO</td><td>CLOSURE_BATTERY 자매; 같은 폴더로</td></tr>
+      <tr><td><code>DECISIONS_PENDING_2026_05_07.md</code></td><td>Paper 1 ship-blocking pending</td><td><b>active</b> — D-A 5개 voice-protected + D-B 2 factual + D-C aim split + D-D figure rearrange</td></tr>
+      <tr><td><code>dark_matter_go_no_go_criteria.md</code></td><td>BRAF/RAS-neg taxonomy 진행 criteria</td><td>file-backed: 137/482 BRAF/RAS-neg pass · DICER1/EIF1AX/PPM1D Fisher p=0.0175 pass · GO with restrained frame</td></tr>
+    </tbody>
+  </table>
+  <div class="callout blue">
+    <b>관리 권고:</b> <code>DECISIONS_PENDING_2026_05_07.md</code>의 active 항목은 <a href="chief_of_staff_09_next_actions_collaborators_2026_05_14.html">chief_of_staff_09 next actions</a>에 lifted 되어야 한다. 둘이 분리되어 있으면 동기화 실수 발생.
+  </div>
+</section>
+
+<section id="paper1">
+  <h2>5 · Paper 1 문서 (3종) → /docs/papers/paper1/</h2>
+  <p class="sub">Paper 1 DM1 dark matter manuscript suite</p>
+  <table>
+    <thead><tr><th>파일</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td><code>PAPER1_DM1_FULL_2026_05_04.md</code></td><td>Paper 1 manuscript working doc (24 KB)</td></tr>
+      <tr><td><code>PAPER1_SPATIAL_SUPPLEMENT_FREEZE_2026_05_03.md</code></td><td>spatial supplement freeze (32 KB)</td></tr>
+      <tr><td><code>dark_matter_feasibility_report.md</code></td><td>feasibility · 137/482 · TERT-only · DICER1/EIF1AX/PPM1D · RAI score</td></tr>
+    </tbody>
+  </table>
+  <p class="note">manuscript_v8 본문(<code>project/manuscript_v8/</code>)과 정합성을 위해, paper1/ 내부에서 <code>working_doc.md</code> / <code>spatial_supplement_freeze.md</code> / <code>feasibility.md</code>로 일반 이름화 권장.</p>
+</section>
+
+<section id="pathology">
+  <h2>6 · Pathology (3종) → /docs/track_c_pathology/</h2>
+  <p class="sub">Track C source · feasibility</p>
+  <table>
+    <thead><tr><th>파일</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td><code>PATHOLOGY_DM1_FEASIBILITY_2026_05_03.md</code></td><td>Track C 시작점 · pathology DM1 feasibility</td></tr>
+      <tr><td><code>GIGATIME_BUNDLE_2026_05_04.md</code></td><td>GigaTIME 적용 번들 plan</td></tr>
+      <tr><td><code>GIGATIME_STRATEGY_2026_05_04.md</code></td><td>GigaTIME 전략</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="kthyro">
+  <h2>7 · K-Thyro (2종) → 해당 sub-dir로</h2>
+  <p class="sub">Track B Samsung CTC/EMT</p>
+  <table>
+    <thead><tr><th>파일</th><th>이동 대상</th></tr></thead>
+    <tbody>
+      <tr><td><code>KTHYRO_PUBLIC_PILOT_WEB_REVIEW_CONTEXT.md</code></td><td><code>kthyro_public_pilot/docs/web_review_context.md</code></td></tr>
+      <tr><td><code>KTHYRO_SAMSUNG_PPT_MASTER_CONTEXT.md</code></td><td><code>kthyro_ctc_emt_samsung_proposal/docs/ppt_master_context.md</code></td></tr>
+    </tbody>
+  </table>
+  <p class="note">트랙 sub-dir가 이미 있는 경우 root보다 sub-dir의 docs/가 자연스러움. <code>/docs/track_b_kthyro/</code> 통합 옵션도 가능하지만 sub-dir 옆에 두는 게 reproducibility 측면에서 더 명확.</p>
+</section>
+
+<section id="sessions">
+  <h2>8 · Session recap (8종) → /docs/sessions/by_date/</h2>
+  <p class="sub">session/situation/share dossiers</p>
+  <table>
+    <thead><tr><th>파일</th><th>날짜</th><th>이동 대상</th></tr></thead>
+    <tbody>
+      <tr><td><code>SHARE_2026_05_04_SESSION_RECAP.md</code></td><td>2026-05-04</td><td><code>/docs/sessions/by_date/2026_05_04/share_recap.md</code></td></tr>
+      <tr><td><code>SITUATION_BACKGROUND_ACTIVITY_2026_05_04.md</code></td><td>2026-05-04</td><td><code>/docs/sessions/by_date/2026_05_04/background.md</code></td></tr>
+      <tr><td><code>SITUATION_FULL_2026_05_04.md</code></td><td>2026-05-04</td><td><code>/docs/sessions/by_date/2026_05_04/situation_full.md</code></td></tr>
+      <tr><td><code>MARATHON_REENTRY_FINAL_2026_05_04.md</code></td><td>2026-05-04</td><td><code>/docs/sessions/by_date/2026_05_04/marathon_reentry.md</code></td></tr>
+      <tr><td><code>SITUATION_FULL_2026_05_07.md</code></td><td>2026-05-07</td><td><code>/docs/sessions/by_date/2026_05_07/situation_full.md</code></td></tr>
+      <tr><td><code>SESSION_FULL_2026_05_07_DISK_POD_HUB.md</code></td><td>2026-05-07</td><td><code>/docs/sessions/by_date/2026_05_07/session_full.md</code></td></tr>
+      <tr><td><code>POD_CD_RUNNING_STATE_2026_05_04.md</code></td><td>2026-05-04</td><td><code>/docs/sessions/by_date/2026_05_04/pod_cd_running.md</code></td></tr>
+      <tr><td><code>POD_CLEANUP_AND_PAPER1_LOCK_2026_05_04.md</code></td><td>2026-05-04</td><td><code>/docs/sessions/by_date/2026_05_04/pod_cleanup.md</code></td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <b>리네임 규칙:</b> 파일명에서 날짜 prefix 제거 (디렉터리가 이미 날짜로 grouping). 같은 날 여러 파일은 카테고리(`background`, `marathon_reentry`, `session_full`, `situation_full`)로 명명.
+  </div>
+</section>
+
+<section id="dark">
+  <h2>9 · Dark matter / taxonomy (3종)</h2>
+  <p class="sub">BRAF/RAS-neg taxonomy feasibility · go/no-go · 교수님 요약</p>
+  <table>
+    <thead><tr><th>파일</th><th>이동 대상</th></tr></thead>
+    <tbody>
+      <tr><td><code>dark_matter_feasibility_report.md</code></td><td><code>/docs/papers/paper1/feasibility.md</code> (Paper 1 sub-paper로 다루는 게 자연스러움)</td></tr>
+      <tr><td><code>dark_matter_go_no_go_criteria.md</code></td><td><code>/docs/decisions/dark_matter_go_no_go.md</code></td></tr>
+      <tr><td><code>professor_summary_kr.md</code></td><td><code>/docs/archive/professor_summaries/2026_05_06_summary.md</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="pods">
+  <h2>10 · Pod / 인프라 (이미 §8에 포함)</h2>
+  <p class="sub">included in sessions/by_date as infra under same dates</p>
+  <p class="note">POD_CD_RUNNING_STATE / POD_CLEANUP_AND_PAPER1_LOCK는 모두 2026-05-04 세션이므로 §8 by_date 트리에 함께. 추가로 <code>/docs/archive/pods/</code> alias symlink 옵션.</p>
+</section>
+
+<section id="gigatime">
+  <h2>11 · GigaTIME (2종) → /docs/archive/gigatime/</h2>
+  <p class="sub">strategy + bundle</p>
+  <p class="note">GigaTIME 도입은 marathon mode 결정에 따라 paused 상태(<a href="cos_31_external_dependencies_subtree_2026_05_14.html">COS-31 §3</a>). 두 doc은 reference로 archive.</p>
+</section>
+
+<section id="ext-st">
+  <h2>12 · External ST (2종) → /docs/archive/</h2>
+  <p class="sub">EXTERNAL_ST_TRIAGE_ALL · GSE250521_ALL</p>
+  <table>
+    <thead><tr><th>파일</th><th>크기</th><th>현 가치</th></tr></thead>
+    <tbody>
+      <tr><td><code>EXTERNAL_ST_TRIAGE_ALL_2026_05_03.md</code></td><td>52 KB</td><td>spatial triage 전체 catalog; <code>project_external_st/</code> 와 짝</td></tr>
+      <tr><td><code>GSE250521_ALL_2026_05_03.md</code></td><td>46 KB</td><td>16 spatial slides 전체 분석 노트; spatial-full 페이지의 원본 작업노트</td></tr>
+    </tbody>
+  </table>
+  <p class="note">둘 다 크기가 커서 root 노출 시 시각적 잡음. 페이지 본문은 <a href="http://40.82.129.113/spatial-full/" target="_blank">spatial-full</a>에 시각화됨.</p>
+</section>
+
+<section id="reorg">
+  <h2>13 · 추천 reorganization — git mv plan</h2>
+  <p class="sub">git mv (preserves history) · do not delete</p>
+  <p class="note">아래는 권고안. 실제 실행은 사용자 확인 후 별도 commit으로 분리.</p>
+<pre># Phase 1: docs tree 생성
+mkdir -p docs/{decisions,papers/paper1,track_b_kthyro,track_c_pathology,track_d_vaccine}
+mkdir -p docs/sessions/by_date/{2026_05_04,2026_05_07}
+mkdir -p docs/archive/{gigatime,spatial_triage,gse250521,pods,professor_summaries}
+
+# Phase 2: decisions
+git mv CLOSURE_BATTERY_2026_05_04.md           docs/decisions/closure_battery_image_dm1.md
+git mv PHASE_A_NOGO_REPORT_2026_05_04.md       docs/decisions/phase_a_nogo.md
+git mv DECISIONS_PENDING_2026_05_07.md         docs/decisions/pending_2026_05_07.md
+git mv dark_matter_go_no_go_criteria.md        docs/decisions/dark_matter_go_no_go.md
+
+# Phase 3: Paper 1
+git mv PAPER1_DM1_FULL_2026_05_04.md           docs/papers/paper1/working_doc.md
+git mv PAPER1_SPATIAL_SUPPLEMENT_FREEZE_2026_05_03.md docs/papers/paper1/spatial_supplement_freeze.md
+git mv dark_matter_feasibility_report.md       docs/papers/paper1/feasibility.md
+
+# Phase 4: Pathology
+git mv PATHOLOGY_DM1_FEASIBILITY_2026_05_03.md docs/track_c_pathology/feasibility.md
+
+# Phase 5: K-Thyro (option A: sub-dir; option B: /docs/track_b_kthyro/)
+git mv KTHYRO_PUBLIC_PILOT_WEB_REVIEW_CONTEXT.md \
+    kthyro_public_pilot/docs/web_review_context.md
+git mv KTHYRO_SAMSUNG_PPT_MASTER_CONTEXT.md \
+    kthyro_ctc_emt_samsung_proposal/docs/ppt_master_context.md
+
+# Phase 6: Vaccine (Track D)
+git mv CANCER_VACCINE_PROJECT_FULL.md          docs/track_d_vaccine/project_full.md
+git mv CROSS_Neo_MD_audit_decision_report.md   docs/track_d_vaccine/cross_neo_md_audit.md
+git mv CROSS_Neo_TCR_extension_decision_report.md docs/track_d_vaccine/cross_neo_tcr_extension.md
+
+# Phase 7: Sessions
+git mv SHARE_2026_05_04_SESSION_RECAP.md       docs/sessions/by_date/2026_05_04/share_recap.md
+git mv SITUATION_BACKGROUND_ACTIVITY_2026_05_04.md docs/sessions/by_date/2026_05_04/background.md
+git mv SITUATION_FULL_2026_05_04.md            docs/sessions/by_date/2026_05_04/situation_full.md
+git mv MARATHON_REENTRY_FINAL_2026_05_04.md    docs/sessions/by_date/2026_05_04/marathon_reentry.md
+git mv POD_CD_RUNNING_STATE_2026_05_04.md      docs/sessions/by_date/2026_05_04/pod_cd_running.md
+git mv POD_CLEANUP_AND_PAPER1_LOCK_2026_05_04.md docs/sessions/by_date/2026_05_04/pod_cleanup.md
+git mv SITUATION_FULL_2026_05_07.md            docs/sessions/by_date/2026_05_07/situation_full.md
+git mv SESSION_FULL_2026_05_07_DISK_POD_HUB.md docs/sessions/by_date/2026_05_07/session_full.md
+
+# Phase 8: Archive
+git mv GIGATIME_BUNDLE_2026_05_04.md           docs/archive/gigatime/bundle.md
+git mv GIGATIME_STRATEGY_2026_05_04.md         docs/archive/gigatime/strategy.md
+git mv EXTERNAL_ST_TRIAGE_ALL_2026_05_03.md    docs/archive/spatial_triage/all.md
+git mv GSE250521_ALL_2026_05_03.md             docs/archive/gse250521/all.md
+git mv PAPERS_5_OVERVIEW_2026_05_04.md         docs/archive/papers_5_overview.md
+git mv professor_summary_kr.md                 docs/archive/professor_summaries/2026_05_06.md
+
+# Phase 9: commit (한 commit per phase 권장)
+git commit -m "docs: reorganize 28 root .md into /docs/ subtree (32 → 5 root)"</pre>
+  <div class="callout red">
+    <b>주의:</b> 위 git mv 명령은 path를 참조하는 다른 파일(특히 <code>CLAUDE.md</code> · <code>AGENTS.md</code> · 웹페이지 링크 · scripts/) 도 함께 업데이트해야 한다. 1차로 <code>grep -rIn "PAPER1_DM1_FULL\|SITUATION_FULL_2026" --include="*.md" --include="*.html" --include="*.py"</code>로 reference 수집 후 진행.
+  </div>
+</section>
+
+<section id="docs-tree">
+  <h2>14 · 결과 /docs 트리</h2>
+  <p class="sub">final layout after reorg</p>
+<pre>docs/
+├── decisions/
+│   ├── closure_battery_image_dm1.md
+│   ├── phase_a_nogo.md
+│   ├── pending_2026_05_07.md
+│   └── dark_matter_go_no_go.md
+├── papers/
+│   └── paper1/
+│       ├── working_doc.md
+│       ├── spatial_supplement_freeze.md
+│       └── feasibility.md
+├── track_c_pathology/
+│   └── feasibility.md
+├── track_d_vaccine/
+│   ├── project_full.md
+│   ├── cross_neo_md_audit.md
+│   └── cross_neo_tcr_extension.md
+├── sessions/
+│   └── by_date/
+│       ├── 2026_05_04/
+│       │   ├── share_recap.md
+│       │   ├── background.md
+│       │   ├── situation_full.md
+│       │   ├── marathon_reentry.md
+│       │   ├── pod_cd_running.md
+│       │   └── pod_cleanup.md
+│       └── 2026_05_07/
+│           ├── situation_full.md
+│           └── session_full.md
+└── archive/
+    ├── gigatime/{bundle,strategy}.md
+    ├── spatial_triage/all.md
+    ├── gse250521/all.md
+    ├── pods/  (alias)
+    ├── papers_5_overview.md
+    └── professor_summaries/2026_05_06.md
+
+# root에 남는 .md (5)
+AGENTS.md  CLAUDE.md  README.md  QUICKSTART.md  REPRODUCIBILITY.md</pre>
+  <p class="note"><b>Track B (K-Thyro)</b>는 위 트리에 의도적으로 빠뜨림 — 본인 sub-dir(<code>kthyro_*/docs/</code>)에 위치해서 docs/ 트리에서는 alias만 거는 옵션.</p>
+</section>
+
+<section id="dup-detect">
+  <h2>14A · 의심되는 중복 문서 (cross-reference)</h2>
+  <p class="sub">SITUATION_FULL/SHARE/SESSION 계열 · 같은 날 여러 doc</p>
+  <table>
+    <thead><tr><th>그룹</th><th>구성</th><th>합계 크기</th><th>결론</th></tr></thead>
+    <tbody>
+      <tr><td>2026-05-04 session 묶음 (6 docs)</td><td>SHARE_SESSION_RECAP · SITUATION_BACKGROUND · SITUATION_FULL · MARATHON_REENTRY_FINAL · POD_CD_RUNNING_STATE · POD_CLEANUP_AND_PAPER1_LOCK</td><td>~80 KB</td><td>같은 날 6 doc은 과다. 1 master + 5 supplement로 통합 가능. 단 각각이 독자적 문맥(pod state vs paper1 lock vs marathon)이라 즉시 합병보단 by_date/ 디렉터리에 묶고 README.md로 차이 명시 권장.</td></tr>
+      <tr><td>2026-05-07 session 묶음 (2 docs)</td><td>SITUATION_FULL_2026_05_07 · SESSION_FULL_2026_05_07_DISK_POD_HUB</td><td>~36 KB</td><td>같은 날 2 doc — 하나는 narrative(situation), 하나는 인프라 changes(session). 둘 다 keep + by_date/ 디렉터리.</td></tr>
+      <tr><td>GIGATIME 묶음 (2 docs)</td><td>GIGATIME_STRATEGY · GIGATIME_BUNDLE</td><td>~26 KB</td><td>전략 + 번들 plan 분리; 합쳐도 OK. 단 GIGATIME 도입 자체가 paused이므로 archive로.</td></tr>
+      <tr><td>dark_matter 묶음 (2 docs + 1 summary)</td><td>dark_matter_feasibility · dark_matter_go_no_go · professor_summary_kr</td><td>~24 KB</td><td>feasibility + go/no-go = paper1 핵심. summary는 archive.</td></tr>
+      <tr><td>CROSS_Neo 묶음 (2 docs)</td><td>CROSS_Neo_MD_audit · CROSS_Neo_TCR_extension</td><td>~26 KB</td><td>vaccine 트랙 결정 보고 둘; track_d_vaccine/로.</td></tr>
+      <tr><td>KTHYRO 묶음 (2 docs)</td><td>KTHYRO_PUBLIC_PILOT_WEB_REVIEW · KTHYRO_SAMSUNG_PPT_MASTER</td><td>~43 KB</td><td>Samsung 자료 둘; sub-dir docs/로.</td></tr>
+      <tr><td>PAPER1 묶음 (2 docs)</td><td>PAPER1_DM1_FULL · PAPER1_SPATIAL_SUPPLEMENT_FREEZE</td><td>~56 KB</td><td>core paper 1; papers/paper1/로.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="naming-conv">
+  <h2>14B · 명명 컨벤션 충돌 분석</h2>
+  <p class="sub">UPPERCASE vs lowercase · date suffix · purpose prefix</p>
+  <table>
+    <thead><tr><th>패턴</th><th>개수</th><th>예</th><th>의도</th></tr></thead>
+    <tbody>
+      <tr><td>UPPERCASE_WITH_DATE</td><td>~22개</td><td>SITUATION_FULL_2026_05_07 · PAPER1_DM1_FULL_2026_05_04</td><td>중요 doc임을 강조 + 날짜 lock</td></tr>
+      <tr><td>UPPERCASE_NO_DATE</td><td>5개</td><td>AGENTS · CLAUDE · README · QUICKSTART · REPRODUCIBILITY</td><td>infra · 항상 최신</td></tr>
+      <tr><td>lowercase_with_underscore</td><td>3개</td><td>dark_matter_feasibility · dark_matter_go_no_go · professor_summary_kr</td><td>working note · 다른 doc보다 informal</td></tr>
+      <tr><td>UPPERCASE/lowercase mix (DM1/HLA prefix)</td><td>여러 sub-dir에서 사용</td><td>KTHYRO_*, PAPER1_*</td><td>track prefix</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <b>관찰:</b> UPPERCASE는 "중요 메모"의 시각적 신호; lowercase는 "working draft". 33개 root MD 사이에 이 두 컨벤션이 섞여 있다. /docs/ 이관 시 lowercase로 통일 (디렉터리가 이미 분류 신호) 권장.
+  </div>
+</section>
+
+<section id="evidence-labels">
+  <h2>14C · 각 doc의 evidence label</h2>
+  <p class="sub">file-backed / internal claim / superseded · 32 항목 빠른 라벨</p>
+  <table>
+    <thead><tr><th>doc</th><th>label</th><th>주의</th></tr></thead>
+    <tbody>
+      <tr><td>CLAUDE.md</td><td><span class="good">file-backed · active</span></td><td>매 세션 자동 로드</td></tr>
+      <tr><td>AGENTS.md</td><td><span class="good">file-backed · active</span></td><td>agent CLI 자동 검색</td></tr>
+      <tr><td>README · QUICKSTART · REPRODUCIBILITY</td><td><span class="good">file-backed · static</span></td><td>2026-04-24 이후 변경 없음</td></tr>
+      <tr><td>CLOSURE_BATTERY_2026_05_04</td><td><span class="hi">file-backed but overturned</span></td><td>verdict D였으나 ViT-L+CLAM PASS로 추후 변경; 보존 가치 high</td></tr>
+      <tr><td>PHASE_A_NOGO_REPORT</td><td><span class="hi">file-backed but overturned</span></td><td>위와 동일</td></tr>
+      <tr><td>DECISIONS_PENDING_2026_05_07</td><td><span class="bad">active decisions (must resolve)</span></td><td>voice-protected 5개 미작성</td></tr>
+      <tr><td>PAPER1_DM1_FULL · SPATIAL_SUPPLEMENT_FREEZE</td><td><span class="good">file-backed · paper1 source</span></td><td>manuscript_v8과 동기화 필요</td></tr>
+      <tr><td>dark_matter_feasibility · go_no_go</td><td><span class="good">file-backed · paper1 source</span></td><td>137/482 · DICER1/EIF1AX/PPM1D Fisher p=0.0175</td></tr>
+      <tr><td>SITUATION_FULL_*</td><td><span class="hi">internal claim · narrative recap</span></td><td>사실 vs narrative 혼재; cite 시 cross-check 필요</td></tr>
+      <tr><td>SESSION_FULL · SHARE_SESSION_RECAP · MARATHON_REENTRY</td><td><span class="hi">internal claim · session</span></td><td>위와 동일</td></tr>
+      <tr><td>POD_CD_RUNNING_STATE · POD_CLEANUP</td><td><span class="hi">superseded</span></td><td>v17_runpod_a6000_2026_05_07 memory가 더 최신</td></tr>
+      <tr><td>KTHYRO_PUBLIC_PILOT · SAMSUNG_PPT_MASTER</td><td><span class="good">file-backed · track B source</span></td><td>—</td></tr>
+      <tr><td>CANCER_VACCINE_PROJECT_FULL · CROSS_Neo_MD/TCR</td><td><span class="good">file-backed · track D source</span></td><td>—</td></tr>
+      <tr><td>GIGATIME_STRATEGY · BUNDLE</td><td><span class="hi">superseded · paused</span></td><td>marathon mode 동안 paused; archive</td></tr>
+      <tr><td>EXTERNAL_ST_TRIAGE · GSE250521_ALL</td><td><span class="hi">superseded · 큰 working note</span></td><td>spatial-full 페이지로 시각화 완료; 원본 archive</td></tr>
+      <tr><td>PAPERS_5_OVERVIEW</td><td><span class="hi">superseded · paper numbering 변경 전 가능</span></td><td>2026-05-04 numbering vs 현 canonical 비교 필요</td></tr>
+      <tr><td>PATHOLOGY_DM1_FEASIBILITY</td><td><span class="good">file-backed · Track C source</span></td><td>—</td></tr>
+      <tr><td>professor_summary_kr</td><td><span class="hi">internal claim · letter</span></td><td>2026-05-06 한 페이지 요약</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="siblings">
+  <h2>16 · Sibling links — chief-of-staff family</h2>
+  <p class="sub">cos_00..cos_31 · yu_meeting_brief · mega_launchpad · index</p>
+  <h3>15.1 chief_of_staff 00-10</h3>
+  <div class="sibgrid">
+    <a class="chf" href="chief_of_staff_00_package_index_2026_05_14.html">00 · index</a>
+    <a class="chf" href="chief_of_staff_01_repo_audit_2026_05_14.html">01 · repo audit</a>
+    <a class="chf" href="chief_of_staff_02_data_evidence_registry_2026_05_14.html">02 · data evidence</a>
+    <a class="chf" href="chief_of_staff_03_anti_hallucination_report_2026_05_14.html">03 · anti-hallucination</a>
+    <a class="chf" href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html">04 · DM1/DM2 decision</a>
+    <a class="chf" href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html">05 · Samsung CTC</a>
+    <a class="chf" href="chief_of_staff_06_pathology_2d3d_demo_plan_2026_05_14.html">06 · 2D/3D demo</a>
+    <a class="chf" href="chief_of_staff_07_brand_architecture_lumenix_biodarwin_2026_05_14.html">07 · brand arch</a>
+    <a class="chf" href="chief_of_staff_08_figure_slide_plan_2026_05_14.html">08 · figure plan</a>
+    <a class="chf" href="chief_of_staff_09_next_actions_collaborators_2026_05_14.html">09 · next actions</a>
+    <a class="chf" href="chief_of_staff_10_followup_prompts_2026_05_14.html">10 · followups</a>
+  </div>
+  <h3>15.2 cos 11-31</h3>
+  <div class="sibgrid">
+    <a class="cos" href="cos_11_ctc_enrichment_vendor_comparison_2026_05_14.html">11 · CTC vendor</a>
+    <a class="cos" href="cos_12_spatial_vendor_comparison_2026_05_14.html">12 · spatial vendor</a>
+    <a class="cos" href="cos_13_foundation_model_literature_scan_2026_05_14.html">13 · FM lit scan</a>
+    <a class="cos" href="cos_14_hernan_robins_target_trial_primer_2026_05_14.html">14 · target trial</a>
+    <a class="cos" href="cos_15_as_vs_surgery_protocol_2026_05_14.html">15 · AS vs surgery</a>
+    <a class="cos" href="cos_16_ai_bridge_model_architecture_2026_05_14.html">16 · AI bridge</a>
+    <a class="cos" href="cos_17_biodarwin_engine_architecture_2026_05_14.html">17 · biodarwin</a>
+    <a class="cos" href="cos_18_seven_agent_deep_dives_2026_05_14.html">18 · 7 agents</a>
+    <a class="cos" href="cos_19_lumenix_legal_ip_trademark_2026_05_14.html">19 · IP/TM</a>
+    <a class="cos" href="cos_20_baba_cohort_inventory_2026_05_14.html">20 · Baba cohort</a>
+    <a class="cos" href="cos_21_62_ctc_cohort_design_2026_05_14.html">21 · 62 CTC design</a>
+    <a class="cos" href="cos_22_korean_maestro_master_kompass_2026_05_14.html">22 · Korean kompass</a>
+    <a class="cos" href="cos_23_vendor_outreach_email_templates_2026_05_14.html">23 · vendor email</a>
+    <a class="cos" href="cos_24_samsung_30b_budget_cell_breakdown_2026_05_14.html">24 · Samsung budget</a>
+    <a class="cos" href="cos_25_lumenix_vc_pitch_deck_2026_05_14.html">25 · VC pitch</a>
+    <a class="cos" href="cos_26_biodarwin_oss_release_plan_2026_05_14.html">26 · biodarwin OSS</a>
+    <a class="cos" href="cos_27_reproducibility_cicd_workflow_2026_05_14.html">27 · CI/CD</a>
+    <a class="cos" href="cos_28_ctc_emt_marker_panel_deep_2026_05_14.html">28 · CTC marker</a>
+    <a class="cos" href="cos_29_repo_state_snapshot_2026_05_14.html">29 · repo state snapshot</a>
+    <a class="cos" href="cos_30_thirty_two_root_md_audit_2026_05_14.html"><b>30 · this page</b></a>
+    <a class="cos" href="cos_31_external_dependencies_subtree_2026_05_14.html">31 · external subtree</a>
+  </div>
+  <h3>15.3 통합 / index</h3>
+  <div class="sibgrid">
+    <a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief</a>
+    <a href="mega_launchpad_2026_05_14.html">mega_launchpad</a>
+    <a href="index.html">Hub home</a>
+  </div>
+</section>
+
+<p class="footer">COS-30 · 32 root .md audit · 2026-05-14 · Seungho Cook · file-backed counts from <code>stat -c "%s %y"</code> on root *.md</p>
+
+</main>
+</body>
+</html>

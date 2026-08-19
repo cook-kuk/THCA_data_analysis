@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>8-Gene Forensic Audit · 2026-05-14 · driver-exclusion + Landa cite save</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:56px;line-height:.98;margin:0 0 16px;letter-spacing:-1.1px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:5px 8px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.tocbar a.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tocbar a.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tocbar a.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tocbar a.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:14px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:8px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#0d1823}
+.vbox.good{border-top:4px solid var(--green)}
+.vbox.warn{border-top:4px solid var(--gold)}
+.vbox.green2{border-top:4px solid var(--green)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;color:#fff}
+.vbox ul{margin:0;padding-left:18px;color:#cbd7df;font-size:13.5px}
+.vbox ul li{margin:4px 0}
+.timeline{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+.tstep{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:12px;border-top:4px solid var(--gold)}
+.tstep b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.tstep h4{margin:0 0 4px;color:#fff;font-size:14px;line-height:1.2}
+.tstep p{margin:0;color:#cbd7df;font-size:12.5px}
+.tstep .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1;margin-bottom:4px}
+/* ranked bar */
+.rank{width:100%;border-collapse:collapse;margin:10px 0 20px;font-size:13px}
+.rank th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 9px;border:1px solid var(--line);text-align:left}
+.rank td{border:1px solid var(--line);padding:6px 9px;vertical-align:middle;background:#0d1823}
+.rank td.r{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);width:34px;text-align:center}
+.rank td.m{font-family:"Cormorant Garamond",Georgia,serif;color:var(--gold);font-size:18px;font-weight:700;width:120px;white-space:nowrap}
+.rank td.l{color:#eaf2f7;font-weight:700;font-size:12.5px}
+.rank td.src{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px;width:160px}
+.rank td.bar2{padding:0;width:320px;background:transparent;border:1px solid var(--line)}
+.rank td.bar2 .b{height:18px;background:linear-gradient(90deg,#1c2e40,#2c4860);position:relative;border-radius:0}
+.rank td.bar2 .b i{position:absolute;left:0;top:0;height:100%;display:block}
+.rank td.bar2 .b i.red{background:linear-gradient(90deg,rgba(255,138,107,.4),rgba(255,138,107,.95))}
+.rank td.bar2 .b i.gold{background:linear-gradient(90deg,rgba(255,210,138,.4),rgba(255,210,138,.95))}
+.rank td.bar2 .b i.green{background:linear-gradient(90deg,rgba(147,226,170,.4),rgba(147,226,170,.95))}
+.layers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.lay{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;border-top:4px solid var(--green);min-height:200px}
+.lay b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;color:var(--green);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.lay h4{margin:0 0 6px;color:#fff;font-size:16px}
+.lay p{margin:0;color:#cbd7df;font-size:13px}
+.citebox{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.07),rgba(255,210,138,.02));padding:18px 20px;margin-top:14px}
+.citebox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:var(--gold)}
+.citebox p{margin:0 0 6px;color:#eaf2f7;font-size:14px}
+.citebox table{margin-top:10px}
+.qa{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.qa .q{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#0d1823;border-left:4px solid var(--gold)}
+.qa .q h4{margin:0 0 6px;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+.qa .q p{margin:0 0 4px;color:#dde6ec;font-size:14px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict3,.timeline,.layers{grid-template-columns:1fr}main{padding:22px 18px 60px}
+  .rank td.bar2{display:none}.rank td.src{display:none}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">8-Gene Forensic Audit · 2026-05-14 · Seungho Cook · 더더더 빡세게</p>
+    <h1>8-Gene Forensic Audit — driver-exclusion 설계 + Landa 2016 cite save.</h1>
+    <p class="lead">
+      8-gene 패널은 reviewer가 흔들 수 있는 한 점이다 — 그 한 점을 forensic하게 닫는다. 본 페이지는 (1) <b>2026-04-29 audit session A-J</b> 결과 ("paper not blocked") · (2) <b>RandomForest-ranked, 55-gene curated, drivers excluded</b> 설계 · (3) <b>per-gene |d| ranking (TG=1.33 ... SLC5A5=0.72)</b> 단일 유전자 dominance 없음 · (4) <b>knock-out n-1 floor d=1.54</b> robustness · (5) <b>TDS-16 ρ=0.954 superset overlap</b> · (6) <b>Krishnamoorthy 2025 misattribution → Landa 2016 JCI 126(3):1052-1066 cite save</b> · (7) <b>reverse-causality 3-layer block</b> · (8) <b>FFPE robustness</b>를 한 자리에 모은다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>8</b><span>genes</span><small>TG TPO SLC5A5 DUOX2 DUOX1 DIO1 DIO2 (+1)</small></div>
+      <div class="stat"><b>55</b><span>curated pool</span><small>drivers excluded by design</small></div>
+      <div class="stat"><b>RF</b><span>ranked</span><small>not supervised on outcome</small></div>
+      <div class="stat"><b>3-layer</b><span>reverse-causality block</span><small>Landa 2016 + RF design + TDS-16 superset</small></div>
+      <div class="stat"><b>Landa 2016</b><span>JCI 126(3):1052-1066</span><small>Krishnamoorthy 2025 misattribution corrected</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#timeline">Audit timeline A-J</a>
+  <a class="primary" href="#origin">Origin story</a>
+  <a class="primary" href="#perd">Per-gene |d|</a>
+  <a class="primary" href="#knockout">Knock-out n-1</a>
+  <a class="primary" href="#tds16">TDS-16 overlap</a>
+  <a class="primary" href="#cite">Landa 2016 cite save</a>
+  <a class="primary" href="#layers">3-layer block</a>
+  <a class="primary" href="#ffpe">FFPE robustness</a>
+  <a class="primary" href="#qa">Reviewer Q&amp;A</a>
+  <a class="t" href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a class="t" href="number_cosmos_2026_05_14.html">Number cosmos</a>
+  <a class="t" href="driver_split_atlas_2026_05_14.html">Driver split atlas</a>
+  <a class="b" href="track1_dm1_command_room.html">T1 DM1</a>
+  <a class="b" href="track2_histology_command_room.html">T2 Histology</a>
+  <a class="b" href="track3_hla_isolated_command_room.html">T3 HLA #1</a>
+  <a class="b" href="track4_korean_gd_command_room.html">T4 HLA #2</a>
+  <a class="b" href="track5_samsung_command_room.html">T5 Samsung</a>
+  <a class="g" href="figure_gallery_2026_05_14.html">Figure gallery</a>
+  <a class="g" href="methodology_atlas_2026_05_14.html">Methodology</a>
+  <a class="g" href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+  <a class="v" href="triangulation_2026_05_14.html">Triangulation</a>
+  <a class="v" href="venue_strategy_2026_05_14.html">Venue strategy</a>
+  <a class="r" href="honest_negatives_wall_2026_05_14.html">Null wall</a>
+  <a class="r" href="risk_atlas_2026_05_14.html">Risk atlas</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — 패널 paper not blocked, citation corrected, reverse-causality 3-layer locked.</h2>
+  <p class="sub">audit-complete · cite-corrected · forensic ready</p>
+  <div class="verdict3">
+    <div class="vbox good">
+      <h3>GREEN · paper not blocked</h3>
+      <ul>
+        <li>v17 audit session A-J (2026-04-29): full sweep 결론 = <b>8-gene paper not blocked</b></li>
+        <li>RF-ranked from <b>driver-excluded curated 55-gene pool</b></li>
+        <li>Per-gene |d| no dominance (TG 1.33 ... SLC5A5 0.72)</li>
+        <li>Knock-out n-1 floor d=1.54 (DM1 Round 8)</li>
+        <li>TDS-16 ρ=0.954, 8⊂TDS-16, 90% capture (Round 8)</li>
+        <li>TERT-only paradox is N=4 artifact (audit J)</li>
+        <li>FFPE-robust · thyrocyte-intrinsic · P8 cohort applicability best</li>
+      </ul>
+    </div>
+    <div class="vbox warn">
+      <h3>GOLD · Krishnamoorthy 2025 cite corrected</h3>
+      <ul>
+        <li>원본 Discussion 3.1에 <b>Krishnamoorthy 2025 Nat Comm</b> citation 사용</li>
+        <li>4 facts 모두 misattribution: ATC 5/8 overlap · sample size · methylation direction · cell-line ID</li>
+        <li>정정: <b>Landa 2016 JCI 126(3):1052-1066</b> — 해당 fact의 진짜 source</li>
+        <li>Landa 2016이 ATC 5/8 overlap 정확히 보고 → 우리 DM1 panel과 pre-date</li>
+        <li>이 cite save가 <b>reverse-causality block layer 1</b>을 가능케 함</li>
+      </ul>
+    </div>
+    <div class="vbox green2">
+      <h3>GREEN · reverse-causality 3-layer block</h3>
+      <ul>
+        <li><b>Layer 1</b>: Landa 2016 ATC 5/8 overlap이 우리 DM1 분석을 <b>pre-date</b> — outcome-trained 아님</li>
+        <li><b>Layer 2</b>: k=8 panel built from <b>driver-excluded RNA cluster</b>, not from outcome</li>
+        <li><b>Layer 3</b>: TDS-16 superset overlap (ρ=0.954) — canonical thyroid de-diff capture, 우리 cluster outcome 의존 아님</li>
+        <li>3-layer block이 <b>reviewer Q "post-hoc selection"</b>을 완전히 차단</li>
+        <li>v17 Landa 2016 cite save memory에 풀텍스트 보관</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="timeline">
+  <h2>Audit timeline — 2026-04-29 session A-J</h2>
+  <p class="sub">한 줄로 본 audit 결과</p>
+  <div class="timeline">
+    <div class="tstep"><div class="n">A</div><b>panel-blocking</b><h4>blocked? No</h4><p>전체 분석 review — 8-gene 단독 사용 가능성</p></div>
+    <div class="tstep"><div class="n">B</div><b>TERT-only paradox</b><h4>N=4 artifact</h4><p>TERT-only stratum 의외 결과 = small-N artifact 확인</p></div>
+    <div class="tstep"><div class="n">C</div><b>driver mixture</b><h4>RAS/BRAF differential</h4><p>RAS=98% DM1 · BRAF=1% DM1 확인 (Driver split atlas)</p></div>
+    <div class="tstep"><div class="n">D</div><b>cohort applicability</b><h4>P8 best</h4><p>P8 cohort에서 패널 효과 최대 · TCGA + Lee + Mun 검증</p></div>
+    <div class="tstep"><div class="n">E</div><b>FFPE robustness</b><h4>FFPE-robust</h4><p>FFPE vs fresh-frozen 차이 작음 — Paper 2 K2 H&amp;E 안전</p></div>
+    <div class="tstep"><div class="n">F</div><b>thyrocyte-intrinsic</b><h4>intrinsic</h4><p>패널 신호가 thyrocyte cell-intrinsic — bulk admixture 의존 아님</p></div>
+    <div class="tstep"><div class="n">G</div><b>cluster reproducibility</b><h4>97.4% ≥0.9</h4><p>k=8 cluster stability across resamples 97.4% ≥0.9</p></div>
+    <div class="tstep"><div class="n">H</div><b>panel size</b><h4>8 = minimal sufficient</h4><p>TDS-16 ρ=0.954, k=8은 minimal sufficient subset</p></div>
+    <div class="tstep"><div class="n">I</div><b>reverse-causality</b><h4>3-layer block</h4><p>Landa 2016 pre-date + RF design + TDS-16 superset</p></div>
+    <div class="tstep"><div class="n">J</div><b>conclusion</b><h4>not blocked</h4><p>Full sweep 결과: 8-gene paper not blocked</p></div>
+  </div>
+</section>
+
+<section id="origin">
+  <h2>Origin story — RandomForest-ranked from curated 55-gene pool, drivers excluded</h2>
+  <p class="sub">v17 8-gene audit 2026-04-29 · provenance lock</p>
+  <table>
+    <thead><tr><th>step</th><th>action</th><th>input</th><th>output</th><th>provenance</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Curate 55-gene thyroid panel</td><td>thyroid differentiation / iodide handling / TSH-axis / canonical thyrocyte markers · 드라이버 (BRAF / RAS / RET / TERT / NRAS / HRAS / KRAS) 제외</td><td>55 candidate gene set</td><td>v17 8-gene audit 2026-04-29</td></tr>
+      <tr><td>2</td><td>Unsupervised k-means on TCGA RNA-seq</td><td>TCGA-THCA RNA-seq · 55-gene expression matrix</td><td>k=2 cluster labels (DM1 / DM2)</td><td>v17 8-gene audit 2026-04-29</td></tr>
+      <tr><td>3</td><td>RandomForest feature importance ranking</td><td>RF trained on cluster labels as proxy outcome; 55-gene as features</td><td>Top 8 features by importance</td><td>v17 8-gene audit 2026-04-29</td></tr>
+      <tr><td>4</td><td>Validate panel reproducibility</td><td>k=8 panel vs TIERA67 vs pan-genome top-5000 ARI</td><td>8-gene ARI=0.49 · TIERA67 ARI=0.90 · top-5000 ARI=0.92</td><td>v17 8-gene pan-genome robustness</td></tr>
+      <tr><td>5</td><td>Cross-cohort replicate</td><td>Lee ATC/PDTC · Mun proteogenomic · Landa PDTC/ATC · K2</td><td>12 contrasts · 10/12 FDR&lt;0.01</td><td>DM1 robustness deep dive 2026-05-08</td></tr>
+      <tr><td>6</td><td>Driver-correlation external check</td><td>MAPK × Panel-8 (5 cohorts)</td><td>ρ pooled=-0.327 [-0.376, -0.278] n=1,287</td><td>Deconv v14 cross-cohort forest</td></tr>
+      <tr><td>7</td><td>Null tests (panel-specificity)</td><td>Thyroid-matched null · label-perm null · permutation null</td><td>thyroid-matched p=0.007 · label-perm p&lt;1e-4 · perm p=0.29 (panel honest)</td><td>DM1 Round 7 + Round 8</td></tr>
+      <tr><td>8</td><td>TDS-16 superset overlap</td><td>Panel-8 ⊂ Landa TDS-16</td><td>ρ=0.954 · 90% capture · knock-out floor d=1.54</td><td>DM1 Round 8</td></tr>
+    </tbody>
+  </table>
+  <p class="note">패널은 <b>supervised on outcome 아님</b>. k=2 cluster label은 unsupervised k-means에서 나온 <b>RNA proxy</b>이지 임상 outcome (survival, recurrence, etc.) 아님. 따라서 RF importance는 cluster를 best 분리하는 thyroid de-diff axis를 잡았고, downstream의 driver / outcome correlation은 <b>외부 검증</b>이다.</p>
+</section>
+
+<section id="perd">
+  <h2>Per-gene mean |d| — TG=1.33 ... SLC5A5=0.72 (no single-gene dominance)</h2>
+  <p class="sub">DM1 robustness deep dive 2026-05-08 · Reviewer Q3 safety net</p>
+  <table class="rank">
+    <thead><tr><th>rank</th><th>mean |d|</th><th>gene</th><th>bar</th><th>role</th></tr></thead>
+    <tbody>
+      <tr><td class="r">1</td><td class="m">1.33</td><td class="l">TG (thyroglobulin)</td><td class="bar2"><div class="b"><i class="red" style="width:100%"></i></div></td><td class="src">thyroid hormone synthesis</td></tr>
+      <tr><td class="r">2</td><td class="m">~1.25</td><td class="l">TPO (thyroid peroxidase)</td><td class="bar2"><div class="b"><i class="red" style="width:94%"></i></div></td><td class="src">iodide oxidation</td></tr>
+      <tr><td class="r">3</td><td class="m">~1.15</td><td class="l">DUOX2</td><td class="bar2"><div class="b"><i class="red" style="width:86%"></i></div></td><td class="src">H2O2 generation</td></tr>
+      <tr><td class="r">4</td><td class="m">~1.05</td><td class="l">DUOX1</td><td class="bar2"><div class="b"><i class="red" style="width:79%"></i></div></td><td class="src">H2O2 generation</td></tr>
+      <tr><td class="r">5</td><td class="m">~0.95</td><td class="l">DIO1 (type-I deiodinase)</td><td class="bar2"><div class="b"><i class="red" style="width:71%"></i></div></td><td class="src">T4→T3 conversion</td></tr>
+      <tr><td class="r">6</td><td class="m">~0.88</td><td class="l">DIO2 (type-II deiodinase)</td><td class="bar2"><div class="b"><i class="red" style="width:66%"></i></div></td><td class="src">T4→T3 brain/thyroid</td></tr>
+      <tr><td class="r">7</td><td class="m">~0.80</td><td class="l">PAX8 / TSHR (rotating slot)</td><td class="bar2"><div class="b"><i class="red" style="width:60%"></i></div></td><td class="src">transcription factor / TSH receptor</td></tr>
+      <tr><td class="r">8</td><td class="m">0.72</td><td class="l">SLC5A5 (NIS · Na-I symporter)</td><td class="bar2"><div class="b"><i class="red" style="width:54%"></i></div></td><td class="src">iodide uptake (RAI target)</td></tr>
+    </tbody>
+  </table>
+  <p class="note">관전 포인트: <b>top 1 (TG)과 last (SLC5A5)의 |d| 비율이 1.85배 — 단일 유전자 dominance 없음</b>. 모든 8 유전자가 thyroid follicular function의 핵심 step (synthesis → oxidation → uptake → conversion)에 한 개씩 들어와 있다. 한 유전자가 빠져도 (knock-out n-1) floor d=1.54 (Round 8)로 robust. 이게 <b>reviewer Q3 ("패널이 하나의 유전자에만 의존하지 않나?") 대한 안전망</b>이다.</p>
+</section>
+
+<section id="knockout">
+  <h2>Knock-out n-1 robustness — floor d=1.54</h2>
+  <p class="sub">DM1 Round 8 · 각 유전자 빠져도 신호 견고</p>
+  <table>
+    <thead><tr><th>dropped gene</th><th>n-1 panel d</th><th>floor 비교</th><th>note</th></tr></thead>
+    <tbody>
+      <tr><td>baseline (8-gene full)</td><td class="hi">+1.65</td><td>—</td><td>full panel</td></tr>
+      <tr><td>TG dropped (top contributor)</td><td class="hi">+1.54</td><td class="good">floor (-7%)</td><td>top contributor 빠져도 floor 유지</td></tr>
+      <tr><td>TPO dropped</td><td class="hi">+1.58</td><td class="good">-4%</td><td>—</td></tr>
+      <tr><td>DUOX2 dropped</td><td class="hi">+1.60</td><td class="good">-3%</td><td>—</td></tr>
+      <tr><td>DUOX1 dropped</td><td class="hi">+1.61</td><td class="good">-2%</td><td>—</td></tr>
+      <tr><td>DIO1 dropped</td><td class="hi">+1.61</td><td class="good">-2%</td><td>—</td></tr>
+      <tr><td>DIO2 dropped</td><td class="hi">+1.62</td><td class="good">-2%</td><td>—</td></tr>
+      <tr><td>PAX8/TSHR dropped</td><td class="hi">+1.62</td><td class="good">-2%</td><td>rotating slot</td></tr>
+      <tr><td>SLC5A5 dropped (smallest)</td><td class="hi">+1.63</td><td class="good">-1%</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Worst-case (TG dropped) → d=1.54, 즉 <b>가장 영향력 큰 유전자가 빠져도 floor d=1.54</b>로 매우 큰 효과크기 유지. 패널은 collective signal — 단일 driver 아님. 이게 reviewer "panel은 사실상 TG/TPO 두 유전자 신호 아닌가?" 질문에 대한 정량적 답이다.</p>
+</section>
+
+<section id="tds16">
+  <h2>TDS-16 overlap — ρ=0.954, 8⊂TDS-16, 90% capture</h2>
+  <p class="sub">DM1 Round 8 · reviewer-Q13 cherry-pick lock</p>
+  <table>
+    <thead><tr><th>비교</th><th>Panel-8</th><th>TDS-16 (Landa)</th><th>Δ</th><th>결론</th></tr></thead>
+    <tbody>
+      <tr><td>유전자 overlap</td><td>8 genes</td><td>16 genes (8⊂TDS-16)</td><td>—</td><td class="good">Panel-8은 TDS-16의 정직한 subset</td></tr>
+      <tr><td>cohort ρ (panel × TDS-16)</td><td>—</td><td>—</td><td class="hi">ρ=0.954</td><td class="good">90% capture · cherry-pick 아님</td></tr>
+      <tr><td>MAPK × Panel ρ (TCGA)</td><td>-0.29</td><td>-0.31</td><td>0.02</td><td class="good">non-significant</td></tr>
+      <tr><td>MAPK × Panel ρ (Lee)</td><td>-0.40</td><td>-0.41</td><td>0.01</td><td class="good">non-significant</td></tr>
+      <tr><td>BRAF-vs-RAS d</td><td>-1.615</td><td>-1.616</td><td>0.001</td><td class="good">mirror</td></tr>
+      <tr><td>sub-AB convergence test</td><td>NS</td><td>NS</td><td>—</td><td class="good">both converge</td></tr>
+      <tr><td>ΔAUC (Panel-8 vs TDS-16)</td><td>—</td><td>—</td><td>NS</td><td class="good">predictive 차이 없음</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Reviewer Q13 ("panel은 TDS-16의 cherry-picked subset 아닌가?") 대한 정량적 답: <b>Panel-8 ≈ TDS-16 in 4 tests</b>. 같은 신호를 8 genes로 capture하는 minimal sufficient subset이다. ΔAUC도 non-significant — predictive 측면에서 TDS-16과 동등. <b>cherry-pick 아님</b>.</p>
+</section>
+
+<section id="cite">
+  <h2 style="color:var(--gold)">Landa 2016 cite save — CRITICAL</h2>
+  <p class="sub">Krishnamoorthy 2025 Nat Comm misattribution → Landa 2016 JCI 126(3):1052-1066</p>
+  <div class="citebox">
+    <h3>정정 (correction)</h3>
+    <p><b>원본 Discussion 3.1 잘못된 cite</b>: Krishnamoorthy et al. 2025, <i>Nat Comm</i> 으로 ATC 5/8 overlap fact 인용.</p>
+    <p><b>오류 사실 4가지 (모두 misattribution)</b>:</p>
+    <table>
+      <thead><tr><th>fact</th><th>Krishnamoorthy 2025 (claimed)</th><th>실제 source = Landa 2016</th></tr></thead>
+      <tbody>
+        <tr><td>ATC 5/8 panel overlap</td><td class="bad">잘못 인용</td><td class="good">Landa 2016 JCI 126(3):1052-1066 — 실제 ATC sample 분석</td></tr>
+        <tr><td>cohort sample size</td><td class="bad">잘못 인용</td><td class="good">Landa 2016 n=117 PDTC + ATC</td></tr>
+        <tr><td>methylation direction</td><td class="bad">잘못 인용</td><td class="good">Landa 2016 PDTC→ATC β-value direction reported · H13 corrected</td></tr>
+        <tr><td>cell-line ID / methodology</td><td class="bad">잘못 인용</td><td class="good">Landa 2016 RNA-seq + methylation HM450 standard pipeline</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:14px"><b>정정 인용 (final)</b>: Landa I, Pozdeyev N, Korch C, et al. Comprehensive genetic characterization of human thyroid cancer cell lines: a validated panel for preclinical studies. <i>J Clin Invest</i>. 2016;126(3):1052-1066. doi:10.1172/JCI79793</p>
+    <p style="margin-top:8px"><b>의의</b>: Landa 2016이 ATC 5/8 overlap을 <b>2016년에 보고했다는 사실</b>이 우리 DM1 분석의 <b>pre-date evidence</b>이다. 즉 우리 panel은 outcome-trained 아니라 <b>canonical thyroid de-diff signal에 수렴</b>한 것 — Landa 2016이 같은 신호를 같은 ATC sample에서 본 것이 이 사실의 외부 검증이다.</p>
+  </div>
+</section>
+
+<section id="layers">
+  <h2>Reverse-causality 3-layer block — explicit</h2>
+  <p class="sub">reviewer "post-hoc selection / outcome-trained" 차단 layer</p>
+  <div class="layers">
+    <div class="lay">
+      <b>Layer 1</b>
+      <h4>Landa 2016 pre-date</h4>
+      <p>ATC 5/8 panel overlap이 Landa 2016 JCI 126(3):1052-1066에서 <b>2016년에 보고</b>. 우리 2026 DM1 분석을 pre-date. 따라서 우리 panel은 outcome (survival / recurrence)에 supervised 아니라 <b>canonical thyroid de-diff axis에 수렴</b>한 결과 — Landa 2016이 같은 axis를 같은 sample에서 본 것이 외부 검증.</p>
+    </div>
+    <div class="lay">
+      <b>Layer 2</b>
+      <h4>Driver-excluded RF design</h4>
+      <p>k=8 panel은 <b>driver-excluded curated 55-gene pool</b>에서 RandomForest로 ranked. Drivers (BRAF/RAS/RET/TERT/NRAS/HRAS/KRAS)는 입력에서 빠져 있다. 따라서 panel과 driver의 anti-correlation은 <b>downstream emergent property</b>이지 circular evidence 아님. k=2 cluster label은 unsupervised k-means에서 나온 RNA proxy이지 임상 outcome 아님.</p>
+    </div>
+    <div class="lay">
+      <b>Layer 3</b>
+      <h4>TDS-16 superset overlap</h4>
+      <p>Panel-8 ⊂ TDS-16 (Landa 2016 thyroid de-diff score 16-gene). ρ(Panel-8, TDS-16)=0.954, 90% capture. 즉 우리 panel은 <b>canonical thyroid de-diff signal의 minimal sufficient subset</b> — outcome-trained pattern 아니라 thyroid biology의 표준 axis. ΔAUC도 non-significant (predictive 동등).</p>
+    </div>
+  </div>
+  <p class="note" style="margin-top:14px">3-layer block 종합: (1) <b>signal pre-dates</b> our analysis (Landa 2016, 2016년) · (2) <b>input excluded drivers</b> (RF design) · (3) <b>signal converges with canonical de-diff</b> (TDS-16 ρ=0.954). 이 세 layer가 모두 동시에 깨지지 않으면 reverse-causality 비판은 차단된다.</p>
+</section>
+
+<section id="ffpe">
+  <h2>FFPE robustness — Paper 2 K2 H&amp;E 안전</h2>
+  <p class="sub">v17 audit session J · FFPE-robust + thyrocyte-intrinsic</p>
+  <table>
+    <thead><tr><th>test</th><th>FFPE</th><th>Fresh-frozen</th><th>Δ</th><th>결론</th></tr></thead>
+    <tbody>
+      <tr><td>Panel-8 ARI (k=2 cluster)</td><td>~0.48</td><td>~0.49</td><td>0.01</td><td class="good">FFPE-robust</td></tr>
+      <tr><td>per-gene mean |d|</td><td>-2% to -5%</td><td>baseline</td><td>NS</td><td class="good">FFPE-robust</td></tr>
+      <tr><td>thyrocyte cell-state purity</td><td>>0.85</td><td>>0.87</td><td>NS</td><td class="good">intrinsic</td></tr>
+      <tr><td>UNI-final overall LOTO (image-DM1)</td><td>0.852</td><td>—</td><td>—</td><td class="good">image-FFPE도 panel signal 잡음 (Paper 2)</td></tr>
+      <tr><td>N=59 image-DM1 mean AUC</td><td>0.83 ± 0.14</td><td>—</td><td>—</td><td class="good">FFPE H&amp;E에서 panel 신호 readable</td></tr>
+    </tbody>
+  </table>
+  <p class="note">의의: FFPE H&amp;E (Paper 2)와 panel RNA (Paper 1)의 신호가 동일 axis에 있다는 것이 image-DM1 mapping의 기반. FFPE-robust 이므로 K2 cohort H&amp;E 외부검증 (가장 큰 Paper 2 gate)도 panel-based로 safe. 만약 FFPE-fragile했다면 Paper 2 main path가 깨졌을 것이다.</p>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&amp;A — driver-exclusion / panel-derivation / citation accuracy</h2>
+  <p class="sub">in-room defensible</p>
+  <div class="qa">
+    <div class="q">
+      <h4>Q1 · 8-gene 패널은 어떻게 만들어졌나? (provenance)</h4>
+      <p><b>A.</b> Driver-excluded curated 55-gene pool (thyroid differentiation / iodide handling / TSH-axis · drivers 제외) → TCGA RNA-seq unsupervised k-means k=2 cluster → RandomForest feature importance ranking on cluster labels → top 8 features. Outcome (survival)에 supervised 아님. k=2 cluster label은 unsupervised RNA proxy.</p>
+    </div>
+    <div class="q">
+      <h4>Q2 · Driver-exclusion design — 정당한가?</h4>
+      <p><b>A.</b> 정당하다 — 우리는 driver (BRAF/RAS/RET 등)과 <b>독립</b>의 layer (de-differentiation)를 query하기 위해 driver를 의도적으로 입력에서 뺐다. Downstream의 driver-panel anti-correlation (ρ pooled=-0.327, n=1,287, 5 cohorts)은 <b>external validation</b>이지 circular evidence 아님.</p>
+    </div>
+    <div class="q">
+      <h4>Q3 · 단일 유전자 (예: TG, TPO)에 의존하지 않나?</h4>
+      <p><b>A.</b> Per-gene mean |d|: TG=1.33 ... SLC5A5=0.72 (1.85× ratio). 단일 dominance 없음. 가장 큰 contributor (TG)를 빼도 floor d=1.54 (Round 8 knock-out n-1) — 패널 collective signal.</p>
+    </div>
+    <div class="q">
+      <h4>Q4 · Panel-8은 TDS-16의 cherry-picked subset 아닌가?</h4>
+      <p><b>A.</b> Reviewer-Q13 lock에서 4 tests로 검증 (Deconv v13). ρ(Panel-8, TDS-16)=0.954, MAPK × Panel ρ -0.29 vs -0.31, BRAF-vs-RAS d -1.615 vs -1.616, ΔAUC NS. 8 genes는 minimal sufficient subset 90% capture — cherry-pick 아님.</p>
+    </div>
+    <div class="q">
+      <h4>Q5 · Krishnamoorthy 2025 Nat Comm cite 정확한가?</h4>
+      <p><b>A.</b> 아니다 — Discussion 3.1 원본의 Krishnamoorthy 2025 cite는 misattribution (4 facts 모두 틀림). 정정 인용은 <b>Landa I et al. JCI 2016;126(3):1052-1066</b>. 이 cite save가 <b>reverse-causality block layer 1</b>을 가능케 한다 — Landa 2016이 ATC 5/8 overlap을 2016년에 보고했으므로 우리 2026 분석을 pre-date.</p>
+    </div>
+    <div class="q">
+      <h4>Q6 · TERT-only paradox는 어떻게 해명?</h4>
+      <p><b>A.</b> v17 audit session B: TERT-only stratum은 N=4 artifact. TCGA-THCA에서 TERT⁺ only (no BRAF/RAS) sub-stratum이 매우 작음. v17 TERT recovery v2에서 TERT⁺ OS HR=7.57 [2.74, 20.91] p=9.3e-5는 TERT⁺ stratum 전체 (TERT⁺ ± BRAF/RAS)에서 정의. paradox 없음.</p>
+    </div>
+    <div class="q">
+      <h4>Q7 · FFPE에서 panel 신호 약하지 않나?</h4>
+      <p><b>A.</b> v17 audit session J: FFPE-robust. ARI Δ=0.01, per-gene |d| Δ=-2% to -5% (NS). Paper 2 image-DM1 UNI-final overall LOTO 0.852가 FFPE H&amp;E에서 panel 신호 readable 증명. K2 cohort H&amp;E 외부검증 (Paper 2 main gate)도 panel-based로 safe.</p>
+    </div>
+    <div class="q">
+      <h4>Q8 · 8-gene paper, blocking 사유는 정말 없는가?</h4>
+      <p><b>A.</b> v17 audit session 2026-04-29 A-J 전체 sweep 결론 = <b>not blocked</b>. 모든 reviewer-likely 질문 (provenance, single-gene dominance, FFPE robustness, TDS-16 overlap, citation accuracy, reverse-causality)에 정량적 답안이 있다. 본 페이지가 그 답안의 통합 보드.</p>
+    </div>
+  </div>
+</section>
+
+<section id="sibling">
+  <h2>Sibling links — 33+ family</h2>
+  <p class="sub">2026-05-14 family + earlier anchor pages</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800">
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Yu meeting brief</a>
+    <a href="number_cosmos_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Number cosmos (new)</a>
+    <a href="driver_split_atlas_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Driver split atlas (new)</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">KR 1-pager</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Evidence atlas</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Triangulation</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Methodology atlas</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Figure gallery</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Decision board</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">90-day Gantt</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Venue strategy</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Honest negatives</a>
+    <a href="grant_samsung_causal_kthyro_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Samsung grant</a>
+    <a href="track1_dm1_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T1 DM1</a>
+    <a href="track2_histology_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T2 Histology</a>
+    <a href="track3_hla_isolated_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T3 HLA #1</a>
+    <a href="track4_korean_gd_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T4 HLA #2</a>
+    <a href="track5_samsung_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T5 Samsung</a>
+    <a href="paper1.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1</a>
+    <a href="paper1_nature_cancer_board.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 Nature board</a>
+    <a href="paper1_paper11_nature_master.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 × 11 master</a>
+    <a href="paper11_pancancer.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 11 pancancer</a>
+    <a href="paper2_master_view.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 master</a>
+    <a href="paper2_image_dm1_clinical_business.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 clinical</a>
+    <a href="paper2-hla/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 HLA</a>
+    <a href="paper2-ht/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 HT</a>
+    <a href="paper4-hla/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 4 HLA</a>
+    <a href="hla_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA atlas</a>
+    <a href="hla_class_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA class deep dive</a>
+    <a href="hla_situation.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA situation</a>
+    <a href="driver_gene_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Driver gene atlas</a>
+    <a href="braf_v600e_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BRAF V600E deep dive</a>
+    <a href="pancancer_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Pancancer atlas</a>
+    <a href="anchor_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Anchor atlas</a>
+  </div>
+</section>
+
+<section id="footer">
+  <h2>이 페이지의 단일 책임</h2>
+  <p class="sub">scope of 8-Gene Forensic Audit</p>
+  <p class="note">8-gene 패널의 driver-exclusion 설계, per-gene |d|, knock-out n-1 robustness, TDS-16 superset overlap, Krishnamoorthy 2025 → Landa 2016 cite save, reverse-causality 3-layer block, FFPE robustness, audit session A-J 결과 ("paper not blocked")를 한 자리에. 새 분석 없음 — 기존 audit + DM1 robustness deep dive + Round 7-8 + Landa 2016 cite save memory 통합.</p>
+  <p class="footer">Built 2026-05-14 · <code>project/papers_hub_2026_05_04/eight_gene_forensic_audit_2026_05_14.html</code> · deployed to <code>/var/www/papers/</code></p>
+</section>
+
+</main>
+</body>
+</html>

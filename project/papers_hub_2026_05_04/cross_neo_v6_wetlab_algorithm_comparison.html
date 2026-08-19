@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CROSS-Neo v6 Wetlab Algorithm Comparison</title>
+  <style>
+    :root { --bg:#101418; --panel:#151c22; --ink:#e9edf0; --muted:#9aa7af; --gold:#c59b3b; --line:#29343c; --teal:#69a7a2; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+    header { padding:42px 5vw 30px; background:#0c1115; border-bottom:1px solid var(--line); }
+    .kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.12em; font-weight:700; font-size:12px; }
+    h1 { margin:.3rem 0 .65rem; font-size:clamp(30px,4vw,54px); line-height:1.05; }
+    .lead { color:#d0d8dd; max-width:980px; font-size:18px; }
+    .stats { display:grid; grid-template-columns:repeat(5,minmax(120px,1fr)); gap:10px; margin-top:22px; }
+    .stat { border:1px solid var(--line); background:var(--panel); padding:13px 14px; border-radius:8px; }
+    .stat b { display:block; font-size:23px; }
+    .stat span { color:var(--muted); font-size:12px; }
+    main { padding:30px 5vw 60px; display:grid; grid-template-columns:260px minmax(0,1fr); gap:28px; }
+    nav { position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto; padding:14px; border:1px solid var(--line); border-radius:8px; background:#111820; }
+    nav a { display:block; color:#d6dee2; text-decoration:none; padding:7px 0; border-bottom:1px solid #202b32; }
+    h2 { border-bottom:1px solid var(--line); padding-bottom:8px; }
+    .num { color:var(--gold); margin-right:8px; }
+    .note { border-left:3px solid var(--gold); background:#171f26; padding:10px 14px; color:#dce3e7; }
+    table.data { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0 28px; }
+    table.data th, table.data td { border-bottom:1px solid var(--line); padding:7px 8px; text-align:left; vertical-align:top; }
+    table.data th { color:#f4d891; background:#141b21; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    img { max-width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; }
+    code { color:#f4d891; }
+    @media(max-width:900px) { main { grid-template-columns:1fr; } nav { position:static; } .stats { grid-template-columns:repeat(2,1fr); } .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="kicker">CROSS-Neo · v6 assay interpreter · algorithm comparison</div>
+  <h1>96-well hit/fail comparison scaffold</h1>
+  <p class="lead">The v6 interpreter output is joined to BigMHC, CROSS-Neo and integrated immunogenicity scores. This default view uses the confirmatory-threshold smoke sheet; the same script accepts actual wetlab calls when available.</p>
+  <div class="stats">
+    <div class="stat"><b>24/24</b><span>countable candidates</span></div>
+    <div class="stat"><b>17</b><span>PASS calls</span></div>
+    <div class="stat"><b>BigMHC_EL</b><span>best comparator</span></div>
+    <div class="stat"><b>0.866</b><span>best AUPRC</span></div>
+    <div class="stat"><b>smoke_confirmatory_threshold_v6</b><span>result source</span></div>
+  </div>
+</header>
+<main>
+<nav>
+  <a href="#summary">01 Summary</a>
+  <a href="#metrics">02 Algorithm Metrics</a>
+  <a href="#endpoint">03 Endpoint Unlocks</a>
+  <a href="#breakdown">04 Hit/Fail Breakdown</a>
+  <a href="#candidates">05 Candidate Table</a>
+  <a href="#handoff">06 Actual Wetlab Handoff</a>
+</nav>
+<article>
+<section id="summary">
+  <h2><span class="num">01</span>Summary</h2>
+  <p class="note">This is the exact product surface needed after the assay: input candidate calls, output endpoint unlocks, algorithm comparison, and failure-mode labels. Current result source is <code>smoke_confirmatory_threshold_v6</code>.</p>
+  <div class="grid">
+    <img src="assets/cross_neo_v6_wetlab_algorithm_comparison/fig1_v6_algorithm_auprc_auroc.png" alt="algorithm AUPRC AUROC">
+    <img src="assets/cross_neo_v6_wetlab_algorithm_comparison/fig2_v6_topk_hit_curve.png" alt="top-k hit curve">
+  </div>
+  <img src="assets/cross_neo_v6_wetlab_algorithm_comparison/fig3_v6_candidate_hit_fail_rank.png" alt="candidate hit fail rank">
+</section>
+<section id="metrics">
+  <h2><span class="num">02</span>Algorithm Metrics</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>algorithm</th>
+      <th>score_column</th>
+      <th>n</th>
+      <th>hits</th>
+      <th>hit_rate</th>
+      <th>AUROC</th>
+      <th>AUPRC</th>
+      <th>top1_hits</th>
+      <th>top1_precision</th>
+      <th>top2_hits</th>
+      <th>top2_precision</th>
+      <th>top3_hits</th>
+      <th>top3_precision</th>
+      <th>top5_hits</th>
+      <th>top5_precision</th>
+      <th>top10_hits</th>
+      <th>top10_precision</th>
+      <th>top12_hits</th>
+      <th>top12_precision</th>
+      <th>top24_hits</th>
+      <th>top24_precision</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BigMHC_EL</td>
+      <td>bigmhc_el_score</td>
+      <td>24</td>
+      <td>17</td>
+      <td>0.708</td>
+      <td>0.664</td>
+      <td>0.866</td>
+      <td>1</td>
+      <td>1.000</td>
+      <td>2</td>
+      <td>1.000</td>
+      <td>3</td>
+      <td>1.000</td>
+      <td>5</td>
+      <td>1.000</td>
+      <td>8</td>
+      <td>0.800</td>
+      <td>9</td>
+      <td>0.750</td>
+      <td>17</td>
+      <td>0.708</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_integrated_immunogenicity</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>24</td>
+      <td>17</td>
+      <td>0.708</td>
+      <td>0.597</td>
+      <td>0.790</td>
+      <td>1</td>
+      <td>1.000</td>
+      <td>2</td>
+      <td>1.000</td>
+      <td>2</td>
+      <td>0.667</td>
+      <td>4</td>
+      <td>0.800</td>
+      <td>8</td>
+      <td>0.800</td>
+      <td>9</td>
+      <td>0.750</td>
+      <td>17</td>
+      <td>0.708</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_claim_safe_integrated</td>
+      <td>immunogenicity_claim_safe_score</td>
+      <td>24</td>
+      <td>17</td>
+      <td>0.708</td>
+      <td>0.588</td>
+      <td>0.788</td>
+      <td>1</td>
+      <td>1.000</td>
+      <td>2</td>
+      <td>1.000</td>
+      <td>2</td>
+      <td>0.667</td>
+      <td>4</td>
+      <td>0.800</td>
+      <td>8</td>
+      <td>0.800</td>
+      <td>9</td>
+      <td>0.750</td>
+      <td>17</td>
+      <td>0.708</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_stress_guarded</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>24</td>
+      <td>17</td>
+      <td>0.708</td>
+      <td>0.521</td>
+      <td>0.777</td>
+      <td>1</td>
+      <td>1.000</td>
+      <td>2</td>
+      <td>1.000</td>
+      <td>3</td>
+      <td>1.000</td>
+      <td>4</td>
+      <td>0.800</td>
+      <td>7</td>
+      <td>0.700</td>
+      <td>9</td>
+      <td>0.750</td>
+      <td>17</td>
+      <td>0.708</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_BMA_v2</td>
+      <td>bma_v2_discovery_score</td>
+      <td>24</td>
+      <td>17</td>
+      <td>0.708</td>
+      <td>0.454</td>
+      <td>0.767</td>
+      <td>1</td>
+      <td>1.000</td>
+      <td>2</td>
+      <td>1.000</td>
+      <td>3</td>
+      <td>1.000</td>
+      <td>4</td>
+      <td>0.800</td>
+      <td>6</td>
+      <td>0.600</td>
+      <td>7</td>
+      <td>0.583</td>
+      <td>17</td>
+      <td>0.708</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_finetuned_priority</td>
+      <td>finetuned_experiment_priority_score</td>
+      <td>24</td>
+      <td>17</td>
+      <td>0.708</td>
+      <td>0.420</td>
+      <td>0.681</td>
+      <td>0</td>
+      <td>0.000</td>
+      <td>1</td>
+      <td>0.500</td>
+      <td>2</td>
+      <td>0.667</td>
+      <td>3</td>
+      <td>0.600</td>
+      <td>7</td>
+      <td>0.700</td>
+      <td>8</td>
+      <td>0.667</td>
+      <td>17</td>
+      <td>0.708</td>
+    </tr>
+    <tr>
+      <td>BigMHC_IM</td>
+      <td>bigmhc_im_score</td>
+      <td>24</td>
+      <td>17</td>
+      <td>0.708</td>
+      <td>0.454</td>
+      <td>0.672</td>
+      <td>0</td>
+      <td>0.000</td>
+      <td>1</td>
+      <td>0.500</td>
+      <td>1</td>
+      <td>0.333</td>
+      <td>3</td>
+      <td>0.600</td>
+      <td>7</td>
+      <td>0.700</td>
+      <td>8</td>
+      <td>0.667</td>
+      <td>17</td>
+      <td>0.708</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="endpoint">
+  <h2><span class="num">03</span>Endpoint Unlocks</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>plate_v4_arm</th>
+      <th>success_count</th>
+      <th>threshold_successes</th>
+      <th>confirmatory_threshold_successes</th>
+      <th>exploratory_unlock_status</th>
+      <th>confirmatory_unlock_status</th>
+      <th>claim_layer_after_unlock</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B_mechanism_TCR_MD</td>
+      <td>2</td>
+      <td>1</td>
+      <td>2</td>
+      <td>UNLOCKED</td>
+      <td>UNLOCKED</td>
+      <td>orthogonal TCR/MD mechanistic support</td>
+    </tr>
+    <tr>
+      <td>A_clean_discovery</td>
+      <td>3</td>
+      <td>2</td>
+      <td>3</td>
+      <td>UNLOCKED</td>
+      <td>UNLOCKED</td>
+      <td>wetlab-supported clean antigen discovery lane</td>
+    </tr>
+    <tr>
+      <td>C_label_rescue</td>
+      <td>2</td>
+      <td>1</td>
+      <td>2</td>
+      <td>UNLOCKED</td>
+      <td>UNLOCKED</td>
+      <td>label-noise or assay-mismatch evidence</td>
+    </tr>
+    <tr>
+      <td>E_positive_QC_control</td>
+      <td>3</td>
+      <td>3</td>
+      <td>3</td>
+      <td>UNLOCKED</td>
+      <td>UNLOCKED</td>
+      <td>assay QC only</td>
+    </tr>
+    <tr>
+      <td>D_specificity_moat</td>
+      <td>4</td>
+      <td>3</td>
+      <td>4</td>
+      <td>UNLOCKED</td>
+      <td>UNLOCKED</td>
+      <td>specificity-aware control moat</td>
+    </tr>
+    <tr>
+      <td>F_model_boundary</td>
+      <td>3</td>
+      <td>2</td>
+      <td>3</td>
+      <td>UNLOCKED</td>
+      <td>UNLOCKED</td>
+      <td>model-boundary clarification</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="breakdown">
+  <h2><span class="num">04</span>Hit/Fail Breakdown</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>algorithm</th>
+      <th>score_column</th>
+      <th>score_bin</th>
+      <th>n</th>
+      <th>hits</th>
+      <th>hit_rate</th>
+      <th>mean_score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BigMHC_IM</td>
+      <td>bigmhc_im_score</td>
+      <td>Q1_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.127</td>
+    </tr>
+    <tr>
+      <td>BigMHC_IM</td>
+      <td>bigmhc_im_score</td>
+      <td>Q2_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.371</td>
+    </tr>
+    <tr>
+      <td>BigMHC_IM</td>
+      <td>bigmhc_im_score</td>
+      <td>Q3_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.448</td>
+    </tr>
+    <tr>
+      <td>BigMHC_IM</td>
+      <td>bigmhc_im_score</td>
+      <td>Q4_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.650</td>
+    </tr>
+    <tr>
+      <td>BigMHC_EL</td>
+      <td>bigmhc_el_score</td>
+      <td>Q1_low_to_high</td>
+      <td>6</td>
+      <td>3</td>
+      <td>0.500</td>
+      <td>0.025</td>
+    </tr>
+    <tr>
+      <td>BigMHC_EL</td>
+      <td>bigmhc_el_score</td>
+      <td>Q2_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.528</td>
+    </tr>
+    <tr>
+      <td>BigMHC_EL</td>
+      <td>bigmhc_el_score</td>
+      <td>Q3_low_to_high</td>
+      <td>6</td>
+      <td>3</td>
+      <td>0.500</td>
+      <td>0.911</td>
+    </tr>
+    <tr>
+      <td>BigMHC_EL</td>
+      <td>bigmhc_el_score</td>
+      <td>Q4_low_to_high</td>
+      <td>6</td>
+      <td>6</td>
+      <td>1.000</td>
+      <td>0.975</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_stress_guarded</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>Q1_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.405</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_stress_guarded</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>Q2_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.501</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_stress_guarded</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>Q3_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.606</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_stress_guarded</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>Q4_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.711</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_BMA_v2</td>
+      <td>bma_v2_discovery_score</td>
+      <td>Q1_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.475</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_BMA_v2</td>
+      <td>bma_v2_discovery_score</td>
+      <td>Q2_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.532</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_BMA_v2</td>
+      <td>bma_v2_discovery_score</td>
+      <td>Q3_low_to_high</td>
+      <td>6</td>
+      <td>2</td>
+      <td>0.333</td>
+      <td>0.637</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_BMA_v2</td>
+      <td>bma_v2_discovery_score</td>
+      <td>Q4_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.676</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_finetuned_priority</td>
+      <td>finetuned_experiment_priority_score</td>
+      <td>Q1_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.388</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_finetuned_priority</td>
+      <td>finetuned_experiment_priority_score</td>
+      <td>Q2_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.818</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_finetuned_priority</td>
+      <td>finetuned_experiment_priority_score</td>
+      <td>Q3_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.844</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_finetuned_priority</td>
+      <td>finetuned_experiment_priority_score</td>
+      <td>Q4_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.871</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_integrated_immunogenicity</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>Q1_low_to_high</td>
+      <td>6</td>
+      <td>3</td>
+      <td>0.500</td>
+      <td>0.334</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_integrated_immunogenicity</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>Q2_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.434</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_integrated_immunogenicity</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>Q3_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.523</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_integrated_immunogenicity</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>Q4_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.620</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_claim_safe_integrated</td>
+      <td>immunogenicity_claim_safe_score</td>
+      <td>Q1_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.138</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_claim_safe_integrated</td>
+      <td>immunogenicity_claim_safe_score</td>
+      <td>Q2_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.182</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_claim_safe_integrated</td>
+      <td>immunogenicity_claim_safe_score</td>
+      <td>Q3_low_to_high</td>
+      <td>6</td>
+      <td>5</td>
+      <td>0.833</td>
+      <td>0.220</td>
+    </tr>
+    <tr>
+      <td>CROSS_Neo_claim_safe_integrated</td>
+      <td>immunogenicity_claim_safe_score</td>
+      <td>Q4_low_to_high</td>
+      <td>6</td>
+      <td>4</td>
+      <td>0.667</td>
+      <td>0.261</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="candidates">
+  <h2><span class="num">05</span>Candidate-Level Calls</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>candidate_id</th>
+      <th>peptide</th>
+      <th>hla_allele_4digit</th>
+      <th>plate_v4_arm</th>
+      <th>normalized_candidate_success</th>
+      <th>hit_fail_decomposition</th>
+      <th>bigmhc_im_score</th>
+      <th>stress_guarded_discovery_score</th>
+      <th>immunogenicity_discovery_score</th>
+      <th>claim_boundary_execution</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CNV0_02448</td>
+      <td>ILDKVLVHL</td>
+      <td>HLA-A*02:01</td>
+      <td>A_clean_discovery</td>
+      <td>PASS</td>
+      <td>hit_clean_antigen</td>
+      <td>0.577</td>
+      <td>0.494</td>
+      <td>0.679</td>
+      <td>clean BAR-Neo experiment priority; patient metadata still blocks clinical claim</td>
+    </tr>
+    <tr>
+      <td>CNV0_02473</td>
+      <td>KEFEDDIINW</td>
+      <td>HLA-B*44:03</td>
+      <td>E_positive_QC_control</td>
+      <td>PASS</td>
+      <td>hit_positive_qc</td>
+      <td>0.749</td>
+      <td>0.716</td>
+      <td>0.665</td>
+      <td>assay QC only; cannot support novelty</td>
+    </tr>
+    <tr>
+      <td>CNV0_00374</td>
+      <td>NYPGFLTIL</td>
+      <td>HLA-C*07:02</td>
+      <td>E_positive_QC_control</td>
+      <td>FAIL</td>
+      <td>fail_assay_qc</td>
+      <td>0.698</td>
+      <td>0.679</td>
+      <td>0.625</td>
+      <td>assay QC only; cannot support novelty</td>
+    </tr>
+    <tr>
+      <td>CNV0_02708</td>
+      <td>ALDPLLLRI</td>
+      <td>HLA-A*02:01</td>
+      <td>A_clean_discovery</td>
+      <td>PASS</td>
+      <td>hit_clean_antigen</td>
+      <td>0.493</td>
+      <td>0.501</td>
+      <td>0.587</td>
+      <td>clean BAR-Neo experiment priority; patient metadata still blocks clinical claim</td>
+    </tr>
+    <tr>
+      <td>CNV0_01132</td>
+      <td>GADGVGKSAL</td>
+      <td>HLA-C*08:02</td>
+      <td>B_mechanism_TCR_MD</td>
+      <td>PASS</td>
+      <td>hit_tcr_md_mechanism</td>
+      <td>0.181</td>
+      <td>0.565</td>
+      <td>0.586</td>
+      <td>TCR/MD diagnostic wetlab priority; not clean benchmark or clinical claim</td>
+    </tr>
+    <tr>
+      <td>CNV0_02452</td>
+      <td>LLDGFLATV</td>
+      <td>HLA-A*02:01</td>
+      <td>A_clean_discovery</td>
+      <td>FAIL</td>
+      <td>fail_presentation_or_specificity</td>
+      <td>0.781</td>
+      <td>0.507</td>
+      <td>0.579</td>
+      <td>clean BAR-Neo experiment priority; patient metadata still blocks clinical claim</td>
+    </tr>
+    <tr>
+      <td>CNV0_02400</td>
+      <td>ETSKQVTRW</td>
+      <td>HLA-A*25:01</td>
+      <td>D_specificity_moat</td>
+      <td>PASS</td>
+      <td>hit_specificity_control</td>
+      <td>0.557</td>
+      <td>0.554</td>
+      <td>0.550</td>
+      <td>hard-negative or false-negative audit; use to sharpen specificity</td>
+    </tr>
+    <tr>
+      <td>CNV0_01023</td>
+      <td>FLDEFMEGV</td>
+      <td>HLA-A*02:01</td>
+      <td>F_model_boundary</td>
+      <td>PASS</td>
+      <td>hit_model_boundary_resolution</td>
+      <td>0.538</td>
+      <td>0.581</td>
+      <td>0.535</td>
+      <td>TCR/structure disagreement audit; no positive claim until resolved</td>
+    </tr>
+    <tr>
+      <td>CNV0_00088</td>
+      <td>YAYDNFGVLGL</td>
+      <td>HLA-C*03:03</td>
+      <td>E_positive_QC_control</td>
+      <td>PASS</td>
+      <td>hit_positive_qc</td>
+      <td>0.367</td>
+      <td>0.738</td>
+      <td>0.526</td>
+      <td>assay QC only; cannot support novelty</td>
+    </tr>
+    <tr>
+      <td>CNV0_02397</td>
+      <td>LPIQYEPVL</td>
+      <td>HLA-B*35:03</td>
+      <td>D_specificity_moat</td>
+      <td>PASS</td>
+      <td>hit_specificity_control</td>
+      <td>0.392</td>
+      <td>0.583</td>
+      <td>0.523</td>
+      <td>hard-negative or false-negative audit; use to sharpen specificity</td>
+    </tr>
+    <tr>
+      <td>CNV0_00366</td>
+      <td>QSPASLSSL</td>
+      <td>HLA-C*01:02</td>
+      <td>E_positive_QC_control</td>
+      <td>PASS</td>
+      <td>hit_positive_qc</td>
+      <td>0.188</td>
+      <td>0.677</td>
+      <td>0.504</td>
+      <td>assay QC only; cannot support novelty</td>
+    </tr>
+    <tr>
+      <td>CNV0_02450</td>
+      <td>KELEGILLL</td>
+      <td>HLA-B*44:03</td>
+      <td>A_clean_discovery</td>
+      <td>FAIL</td>
+      <td>fail_presentation_or_specificity</td>
+      <td>0.513</td>
+      <td>0.511</td>
+      <td>0.501</td>
+      <td>clean BAR-Neo experiment priority; patient metadata still blocks clinical claim</td>
+    </tr>
+    <tr>
+      <td>CNV0_01251</td>
+      <td>YLDELIRNT</td>
+      <td>HLA-A*02:01</td>
+      <td>F_model_boundary</td>
+      <td>PASS</td>
+      <td>hit_model_boundary_resolution</td>
+      <td>0.441</td>
+      <td>0.496</td>
+      <td>0.489</td>
+      <td>TCR/structure disagreement audit; no positive claim until resolved</td>
+    </tr>
+    <tr>
+      <td>CNV0_02709</td>
+      <td>ALPVALPSL</td>
+      <td>HLA-A*02:01</td>
+      <td>A_clean_discovery</td>
+      <td>PASS</td>
+      <td>hit_clean_antigen</td>
+      <td>0.387</td>
+      <td>0.463</td>
+      <td>0.460</td>
+      <td>clean BAR-Neo experiment priority; patient metadata still blocks clinical claim</td>
+    </tr>
+    <tr>
+      <td>CNV0_02460</td>
+      <td>GIVEGLITTV</td>
+      <td>HLA-A*02:01</td>
+      <td>A_clean_discovery</td>
+      <td>FAIL</td>
+      <td>fail_presentation_or_specificity</td>
+      <td>0.419</td>
+      <td>0.394</td>
+      <td>0.441</td>
+      <td>clean BAR-Neo experiment priority; patient metadata still blocks clinical claim</td>
+    </tr>
+    <tr>
+      <td>CNV0_01151</td>
+      <td>HMTEVVRHC</td>
+      <td>HLA-A*02:01</td>
+      <td>B_mechanism_TCR_MD</td>
+      <td>PASS</td>
+      <td>hit_tcr_md_mechanism</td>
+      <td>0.375</td>
+      <td>0.272</td>
+      <td>0.407</td>
+      <td>TCR/MD diagnostic wetlab priority; not clean benchmark or clinical claim</td>
+    </tr>
+    <tr>
+      <td>CNV0_00006</td>
+      <td>VKEDPKWEF</td>
+      <td>HLA-C*07:02</td>
+      <td>C_label_rescue</td>
+      <td>PASS</td>
+      <td>hit_label_rescue</td>
+      <td>0.161</td>
+      <td>0.716</td>
+      <td>0.406</td>
+      <td>rescue/audit case; could expose false-negative label or assay mismatch</td>
+    </tr>
+    <tr>
+      <td>CNV0_01099</td>
+      <td>FRSGLDSYV</td>
+      <td>HLA-C*06:02</td>
+      <td>F_model_boundary</td>
+      <td>PASS</td>
+      <td>hit_model_boundary_resolution</td>
+      <td>0.380</td>
+      <td>0.499</td>
+      <td>0.403</td>
+      <td>TCR/structure disagreement audit; no positive claim until resolved</td>
+    </tr>
+    <tr>
+      <td>CNV0_00682</td>
+      <td>NYRREPPHL</td>
+      <td>HLA-C*07:02</td>
+      <td>C_label_rescue</td>
+      <td>FAIL</td>
+      <td>fail_label_rescue</td>
+      <td>0.338</td>
+      <td>0.680</td>
+      <td>0.401</td>
+      <td>rescue/audit case; could expose false-negative label or assay mismatch</td>
+    </tr>
+    <tr>
+      <td>CNV0_00711</td>
+      <td>RREPPHLARNF</td>
+      <td>HLA-C*07:02</td>
+      <td>C_label_rescue</td>
+      <td>FAIL</td>
+      <td>fail_label_rescue</td>
+      <td>0.205</td>
+      <td>0.693</td>
+      <td>0.374</td>
+      <td>rescue/audit case; could expose false-negative label or assay mismatch</td>
+    </tr>
+    <tr>
+      <td>CNV0_02420</td>
+      <td>KLANPLPYT</td>
+      <td>HLA-A*02:01</td>
+      <td>D_specificity_moat</td>
+      <td>PASS</td>
+      <td>hit_specificity_control</td>
+      <td>0.381</td>
+      <td>0.460</td>
+      <td>0.348</td>
+      <td>hard-negative or false-negative audit; use to sharpen specificity</td>
+    </tr>
+    <tr>
+      <td>CNV0_02458</td>
+      <td>IIGAGPAEV</td>
+      <td>HLA-A*02:01</td>
+      <td>D_specificity_moat</td>
+      <td>PASS</td>
+      <td>hit_specificity_control</td>
+      <td>0.433</td>
+      <td>0.431</td>
+      <td>0.339</td>
+      <td>hard-negative or false-negative audit; use to sharpen specificity</td>
+    </tr>
+    <tr>
+      <td>CNV0_00027</td>
+      <td>GNNDVKEDP</td>
+      <td>HLA-C*07:02</td>
+      <td>C_label_rescue</td>
+      <td>PASS</td>
+      <td>hit_label_rescue</td>
+      <td>0.005</td>
+      <td>0.721</td>
+      <td>0.330</td>
+      <td>rescue/audit case; could expose false-negative label or assay mismatch</td>
+    </tr>
+    <tr>
+      <td>CNV0_01049</td>
+      <td>LSSVSFFLV</td>
+      <td>HLA-A*11:01</td>
+      <td>F_model_boundary</td>
+      <td>FAIL</td>
+      <td>fail_model_boundary</td>
+      <td>0.022</td>
+      <td>0.409</td>
+      <td>0.211</td>
+      <td>TCR/structure disagreement audit; no positive claim until resolved</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="handoff">
+  <h2><span class="num">06</span>Actual Wetlab Handoff</h2>
+  <p>When real results are entered, run:</p>
+  <p><code>python scripts/interpret_cross_neo_assay_results_v6.py --results .../candidate_result_entry_v6.tsv --endpoint-plan .../preregistered_endpoint_plan_v5.tsv --out-dir .../interpreted_results_v6</code></p>
+  <p>Then run:</p>
+  <p><code>python scripts/build_cross_neo_wetlab_algorithm_comparison_v6.py --candidate-calls .../interpreted_results_v6/candidate_calls_v6.tsv --endpoint-calls .../interpreted_results_v6/endpoint_calls_v6.tsv --result-source actual_wetlab_v6</code></p>
+</section>
+</article>
+</main>
+</body>
+</html>

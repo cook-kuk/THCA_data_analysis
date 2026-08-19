@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Marathon mode dashboard · 2026-05-14 · Day 11/41</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:.98;margin:0 0 16px;letter-spacing:-1.4px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:6px}
+.vbox{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;border-top:5px solid var(--gold)}
+.vbox.green{border-top-color:var(--green)}
+.vbox h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:28px;color:#fff}
+.vbox p{margin:0;color:#d6e1e8;font-size:14px}
+.rules{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+.rule{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 16px;border-left:4px solid var(--gold)}
+.rule b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.rule h4{margin:0 0 6px;font-size:16px;color:#fff}
+.rule p{margin:0;color:#cbd7df;font-size:13.5px}
+.daybar{display:grid;grid-template-columns:repeat(41,1fr);gap:2px;margin-top:14px}
+.day{border:1px solid var(--line);background:#0d1823;border-radius:3px;padding:6px 0;text-align:center;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:#7e8d97;min-height:42px;position:relative}
+.day b{display:block;font-size:11px;font-weight:900;color:#cbd7df}
+.day.past{background:rgba(147,226,170,.08);border-color:rgba(147,226,170,.3);color:var(--green)}
+.day.past b{color:var(--green)}
+.day.today{background:rgba(255,210,138,.16);border:2px solid var(--gold);color:#fff}
+.day.today b{color:var(--gold)}
+.day.violation{background:rgba(255,138,107,.16);border-color:var(--red);color:var(--red)}
+.day.violation b{color:var(--red)}
+.day.future{background:#0d1823;color:#6a7882}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.weeks{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}
+.weekbox{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 16px;border-top:4px solid var(--gold)}
+.weekbox b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.weekbox h4{margin:0 0 8px;font-size:16px;color:#fff}
+.weekbox ul{margin:0;padding-left:18px;color:#cbd7df;font-size:13.5px}
+.weekbox ul li{margin:3px 0}
+.voice{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.vp{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px;border-left:4px solid var(--violet)}
+.vp b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--violet);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.vp h4{margin:0 0 6px;font-size:16px;color:#fff}
+.vp .status{font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:var(--gold)}
+.vp p{margin:6px 0 0;color:#cbd7df;font-size:13px}
+.vp.draft{border-left-color:var(--gold)}
+.vp.final{border-left-color:var(--green)}
+.vp.blocked{border-left-color:var(--red)}
+.pill{display:inline-block;border-radius:999px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;font-weight:900;padding:3px 8px;letter-spacing:.06em;text-transform:uppercase}
+.pill.red{background:rgba(255,138,107,.12);border:1px solid var(--red);color:var(--red)}
+.pill.amber{background:rgba(255,210,138,.10);border:1px solid var(--gold);color:var(--gold)}
+.pill.green{background:rgba(147,226,170,.10);border:1px solid var(--green);color:var(--green)}
+.pill.blue{background:rgba(139,188,255,.10);border:1px solid var(--blue);color:var(--blue)}
+.pill.violet{background:rgba(201,167,255,.10);border:1px solid var(--violet);color:var(--violet)}
+.violations{border:1px solid var(--red);border-radius:10px;background:linear-gradient(135deg,rgba(255,138,107,.06),rgba(255,138,107,.02));padding:18px 20px;margin-top:12px}
+.violations h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:var(--red)}
+.violations p{margin:6px 0;color:#eaf2f7;font-size:14px}
+.checklist{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.cl{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 16px}
+.cl h4{margin:0 0 8px;font-size:16px;color:var(--gold)}
+.cl ul{margin:0;padding-left:18px;color:#cbd7df;font-size:13.5px}
+.cl ul li{margin:4px 0}
+.endstate{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:20px 22px;margin-top:14px}
+.endstate h3{margin:0 0 10px;font-family:"Cormorant Garamond",Georgia,serif;font-size:28px;color:var(--gold)}
+.endstate ul{margin:6px 0 0;padding-left:20px;color:#eaf2f7;font-size:14.5px}
+.endstate ul li{margin:5px 0}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.progressbar{display:flex;align-items:center;gap:10px;margin-top:14px}
+.progressbar .bg{flex:1;height:14px;background:#101d2a;border:1px solid var(--line);border-radius:8px;overflow:hidden;position:relative}
+.progressbar .fg{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--green),var(--gold))}
+.progressbar .label{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;color:var(--gold);font-weight:800}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}.rules{grid-template-columns:1fr}.weeks{grid-template-columns:1fr}
+  .voice{grid-template-columns:1fr}.checklist{grid-template-columns:1fr}
+  .daybar{grid-template-columns:repeat(7,1fr)}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Marathon mode dashboard · 2026-05-14 · Day 11/41 · Seungho Cook</p>
+    <h1>6주 sprint, Day 11/41 — on-track, sprint violations 0 today.</h1>
+    <p class="lead">
+      마라톤 모드는 <b>2026-05-04 → 2026-06-13</b>의 6주 manuscript writing window. 새 분석은 <b>paper-blocking only</b>, default는 <b>scaffolding/infra</b>, voice-protected sections (Hook / Aim / Disc 3.1 / Limitations / Cover Para 1 / Q9)는 <b>author-keyboard only</b>. "고고/faster/다 해줘"는 voice-protected section sprint generate 권한이 NOT. 이 페이지는 마라톤 진행률, 룰 잠금, 위반 로그, 그리고 2026-06-13 EOD까지의 end-state target을 한 화면에 그린다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>05-04</b><span>start date</span><small>2026-05-04 · Pillar 1 STRONG 직후</small></div>
+      <div class="stat"><b>06-13</b><span>end date</span><small>2026-06-13 · 6주 marathon EOD</small></div>
+      <div class="stat"><b>11/41</b><span>days elapsed · today</span><small>2026-05-14 · 26.8% complete</small></div>
+      <div class="stat"><b>30</b><span>days remaining</span><small>2026-05-15 ~ 06-13</small></div>
+      <div class="stat"><b>1</b><span>violation logged</span><small>2026-05-03 sprint vs marathon (1일 전 사전 위반)</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#rules">마라톤 룰</a>
+  <a class="primary" href="#daybar">Day-by-day bar</a>
+  <a class="primary" href="#week">W1-W2 deliverables</a>
+  <a class="primary" href="#voice">Voice-protected status</a>
+  <a class="primary" href="#violations">Violation log</a>
+  <a class="primary" href="#checklist">Daily checklist</a>
+  <a class="primary" href="#endstate">End-state target</a>
+  <a href="index.html">Hub home</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="bd_outreach_state_2026_05_14.html">BD outreach</a>
+  <a href="paper1.html">Paper 1</a>
+  <a href="paper2_image_dm1.html">Paper 2 image</a>
+  <a href="paper2_hla.html">HLA #1</a>
+  <a href="paper4_gd_hla.html">HLA #2</a>
+  <a href="grant_samsung_causal_kthyro_2026_05_14.html">Samsung 30억</a>
+  <a href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+  <a href="timeline_gantt_2026_05_14.html">Timeline</a>
+  <a href="decision_board_2026_05_14.html">Decision board</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&amp;A</a>
+  <a href="figure_gallery_2026_05_14.html">Figure gallery</a>
+  <a href="methodology_atlas_2026_05_14.html">Methodology</a>
+  <a href="venue_strategy_2026_05_14.html">Venue strategy</a>
+  <a href="executive_brief_kr_one_pager_2026_05_14.html">Exec brief KR</a>
+  <a href="investor_pitch_en_2026_05_14.html">Investor pitch</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — 2026-05-14 EOD 현황</h2>
+  <p class="sub">on-track or off-track, sprint violations today</p>
+  <div class="verdict">
+    <div class="vbox">
+      <h3><span class="pill amber">ON-TRACK</span> 마라톤 진행률 26.8%</h3>
+      <p>11/41 days elapsed (정확히 1/4 도달 직전). Pillar 1 STRONG 이후 scaffolding 페이지 다수 deploy, 새 분석 0건 — 마라톤 룰 잠금 유지.</p>
+    </div>
+    <div class="vbox green">
+      <h3><span class="pill green">TODAY 0 VIOLATIONS</span> 2026-05-14</h3>
+      <p>오늘 voice-protected section sprint 발생 0건. 신규 분석 호출 0건 (paper-blocking only 유지). 룰 일관성 OK.</p>
+    </div>
+  </div>
+  <div class="progressbar">
+    <div class="bg"><div class="fg" style="width:26.8%"></div></div>
+    <div class="label">Day 11/41 · 26.8% · 30 days remaining</div>
+  </div>
+</section>
+
+<section id="rules">
+  <h2>마라톤 룰 — 6주 동안 잠겨 있는 4개 원칙</h2>
+  <p class="sub">explicit constraints · violation = 룰 위반 기록</p>
+  <div class="rules">
+    <div class="rule">
+      <b>Rule 1 · paper-blocking only</b>
+      <h4>새 분석은 paper-blocking 만</h4>
+      <p>Pillar 1 STRONG = 분석 종료. 새 분석은 Paper 1·2·HLA #1 진행을 막는 단일 gap에만 허용. "흥미로워서"는 거부.</p>
+    </div>
+    <div class="rule">
+      <b>Rule 2 · default = scaffolding/infra</b>
+      <h4>Default mode는 인프라/페이지/문서</h4>
+      <p>새 분석 호출이 아니면 default는 scaffolding 작업 (CLAUDE.md, 페이지 빌드, manuscript 구조 정리). 이 페이지 자체가 default 카테고리.</p>
+    </div>
+    <div class="rule">
+      <b>Rule 3 · voice-protected sections</b>
+      <h4>Hook / Aim / Disc 3.1 / Limitations / Cover Para 1 / Q9</h4>
+      <p>6개 section은 author-keyboard only. Claude는 outline/skeleton/숫자 제공은 가능, 본문 prose generation은 금지.</p>
+    </div>
+    <div class="rule">
+      <b>Rule 4 · "고고/faster" ≠ sprint 권한</b>
+      <h4>속도 명령어는 voice-protected sprint generate 권한 아님</h4>
+      <p>2026-05-03 사전 violation 기록. "고고/faster/다 해줘"는 default mode 가속만 허용, voice-protected section은 여전히 author-keyboard.</p>
+    </div>
+  </div>
+</section>
+
+<section id="daybar">
+  <h2>Day-by-day progress — 41 days</h2>
+  <p class="sub">2026-05-04 to 2026-06-13 · today highlighted</p>
+  <div class="daybar">
+    <div class="day past"><b>D1</b>05-04</div>
+    <div class="day past"><b>D2</b>05-05</div>
+    <div class="day past"><b>D3</b>05-06</div>
+    <div class="day past"><b>D4</b>05-07</div>
+    <div class="day past"><b>D5</b>05-08</div>
+    <div class="day past"><b>D6</b>05-09</div>
+    <div class="day past"><b>D7</b>05-10</div>
+    <div class="day past"><b>D8</b>05-11</div>
+    <div class="day past"><b>D9</b>05-12</div>
+    <div class="day past"><b>D10</b>05-13</div>
+    <div class="day today"><b>D11</b>05-14</div>
+    <div class="day future"><b>D12</b>05-15</div>
+    <div class="day future"><b>D13</b>05-16</div>
+    <div class="day future"><b>D14</b>05-17</div>
+    <div class="day future"><b>D15</b>05-18</div>
+    <div class="day future"><b>D16</b>05-19</div>
+    <div class="day future"><b>D17</b>05-20</div>
+    <div class="day future"><b>D18</b>05-21</div>
+    <div class="day future"><b>D19</b>05-22</div>
+    <div class="day future"><b>D20</b>05-23</div>
+    <div class="day future"><b>D21</b>05-24</div>
+    <div class="day future"><b>D22</b>05-25</div>
+    <div class="day future"><b>D23</b>05-26</div>
+    <div class="day future"><b>D24</b>05-27</div>
+    <div class="day future"><b>D25</b>05-28</div>
+    <div class="day future"><b>D26</b>05-29</div>
+    <div class="day future"><b>D27</b>05-30</div>
+    <div class="day future"><b>D28</b>05-31</div>
+    <div class="day future"><b>D29</b>06-01</div>
+    <div class="day future"><b>D30</b>06-02</div>
+    <div class="day future"><b>D31</b>06-03</div>
+    <div class="day future"><b>D32</b>06-04</div>
+    <div class="day future"><b>D33</b>06-05</div>
+    <div class="day future"><b>D34</b>06-06</div>
+    <div class="day future"><b>D35</b>06-07</div>
+    <div class="day future"><b>D36</b>06-08</div>
+    <div class="day future"><b>D37</b>06-09</div>
+    <div class="day future"><b>D38</b>06-10</div>
+    <div class="day future"><b>D39</b>06-11</div>
+    <div class="day future"><b>D40</b>06-12</div>
+    <div class="day future"><b>D41</b>06-13</div>
+  </div>
+  <div class="legend">
+    <span><i style="background:rgba(147,226,170,.6)"></i>past · done (룰 위반 없음)</span>
+    <span><i style="background:rgba(255,210,138,.6)"></i>today · D11/41</span>
+    <span><i style="background:rgba(255,138,107,.6)"></i>violation (D-1, 사전 위반 — 마라톤 시작 1일 전)</span>
+    <span><i style="background:#0d1823;border:1px solid var(--line)"></i>future · 30 days</span>
+  </div>
+  <p class="note">참고 — 2026-05-03 sprint 위반은 마라톤 시작 (05-04) 하루 전이므로 D-1로 기록. 마라톤 모드 시작 이후 violation 발생 0건.</p>
+</section>
+
+<section id="week">
+  <h2>이번 주 (W1-W2, 05-14 ~ 06-03) deliverables — 5개 트랙 별 마일스톤</h2>
+  <p class="sub">paper-blocking only · default scaffolding · in-window</p>
+  <div class="weeks">
+    <div class="weekbox">
+      <b>Paper 1 · DM1 dark matter</b>
+      <h4>cover letter lock + bioRxiv deposit 준비</h4>
+      <ul>
+        <li>Cover letter Para 1 (voice-protected — 본인 키보드)</li>
+        <li>Reviewer 후보 3인 final 결정 (유 교수님과 협의)</li>
+        <li>Voice-protected sections (Hook / Aim / Disc 3.1 / Limitations / Q9) draft → final</li>
+        <li>bioRxiv 동시 deposit yes/no 결정</li>
+      </ul>
+    </div>
+    <div class="weekbox" style="border-top-color:var(--blue)">
+      <b>Paper 2 · Histology</b>
+      <h4>K2 H&amp;E access 시작</h4>
+      <ul>
+        <li>분당 SNUH BABA H&amp;E inventory 확인 (유 교수님)</li>
+        <li>후향 IRB 절차 시작 (Template 1)</li>
+        <li>실패 plan: LUAD/BRCA methods-route 전환 결정</li>
+        <li>UNI-final 0.852 결과 정리 (paper2_image_dm1.html 업데이트)</li>
+      </ul>
+    </div>
+    <div class="weekbox" style="border-top-color:var(--green)">
+      <b>HLA #1 · HT-isolated</b>
+      <h4>Pillar II + Pillar III + 외부 cohort outreach</h4>
+      <ul>
+        <li>Pillar II (functional/spatial) 작성</li>
+        <li>Pillar III (외부 cohort) 후보 outreach 시작</li>
+        <li>AFND South Korea pool 잠금 (이미 완료, 검증만)</li>
+        <li>분당 자체 HLA 가용성 확인</li>
+      </ul>
+    </div>
+    <div class="weekbox" style="border-top-color:var(--violet)">
+      <b>HLA #2 · Korean GD</b>
+      <h4>backlog · gating 유지</h4>
+      <ul>
+        <li>Paper 1 bioRxiv + Paper 2 A/B/C 완료까지 대기</li>
+        <li>BBJ published panel data 사전 수집 (outreach 없이 가능)</li>
+        <li>arcasHLA imputation 재실행 준비 (Azure burst $4.80)</li>
+        <li>분당 SNUH GD outreach 진척 점검 (병행)</li>
+      </ul>
+    </div>
+    <div class="weekbox" style="border-top-color:var(--teal);grid-column:1/-1">
+      <b>Samsung 30억 · Causal K-Thyro Foundation</b>
+      <h4>5 약점 답안 + Exec Summary + access 4건 confirmation</h4>
+      <ul>
+        <li>약점 1·2·3 답안 (W1): target trial × small-N / "foundation" 단어 / surveillance bias</li>
+        <li>약점 4·5 답안 (W2-3): quantum sidecar / self-extinguishing</li>
+        <li>Exec Summary draft (Claude 가능 — 본 prose 아닌 outline)</li>
+        <li>access 4건 (MAeSTro / MASTER / KoMPASS / BABA / CTC) confirmation letter 요청</li>
+        <li>외부검증 1곳 사전 합의 (Template 4 검토)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="voice">
+  <h2>Voice-protected sections — 6개 status</h2>
+  <p class="sub">author-keyboard only · Claude generation NOT permitted</p>
+  <div class="voice">
+    <div class="vp draft">
+      <b>Voice-protected #1</b>
+      <h4>Hook (Paper 1 + 2)</h4>
+      <div class="status"><span class="pill amber">DRAFT</span> 2026-05-14 진행 중</div>
+      <p>Paper 1: "DM1 = molecular dark matter" framing — 본인 키보드 작성. Claude는 키워드/숫자만 제공.</p>
+    </div>
+    <div class="vp draft">
+      <b>Voice-protected #2</b>
+      <h4>Aim (각 페이퍼)</h4>
+      <div class="status"><span class="pill amber">DRAFT</span> Paper 1 lock 직전</div>
+      <p>Paper 1 aim 잠금 직전. Paper 2 aim은 K2 H&amp;E gate 통과 후 재작성.</p>
+    </div>
+    <div class="vp draft">
+      <b>Voice-protected #3</b>
+      <h4>Discussion 3.1</h4>
+      <div class="status"><span class="pill amber">DRAFT</span> Landa 2016 cite 정정 적용</div>
+      <p>Krishnamoorthy 2025 misattribution → Landa 2016 JCI 126(3):1052-1066 cite save (v17_landa2016_cite_save 메모리). 3-layer reverse-causality 차단 framing 본인 작성.</p>
+    </div>
+    <div class="vp draft">
+      <b>Voice-protected #4</b>
+      <h4>Limitations</h4>
+      <div class="status"><span class="pill amber">DRAFT</span> 정직 한계 명시</div>
+      <p>methylation polarity flip (H13 corrected), K2 H&amp;E pending, single-cohort GSE286332 (HLA #1) 등 — 본인 정직 적시.</p>
+    </div>
+    <div class="vp draft">
+      <b>Voice-protected #5</b>
+      <h4>Cover Para 1</h4>
+      <div class="status"><span class="pill amber">DRAFT</span> 본인 키보드 작성</div>
+      <p>Editor 대상 1단락. Paper 1 framing의 단일 책임. Claude generation NOT.</p>
+    </div>
+    <div class="vp draft">
+      <b>Voice-protected #6</b>
+      <h4>Q9 (reviewer Q&amp;A bank Q9)</h4>
+      <div class="status"><span class="pill amber">DRAFT</span> Round 8 floor 기반</div>
+      <p>"왜 이 분자축이 우연이 아닌가" 정직 답안 — Round 8 thyroid-matched null p=0.007 + cluster stability 97.4% + TDS-16 ρ=0.954. 본인 작성.</p>
+    </div>
+  </div>
+  <p class="note">상태 — 6개 모두 DRAFT 단계. FINAL은 본인 작성 후 BLOCKED는 외부 commitment 대기 시. Claude는 outline/숫자/skeleton만 제공.</p>
+</section>
+
+<section id="violations">
+  <h2>Sprint violation log</h2>
+  <p class="sub">마라톤 모드 위반 기록 · 1건 (사전 위반)</p>
+  <div class="violations">
+    <h3>2026-05-03 · Sprint vs marathon violation (D-1)</h3>
+    <p><b>위반 내용:</b> 마라톤 모드에서 "고고/faster/다 해줘"가 voice-protected section sprint generate 권한 NOT임이 사전 명시되지 않은 채 사용됨.</p>
+    <p><b>맥락:</b> 마라톤 시작 (2026-05-04) 1일 전. Pillar 1 STRONG 직후 "고고" 발화 사용 → voice-protected section은 default mode 가속 명령으로 인식되어 prose generation이 발생할 가능성 노출.</p>
+    <p><b>완화:</b> 메모리 <code>v17_sprint_vs_marathon_violation</code>에 기록. 이후 6개 voice-protected section은 author-keyboard only로 명시 잠금. Claude는 outline/숫자/skeleton만 제공.</p>
+    <p><b>재발 여부:</b> 2026-05-04 마라톤 시작 이후 11일간 재발 0건.</p>
+  </div>
+</section>
+
+<section id="checklist">
+  <h2>Daily checklist template — 5 morning + 5 afternoon</h2>
+  <p class="sub">매일 적용 · 트랙별 1줄 점검</p>
+  <div class="checklist">
+    <div class="cl">
+      <h4>Morning checklist (5)</h4>
+      <ul>
+        <li>1) Paper 1 today's gap (cover letter / Disc 3.1 / Q9 중 하나) — 본인 작성 30분</li>
+        <li>2) Paper 2 K2 H&amp;E status — 진척 1줄 기록 (slack / 메일)</li>
+        <li>3) HLA #1 Pillar II/III 진척 — 작성 30분</li>
+        <li>4) Samsung 약점 답안 1개 — 30-60분</li>
+        <li>5) Voice-protected sprint 유혹 점검 — "고고" 사용 시 즉시 default mode로 회수</li>
+      </ul>
+    </div>
+    <div class="cl">
+      <h4>Afternoon checklist (5)</h4>
+      <ul>
+        <li>1) Yu 미팅 follow-up 항목 점검 (BD outreach 페이지 확인)</li>
+        <li>2) HLA #2 backlog — gating 조건 (P1 bioRxiv + P2 A/B/C) 진척 1줄 기록</li>
+        <li>3) Samsung access 4건 confirmation 점검 (1주 1회 follow-up)</li>
+        <li>4) Triangulation 7개 다리 중 흔들리는 것 없는지 점검 (memory diff)</li>
+        <li>5) 내일 deliverable 1개 사전 정의 (paper-blocking 여부 명시)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="endstate">
+  <h2>End-state target — 2026-06-13 EOD 목표</h2>
+  <p class="sub">marathon 종료 시점에 어떤 상태여야 하나</p>
+  <div class="endstate">
+    <h3>2026-06-13 EOD — 5개 트랙 목표 상태</h3>
+    <ul>
+      <li><b>Paper 1 ·</b> <span class="pill green">SUBMITTED</span> Nature Communications 1st pass 제출 완료 + bioRxiv 동시 deposit 완료. Voice-protected 6개 sections FINAL.</li>
+      <li><b>Paper 2 ·</b> <span class="pill amber">K2 SECURED</span> 분당 SNUH BABA H&amp;E inventory 확정 + UNI re-fit 완료 또는 LUAD/BRCA methods-route 전환 결정.</li>
+      <li><b>HLA #1 ·</b> <span class="pill green">PILLAR I-III LOCKED</span> Sci Rep base 작성 완료 + 외부 cohort 1곳 사전 합의 확보. JCI Insight reach 작성 시작.</li>
+      <li><b>Samsung 30억 ·</b> <span class="pill green">5 ANSWERS DONE</span> 5 약점 답안 + access 4건 confirmation + 외부검증 1곳 lock. 제안서 최종 + 제출 임박.</li>
+      <li><b>HLA #2 ·</b> <span class="pill blue">UNBLOCK DECISION</span> Paper 1 bioRxiv 완료 → backlog 해제 시점 결정 (06-13 직후 시작 vs 7월 시작).</li>
+    </ul>
+  </div>
+  <table>
+    <thead><tr><th>지표</th><th>현재 (D11)</th><th>D41 목표</th><th>잠금 조건</th></tr></thead>
+    <tbody>
+      <tr><td>Paper 1 submission</td><td class="hi">submission-ready · cover letter 진행</td><td class="good">SUBMITTED + bioRxiv deposited</td><td>voice-protected 6 sections FINAL · reviewer 후보 3인 lock</td></tr>
+      <tr><td>Paper 2 K2 access</td><td class="bad">outreach-stage · no data</td><td class="hi">SECURED 또는 PIVOT</td><td>BABA H&amp;E inventory 확정 또는 LUAD/BRCA 전환</td></tr>
+      <tr><td>HLA #1 Pillars</td><td class="cool">Pillar I v2 잠금</td><td class="good">Pillar I-III LOCKED</td><td>외부 cohort 1곳 사전 합의</td></tr>
+      <tr><td>Samsung 약점 답안</td><td class="hi">3/5 진행</td><td class="good">5/5 + access 4건 + 외부검증</td><td>access confirmation letters 수령</td></tr>
+      <tr><td>HLA #2 backlog</td><td class="cool">gated (의도)</td><td class="cool">unblock decision</td><td>Paper 1 bioRxiv + Paper 2 A/B/C 완료</td></tr>
+      <tr><td>Violations</td><td class="good">1 (사전)</td><td class="good">≤ 1 (사전 위반 유지)</td><td>마라톤 시작 후 violation 0건 유지</td></tr>
+      <tr><td>Voice-protected sections</td><td class="hi">6/6 DRAFT</td><td class="good">6/6 FINAL</td><td>본인 키보드 작성 완료</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="riskwatch">
+  <h2>Marathon risk watch — 5개 트랙 동시 진행의 부담 지점</h2>
+  <p class="sub">where marathon mode could derail</p>
+  <table>
+    <thead><tr><th>리스크</th><th>발생 시 영향</th><th>조기 신호</th><th>완화책</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="bad">D9+ sprint 유혹</td>
+        <td>새 분석 호출 발생 → 마라톤 룰 위반</td>
+        <td>"이거 한번 더 봐줘" 요청 빈도 증가</td>
+        <td>paper-blocking 여부 사전 명시 · scaffolding으로 재라우팅</td>
+      </tr>
+      <tr>
+        <td class="hi">Voice-protected sprint 위반</td>
+        <td>본인 voice 약화 → reviewer가 "ghost-written" 느낌 감지</td>
+        <td>Claude가 "Hook 작성해드릴게요" 응답 발생</td>
+        <td>Claude는 outline/skeleton/숫자만 제공. 본문은 본인 작성</td>
+      </tr>
+      <tr>
+        <td class="hi">K2 H&amp;E 지연</td>
+        <td>Paper 2 main 폐기 결정 늦어짐</td>
+        <td>분당 SNUH IRB 절차 4주 후에도 미시작</td>
+        <td>W4 (06-04) 결정 점 명시 — 안되면 LUAD/BRCA 전환</td>
+      </tr>
+      <tr>
+        <td class="cool">Samsung 약점 답안 분량 폭발</td>
+        <td>제안서 일관성 약화</td>
+        <td>한 약점 답안이 2장 초과</td>
+        <td>각 약점 1장 limit · figure 1개 limit</td>
+      </tr>
+      <tr>
+        <td class="good">마라톤 EOD 늦어짐</td>
+        <td>여름 휴가 시즌으로 reviewer 응답 지연</td>
+        <td>D35 (06-07)까지 제출 준비 미완료</td>
+        <td>D35까지 Paper 1 cover letter lock 절대 마감</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="commands">
+  <h2>마라톤 모드 — 허용 명령어 / 금지 명령어 reference</h2>
+  <p class="sub">what Claude is/isn't permitted to do during marathon window</p>
+  <table>
+    <thead><tr><th>카테고리</th><th>명령어 예시</th><th>허용 여부</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><td>Scaffolding / infra</td><td>"이 페이지 만들어줘" / "CLAUDE.md 업데이트" / "memory 정리"</td><td class="good">YES</td><td>Default mode — 마라톤 기본 작업 유형</td></tr>
+      <tr><td>Outline / skeleton</td><td>"voice-protected section의 outline 만들어줘" / "Hook 키워드 정리해줘"</td><td class="good">YES</td><td>본문 prose 아닌 구조/숫자 제공만 허용</td></tr>
+      <tr><td>Number recall</td><td>"TERT⁺ HR 다시" / "Pillar III 외부 cohort 후보"</td><td class="good">YES</td><td>기존 메모리/분석 결과 인용 — 신규 분석 아님</td></tr>
+      <tr><td>Paper-blocking analysis</td><td>"이 reviewer Q에 답하려면 추가 분석 필요" — 명시적 요청</td><td class="hi">CONDITIONAL</td><td>paper-blocking 여부 사전 명시되어야 허용</td></tr>
+      <tr><td>Voice-protected prose</td><td>"Hook 본문 작성해줘" / "Disc 3.1 prose 만들어줘"</td><td class="bad">NO</td><td>author-keyboard only — 룰 3 위반</td></tr>
+      <tr><td>"고고/faster" sprint</td><td>"고고" / "faster" / "다 해줘" → voice-protected section</td><td class="bad">NO</td><td>속도 명령어는 default mode 가속만 — 룰 4 위반</td></tr>
+      <tr><td>새 분석 흥미 호출</td><td>"이거 흥미로워서 한번 더 봐줘" — paper-blocking 없이</td><td class="bad">NO</td><td>마라톤 룰 1 (paper-blocking only) 위반</td></tr>
+      <tr><td>예외 — Yu 미팅 follow-up</td><td>"미팅에서 나온 결정을 페이지로 정리해줘"</td><td class="good">YES (one-shot override)</td><td>scaffolding 카테고리 + Yu in-room 결정 반영</td></tr>
+    </tbody>
+  </table>
+  <p class="note">이 표는 <code>v17_marathon_mode_post_pillar1</code> + <code>v17_sprint_vs_marathon_violation</code> + <code>v19_marathon_override_pantheonos_2026_05_08</code> 메모리를 종합한 운영 reference. one-shot override는 명시 필요 (예: PantheonOS LPTC TLS finding 2026-05-08).</p>
+</section>
+
+<section id="memory">
+  <h2>Memory anchors — 마라톤 모드 룰의 단일 출처</h2>
+  <p class="sub">single sources of truth for marathon mode operation</p>
+  <table>
+    <thead><tr><th>메모리 키</th><th>내용 요약</th><th>날짜</th></tr></thead>
+    <tbody>
+      <tr><td><code>v17_marathon_mode_post_pillar1</code></td><td>2026-04-30 결정: Pillar 1 STRONG = 분석 끝. D9+ sprint 없음. 5/4-6/13 6주 manuscript writing marathon. 새 분석은 paper-blocking only.</td><td>2026-04-30</td></tr>
+      <tr><td><code>v17_sprint_vs_marathon_violation</code></td><td>2026-05-03: 마라톤 모드에서 "고고/faster/다 해줘"는 voice-protected section sprint generate 권한 NOT. Default = scaffolding/infra. Hook/Aim/Disc 3.1/Limitations/Cover Para 1/Q9 = 본인 키보드.</td><td>2026-05-03</td></tr>
+      <tr><td><code>v19_marathon_override_pantheonos_2026_05_08</code></td><td>One-shot override 사례: Catalog + paper_reporter + LR + topact 4종 port. Voice-protected 룰은 유지. 미래 "새 분석" 요청은 다시 paper-blocking-only 디폴트.</td><td>2026-05-08</td></tr>
+      <tr><td><code>user_style_figure_heavy_briefs</code></td><td>Web briefs default to MANY figures + MANY tables + narrative flow + auto-deploy to /var/www/papers; generate composites from raw data. 이 페이지의 스타일 기준.</td><td>2026-05-08</td></tr>
+      <tr><td><code>papers_hub_deploy_target</code></td><td>papers_hub_2026_05_04 has independent repo + /var/www/papers copies (not symlinked); always cp to docroot or live URL stays 404. 이 페이지 deploy 절차.</td><td>2026-05-08</td></tr>
+      <tr><td><code>feedback_dossier_pattern</code></td><td>sticky TOC + traceable numbers + co-located honest caveats + decision matrix; user said "대박" 2026-05-08; default for multi-component project reviews. 이 페이지가 따르는 패턴.</td><td>2026-05-08</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="paperlock">
+  <h2>Paper × 마라톤 윈도우 잠금 매트릭스</h2>
+  <p class="sub">각 페이퍼/과제별 마라톤 윈도우 안에서 잠겨야 하는 산출물</p>
+  <table>
+    <thead><tr><th>트랙</th><th>D11 (오늘)</th><th>D14 (W1 EOD)</th><th>D21 (W2 EOD)</th><th>D28 (W3 EOD)</th><th>D35 (W4 EOD)</th><th>D41 (EOD)</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Paper 1</td>
+        <td class="hi">cover letter 진행</td>
+        <td>cover letter draft</td>
+        <td>bioRxiv deposit</td>
+        <td>voice-protected 6 FINAL</td>
+        <td>제출 직전 점검</td>
+        <td class="good">제출 완료</td>
+      </tr>
+      <tr>
+        <td>Paper 2</td>
+        <td class="bad">K2 access 시작</td>
+        <td>BABA inventory 확인</td>
+        <td>슬라이드 inventory 진행</td>
+        <td>K2 preprocess</td>
+        <td>UNI re-fit 또는 pivot</td>
+        <td class="hi">K2 SECURED 또는 PIVOT</td>
+      </tr>
+      <tr>
+        <td>HLA #1</td>
+        <td class="cool">Pillar II 시작</td>
+        <td>Pillar II draft</td>
+        <td>Pillar III + 외부 outreach</td>
+        <td>외부 cohort 합의</td>
+        <td>Pillar III draft</td>
+        <td class="good">Pillar I-III LOCKED</td>
+      </tr>
+      <tr>
+        <td>HLA #2</td>
+        <td>대기 (gated)</td>
+        <td>대기</td>
+        <td>대기</td>
+        <td>대기</td>
+        <td>unblock decision 사전 검토</td>
+        <td class="cool">UNBLOCK DECISION</td>
+      </tr>
+      <tr>
+        <td>Samsung</td>
+        <td class="hi">약점 1·2·3 진행</td>
+        <td>약점 1·2·3 답안</td>
+        <td>약점 4·5 답안</td>
+        <td>access 4건 confirmation</td>
+        <td>외부검증 1곳 lock + 제안서 최종</td>
+        <td class="good">5 ANSWERS DONE · 제출</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="closing">
+  <h2>이 페이지의 단일 책임</h2>
+  <p class="sub">scope of this marathon dashboard</p>
+  <p class="note">이 페이지는 6주 marathon mode의 진행률, 룰 잠금, 위반 로그, voice-protected sections 상태, 그리고 2026-06-13 EOD 목표를 한 화면에 그린다. 신규 분석은 추가하지 않음 — 출처: <code>memory/v17_marathon_mode_post_pillar1</code> + <code>v17_sprint_vs_marathon_violation</code> + <code>v19_marathon_override_pantheonos_2026_05_08</code>. 이 페이지 자체가 default scaffolding 카테고리 — 마라톤 룰 준수.</p>
+  <p class="footer">Built 2026-05-14 · <code>project/papers_hub_2026_05_04/marathon_mode_dashboard_2026_05_14.html</code> · deployed to <code>/var/www/papers/</code></p>
+</section>
+
+</main>
+</body>
+</html>

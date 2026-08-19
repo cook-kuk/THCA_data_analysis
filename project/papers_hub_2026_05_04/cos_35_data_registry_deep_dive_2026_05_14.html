@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>cos_35 · data_registry/ deep dive — 2026-05-14</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+  --bg:#0a0d12; --panel:#11151c; --panel2:#161b24; --line:#222a36;
+  --ink:#e6ecf3; --dim:#8a98ad; --muted:#6b7790;
+  --accent:#7ab6ff; --accent2:#a3e3c1; --warn:#ffbf66; --bad:#ff7a7a; --ok:#8fe48c;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.55;margin:0;padding:0}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+header.hero{padding:40px 32px 28px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,#0c1118,#0a0d12)}
+header.hero h1{font-size:30px;margin:0 0 6px;letter-spacing:-0.3px}
+header.hero .sub{color:var(--dim);font-size:14px}
+header.hero .meta{margin-top:14px;color:var(--muted);font-size:12.5px}
+.tocbar{position:sticky;top:0;z-index:50;background:rgba(10,13,18,0.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:8px 16px;font-size:12.5px;display:flex;flex-wrap:wrap;gap:10px}
+.tocbar a{color:var(--dim);padding:2px 6px;border-radius:4px}
+.tocbar a:hover{background:var(--panel2);color:var(--ink);text-decoration:none}
+main{max-width:1180px;margin:0 auto;padding:24px 28px 80px}
+section{margin:34px 0;padding:22px 24px;background:var(--panel);border:1px solid var(--line);border-radius:8px}
+section h2{font-size:21px;margin:0 0 14px;color:var(--ink);border-bottom:1px solid var(--line);padding-bottom:8px}
+section h3{font-size:16px;color:var(--accent2);margin:18px 0 8px}
+section p{color:#cfd6e1;font-size:14.5px}
+.callout{padding:12px 14px;border-radius:6px;font-size:14px;margin:10px 0}
+.callout.ok{background:#10241a;border-left:3px solid var(--ok);color:#cdebd2}
+.callout.warn{background:#2a1e10;border-left:3px solid var(--warn);color:#f0d9b3}
+.callout.bad{background:#2a1212;border-left:3px solid var(--bad);color:#f3c5c5}
+.callout.info{background:#101a26;border-left:3px solid var(--accent);color:#cbd9ea}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13.5px}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--dim);font-weight:600;background:var(--panel2)}
+td code{color:var(--accent2);font-size:12.5px}
+code,pre{font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace}
+pre{background:#0c1118;border:1px solid var(--line);padding:12px;border-radius:6px;overflow-x:auto;color:#d4dce8;font-size:12.5px;line-height:1.45}
+.kv{display:grid;grid-template-columns:230px 1fr;gap:6px 14px;font-size:13.5px;margin:8px 0}
+.kv dt{color:var(--dim)}
+.kv dd{margin:0;color:var(--ink)}
+.tag{display:inline-block;padding:2px 8px;border-radius:11px;font-size:11px;border:1px solid var(--line);background:var(--panel2);color:var(--dim);margin-right:4px}
+.tag.ok{color:var(--ok);border-color:#2b5d36}
+.tag.warn{color:var(--warn);border-color:#5d4a2b}
+.tag.bad{color:var(--bad);border-color:#5d2b2b}
+.tag.info{color:var(--accent);border-color:#2b4d6a}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:12px 14px;font-size:13.5px}
+.card .label{color:var(--dim);font-size:11.5px;text-transform:uppercase;letter-spacing:0.5px}
+.card .val{font-size:18px;color:var(--ink);margin-top:4px}
+footer{color:var(--muted);font-size:12px;text-align:center;padding:40px 16px 22px}
+hr{border:none;border-top:1px solid var(--line);margin:24px 0}
+ul,ol{padding-left:20px}
+li{margin:4px 0;color:#cfd6e1;font-size:14px}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>cos_35 · data_registry/ deep dive — 5 zones × 357 datasets × manifests + reports</h1>
+  <div class="sub">Author: Seungho Cook · 2026-05-14 · paper-blocking scaffolding · marathon mode</div>
+  <div class="meta">Source-of-truth: <code>data_registry/manifests/master_dataset_catalog.csv</code> (357 active + 73 purged = 430 historical rows) · <code>data_registry/reports/DATA_EXPANSION_AND_BOUNDARY_REPORT_20260508.md</code> · <code>data_registry/reports/gap_analysis_2026_05_08.md</code> · <code>data_registry/reports/DEEP_DIVE_2026_05_08.md</code> · <code>data_registry/reports/accession_verification.md</code> · <code>data_registry/reports/download_plan.md</code> · <code>config/boundary_allowlist.yml</code> · <code>scripts/boundary_audit/</code></div>
+</header>
+
+<div class="tocbar">
+  <a href="#structure">structure</a>
+  <a href="#manifests">manifests</a>
+  <a href="#zones">zones</a>
+  <a href="#columns">columns</a>
+  <a href="#counts">per-zone counts</a>
+  <a href="#expansion">expansion report</a>
+  <a href="#gaps">gap analysis</a>
+  <a href="#verify">accession verification</a>
+  <a href="#download">download plan</a>
+  <a href="#deepdive">deep dive</a>
+  <a href="#audit">boundary audit</a>
+  <a href="#claims">claim matrix</a>
+  <a href="#cleanup">cleanup</a>
+  <a href="#siblings">siblings</a>
+</div>
+
+<main>
+
+<section id="structure">
+<h2>1. Structure — what lives under data_registry/</h2>
+
+<pre>data_registry/
+├── manifests/                                  # 8 CSV files (master + 5 zone + claim + purge)
+│   ├── master_dataset_catalog.csv              # 357 active rows, 32 columns
+│   ├── paper1_cancer_core_manifest.csv         # 221 rows
+│   ├── paper2_hla_autoimmune_manifest.csv      # 40 rows
+│   ├── bridge_quarantine_manifest.csv          # 27 rows
+│   ├── reference_population_hla_manifest.csv   # 49 rows
+│   ├── restricted_or_rejected_manifest.csv     # 20 rows
+│   ├── claim_matrix.csv                        # 15 claims × allowed/forbidden datasets
+│   └── _purged_verified_wrong.csv              # 73 wrong-subject + missing rows (purge archive)
+├── reports/
+│   ├── DATA_EXPANSION_AND_BOUNDARY_REPORT_20260508.md     # primary report
+│   ├── DEEP_DIVE_2026_05_08.md                            # supplementary deep dive
+│   ├── _accession_verification_cache.json                 # API cache
+│   ├── accession_verification.md                          # PubMed/GEO verification status
+│   ├── download_plan.md                                   # per-dataset commands + approval gates
+│   └── gap_analysis_2026_05_08.md                         # claim-by-claim support
+├── paper1_cancer_core/                         # zone dir (Paper 1 + Paper 3 cancer-only)
+├── paper2_hla_autoimmune/                      # zone dir (Paper 2 + Paper 4 exploratory HLA)
+├── bridge_quarantine_ht_ptc/                   # zone dir (HT+PTC overlap, hypothesis-only)
+├── reference_population_hla/                   # zone dir (AFND / IPD / Korean HLA / TCR-epitope DBs)
+└── rejected_or_restricted/                     # zone dir (dbGaP/EGA placeholders + KoGES)</pre>
+
+<div class="grid5" style="margin-top:14px">
+  <div class="card"><div class="label">P1 cancer core</div><div class="val">221</div></div>
+  <div class="card"><div class="label">P2 HLA autoimmune</div><div class="val">40</div></div>
+  <div class="card"><div class="label">Bridge quarantine</div><div class="val">27</div></div>
+  <div class="card"><div class="label">Reference pop HLA</div><div class="val">49</div></div>
+  <div class="card"><div class="label">Restricted / rejected</div><div class="val">20</div></div>
+</div>
+<div style="color:var(--muted);font-size:12px;margin-top:8px">
+Total active = 357 · Purged = 73 (in <code>_purged_verified_wrong.csv</code>) · Catalog audit numbers per <code>master_dataset_catalog.csv</code> col 2 distinct values. <span class="tag info">label: awk count</span>
+</div>
+</section>
+
+<section id="manifests">
+<h2>2. Manifests inventory — 8 CSV files</h2>
+
+<table>
+<thead><tr><th>File</th><th>Rows (incl header)</th><th>Role</th><th>Tag</th></tr></thead>
+<tbody>
+<tr><td><code>master_dataset_catalog.csv</code></td><td>358 (357 data + 1 header)</td><td>32-column master · zone × source × accession × phenotype × access × forbidden_use × boundary_risk_level × notes</td><td><span class="tag ok">label: authoritative</span></td></tr>
+<tr><td><code>paper1_cancer_core_manifest.csv</code></td><td>222</td><td>Paper 1 + Paper 3 cancer / DM1 / DM2 / RAI / fusion / methylation / ICI / TCGA cross-cancer / pediatric / radiation / drug-perturbation / pathology / proteogenomic incl. Mun 2025 n=336 / methodology refs / Korean clinical</td><td><span class="tag ok">label: zone-derived</span></td></tr>
+<tr><td><code>paper2_hla_autoimmune_manifest.csv</code></td><td>41</td><td>Paper 2 + Paper 4 exploratory HLA / AITD literature & GWAS / cross-autoimmune comparators / Korean Twin Family / AITD HLA-proteomics</td><td><span class="tag ok">label: zone-derived</span></td></tr>
+<tr><td><code>bridge_quarantine_manifest.csv</code></td><td>28</td><td>HT/PTC overlap expression, hypothesis-only · no causal claim · no HLA allele claim</td><td><span class="tag warn">label: hypothesis-only</span></td></tr>
+<tr><td><code>reference_population_hla_manifest.csv</code></td><td>50</td><td>AFND / IPD / Korean HLA panels / global registries / TCR-epitope DBs / immunopeptidomics / neoantigen DBs / typing tools</td><td><span class="tag info">label: reference</span></td></tr>
+<tr><td><code>restricted_or_rejected_manifest.csv</code></td><td>21</td><td>Controlled-access placeholders (dbGaP / EGA / KoGES / KBN)</td><td><span class="tag bad">label: gated</span></td></tr>
+<tr><td><code>claim_matrix.csv</code></td><td>16 (15 claims + header)</td><td>P1_C1 through P1_C9 + P2_C1 through P2_C4 + BRIDGE_C1 + BRIDGE_C2; each claim has strength tag + allowed_datasets list + validation requirement</td><td><span class="tag info">label: claim-anchor</span></td></tr>
+<tr><td><code>_purged_verified_wrong.csv</code></td><td>74</td><td>73 archived rows (66 wrong-subject + 7 missing) — kept for audit trail, not used</td><td><span class="tag bad">label: archived</span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="zones">
+<h2>3. Zone definitions — what belongs where, what is forbidden</h2>
+
+<h3>3.1 PAPER1_CANCER_CORE (221 datasets)</h3>
+<table>
+<thead><tr><th>Allowed</th><th>Forbidden</th></tr></thead>
+<tbody>
+<tr>
+<td>Mutation / expression / methylation / CN / clinical · DM1-DM2 axis · RAI-lineage signature · BRAF/RAS/TERT/RET status · pathology · proteogenomic (Mun 2025 n=336) · scRNA/spatial · methodology refs (MSigDB / KEGG / Reactome / DepMap) · Korean clinical (K2 / Lee n=865)</td>
+<td>HLA allele typing or HLA-cancer claim · any allele × cancer-outcome join · arcasHLA outputs are PAPER 2 ONLY</td>
+</tr>
+</tbody>
+</table>
+<div style="color:var(--muted);font-size:12px;margin-top:6px"><span class="tag info">label: master_dataset_catalog.csv col allowed_use / forbidden_use</span></div>
+
+<h3>3.2 PAPER2_HLA_AUTOIMMUNE (40 datasets)</h3>
+<table>
+<thead><tr><th>Allowed</th><th>Forbidden</th></tr></thead>
+<tbody>
+<tr>
+<td>HLA allele-level frequency comparison (Korean PTC vs Korean baseline / AFND South Korea pool) · AITD literature · GWAS catalogs · cross-autoimmune comparators · Korean Twin Family · AITD HLA-proteomics · Pan-Asian backlog (Paper 4 reserve)</td>
+<td>OS / DSS / PFI / recurrence / RAI response / DM1 / DM2 / fusion / BRAF / RAS / TERT joins · clinical risk prediction · patient selection · direct Korean-Korean transfer without ancestry caveat</td>
+</tr>
+</tbody>
+</table>
+
+<h3>3.3 BRIDGE_QUARANTINE_HT_PTC (27 datasets)</h3>
+<table>
+<thead><tr><th>Allowed</th><th>Forbidden</th></tr></thead>
+<tbody>
+<tr>
+<td>HT + PTC + PTC+HT + mPTC + normal expression · IGHV clonality · TLS markers · methylation · scRNA / spatial · hypothesis-only generalization</td>
+<td>Allele-level HLA association · cancer susceptibility claim · causality / clinical risk / prognosis / survival / patient selection · HT/PTC generalization without explicit caveat</td>
+</tr>
+</tbody>
+</table>
+
+<h3>3.4 REFERENCE_POPULATION_HLA (49 datasets)</h3>
+<table>
+<thead><tr><th>Allowed</th><th>Forbidden</th></tr></thead>
+<tbody>
+<tr>
+<td>AFND allele frequencies (Korean / EAS / global) · IPD-IMGT/HLA nomenclature · Korean panels (KMDP / KCDC / Park 2010 / Baek 2021 / KOR_5802 / Roh 2010) · TCR-epitope DBs (VDJdb / McPAS-TCR / IEDB) · immunopeptidomics (HLA Ligand Atlas) · neoantigen DBs · typing tools (NetMHC / arcasHLA / cookHLA references)</td>
+<td>Mistaken use of disease-cohort AFND frequencies as population baselines · misuse as germline allele frequency reference · stand-alone allele frequency claim without ancestry context</td>
+</tr>
+</tbody>
+</table>
+
+<h3>3.5 RESTRICTED_OR_REJECTED (20 datasets)</h3>
+<table>
+<thead><tr><th>Allowed</th><th>Forbidden</th></tr></thead>
+<tbody>
+<tr>
+<td>None until application/credentials granted · placeholder rows track future application paths (dbGaP / EGA / KoGES / KBN / BBJ / UKBB)</td>
+<td>All — application required · HLA imputation from TCGA raw BAMs (phs000178) explicitly never for Paper 1 · would violate Paper-1/Paper-2 separation</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout info">Zone assignment for any new dataset must be set <i>before</i> commit. The audit script <code>scripts/boundary_audit/audit_paper1_no_hla_contamination.py</code> blocks Paper 1 manuscript files that reference HLA outside the allowlist. <span class="tag info">label: DATA_EXPANSION_AND_BOUNDARY_REPORT §9</span></div>
+</section>
+
+<section id="columns">
+<h2>4. Master catalog columns — 32-column schema</h2>
+
+<table>
+<thead><tr><th>#</th><th>Column</th><th>Type</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td>1</td><td><code>dataset_id</code></td><td>string · zone-prefixed</td><td><code>P1_TCGA_THCA</code> · <code>P2_AFND_KOR</code> · <code>BR_GSE138198</code> · <code>RR_DBGAP_TCGA_RAW_BAMS</code></td></tr>
+<tr><td>2</td><td><code>zone</code></td><td>enum · 5 values</td><td><code>PAPER1_CANCER_CORE</code> / <code>PAPER2_HLA_AUTOIMMUNE</code> / <code>BRIDGE_QUARANTINE_HT_PTC</code> / <code>REFERENCE_POPULATION_HLA</code> / <code>RESTRICTED_OR_REJECTED</code></td></tr>
+<tr><td>3</td><td><code>source_database</code></td><td>string</td><td>GEO · TCGA / GDC · cBioPortal · ENA · ArrayExpress · AFND · KMDP · IPD-IMGT/HLA · DepMap · CCLE</td></tr>
+<tr><td>4</td><td><code>accession_or_id</code></td><td>string</td><td><code>TCGA-THCA</code> · <code>GSE286332</code> · <code>PRJEB11591</code> · <code>thca_tcga_pub</code></td></tr>
+<tr><td>5</td><td><code>title</code></td><td>string</td><td>"The Cancer Genome Atlas — Thyroid Carcinoma"</td></tr>
+<tr><td>6</td><td><code>publication</code></td><td>string</td><td>"Cell 2014 159(3):676-690"</td></tr>
+<tr><td>7</td><td><code>year</code></td><td>int</td><td>2014</td></tr>
+<tr><td>8</td><td><code>url</code></td><td>url</td><td><code>https://portal.gdc.cancer.gov/projects/TCGA-THCA</code></td></tr>
+<tr><td>9</td><td><code>organism</code></td><td>string</td><td>Homo sapiens</td></tr>
+<tr><td>10</td><td><code>country_or_ancestry</code></td><td>string</td><td>USA mixed (mostly European) · South Korea · Taiwan · UK · Saudi</td></tr>
+<tr><td>11</td><td><code>sample_count_reported</code></td><td>int / range</td><td>~507 · 260 · n=865</td></tr>
+<tr><td>12</td><td><code>sample_types</code></td><td>string</td><td>Primary tumor + matched normal · FNA · cell line · scRNA · spatial</td></tr>
+<tr><td>13</td><td><code>assay_type</code></td><td>enum</td><td>RNA-seq · WXS · methylation 450K · miRNA · clinical · scRNA-seq · spatial Visium · ChIP-seq · proteomics · GWAS sumstats</td></tr>
+<tr><td>14</td><td><code>phenotypes</code></td><td>string</td><td>PTC + FVPTC + tall-cell + CMV · HT+PTC · ATC · PDTC · GD · pan-thyroid</td></tr>
+<tr><td>15</td><td><code>contains_cancer</code></td><td>YES/NO</td><td>—</td></tr>
+<tr><td>16</td><td><code>contains_hla_alleles</code></td><td>YES/NO</td><td>—</td></tr>
+<tr><td>17</td><td><code>contains_hla_expression</code></td><td>YES/NO</td><td>module-level (HLA-I/HLA-II RNA), not allele typing</td></tr>
+<tr><td>18</td><td><code>contains_autoimmune</code></td><td>YES/NO</td><td>—</td></tr>
+<tr><td>19</td><td><code>contains_hashimoto</code></td><td>YES/NO</td><td>—</td></tr>
+<tr><td>20</td><td><code>contains_graves</code></td><td>YES/NO</td><td>—</td></tr>
+<tr><td>21</td><td><code>contains_survival</code></td><td>YES/NO</td><td>OS / DSS / PFI / DFI</td></tr>
+<tr><td>22</td><td><code>contains_rai_response</code></td><td>YES/NO</td><td>—</td></tr>
+<tr><td>23</td><td><code>contains_dm1_dm2</code></td><td>YES/NO</td><td>derived label</td></tr>
+<tr><td>24</td><td><code>contains_fusion_status</code></td><td>YES/NO</td><td>RET/PTC · NTRK · ALK</td></tr>
+<tr><td>25</td><td><code>contains_braf_ras_tert</code></td><td>YES/NO</td><td>somatic driver call</td></tr>
+<tr><td>26</td><td><code>access_status</code></td><td>enum</td><td><code>public_open</code> · <code>public_open_partial</code> · <code>public_aggregate_only</code> · <code>controlled_dbgap</code> · <code>controlled_ega</code> · <code>access_application_required</code> · <code>internal</code></td></tr>
+<tr><td>27</td><td><code>download_status</code></td><td>enum</td><td><code>already_present</code> · <code>downloadable</code> · <code>api_available</code> · <code>not_downloaded</code> · <code>blocked_pending_access</code> · <code>blocked_no_credentials</code> · <code>arcasHLA_already_run</code></td></tr>
+<tr><td>28</td><td><code>local_path</code></td><td>path</td><td><code>project/data/external/tcga_thca/</code> · <code>/data/thca/_repo_offload/arcasHLA/</code></td></tr>
+<tr><td>29</td><td><code>allowed_use</code></td><td>string</td><td>Mutation/expression/methylation/CN/clinical/DM1-DM2/RAI-lineage</td></tr>
+<tr><td>30</td><td><code>forbidden_use</code></td><td>string</td><td>HLA allele typing or HLA-cancer claim</td></tr>
+<tr><td>31</td><td><code>boundary_risk_level</code></td><td>enum / phrase</td><td><code>low</code> · <code>medium</code> · <code>high</code> · or a specific forbidden-use phrase ("HLA allele claim", "Cancer claim", "Direct Korean transfer", etc.)</td></tr>
+<tr><td>32</td><td><code>notes</code></td><td>string</td><td>"Pillar Paper-1 reference dataset; do NOT run HLA imputation against TCGA BAMs for any P1 claim"</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="counts">
+<h2>5. Per-zone counts (verified)</h2>
+
+<table>
+<thead><tr><th>Zone</th><th>Count</th><th>OK</th><th>OK-XC</th><th>Manual</th><th>Unverified</th><th>OK %</th><th>Role</th></tr></thead>
+<tbody>
+<tr><td><code>PAPER1_CANCER_CORE</code></td><td>221</td><td>37</td><td>2</td><td>47</td><td>135</td><td>17.6%</td><td>Paper 1 + Paper 3 cancer-only</td></tr>
+<tr><td><code>PAPER2_HLA_AUTOIMMUNE</code></td><td>40</td><td>1</td><td>0</td><td>17</td><td>22</td><td>2.5%</td><td>Paper 2 + Paper 4 exploratory HLA</td></tr>
+<tr><td><code>BRIDGE_QUARANTINE_HT_PTC</code></td><td>27</td><td>6</td><td>0</td><td>5</td><td>16</td><td>22.2%</td><td>HT/PTC overlap, hypothesis-only</td></tr>
+<tr><td><code>REFERENCE_POPULATION_HLA</code></td><td>49</td><td>0</td><td>0</td><td>7</td><td>42</td><td>0.0%</td><td>AFND / IPD / Korean reference (inherently not PubMed-verifiable)</td></tr>
+<tr><td><code>RESTRICTED_OR_REJECTED</code></td><td>20</td><td>0</td><td>0</td><td>0</td><td>20</td><td>0.0%</td><td>Controlled-access placeholders</td></tr>
+<tr><td><b>Total active</b></td><td><b>357</b></td><td>44</td><td>2</td><td>76</td><td>235</td><td>—</td><td>—</td></tr>
+<tr><td><b>Purged</b></td><td>73</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td><td>66 wrong-subject + 7 missing</td></tr>
+</tbody>
+</table>
+
+<div class="callout warn">Master catalog reports <i>357 active</i>; expansion report intro mentions 386 = 357 active + 29 (older count line) — current authoritative number is <b>357 active + 73 purged = 430 historical</b>. Use 357 going forward. <span class="tag info">label: gap_analysis_2026_05_08.md · awk verification</span></div>
+</section>
+
+<section id="expansion">
+<h2>6. DATA_EXPANSION_AND_BOUNDARY_REPORT_20260508.md — primary report</h2>
+
+<h3>6.1 Executive summary</h3>
+<p>This 2026-05-08 report separates the THCA data ecosystem into 5 strict zones, catalogs 357 datasets across them, codifies the HLA ↔ cancer separation as machine-checkable rules, and ships 3 audit scripts that mechanically enforce the boundary. <span class="tag info">label: DATA_EXPANSION §1</span></p>
+
+<h3>6.2 Verification status of 357 active rows</h3>
+<table>
+<thead><tr><th>Status</th><th>Count</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td><code>[VERIFIED-OK]</code></td><td>44</td><td>Real and thyroid-relevant (API-confirmed)</td></tr>
+<tr><td><code>[VERIFIED-OK-XCANCER]</code></td><td>2</td><td>Real + intentionally cross-cancer (Forde NSCLC · Entrectinib NTRK basket — DIAL training cohorts)</td></tr>
+<tr><td><code>[VERIFIED-MANUAL-NEEDED]</code></td><td>76</td><td>PubMed fuzzy-title search returned no PMID; row's title is description, not verbatim — needs manual citation lookup</td></tr>
+<tr><td>Unverified (no API path)</td><td>235</td><td>Inherently not programmatically verifiable: AFND · internal · restricted/blocked · methodology DBs (MSigDB · KEGG · Reactome · ChEMBL · DrugBank · IPD · IEDB · VDJdb · McPAS-TCR · BMDW · NMDP · KMDP · KCDC) · single-cell aggregators (CellxGene · HCA · Tabula Sapiens)</td></tr>
+</tbody>
+</table>
+
+<h3>6.3 Boundary audit status (2026-05-08)</h3>
+<table>
+<thead><tr><th>Audit</th><th>Hits</th><th>Flagged</th><th>Exit</th><th>Interpretation</th></tr></thead>
+<tbody>
+<tr><td>Paper 1 (HLA contamination)</td><td>3,320</td><td>0</td><td>0 (clean)</td><td>Every HLA / Hashimoto / Graves / AITD reference in Paper 1-scanned files is either inside a boundary doc, an audit/scanner artifact, a manifest, the multi-paper outline, or an explicit transcriptomic-module-with-deferral caption.</td></tr>
+<tr><td>Paper 2 (cancer-claim contamination)</td><td>59</td><td>25 (manual review)</td><td>0 (non-blocking)</td><td>All 25 hits inside Paper 2 meta-documents (terminology-correction-plan / master-view / pillar1-v2-forest-meta-spec) — boundary self-documentation, not contamination.</td></tr>
+<tr><td>Bridge quarantine</td><td>0</td><td>0</td><td>0 (clean)</td><td>—</td></tr>
+</tbody>
+</table>
+
+<h3>6.4 Highlights by zone (Paper 1 cancer-core)</h3>
+<ul>
+<li>Already present locally: <code>P1_TCGA_THCA</code> · <code>P1_KOREAN_K2_LEE</code> (n=865 keep this number unless explicitly reverted) · <code>P1_GSE250521</code> spatial · <code>P1_GSE286332</code> Korean PTC vs PTC+HT (Pillar 3 driver) · <code>P1_GSE151179</code> RAI-dediff axis · <code>P1_GSE248205</code> spatial · <code>P1_TCGA_THCA_PUB</code> TERT promoter recovered</li>
+<li>High-priority pulls: <code>P1_TCGA_PANCAN_2018</code> · <code>P1_GSE76039</code> PDTC/ATC · <code>P1_MSK_LANDA_2016</code> cBioPortal · <code>P1_GSE154763</code> pan-cancer myeloid scAtlas filter to thyroid</li>
+<li>RAI-axis: <code>P1_GSE151179</code> already-used · <code>P1_GSE104260</code> · <code>P1_GSE76096</code></li>
+<li>Methylation: <code>P1_GSE54958</code> · <code>P1_GSE51090</code> · <code>P1_GSE53051</code></li>
+<li>scRNA/spatial: <code>P1_GSE184362</code> · <code>P1_GSE191288</code> · <code>P1_GSE171472</code> · <code>P1_GSE193581</code> · <code>P1_GSE197211</code> · <code>P1_GSE214083</code> · <code>P1_GSE158285</code> · <code>P1_GSE242530</code> · <code>P1_GSE246297</code></li>
+<li>Cell-line / dependency: <code>P1_DEPMAP_THYROID</code> · <code>P1_CCLE_THYROID</code></li>
+<li>Ancestry-independent: <code>P1_ICGC_THCA_SA</code> Saudi · <code>P1_HRA_NGDC_TBD</code> Chinese NGDC placeholder · <code>P1_GENIE_THYROID</code></li>
+</ul>
+
+<h3>6.5 Paper 2 highlights</h3>
+<ul>
+<li>Korean AITD literature: <code>P2_SHIN_2019</code> · <code>P2_CHO_2011</code> · <code>P2_PARK_2005</code> · <code>P2_JANG_2011</code> · <code>P2_BAEK_2021</code> NGS · <code>P2_KOGES_KWAK_2014</code> GWAS</li>
+<li>Non-Korean comparators (Paper 4 reserve): <code>P2_CHU_2018_GD</code> Taiwan · <code>P2_TOMER_GD_HLA</code> review · <code>P2_BEDNARCZUK_GD</code> Poland · <code>P2_HU_CHINESE_AITD</code> · <code>P2_HEWARD_UK_GD</code> · <code>P2_VAIDYA_UK_GD</code> · <code>P2_SIMMONDS_UK_AITD</code></li>
+<li>GWAS catalogs: <code>P2_GWAS_CATALOG</code> · <code>P2_GWAS_HASHIMOTO</code> · <code>P2_GWAS_GRAVES</code> · <code>P2_GWAS_TPO_AB</code> · <code>P2_GWAS_TSH</code> · <code>P2_GWAS_HYPOTHY</code> · <code>P2_GWAS_HYPERTHY</code> · <code>P2_IEU_OPENGWAS</code></li>
+<li>Biobank summary stats: <code>P2_FINNGEN_THYROID</code> · <code>P2_FINNGEN_HASHIMOTO</code> · <code>P2_FINNGEN_GRAVES</code> · <code>P2_PANUKBB</code></li>
+<li>Access-gated: <code>P2_BBJ_THYROID</code> · <code>P2_UKBB_THYROID</code></li>
+</ul>
+</section>
+
+<section id="gaps">
+<h2>7. gap_analysis_2026_05_08.md — claim-by-claim support</h2>
+
+<h3>7.1 Per-claim verification (15 claims)</h3>
+<table>
+<thead><tr><th>Claim</th><th>Paper</th><th>Strength</th><th>Total</th><th>OK</th><th>OK-XC</th><th>Manual</th><th>Unverified</th><th>Missing</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>P1_C1</code></td><td>Paper 1</td><td>STRONG</td><td>8</td><td>5</td><td>0</td><td>0</td><td>3</td><td>0</td><td>✓</td></tr>
+<tr><td><code>P1_C2</code></td><td>Paper 1</td><td>STRONG</td><td>5</td><td>1</td><td>0</td><td>0</td><td>4</td><td>0</td><td>✓</td></tr>
+<tr><td><code>P1_C3</code></td><td>Paper 1</td><td>STRONG</td><td>9</td><td>4</td><td>0</td><td>0</td><td>2</td><td>3</td><td>✓</td></tr>
+<tr><td><code>P1_C4</code></td><td>Paper 1</td><td>STRONG</td><td>2</td><td>1</td><td>0</td><td>0</td><td>1</td><td>0</td><td>✓</td></tr>
+<tr><td><code>P1_C5</code></td><td>Paper 1</td><td>MEDIUM</td><td>4</td><td>3</td><td>0</td><td>0</td><td>0</td><td>1</td><td>✓</td></tr>
+<tr><td><code>P1_C6</code></td><td>Paper 1</td><td>WEAK</td><td>6</td><td>1</td><td>0</td><td>0</td><td>3</td><td>2</td><td>✓</td></tr>
+<tr><td><code>P1_C7</code></td><td>Paper 1</td><td>MEDIUM</td><td>4</td><td>2</td><td>0</td><td>0</td><td>1</td><td>1</td><td>✓</td></tr>
+<tr><td><code>P1_C8</code></td><td>Paper 1</td><td>MEDIUM</td><td>7</td><td>3</td><td>0</td><td>0</td><td>4</td><td>0</td><td>✓</td></tr>
+<tr><td><code>P1_C9</code></td><td>Paper 1</td><td>MEDIUM</td><td>5</td><td>1</td><td>0</td><td>0</td><td>2</td><td>2</td><td>✓</td></tr>
+<tr><td><code>P2_C1</code></td><td>Paper 2</td><td>EXPLORATORY</td><td>12</td><td>1</td><td>0</td><td>5</td><td>6</td><td>0</td><td>✓</td></tr>
+<tr><td><code>P2_C2</code></td><td>Paper 2</td><td>STRONG</td><td>10</td><td>0</td><td>0</td><td>3</td><td>7</td><td>0</td><td>⚠ WEAK</td></tr>
+<tr><td><code>P2_C3</code></td><td>Paper 4 reserve</td><td>EXPLORATORY</td><td>9</td><td>1</td><td>0</td><td>5</td><td>3</td><td>0</td><td>✓</td></tr>
+<tr><td><code>P2_C4</code></td><td>Paper 2 (sensitivity)</td><td>EXPLORATORY</td><td>9</td><td>0</td><td>0</td><td>4</td><td>5</td><td>0</td><td>⚠ WEAK</td></tr>
+<tr><td><code>BRIDGE_C1</code></td><td>Bridge</td><td>HYPOTHESIS-ONLY</td><td>12</td><td>6</td><td>0</td><td>0</td><td>4</td><td>2</td><td>✓</td></tr>
+<tr><td><code>BRIDGE_C2</code></td><td>Bridge</td><td>HYPOTHESIS-ONLY</td><td>3</td><td>1</td><td>0</td><td>0</td><td>2</td><td>0</td><td>✓</td></tr>
+</tbody>
+</table>
+
+<h3>7.2 Claim text + dataset support (selected)</h3>
+<table>
+<thead><tr><th>Claim</th><th>Statement</th><th>Datasets</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td><code>P1_C1</code></td><td>Paper 1 DM1/DM2 resolves the BRAF/RAS-negative PTC compartment</td><td>P1_TCGA_THCA · P1_TCGA_PANCAN_2018 · P1_TCGA_THCA_PUB · P1_KOREAN_K2_LEE · P1_GSE286332 · P1_GSE33630 · P1_GSE76039 · P1_MSK_LANDA_2016</td><td>STRONG · 5 OK + 3 unverified · validation = Korean K2+Lee n=865 already validates</td></tr>
+<tr><td><code>P1_C2</code></td><td>Paper 1 DM1 enriches fusion-positive tumors</td><td>P1_TCGA_THCA · P1_TCGA_PANCAN_2018 · P1_KOREAN_K2_LEE · P1_GENIE_THYROID · P1_MSK_LANDA_2016</td><td>STRONG · validation = cross-cohort fusion-status overlay required</td></tr>
+<tr><td><code>P1_C3</code></td><td>Paper 1 DM1 has thyroid-differentiation / RAI-lineage silencing</td><td>P1_TCGA_THCA · P1_TCGA_PANCAN_2018 · P1_KOREAN_K2_LEE · P1_GSE151179 · P1_GSE104260 (missing) · P1_GSE76096 (missing) · P1_GSE54958 · P1_GSE51090 · P1_GSE53051 (missing)</td><td>STRONG · validation = RAI-refractory cohorts independently confirm</td></tr>
+<tr><td><code>P1_C4</code></td><td>Paper 1 DM1 sub-B (TCGA n=56) is NBNR-equivalent and partially Hashimoto-like</td><td>P1_TCGA_THCA · P1_GSE286332</td><td>STRONG · expression-only · HLA strictly excluded</td></tr>
+<tr><td><code>P1_C5</code></td><td>DM1 spatial niche organization replicates across cohorts</td><td>P1_GSE250521 · P1_GSE248205 · P1_GSE242530 (missing) · P1_GSE184362</td><td>MEDIUM · cross-platform spatial validation pending</td></tr>
+<tr><td><code>P1_C6</code></td><td>RAI re-induction is feasible in DM1 sub-B (translational candidate)</td><td>P1_TCGA_THCA · P1_GSE151179 · P1_GSE104260 (missing) · P1_GSE76096 (missing) · P1_DEPMAP_THYROID · P1_CCLE_THYROID</td><td>WEAK · prospective trial required</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="verify">
+<h2>8. Accession verification — _accession_verification_cache.json + accession_verification.md</h2>
+
+<table>
+<thead><tr><th>Item</th><th>Status</th><th>Notes</th></tr></thead>
+<tbody>
+<tr><td><code>_accession_verification_cache.json</code></td><td>JSON cache of PubMed / GEO API responses</td><td>One row per dataset_id with last-checked timestamp + raw fields</td></tr>
+<tr><td><code>accession_verification.md</code></td><td>Human-readable verification log</td><td>Markdown trace of which titles matched PubMed PMID, which fell to VERIFIED-MANUAL-NEEDED</td></tr>
+<tr><td>VERIFIED-OK</td><td>44 datasets</td><td>API found exact title or DOI match</td></tr>
+<tr><td>VERIFIED-OK-XCANCER</td><td>2 datasets</td><td>Forde NSCLC + Entrectinib NTRK basket — kept as DIAL training cohorts</td></tr>
+<tr><td>VERIFIED-MANUAL-NEEDED</td><td>76 datasets</td><td>PubMed fuzzy-title search returned no PMID</td></tr>
+<tr><td>Unverified (no API path)</td><td>235 datasets</td><td>AFND / internal / restricted / methodology DBs / scRNA aggregators</td></tr>
+</tbody>
+</table>
+
+<h3>8.1 What is verifiable vs not</h3>
+<p>Programmatic verification possible: GEO accession (GSE/GDS/GSM) + PubMed PMID + DOI + ArrayExpress E-MTAB. Programmatic verification not possible: AFND (web-only), KMDP/KCDC (registry no-API), MSigDB/KEGG/Reactome (concept DBs not datasets), internal cohorts. <span class="tag info">label: DATA_EXPANSION §1</span></p>
+</section>
+
+<section id="download">
+<h2>9. download_plan.md — per-dataset commands + approval gates</h2>
+
+<h3>9.1 Bucket-level plan</h3>
+<table>
+<thead><tr><th>Bucket</th><th>Count</th><th>Action</th><th>Authority</th></tr></thead>
+<tbody>
+<tr><td>Already-present locally</td><td>~8</td><td>verify with <code>findmnt project/data</code></td><td>TCGA-THCA · K2+Lee · GSE250521 · GSE286332 · GSE151179 · GSE248205 · TCGA-THCA-PUB · arcasHLA outputs</td></tr>
+<tr><td>Public-open + small (&lt;5 GB each)</td><td>~30 GEO/ArrayExpress</td><td>metadata-first; per-dataset approval before matrix pull</td><td>Author keyboard</td></tr>
+<tr><td>Public-open + large (&gt;5 GB each)</td><td>5</td><td>explicit approval required</td><td>P1_GSE154763 · BR_GSE230424 · ICGC THCA-SA · GENIE thyroid · DepMap+CCLE bundles</td></tr>
+<tr><td>HLA literature / GWAS / AFND</td><td>~15 manual-extraction tasks</td><td>manual supplement extraction</td><td>Author keyboard</td></tr>
+<tr><td>Restricted / blocked</td><td>7</td><td>application path; not auto-downloaded</td><td>BBJ · UKBB · KMDP · KCDC · dbGaP/EGA placeholders · KoGES</td></tr>
+</tbody>
+</table>
+
+<h3>9.2 Disk discipline reminder</h3>
+<div class="callout warn">All bulk pulls land on <code>/data</code> via bind mounts: <code>project/data/...</code> ↔ <code>/data/thca/repo_data</code>. STAR / GNU parallel must use <code>--tmpdir /data/thca/_tmp</code> per memory <code>v17_pod_D_k2_star_tmp_failure</code>. Root disk (/) is 123 GB only — never write &gt;100 MB outputs directly to non-mounted root. <span class="tag info">label: CLAUDE.md Rules</span></div>
+
+<h3>9.3 download_status distribution (357 active rows)</h3>
+<table>
+<thead><tr><th>Status</th><th>Count</th><th>Status</th><th>Count</th></tr></thead>
+<tbody>
+<tr><td><code>downloadable</code></td><td>63</td><td><code>not_downloaded</code></td><td>55</td></tr>
+<tr><td><code>locate_pmid</code></td><td>50</td><td><code>query_required</code></td><td>37</td></tr>
+<tr><td><code>api_available</code></td><td>28</td><td><code>blocked_no_credentials</code></td><td>18</td></tr>
+<tr><td><code>blocked_pending_access</code></td><td>16</td><td><code>query_api</code></td><td>14</td></tr>
+<tr><td><code>literature_only</code></td><td>11</td><td><code>already_used</code></td><td>8</td></tr>
+<tr><td><code>manual_export_required</code></td><td>8</td><td><code>registration_required</code></td><td>8</td></tr>
+<tr><td><code>locate_papers</code></td><td>7</td><td><code>download_summary</code></td><td>6</td></tr>
+<tr><td><code>locate_pubs</code></td><td>4</td><td><code>already_present</code></td><td>3</td></tr>
+<tr><td><code>access_check_required</code></td><td>7</td><td>others (&lt;3 each)</td><td>~15</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="deepdive">
+<h2>10. DEEP_DIVE_2026_05_08.md — supplementary deep-dive</h2>
+
+<p><code>DEEP_DIVE_2026_05_08.md</code> in <code>data_registry/reports/</code> is the long-form companion to the expansion report. It expands on the boundary-risk distribution, the 73-row purge audit trail, dataset-by-dataset rationale for difficult zone calls (e.g. P1_GSE286332 dual-zoned as PAPER1 + bridge cross-reference), and per-source-database hand-curation history. <span class="tag info">label: file exists at data_registry/reports/DEEP_DIVE_2026_05_08.md</span></p>
+
+<h3>10.1 boundary_risk_level distribution (most common values)</h3>
+<table>
+<thead><tr><th>boundary_risk_level</th><th>Count</th><th>Interpretation</th></tr></thead>
+<tbody>
+<tr><td>HLA allele claim</td><td>176</td><td>Forbidden in Paper 1 — these rows are HLA-relevant but mut not be joined to cancer outcome</td></tr>
+<tr><td>Cancer claim</td><td>51</td><td>Forbidden in Paper 2 — these rows have cancer outcome but must not join HLA allele claim</td></tr>
+<tr><td>Application required</td><td>17</td><td>Access gate; download blocked</td></tr>
+<tr><td>Stand-alone allele frequency claim</td><td>16</td><td>Reference HLA, must not be misused as patient-level</td></tr>
+<tr><td>Patient-claim transfer</td><td>16</td><td>Cell line / mouse / organoid — must not transfer to patient outcome claim</td></tr>
+<tr><td>N/A</td><td>14</td><td>Reference/methodology DB</td></tr>
+<tr><td>Cancer susceptibility claim</td><td>12</td><td>Forbidden in Paper 2 bridge zone</td></tr>
+<tr><td>Direct Korean transfer</td><td>10</td><td>Must add ancestry caveat before transferring claim to Korean cohort</td></tr>
+<tr><td>Direct individual-level claim</td><td>5</td><td>Summary-stats-only zone (FinnGen, PanUKBB)</td></tr>
+<tr><td>External claim transfer</td><td>2</td><td>Non-Korean → Korean transfer guardrail</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="audit">
+<h2>11. Boundary audit — scripts/boundary_audit/ must exit 0 before Paper 1 commits</h2>
+
+<table>
+<thead><tr><th>Script</th><th>What it checks</th><th>Block on Paper 1 commit?</th></tr></thead>
+<tbody>
+<tr><td><code>scripts/boundary_audit/audit_paper1_no_hla_contamination.py</code></td><td>Scans Paper 1 manuscript files (<code>manuscript_v8/01_abstract.md</code>, <code>03_introduction.md</code>, <code>04_results.md</code>, <code>07_star_methods.md</code>, <code>08_cover_letter.md</code>, <code>09_reviewer_qa.md</code>, <code>10_full_manuscript_compiled.md</code>, <code>paper1.html</code>) for HLA / Hashimoto / Graves / AITD references outside the allowlist</td><td><b>YES</b> — must exit 0</td></tr>
+<tr><td><code>scripts/boundary_audit/audit_paper2_no_cancer_claim.py</code></td><td>Scans Paper 2 manuscript files for cancer outcome / DM1/DM2 / fusion / BRAF/RAS/TERT / survival claims</td><td>YES on Paper 2 commit (currently soft due to known meta-document hits)</td></tr>
+<tr><td><code>scripts/boundary_audit/audit_bridge_quarantine.py</code></td><td>Scans bridge documents for forbidden patient-claim-transfer language and missing hypothesis-only caveats</td><td>YES on bridge commit</td></tr>
+<tr><td><code>scripts/boundary_audit/build_zone_manifests.py</code></td><td>Regenerates 5 per-zone manifest CSVs from master catalog</td><td>NO (utility)</td></tr>
+<tr><td><code>config/boundary_allowlist.yml</code></td><td>Configuration for allowlist patterns (transcriptomic-module captions, deferral notes, audit/scanner artifacts, manifest references)</td><td>Read by all 3 audit scripts</td></tr>
+<tr><td><code>project/paper2_hla_boundary/HLA_CANCER_SEPARATION_RULES.md</code></td><td>The canonical boundary contract (human readable)</td><td>Read for context</td></tr>
+</tbody>
+</table>
+
+<div class="callout ok">As of 2026-05-08: Paper 1 audit exits 0 (3,320 hits all allowlisted), Paper 2 audit exits 0 (59 hits, 25 in meta-documents pending allowlist), bridge audit exits 0 (0 hits). <span class="tag ok">label: DATA_EXPANSION §1 audit table</span></div>
+</section>
+
+<section id="claims">
+<h2>12. TCGA ≠ CTC enforcement — claim_matrix.csv as anchor</h2>
+
+<p><code>claim_matrix.csv</code> (15 claims) is the single source of truth for which claim uses which zone. Each row has: claim_id · paper · strength · allowed_datasets · forbidden_datasets · validation_requirement. <span class="tag info">label: claim_matrix.csv</span></p>
+
+<table>
+<thead><tr><th>Claim</th><th>Paper</th><th>Forbidden datasets (selected)</th><th>Rationale</th></tr></thead>
+<tbody>
+<tr><td><code>P1_C1</code> through <code>P1_C9</code></td><td>Paper 1</td><td>Any <code>P2_*</code> · any <code>BR_*</code> for outcome claim · <code>RR_DBGAP_TCGA_RAW_BAMS</code> for HLA imputation</td><td>Paper 1 = molecular cancer only. HLA allele use forbidden under all 9 claims. TCGA WSI external also forbidden post-closure.</td></tr>
+<tr><td><code>P2_C1</code> through <code>P2_C4</code></td><td>Paper 2 / Paper 4 reserve</td><td>Any <code>P1_*</code> for HLA × cancer-outcome join · <code>BR_*</code> for HLA susceptibility claim</td><td>Paper 2 = HLA-only with cohort vs Korean baseline. Direct Korean-Korean transfer needs ancestry caveat.</td></tr>
+<tr><td><code>BRIDGE_C1</code> · <code>BRIDGE_C2</code></td><td>Bridge</td><td>Any HLA allele-level dataset · any survival / RAI / DM1/DM2 outcome dataset for causal claim</td><td>Bridge = expression-only hypothesis; no patient causality / clinical risk / prognosis claim.</td></tr>
+</tbody>
+</table>
+
+<h3>12.1 CTC pattern (Samsung proposal) vs TCGA — note the separation</h3>
+<div class="callout info">cos_28 / cos_24 / cos_05 CTC-EMT material (Samsung 30B proposal) <i>is not in data_registry/</i>. It lives under <code>kthyro_ctc_emt_samsung_proposal/</code> and <code>kthyro_public_pilot/</code>. CTC = circulating tumor cell enrichment + analysis — separate paper track from Paper 1/2/3/4. <code>data_registry/</code> is exclusively for TCGA/GEO/public dataset zoning; CTC cohort design lives in the Samsung proposal subtree. <span class="tag info">label: ls kthyro_ctc_emt_samsung_proposal/</span></div>
+</section>
+
+<section id="cleanup">
+<h2>13. Cleanup — purged 73 entries · restricted_or_rejected = ethics-blocked or low-quality</h2>
+
+<h3>13.1 Purge log (_purged_verified_wrong.csv · 73 rows)</h3>
+<table>
+<thead><tr><th>Category</th><th>Count</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><td>Wrong subject</td><td>66</td><td>Title fuzzy-matched PubMed to a different paper · accession existed but was for unrelated cohort · phenotype mis-labeled</td></tr>
+<tr><td>Missing</td><td>7</td><td>Accession does not exist · GEO returns 404 · PubMed PMID lookup failed</td></tr>
+</tbody>
+</table>
+<p>Purge archive is <i>kept</i>, not deleted. Audit trail allows re-checking if a previously-purged accession turns out to be real (e.g. typo in seed list). <span class="tag info">label: DATA_EXPANSION §1 footnote</span></p>
+
+<h3>13.2 Restricted_or_rejected (20 rows)</h3>
+<table>
+<thead><tr><th>Dataset</th><th>Access path</th><th>Hard rule</th></tr></thead>
+<tbody>
+<tr><td><code>RR_DBGAP_TCGA_RAW_BAMS</code> (phs000178)</td><td>dbGaP application + IRB</td><td>Even if credentials granted, <b>never</b> for Paper 1 HLA imputation — violates Paper-1/Paper-2 separation</td></tr>
+<tr><td><code>RR_EGA_KOREAN_TBD</code></td><td>EGA application + Korean ethics</td><td>Placeholder · application path</td></tr>
+<tr><td><code>RR_EGA_TBD</code></td><td>EGA application</td><td>Placeholder</td></tr>
+<tr><td><code>RR_DBGAP_TBD</code></td><td>dbGaP application</td><td>Placeholder</td></tr>
+<tr><td><code>RR_KOREA_BIOBANK</code></td><td>KoGES / KBN application</td><td>Korean biobank application</td></tr>
+<tr><td>BBJ thyroid</td><td>BBJ application</td><td>Japanese biobank · access-gated</td></tr>
+<tr><td>UKBB thyroid</td><td>UKBB application</td><td>UK biobank · access-gated · long approval</td></tr>
+<tr><td>KMDP HLA</td><td>KMDP application</td><td>Korean Marrow Donor Program · controlled</td></tr>
+<tr><td>KCDC Korean HLA</td><td>KCDC application</td><td>Korean CDC · controlled</td></tr>
+</tbody>
+</table>
+
+<h3>13.3 Manual decisions still pending from Seungho (per DATA_EXPANSION §10)</h3>
+<ol>
+<li>Approve metadata-only pull for ~30 public-open small GEO accessions</li>
+<li>Decide which of 5 large pulls (P1_GSE154763 · BR_GSE230424 · ICGC THCA-SA · GENIE · DepMap+CCLE) for Paper 1 vs deferred</li>
+<li>Resolve duplicate — confirm <code>P2_KOR_5802</code> and <code>P2_PARK_2010_KORHLA</code> reference same Korean 5,802-donor study (likely yes)</li>
+<li>Confirm Korean external validation stays at n=865 for Paper 1</li>
+<li>Sign off on Paper 4 reserve framing — <code>P2_CHU_2018_GD</code> deprecated as Paper 2 main</li>
+<li>Review 25 Paper 2 manual-review hits in <code>reports/paper2_cancer_claim_contamination_audit.md</code></li>
+<li>Decide whether to allowlist the 25 Paper 2 meta-document hits (boundary self-documentation)</li>
+<li>Verify GSE accessions marked NEEDS_MANUAL_REVIEW (≈30 entries)</li>
+</ol>
+</section>
+
+<section id="siblings">
+<h2>14. Sibling links</h2>
+
+<h3>14.1 cos_29–37 (current triple bracket)</h3>
+<ul>
+<li><a href="cos_34_azure_runpod_compute_trajectory_2026_05_14.html">cos_34_azure_runpod_compute_trajectory_2026_05_14.html</a></li>
+<li><a href="cos_37_full_repo_state_dump_2026_05_14.html">cos_37_full_repo_state_dump_2026_05_14.html</a></li>
+</ul>
+
+<h3>14.2 chief_of_staff 00–10</h3>
+<ul>
+<li><a href="chief_of_staff_00_package_index_2026_05_14.html">chief_of_staff_00_package_index_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_01_repo_audit_2026_05_14.html">chief_of_staff_01_repo_audit_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_02_data_evidence_registry_2026_05_14.html">chief_of_staff_02_data_evidence_registry_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_03_anti_hallucination_report_2026_05_14.html">chief_of_staff_03_anti_hallucination_report_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html">chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html">chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_06_pathology_2d3d_demo_plan_2026_05_14.html">chief_of_staff_06_pathology_2d3d_demo_plan_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_07_brand_architecture_lumenix_biodarwin_2026_05_14.html">chief_of_staff_07_brand_architecture_lumenix_biodarwin_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_08_figure_slide_plan_2026_05_14.html">chief_of_staff_08_figure_slide_plan_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_09_next_actions_collaborators_2026_05_14.html">chief_of_staff_09_next_actions_collaborators_2026_05_14.html</a></li>
+<li><a href="chief_of_staff_10_followup_prompts_2026_05_14.html">chief_of_staff_10_followup_prompts_2026_05_14.html</a></li>
+</ul>
+
+<h3>14.3 cos_11–28</h3>
+<ul>
+<li><a href="cos_11_ctc_enrichment_vendor_comparison_2026_05_14.html">cos_11_ctc_enrichment_vendor_comparison_2026_05_14.html</a></li>
+<li><a href="cos_12_spatial_vendor_comparison_2026_05_14.html">cos_12_spatial_vendor_comparison_2026_05_14.html</a></li>
+<li><a href="cos_13_foundation_model_literature_scan_2026_05_14.html">cos_13_foundation_model_literature_scan_2026_05_14.html</a></li>
+<li><a href="cos_14_hernan_robins_target_trial_primer_2026_05_14.html">cos_14_hernan_robins_target_trial_primer_2026_05_14.html</a></li>
+<li><a href="cos_15_as_vs_surgery_protocol_2026_05_14.html">cos_15_as_vs_surgery_protocol_2026_05_14.html</a></li>
+<li><a href="cos_16_ai_bridge_model_architecture_2026_05_14.html">cos_16_ai_bridge_model_architecture_2026_05_14.html</a></li>
+<li><a href="cos_17_biodarwin_engine_architecture_2026_05_14.html">cos_17_biodarwin_engine_architecture_2026_05_14.html</a></li>
+<li><a href="cos_18_seven_agent_deep_dives_2026_05_14.html">cos_18_seven_agent_deep_dives_2026_05_14.html</a></li>
+<li><a href="cos_19_lumenix_legal_ip_trademark_2026_05_14.html">cos_19_lumenix_legal_ip_trademark_2026_05_14.html</a></li>
+<li><a href="cos_20_baba_cohort_inventory_2026_05_14.html">cos_20_baba_cohort_inventory_2026_05_14.html</a></li>
+<li><a href="cos_21_62_ctc_cohort_design_2026_05_14.html">cos_21_62_ctc_cohort_design_2026_05_14.html</a></li>
+<li><a href="cos_22_korean_maestro_master_kompass_2026_05_14.html">cos_22_korean_maestro_master_kompass_2026_05_14.html</a></li>
+<li><a href="cos_23_vendor_outreach_email_templates_2026_05_14.html">cos_23_vendor_outreach_email_templates_2026_05_14.html</a></li>
+<li><a href="cos_24_samsung_30b_budget_cell_breakdown_2026_05_14.html">cos_24_samsung_30b_budget_cell_breakdown_2026_05_14.html</a></li>
+<li><a href="cos_25_lumenix_vc_pitch_deck_2026_05_14.html">cos_25_lumenix_vc_pitch_deck_2026_05_14.html</a></li>
+<li><a href="cos_26_biodarwin_oss_release_plan_2026_05_14.html">cos_26_biodarwin_oss_release_plan_2026_05_14.html</a></li>
+<li><a href="cos_27_reproducibility_cicd_workflow_2026_05_14.html">cos_27_reproducibility_cicd_workflow_2026_05_14.html</a></li>
+<li><a href="cos_28_ctc_emt_marker_panel_deep_2026_05_14.html">cos_28_ctc_emt_marker_panel_deep_2026_05_14.html</a></li>
+</ul>
+
+<h3>14.4 Yu meeting + mega launchpad + index</h3>
+<ul>
+<li><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief_2026_05_14.html</a></li>
+<li><a href="yu_meeting_minutes_template_2026_05_14.html">yu_meeting_minutes_template_2026_05_14.html</a></li>
+<li><a href="rehearsal_script_yu_meeting_2026_05_14.html">rehearsal_script_yu_meeting_2026_05_14.html</a></li>
+<li><a href="mega_launchpad_2026_05_14.html">mega_launchpad_2026_05_14.html</a></li>
+<li><a href="index.html">index.html</a></li>
+</ul>
+</section>
+
+</main>
+
+<footer>
+cos_35 · data_registry/ deep dive · 2026-05-14 · Seungho Cook · paper-blocking scaffolding · marathon mode
+</footer>
+
+</body>
+</html>

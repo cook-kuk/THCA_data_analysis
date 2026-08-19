@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Venue 전략 · 5트랙 × 저널 매핑 · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:64px;line-height:.98;margin:0 0 16px;letter-spacing:-1.4px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;margin:0 0 8px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;position:relative;overflow:hidden}
+.card.full{grid-column:1/-1}
+.card.p1{border-top:5px solid var(--gold)}
+.card.p2{border-top:5px solid var(--blue)}
+.card.h1k{border-top:5px solid var(--green)}
+.card.h2k{border-top:5px solid var(--violet)}
+.card.sg{border-top:5px solid var(--teal)}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.ladder{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:160px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:16px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.bar{display:flex;gap:2px;margin-top:6px}
+.bar span{height:8px;flex:1;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;position:relative}
+.bar span i{position:absolute;left:0;top:0;height:100%;background:var(--gold);display:block}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.venuepath{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+.vp{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px}
+.vp.reach{border-top:4px solid var(--red)}
+.vp.base{border-top:4px solid var(--gold)}
+.vp.floor{border-top:4px solid var(--blue)}
+.vp h4{margin:0 0 8px;font-size:18px;color:#fff}
+.vp .if{color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.vp p{margin:6px 0 0;color:#cbd7df;font-size:13.5px}
+.coverbox{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:16px;margin:8px 0 14px}
+.coverbox h4{margin:0 0 10px;color:var(--gold);font-size:18px;font-family:"Cormorant Garamond",Georgia,serif}
+.coverbox .lead-with{border-left:3px solid var(--green);padding:6px 10px;margin:6px 0;background:rgba(147,226,170,.05);color:#dbe7d6;font-size:13.5px}
+.coverbox .omit{border-left:3px solid var(--red);padding:6px 10px;margin:6px 0;background:rgba(255,138,107,.05);color:#f1d6cb;font-size:13.5px}
+.coverbox .revcand{border-left:3px solid var(--blue);padding:6px 10px;margin:6px 0;background:rgba(139,188,255,.05);color:#d6e3f0;font-size:13.5px}
+.citeregistry{border:1px solid var(--gold);border-radius:8px;background:rgba(255,210,138,.04);padding:14px;margin-top:10px}
+.citeregistry b{color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.08em}
+.weak{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:12px}
+.weak .w{border:1px solid var(--line);border-radius:6px;background:#0d1823;padding:10px;font-size:12.5px;border-top:3px solid var(--red)}
+.weak .w b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-bottom:4px}
+.weak .w p{margin:0;color:#cbd7df;font-size:12.5px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}.card.full{grid-column:1}
+  .ladder{grid-template-columns:1fr}.venuepath{grid-template-columns:1fr}
+  .weak{grid-template-columns:1fr 1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Venue 전략 · 5트랙 × 저널 매핑 · 2026-05-14 · Seungho Cook</p>
+    <h1>5개 트랙, 3-tier ladder, 1개 main paper의 publication floor.</h1>
+    <p class="lead">
+      Co-PI 본인 first-author 목표는 <b>Nature Communications급 이상</b>이 floor다. 그 아래 (npj·JCI Insight 등 Q1) 은 fallback reserve로만 둔다. 이 페이지는 5개 트랙 각각에 대해 <b>base venue · reach venue · floor venue</b>를 매핑하고, 어느 결정 하나가 어느 venue 사다리를 끌어올리는지 lock한다. Paper 1은 4-pillar (RNA + protein + phospho + HM450) 잠금 + TERT⁺ OS HR=7.57로 Nat Commun base, Nat Cancer reach가 정직한 위치다. K2 H&E 외부검증이 Paper 2 venue ceiling을 결정한다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>5</b><span>active tracks</span><small>P1 · P2 · HLA#1 · HLA#2 · Samsung</small></div>
+      <div class="stat"><b>3</b><span>tier venue ladder</span><small>reach · base · floor</small></div>
+      <div class="stat"><b>2</b><span>reach venues</span><small>Nat Cancer · Nat Commun Med</small></div>
+      <div class="stat"><b>1</b><span>base venue for P1</span><small>Nature Communications (IF≈16.6)</small></div>
+      <div class="stat"><b>0</b><span>fallback for Paper 1</span><small>publication floor = NC급, below은 reserve only</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#master">Master 매핑표</a>
+  <a class="primary" href="#p1">Paper 1 분석</a>
+  <a class="primary" href="#p2">Paper 2 분석</a>
+  <a class="primary" href="#h1">HLA #1 분석</a>
+  <a class="primary" href="#h2">Paper 4 분석</a>
+  <a href="#samsung">Samsung 전략</a>
+  <a href="#cover">Cover letter angles</a>
+  <a href="#cites">Citation lock</a>
+  <a href="#floor">Publication floor rule</a>
+  <a href="#siblings">Sibling pages</a>
+  <a href="index.html">Hub home</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+</div></nav>
+
+<main>
+
+<section id="master">
+  <h2>Master venue table — 5트랙 × 3-tier ladder</h2>
+  <p class="sub">base venue (안전) / reach venue (이상) / floor venue (보험) / 제출 시점 / cover letter angle</p>
+  <table>
+    <thead><tr>
+      <th>트랙</th>
+      <th>Base venue (안전)</th>
+      <th>Reach venue (이상)</th>
+      <th>Floor venue (보험)</th>
+      <th>1st submission target</th>
+      <th>Cover letter angle</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Paper 1</b><br/>DM1 dark matter</td>
+        <td class="hi">Nature Communications (IF≈16.6)</td>
+        <td class="cool">Nature Cancer (IF≈22+) reach</td>
+        <td class="good">Scientific Reports (publication floor 미만 → reserve only)</td>
+        <td>W4-6 · 06-04 ~ 06-24</td>
+        <td>"Driver-exclusion이 사라진 DM1 패널이 어떻게 BRAF/RAS 경계의 sub-stratifier가 되는가" — 4-pillar (RNA+protein+phospho+HM450) 잠금 + TERT⁺ OS HR=7.57 + pan-cancer 11 lineages 일반화.</td>
+      </tr>
+      <tr>
+        <td><b>Paper 2</b><br/>Histology image → DM1</td>
+        <td class="hi">Nature Communications</td>
+        <td class="cool">Nature Medicine (K2 H&E pass 시) · npj Digital Medicine 대안</td>
+        <td class="good">Paper 1 ST1 (Supplementary Text 1) 흡수 — K2 access 실패 시</td>
+        <td>W7-9 · K2 외부검증 완료 직후</td>
+        <td>"TSS confound을 정직하게 폐기하고 center-holdout LOTO 0.852가 살아남은 H&E → DM1 image biomarker" — UNI ViT-L + CLAM, 4-cohort 외부검증 (TCGA → Lee → Mun → K2).</td>
+      </tr>
+      <tr>
+        <td><b>HLA #1</b><br/>HT-isolated PTC</td>
+        <td class="good">Scientific Reports</td>
+        <td class="cool">JCI Insight reach · Cell Reports Medicine (multi-cohort 가능 시)</td>
+        <td class="vio">npj Genomic Medicine fallback reserve</td>
+        <td>W7-10 · Pillar III 잠금 후</td>
+        <td>"Hashimoto-overlap PTC만으로 isolated된 HLA-II d=+3.65 + IFN-γ FDR=2e-4 + TLS d=+1.96 — 한국 baseline 대비 면역 dominant phenotype."</td>
+      </tr>
+      <tr>
+        <td><b>Paper 4</b><br/>Korean GD HLA × Pan-Asian</td>
+        <td class="vio">npj Genomic Medicine</td>
+        <td class="cool">HLA (Wiley) · Genes &amp; Immunity reach</td>
+        <td class="good">backlog reserve — Paper 1 bioRxiv + P2 A/B/C 완료까지 미제출</td>
+        <td>backlog · 2026 Q3 이후 unblock 검토</td>
+        <td>"한국 GD에서 DPB1*05:01 56% 재현 + arcasHLA n=260 RNA-seq imputation — Pan-Asian 비교로 risk allele 강화."</td>
+      </tr>
+      <tr>
+        <td><b>Samsung 30억</b><br/>Causal K-Thyro Foundation</td>
+        <td class="hi">Samsung Future Tech Technology track</td>
+        <td class="cool">없음 (grant single-shot)</td>
+        <td class="bad">없음 (deadline 단일 trial)</td>
+        <td>W7-9 · 06-25 ~ 07-15</td>
+        <td>"Hernán-Robins target trial emulation × Yu MAeSTro/MASTER/KoMPASS — public 고재사용 pretrain + Korean AS vs surgery 반사실적 환자여정 + 5,000례 BABA + 62명 CTC validation."</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="legend">
+    <span><i style="background:var(--gold)"></i>Base (안전 · 권장 target)</span>
+    <span><i style="background:var(--blue)"></i>Reach (이상 · 추가 evidence 필요)</span>
+    <span><i style="background:var(--green)"></i>Floor (보험 · 발생 시 fallback)</span>
+  </div>
+</section>
+
+<section id="p1">
+  <h2>Paper 1 — Nature Communications base, Nature Cancer reach</h2>
+  <p class="sub">DM1 dark matter / 4-pillar lock / TERT⁺ OS / pan-cancer transfer</p>
+  <div class="venuepath">
+    <div class="vp reach">
+      <h4>Reach · Nature Cancer</h4>
+      <p class="if">IF≈22+ · oncology premier</p>
+      <p>요건: pan-cancer 11 lineages Cox prognostic + DepMap MYC/NAMPT druggability + ICI 4/4 cohort sign-consistent 묶음을 oncology framing으로 lead. <span class="hi">condition: cover letter에 "oncology mechanism + clinical utility" 동시 강조 필요.</span></p>
+    </div>
+    <div class="vp base">
+      <h4>Base · Nature Communications</h4>
+      <p class="if">IF≈16.6 · publication floor</p>
+      <p>요건: 4-pillar (RNA + protein + phospho + HM450) 잠금 + TERT⁺ OS HR=7.57 [2.74, 20.91] p=9.3e-5 + ROC AUC 0.90/0.97/0.95 4-cohort + 12/12 contrasts 10× FDR&lt;0.01 + driver split (RAS=98% DM1 vs BRAF=1% DM1) + Korean K2 88.8% DM2. <span class="good">현재 evidence base로 base venue 안전.</span></p>
+    </div>
+    <div class="vp floor">
+      <h4>Floor · Scientific Reports</h4>
+      <p class="if">IF≈4 · publication floor 미만</p>
+      <p><span class="bad">사용 불가 — Co-PI publication floor = NC급 이상.</span> Reserve only — 만약 reviewer rejection이 3회 연속 발생할 때만 검토 (현재 가능성 매우 낮음).</p>
+    </div>
+  </div>
+  <h3>왜 base가 Nat Commun인가</h3>
+  <table>
+    <thead><tr><th>요건</th><th>Paper 1 현재 상태</th><th>충족도</th></tr></thead>
+    <tbody>
+      <tr><td>독립된 multi-pillar evidence</td><td>RNA (4 cohorts) + protein (Mun n=336) + phospho (honest negative) + HM450 (H13 corrected, DM1=HIGH-β/silenced)</td><td class="good">4/4 충족</td></tr>
+      <tr><td>Cross-cohort robustness</td><td>12 contrasts × 4 cohorts · 10/12 FDR&lt;0.01 · pooled meta d=+0.67 I²=96%</td><td class="good">충족</td></tr>
+      <tr><td>Translational anchor</td><td>TERT⁺ OS HR=7.57 + DM1=FVPTC OR=17.9 + Korean overdiagnosis paradigm</td><td class="good">충족</td></tr>
+      <tr><td>Mechanism (mechanism reviewer 안)</td><td>RAS=98% DM1 vs BRAF=1% DM1 driver split + MAPK-pathway-driven 8-gene methylation</td><td class="good">충족</td></tr>
+      <tr><td>Pan-cancer generalization</td><td>11 lineages Cox FDR&lt;0.1 (LGG/LUAD/GBM/PRAD…) + Phase E 32-cancer portable</td><td class="good">충족</td></tr>
+      <tr><td>Reviewer Q3 safety net</td><td>per-gene mean |d|: TG=1.33 ... SLC5A5=0.72 (no single-gene dominance) + TDS-16 ρ=0.954 (8⊂TDS-16, 90% capture)</td><td class="good">충족</td></tr>
+      <tr><td>Permutation/null check</td><td>thyroid-matched null p=0.007 · label-perm null p&lt;10⁻⁴ · knock-out n-1 floor d=1.54</td><td class="good">충족</td></tr>
+    </tbody>
+  </table>
+  <h3>Reach 조건 — Nat Cancer로 올리려면</h3>
+  <ul class="bullets">
+    <li>DepMap MYC d=-0.50 (p=1e-11) + NAMPT d=-0.45 (p=1.5e-9)을 PRISM MAPK-i 7/15 + AZD-0364 MEK FDR=6e-7로 연결한 druggability figure 추가</li>
+    <li>ICI 4/4 cohort (IFNG OR=1.53 p=3.7e-4 · HLA-I OR=1.35 p=0.014 · checkpoint OR=1.32 p=0.020 · cytolytic OR=1.27 p=0.046) supplementary로 prereview에서 mechanism + clinical 두 축</li>
+    <li>Cover letter Para 1 (voice-protected · 본인 키보드)에 oncology framing 명시 — Co-PI가 직접</li>
+  </ul>
+</section>
+
+<section id="p2">
+  <h2>Paper 2 — Nature Communications base, Med reach (K2 H&E gate)</h2>
+  <p class="sub">UNI ViT-L CLAM / LOTO 0.852 / TSS confound 정직 폐기</p>
+  <div class="venuepath">
+    <div class="vp reach">
+      <h4>Reach · Nature Medicine</h4>
+      <p class="if">IF≈82+ · clinical translation premier</p>
+      <p>요건: K2 H&E 외부검증 N≥30 + Korean prospective AUC ≥0.80 + clinical decision-support framing. <span class="bad">K2 access 4주 내 확정 필요 — 외부검증 통과 실패 시 reach trim 불가능.</span></p>
+    </div>
+    <div class="vp base">
+      <h4>Base · Nature Communications</h4>
+      <p class="if">IF≈16.6 · publication floor</p>
+      <p>요건: TSS confound 정직 폐기 + center-holdout LOTO 0.852 (OOF 0.874) 유지 + K2 외부검증 AUC ≥0.70. <span class="hi">정직한 base — K2 H&E secure 시 권장.</span></p>
+    </div>
+    <div class="vp floor">
+      <h4>Floor · Paper 1 ST1 흡수</h4>
+      <p class="if">main paper 미수립</p>
+      <p>K2 access 실패 시 Paper 1 Supplementary Text 1 (image pilot)로 흡수. <span class="good">venue 손실 없이 evidence 보존 가능.</span> LUAD/BRCA methods-route 전환 검토 가능.</p>
+    </div>
+  </div>
+  <h3>K2 H&E gate decision tree</h3>
+  <table>
+    <thead><tr><th>K2 access 상태</th><th>외부검증 결과</th><th>Venue 결정</th></tr></thead>
+    <tbody>
+      <tr><td class="good">4주 내 BABA 우선 N=30+ 확정</td><td class="good">LOTO AUC ≥0.80</td><td class="cool">Nature Medicine 1st pass</td></tr>
+      <tr><td class="good">4주 내 N=20-30 확정</td><td class="hi">LOTO AUC 0.70-0.80</td><td class="hi">Nature Communications base</td></tr>
+      <tr><td class="hi">8주 내 N&lt;20</td><td class="hi">LOTO AUC 0.60-0.70</td><td>npj Digital Medicine fallback</td></tr>
+      <tr><td class="bad">access 실패</td><td>—</td><td class="good">Paper 1 ST1 흡수 · LUAD/BRCA 전환</td></tr>
+    </tbody>
+  </table>
+  <h3>왜 Med가 아니라 Commun이 base인가</h3>
+  <ul class="bullets">
+    <li>TCGA pilot only로 시작 (LOTO 0.852 / OOF 0.874) — single-cohort base는 Med 기준에 미달</li>
+    <li>K2 외부검증을 통해 multi-cohort 확장 시 Med reach 가능 — 그 전에는 Commun이 정직</li>
+    <li>UNI ViT-L + CLAM은 foundation-model methods route — Commun이 적합한 venue</li>
+    <li>Spatial GSE250521 (LPTC peak 2,512 sig LR · CXCL13↔CCR6/7 TLS axis)은 supplementary로 mechanism 보강</li>
+  </ul>
+</section>
+
+<section id="h1">
+  <h2>HLA #1 (Paper 2 HLA) — Sci Rep base → JCI Insight reach</h2>
+  <p class="sub">HT-isolated PTC / GSE286332 n=18 / 한국 baseline lock</p>
+  <div class="venuepath">
+    <div class="vp reach">
+      <h4>Reach · JCI Insight</h4>
+      <p class="if">IF≈8 · translational premier</p>
+      <p>요건: 외부 cohort 1곳 추가 (분당 SNUH 자체 HLA pool 또는 multi-cohort meta) + Pillar III 잠금 + TLS/IGHV clonality replication. <span class="hi">condition: n=18 단일코호트 ceiling을 넘어야.</span></p>
+    </div>
+    <div class="vp base">
+      <h4>Base · Scientific Reports</h4>
+      <p class="if">IF≈4 · accessible Q1</p>
+      <p>요건: Pillar I v2 (Korean PTC × AFND South Korea pool) + GSE286332 HLA-II d=+3.65 + IFN-γ FDR=2e-4 + TLS d=+1.96 + D4-P2 TCGA 전이 (DM2 enrichment OR up to 5× · p=6e-10). <span class="good">현재 evidence로 base 안전.</span></p>
+    </div>
+    <div class="vp floor">
+      <h4>Floor · npj Genomic Medicine</h4>
+      <p class="if">IF≈8 · genomics niche</p>
+      <p>외부 cohort 확보 실패 + Pillar III 미완 시 fallback. n=18은 ceiling이지만 multi-pillar evidence는 보존됨. <span class="vio">Co-PI publication floor (NC급) 기준으로는 reserve only.</span></p>
+    </div>
+  </div>
+  <h3>왜 단일코호트가 ceiling인가</h3>
+  <p class="note">GSE286332 n=18은 강한 effect size (HLA-II d=+3.65 / IFN-γ FDR=2e-4 / TLS d=+1.96)를 보여주지만 단일코호트는 reviewer Q2 (reproducibility)를 통과하기 어렵다. JCI Insight reach를 위해서는 (a) 분당 SNUH 자체 HLA pool 가용성 확인, 또는 (b) GEO meta 추가 (예: HT/PTC 관련 cohort 1곳 더)가 필요하다. 그 전에는 Sci Rep base가 정직한 위치.</p>
+  <h3>금지어 enforcement</h3>
+  <ul class="bullets">
+    <li>"Graves" 단어 사용 금지 — Paper 4 영역으로 분리됨 (2026-05-04 v18 lock)</li>
+    <li>"AITD spectrum" 사용 금지 — HT-overlap 한정 framing 유지</li>
+    <li>Chu 2018 GD comparator 인용 금지 — Korean baseline (AFND South Korea pool)로 대체</li>
+  </ul>
+</section>
+
+<section id="h2">
+  <h2>Paper 4 (HLA #2) — npj Genom Med base, backlog reserve only</h2>
+  <p class="sub">Korean GD HLA × Pan-Asian / DPB1*05:01 56% / 4/4 gating</p>
+  <div class="venuepath">
+    <div class="vp reach">
+      <h4>Reach · HLA (Wiley) · Genes &amp; Immunity</h4>
+      <p class="if">IF≈3-5 · immunogenetics niche</p>
+      <p>요건: Pan-Asian 비교 1곳 사전 합의 (일본 BBJ 또는 중국 CGM) + 분당 SNUH 자체 보강. <span class="vio">Co-PI publication floor 기준으로는 reach venue가 모두 floor 아래 — Paper 4는 floor reserve로만 운영.</span></p>
+    </div>
+    <div class="vp base">
+      <h4>Base · npj Genomic Medicine</h4>
+      <p class="if">IF≈8 · genomics open access</p>
+      <p>요건: arcasHLA n=260 imputation 완료 + DPB1*05:01 56% Kim 2014 재현 + Pan-Asian 1곳 비교. <span class="vio">backlog gating 통과 후만 작성 가능.</span></p>
+    </div>
+    <div class="vp floor">
+      <h4>Floor · backlog reserve</h4>
+      <p class="if">미제출 (의도된 정렬)</p>
+      <p>Paper 1 bioRxiv + Paper 2 A/B/C + 명시 "Track B 시작" 신호 전까지 미제출. <span class="good">의도된 backlog — Paper 1/2 우선순위 보호.</span></p>
+    </div>
+  </div>
+  <h3>Backlog unblock 조건 (4/4 gating)</h3>
+  <ul class="bullets">
+    <li>Paper 1 bioRxiv deposit 완료</li>
+    <li>Paper 2 A (image biomarker) + B (TCGA validation) + C (K2 외부검증) 모두 완료</li>
+    <li>Yu 교수님 명시적 "Track B 시작" 합의</li>
+    <li>분당 SNUH GD cohort outreach 진척 또는 Pan-Asian 비교 1곳 사전 합의</li>
+  </ul>
+  <h3>Note · K2 ≠ Bundang 구분 유지</h3>
+  <p class="note">K2 / KOREAN_K2 = PRJEB11591 Yoo 2016 SNU-GMI public — 이미 arcasHLA n=260 imputation 완료. Bundang SNUH는 outreach-stage, 아직 data 없음. Paper 4 평면에서 두 자산은 서로 다른 evidence layer.</p>
+</section>
+
+<section id="samsung">
+  <h2>Samsung 30억 grant submission strategy</h2>
+  <p class="sub">5 weakness coverage / 4 access items / external validation 1곳</p>
+  <p class="lead" style="font-size:16px;margin:6px 0 14px">Samsung Future Tech Technology track 2026 deadline — 30억 single-shot. 현재 ChatGPT 추정 45-65% 선정 가능성을 약점 5개 답안 + access 4건 + 외부검증 1곳으로 <b>60-70% 권역</b>으로 끌어올린다. 70%+ 주장은 거짓말 (Honest disclaimer enforce).</p>
+  <h3>5 weakness coverage 요건</h3>
+  <div class="weak">
+    <div class="w"><b>W1 · target trial × small-N</b><p>event ~5% / DR/causal forest 분산 폭발 — Hernán-Robins target trial emulation + Bayesian shrinkage + sensitivity analysis 명시</p></div>
+    <div class="w"><b>W2 · "Foundation model" 단어</b><p>TCGA-THCA n=500과 안 맞음 — pan-cancer pretrain (TCGA 11k × 33 lineages + CELLxGENE 33M cells) framing 필요</p></div>
+    <div class="w"><b>W3 · monitoring schedule confound</b><p>AS vs Surgery detection/surveillance bias — IPTW + protocol emulation으로 closure 명시</p></div>
+    <div class="w"><b>W4 · Quantum sidecar 정당화</b><p>NISQ future-proofing 3억 sidecar로 honest framing — claim 제한 + decoupled work package</p></div>
+    <div class="w"><b>W5 · self-extinguishing data</b><p>Korean PTC overdiagnosis 시대 잔재 — low-risk prostate / DCIS / indolent lymphoma transfer framing으로 닫음</p></div>
+  </div>
+  <h3>Access 4 items + external validation 1곳 lift</h3>
+  <table>
+    <thead><tr><th>Item</th><th>Yu 측 자산</th><th>Cook 측 의존성</th><th>현재 상태</th></tr></thead>
+    <tbody>
+      <tr><td>MAeSTro cohort</td><td>분당 SNUH 내분비외과 운영 자료</td><td>WP1 protocol에 명시</td><td class="hi">access 확답 필요</td></tr>
+      <tr><td>MASTER cohort</td><td>분당 SNUH MRI/US 다중모달</td><td>WP2 imaging arm</td><td class="hi">access 확답 필요</td></tr>
+      <tr><td>KoMPASS cohort</td><td>한국 다기관 active surveillance registry</td><td>WP3 causal arm</td><td class="hi">access 확답 필요</td></tr>
+      <tr><td>BABA 5,000례</td><td>Yu robotic thyroidectomy</td><td>WP4 surgical outcome arm</td><td class="good">Yu 동의 lock 필요</td></tr>
+      <tr><td>62 CTC/EMT</td><td>Yu validation cohort</td><td>WP5 molecular validation</td><td class="good">Yu 동의 lock 필요</td></tr>
+      <tr><td>외부검증 1곳</td><td>Pan-Asian 또는 일본 BBJ</td><td>WP6 generalization</td><td class="bad">1곳 사전 합의 필요</td></tr>
+    </tbody>
+  </table>
+  <h3>정직한 selection probability ladder</h3>
+  <table>
+    <thead><tr><th>버전</th><th>가능성</th><th>조건</th></tr></thead>
+    <tbody>
+      <tr><td>현재 draft (5월 14일)</td><td class="hi">45-55%</td><td>약점 5개 미답안 + access 4건 미확정</td></tr>
+      <tr><td>5 weakness 답안 추가</td><td class="hi">55-65%</td><td>약점 답안 written + 외부검증 1곳 미합의</td></tr>
+      <tr><td>access 4건 + 외부검증 1곳 lift</td><td class="good">60-70%</td><td>모든 access 확답 + 외부검증 1곳 합의</td></tr>
+      <tr><td class="bad">"70% 이상 가능"</td><td class="bad">거짓말</td><td>Samsung reviewer pool 변동성 + small-N reviewer 2 위험 — 70%+는 honest grade 위반</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="cover">
+  <h2>Cover letter angles per paper — lead with / omit / reviewer 후보</h2>
+  <p class="sub">Para 1은 voice-protected · 본인 키보드 — 아래는 scaffolding 가이드</p>
+
+  <div class="coverbox">
+    <h4>Paper 1 · DM1 dark matter (Nat Commun)</h4>
+    <div class="lead-with">Lead with: "Driver-exclusion 8유전자 패널의 침묵 (DM1)이 BRAF/RAS-neg 코호트의 새로운 sub-stratifier로 작동하는 4-pillar lock + TERT⁺ OS HR=7.57" — mechanism × clinical 동시 강조.</div>
+    <div class="omit">Omit: methylation polarity flip 잔재 (H13 corrected) · spatial GSE250521 failure rescue 자료 · Phase A HM450 fetch 차단된 detail.</div>
+    <div class="revcand">Suggested reviewer 1 — pan-cancer methylation specialist (TCGA epigenetic machinery 전문가)</div>
+    <div class="revcand">Suggested reviewer 2 — thyroid oncology clinician (Landa 2016 author network)</div>
+    <div class="revcand">Suggested reviewer 3 — DepMap/PRISM druggability methodologist (MAPK-pathway 전문가)</div>
+  </div>
+
+  <div class="coverbox">
+    <h4>Paper 2 · Image → DM1 (Nat Commun base, Med reach)</h4>
+    <div class="lead-with">Lead with: "TSS confound을 정직하게 폐기한 후 center-holdout LOTO 0.852가 살아남은 H&E → DM1 image biomarker" — methodological honesty + K2 외부검증 transparency.</div>
+    <div class="omit">Omit: 폐기된 RAS-like/FVPTC AUC=1.000 headline · ViT-L RAS LOTO 0.308 artefact · clinical vs multimodal gain 미관측 detail.</div>
+    <div class="revcand">Suggested reviewer 1 — UNI/foundation-model pathology AI specialist</div>
+    <div class="revcand">Suggested reviewer 2 — TCGA-THCA histology QC expert (TSS confound 검증)</div>
+    <div class="revcand">Suggested reviewer 3 — Korean pathology cohort lead (K2 H&E 외부검증 context)</div>
+  </div>
+
+  <div class="coverbox">
+    <h4>HLA #1 · HT-isolated PTC (Sci Rep base, JCI Insight reach)</h4>
+    <div class="lead-with">Lead with: "Hashimoto-overlap PTC만으로 isolated된 면역 dominant phenotype — HLA-II d=+3.65 + IFN-γ FDR=2e-4 + TLS d=+1.96, 한국 baseline 대비."</div>
+    <div class="omit">Omit: "Graves" 단어 · Chu 2018 GD comparator · AITD spectrum framing (모두 Paper 4 영역).</div>
+    <div class="revcand">Suggested reviewer 1 — TLS/B-cell clonality bioinformatician</div>
+    <div class="revcand">Suggested reviewer 2 — HLA-II AITD/autoimmunity specialist (Korean cohort 친화)</div>
+    <div class="revcand">Suggested reviewer 3 — TCGA-THCA HT-overlap subtype clinician</div>
+  </div>
+
+  <div class="coverbox">
+    <h4>Paper 4 · Korean GD HLA × Pan-Asian (npj Genom Med — backlog)</h4>
+    <div class="lead-with">Lead with: "DPB1*05:01 56% Korean (Kim 2014 replication) × arcasHLA RNA-seq imputation n=260 × Pan-Asian risk allele 비교."</div>
+    <div class="omit">Omit: Paper 1/2와의 교차 참조 (independent submission) · Bundang outreach detail · "Track B 시작" 신호 이전 self-citation.</div>
+    <div class="revcand">Suggested reviewer 1 — AFND/HLA imputation methodologist</div>
+    <div class="revcand">Suggested reviewer 2 — Pan-Asian GD genetics specialist (일본/중국 측)</div>
+    <div class="revcand">Suggested reviewer 3 — Kim 2014 author network / Korean GD HLA legacy</div>
+  </div>
+
+  <div class="coverbox">
+    <h4>Samsung 30억 · Causal K-Thyro Foundation grant</h4>
+    <div class="lead-with">Lead with: "Hernán-Robins target trial emulation × Yu MAeSTro/MASTER/KoMPASS/BABA/CTC × public 고재사용 pretrain (TCGA 11k × CELLxGENE 33M × DepMap 1,141) — Korean active surveillance vs surgery 반사실적 환자여정 pretrain → downstream foundation model."</div>
+    <div class="omit">Omit: 70%+ 선정 확률 주장 · quantum sidecar 단독 claim · self-extinguishing data 미해결 답안.</div>
+    <div class="revcand">Suggested evaluator 1 — Korean cancer registry causal inference specialist</div>
+    <div class="revcand">Suggested evaluator 2 — multi-omics foundation model specialist (Korean AI center 친화)</div>
+    <div class="revcand">Suggested evaluator 3 — endocrine surgery outcome research veteran</div>
+  </div>
+</section>
+
+<section id="cites">
+  <h2>Citation lock register — voice-protected anchor cites</h2>
+  <p class="sub">misattribution 차단 / 인용 hygiene</p>
+  <table>
+    <thead><tr><th>Anchor cite</th><th>정확 출처</th><th>대체된 misattribution</th><th>사용처</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>8-gene 5/8 ATC overlap</td>
+        <td class="good">Landa I, et al. <i>J Clin Invest</i> 2016 Mar 1;126(3):1052-1066. doi:10.1172/JCI85271 "Genomic and transcriptomic hallmarks of poorly differentiated and anaplastic thyroid cancers"</td>
+        <td class="bad">Krishnamoorthy 2025 Nat Comm (misattribution, 4 fact 모두 틀림)</td>
+        <td>Paper 1 Discussion 3.1 + Cover letter Para 1 (voice-protected) + Paper 11 pan-cancer reach</td>
+      </tr>
+      <tr>
+        <td>Korean K2 cohort = PRJEB11591</td>
+        <td class="good">Yoo SK, et al. <i>PLoS Genet</i> 2016 — SNU-GMI public release · arcasHLA n=260 imputation</td>
+        <td class="bad">"Bundang SNUH cohort" 혼동 (Bundang = outreach-stage, no data yet)</td>
+        <td>Paper 1 Methods + Paper 4 Methods</td>
+      </tr>
+      <tr>
+        <td>DPB1*05:01 56% Korean GD</td>
+        <td class="good">Kim TY, et al. 2014 (Korean GD HLA replication)</td>
+        <td>—</td>
+        <td>Paper 4 Pillar I</td>
+      </tr>
+      <tr>
+        <td>Mun proteogenomic Korean THCA</td>
+        <td class="good">Mun DG, et al. 2025 (n=336 tumors)</td>
+        <td>—</td>
+        <td>Paper 1 protein pillar (RNA d=-1.91 replication)</td>
+      </tr>
+      <tr>
+        <td>Lee ATC/Normal cohort</td>
+        <td class="good">Lee et al. ATC/Normal RNA-seq</td>
+        <td>—</td>
+        <td>Paper 1 ROC AUC 0.97</td>
+      </tr>
+      <tr>
+        <td>GSE286332 PTC vs PTC+HT</td>
+        <td class="good">Korean PTC vs PTC+HT n=18 RNA-seq · 10,380 DEGs</td>
+        <td>—</td>
+        <td>HLA #1 Pillar I/II/III + D4-P2 TCGA 전이</td>
+      </tr>
+      <tr>
+        <td>TERT recovery cBioPortal</td>
+        <td class="good">v17 TERT recovery v2 — 36 TCGA-THCA TERT promoter mutations from thca_tcga_pub study</td>
+        <td class="bad">v1 missed it — recovery v2 required</td>
+        <td>Paper 1 survival pillar (OS HR=7.57)</td>
+      </tr>
+      <tr>
+        <td>UNI foundation model pathology</td>
+        <td class="good">Chen et al. UNI (MGH/MIT) — gated foundation model</td>
+        <td>—</td>
+        <td>Paper 2 image biomarker methods</td>
+      </tr>
+      <tr>
+        <td>Hernán-Robins target trial emulation</td>
+        <td class="good">Hernán MA, Robins JM. <i>Causal Inference: What If</i> + target trial emulation series</td>
+        <td>—</td>
+        <td>Samsung WP1/WP3 causal arm</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="citeregistry">
+    <b>Hygiene rule</b><br/>
+    <span class="note">모든 voice-protected section (Hook / Aim / Disc 3.1 / Limitations / Cover Para 1 / Q9)에 인용을 추가할 때는 이 lock register를 확인할 것. Krishnamoorthy 2025 인용은 4 fact 모두 misattribution이므로 Landa 2016으로 대체된 상태가 default. 향후 새 anchor cite 추가는 사실 검증 (DOI · PMID · 원문) 후 이 표에 등록.</span>
+  </div>
+</section>
+
+<section id="floor">
+  <h2>Publication floor rule — Co-PI 본인 first-author 운영 원칙</h2>
+  <p class="sub">user_publication_floor.md anchor</p>
+  <div class="decision">
+    <h3>Floor = Nature Communications급 이상</h3>
+    <p>Co-PI 본인 first-author target은 <b>Nature Communications급 이상</b>이 floor다. 그 아래 (npj·JCI Insight·Sci Rep 등 Q1) 은 fallback reserve로만 두며, base target 으로는 사용하지 않는다. Paper 1은 이 floor를 base venue로 hit하는 첫 paper.</p>
+  </div>
+  <table>
+    <thead><tr><th>Venue</th><th>IF 범위</th><th>Floor 기준</th><th>Co-PI 본인 first-author 사용</th></tr></thead>
+    <tbody>
+      <tr><td>Nature / Cell / Science</td><td class="good">40+</td><td class="good">reach</td><td>장기 reach · evidence 추가 시</td></tr>
+      <tr><td>Nature Cancer · Nature Medicine</td><td class="good">22-82+</td><td class="good">reach</td><td>Paper 1/2 reach</td></tr>
+      <tr><td class="hi">Nature Communications</td><td class="hi">16.6</td><td class="hi">FLOOR (base target)</td><td>Paper 1/2 base · publication floor</td></tr>
+      <tr><td>npj Digital Medicine · Cell Reports Medicine</td><td>10-16</td><td class="vio">below floor</td><td>fallback reserve only</td></tr>
+      <tr><td>JCI Insight · npj Genomic Medicine</td><td>8-10</td><td class="vio">below floor</td><td>HLA tracks fallback only</td></tr>
+      <tr><td>Scientific Reports · HLA (Wiley)</td><td>3-5</td><td class="bad">far below floor</td><td>backlog reserve only</td></tr>
+    </tbody>
+  </table>
+  <h3>이 rule을 violate하는 경우</h3>
+  <ul class="bullets">
+    <li>HLA #1을 Sci Rep로 1차 제출 — 이는 backlog reserve로만 운영, Co-PI 본인 first-author 영역이 아니라 collaborative authorship일 때 허용</li>
+    <li>Paper 4를 npj Genom Med로 제출 — backlog gated, Paper 1/2 완료 후만</li>
+    <li>Paper 1을 Sci Rep로 trim — <span class="bad">금지</span> · 4-pillar lock + TERT⁺ HR=7.57 evidence는 Nat Commun base를 정직하게 hit</li>
+  </ul>
+</section>
+
+<section id="siblings">
+  <h2>Sibling pages — 2026-05-14 family</h2>
+  <p class="sub">17+ pages in the Yu-Cook portfolio · auto-deployed to /var/www/papers/</p>
+  <table>
+    <thead><tr><th>Page</th><th>Role</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><a href="index.html">index.html</a></td><td>Hub front door</td><td class="good">live</td></tr>
+      <tr><td><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief_2026_05_14.html</a></td><td>5트랙 한 화면 미팅 브리핑</td><td class="good">live · primary today</td></tr>
+      <tr><td><a href="paper1.html">paper1.html</a></td><td>Paper 1 hub</td><td class="good">live</td></tr>
+      <tr><td><a href="paper2_image_dm1.html">paper2_image_dm1.html</a></td><td>Paper 2 결론 페이지</td><td class="good">live</td></tr>
+      <tr><td><a href="paper2_hla.html">paper2_hla.html</a></td><td>HLA #1 결론</td><td class="good">live</td></tr>
+      <tr><td><a href="paper4_gd_hla.html">paper4_gd_hla.html</a></td><td>Paper 4 GD HLA</td><td class="good">live</td></tr>
+      <tr><td><a href="grant_samsung_causal_kthyro_2026_05_14.html">grant_samsung_causal_kthyro_2026_05_14.html</a></td><td>Samsung 30억 dossier</td><td class="good">live</td></tr>
+      <tr><td>track1_command_room_2026_05_14.html</td><td>Paper 1 command</td><td class="cool">planned</td></tr>
+      <tr><td>track2_command_room_2026_05_14.html</td><td>Paper 2 command</td><td class="cool">planned</td></tr>
+      <tr><td>track3_command_room_2026_05_14.html</td><td>HLA #1 command</td><td class="cool">planned</td></tr>
+      <tr><td>track4_command_room_2026_05_14.html</td><td>Paper 4 command</td><td class="cool">planned</td></tr>
+      <tr><td>track5_command_room_2026_05_14.html</td><td>Samsung command</td><td class="cool">planned</td></tr>
+      <tr><td>evidence_atlas_2026_05_14.html</td><td>5트랙 증거 atlas</td><td class="cool">planned</td></tr>
+      <tr><td>timeline_gantt_2026_05_14.html</td><td>90일 Gantt timeline</td><td class="cool">planned</td></tr>
+      <tr><td>decision_board_2026_05_14.html</td><td>결정 board</td><td class="cool">planned</td></tr>
+      <tr><td>reviewer_qa_bank_2026_05_14.html</td><td>Reviewer Q&amp;A bank</td><td class="cool">planned</td></tr>
+      <tr><td>figure_gallery_2026_05_14.html</td><td>Figure gallery</td><td class="cool">planned</td></tr>
+      <tr><td>methodology_atlas_2026_05_14.html</td><td>Methodology atlas</td><td class="cool">planned</td></tr>
+      <tr><td><a href="venue_strategy_2026_05_14.html">venue_strategy_2026_05_14.html</a></td><td><b>이 페이지</b></td><td class="hi">live · 2026-05-14</td></tr>
+      <tr><td><a href="executive_brief_kr_one_pager_2026_05_14.html">executive_brief_kr_one_pager_2026_05_14.html</a></td><td>Korean printable 1-pager</td><td class="hi">live · 2026-05-14</td></tr>
+      <tr><td><a href="investor_pitch_en_2026_05_14.html">investor_pitch_en_2026_05_14.html</a></td><td>English BD/investor pitch</td><td class="hi">live · 2026-05-14</td></tr>
+    </tbody>
+  </table>
+  <p class="footer">Built 2026-05-14 · <code>project/papers_hub_2026_05_04/venue_strategy_2026_05_14.html</code> · deployed to <code>/var/www/papers/</code> · marathon mode 2026-05-04 → 06-13 · scaffolding/infra allowed · voice-protected sections (Hook/Aim/Disc 3.1/Limitations/Cover Para 1/Q9) author-keyboard only</p>
+</section>
+
+</main>
+</body>
+</html>

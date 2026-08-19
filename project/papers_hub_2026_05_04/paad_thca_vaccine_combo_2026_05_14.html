@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>PAAD × THCA 백신 콤보 triage · 2026-05-14 · Seungho Cook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:.98;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.green{border-color:var(--green);color:var(--green)}
+.tocbar a.red{border-color:var(--red);color:var(--red)}
+.tocbar a.teal{border-color:var(--teal);color:var(--teal)}
+.tocbar a.blue{border-color:var(--blue);color:var(--blue)}
+.tocbar a.violet{border-color:var(--violet);color:var(--violet)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}.tl{color:var(--teal);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;position:relative;overflow:hidden}
+.card.paad{border-top:5px solid var(--violet)}
+.card.thca{border-top:5px solid var(--gold)}
+.card.shared{border-top:5px solid var(--teal);grid-column:1/-1}
+.card.no-go{border-top:5px solid var(--red)}
+.card.rule{border-top:5px solid var(--green);grid-column:1/-1}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.tag.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.card h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:28px;color:#fff;line-height:1.1}
+.card .one{color:#d7e1e8;margin:0 0 14px;font-size:15px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.actions a{border:1px solid var(--line);border-radius:6px;padding:8px 11px;background:#0d1823;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:800;color:#d3dee5}
+.actions a.primary{border-color:var(--gold);color:var(--gold)}
+.actions a:hover{background:#152432}
+.askbar{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.askbar b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px}
+.askbar p{margin:0;color:#dde6ec;font-size:14px}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:160px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:16px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.risk{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.risk .r{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px;border-top:4px solid var(--red)}
+.risk .r.med{border-top-color:var(--gold)}.risk .r.low{border-top-color:var(--green)}
+.risk h4{margin:0 0 6px;font-size:16px;color:#fff}.risk p{margin:0;color:#cbd7df;font-size:13.5px}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.verdict{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}
+.verdict .v{border-radius:10px;padding:16px 18px;border:1px solid var(--line);background:#0d1823}
+.verdict .v.green{border-color:var(--green);background:linear-gradient(135deg,rgba(147,226,170,.08),rgba(147,226,170,.02))}
+.verdict .v.red{border-color:var(--red);background:linear-gradient(135deg,rgba(255,138,107,.08),rgba(255,138,107,.02))}
+.verdict .v.gold{border-color:var(--gold);background:linear-gradient(135deg,rgba(255,210,138,.08),rgba(255,210,138,.02))}
+.verdict h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px}
+.verdict h3.g{color:var(--green)}.verdict h3.r{color:var(--red)}.verdict h3.h{color:var(--gold)}
+.verdict p{margin:0;color:#dde6ec;font-size:14px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.qa{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}
+.qa .q{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:#0d1823}
+.qa .q .qt{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);font-size:10px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:6px;font-weight:800}
+.qa .q h4{margin:0 0 6px;font-size:16px;color:#fff}
+.qa .q p{margin:0;color:#cbd7df;font-size:13.5px}
+.gate{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.gate .g{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;border-left:5px solid var(--gold)}
+.gate .g.pass{border-left-color:var(--green)}
+.gate .g.fail{border-left-color:var(--red)}
+.gate .g b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.1em;margin-bottom:4px}
+.gate .g h4{margin:0 0 6px;font-size:15px;color:#fff}
+.gate .g p{margin:0;color:#cbd7df;font-size:13px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}.card.shared,.card.rule{grid-column:1}
+  .ladder{grid-template-columns:1fr 1fr}.gate{grid-template-columns:1fr 1fr}
+  .verdict,.qa,.risk{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">PAAD × THCA 백신 콤보 triage · 2026-05-14 · Seungho Cook · vaccine hub bridge</p>
+    <h1>PAAD × THCA 백신 콤보 — PAAD는 MRD vaccine-first, THCA는 backbone + selection.</h1>
+    <p class="lead">
+      <b>PAAD (췌장)</b>와 <b>THCA (갑상선)</b>는 cancer vaccine 관점에서 서로 다른 lane으로 정렬된다. PAAD는 resected/MRD 상황에서 백신을 일차 무기로 쓰고, THCA는 backbone-and-selection을 먼저 잠근다. 두 lane 모두를 가로지르는 절대 gate가 하나 있다 — <b>HLA presentation failure는 백신 NO-GO</b>. 이 페이지는 그 두 lane을 한 화면에서 정렬하고, CROSS-Neo platform, Paper 1 (DM1), HLA #1 (HT-overlap) 의 cross-track 연결을 잠근다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>PAAD</b><span>resected / MRD vaccine-first</span><small>post-resection minimal residual disease 일차 무기</small></div>
+      <div class="stat"><b>THCA</b><span>backbone + selection</span><small>RAS=98% DM1 axis로 backbone 먼저 잠금</small></div>
+      <div class="stat"><b>NO-GO</b><span>HLA presentation 실패</span><small>HLA loss / antigen-processing collapse → 백신 절대 불가</small></div>
+      <div class="stat"><b>2</b><span>lanes triaged</span><small>PAAD MRD lane + THCA backbone lane</small></div>
+      <div class="stat"><b>1</b><span>strategy consolidation</span><small>cross-lane HLA gate + neoantigen prediction 공유</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#paad">PAAD lane</a>
+  <a class="primary" href="#thca">THCA lane</a>
+  <a class="teal" href="#shared">Shared logic</a>
+  <a class="red" href="#nogo">HLA NO-GO</a>
+  <a class="green" href="#rule">Consolidation rule</a>
+  <a class="primary" href="#dm1">↔ Paper 1 (DM1)</a>
+  <a class="primary" href="#hla1">↔ HLA #1</a>
+  <a href="#qa">Reviewer Q&A</a>
+  <a href="#sibs">Sibling links</a>
+  <a href="paad_thca_vaccine_combo_triage_2026_05_09.html">Origin (05-09)</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — Strategy consolidation locked, HLA gate absolute</h2>
+  <p class="sub">paad_thca_vaccine_combo_triage_2026_05_09 · 5-statement triage</p>
+  <div class="verdict">
+    <div class="v green">
+      <h3 class="g">GREEN — Strategy consolidation</h3>
+      <p>두 lane은 독립 시나리오가 아니다. PAAD-MRD와 THCA-backbone-selection은 같은 vaccine hub (CROSS-Neo / KG-GA / Darwin-RL) 위에서 운영되며, 단일 platform의 두 application으로 본다. cancer-type 별 첫-수술 후 시간선, biomarker readiness, HLA gate, 그리고 neoantigen prediction layer를 공유.</p>
+    </div>
+    <div class="v red">
+      <h3 class="r">RED — HLA presentation failure = vaccine NO-GO</h3>
+      <p>tumor cell에서 HLA-I 발현이 손실되거나 antigen-processing machinery (TAP1/TAP2/B2M/PSMB8/PSMB9)가 collapse하면 — 어떤 neoantigen이든 presentation이 끊겨 백신 효능이 원천 차단된다. 이는 priority gate 가 아니라 <b>absolute gate</b>. PAAD든 THCA든 동일하게 적용.</p>
+    </div>
+    <div class="v gold">
+      <h3 class="h">GOLD — PAAD = resected / MRD vaccine-first</h3>
+      <p>PAAD에서 백신의 가장 합리적 자리는 <b>R0 resection 후 MRD</b>. metastatic 단계는 tumor burden + 면역 억제 미세환경 (myeloid-rich stroma)으로 백신 단독 효능을 기대하기 어렵다. MRD 상황에서 ctDNA-guided + KRAS hotspot (G12D/G12V) neoantigen 백신이 가장 강한 가설.</p>
+    </div>
+    <div class="v gold">
+      <h3 class="h">GOLD — THCA = backbone-and-selection-first</h3>
+      <p>THCA는 PAAD 와 다르다. 일반 PTC는 면역원성이 낮고 driver 단조롭다. 그래서 backbone (RAS=98% DM1 / BRAF=1% DM1 axis)을 먼저 잠그고 그 위에서 candidate 환자 selection을 한다. backbone 없이 백신부터 추진하면 진단 catchment가 흐려진다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="paad">
+  <h2>PAAD lane — resected / MRD vaccine-first</h2>
+  <p class="sub">cancer = PAAD · context = post-resection / minimal residual disease · rationale = surgery 후 burden-low 구간이 vaccine window</h2>
+  <div class="cards">
+    <div class="card paad">
+      <span class="tag v">PAAD · MRD vaccine-first</span>
+      <h3>왜 MRD인가</h3>
+      <p class="one">PAAD는 metastatic 단계에서 백신 단독으로 면역 turn-on 이 어려운 cancer type 중 하나. <span class="hi">R0 resection 후 MRD</span> 구간이 가장 합리적인 vaccine window — tumor burden 이 가장 낮고, ctDNA로 residual disease 정의 가능, 그리고 KRAS hotspot이 단조롭다.</p>
+      <ul class="bullets">
+        <li>R0 resection 후 6–12주 — adjuvant chemo 시작 전 또는 병행</li>
+        <li>ctDNA positive 환자 → MRD high-risk 군 우선 enrollment</li>
+        <li>KRAS G12D / G12V neoantigen 비중이 ~50% 이상 (population HLA × hotspot grid)</li>
+        <li>면역 turn-on 효과는 burden 이 낮을 때 가장 잘 catch</li>
+      </ul>
+      <div class="askbar"><b>Key candidate cohorts</b><p>TCGA-PAAD bulk + ICGC PACA-AU/-CA + 한국 ATC vs PAAD-resection registry (gating). PRJEB / GSE PAAD adjuvant cohorts.</p></div>
+    </div>
+    <div class="card paad">
+      <span class="tag v">PAAD · expected effect</span>
+      <h3>예상 효과 & 운영 모드</h3>
+      <p class="one">백신 단독 효능은 modest 예상 — <b>MRD relapse-free survival hazard ratio ~0.6–0.8</b> 구간이 reasonable 가설. 단, ICI (anti-PD-1) 또는 anti-CD40 와 조합 시 stack-up 가능. 즉 PAAD lane 의 본 게임은 <span class="hi">combo platform</span>.</p>
+      <div class="kv">
+        <div class="k">Primary endpoint</div><div class="v">RFS (relapse-free survival), MRD ctDNA clearance</div>
+        <div class="k">Secondary</div><div class="v">CD8 T-cell expansion, TCR clonality, KRAS-specific clone</div>
+        <div class="k">Combo arm</div><div class="v">anti-PD-1, anti-CD40, GM-CSF adjuvant</div>
+        <div class="k">Vaccine modality</div><div class="v">mRNA-LNP (KRAS hotspot multi-epitope), peptide pool</div>
+        <div class="k">Hub link</div><div class="v">CROSS-Neo top KRAS G12D GADGVGKSAL XGBoost proba=0.871</div>
+        <div class="k">Risk gate</div><div class="v">HLA presentation 확인 (전체 lane 공통)</div>
+      </div>
+      <p class="note">KRAS G12D GADGVGKSAL이 CROSS-Neo platform top lead. HLA-C*08:02 binding 으로 한국인 보급률 매칭.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th>요소</th><th>PAAD lane 의 답</th><th>data source</th><th>status</th></tr></thead>
+    <tbody>
+      <tr><td>P1</td><td>임상 context</td><td>R0 resection 후 MRD (ctDNA positive) 가 일차</td><td>NCT databases · ICGC PACA · TCGA-PAAD</td><td class="good">FRAMED</td></tr>
+      <tr><td>P2</td><td>driver hotspot</td><td>KRAS G12D / G12V (>50% combined) + TP53/CDKN2A/SMAD4</td><td>TCGA-PAAD mutation calls</td><td class="good">FRAMED</td></tr>
+      <tr><td>P3</td><td>HLA gate</td><td>HLA-I 발현 + antigen processing machinery (TAP1/B2M/PSMB8) 정상</td><td>RNA-seq + IHC</td><td class="hi">GATE</td></tr>
+      <tr><td>P4</td><td>vaccine modality</td><td>mRNA-LNP multi-epitope (KRAS hotspot focus) — therapy_spectrum lane</td><td>therapy_spectrum_priority_slices</td><td class="good">FRAMED</td></tr>
+      <tr><td>P5</td><td>combo partner</td><td>anti-PD-1 ± anti-CD40 + GM-CSF / FLT3L</td><td>literature + Cell Rep Med 2025</td><td class="cool">CANDIDATE</td></tr>
+      <tr><td>P6</td><td>primary endpoint</td><td>RFS + MRD ctDNA clearance (12-month)</td><td>trial design layer</td><td class="cool">CANDIDATE</td></tr>
+      <tr><td>P7</td><td>risk</td><td>myeloid-rich stroma 가 priming 차단할 수 있음 — 단독 효능 modest</td><td>stroma signatures</td><td class="bad">RISK</td></tr>
+      <tr><td>P8</td><td>BD upside</td><td>KRAS G12 hotspot 백신 시장은 BioNTech/Moderna 가 이미 잡음 — niche 는 한국인 HLA-C*08:02 grid</td><td>BD landscape</td><td class="hi">NICHE</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="thca">
+  <h2>THCA lane — backbone-and-selection-first</h2>
+  <p class="sub">cancer = THCA · context = backbone 먼저 (RAS=98% DM1 axis), 그 위에서 selection · 일반 PTC는 면역원성 낮음</h2>
+  <div class="cards">
+    <div class="card thca">
+      <span class="tag">THCA · backbone-first</span>
+      <h3>왜 backbone 부터?</h3>
+      <p class="one">THCA는 일반 PTC가 indolent, 면역원성이 낮고, driver 단조로움. 그래서 PAAD 같이 곧장 MRD 백신으로 가지 않는다. 먼저 <span class="hi">RAS=98% DM1 / BRAF=1% DM1</span> backbone axis 위에서 백신 candidate가 될 환자군을 정의한다.</p>
+      <ul class="bullets">
+        <li>Round 5 (DM1 deep dive): RAS-driven THCA 의 98%는 DM1 high; BRAF-driven 은 1%</li>
+        <li>DM1 axis = follicular variant (FVPTC) phenomenon (OR=17.9, p=3e-31)</li>
+        <li>K2 88.8% DM2 cohort = Korean overdiagnosis paradigm — backbone 먼저 안 잠그면 백신 lane을 잘못 깐다</li>
+        <li>Backbone + selection 이 잠긴 다음 ATC / PDTC / DTC-RAI-refractory 에서 vaccine candidate 도출</li>
+      </ul>
+      <div class="askbar"><b>Tie to DM1 (Paper 1)</b><p>RAS=98% DM1 axis는 백신 lane 의 selection layer로 직결. RAS-driven RAI-refractory DTC 가 vaccine candidate 의 1차 후보군.</p></div>
+    </div>
+    <div class="card thca">
+      <span class="tag">THCA · expected effect</span>
+      <h3>예상 효과 & selection layer</h3>
+      <p class="one">THCA 의 백신 lane 은 PAAD lane 만큼 명백하지 않다. 일반 PTC에서는 surgery + RAI 가 효과적이므로 백신 추가 가치가 marginal. 백신의 진짜 자리는 <span class="hi">ATC / PDTC / RAI-refractory DTC</span> — 즉 standard therapy가 실패한 구간.</p>
+      <div class="kv">
+        <div class="k">Selection layer</div><div class="v">ATC / PDTC / RAI-refractory DTC + RAS-driven backbone</div>
+        <div class="k">Primary endpoint</div><div class="v">ORR (RECIST), PFS, TG/Tg-Ab 변동</div>
+        <div class="k">Secondary</div><div class="v">CD8 T-cell expansion, DM1 axis change post-vaccine</div>
+        <div class="k">Combo arm</div><div class="v">MAPK inhibitor (RAS/MEK) + anti-PD-1</div>
+        <div class="k">Vaccine modality</div><div class="v">peptide pool (RAS hotspot + tumor-specific) 또는 mRNA-LNP</div>
+        <div class="k">Hub link</div><div class="v">CROSS-Neo HMTEVVRHC / HLA-A*02:01 (top TCR/MD case)</div>
+      </div>
+      <p class="note">HMTEVVRHC가 CROSS-Neo platform top TCR/MD case. ATC / PDTC 면역원성 prep 단계에서 우선.</p>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th>요소</th><th>THCA lane 의 답</th><th>data source</th><th>status</th></tr></thead>
+    <tbody>
+      <tr><td>T1</td><td>임상 context</td><td>ATC / PDTC / RAI-refractory DTC (standard therapy 실패 환자)</td><td>TCGA-THCA + GSE76039 + Landa 2016</td><td class="good">FRAMED</td></tr>
+      <tr><td>T2</td><td>backbone axis</td><td>RAS=98% DM1 / BRAF=1% DM1 → selection 의 1차 layer</td><td>Paper 1 Round 5 deep dive · dm1_round5</td><td class="hi">LOCKED</td></tr>
+      <tr><td>T3</td><td>HLA gate</td><td>HLA-I 발현 + processing machinery 정상 (PTC 에서는 HLA loss 드물지만 ATC 에서는 확인 필요)</td><td>TCGA + Lee + Landa</td><td class="hi">GATE</td></tr>
+      <tr><td>T4</td><td>candidate hotspot</td><td>RAS Q61R / NRAS Q61 + TERT promoter mutation + 환자별 neoantigen</td><td>v17 TERT recovery + driver atlas</td><td class="good">FRAMED</td></tr>
+      <tr><td>T5</td><td>vaccine modality</td><td>peptide pool (개인화) + mRNA-LNP (RAS hotspot focus)</td><td>CROSS-Neo platform</td><td class="cool">CANDIDATE</td></tr>
+      <tr><td>T6</td><td>combo partner</td><td>MAPK inhibitor (lenvatinib / dabrafenib) + anti-PD-1 (KEYNOTE-158 base)</td><td>thyroid cancer trial landscape</td><td class="cool">CANDIDATE</td></tr>
+      <tr><td>T7</td><td>primary endpoint</td><td>ORR (ATC 12-week), PFS (DTC-RAI-refractory)</td><td>trial design layer</td><td class="cool">CANDIDATE</td></tr>
+      <tr><td>T8</td><td>risk</td><td>일반 PTC 는 indolent → 백신 추가 가치 marginal. selection 잘못하면 effect 없다고 결론날 risk</td><td>K2 Korean overdiagnosis paradigm</td><td class="bad">RISK</td></tr>
+      <tr><td>T9</td><td>BD upside</td><td>ATC / RAI-refractory niche — unmet need 명백, 시장 BioNTech 미진입</td><td>BD landscape</td><td class="hi">NICHE</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="shared">
+  <h2>Cross-lane shared logic — 두 lane 이 공유하는 platform layer</h2>
+  <p class="sub">HLA gate · neoantigen prediction · TCR repertoire · MD/structure</p>
+  <div class="cards">
+    <div class="card shared">
+      <span class="tag t">cross-lane platform</span>
+      <h3>한 platform, 두 application</h3>
+      <p class="one">PAAD-MRD lane 과 THCA-backbone-selection lane 은 서로 다른 임상 context 지만, 백신 prediction / prioritization layer 는 동일하다. CROSS-Neo platform (BAR-Neo-BMA/X + stress gate + hard decoy + TCR + MD + patient gate) 위에서 운영되며, KG-GA / Darwin-RL 가 candidate evolution 을 담당.</p>
+      <table style="margin-top:14px">
+        <thead><tr><th>layer</th><th>PAAD-MRD lane</th><th>THCA-backbone lane</th><th>shared component</th></tr></thead>
+        <tbody>
+          <tr><td>HLA presentation</td><td>HLA-I + B2M IHC, RNA-seq (TAP1/PSMB8)</td><td>HLA-I + IHC (ATC focus); PTC 는 baseline 양호</td><td class="hi">absolute gate · 동일 cutoff</td></tr>
+          <tr><td>neoantigen prediction</td><td>KRAS G12 hotspot + patient-specific</td><td>RAS Q61 + TERT + patient-specific</td><td class="cool">CROSS-Neo BAR-Neo-BMA + stress gate</td></tr>
+          <tr><td>candidate evolution</td><td>KG-GA / Darwin-RL on KRAS-hotspot grid</td><td>KG-GA / Darwin-RL on RAS-hotspot grid</td><td class="cool">KG_GA_evolved AUPRC 0.933 (retro board)</td></tr>
+          <tr><td>TCR / MD</td><td>KRAS G12D GADGVGKSAL TCR cross-reactivity</td><td>HMTEVVRHC TCR/MD case</td><td class="hi">replicated MD upgrade pipeline</td></tr>
+          <tr><td>patient gate</td><td>ctDNA positive + RFS endpoint</td><td>RAS-driven RAI-refractory + ORR endpoint</td><td class="cool">동일 patient-gate architecture</td></tr>
+          <tr><td>combo arm</td><td>anti-PD-1 ± anti-CD40 + GM-CSF</td><td>MAPK inhibitor + anti-PD-1</td><td class="vio">combo-design template</td></tr>
+          <tr><td>readout</td><td>CD8 expansion + KRAS-specific clone</td><td>CD8 expansion + DM1 axis shift</td><td class="tl">assay-bank 공유</td></tr>
+        </tbody>
+      </table>
+      <p class="note">두 lane 의 모든 차이는 임상 context 와 driver hotspot. nominally 동일한 prediction → triage → MD/structure 파이프라인이 적용.</p>
+    </div>
+  </div>
+</section>
+
+<section id="nogo">
+  <h2>HLA presentation failure = vaccine NO-GO</h2>
+  <p class="sub">absolute gate · PAAD든 THCA든 동일 적용 · 모든 priority 위 등급</p>
+  <div class="gate">
+    <div class="g fail">
+      <b>FAIL · HLA-I loss</b>
+      <h4>HLA-A/B/C complete loss</h4>
+      <p>RNA-seq + IHC 두 layer 에서 HLA-I 발현이 detection limit 이하. CD8 priming 자체가 불가능. 백신 시도해도 효과 없음.</p>
+    </div>
+    <div class="g fail">
+      <b>FAIL · B2M loss</b>
+      <h4>B2M somatic mutation / loss</h4>
+      <p>β2-microglobulin (B2M) loss → MHC-I 표면 발현 불가. 어떤 epitope이든 표면 noload. PAAD 의 약 10–15%, ATC 의 일부에서 관찰.</p>
+    </div>
+    <div class="g fail">
+      <b>FAIL · APM collapse</b>
+      <h4>antigen-processing machinery collapse</h4>
+      <p>TAP1/TAP2/PSMB8/PSMB9 / ERAP1 발현이 IFN-γ stimulation 후에도 회복 안 됨 → epigenetic silencing. 백신 무효.</p>
+    </div>
+    <div class="g pass">
+      <b>PASS · 정상 presentation</b>
+      <h4>HLA-I + APM 정상</h4>
+      <p>HLA-I IHC ≥1+, B2M intact, TAP1/PSMB8 baseline 발현 + IFN-γ-inducible. 이 케이스만 백신 lane 으로 진입.</p>
+    </div>
+  </div>
+  <div class="decision">
+    <h3>NO-GO 의 의미</h3>
+    <p>이 gate 는 priority 1 점이 아니라 binary. HLA presentation 실패 환자는 prediction score 가 아무리 높아도 (CROSS-Neo, BAR-Neo, KG-GA) — 백신 lane 에서 제외. 대신 cell therapy / CAR-T (HLA 비의존 lane) 으로 재배정. 이는 PAAD lane 과 THCA lane 양쪽에 동일 적용.</p>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th>HLA failure mode</th><th>detection</th><th>PAAD 빈도</th><th>THCA 빈도</th><th>대안 lane</th></tr></thead>
+    <tbody>
+      <tr><td>F1</td><td>HLA-A/B/C transcription loss</td><td>RNA-seq TPM &lt;5 + IHC negative</td><td>~5–10% (advanced)</td><td>&lt;5% (PTC) · 10–20% (ATC)</td><td class="cool">CAR-T / TIL</td></tr>
+      <tr><td>F2</td><td>B2M somatic mutation</td><td>WES + IHC</td><td>~10–15%</td><td>~5% (ATC)</td><td class="cool">CAR-T / TIL</td></tr>
+      <tr><td>F3</td><td>HLA-I LOH</td><td>LOHHLA / RNA allele-specific</td><td>~15–25%</td><td>~10% (ATC)</td><td class="cool">LOH-aware CAR-T</td></tr>
+      <tr><td>F4</td><td>TAP1/TAP2 silencing</td><td>RNA-seq + IFN-γ challenge</td><td>~10%</td><td>~5%</td><td class="cool">epigenetic prime + vaccine retry</td></tr>
+      <tr><td>F5</td><td>PSMB8/PSMB9 silencing</td><td>RNA-seq + IFN-γ</td><td>~10%</td><td>~5%</td><td class="cool">epigenetic prime + vaccine retry</td></tr>
+      <tr><td>F6</td><td>ERAP1 mutation</td><td>WES</td><td>rare</td><td>rare</td><td class="cool">vaccine modality 재설계</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="rule">
+  <h2>Strategy consolidation rule — PAAD vs THCA vs both</h2>
+  <p class="sub">언제 PAAD, 언제 THCA, 언제 둘 다</p>
+  <div class="cards">
+    <div class="card rule">
+      <span class="tag g">consolidation rule</span>
+      <h3>decision matrix</h3>
+      <p class="one">두 lane 을 동시에 운영할 수 있지만, resource 가 한정될 때는 우선순위를 다음과 같이 정렬한다 — PAAD-MRD 가 첫 trial-ready lane (BD upside 큼, 임상 unmet need 명백), THCA backbone 은 paper-anchored lane (Paper 1 DM1 axis 의 자연 follow-up). 백신 platform 자체는 둘 다 활용.</p>
+      <ol class="bullets">
+        <li><b class="hi">PAAD lane 우선</b> — R0 resection cohort access 확보되면 즉시. KRAS G12D GADGVGKSAL (CROSS-Neo top lead) 검증으로 시작.</li>
+        <li><b class="hi">THCA lane 병행</b> — Paper 1 (DM1) submission 이후 ATC / RAI-refractory cohort 정의. HMTEVVRHC TCR/MD case 가 anchor.</li>
+        <li><b class="hi">HLA gate 공통</b> — 두 lane 모두 prescreen 으로 HLA-I + B2M + TAP1/PSMB8 검사 (RNA-seq + IHC).</li>
+        <li><b class="hi">CROSS-Neo platform 공통</b> — neoantigen prediction · TCR · MD pipeline 모두 동일 platform 위에서 운영.</li>
+        <li><b class="hi">venue 분리</b> — PAAD lane = Nature Med / JCI 급 trial paper. THCA lane = Nature Cancer / Cell Rep Med 급 Paper 1 follow-up.</li>
+      </ol>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>scenario</th><th>PAAD lane</th><th>THCA lane</th><th>both</th><th>action</th></tr></thead>
+    <tbody>
+      <tr><td>resected PAAD + ctDNA+ access 확보</td><td class="hi">PRIORITY 1</td><td>—</td><td>—</td><td>즉시 MRD-vaccine trial design 시작</td></tr>
+      <tr><td>RAI-refractory DTC cohort access 확보</td><td>—</td><td class="hi">PRIORITY 1</td><td>—</td><td>RAS-driven selection 으로 RAI-refractory candidate 정의</td></tr>
+      <tr><td>둘 다 cohort access</td><td class="good">parallel</td><td class="good">parallel</td><td class="hi">YES</td><td>platform-shared, lane-separate trial</td></tr>
+      <tr><td>HLA gate 실패 ≥30% (PAAD)</td><td class="bad">SUSPEND</td><td>—</td><td>—</td><td>CAR-T / TIL lane 으로 재배정</td></tr>
+      <tr><td>일반 PTC 만 cohort</td><td>—</td><td class="bad">DEFER</td><td>—</td><td>일반 PTC 는 백신 ROI 낮음 — backbone / selection 부터</td></tr>
+      <tr><td>resource 부족</td><td class="hi">PAAD-first</td><td class="cool">defer</td><td>—</td><td>BD / unmet need 가 큰 PAAD lane 부터</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="dm1">
+  <h2>Cross-track to Paper 1 (DM1) — RAS=98% DM1 connection</h2>
+  <p class="sub">Paper 1 DM1 axis 가 THCA vaccine lane 의 backbone</p>
+  <div class="cards">
+    <div class="card thca">
+      <span class="tag">↔ Paper 1</span>
+      <h3>RAS=98% DM1 ↔ THCA vaccine lane selection</h3>
+      <p class="one">Paper 1 Round 5 deep dive 가 잠근 사실 — <span class="hi">RAS=98% DM1 high</span> / <span class="hi">BRAF=1% DM1 high</span>. 이는 THCA vaccine lane selection layer 의 1차 backbone.</p>
+      <ul class="bullets">
+        <li>RAS-driven THCA → DM1 axis 잠금 → vaccine candidate 후보군 정의</li>
+        <li>BRAF-driven THCA → DM1 axis 무관 → vaccine 보다 MAPK inhibitor + anti-PD-1 우선</li>
+        <li>FVPTC (RAS dominant) = DM1=HIGH (OR=17.9, p=3e-31) → vaccine candidate-friendly</li>
+        <li>RAI-refractory DTC = partial-ATC immunogenomic phenotype (Paper 3 axis) → vaccine + ICI combo 우선</li>
+      </ul>
+      <div class="askbar"><b>요약</b><p>Paper 1 의 DM1 backbone 이 THCA vaccine lane 의 selection layer. 두 paper 가 platform 위에서 연결.</p></div>
+    </div>
+    <div class="card thca">
+      <span class="tag">↔ Round 4 methylation</span>
+      <h3>DM1=HIGH-β/silenced epigenetic signal</h3>
+      <p class="one">Round 4 (polarity-corrected) 에서 DM1=HIGH-β/silenced (cPTC d=+1.50, PDTC vs ATC d=+3.47). 즉 DM1-high 환자는 epigenetic silencing 으로 면역원성 module 이 꺼져 있음.</p>
+      <div class="kv">
+        <div class="k">cPTC DM1 effect</div><div class="v">d=+1.50 (β methylation HIGH)</div>
+        <div class="k">PDTC vs ATC</div><div class="v">d=+3.47 (ATC 에서 더 silenced)</div>
+        <div class="k">함의</div><div class="v">DM1-high 는 immune-cold → vaccine 단독 효능 modest</div>
+        <div class="k">action</div><div class="v">DNMT inhibitor (5-aza) prime + vaccine combo 고려</div>
+        <div class="k">candidate hotspot</div><div class="v">FVPTC + RAS-driven advanced cases</div>
+        <div class="k">link</div><div class="v">dm1_round4 deep dive (memory)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="hla1">
+  <h2>Cross-track to HLA #1 (HT-overlap) — HLA-II amplification vaccine window</h2>
+  <p class="sub">HT-overlap PTC 에서 HLA-II 증폭 + IFN-γ 신호 = vaccine response window</p>
+  <div class="cards">
+    <div class="card thca">
+      <span class="tag b">↔ HLA #1</span>
+      <h3>HT-overlap → HLA-II up → CD4 priming window</h3>
+      <p class="one">HLA #1 paper (HT-isolated PTC) 의 핵심 finding 은 GSE286332 에서 <span class="hi">HLA-II d=+3.65, IFN-γ FDR=2e-4, 8-gene d=-1.6</span>. HT lesion 안에서 HLA-II 가 강하게 켜진다 → CD4 T-cell priming window. vaccine response 의 favorable host.</p>
+      <ul class="bullets">
+        <li>HT-overlap PTC 에서 HLA-II 증폭 (HLA-DR/DP/DQ) → CD4 priming ↑</li>
+        <li>IFN-γ signaling active → APM (TAP1/PSMB8) IFN-inducible upregulation</li>
+        <li>TLS d=+1.96 + IGHV clonality (BCR axis) → 항원-driven B 세포 반응 confirmed</li>
+        <li>HT-overlap subgroup 이 vaccine lane 의 candidate-friendly host</li>
+      </ul>
+      <div class="askbar"><b>가설</b><p>HT-overlap PTC + vaccine 은 일반 PTC + vaccine 보다 response 가 높을 가설. trial enrollment 에서 HT-overlap subtype 분리 stratification 권장.</p></div>
+    </div>
+    <div class="card thca">
+      <span class="tag b">↔ Phase C v2 ICI</span>
+      <h3>HLA-I OR=1.35 load-bearing ICI signal</h3>
+      <p class="one">Paper 11 Phase C v2 (4 ICI cohorts n=421) 가 잠근 fact — <span class="hi">HLA-I OR=1.35 p=0.014</span>. 즉 HLA-I 발현이 ICI response 와 양의 연관. vaccine + ICI combo 에서 HLA-I 가 load-bearing.</p>
+      <div class="kv">
+        <div class="k">HLA-I OR</div><div class="v">1.35 p=0.014 (load-bearing)</div>
+        <div class="k">HLA-II OR</div><div class="v">1.02 p=0.84 (null in ICI)</div>
+        <div class="k">IFNG OR</div><div class="v">1.53 p=3.7e-4</div>
+        <div class="k">cytolytic OR</div><div class="v">1.27 p=0.046</div>
+        <div class="k">DM1_inflam</div><div class="v">sign-consistent 4/4 cohorts</div>
+        <div class="k">함의</div><div class="v">vaccine + ICI combo 의 HLA-I gate 가 핵심</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&A — cancer-type selection · vaccine timing · HLA gate threshold</h2>
+  <p class="sub">vaccine reviewer 가 가장 자주 묻는 3 question family</p>
+  <div class="qa">
+    <div class="q">
+      <div class="qt">Q1 · cancer-type selection</div>
+      <h4>왜 PAAD 와 THCA 를 묶었나?</h4>
+      <p>두 cancer 가 nominally 다르지만, vaccine platform 관점에서는 동일 prediction → triage → MD/structure 파이프라인 위에 올라간다. PAAD = MRD vaccine-first, THCA = backbone-and-selection-first 라는 lane 분리만 다르고, 나머지는 공유. 한 platform 의 두 application 으로 본다.</p>
+    </div>
+    <div class="q">
+      <div class="qt">Q2 · vaccine timing</div>
+      <h4>PAAD = MRD, THCA = ATC/RAI-refractory 가 맞나?</h4>
+      <p>맞다. PAAD metastatic 단독 단계는 burden + stroma 때문에 백신 효능 낮음 → R0 resection 후 MRD 가 합리적. THCA 일반 PTC 는 surgery+RAI 가 효과적이므로 백신 추가 가치 marginal → ATC / RAI-refractory / RAS-driven advanced 에서 백신 lane.</p>
+    </div>
+    <div class="q">
+      <div class="qt">Q3 · HLA gate threshold</div>
+      <h4>HLA presentation failure 의 cutoff 는?</h4>
+      <p>HLA-I IHC ≥1+ (membrane) + B2M intact (IHC) + RNA-seq TPM &gt;5 (HLA-A/B/C 평균) + APM (TAP1/PSMB8) baseline 발현. IFN-γ challenge 후에도 회복 안 되면 NO-GO. ICI 시기에 활용된 LOHHLA / RNA allele-specific 도 함께.</p>
+    </div>
+    <div class="q">
+      <div class="qt">Q4 · BD upside</div>
+      <h4>BioNTech / Moderna 가 이미 KRAS 백신 시장에 진입했는데?</h4>
+      <p>맞다. mRNA-LNP KRAS 백신 시장은 BNT / Moderna 가 글로벌 1위. niche 는 — (1) 한국인 HLA-C*08:02 + KRAS G12D grid (Asian-specific), (2) PAAD vs THCA cross-cancer platform, (3) CROSS-Neo prediction layer 의 explainability. 시장 1위는 어렵지만 한국 trial / BD niche 는 명확.</p>
+    </div>
+    <div class="q">
+      <div class="qt">Q5 · cell therapy 와의 관계</div>
+      <h4>HLA failure 환자는 어디로?</h4>
+      <p>cell therapy (CAR-T / TIL) lane. HLA 비의존 (CAR-T) 또는 HLA-restored prime + vaccine retry. cell_therapy_hard_dossier (sibling 페이지) 가 4 modality (CAR-T / CAR-NKT / TIL / blinatumomab) 의 evidence matrix 를 잠금.</p>
+    </div>
+    <div class="q">
+      <div class="qt">Q6 · evidence depth</div>
+      <h4>현 단계 evidence 등급은?</h4>
+      <p>(1) CROSS-Neo platform retro AUPRC 0.933 (KG_GA_evolved), strict no-overlap reliability 는 BAR-Neo confidence, (2) GADGVGKSAL / HMTEVVRHC = REPLICATED_PASS (MD upgrade), (3) ICI Phase C v2 4-cohort sign-consistent. 즉 backbone evidence 강함, 단 prospective vaccine trial 은 미진행 — decision support 단계.</p>
+    </div>
+  </div>
+</section>
+
+<section id="sibs">
+  <h2>Sibling links</h2>
+  <p class="sub">76+ family · Yu meeting brief · vaccine hub family</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800">
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Yu meeting brief (today)</a>
+    <a href="therapy_spectrum_priority_slices_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Therapy spectrum priority slices (today)</a>
+    <a href="cell_therapy_hard_dossier_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Cell therapy hard dossier (today)</a>
+    <a href="paad_thca_vaccine_combo_triage_2026_05_09.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">PAAD×THCA triage origin (05-09)</a>
+    <a href="paad_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">PAAD deep dive</a>
+    <a href="cell_therapy_hard_dossier_2026_05_11.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Cell therapy hard dossier (05-11)</a>
+    <a href="cell_therapy_ultra_analysis_2026_05_11.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Cell therapy ultra analysis</a>
+    <a href="cell_therapy_megapack_2026_05_11.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Cell therapy megapack</a>
+    <a href="therapy_spectrum_triage_2026_05_11.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Therapy spectrum triage</a>
+    <a href="therapy_spectrum_go_shortlist_2026_05_11.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Therapy spectrum GO shortlist</a>
+    <a href="therapy_spectrum_triple_ready_2026_05_11.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Triple-ready 2-row</a>
+    <a href="therapy_spectrum_bd_ready_2026_05_11.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BD-ready 6-row</a>
+    <a href="barneo_high_impact_candidate_pack_2026_05_10.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BAR-Neo candidate pack</a>
+    <a href="barneo_t1_translational_readiness_2026_05_10.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BAR-Neo T1 readiness</a>
+    <a href="barneo_top_pass_reviewer_evidence_2026_05_10.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BAR-Neo reviewer evidence</a>
+    <a href="barneo_ng_algorithm_results_2026_05_10.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BAR-Neo NG algorithm</a>
+    <a href="barneo_nature_grade_evolution_2026_05_10.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BAR-Neo Nature-grade evolution</a>
+    <a href="biodarwin_paper_strategy_dossier.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BioDarwin paper strategy</a>
+    <a href="biodarwin_pan_vaccine_ga_rl.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BioDarwin pan-vaccine GA/RL</a>
+    <a href="biodarwin_submission_blueprint.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BioDarwin submission blueprint</a>
+    <a href="biodarwin_industrial_win_diagnostic_v3.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BioDarwin industrial diagnostic v3</a>
+    <a href="hla_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA atlas</a>
+    <a href="hla_class_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA class deep dive</a>
+    <a href="hla_situation.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA situation</a>
+    <a href="anchor_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Anchor atlas</a>
+    <a href="tcr_clonotype_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">TCR clonotype atlas</a>
+    <a href="alphafold_simulation.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">AlphaFold simulation</a>
+    <a href="cancer_gene_matrix.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Cancer gene matrix</a>
+    <a href="driver_gene_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Driver gene atlas</a>
+    <a href="braf_v600e_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BRAF V600E deep dive</a>
+    <a href="pancancer_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Pan-cancer atlas</a>
+    <a href="paper1_nature_cancer_board.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 Nature Cancer board</a>
+    <a href="paper11_pancancer.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 11 pancancer</a>
+    <a href="paper2_master_view.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 master view</a>
+    <a href="portfolio_paper3.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio Paper 3 (ICI)</a>
+    <a href="index.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Hub home</a>
+  </div>
+  <p class="footer">2026-05-14 · Seungho Cook · cancer vaccine hub · PAAD × THCA cross-lane consolidation · CROSS-Neo platform decision support · for in-room read</p>
+</section>
+
+</main>
+</body>
+</html>

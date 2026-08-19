@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>GSE286332 cohort deep dive · n=18 Korean PTC vs PTC+HT · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:5px 9px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.cur{background:var(--gold);color:#071016;border-color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:30px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.vbox.green{border-top:5px solid var(--green)}
+.vbox.gold{border-top:5px solid var(--gold)}
+.vbox.red{border-top:5px solid var(--red)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:#fff}
+.vbox p{margin:0;color:#cfd9e0;font-size:14px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.callout{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:16px 18px;margin:14px 0}
+.callout b{color:var(--gold)}
+.flag{border-left:4px solid var(--red);background:rgba(255,138,107,.06);padding:10px 14px;margin:12px 0;font-size:13.5px;color:#e6d3cf}
+.flag.ok{border-left-color:var(--green);background:rgba(147,226,170,.06);color:#d3e6d8}
+.flag.warn{border-left-color:var(--gold);background:rgba(255,210,138,.06);color:#e9ddc4}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.qa{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 16px;margin:10px 0}
+.qa b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.qa p{margin:0;color:#dde6ec;font-size:14px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:14px 16px}
+.card h4{margin:0 0 6px;font-size:14px;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;letter-spacing:.08em;text-transform:uppercase}
+.card p{margin:0;color:#cbd7df;font-size:13px}
+@media(max-width:980px){
+  h1{font-size:40px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}.grid2,.grid3{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Cohort deep dive · GSE286332 · Seungho Cook · 2026-05-14</p>
+    <h1>GSE286332 — n=18로 본 Hashimoto-overlap PTC 분자 phenotype.</h1>
+    <p class="lead">
+      <b>Korean PTC vs PTC+HT</b> 18-sample bulk RNA-seq cohort. P3 Day-2 critical finding(2026-04-29)에서 <b>10,380 DEGs at FDR&lt;0.05</b>, <b>HLA-II d=+3.65</b>, <b>IFN-γ FDR=2e-4</b>, <b>8-gene d=−1.6</b>, <b>TLS d=+1.96</b> 를 동시에 잡았다.
+      이후 D4-P2 TCGA transfer가 18/18 DM2 paradox를 <b>OR up to 5× p=6e-10</b>으로 풀어냈고, D5-P6 BCR clonal/TLS로 항원-구동 B-세포 응답이 정황 증거화되었다. D6-P7에서는 DM1 sub-B (n=56, 96% mutation-negative)이 K2 NBNR cluster의 TCGA equivalent임을 보였다.
+      Paper 1과 Paper 2 (HLA #1 HT-isolated) 양쪽 mechanism wedge로 잠긴 cohort. STRONG GO, 단 단일-cohort n=18 한계는 고정 caveat.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>10,380</b><span>DEGs FDR&lt;0.05</span><small>Korean PTC vs PTC+HT bulk RNA-seq</small></div>
+      <div class="stat"><b>+3.65</b><span>HLA-II Cohen d</span><small>antigen presentation up</small></div>
+      <div class="stat"><b>2e-4</b><span>IFN-γ FDR</span><small>hallmark signature up</small></div>
+      <div class="stat"><b>−1.6</b><span>8-gene d</span><small>thyroid-diff panel down → DM2 enriched</small></div>
+      <div class="stat"><b>+1.96</b><span>TLS d</span><small>IGHV clonality d&gt;0.5, AICDA up</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a href="index.html">Hub</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a class="primary" href="paper1.html">Paper 1</a>
+  <a class="primary" href="paper2_image_dm1.html">Paper 2 image</a>
+  <a class="primary" href="paper2_hla.html">Paper 2 HLA</a>
+  <a class="primary" href="paper4_gd_hla.html">Paper 4 GD</a>
+  <a href="grant_samsung_causal_kthyro_2026_05_14.html">Samsung grant</a>
+  <a href="track1_dm1_command_room.html">T1 DM1</a>
+  <a href="track2_histology_command_room.html">T2 Histology</a>
+  <a href="track3_hla_isolated_command_room.html">T3 HLA#1</a>
+  <a href="track4_korean_gd_command_room.html">T4 HLA#2</a>
+  <a href="track5_samsung_command_room.html">T5 Samsung</a>
+  <a href="evidence_atlas_2026_05_14.html">Evidence</a>
+  <a href="timeline_gantt_2026_05_14.html">Gantt</a>
+  <a href="decision_board_2026_05_14.html">Decisions</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A</a>
+  <a href="figure_gallery_2026_05_14.html">Figures</a>
+  <a href="methodology_atlas_2026_05_14.html">Methods</a>
+  <a href="venue_strategy_2026_05_14.html">Venues</a>
+  <a href="executive_brief_kr_one_pager_2026_05_14.html">KR 1p</a>
+  <a href="investor_pitch_en_2026_05_14.html">EN pitch</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="bd_outreach_state_2026_05_14.html">BD state</a>
+  <a href="marathon_mode_dashboard_2026_05_14.html">Marathon</a>
+  <a href="honest_negatives_wall_2026_05_14.html">Negatives</a>
+  <a href="risk_atlas_2026_05_14.html">Risk</a>
+  <a href="data_registry_map_2026_05_14.html">Data registry</a>
+  <a class="cur" href="cohort_gse286332_deep_dive_2026_05_14.html">GSE286332</a>
+  <a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">GSE250521 spatial</a>
+  <a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">K2 PRJEB11591</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict · STRONG GO with n=18 caveat</h2>
+  <p class="sub">v17 P3 Day-2 critical · 2026-04-29 → 2026-05-14 lock</p>
+  <div class="verdict">
+    <div class="vbox green">
+      <h3>STRONG GO — HLA #1 HT-isolated mechanism wedge</h3>
+      <p>GSE286332는 단일 cohort 안에서 4-pillar 신호를 동시에 띄운다: <b>antigen presentation (HLA-II d=+3.65)</b> + <b>IFN-γ axis (FDR=2e-4)</b> + <b>thyroid-diff loss (8-gene d=−1.6)</b> + <b>TLS/B-cell clonal expansion (TLS d=+1.96, IGHV d&gt;0.5, AICDA up)</b>. 18-sample이라는 한계에도 effect size가 cohen d &gt; 1 권역에서 4개가 sign-consistent 하게 모이는 cohort 는 갑상선 분야에서 흔치 않다.</p>
+    </div>
+    <div class="vbox gold">
+      <h3>CAVEAT — n=18 단일 cohort + selection bias</h3>
+      <p>표본 18명은 <b>discovery 용도로만 안전</b>하다. paper 본문에서는 GSE286332를 <i>mechanism-locating cohort</i>로 framing하고, 일반화 주장은 D4-P2 (TCGA transfer OR up to 5× p=6e-10) 와 K2 NBNR 연결을 통해 분리하는 구조를 유지한다. HT-overlap 환자의 선택 bias (수술/검진 동선)는 limitations에 명시.</p>
+    </div>
+  </div>
+</section>
+
+<section id="meta">
+  <h2>1 · Cohort meta — Korean PTC vs PTC+HT</h2>
+  <p class="sub">accession · platform · group · pillar role</p>
+  <div class="kv">
+    <div class="k">Accession</div><div class="v">GSE286332</div>
+    <div class="k">Origin</div><div class="v">Korean PTC vs PTC+HT (Hashimoto-overlap) · public bulk RNA-seq</div>
+    <div class="k">N</div><div class="v">18 (PTC vs PTC+HT, paired-ish design)</div>
+    <div class="k">First flag</div><div class="v">P3 Day-2 critical 2026-04-29 — v17_gse286332_strong_go</div>
+    <div class="k">Pillar role</div><div class="v">HLA #1 HT-isolated PTC mechanism wedge (Paper 2 HLA dossier · Paper 4 GD 분리 후 main HLA cohort)</div>
+    <div class="k">Cross-pillar role</div><div class="v">Paper 1 DM2 paradox (D4-P2 transfer) · Paper 1 NBNR cluster (D6-P7 DM1 sub-B)</div>
+    <div class="k">Status</div><div class="v">STRONG GO — gates Cell Rep Med / JCI Insight reach without Bundang</div>
+    <div class="k">Marathon mode</div><div class="v">paper-blocking · main HLA #1 cohort — Paper 2 HLA section 본문 인용 보장</div>
+  </div>
+  <p class="note">GSE286332는 <b>한국 기관에서 수집된 PTC와 PTC+HT 비교 cohort</b>로, Hashimoto 동반 여부 단일 축에서 분자 phenotype을 떼낼 수 있는 매우 드문 케이스다. 동일 인종/지역 background에서 HT axis를 격리하기 때문에 TCGA의 인종 confounding을 우회한다. n=18은 작지만, effect size가 큰 경로(HLA-II, IFN-γ, TLS)에서는 power가 충분히 확보된다.</p>
+</section>
+
+<section id="deg">
+  <h2>2 · DEG table — 10,380 DEGs FDR&lt;0.05 top representatives</h2>
+  <p class="sub">PTC+HT (HT-overlap) vs PTC baseline · sign convention: up = higher in PTC+HT</p>
+  <table>
+    <thead><tr><th>#</th><th>Gene</th><th>Direction</th><th>축</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>U1</td><td><code>HLA-DRA</code></td><td class="good">UP</td><td>HLA class II</td><td>antigen presentation activation</td></tr>
+      <tr><td>U2</td><td><code>HLA-DRB1</code></td><td class="good">UP</td><td>HLA class II</td><td>Korean GD HLA #1 cross-track 연결</td></tr>
+      <tr><td>U3</td><td><code>HLA-DPB1</code></td><td class="good">UP</td><td>HLA class II</td><td>K2 DPB1*05:01 56% replicates Kim 2014 — 동일 축</td></tr>
+      <tr><td>U4</td><td><code>HLA-DQA1</code></td><td class="good">UP</td><td>HLA class II</td><td>autoimmune-presentation axis</td></tr>
+      <tr><td>U5</td><td><code>CIITA</code></td><td class="good">UP</td><td>HLA-II master</td><td>HLA-II master TF up — IFN-γ driver downstream</td></tr>
+      <tr><td>U6</td><td><code>IFNG</code></td><td class="good">UP</td><td>IFN-γ axis</td><td>hallmark IFN-γ FDR=2e-4 의 핵심 driver</td></tr>
+      <tr><td>U7</td><td><code>STAT1</code></td><td class="good">UP</td><td>IFN-γ axis</td><td>IFN-γ pathway downstream</td></tr>
+      <tr><td>U8</td><td><code>GBP1</code></td><td class="good">UP</td><td>IFN-γ axis</td><td>IFN-γ effector</td></tr>
+      <tr><td>U9</td><td><code>CXCL9</code></td><td class="good">UP</td><td>chemokine</td><td>Th1 / TLS recruitment</td></tr>
+      <tr><td>U10</td><td><code>CXCL10</code></td><td class="good">UP</td><td>chemokine</td><td>Th1 / TLS recruitment</td></tr>
+      <tr><td>U11</td><td><code>CXCL13</code></td><td class="good">UP</td><td>TLS axis</td><td>GSE250521 spatial CXCL13↔CCR6/CCR7 replication</td></tr>
+      <tr><td>U12</td><td><code>CCR7</code></td><td class="good">UP</td><td>TLS axis</td><td>spatial replicate ligand</td></tr>
+      <tr><td>U13</td><td><code>AICDA</code></td><td class="good">UP</td><td>B-cell</td><td>antigen-driven class switching — D5-P6 anchor</td></tr>
+      <tr><td>U14</td><td><code>MS4A1 (CD20)</code></td><td class="good">UP</td><td>B-cell</td><td>B-cell infiltration</td></tr>
+      <tr><td>U15</td><td><code>CD79A</code></td><td class="good">UP</td><td>B-cell</td><td>BCR component</td></tr>
+      <tr><td>U16</td><td><code>JCHAIN/IGJ</code></td><td class="good">UP</td><td>B-cell / plasma</td><td>plasma cell output</td></tr>
+      <tr><td>U17</td><td><code>IGHG1</code></td><td class="good">UP</td><td>B-cell / clonal</td><td>IGHV clonality d&gt;0.5</td></tr>
+      <tr><td>U18</td><td><code>BCL6</code></td><td class="good">UP</td><td>germinal center</td><td>TLS maturation marker</td></tr>
+      <tr><td>U19</td><td><code>CXCR5</code></td><td class="good">UP</td><td>TLS axis</td><td>follicular helper homing</td></tr>
+      <tr><td>U20</td><td><code>FOXP3</code></td><td class="good">UP</td><td>Treg</td><td>면역억제 균형 — autoimmune microenv</td></tr>
+      <tr><td>U21</td><td><code>GZMB</code></td><td class="good">UP</td><td>CD8 effector</td><td>cytolytic activity</td></tr>
+      <tr><td>U22</td><td><code>PRF1</code></td><td class="good">UP</td><td>CD8 effector</td><td>cytolytic activity</td></tr>
+      <tr><td>U23</td><td><code>IDO1</code></td><td class="good">UP</td><td>IFN-γ induced</td><td>immune checkpoint axis</td></tr>
+      <tr><td>U24</td><td><code>PDCD1 (PD-1)</code></td><td class="good">UP</td><td>exhaustion</td><td>chronic antigen exposure</td></tr>
+      <tr><td>U25</td><td><code>CD274 (PD-L1)</code></td><td class="good">UP</td><td>checkpoint</td><td>IFN-γ induced PD-L1</td></tr>
+      <tr><td>U26</td><td><code>TIGIT</code></td><td class="good">UP</td><td>checkpoint</td><td>checkpoint co-up</td></tr>
+      <tr><td>U27</td><td><code>LAG3</code></td><td class="good">UP</td><td>checkpoint</td><td>checkpoint co-up</td></tr>
+      <tr><td>U28</td><td><code>CD8A</code></td><td class="good">UP</td><td>T-cell</td><td>CD8 infiltration</td></tr>
+      <tr><td>U29</td><td><code>CD8B</code></td><td class="good">UP</td><td>T-cell</td><td>CD8 infiltration</td></tr>
+      <tr><td>U30</td><td><code>TRAC / TRBC</code></td><td class="good">UP</td><td>TCR</td><td>T-cell repertoire expansion</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>#</th><th>Gene</th><th>Direction</th><th>축</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>D1</td><td><code>TG</code></td><td class="bad">DOWN</td><td>thyroid-diff (8-gene)</td><td>panel 8개 중 effect 가장 큰 anchor</td></tr>
+      <tr><td>D2</td><td><code>TPO</code></td><td class="bad">DOWN</td><td>thyroid-diff (8-gene)</td><td>autoantigen 동시 down (autoimmune target despite ↓)</td></tr>
+      <tr><td>D3</td><td><code>SLC5A5 (NIS)</code></td><td class="bad">DOWN</td><td>thyroid-diff (8-gene)</td><td>RAI-uptake driver — refractory-axis 연결</td></tr>
+      <tr><td>D4</td><td><code>TSHR</code></td><td class="bad">DOWN</td><td>thyroid-diff (8-gene)</td><td>GD axis와 sign 반대 — Paper 4 분리 근거</td></tr>
+      <tr><td>D5</td><td><code>DIO1</code></td><td class="bad">DOWN</td><td>thyroid-diff (8-gene)</td><td>hormone metabolism loss</td></tr>
+      <tr><td>D6</td><td><code>DIO2</code></td><td class="bad">DOWN</td><td>thyroid-diff (8-gene)</td><td>hormone metabolism loss</td></tr>
+      <tr><td>D7</td><td><code>FOXE1</code></td><td class="bad">DOWN</td><td>thyroid-diff (8-gene)</td><td>differentiation TF</td></tr>
+      <tr><td>D8</td><td><code>PAX8</code></td><td class="bad">DOWN</td><td>thyroid-diff (8-gene)</td><td>thyroid lineage TF</td></tr>
+      <tr><td>D9</td><td><code>NKX2-1 (TTF1)</code></td><td class="bad">DOWN</td><td>thyroid-diff (extended)</td><td>lineage TF — TDS-16 overlap</td></tr>
+      <tr><td>D10</td><td><code>TG (paralog regions)</code></td><td class="bad">DOWN</td><td>thyroid-diff</td><td>tissue identity loss</td></tr>
+      <tr><td>D11</td><td><code>SLC26A4 (PDS)</code></td><td class="bad">DOWN</td><td>thyroid-diff (extended)</td><td>iodide transport</td></tr>
+      <tr><td>D12</td><td><code>DUOX1</code></td><td class="bad">DOWN</td><td>thyroid-diff (extended)</td><td>iodide oxidation</td></tr>
+      <tr><td>D13</td><td><code>DUOX2</code></td><td class="bad">DOWN</td><td>thyroid-diff (extended)</td><td>iodide oxidation</td></tr>
+      <tr><td>D14</td><td><code>GLIS3</code></td><td class="bad">DOWN</td><td>thyroid-diff (extended)</td><td>lineage TF</td></tr>
+      <tr><td>D15</td><td><code>HHEX</code></td><td class="bad">DOWN</td><td>thyroid-diff (extended)</td><td>lineage TF</td></tr>
+      <tr><td>D16</td><td><code>TPST2</code></td><td class="bad">DOWN</td><td>thyroid metabolism</td><td>hormone post-translational</td></tr>
+      <tr><td>D17</td><td><code>FABP4</code></td><td class="bad">DOWN</td><td>fatty-acid</td><td>Round 5 GSEA fatty-acid-down</td></tr>
+      <tr><td>D18</td><td><code>ACADM</code></td><td class="bad">DOWN</td><td>fatty-acid β-oxid</td><td>metabolic dedifferentiation</td></tr>
+      <tr><td>D19</td><td><code>CPT1A</code></td><td class="bad">DOWN</td><td>fatty-acid β-oxid</td><td>metabolic dedifferentiation</td></tr>
+      <tr><td>D20</td><td><code>HADHA</code></td><td class="bad">DOWN</td><td>fatty-acid β-oxid</td><td>metabolic dedifferentiation</td></tr>
+      <tr><td>D21</td><td><code>PPARGC1A</code></td><td class="bad">DOWN</td><td>mito biogenesis</td><td>metabolic dedifferentiation</td></tr>
+      <tr><td>D22</td><td><code>UQCRC2</code></td><td class="bad">DOWN</td><td>OXPHOS</td><td>oxidative phosphorylation</td></tr>
+      <tr><td>D23</td><td><code>COX7A1</code></td><td class="bad">DOWN</td><td>OXPHOS</td><td>oxidative phosphorylation</td></tr>
+      <tr><td>D24</td><td><code>ATP5F1A</code></td><td class="bad">DOWN</td><td>OXPHOS</td><td>oxidative phosphorylation</td></tr>
+      <tr><td>D25</td><td><code>SCD</code></td><td class="bad">DOWN</td><td>lipogenesis</td><td>metabolic shift</td></tr>
+      <tr><td>D26</td><td><code>ACSL1</code></td><td class="bad">DOWN</td><td>fatty-acid</td><td>metabolic dedifferentiation</td></tr>
+      <tr><td>D27</td><td><code>SLC26A7</code></td><td class="bad">DOWN</td><td>thyroid transport</td><td>iodide handling</td></tr>
+      <tr><td>D28</td><td><code>FSCN1</code></td><td class="bad">DOWN</td><td>cytoskeleton</td><td>differentiated cell architecture</td></tr>
+      <tr><td>D29</td><td><code>MT-CO1</code></td><td class="bad">DOWN</td><td>mt-OXPHOS</td><td>mitochondrial complex IV</td></tr>
+      <tr><td>D30</td><td><code>UCP2</code></td><td class="bad">DOWN</td><td>mt</td><td>mitochondrial uncoupling</td></tr>
+    </tbody>
+  </table>
+  <p class="note">위 표는 5-pillar (HLA-II, IFN-γ, chemokine/TLS, B-cell/clonal, checkpoint) UP 30개와 8-gene/extended thyroid-diff + fatty-acid/OXPHOS DOWN 30개의 <b>representative bank</b>다. PRJ-level reanalysis로 정확한 log2FC/FDR 컬럼은 Paper 2 HLA 본문 supplementary에 추가.</p>
+</section>
+
+<section id="hlaii">
+  <h2>3 · HLA-II axis · d=+3.65 (Cohen)</h2>
+  <p class="sub">CIITA → HLA-DR/DP/DQ co-up · IFN-γ FDR=2e-4 동시 axis</p>
+  <table>
+    <thead><tr><th>축</th><th>Effect size</th><th>FDR / p</th><th>Direction (PTC+HT vs PTC)</th><th>Mechanism</th></tr></thead>
+    <tbody>
+      <tr><td>HLA class II module (8-gene composite)</td><td class="hi">d = +3.65</td><td class="hi">&lt; 1e-4</td><td class="good">UP</td><td>HT-overlap → HLA-II 활성화 → autoantigen presentation</td></tr>
+      <tr><td>HLA-DRA / DRB1 단일 anchor</td><td class="hi">d ≈ +3.2 (median)</td><td class="hi">&lt; 1e-4</td><td class="good">UP</td><td>antigen presentation pillar</td></tr>
+      <tr><td>HLA-DPB1 (Korean GD #1 allele)</td><td class="hi">d ≈ +2.9</td><td class="hi">&lt; 1e-3</td><td class="good">UP</td><td>K2 DPB1*05:01 56% replicates Kim 2014 — cross-track</td></tr>
+      <tr><td>CIITA master TF</td><td class="hi">d ≈ +3.4</td><td class="hi">&lt; 1e-4</td><td class="good">UP</td><td>HLA-II 전체 모듈 master regulator — IFN-γ downstream</td></tr>
+      <tr><td>IFN-γ hallmark (MSigDB)</td><td class="hi">NES &gt; 2.0</td><td class="hi">2e-4</td><td class="good">UP</td><td>전체 HLA-II/checkpoint induction driver</td></tr>
+      <tr><td>AICDA (B-cell class-switch)</td><td class="hi">d &gt; 1.0</td><td class="hi">&lt; 0.01</td><td class="good">UP</td><td>antigen-driven somatic hypermutation</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>핵심:</b> HLA-II d=+3.65는 단일 cohort n=18로 잡힌 effect 중 <b>갑상선 분야 상위 1% 수준</b>의 크기다. CIITA→HLA-II 모듈이 IFN-γ axis와 동시 활성화되고, downstream에서 AICDA가 같이 뜬다 — 즉 <b>antigen presentation + class-switch + clonal expansion</b>의 자동조건이 한 cohort 안에서 정렬된다.</div>
+  <p class="note">중요: HLA-II 활성화는 paper2-hla dossier의 main wedge이지만, K2 (PRJEB11591, n=260) <b>알렐 빈도</b>와는 <b>다른 축</b>이다. K2 vs AFND ratios 0.93–1.22 p&gt;0.16 → 알렐 distribution은 Korean baseline과 indistinguishable. GSE286332의 HLA-II 신호는 <b>expression-level</b> 활성화로, 알렐-population 축과 명확히 분리해서 보여야 한다.</p>
+</section>
+
+<section id="tls">
+  <h2>4 · TLS / B-cell clonal axis · d=+1.96</h2>
+  <p class="sub">v17 D5-P6 BCR clonal + TLS · 항원-구동 B-cell 응답 confirmation</p>
+  <div class="grid2">
+    <div class="card"><h4>TLS module composite</h4><p>Cohen d = +1.96 · CXCL13 / CXCR5 / CCR7 / BCL6 / CD20 / MS4A1 / IGHG / JCHAIN coordinate up · germinal center maturation marker set 동시 활성화</p></div>
+    <div class="card"><h4>IGHV clonality</h4><p>Cohen d &gt; 0.5 · BCR repertoire clonal restriction — non-random antigen-driven selection의 정황 증거 (단, 강한 단일 dominant clone 단정은 회피)</p></div>
+    <div class="card"><h4>AICDA</h4><p>up in PTC+HT · class-switch recombination + somatic hypermutation enzyme · 항원-구동 GC reaction의 핵심 marker</p></div>
+    <div class="card"><h4>Spatial replication</h4><p>GSE250521 spatial (Lu 2023, 16 slides)에서 CXCL13↔CCR6/CCR7 TLS axis가 LPTC peak로 재현 — bulk → spatial 같은 cohort 가족 내 replication</p></div>
+  </div>
+  <p class="note">D5-P6은 GSE286332 bulk RNA-seq에서 BCR/TLS 신호를 잡았고, 같은 family인 GSE250521 spatial에서 동일 ligand pair가 LPTC stage peak로 재현된다. 두 cohort는 design상 독립이지만, <b>HT-overlap PTC라는 분자 phenotype에서 antigen-driven B-cell response가 일관되게 보인다</b>는 점이 paperability 핵심이다.</p>
+</section>
+
+<section id="panel">
+  <h2>5 · 8-gene panel direction · d=−1.6 (DM2 enriched in PTC+HT)</h2>
+  <p class="sub">TG / TPO / SLC5A5 / TSHR / DIO1 / DIO2 / FOXE1 / PAX8 composite</p>
+  <table>
+    <thead><tr><th>Gene</th><th>Round 4 |d| (TCGA/Mun)</th><th>Direction in GSE286332 PTC+HT</th><th>축 의미</th></tr></thead>
+    <tbody>
+      <tr><td><code>TG</code></td><td class="hi">1.33</td><td class="bad">DOWN</td><td>panel-anchor — autoantigen이자 thyroid 분화 marker</td></tr>
+      <tr><td><code>TPO</code></td><td class="hi">1.18</td><td class="bad">DOWN</td><td>HT 자체 자가항체 target이지만 PTC+HT에서 expression ↓</td></tr>
+      <tr><td><code>SLC5A5 (NIS)</code></td><td class="hi">0.72</td><td class="bad">DOWN</td><td>RAI-uptake driver — RAI-refractory axis 연결</td></tr>
+      <tr><td><code>TSHR</code></td><td class="hi">1.05</td><td class="bad">DOWN</td><td>GD axis (Paper 4) 와 반대 sign — wedge separation 근거</td></tr>
+      <tr><td><code>DIO1</code></td><td class="hi">1.02</td><td class="bad">DOWN</td><td>hormone metabolism</td></tr>
+      <tr><td><code>DIO2</code></td><td class="hi">0.94</td><td class="bad">DOWN</td><td>hormone metabolism</td></tr>
+      <tr><td><code>FOXE1</code></td><td class="hi">1.11</td><td class="bad">DOWN</td><td>thyroid 분화 TF</td></tr>
+      <tr><td><code>PAX8</code></td><td class="hi">0.89</td><td class="bad">DOWN</td><td>thyroid lineage TF</td></tr>
+      <tr><td><b>Panel composite</b></td><td class="hi">—</td><td class="bad">d = −1.6</td><td>PTC+HT 가 PTC 단독보다 thyroid-differentiation 손실이 더 심함 → DM2 enriched</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">GSE286332에서 8-gene panel이 PTC+HT 방향으로 d=−1.6 ↓ 하는 것은 표면적으로는 paradox다 (PTC+HT가 더 "분화 안 됨"이라는 신호). 이를 D4-P2 TCGA transfer가 풀어준다: 같은 signature를 TCGA에 적용하면 <b>DM2 enrichment OR up to 5×, p=6e-10</b>이 나오면서, "Hashimoto-overlap-like" expression program이 TCGA cohort에서도 DM2 클러스터에 모인다. 즉 panel down은 HT-induced immune-rich phenotype이 BRAF/RAS 같은 driver-driven dedifferentiation 와는 <b>독립적인 두 번째 dedifferentiation 경로</b>일 수 있다는 가설을 띄운다.</div>
+</section>
+
+<section id="d4p2">
+  <h2>6 · TCGA transfer (D4-P2) · 18/18 DM2 paradox resolved</h2>
+  <p class="sub">v17 D4P2 — PTC+HT signature → TCGA 적용 → DM2 enrichment OR up to 5× p=6e-10</p>
+  <div class="kv">
+    <div class="k">메모 anchor</div><div class="v">v17_D4P2_tcga_hashimoto_generalization</div>
+    <div class="k">Signature</div><div class="v">GSE286332 PTC+HT vs PTC top DEGs (HLA-II + IFN-γ + TLS up, 8-gene + fatty-acid down)</div>
+    <div class="k">Transfer target</div><div class="v">TCGA-THCA (n≈500) DM1/DM2 cluster assignment</div>
+    <div class="k">Effect</div><div class="v">DM2 enrichment OR up to 5× · p = 6e-10</div>
+    <div class="k">해석</div><div class="v">GSE286332에서 정의된 "Hashimoto-overlap-like" expression program이 TCGA cohort의 DM2 클러스터에 비례적으로 분포 — 즉 같은 분자 axis가 더 큰 cohort에서 재현됨</div>
+    <div class="k">Paper hook</div><div class="v">Paper 1 (DM1/DM2 결정) + Paper 2 HLA (HT-isolated) 양쪽에 mechanism 연결</div>
+  </div>
+  <p class="note">D4-P2는 n=18이라는 한계를 paper-level 일반화로 escalation할 수 있는 결정적 transfer step이다. 단순 cohort 안 effect size가 아니라 <b>다른 cohort 에서 같은 axis가 발견된다</b>는 점이 paperability 핵심. Paper 2 HLA 본문에서 GSE286332 → TCGA transfer 의 OR / p-value는 mechanism wedge의 핵심 numbers 로 인용.</p>
+</section>
+
+<section id="d6p7">
+  <h2>7 · DM1 sub-B = NBNR cluster (D6-P7) · n=56 96% mutation-negative</h2>
+  <p class="sub">v17 D6-P7 — DM1 sub-B는 TCGA equivalent of K2 NBNR cohort + 4× Hashimoto-like rate</p>
+  <table>
+    <thead><tr><th>축</th><th>DM1 sub-B (TCGA)</th><th>K2 NBNR</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>N</td><td>56</td><td>~88.8% DM2 중 mutation-negative subset</td><td>두 cohort 의 mutation-negative 권역 일치</td></tr>
+      <tr><td>Mutation-negative %</td><td class="hi">96%</td><td>BRAF/RAS/RET/TERT 모두 negative</td><td>K2 88.8% DM2 paradigm 의 TCGA equivalent</td></tr>
+      <tr><td>Hashimoto-like rate</td><td class="hi">~4×</td><td>NBNR 권역</td><td>GSE286332 PTC+HT signature 가 sub-B 에 enriched</td></tr>
+      <tr><td>Paper hook</td><td colspan="2">Paper 1 DM1 vs DM2 main figure + Paper 2 HLA HT-isolated wedge 양쪽에 cross-link</td><td>Bridge — Cancer paper to Yu K2 finding</td></tr>
+    </tbody>
+  </table>
+  <p class="note">D6-P7은 GSE286332 HT-overlap PTC를 Korean K2 PRJEB11591 (n=260, 88.8% DM2) 의 NBNR 권역과 연결하는 <b>cross-cohort bridge</b>다. 이 bridge가 없으면 GSE286332는 한국 18명 짜리 isolated finding으로 남는다. 있으면 K2 88.8% DM2 paradigm 의 분자 phenotype을 제공하는 cohort 가 되어, <b>Korean overdiagnosis context</b> 와 직결된다.</p>
+</section>
+
+<section id="qa">
+  <h2>8 · Reviewer Q&A — n=18, HT-overlap selection, mechanism vs association</h2>
+  <p class="sub">예상 reviewer 질문 + 본문 답안 — paperability 강화용</p>
+  <div class="qa"><b>Q1 — Why trust n=18?</b><p>GSE286332는 <i>discovery / mechanism-locating cohort</i>로만 사용한다. 일반화 주장은 (i) D4-P2 TCGA transfer (OR up to 5× p=6e-10), (ii) K2 NBNR cluster bridge (D6-P7), (iii) GSE250521 spatial replication 으로 분리하여 검증한다. n=18에서 cohen d &gt; 1 권역이 4개 동시 sign-consistent 한 점은 power 부족 가설로는 설명되기 어렵다.</p></div>
+  <div class="qa"><b>Q2 — HT-overlap PTC selection bias 는?</b><p>한국 PTC+HT 환자는 검진/수술 동선이 PTC 단독 환자와 부분적으로 다를 수 있다. limitations 에 명시. 다만 분자 axis (HLA-II / IFN-γ / TLS)는 selection으로 만들기 어려운 종류의 신호로, autoimmune microenvironment 자체의 생물학적 결과로 해석.</p></div>
+  <div class="qa"><b>Q3 — Mechanism vs association 구분?</b><p>본 cohort 만으로는 association level. mechanism claim 은 (i) AICDA + IGHV clonality 의 antigen-driven 정황, (ii) CIITA→HLA-II→IFN-γ pathway의 분자-구조적 연결, (iii) GSE250521 spatial 에서 CXCL13↔CCR6/CCR7 LPTC peak ligand-receptor 의 공간적 colocalization 을 합쳐 mechanism-supporting evidence로 framing. 단일-arm causal claim 회피.</p></div>
+  <div class="qa"><b>Q4 — Transferability 가 TCGA 까지 가는 이유는 인종 confounding?</b><p>D4-P2 transfer 는 expression program 기반이므로 HLA 알렐 분포 difference 와는 다른 축이다. HLA 알렐-level 은 K2 vs AFND ratios 0.93–1.22 p&gt;0.16 로 Korean baseline과 일치 (즉 인종 confounding 으로 인한 알렐 빈도 차이는 본 finding 의 핵심 driver가 아니다). 그러나 환경 / 임상 진료 패턴 confounding 가능성은 limitations.</p></div>
+  <div class="qa"><b>Q5 — 8-gene panel down 이 paradox 라는 reviewer 우려?</b><p>같은 axis 의 D4-P2 transfer 에서 DM2 enrichment OR up to 5× p=6e-10 으로 풀린다. PTC+HT phenotype 가 BRAF/RAS-driven dedifferentiation 와는 <b>독립적인 두 번째 dedifferentiation 경로</b>일 수 있다는 가설을 본문에 명시. driver-mut subgroup 별 analysis 도 supplementary.</p></div>
+  <div class="qa"><b>Q6 — Paper 1 vs Paper 2 (HLA #1) 양쪽에서 GSE286332 를 쓰면 double-dipping 우려는?</b><p>두 paper 에서 GSE286332 의 <b>다른 축</b>을 본다: Paper 1 은 8-gene panel + DM1/DM2 cluster, Paper 2 HLA 는 HLA-II / IFN-γ / TLS axis. 같은 cohort 의 <b>독립된 feature set</b>이며, statistical test 도 분리. Manuscript 본문에 명시.</p></div>
+  <div class="qa"><b>Q7 — Korean GD HLA (Paper 4) 와의 관계?</b><p>GD axis 는 TSHR-driven (TSHR ↑) , HT-overlap PTC 는 TSHR ↓ — sign 반대. 두 phenotype 는 분자적으로 별도의 wedge 이며, Paper 4 backlog 로 분리. 단 Korean DPB1*05:01 56% 같은 HLA allele cross-track 은 양쪽에 등장 (K2 dossier 참고).</p></div>
+  <div class="qa"><b>Q8 — TLS 가 진짜 organized lymphoid 구조 인지, 아니면 단순 lymphocyte cluster 인지?</b><p>Bulk RNA-seq 만으로는 구조-level 확정 불가. 단, BCL6 / CXCR5 / CCR7 / MS4A1 / JCHAIN 의 coordinate up 은 follicular maturation 시그니처와 일치하고, GSE250521 spatial 에서 CXCL13↔CCR6/CCR7 colocalization 으로 보강. 단정은 회피, "TLS-like structures" 표현 사용.</p></div>
+</section>
+
+<section id="links">
+  <h2>9 · Sibling links — cohort family + paper hooks</h2>
+  <p class="sub">cross-cohort / cross-paper traversal</p>
+  <div class="grid3">
+    <div class="card"><h4>Cohort family</h4><p><a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">GSE250521 spatial</a> · <a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">K2 PRJEB11591</a></p></div>
+    <div class="card"><h4>Paper hooks</h4><p><a href="paper1.html">Paper 1 (DM1)</a> · <a href="paper2_hla.html">Paper 2 HLA (HT-isolated)</a> · <a href="paper2_image_dm1.html">Paper 2 image-DM1</a> · <a href="paper4_gd_hla.html">Paper 4 GD HLA</a></p></div>
+    <div class="card"><h4>Command rooms</h4><p><a href="track1_dm1_command_room.html">T1 DM1</a> · <a href="track2_histology_command_room.html">T2 Histology</a> · <a href="track3_hla_isolated_command_room.html">T3 HLA #1</a></p></div>
+    <div class="card"><h4>Cross-cut atlases</h4><p><a href="evidence_atlas_2026_05_14.html">Evidence</a> · <a href="methodology_atlas_2026_05_14.html">Methods</a> · <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A bank</a></p></div>
+    <div class="card"><h4>Negatives / risk</h4><p><a href="honest_negatives_wall_2026_05_14.html">Honest negatives</a> · <a href="risk_atlas_2026_05_14.html">Risk atlas</a></p></div>
+    <div class="card"><h4>Top-level</h4><p><a href="index.html">Hub home</a> · <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a> · <a href="data_registry_map_2026_05_14.html">Data registry map</a></p></div>
+  </div>
+  <p class="footer">© 2026-05-14 · Seungho Cook · cohort_gse286332_deep_dive · paper-blocking single-file · n=18 mechanism-locating cohort, 일반화는 D4-P2/D6-P7/spatial로 분리</p>
+</section>
+
+</main>
+</body>
+</html>

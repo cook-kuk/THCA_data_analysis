@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CROSS-Neo execution packet v6</title>
+<style>
+:root { color-scheme: dark; --bg:#0b1020; --panel:#111827; --ink:#e5e7eb; --muted:#9ca3af; --line:#334155; --gold:#f59e0b; --green:#22c55e; --blue:#38bdf8; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter, Arial, sans-serif; line-height:1.5; }
+header { padding:54px clamp(22px,5vw,72px) 30px; border-bottom:1px solid var(--line); background:#0f172a; }
+.kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.08em; font-size:12px; font-weight:800; }
+h1 { font-family:Georgia, serif; font-size:clamp(36px,6vw,74px); line-height:1.0; margin:10px 0 14px; letter-spacing:0; }
+.lead { max-width:980px; color:#cbd5e1; font-size:18px; }
+.stats { display:grid; grid-template-columns:repeat(6,minmax(120px,1fr)); gap:12px; margin-top:26px; }
+.stat { border:1px solid var(--line); padding:14px; background:#0b1222; border-radius:8px; }
+.stat b { display:block; font-size:24px; color:white; }
+.stat span { color:var(--muted); font-size:12px; }
+main { display:grid; grid-template-columns:260px 1fr; gap:28px; padding:28px clamp(18px,4vw,56px) 56px; }
+nav { position:sticky; top:16px; align-self:start; border:1px solid var(--line); border-radius:8px; padding:16px; background:#0f172a; }
+nav a { display:block; color:#cbd5e1; text-decoration:none; padding:8px 0; border-bottom:1px solid #1f2937; }
+section { margin-bottom:30px; }
+h2 { font-size:24px; margin:0 0 12px; }
+.num { color:var(--gold); font-weight:800; margin-right:8px; }
+.data-table { width:100%; border-collapse:collapse; font-size:13px; }
+.data-table th,.data-table td { border-bottom:1px solid #243044; padding:8px 10px; text-align:left; vertical-align:top; }
+.data-table th { color:#93c5fd; background:#111827; position:sticky; top:0; }
+.table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; }
+.figgrid { display:grid; grid-template-columns:repeat(2,minmax(260px,1fr)); gap:16px; }
+figure { margin:0; border:1px solid var(--line); border-radius:8px; background:#0f172a; padding:10px; }
+img { width:100%; height:auto; display:block; }
+figcaption { color:var(--muted); font-size:12px; margin-top:6px; }
+.warn { border-left:4px solid var(--gold); padding:12px 14px; background:#1f2937; color:#e5e7eb; border-radius:6px; }
+@media (max-width:900px) { main { grid-template-columns:1fr; } nav { position:relative; top:0; } .stats { grid-template-columns:repeat(2,1fr); } .figgrid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">CROSS-Neo v6 execution packet</div>
+  <h1>Assay handoff with frozen unlock rules</h1>
+  <p class="lead">The v5 preregistered plan is now converted into order lines, a 96-well execution map, candidate/well result sheets, audit trail, and an automatic endpoint interpreter.</p>
+  <div class="stats">
+    <div class="stat"><b>24</b><span>candidates</span></div>
+    <div class="stat"><b>96</b><span>wells</span></div>
+    <div class="stat"><b>114</b><span>order/audit lines</span></div>
+    <div class="stat"><b>6</b><span>endpoints</span></div>
+    <div class="stat"><b>0.149</b><span>confirmatory null-risk sum</span></div>
+    <div class="stat"><b>6</b><span>dry-run pending endpoints</span></div>
+  </div>
+</header>
+<main>
+<nav>
+  <a href="#tldr">TL;DR</a>
+  <a href="#endpoint">Frozen endpoints</a>
+  <a href="#manifest">Execution manifest</a>
+  <a href="#audit">Reviewer safeguards</a>
+  <a href="#figures">Figures</a>
+  <a href="#files">Files</a>
+</nav>
+<div>
+<section id="tldr">
+  <h2><span class="num">01</span>TL;DR</h2>
+  <p class="warn">No endpoint threshold was tuned in v6. The packet freezes v5 rules and makes the handoff auditable from reagent/order line to candidate PASS/FAIL to endpoint unlock.</p>
+</section>
+<section id="endpoint">
+  <h2><span class="num">02</span>Frozen endpoints</h2>
+  <div class="table-wrap"><table border="1" class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>plate_v4_arm</th>
+      <th>n_candidates</th>
+      <th>threshold_successes</th>
+      <th>confirmatory_threshold_successes</th>
+      <th>main_text_claim_tier</th>
+      <th>confirmatory_false_unlock_risk_under_null</th>
+      <th>confirmatory_power_at_mean_prior</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B_mechanism_TCR_MD</td>
+      <td>2.000</td>
+      <td>1.000</td>
+      <td>2.000</td>
+      <td>confirmatory_ready</td>
+      <td>0.003</td>
+      <td>0.360</td>
+    </tr>
+    <tr>
+      <td>A_clean_discovery</td>
+      <td>6.000</td>
+      <td>2.000</td>
+      <td>3.000</td>
+      <td>confirmatory_ready</td>
+      <td>0.016</td>
+      <td>0.996</td>
+    </tr>
+    <tr>
+      <td>C_label_rescue</td>
+      <td>4.000</td>
+      <td>1.000</td>
+      <td>2.000</td>
+      <td>confirmatory_ready</td>
+      <td>0.014</td>
+      <td>0.979</td>
+    </tr>
+    <tr>
+      <td>E_positive_QC_control</td>
+      <td>4.000</td>
+      <td>3.000</td>
+      <td>3.000</td>
+      <td>confirmatory_ready</td>
+      <td>0.027</td>
+      <td>0.881</td>
+    </tr>
+    <tr>
+      <td>D_specificity_moat</td>
+      <td>4.000</td>
+      <td>3.000</td>
+      <td>4.000</td>
+      <td>confirmatory_with_caveat</td>
+      <td>0.062</td>
+      <td>0.275</td>
+    </tr>
+    <tr>
+      <td>F_model_boundary</td>
+      <td>4.000</td>
+      <td>2.000</td>
+      <td>3.000</td>
+      <td>confirmatory_ready</td>
+      <td>0.027</td>
+      <td>0.059</td>
+    </tr>
+  </tbody>
+</table></div>
+</section>
+<section id="manifest">
+  <h2><span class="num">03</span>Top execution manifest</h2>
+  <div class="table-wrap"><table border="1" class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>plate_v4_arm</th>
+      <th>candidate_id</th>
+      <th>peptide</th>
+      <th>hla_allele_4digit</th>
+      <th>order_batch</th>
+      <th>order_priority_score</th>
+      <th>candidate_success_definition</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B_mechanism_TCR_MD</td>
+      <td>CNV0_01132</td>
+      <td>GADGVGKSAL</td>
+      <td>HLA-C*08:02</td>
+      <td>batch_1_claim_unlock</td>
+      <td>0.737</td>
+      <td>PASS if mutant pMHC binding is positive and TCR readout supports recognition</td>
+    </tr>
+    <tr>
+      <td>B_mechanism_TCR_MD</td>
+      <td>CNV0_01151</td>
+      <td>HMTEVVRHC</td>
+      <td>HLA-A*02:01</td>
+      <td>batch_1_claim_unlock</td>
+      <td>0.718</td>
+      <td>PASS if mutant pMHC binding is positive and TCR readout supports recognition</td>
+    </tr>
+    <tr>
+      <td>A_clean_discovery</td>
+      <td>CNV0_02708</td>
+      <td>ALDPLLLRI</td>
+      <td>HLA-A*02:01</td>
+      <td>batch_1_claim_unlock</td>
+      <td>0.612</td>
+      <td>PASS if mutant pMHC binding is positive and WT/decoy specificity is acceptable</td>
+    </tr>
+    <tr>
+      <td>A_clean_discovery</td>
+      <td>CNV0_02709</td>
+      <td>ALPVALPSL</td>
+      <td>HLA-A*02:01</td>
+      <td>batch_1_claim_unlock</td>
+      <td>0.602</td>
+      <td>PASS if mutant pMHC binding is positive and WT/decoy specificity is acceptable</td>
+    </tr>
+    <tr>
+      <td>A_clean_discovery</td>
+      <td>CNV0_02460</td>
+      <td>GIVEGLITTV</td>
+      <td>HLA-A*02:01</td>
+      <td>batch_1_claim_unlock</td>
+      <td>0.593</td>
+      <td>PASS if mutant pMHC binding is positive and WT/decoy specificity is acceptable</td>
+    </tr>
+    <tr>
+      <td>A_clean_discovery</td>
+      <td>CNV0_02448</td>
+      <td>ILDKVLVHL</td>
+      <td>HLA-A*02:01</td>
+      <td>batch_1_claim_unlock</td>
+      <td>0.592</td>
+      <td>PASS if mutant pMHC binding is positive and WT/decoy specificity is acceptable</td>
+    </tr>
+    <tr>
+      <td>A_clean_discovery</td>
+      <td>CNV0_02450</td>
+      <td>KELEGILLL</td>
+      <td>HLA-B*44:03</td>
+      <td>batch_1_claim_unlock</td>
+      <td>0.579</td>
+      <td>PASS if mutant pMHC binding is positive and WT/decoy specificity is acceptable</td>
+    </tr>
+    <tr>
+      <td>A_clean_discovery</td>
+      <td>CNV0_02452</td>
+      <td>LLDGFLATV</td>
+      <td>HLA-A*02:01</td>
+      <td>batch_1_claim_unlock</td>
+      <td>0.578</td>
+      <td>PASS if mutant pMHC binding is positive and WT/decoy specificity is acceptable</td>
+    </tr>
+    <tr>
+      <td>C_label_rescue</td>
+      <td>CNV0_00682</td>
+      <td>NYRREPPHL</td>
+      <td>HLA-C*07:02</td>
+      <td>batch_2_risk_resolution</td>
+      <td>0.575</td>
+      <td>PASS if mutant pMHC binding is positive and provenance audit resolves the label-noise hypothesis</td>
+    </tr>
+    <tr>
+      <td>C_label_rescue</td>
+      <td>CNV0_00711</td>
+      <td>RREPPHLARNF</td>
+      <td>HLA-C*07:02</td>
+      <td>batch_2_risk_resolution</td>
+      <td>0.574</td>
+      <td>PASS if mutant pMHC binding is positive and provenance audit resolves the label-noise hypothesis</td>
+    </tr>
+    <tr>
+      <td>C_label_rescue</td>
+      <td>CNV0_00027</td>
+      <td>GNNDVKEDP</td>
+      <td>HLA-C*07:02</td>
+      <td>batch_2_risk_resolution</td>
+      <td>0.573</td>
+      <td>PASS if mutant pMHC binding is positive and provenance audit resolves the label-noise hypothesis</td>
+    </tr>
+    <tr>
+      <td>C_label_rescue</td>
+      <td>CNV0_00006</td>
+      <td>VKEDPKWEF</td>
+      <td>HLA-C*07:02</td>
+      <td>batch_2_risk_resolution</td>
+      <td>0.573</td>
+      <td>PASS if mutant pMHC binding is positive and provenance audit resolves the label-noise hypothesis</td>
+    </tr>
+    <tr>
+      <td>D_specificity_moat</td>
+      <td>CNV0_02458</td>
+      <td>IIGAGPAEV</td>
+      <td>HLA-A*02:01</td>
+      <td>batch_2_risk_resolution</td>
+      <td>0.539</td>
+      <td>PASS if hard-negative candidate remains weak/non-binding under the same assay context</td>
+    </tr>
+    <tr>
+      <td>D_specificity_moat</td>
+      <td>CNV0_02420</td>
+      <td>KLANPLPYT</td>
+      <td>HLA-A*02:01</td>
+      <td>batch_2_risk_resolution</td>
+      <td>0.539</td>
+      <td>PASS if hard-negative candidate remains weak/non-binding under the same assay context</td>
+    </tr>
+  </tbody>
+</table></div>
+</section>
+<section id="audit">
+  <h2><span class="num">04</span>Reviewer safeguards</h2>
+  <div class="table-wrap"><table border="1" class="dataframe data-table">
+  <thead>
+    <tr style="text-align: right;">
+      <th>audit_item</th>
+      <th>source_file</th>
+      <th>required_before_unlock</th>
+      <th>failure_action</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>freeze_candidate_list</td>
+      <td>execution_candidate_manifest_v6.tsv</td>
+      <td>candidate list unchanged or deviations logged</td>
+      <td>mark deviation and keep claim exploratory</td>
+    </tr>
+    <tr>
+      <td>use_predeclared_thresholds</td>
+      <td>preregistered_endpoint_plan_v5.tsv</td>
+      <td>exploratory and confirmatory thresholds copied without post-hoc tuning</td>
+      <td>do not promote endpoint</td>
+    </tr>
+    <tr>
+      <td>candidate_success_call_trace</td>
+      <td>candidate_result_entry_v6.tsv + candidate_calls_v6.tsv</td>
+      <td>PASS/FAIL source documented for every counted candidate</td>
+      <td>treat missing or ambiguous candidates as pending</td>
+    </tr>
+    <tr>
+      <td>positive_controls_not_novelty</td>
+      <td>claim_boundary_execution column</td>
+      <td>E arm used for QC only</td>
+      <td>remove from novelty/discovery claims</td>
+    </tr>
+    <tr>
+      <td>overlap_blocked_candidates_labeled</td>
+      <td>leakage_risk_level + claim_boundary_execution</td>
+      <td>source-overlap status retained in final table</td>
+      <td>mechanistic/support only, no clean benchmark novelty</td>
+    </tr>
+    <tr>
+      <td>reviewer_risk::public/overlap leakage</td>
+      <td>wetlab_plate_v4_value_of_information.tsv</td>
+      <td>separate clean discovery from overlap-blocked positive controls</td>
+      <td>positive-control arm cannot support benchmark novelty</td>
+    </tr>
+    <tr>
+      <td>reviewer_risk::overfit fine-tuning</td>
+      <td>score_booster_cv_metrics.tsv + v4 summary</td>
+      <td>score booster selected only after source/HLA clean OOF; failed method-matrix stacker retained as negative diagnostic</td>
+      <td>small clean positive set n=35</td>
+    </tr>
+    <tr>
+      <td>reviewer_risk::no wetlab interpretation rule</td>
+      <td>preregistered_endpoint_plan_v5.tsv</td>
+      <td>binomial endpoint plan plus predeclared go/no-go thresholds</td>
+      <td>assay-specific thresholds still need lab calibration</td>
+    </tr>
+    <tr>
+      <td>reviewer_risk::TCR/MD evidence overclaimed</td>
+      <td>claim_unlock_ladder_v5.tsv</td>
+      <td>TCR/MD arm unlocks mechanistic support only, not clean benchmark novelty or clinical claim</td>
+      <td>requires TCR readout or repeat MD to promote mechanism</td>
+    </tr>
+    <tr>
+      <td>reviewer_risk::label-noise rescue relabels negatives too casually</td>
+      <td>assay_96well_map_preregistered_v5.tsv</td>
+      <td>rescue requires provenance audit plus pMHC binding</td>
+      <td>provenance may fail and rescue claim must be dropped</td>
+    </tr>
+    <tr>
+      <td>reviewer_risk::clinical utility overclaim</td>
+      <td>claim_unlock_ladder_v5.tsv</td>
+      <td>clinical/patient layer remains locked in claim ladder</td>
+      <td>patient metadata and external validation still missing</td>
+    </tr>
+    <tr>
+      <td>reviewer_risk::multiple endpoint fishing</td>
+      <td>endpoint_power_curves_v5.tsv</td>
+      <td>exploratory thresholds fixed; stricter confirmatory thresholds added; null-risk sums exploratory=0.918, confirmatory=0.149</td>
+      <td>descriptive exploratory package; not a pivotal clinical trial</td>
+    </tr>
+  </tbody>
+</table></div>
+</section>
+<section id="figures">
+  <h2><span class="num">05</span>Figures</h2>
+  <div class="figgrid"><figure><img src="assets/cross_neo_execution_v6/fig1_execution_packet_scale.png" alt="fig1_execution_packet_scale"><figcaption>fig1_execution_packet_scale</figcaption></figure>
+<figure><img src="assets/cross_neo_execution_v6/fig2_reagent_manifest_by_arm.png" alt="fig2_reagent_manifest_by_arm"><figcaption>fig2_reagent_manifest_by_arm</figcaption></figure>
+<figure><img src="assets/cross_neo_execution_v6/fig3_result_entry_fields.png" alt="fig3_result_entry_fields"><figcaption>fig3_result_entry_fields</figcaption></figure>
+<figure><img src="assets/cross_neo_execution_v6/fig4_frozen_unlock_thresholds.png" alt="fig4_frozen_unlock_thresholds"><figcaption>fig4_frozen_unlock_thresholds</figcaption></figure></div>
+</section>
+<section id="files">
+  <h2><span class="num">06</span>Sources + paths</h2>
+  <p>Output directory: <code>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_kaggle_winner_playbook_2026_05_10/execution_packet_v6_2026_05_10</code></p>
+  <p>Primary zip: <code>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_kaggle_winner_playbook_2026_05_10/execution_packet_v6_2026_05_10/cross_neo_execution_packet_v6_2026_05_10.zip</code></p>
+  <p>Interpreter: <code>/home/seungho/personal/THCA_data_analysis/scripts/interpret_cross_neo_assay_results_v6.py</code></p>
+  <p>Live page copied to: <code>/var/www/papers/papers_hub_2026_05_04/cross_neo_execution_packet_v6.html</code></p>
+</section>
+</div>
+</main>
+</body>
+</html>

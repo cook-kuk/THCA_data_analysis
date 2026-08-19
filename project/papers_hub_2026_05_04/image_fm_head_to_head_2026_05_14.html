@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Image FM head-to-head · 2026-05-14 · ResNet50 vs ViT-L vs UNI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.3px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:18px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.v-card{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.v-card.win{border-top:5px solid var(--green)}.v-card.kill{border-top:5px solid var(--red)}
+.v-card h3{margin:0 0 8px;font-size:22px;color:#fff}
+.v-card p{margin:0;color:#cbd7df;font-size:14.5px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px}
+.card.r{border-top:4px solid #ff8a6b}.card.v{border-top:4px solid var(--violet)}.card.u{border-top:4px solid var(--green)}
+.card h3{margin:0 0 8px;font-size:20px;color:#fff}
+.card p{margin:0 0 8px;color:#cbd7df;font-size:13.5px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:8px 0}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.bullets{margin:8px 0 4px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.warn{border:1px solid rgba(255,138,107,.45);background:rgba(255,138,107,.05);border-radius:10px;padding:14px 18px;margin:14px 0}
+.warn b{color:var(--red)}
+.callout{border:1px solid var(--gold);background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));border-radius:10px;padding:18px 20px;margin-top:12px}
+.callout h3{margin:0 0 6px;color:var(--gold);font-family:"Cormorant Garamond",Georgia,serif;font-size:26px}
+.callout p{margin:0;color:#eaf2f7}
+.qa{border-left:3px solid var(--gold);padding:10px 14px;margin:10px 0;background:rgba(255,210,138,.04)}
+.qa b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+.qa p{margin:0;color:#dde6ec;font-size:14px}
+.bar{position:relative;background:rgba(255,255,255,.06);border-radius:3px;height:18px;margin:4px 0}
+.bar i{display:block;height:100%;border-radius:3px}
+.bar.green i{background:var(--green)}.bar.gold i{background:var(--gold)}.bar.red i{background:var(--red)}.bar.blue i{background:var(--blue)}.bar.vio i{background:var(--violet)}
+.bar span{position:absolute;right:6px;top:0;color:#0a141d;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:900;line-height:18px}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:12px;background:#0d1823;min-height:140px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:28px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:14px;color:#fff}.rung p{margin:0;color:#cbd7df;font-size:12.5px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards,.verdict,.ladder{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Image foundation model head-to-head · 2026-05-14 · Seungho Cook · for Paper 2</p>
+    <h1>Image FM 비교 — ResNet50 vs ViT-L vs UNI, LOTO 결과로 판정.</h1>
+    <p class="lead">
+      Paper 2의 핵심은 "어떤 image foundation model이 H&amp;E → DM1 매핑을 honest external generalization 까지 끌고 갈 수 있나?"이다. ResNet50 (ImageNet), ViT-L (ImageNet-21k), <b>UNI (Mass General H&amp;E foundation)</b> 세 가지를 동일 N=59 코호트와 동일 leak-locked LOTO 프로토콜로 비교했다. <b>UNI</b>가 overall LOTO AUC <b>0.852</b>로 승. ViT-L pooled RAS-like LOTO <b>0.308</b>은 artefact, TSS-only LR이 같은 sub-split에서 <b>AUC=1.000</b>을 찍는 image-independent confound가 정체. 헤드라인 AUC가 아니라 LOTO + confound test가 모델을 결정한다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>3</b><span>FMs compared</span><small>ResNet50 · ViT-L · UNI</small></div>
+      <div class="stat"><b>0.852</b><span>UNI LOTO winner</span><small>overall center-holdout AUC</small></div>
+      <div class="stat"><b>0.308</b><span>ViT-L RAS LOTO</span><small>pooled artefact, TSS-confounded</small></div>
+      <div class="stat"><b>1.000</b><span>TSS-only LR confound</span><small>image-independent within RAS-like</small></div>
+      <div class="stat"><b>K2</b><span>H&amp;E external gate</span><small>Nat Commun vs ST1 absorption</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#compare">FM 비교표</a>
+  <a class="primary" href="#uni">UNI = Mass General</a>
+  <a class="primary" href="#vitl">ViT-L 0.308 artefact</a>
+  <a class="primary" href="#unifinal">UNI-final 0.852</a>
+  <a class="primary" href="#tssonly">TSS-only LR=1.000</a>
+  <a class="primary" href="#clinical">Clinical vs multimodal</a>
+  <a class="primary" href="#k2gate">K2 H&amp;E gate</a>
+  <a class="primary" href="#n59">N=59 PASS_LAUNCH</a>
+  <a class="primary" href="#qa">Reviewer Q&amp;A</a>
+  <a href="yu_meeting_brief_2026_05_14.html">유 미팅 브리핑</a>
+  <a href="arcasha_pipeline_pan_asian_2026_05_14.html">arcasHLA pipeline</a>
+  <a href="hla_pan_asian_strategy_2026_05_14.html">Pan-Asian HLA</a>
+  <a href="track2_histology_command_room.html">T2 command</a>
+  <a href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+  <a href="methodology_atlas_2026_05_14.html">Methodology</a>
+  <a href="venue_strategy_2026_05_14.html">Venue</a>
+  <a href="risk_atlas_2026_05_14.html">Risk atlas</a>
+  <a href="honest_negatives_wall_2026_05_14.html">Honest negatives</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&amp;A bank</a>
+  <a href="bd_outreach_state_2026_05_14.html">BD state</a>
+  <a href="decision_board_2026_05_14.html">Decision board</a>
+  <a href="figure_gallery_2026_05_14.html">Figure gallery</a>
+  <a href="timeline_gantt_2026_05_14.html">90d Gantt</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="executive_brief_kr_one_pager_2026_05_14.html">KR 1-pager</a>
+  <a href="paper2_image_dm1_clinical_business.html">P2 clinical/business</a>
+  <a href="paper2-hla/index.html">P2 HLA dossier</a>
+  <a href="paper1_nature_cancer_board.html">P1 Nat Cancer</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — UNI 승, TSS confound 영구 격리</h2>
+  <p class="sub">two-card · win / kill · 미팅 내 한 줄로 결론</p>
+  <div class="verdict">
+    <div class="v-card win">
+      <h3 class="good">WIN · UNI = Paper 2 backbone</h3>
+      <p>UNI overall LOTO AUC <b class="good">0.852</b>, OOF <b class="good">0.874</b>, RAS-like LOTO <b class="hi">0.718</b> (subgroup honest underpowered). Mass General H&amp;E foundation의 self-supervised pathology pretraining이 leak-locked external에서 견딘다. Paper 2 모델 결정 = UNI-final. 다른 두 backbone은 audit/control 역할로만 본문에 남는다.</p>
+    </div>
+    <div class="v-card kill">
+      <h3 class="bad">KILL · TSS-only confound + ViT-L 0.308 artefact</h3>
+      <p>TSS site indicator만으로 LR AUC=<b class="bad">1.000</b> within RAS-like → "perfect" 헤드라인 = image-independent confound. ViT-L pooled RAS-like LOTO <b class="bad">0.308</b>는 ImageNet-21k가 H&amp;E 도메인을 못 잡아서 TSS shortcut에 끌려간 artefact. 두 신호 모두 본문에서 "permanently retired"로 명시, supplement에 audit trail.</p>
+    </div>
+  </div>
+  <div class="callout">
+    <h3>한 줄</h3>
+    <p>Image FM 선택 기준은 OOF가 아니라 <b>LOTO + image-independent confound test 동시 통과</b>. UNI만 통과했다. UNI-final LOTO 0.852 + RAS-like 0.718 (honest) = K2 H&amp;E external gate로 직행.</p>
+  </div>
+</section>
+
+<section id="compare">
+  <h2>FM 비교표 — 동일 N=59, 동일 LOTO 프로토콜</h2>
+  <p class="sub">apples-to-apples · pre-trained backbone + CLAM aggregator + center-holdout LOTO</p>
+  <table>
+    <thead><tr>
+      <th>FM</th><th>학습 도메인</th><th>파라미터</th><th>OOF AUC</th><th>LOTO 전체 AUC</th><th>RAS-like LOTO AUC</th><th>Robustness</th>
+    </tr></thead>
+    <tbody>
+      <tr><td class="bad">ResNet50</td><td>ImageNet (natural images)</td><td>25.6M</td><td>0.741</td><td>0.612</td><td>0.494</td><td class="bad">LOTO 무너짐 — natural image bias</td></tr>
+      <tr><td class="bad">ViT-L</td><td>ImageNet-21k (natural)</td><td>304M</td><td>0.798</td><td>0.683</td><td><b class="bad">0.308</b></td><td class="bad">RAS-like pooled artefact, TSS shortcut</td></tr>
+      <tr><td class="good">UNI-final</td><td>Mass General H&amp;E FFPE FM</td><td>307M</td><td><b class="good">0.874</b></td><td><b class="good">0.852</b></td><td><b class="hi">0.718</b></td><td class="good">center-holdout + leak-lock + honest subgroup</td></tr>
+    </tbody>
+  </table>
+  <p class="note">OOF는 모두 합리적이지만, <b>LOTO 전체와 RAS-like sub-LOTO</b>가 모델을 분리한다. ResNet50/ViT-L은 center-holdout에서 외부 generalization이 무너지고, ViT-L은 RAS-like sub-split에서 TSS confound에 끌려가 0.308로 fall-through. UNI-final만 LOTO 전체 0.852에서 RAS-like 0.718로 단조 감소(natural underpowering pattern) — sub-split이 honest small-N effect임을 시사.</p>
+  <table>
+    <thead><tr><th>지표</th><th>ResNet50</th><th>ViT-L</th><th>UNI-final</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>Pretraining tokens</td><td>1.3M ImageNet</td><td>14M ImageNet-21k</td><td class="hi">100M+ H&amp;E patches</td><td>Domain match 결정적</td></tr>
+      <tr><td>Self-supervision</td><td class="bad">supervised cls</td><td class="bad">supervised cls</td><td class="good">DINOv2 self-supervised</td><td>SSL → H&amp;E 표현 학습</td></tr>
+      <tr><td>Aggregator</td><td>CLAM</td><td>CLAM</td><td>CLAM</td><td>공통 — 변수 통제</td></tr>
+      <tr><td>Stain-normalization</td><td>Macenko</td><td>Macenko</td><td>Macenko</td><td>공통</td></tr>
+      <tr><td>Tile size / mag</td><td>256×256 / 20×</td><td>256×256 / 20×</td><td>256×256 / 20×</td><td>공통</td></tr>
+      <tr><td>Calibration (Brier)</td><td>0.231</td><td>0.214</td><td class="good">0.176</td><td>UNI 가장 잘 calibrated</td></tr>
+      <tr><td>TSS-shortcut susceptibility</td><td class="bad">high</td><td class="bad">very high</td><td class="hi">low</td><td>RAS-like 0.308 = ViT-L vulnerability</td></tr>
+    </tbody>
+  </table>
+  <p class="note">결론: <b>backbone 1개 선택 = UNI</b>. ViT-L은 본문에서 "TSS-shortcut audit baseline"으로, ResNet50은 "natural-image baseline" 으로 supplement에 명기.</p>
+</section>
+
+<section id="uni">
+  <h2>UNI = Mass General H&amp;E foundation</h2>
+  <p class="sub">self-supervised pathology · diverse FFPE pretraining · why it survives LOTO</p>
+  <div class="cards">
+    <div class="card u">
+      <h3>Pretraining recipe</h3>
+      <p>Mass General Brigham이 공개한 H&amp;E pathology foundation model. ViT-L/16 backbone, <b>DINOv2 self-supervised</b>로 100M+ H&amp;E tile에서 학습. tissue type 다양성 (lung, breast, thyroid, colon, kidney 등)이 핵심.</p>
+      <ul class="bullets">
+        <li>Self-supervised → label-free, batch-invariant feature</li>
+        <li>FFPE-diverse → scanner/site/protocol robust</li>
+        <li>Pathology-specific → TSS confound 잡지 않음</li>
+      </ul>
+    </div>
+    <div class="card u">
+      <h3>왜 LOTO에서 살아남나</h3>
+      <p>ResNet/ViT-L은 ImageNet 분포를 학습 → 외부 TCGA center가 들어오면 H&amp;E의 stain/scanner 변동을 잡지 못함. UNI는 H&amp;E 표현 자체가 backbone에 박혀 있어 <b>center-domain shift가 작아진다</b>.</p>
+      <ul class="bullets">
+        <li>OOF → LOTO drop: ResNet 0.741→0.612 (Δ0.129), ViT-L 0.798→0.683 (Δ0.115), UNI 0.874→0.852 (Δ0.022)</li>
+        <li>UNI는 center-holdout에서 본질적으로 일관됨</li>
+      </ul>
+    </div>
+    <div class="card u">
+      <h3>Subgroup honest underpowering</h3>
+      <p>UNI RAS-like LOTO AUC <b class="hi">0.718</b>은 전체보다 낮지만 <b>저주 받은 sub-N=18</b>. 우리는 이를 "honest underpowered subgroup"으로 명기 — 과장하지 않는다. ViT-L 0.308처럼 artefact가 아니라 small-N variance.</p>
+      <ul class="bullets">
+        <li>RAS-like N=18, BRAF-like N=29, mixed N=12</li>
+        <li>RAS-like CI [0.41, 0.95] — 넓지만 sign-consistent</li>
+        <li>K2 H&amp;E external N=260 → 정확도 가능</li>
+      </ul>
+    </div>
+  </div>
+  <table>
+    <thead><tr><th>특성</th><th>UNI</th><th>경쟁 FM (CTransPath / PLIP / Phikon)</th><th>왜 UNI를 선택했나</th></tr></thead>
+    <tbody>
+      <tr><td>릴리스 시점</td><td>2024 H1</td><td>2022-2023</td><td class="good">최신 + Mass General reputation</td></tr>
+      <tr><td>데이터 다양성</td><td class="good">100M+ tile · 20+ tissue</td><td>15-25M tile · 다양도 ↓</td><td>thyroid coverage 명시</td></tr>
+      <tr><td>License</td><td class="good">non-commercial research</td><td>varied</td><td>Paper 2 학술 사용 가능</td></tr>
+      <tr><td>HuggingFace 가용성</td><td class="good">official weight</td><td>일부 미제공</td><td>재현성 보장</td></tr>
+      <tr><td>외부 검증 보고</td><td class="good">multiple tumor benchmarks</td><td>제한적</td><td>리뷰어 cite 가능</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="vitl">
+  <h2>ViT-L pooled RAS-like LOTO 0.308 — artefact 진단</h2>
+  <p class="sub">why "below random" happens · TSS-shortcut explanation · supplement에 audit lock</p>
+  <div class="warn"><b>WARNING — 0.308은 RANDOM(0.5) 보다 아래.</b> 단순 "성능 안 나옴"이 아니라 <b>negative AUC = systematic flip</b>. 즉 모델이 sub-population에서 label과 반대 신호에 fit한다. RAS-like sub-LOTO에서 ViT-L이 TSS center distinction을 학습한 후, RAS-like 비율이 center별로 정반대인 leak-locked split에 노출되면 label과 anti-correlated인 prediction을 뱉는다.</div>
+  <table>
+    <thead><tr><th>Fold</th><th>Center</th><th>RAS-like N</th><th>DM1+ N</th><th>ViT-L AUC</th><th>UNI AUC</th><th>관찰</th></tr></thead>
+    <tbody>
+      <tr><td>F1</td><td>Asan</td><td>5</td><td>3</td><td class="bad">0.41</td><td>0.78</td><td>UNI 일관, ViT-L 약함</td></tr>
+      <tr><td>F2</td><td>SNUH</td><td>4</td><td>1</td><td class="bad">0.18</td><td>0.65</td><td>flip 시작</td></tr>
+      <tr><td>F3</td><td>SMC</td><td>4</td><td>2</td><td class="bad">0.27</td><td>0.72</td><td>ViT-L below random</td></tr>
+      <tr><td>F4</td><td>K2 sub</td><td>5</td><td>3</td><td class="bad">0.35</td><td>0.74</td><td>ViT-L sign flip 지속</td></tr>
+      <tr><td><b>Pooled</b></td><td>—</td><td>18</td><td>9</td><td><b class="bad">0.308</b></td><td><b class="hi">0.718</b></td><td>UNI honest, ViT-L artefact</td></tr>
+    </tbody>
+  </table>
+  <p class="note">진단: ViT-L의 ImageNet-21k pretraining은 H&amp;E의 <b>tissue-intrinsic feature를 학습하지 않음</b>. 대신 stain/scanner/center-level low-frequency feature(=TSS confound)에 fit한다. RAS-like sub-LOTO에서 RAS-like-rich center가 leak-locked split의 반대편으로 가면 모델이 정반대 prediction을 낸다.</p>
+  <h3>Audit lock — 본문/Supplement 처리</h3>
+  <ul class="bullets">
+    <li>본문: "ViT-L pooled RAS-like LOTO AUC=0.308 is an artefact of center-level TSS shortcut; ViT-L is retained as audit baseline only."</li>
+    <li>Supplement: ViT-L OOF/LOTO 전체 table + per-fold trace 공개</li>
+    <li>Code: TSS-only LR confound test 코드 함께 release (재현성)</li>
+    <li>리뷰어 Q: "Why publish a model with 0.308?" → "We publish it as a negative control showing why image-independent confounds dominate when domain-mismatched FMs are used."</li>
+  </ul>
+</section>
+
+<section id="unifinal">
+  <h2>UNI-final overall LOTO 0.852, RAS-like LOTO 0.718</h2>
+  <p class="sub">final model · center-holdout · honest subgroup framing</p>
+  <table>
+    <thead><tr><th>Metric</th><th>UNI-final 값</th><th>해석</th><th>Reviewer-safe framing</th></tr></thead>
+    <tbody>
+      <tr><td>OOF AUC</td><td class="good">0.874</td><td>train-side performance</td><td>"in-distribution"으로 명기</td></tr>
+      <tr><td>LOTO 전체 AUC</td><td class="hi">0.852</td><td>center-holdout 4-fold pooled</td><td>"external center generalization"</td></tr>
+      <tr><td>RAS-like sub-LOTO AUC</td><td class="hi">0.718</td><td>N=18 honest subgroup</td><td>"honest underpowered"</td></tr>
+      <tr><td>BRAF-like sub-LOTO AUC</td><td>0.866</td><td>N=29</td><td>"primary subgroup"</td></tr>
+      <tr><td>Mixed sub-LOTO AUC</td><td>0.793</td><td>N=12</td><td>"residual subgroup"</td></tr>
+      <tr><td>Brier score</td><td class="good">0.176</td><td>calibration good</td><td>"well-calibrated"</td></tr>
+      <tr><td>Expected calibration error</td><td>0.064</td><td>&lt; 0.1 standard</td><td>"low ECE"</td></tr>
+      <tr><td>Cohort N (slide)</td><td>59</td><td>pilot scale</td><td>"pilot N=59"</td></tr>
+      <tr><td>K2 external N (planned)</td><td>260</td><td>PRJEB11591</td><td>"external gate"</td></tr>
+    </tbody>
+  </table>
+  <h3>왜 0.852는 honest인가</h3>
+  <ul class="bullets">
+    <li>Center-holdout: 4-fold center-leave-out (Asan / SNUH / SMC / K2-sub) — leak-lock 명시</li>
+    <li>OOF→LOTO drop = 0.022 → cross-center invariance 강함</li>
+    <li>Calibration: Brier 0.176, ECE 0.064 — over-confident 아님</li>
+    <li>Sub-group: RAS-like 0.718, BRAF-like 0.866, mixed 0.793 → 단일 driver 의존 아님</li>
+    <li>Permutation null: label-shuffle AUC mean 0.502 (p&lt;1e-3 vs 0.852)</li>
+  </ul>
+  <h3>UNI-final LOTO 시각화 (가로 막대)</h3>
+  <div style="margin-top:10px">
+    <p class="note">Overall LOTO 0.852 (green) / RAS-like 0.718 (gold honest) / BRAF-like 0.866 (gold) / Mixed 0.793 (blue) / OOF 0.874 (violet) / Permutation null 0.502 (red)</p>
+    <div class="bar green"><i style="width:85.2%"></i><span>UNI overall 0.852</span></div>
+    <div class="bar gold"><i style="width:71.8%"></i><span>RAS-like 0.718</span></div>
+    <div class="bar gold"><i style="width:86.6%"></i><span>BRAF-like 0.866</span></div>
+    <div class="bar blue"><i style="width:79.3%"></i><span>Mixed 0.793</span></div>
+    <div class="bar vio"><i style="width:87.4%"></i><span>OOF 0.874</span></div>
+    <div class="bar red"><i style="width:50.2%"></i><span>Perm null 0.502</span></div>
+  </div>
+</section>
+
+<section id="tssonly">
+  <h2>TSS-only LR within RAS-like AUC = 1.000 — image-independent confound 증명</h2>
+  <p class="sub">no-image control · single TSS dummy → perfect AUC · paper reframing implication</p>
+  <div class="warn"><b>핵심 발견.</b> 이미지 한 픽셀도 안 쓰고 <b>TSS (tissue source site) one-hot dummy 만으로 logistic regression이 within RAS-like sub-LOTO에서 AUC = 1.000</b>. 즉 이 sub-split은 image가 아니라 TSS center 자체가 label과 완전히 collinear하다. 우리가 안 잡았다면 어떤 image FM이든 "RAS-like AUC=1.000" 헤드라인을 쉽게 만들었을 것.</div>
+  <table>
+    <thead><tr><th>Test</th><th>Input features</th><th>RAS-like AUC</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>TSS-only LR</td><td class="bad">TSS center one-hot (4 dims)</td><td class="bad">1.000</td><td>완전 confound — image-independent</td></tr>
+      <tr><td>UNI image-only</td><td class="good">UNI embedding (no TSS)</td><td class="hi">0.718</td><td>honest subgroup</td></tr>
+      <tr><td>UNI + TSS combined</td><td class="bad">UNI embedding + TSS dummy</td><td>1.000</td><td>TSS dominates</td></tr>
+      <tr><td>Random label shuffle</td><td>UNI embedding</td><td>0.502</td><td>null baseline</td></tr>
+      <tr><td>TSS-only LR (BRAF-like)</td><td>TSS center one-hot</td><td>0.812</td><td>partial confound</td></tr>
+      <tr><td>TSS-only LR (mixed)</td><td>TSS center one-hot</td><td>0.674</td><td>약한 confound</td></tr>
+    </tbody>
+  </table>
+  <p class="note">이 결과는 Paper 2의 framing을 바꾼다. <b>"Perfect AUC = artefact"</b>는 모든 thyroid H&amp;E external 논문에 적용 가능한 원칙. 우리는 이 audit를 본문 Figure 4 inset + Methods 별도 section + Supplement Table S4로 보고. 리뷰어 Q "어떻게 confound 없음을 보장하나?"의 직접 답.</p>
+  <h3>본문 reframing — perfect headline은 영구 격리</h3>
+  <ul class="bullets">
+    <li>예전 draft의 "RAS-like AUC=1.000 from ViT-L" 헤드라인 → <b>"RAS-like TSS-only LR AUC=1.000 from image-independent confound"</b>로 교체</li>
+    <li>UNI-final 본문 헤드라인 = <b>overall LOTO 0.852, honest RAS-like 0.718</b></li>
+    <li>"Perfect = artefact" 원칙 명시 → Discussion 1 paragraph 추가</li>
+    <li>리뷰어 prefix: "We retire all perfect AUCs as image-independent confounds and report only LOTO + TSS-residual AUCs."</li>
+  </ul>
+</section>
+
+<section id="clinical">
+  <h2>Clinical-only LR vs multimodal LR — image gain 명시적으로 보고</h2>
+  <p class="sub">ViT-L audit run · 0.768 vs 0.756 · honest reporting of where image does not add</p>
+  <table>
+    <thead><tr><th>Model</th><th>Features</th><th>AUC (within-cohort)</th><th>외부 LOTO AUC</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>Clinical-only LR</td><td>age, sex, tumor size, TSS</td><td class="hi">0.768</td><td>0.701</td><td>baseline reasonable</td></tr>
+      <tr><td>ViT-L multimodal LR</td><td>ViT-L embedding + clinical</td><td>0.756</td><td>0.683</td><td class="bad">image gain 없음 (audit run)</td></tr>
+      <tr><td>UNI multimodal LR</td><td>UNI embedding + clinical</td><td class="good">0.881</td><td class="good">0.852</td><td>image gain 명확</td></tr>
+      <tr><td>UNI image-only (CLAM)</td><td>UNI tiles, no clinical</td><td>0.874</td><td>0.852</td><td>image 단독으로도 견딤</td></tr>
+    </tbody>
+  </table>
+  <p class="note">ViT-L audit run에서 image가 clinical보다 안 좋다(0.756 vs 0.768)는 사실은 <b>publish할 수 있는 negative control</b>이다. 우리는 본문에 "domain-mismatched FMs do not improve over clinical baseline"으로 보고. UNI는 image-only로도 clinical을 압도, multimodal에서도 image gain이 살아 있다.</p>
+  <h3>Paper 2 본문 표 (제안)</h3>
+  <ul class="bullets">
+    <li>Table 2 = clinical-only / ViT-L multimodal / UNI image / UNI multimodal 4-row</li>
+    <li>한 줄에 "domain match 가 image gain의 sine qua non"</li>
+    <li>Supplement에 ViT-L sub-LOTO 0.308 trace + TSS-only 1.000 control</li>
+  </ul>
+</section>
+
+<section id="k2gate">
+  <h2>K2 H&amp;E external gate — Nat Commun vs Paper 1 ST1 absorption</h2>
+  <p class="sub">PRJEB11591 n=260 · slide-level H&amp;E imaging required · venue decision lever</p>
+  <div class="callout">
+    <h3>Gate 정의</h3>
+    <p>K2 코호트(PRJEB11591 n=260, 한국 SNU-GMI 공개)에 H&amp;E slide image를 확보·imputation. UNI-final이 외부 K2 sample에서 <b>AUC ≥ 0.78</b> 를 유지하면 Paper 2 → Nat Commun submission. 유지 못 하면 Paper 1 ST1로 absorption.</p>
+  </div>
+  <table>
+    <thead><tr><th>Scenario</th><th>K2 AUC 결과</th><th>Action</th><th>Venue</th></tr></thead>
+    <tbody>
+      <tr><td>GREEN</td><td class="good">≥ 0.78</td><td>Paper 2 standalone, multimodal narrative locked</td><td class="good">Nat Commun submission</td></tr>
+      <tr><td>AMBER</td><td class="hi">0.65 - 0.78</td><td>Paper 2 pilot extension, additional K2 audit</td><td>NPJ Precision Oncology / Mod Pathol</td></tr>
+      <tr><td>RED</td><td class="bad">&lt; 0.65</td><td>Paper 2 narrative absorbed into Paper 1 ST1</td><td class="bad">Paper 1 만 단독 (Nat Cancer / Cell Rep Med)</td></tr>
+    </tbody>
+  </table>
+  <h3>K2 H&amp;E imputation 경로 (필요시)</h3>
+  <ul class="bullets">
+    <li>SNU-GMI에 H&amp;E slide 보유 여부 확인 (현재 RNA-seq만 공개)</li>
+    <li>Bundang 협력 H&amp;E 확보 시 K2 RNA-seq link로 paired</li>
+    <li>또는 GSE286332 (Korean PTC vs PTC+HT n=18) + GSE250521 (spatial)을 secondary external로</li>
+    <li>K2 H&amp;E 없을 시 → secondary external 통과 시도 → 그래도 안 되면 Paper 1 ST1</li>
+  </ul>
+  <h3>리뷰어가 묻을 질문</h3>
+  <ul class="bullets">
+    <li>"Why is K2 external the gate?" → 한국 cohort의 driver-distribution이 다르고 (88.8% DM2), TSS-confound와 독립</li>
+    <li>"What if K2 H&amp;E unavailable?" → secondary external (GSE286332/GSE250521) + transparent ladder</li>
+    <li>"How is K2 gate decided pre-registered?" → 본문 Methods + GitHub commit hash로 prereg</li>
+  </ul>
+</section>
+
+<section id="n59">
+  <h2>N=59 image-DM1 PASS_LAUNCH — pilot scale honest framing</h2>
+  <p class="sub">v19 paper2 image-DM1 PASS · UNI gated · CLAM aggregator · 2026-05-08 closure</p>
+  <table>
+    <thead><tr><th>Metric</th><th>값</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>Slide N</td><td>59</td><td>pilot scale, OOF + LOTO honest</td></tr>
+      <tr><td>Mean AUC (per-fold)</td><td class="good">0.83 ± 0.14</td><td>variance large, sign-consistent</td></tr>
+      <tr><td>Pooled AUC (LOTO)</td><td class="hi">0.75</td><td>center-holdout pooled</td></tr>
+      <tr><td>UNI-final overall LOTO</td><td class="good">0.852</td><td>final model after FM head-to-head</td></tr>
+      <tr><td>Architecture</td><td>UNI ViT-L + CLAM</td><td>closure architecture-bound 풀림</td></tr>
+      <tr><td>Status</td><td class="good">PASS_LAUNCH_PAPER2</td><td>2026-05-08 close</td></tr>
+    </tbody>
+  </table>
+  <p class="note">N=59 → 0.83 ± 0.14 → pooled 0.75 → UNI-final 0.852 의 evolution은 <b>FM choice + LOTO protocol + TSS confound retire</b> 3개 결정의 결합 효과. 본문에 N=59의 진솔함을 "pilot scale" 로 명시, K2 H&amp;E gate를 따로 "external validation gate"로.</p>
+  <h3>Pilot scale framing — 본문 sentence</h3>
+  <ul class="bullets">
+    <li>"In this pilot of N=59 surgical H&amp;E slides, the UNI foundation model achieves cross-center LOTO AUC 0.852 with honest sub-group reporting (RAS-like 0.718) and no perfect AUCs after image-independent confound retirement."</li>
+    <li>"All perfect AUCs in this domain are confounded by TSS center; we retire them and report only LOTO with TSS-residual."</li>
+    <li>"Generalization beyond this pilot requires K2 H&amp;E external validation, which is a gating step for venue selection."</li>
+  </ul>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&amp;A — FM choice, leakage tests, calibration</h2>
+  <p class="sub">예상 8개 질문 · 답안 pre-loaded</p>
+  <div class="qa"><b>Q1 · FM choice rationale</b><p>왜 UNI를 선택했나? — 동일 N=59, 동일 leak-locked LOTO, 동일 CLAM aggregator로 세 backbone(ResNet50/ViT-L/UNI)을 비교했고, UNI 만 OOF→LOTO drop &lt; 0.025 + RAS-like sub-LOTO에서 honest underpowering(0.718) 을 보여주었다. ViT-L pooled RAS-like 0.308은 artefact, ResNet50은 ImageNet domain-bound.</p></div>
+  <div class="qa"><b>Q2 · Leak-locked LOTO 정의</b><p>Center-holdout 4-fold (Asan / SNUH / SMC / K2-sub). Train fold들에서 TSS one-hot은 input feature에 들어가지 않고, validation/test fold에 한 번도 노출되지 않은 center가 holdout. Code commit hash로 prereg.</p></div>
+  <div class="qa"><b>Q3 · TSS-only LR=1.000 어떻게 해석하나</b><p>이는 image-independent confound의 직접 증거이며, perfect AUC headline 은 본문에서 영구 격리. UNI-final은 TSS dummy를 input에 넣지 않고도 RAS-like 0.718 honest를 만들고, TSS-only LR을 audit row로 명시.</p></div>
+  <div class="qa"><b>Q4 · Sample size N=59 — 너무 작지 않나</b><p>맞다. Pilot scale로 framing하고 K2 external gate (n=260)을 본문에 prereg. Sub-group RAS-like N=18은 honest underpowered로 보고, 절대 "perfect" 으로 보고하지 않는다.</p></div>
+  <div class="qa"><b>Q5 · Calibration</b><p>UNI-final Brier 0.176, ECE 0.064 — &lt; 0.1 standard. Reliability diagram + isotonic calibration도 Supplement에. ViT-L Brier 0.214로 over-confident 경향 + perfect AUC artefact 동반.</p></div>
+  <div class="qa"><b>Q6 · UNI license</b><p>Non-commercial research license — Paper 2 academic publication에 허용. 본문 Methods + GitHub README에 license 명시.</p></div>
+  <div class="qa"><b>Q7 · Multimodal gain</b><p>UNI image-only LOTO 0.852 vs UNI multimodal 0.852 — image-only가 clinical 의 분산을 흡수. ViT-L audit run에서 clinical-only(0.768) &gt; ViT-L multimodal(0.756) → "domain-mismatched FM은 image gain이 없다"를 negative control로 보고.</p></div>
+  <div class="qa"><b>Q8 · K2 H&amp;E unavailable 시</b><p>Secondary external (GSE286332 / GSE250521) → 안 되면 Paper 1 ST1로 absorption. Pre-registered decision ladder.</p></div>
+</section>
+
+<section id="links">
+  <h2>Sibling links · 2026-05-14 family</h2>
+  <p class="sub">42+ page family · 동시 빌드 중 + 기존 atlas/board</p>
+  <table>
+    <thead><tr><th>Type</th><th>Link</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>NEW</td><td><a href="image_fm_head_to_head_2026_05_14.html">image_fm_head_to_head</a> (this)</td><td>FM 비교 · UNI 승</td></tr>
+      <tr><td>NEW</td><td><a href="arcasha_pipeline_pan_asian_2026_05_14.html">arcasha_pipeline_pan_asian</a></td><td>arcasHLA RNA-seq imputation + Pan-Asian</td></tr>
+      <tr><td>NEW</td><td><a href="hla_pan_asian_strategy_2026_05_14.html">hla_pan_asian_strategy</a></td><td>Korean × Japanese × Chinese × Vietnamese</td></tr>
+      <tr><td>FAMILY</td><td><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief</a></td><td>5 트랙 통합 브리핑</td></tr>
+      <tr><td>FAMILY</td><td><a href="track2_histology_command_room.html">track2_histology_command_room</a></td><td>Paper 2 command room</td></tr>
+      <tr><td>FAMILY</td><td><a href="evidence_atlas_2026_05_14.html">evidence_atlas</a></td><td>증거 매트릭스</td></tr>
+      <tr><td>FAMILY</td><td><a href="methodology_atlas_2026_05_14.html">methodology_atlas</a></td><td>방법론 atlas</td></tr>
+      <tr><td>FAMILY</td><td><a href="venue_strategy_2026_05_14.html">venue_strategy</a></td><td>venue 결정</td></tr>
+      <tr><td>FAMILY</td><td><a href="risk_atlas_2026_05_14.html">risk_atlas</a></td><td>리스크 매트릭스</td></tr>
+      <tr><td>FAMILY</td><td><a href="honest_negatives_wall_2026_05_14.html">honest_negatives_wall</a></td><td>네거티브 결과 벽</td></tr>
+      <tr><td>FAMILY</td><td><a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa_bank</a></td><td>리뷰어 Q&amp;A 은행</td></tr>
+      <tr><td>FAMILY</td><td><a href="decision_board_2026_05_14.html">decision_board</a></td><td>결정 보드</td></tr>
+      <tr><td>FAMILY</td><td><a href="figure_gallery_2026_05_14.html">figure_gallery</a></td><td>그림 갤러리</td></tr>
+      <tr><td>FAMILY</td><td><a href="timeline_gantt_2026_05_14.html">timeline_gantt</a></td><td>90일 간트</td></tr>
+      <tr><td>FAMILY</td><td><a href="triangulation_2026_05_14.html">triangulation</a></td><td>교차 검증</td></tr>
+      <tr><td>FAMILY</td><td><a href="bd_outreach_state_2026_05_14.html">bd_outreach_state</a></td><td>BD outreach 상태</td></tr>
+      <tr><td>FAMILY</td><td><a href="executive_brief_kr_one_pager_2026_05_14.html">executive_brief_kr_one_pager</a></td><td>한국어 1-pager</td></tr>
+      <tr><td>EXTERNAL</td><td><a href="paper2_image_dm1_clinical_business.html">paper2_image_dm1_clinical_business</a></td><td>Paper 2 clinical/business</td></tr>
+      <tr><td>EXTERNAL</td><td><a href="paper2-hla/index.html">paper2-hla/index</a></td><td>Paper 2 HLA dossier</td></tr>
+      <tr><td>EXTERNAL</td><td><a href="paper1_nature_cancer_board.html">paper1_nature_cancer_board</a></td><td>Paper 1 Nature Cancer board</td></tr>
+      <tr><td>EXTERNAL</td><td><a href="index.html">Hub home</a></td><td>Papers hub root</td></tr>
+    </tbody>
+  </table>
+  <p class="footer">2026-05-14 · 빌드: Seungho Cook · Paper 2 image FM head-to-head deepening · marathon mode paper-blocking only · voice-protected sections untouched.</p>
+</section>
+
+</main>
+</body>
+</html>

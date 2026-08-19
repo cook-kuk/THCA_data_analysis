@@ -1,0 +1,966 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paperability-Aware Darwin-RL</title>
+  <style>
+    :root { --bg:#101418; --panel:#151c22; --ink:#e9edf0; --muted:#9aa7af; --gold:#c59b3b; --line:#29343c; --teal:#69a7a2; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+    header { padding:42px 5vw 30px; background:#0c1115; border-bottom:1px solid var(--line); }
+    .kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.12em; font-weight:700; font-size:12px; }
+    h1 { margin:.3rem 0 .65rem; font-size:clamp(30px,4vw,54px); line-height:1.05; }
+    .lead { color:#d0d8dd; max-width:1040px; font-size:18px; }
+    .stats { display:grid; grid-template-columns:repeat(5,minmax(130px,1fr)); gap:10px; margin-top:22px; }
+    .stat { border:1px solid var(--line); background:var(--panel); padding:13px 14px; border-radius:8px; }
+    .stat b { display:block; font-size:23px; }
+    .stat span { color:var(--muted); font-size:12px; }
+    main { padding:30px 5vw 60px; display:grid; grid-template-columns:270px minmax(0,1fr); gap:28px; }
+    nav { position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto; padding:14px; border:1px solid var(--line); border-radius:8px; background:#111820; }
+    nav a { display:block; color:#d6dee2; text-decoration:none; padding:7px 0; border-bottom:1px solid #202b32; }
+    h2 { border-bottom:1px solid var(--line); padding-bottom:8px; }
+    .num { color:var(--gold); margin-right:8px; }
+    .note { border-left:3px solid var(--gold); background:#171f26; padding:10px 14px; color:#dce3e7; }
+    table.data { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0 28px; }
+    table.data th, table.data td { border-bottom:1px solid var(--line); padding:7px 8px; text-align:left; vertical-align:top; }
+    table.data th { color:#f4d891; background:#141b21; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    img { max-width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; }
+    code { color:#f4d891; }
+    @media(max-width:900px) { main { grid-template-columns:1fr; } nav { position:static; } .stats { grid-template-columns:repeat(2,1fr); } .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="kicker">CROSS-Neo · Darwin-RL · paperability objective</div>
+  <h1>Make the algorithm optimize for publishable evidence</h1>
+  <p class="lead">This layer turns novelty, ablation readiness, comparator coverage, reviewer defense, figure readiness and prospective validation into explicit GA/RL search objectives.</p>
+  <div class="stats">
+    <div class="stat"><b>KG_GA_evolved</b><span>top paperability candidate</span></div>
+    <div class="stat"><b>0.922</b><span>paperability reward</span></div>
+    <div class="stat"><b>10</b><span>paper primitives</span></div>
+    <div class="stat"><b>61</b><span>KG nodes</span></div>
+    <div class="stat"><b>9</b><span>paper assets mapped</span></div>
+  </div>
+</header>
+<main>
+<nav>
+  <a href="#summary">01 Summary</a>
+  <a href="#figures">02 Figures</a>
+  <a href="#ranking">03 Algorithm Ranking</a>
+  <a href="#reward">04 Reward</a>
+  <a href="#primitives">05 Primitives</a>
+  <a href="#unlocks">06 Paper Unlocks</a>
+  <a href="#kg">07 KG</a>
+</nav>
+<article>
+<section id="summary">
+  <h2><span class="num">01</span>Summary</h2>
+  <p class="note">The next algorithm should not only maximize benchmark metrics. It should maximize the probability that the result becomes a defensible paper: clear novelty, locked validation, ablations, comparator moat, interpretable failures and ready-to-inspect figures.</p>
+</section>
+<section id="figures">
+  <h2><span class="num">02</span>Figures</h2>
+  <div class="grid">
+    <img src="assets/cross_neo_paperability_darwin_rl/fig1_paperability_reward.png" alt="paperability reward">
+    <img src="assets/cross_neo_paperability_darwin_rl/fig2_algorithm_paperability_rank.png" alt="algorithm paperability rank">
+  </div>
+  <div class="grid">
+    <img src="assets/cross_neo_paperability_darwin_rl/fig3_paperability_heatmap.png" alt="paperability heatmap">
+    <img src="assets/cross_neo_paperability_darwin_rl/fig6_paperability_loop.png" alt="paperability loop">
+  </div>
+  <div class="grid">
+    <img src="assets/cross_neo_paperability_darwin_rl/fig4_paperability_primitives.png" alt="primitive coverage">
+    <img src="assets/cross_neo_paperability_darwin_rl/fig5_paperability_kg.png" alt="paperability kg">
+  </div>
+</section>
+<section id="ranking">
+  <h2><span class="num">03</span>Algorithm Ranking</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>algorithm</th>
+      <th>all_AUPRC</th>
+      <th>all_AUROC</th>
+      <th>all_top96_precision</th>
+      <th>validation_like_AUPRC</th>
+      <th>low_leakage_AUPRC</th>
+      <th>v6_smoke_AUPRC</th>
+      <th>benchmark_lift</th>
+      <th>external_generalization</th>
+      <th>prospective_lock_readiness</th>
+      <th>novelty_of_method</th>
+      <th>ablation_completeness</th>
+      <th>failure_mode_interpretability</th>
+      <th>comparator_coverage</th>
+      <th>figure_table_readiness</th>
+      <th>reviewer_risk_mitigation</th>
+      <th>deployment_simplicity</th>
+      <th>paperability_reward</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>KG_GA_evolved</td>
+      <td>0.933</td>
+      <td>0.943</td>
+      <td>1.000</td>
+      <td>0.978</td>
+      <td>0.757</td>
+      <td>0.812</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>0.950</td>
+      <td>0.950</td>
+      <td>0.720</td>
+      <td>0.880</td>
+      <td>0.950</td>
+      <td>0.950</td>
+      <td>0.850</td>
+      <td>0.600</td>
+      <td>0.922</td>
+    </tr>
+    <tr>
+      <td>CROSS_claimsafe</td>
+      <td>0.861</td>
+      <td>0.864</td>
+      <td>1.000</td>
+      <td>0.846</td>
+      <td>0.617</td>
+      <td>0.788</td>
+      <td>0.746</td>
+      <td>0.804</td>
+      <td>0.850</td>
+      <td>0.600</td>
+      <td>0.580</td>
+      <td>0.820</td>
+      <td>0.750</td>
+      <td>0.820</td>
+      <td>0.880</td>
+      <td>0.720</td>
+      <td>0.750</td>
+    </tr>
+    <tr>
+      <td>CROSS_integrated</td>
+      <td>0.878</td>
+      <td>0.896</td>
+      <td>1.000</td>
+      <td>0.714</td>
+      <td>0.573</td>
+      <td>0.790</td>
+      <td>0.808</td>
+      <td>0.606</td>
+      <td>0.800</td>
+      <td>0.550</td>
+      <td>0.550</td>
+      <td>0.780</td>
+      <td>0.750</td>
+      <td>0.820</td>
+      <td>0.720</td>
+      <td>0.720</td>
+      <td>0.703</td>
+    </tr>
+    <tr>
+      <td>CROSS_stress</td>
+      <td>0.872</td>
+      <td>0.873</td>
+      <td>0.948</td>
+      <td>0.651</td>
+      <td>0.601</td>
+      <td>0.777</td>
+      <td>0.785</td>
+      <td>0.512</td>
+      <td>0.700</td>
+      <td>0.500</td>
+      <td>0.450</td>
+      <td>0.700</td>
+      <td>0.600</td>
+      <td>0.650</td>
+      <td>0.550</td>
+      <td>0.800</td>
+      <td>0.616</td>
+    </tr>
+    <tr>
+      <td>CROSS_BMA</td>
+      <td>0.861</td>
+      <td>0.860</td>
+      <td>0.927</td>
+      <td>0.660</td>
+      <td>0.636</td>
+      <td>0.767</td>
+      <td>0.745</td>
+      <td>0.526</td>
+      <td>0.700</td>
+      <td>0.550</td>
+      <td>0.450</td>
+      <td>0.650</td>
+      <td>0.600</td>
+      <td>0.650</td>
+      <td>0.550</td>
+      <td>0.750</td>
+      <td>0.613</td>
+    </tr>
+    <tr>
+      <td>CROSS_finetuned</td>
+      <td>0.841</td>
+      <td>0.863</td>
+      <td>0.875</td>
+      <td>0.606</td>
+      <td>0.669</td>
+      <td>0.681</td>
+      <td>0.678</td>
+      <td>0.445</td>
+      <td>0.650</td>
+      <td>0.500</td>
+      <td>0.420</td>
+      <td>0.620</td>
+      <td>0.600</td>
+      <td>0.650</td>
+      <td>0.550</td>
+      <td>0.740</td>
+      <td>0.570</td>
+    </tr>
+    <tr>
+      <td>BigMHC_IM</td>
+      <td>0.672</td>
+      <td>0.722</td>
+      <td>0.875</td>
+      <td>0.334</td>
+      <td>0.374</td>
+      <td>0.672</td>
+      <td>0.084</td>
+      <td>0.039</td>
+      <td>0.550</td>
+      <td>0.250</td>
+      <td>0.350</td>
+      <td>0.420</td>
+      <td>0.600</td>
+      <td>0.650</td>
+      <td>0.550</td>
+      <td>0.780</td>
+      <td>0.340</td>
+    </tr>
+    <tr>
+      <td>BigMHC_EL</td>
+      <td>0.648</td>
+      <td>0.719</td>
+      <td>0.729</td>
+      <td>0.308</td>
+      <td>0.306</td>
+      <td>0.866</td>
+      <td>0.000</td>
+      <td>0.000</td>
+      <td>0.550</td>
+      <td>0.250</td>
+      <td>0.350</td>
+      <td>0.420</td>
+      <td>0.600</td>
+      <td>0.650</td>
+      <td>0.550</td>
+      <td>0.780</td>
+      <td>0.321</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="reward">
+  <h2><span class="num">04</span>Reward</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>reward_component</th>
+      <th>weight</th>
+      <th>purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>benchmark_lift</td>
+      <td>0.160</td>
+      <td>clear quantitative improvement over public and internal comparators</td>
+    </tr>
+    <tr>
+      <td>external_generalization</td>
+      <td>0.150</td>
+      <td>held-out source/cohort/HLA/sequence-cluster performance</td>
+    </tr>
+    <tr>
+      <td>prospective_lock_readiness</td>
+      <td>0.140</td>
+      <td>score and thresholds can be frozen before wetlab or clinical readout</td>
+    </tr>
+    <tr>
+      <td>novelty_of_method</td>
+      <td>0.130</td>
+      <td>not just another ensemble; contains a distinct method contribution</td>
+    </tr>
+    <tr>
+      <td>ablation_completeness</td>
+      <td>0.110</td>
+      <td>each major primitive has an on/off or replacement control</td>
+    </tr>
+    <tr>
+      <td>failure_mode_interpretability</td>
+      <td>0.100</td>
+      <td>algorithm explains why hits and fails occur</td>
+    </tr>
+    <tr>
+      <td>comparator_coverage</td>
+      <td>0.080</td>
+      <td>includes SOTA/public baselines and internal baselines</td>
+    </tr>
+    <tr>
+      <td>figure_table_readiness</td>
+      <td>0.070</td>
+      <td>naturally yields publishable figures, tables and decision matrices</td>
+    </tr>
+    <tr>
+      <td>reviewer_risk_mitigation</td>
+      <td>0.040</td>
+      <td>co-located caveats, leakage audits and claim boundaries</td>
+    </tr>
+    <tr>
+      <td>deployment_simplicity</td>
+      <td>0.020</td>
+      <td>can be run and reproduced without excessive infrastructure</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="primitives">
+  <h2><span class="num">05</span>Primitives</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>primitive</th>
+      <th>category</th>
+      <th>gene</th>
+      <th>rl_action</th>
+      <th>why_it_matters</th>
+      <th>required_evidence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>novel_method_thesis</td>
+      <td>paper_claim</td>
+      <td>algorithm_contribution_statement</td>
+      <td>increase_method_distinctiveness</td>
+      <td>Turns a performance stack into a methods-paper claim.</td>
+      <td>method graph, genome definition, baseline contrast</td>
+    </tr>
+    <tr>
+      <td>sota_comparator_panel</td>
+      <td>benchmark</td>
+      <td>external_comparator_set</td>
+      <td>add_or_update_public_baseline</td>
+      <td>Prevents the result from looking like an internal leaderboard.</td>
+      <td>BigMHC, PRIME, NetMHCpan, DeepImmuno, ImmunoStruct when available</td>
+    </tr>
+    <tr>
+      <td>leakage_resistant_validation</td>
+      <td>reviewer_defense</td>
+      <td>split_policy</td>
+      <td>switch_to_stricter_holdout</td>
+      <td>Blocks the most common biomedical AI rejection risk.</td>
+      <td>source, patient, HLA, sequence-cluster and low-leakage splits</td>
+    </tr>
+    <tr>
+      <td>ablation_matrix</td>
+      <td>method_evidence</td>
+      <td>primitive_on_off_controls</td>
+      <td>schedule_ablation</td>
+      <td>Shows which part of the algorithm actually contributes.</td>
+      <td>KG-only, GA-only, RL-policy, guardrail, modality, fusion ablations</td>
+    </tr>
+    <tr>
+      <td>prospective_freeze_protocol</td>
+      <td>validation</td>
+      <td>locked_threshold_and_score</td>
+      <td>freeze_candidate_for_wetlab</td>
+      <td>Converts retrospective SOTA signal into defensible prospective evidence.</td>
+      <td>hash/versioned score table, preregistered threshold, no post-hoc tuning</td>
+    </tr>
+    <tr>
+      <td>hit_fail_interpreter</td>
+      <td>translational_evidence</td>
+      <td>failure_mode_taxonomy</td>
+      <td>allocate_failure_mode_assay</td>
+      <td>Makes the wetlab result useful even when a candidate fails.</td>
+      <td>candidate call table, endpoint unlock table, decomposition by assay arm</td>
+    </tr>
+    <tr>
+      <td>figure_native_outputs</td>
+      <td>paper_asset</td>
+      <td>auto_figure_bundle</td>
+      <td>prefer_plot_ready_artifact</td>
+      <td>Forces the algorithm to emit artifacts that reviewers can inspect.</td>
+      <td>benchmark plot, KG plot, reward plot, top-k plot, failure-mode plot</td>
+    </tr>
+    <tr>
+      <td>claim_safety_layer</td>
+      <td>reviewer_defense</td>
+      <td>claim_boundary_cap</td>
+      <td>add_claim_guardrail</td>
+      <td>Lets strong results be shown without overselling clinical proof.</td>
+      <td>claim tiers, blockers, caveats, prospective-validation status</td>
+    </tr>
+    <tr>
+      <td>negative_control_lane</td>
+      <td>validation</td>
+      <td>negative_control_design</td>
+      <td>add_specificity_control</td>
+      <td>Distinguishes real biological signal from dataset artifacts.</td>
+      <td>decoy peptides, scrambled controls, unrelated target controls or null modules</td>
+    </tr>
+    <tr>
+      <td>decision_matrix</td>
+      <td>paper_asset</td>
+      <td>editor_reviewer_decision_table</td>
+      <td>summarize_claim_unlock</td>
+      <td>Compresses complex algorithm output into publishable decision logic.</td>
+      <td>algorithm, evidence, caveat, disposition, next validation</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="unlocks">
+  <h2><span class="num">06</span>Paper Unlock Map</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>asset</th>
+      <th>name</th>
+      <th>purpose</th>
+      <th>source_artifact</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Figure 1</td>
+      <td>Concept and method graph</td>
+      <td>Show literature-to-primitive-to-GA/RL architecture</td>
+      <td>method_kg_nodes/edges + loop schematic</td>
+    </tr>
+    <tr>
+      <td>Figure 2</td>
+      <td>Benchmark lift</td>
+      <td>Show KG-GA vs BigMHC/CROSS-Neo comparators</td>
+      <td>kg_ga_benchmark.tsv</td>
+    </tr>
+    <tr>
+      <td>Figure 3</td>
+      <td>Validation-like robustness</td>
+      <td>Show source/low-leakage/generalization checks</td>
+      <td>kg_ga_source_benchmark.tsv</td>
+    </tr>
+    <tr>
+      <td>Figure 4</td>
+      <td>Guardrail ablation</td>
+      <td>Show proxy/dominance/leakage guard effect</td>
+      <td>planned ablation matrix</td>
+    </tr>
+    <tr>
+      <td>Figure 5</td>
+      <td>96-well interpreter</td>
+      <td>Show actual hit/fail decomposition after wetlab</td>
+      <td>v6 candidate_calls + endpoint_calls</td>
+    </tr>
+    <tr>
+      <td>Table 1</td>
+      <td>Method primitive library</td>
+      <td>List public methods and reusable primitives</td>
+      <td>method_primitives.tsv</td>
+    </tr>
+    <tr>
+      <td>Table 2</td>
+      <td>GA/RL genome and actions</td>
+      <td>Define algorithm discovery search space</td>
+      <td>rl_ga_action_space.tsv</td>
+    </tr>
+    <tr>
+      <td>Table 3</td>
+      <td>Reviewer risk register</td>
+      <td>Leakage/proxy/overfit/claim-safety defenses</td>
+      <td>guardrails.tsv + paperability guards</td>
+    </tr>
+    <tr>
+      <td>Supplement</td>
+      <td>Ablation dossier</td>
+      <td>KG-only, GA-only, RL-policy, modality and guardrail ablations</td>
+      <td>future locked run</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="kg">
+  <h2><span class="num">07</span>Knowledge Graph</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>node</th>
+      <th>node_type</th>
+      <th>layer</th>
+      <th>category</th>
+      <th>weight</th>
+      <th>purpose</th>
+      <th>source</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BioDarwin_RL</td>
+      <td>base_framework</td>
+      <td>algorithm_discovery</td>
+      <td>NaN</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>Paperability_Darwin_RL</td>
+      <td>controller</td>
+      <td>paperability</td>
+      <td>NaN</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>BigMHC, PRIME, NetMHCpan, DeepImmuno, ImmunoStruct when available</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>benchmark</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>KG-only, GA-only, RL-policy, guardrail, modality, fusion ablations</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>method_evidence</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>algorithm, evidence, caveat, disposition, next validation</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>paper_asset</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>benchmark plot, KG plot, reward plot, top-k plot, failure-mode plot</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>paper_asset</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>candidate call table, endpoint unlock table, decomposition by assay arm</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>translational_evidence</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>claim tiers, blockers, caveats, prospective-validation status</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>reviewer_defense</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>decoy peptides, scrambled controls, unrelated target controls or null modules</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>validation</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>hash/versioned score table, preregistered threshold, no post-hoc tuning</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>validation</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>method graph, genome definition, baseline contrast</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>paper_claim</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>source, patient, HLA, sequence-cluster and low-leakage splits</td>
+      <td>evidence</td>
+      <td>NaN</td>
+      <td>reviewer_defense</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>algorithm_contribution_statement</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>paper_claim</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>auto_figure_bundle</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>paper_asset</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>claim_boundary_cap</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>reviewer_defense</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>editor_reviewer_decision_table</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>paper_asset</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>external_comparator_set</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>benchmark</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>failure_mode_taxonomy</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>translational_evidence</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>locked_threshold_and_score</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>validation</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>negative_control_design</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>validation</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>primitive_on_off_controls</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>method_evidence</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>split_policy</td>
+      <td>ga_gene</td>
+      <td>NaN</td>
+      <td>reviewer_defense</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>Figure 1: Concept and method graph</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>Show literature-to-primitive-to-GA/RL architecture</td>
+      <td>method_kg_nodes/edges + loop schematic</td>
+    </tr>
+    <tr>
+      <td>Figure 2: Benchmark lift</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>Show KG-GA vs BigMHC/CROSS-Neo comparators</td>
+      <td>kg_ga_benchmark.tsv</td>
+    </tr>
+    <tr>
+      <td>Figure 3: Validation-like robustness</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>Show source/low-leakage/generalization checks</td>
+      <td>kg_ga_source_benchmark.tsv</td>
+    </tr>
+    <tr>
+      <td>Figure 4: Guardrail ablation</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>Show proxy/dominance/leakage guard effect</td>
+      <td>planned ablation matrix</td>
+    </tr>
+    <tr>
+      <td>Figure 5: 96-well interpreter</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>Show actual hit/fail decomposition after wetlab</td>
+      <td>v6 candidate_calls + endpoint_calls</td>
+    </tr>
+    <tr>
+      <td>Supplement: Ablation dossier</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>KG-only, GA-only, RL-policy, modality and guardrail ablations</td>
+      <td>future locked run</td>
+    </tr>
+    <tr>
+      <td>Table 1: Method primitive library</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>List public methods and reusable primitives</td>
+      <td>method_primitives.tsv</td>
+    </tr>
+    <tr>
+      <td>Table 2: GA/RL genome and actions</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>Define algorithm discovery search space</td>
+      <td>rl_ga_action_space.tsv</td>
+    </tr>
+    <tr>
+      <td>Table 3: Reviewer risk register</td>
+      <td>paper_asset</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td></td>
+      <td>Leakage/proxy/overfit/claim-safety defenses</td>
+      <td>guardrails.tsv + paperability guards</td>
+    </tr>
+    <tr>
+      <td>ablation_matrix</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>method_evidence</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>claim_safety_layer</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>reviewer_defense</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>decision_matrix</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>paper_asset</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>figure_native_outputs</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>paper_asset</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>hit_fail_interpreter</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>translational_evidence</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>leakage_resistant_validation</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>reviewer_defense</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>negative_control_lane</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>validation</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>novel_method_thesis</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>paper_claim</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>prospective_freeze_protocol</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>validation</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>sota_comparator_panel</td>
+      <td>paperability_primitive</td>
+      <td>NaN</td>
+      <td>benchmark</td>
+      <td></td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>ablation_completeness</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.110</td>
+      <td>each major primitive has an on/off or replacement control</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>benchmark_lift</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.160</td>
+      <td>clear quantitative improvement over public and internal comparators</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>comparator_coverage</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.080</td>
+      <td>includes SOTA/public baselines and internal baselines</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>deployment_simplicity</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.020</td>
+      <td>can be run and reproduced without excessive infrastructure</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>external_generalization</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.150</td>
+      <td>held-out source/cohort/HLA/sequence-cluster performance</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>failure_mode_interpretability</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.100</td>
+      <td>algorithm explains why hits and fails occur</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>figure_table_readiness</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.070</td>
+      <td>naturally yields publishable figures, tables and decision matrices</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>novelty_of_method</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.130</td>
+      <td>not just another ensemble; contains a distinct method contribution</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <td>prospective_lock_readiness</td>
+      <td>reward_component</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>0.140</td>
+      <td>score and thresholds can be frozen before wetlab or clinical readout</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+</article>
+</main>
+</body>
+</html>

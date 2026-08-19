@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Korean PTC Over-diagnosis Epi Context · 2026-05-14 · 자가-소멸하는 자연 실험</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:62px;line-height:.98;margin:0 0 16px;letter-spacing:-1.4px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:5px 9px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.green{border-color:var(--green);color:var(--green)}
+.tocbar a.blue{border-color:var(--blue);color:var(--blue)}
+.tocbar a.violet{border-color:var(--violet);color:var(--violet)}
+.tocbar a.teal{border-color:var(--teal);color:var(--teal)}
+.tocbar a.red{border-color:var(--red);color:var(--red)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;margin:14px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.decision.green{border-color:var(--green);background:linear-gradient(135deg,rgba(147,226,170,.06),rgba(147,226,170,.02))}
+.decision.green h3{color:var(--green)}
+.decision.blue{border-color:var(--blue);background:linear-gradient(135deg,rgba(139,188,255,.06),rgba(139,188,255,.02))}
+.decision.blue h3{color:var(--blue)}
+.decision.red{border-color:var(--red);background:linear-gradient(135deg,rgba(255,138,107,.06),rgba(255,138,107,.02))}
+.decision.red h3{color:var(--red)}
+.timeline{position:relative;padding-left:30px;margin-top:14px}
+.timeline:before{content:"";position:absolute;left:10px;top:0;bottom:0;width:2px;background:var(--line)}
+.tl{position:relative;padding:8px 12px 18px 18px;margin-left:0}
+.tl:before{content:"";position:absolute;left:-22px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 3px var(--bg)}
+.tl.b:before{background:var(--blue)}.tl.g:before{background:var(--green)}.tl.r:before{background:var(--red)}.tl.v:before{background:var(--violet)}.tl.t:before{background:var(--teal)}
+.tl b{display:block;color:#fff;font-size:16px;font-family:"Cormorant Garamond",Georgia,serif}
+.tl span{color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.1em;font-weight:800}
+.tl p{margin:6px 0 0;color:#cbd7df;font-size:13.5px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.card{border:1px solid var(--line);border-radius:9px;background:#0d1823;padding:14px 16px}
+.card h4{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:21px;color:#fff}
+.card p{margin:0 0 6px;color:#cbd7df;font-size:13.5px}
+.card.gold{border-top:4px solid var(--gold)}
+.card.green{border-top:4px solid var(--green)}
+.card.blue{border-top:4px solid var(--blue)}
+.card.red{border-top:4px solid var(--red)}
+.card.violet{border-top:4px solid var(--violet)}
+.card.teal{border-top:4px solid var(--teal)}
+.matrix{display:grid;grid-template-columns:1.3fr repeat(4,1fr);gap:5px;margin-top:12px;font-size:12px}
+.matrix .h{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:8px;border:1px solid var(--line);text-align:center;font-weight:800}
+.matrix .h.row{text-align:left}
+.matrix .c{background:#0d1823;border:1px solid var(--line);padding:8px 9px;color:#d4dee5}
+.matrix .c.head{background:#101e2c;color:#fff;font-weight:700}
+.matrix .c.good{background:rgba(147,226,170,.08);border-left:3px solid var(--green)}
+.matrix .c.warn{background:rgba(255,210,138,.07);border-left:3px solid var(--gold)}
+.matrix .c.bad{background:rgba(255,138,107,.07);border-left:3px solid var(--red)}
+.matrix .c.cool{background:rgba(139,188,255,.07);border-left:3px solid var(--blue)}
+.matrix .c.violet{background:rgba(201,167,255,.07);border-left:3px solid var(--violet)}
+.callout{border:1px solid var(--gold);border-radius:8px;background:rgba(255,210,138,.04);padding:12px 14px;margin:10px 0;color:#eaf2f7;font-size:14px}
+.callout b{color:var(--gold)}
+.callout.red{border-color:var(--red);background:rgba(255,138,107,.04)}
+.callout.red b{color:var(--red)}
+.callout.green{border-color:var(--green);background:rgba(147,226,170,.04)}
+.callout.green b{color:var(--green)}
+.callout.blue{border-color:var(--blue);background:rgba(139,188,255,.04)}
+.callout.blue b{color:var(--blue)}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .matrix{grid-template-columns:1fr 1fr}.cards{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Korean PTC Over-diagnosis Epi Context · 2026-05-14 · 자가-소멸하는 자연 실험</p>
+    <h1>한국 PTC over-diagnosis — 닫혀가는 창문, 그러나 지금이 기회.</h1>
+    <p class="lead">
+      한국은 1999 년 NHIS screening 도입 이후 PTC 진단이 폭증했고, 2014 년 KMA 가 ultrasound screening 에 반대 권고를 내며 흐름이 바뀌었다.
+      현재 active surveillance (AS) 가 임상 표준으로 부상 중이며, MAeSTro / MASTER / KoMPASS cohort 가 그 흐름을 받쳤다.
+      이 환경은 <b>자가-소멸 자연 실험</b>이다 — 현재 surgery cohort 의 quasi-experimental window 가 닫히고 있으며,
+      이 안에서만 도출 가능한 <b>reproducible causal evidence</b>가 우리 platform 의 archival value 이다.
+      <b>K2 88.8% DM2</b> = 한국 over-diagnosis signature, <b>5,000 BABA</b> = central asset, <b>62 CTC/EMT</b> = biological readout — 세 layer 가 framing 의 기둥이다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>88.8%</b><span>K2 DM2 비율</span><small>Korean over-diagnosis signature · PRJEB11591 Yoo 2016</small></div>
+      <div class="stat"><b>AS</b><span>표준 부상 중</span><small>MAeSTro/MASTER/KoMPASS · surgery cohort 축소 중</small></div>
+      <div class="stat"><b>2030</b><span>창문 닫힘 추정</span><small>self-extinguishing window · surgery share 급감 예상</small></div>
+      <div class="stat"><b>5,000</b><span>BABA cohort</span><small>Yu robotic thyroidectomy · central asset</small></div>
+      <div class="stat"><b>62</b><span>CTC/EMT</span><small>biological readout · counterfactual progression endpoint</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">평결</a>
+  <a class="primary" href="#history">Overdx 역사</a>
+  <a class="primary" href="#as">AS vs surgery</a>
+  <a class="primary" href="#extinguish">Self-extinguishing</a>
+  <a class="primary" href="#baba">5,000 BABA</a>
+  <a class="primary" href="#ctc">62 CTC/EMT</a>
+  <a class="primary" href="#k2">K2 88.8% DM2</a>
+  <a class="primary" href="#transfer">Transfer (prostate/DCIS)</a>
+  <a class="primary" href="#hierarchy">Claim hierarchy</a>
+  <a class="primary" href="#closing">Honest closing</a>
+  <a href="yu_meeting_brief_2026_05_14.html">미팅 브리핑</a>
+  <a class="red" href="reviewer_war_room_2026_05_14.html">War room</a>
+  <a class="teal" href="method_comparison_atlas_2026_05_14.html">Method atlas</a>
+  <a class="green" href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+  <a class="blue" href="venue_strategy_2026_05_14.html">Venue strategy</a>
+  <a class="red" href="honest_negatives_wall_2026_05_14.html">Honest nulls</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="decision_board_2026_05_14.html">Decision board</a>
+  <a href="figure_gallery_2026_05_14.html">Figure gallery</a>
+  <a href="methodology_atlas_2026_05_14.html">Methodology atlas</a>
+  <a href="timeline_gantt_2026_05_14.html">Gantt</a>
+  <a href="grant_samsung_causal_kthyro_2026_05_14.html">Samsung grant</a>
+  <a href="track1_dm1_command_room.html">T1 DM1</a>
+  <a href="track2_histology_command_room.html">T2 Histology</a>
+  <a href="track3_hla_isolated_command_room.html">T3 HLA#1</a>
+  <a href="track4_korean_gd_command_room.html">T4 HLA#2</a>
+  <a href="track5_samsung_command_room.html">T5 Samsung</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>평결 — Causal evidence window 닫히는 중, 그러나 지금이 archival 기회</h2>
+  <p class="sub">verdict · 2026-05-14 · over-diagnosis epi framing</p>
+  <div class="decision">
+    <h3>GOLD — 창문은 닫히고 있다 (self-extinguishing natural experiment)</h3>
+    <p>한국은 AS vs surgery 의 의사 결정 흐름이 빠르게 바뀌고 있고, surgery cohort 크기가 축소 중이다.
+    현재 BABA 5,000 + MAeSTro/MASTER/KoMPASS + CTC 62 의 조합으로만 도출 가능한 <b>quasi-experimental causal evidence</b>는 <b>지금이 archival 기회</b>다.
+    Samsung grant 의 "30억 main story" 가 이 창문을 잡는 전략이다.</p>
+  </div>
+  <div class="decision blue">
+    <h3>BLUE — 다른 over-treated cancer 로 transfer 필요</h3>
+    <p>창문이 닫혀도 우리 platform 이 archival value 를 유지하려면 <b>다른 over-treated cancer</b> (low-risk prostate / DCIS / indolent lymphoma) 로 framework transfer 가 필요.
+    Samsung 의 "future direction" 은 이 transfer 가 핵심. 한국 PTC 의 자가-소멸 자체가 framework reproducibility 의 stress test.</p>
+  </div>
+</section>
+
+<section id="history">
+  <h2>한국 PTC over-diagnosis 역사 — 1999 → 2014 → 2026</h2>
+  <p class="sub">timeline · NHIS screening → KMA recommendation → AS standard</p>
+  <p class="note">한국 PTC 발생률은 1999 년부터 폭증하여 2011 년 인구당 발생률이 <b>세계 1위</b>가 됐다. 그러나 사망률은 같은 기간 거의 변화 없음 → <b>over-diagnosis 의 교과서적 사례</b>로 국제적으로 인용된다.</p>
+  <div class="timeline">
+    <div class="tl"><span>1999</span><b>NHIS 국가건강검진 도입</b><p>National Health Insurance Service 건강검진에 ultrasound 가 광범위하게 포함. 갑상선 결절 발견율이 급증.</p></div>
+    <div class="tl b"><span>1999-2011</span><b>PTC 진단율 15배 증가</b><p>같은 기간 사망률은 거의 unchanged. Ahn et al. NEJM 2014, Vaccarella et al. NEJM 2016 에서 over-diagnosis 의 표본 사례로 보고.</p></div>
+    <div class="tl r"><span>2014.03</span><b>KMA: ultrasound 일상 screening 반대 권고</b><p>대한의사협회가 무증상 성인에 대한 ultrasound 일상 screening 에 반대 권고. 진단율이 즉시 plateau.</p></div>
+    <div class="tl v"><span>2015-2020</span><b>Active surveillance 임상 수용 확대</b><p>Ito 2003 (Kuma Hospital) framework 가 한국 임상에 본격 도입. PTMC (papillary thyroid microcarcinoma) 가 AS 의 1차 타깃.</p></div>
+    <div class="tl g"><span>2020-2024</span><b>MAeSTro / MASTER / KoMPASS cohort 가동</b><p>Multi-institutional AS cohort 가 본격적으로 데이터 축적. AS 가 surgery 와 동등한 outcome 임을 증명.</p></div>
+    <div class="tl t"><span>2026 (present)</span><b>AS 가 표준 부상 — surgery cohort 축소</b><p>AS uptake 가 PTMC 의 대다수에서 1차 선택. Surgery cohort 가 점차 high-risk (extra-thyroidal extension, BRAF+, TERT+) 로 enrichment.</p></div>
+    <div class="tl r"><span>~2030 (proj.)</span><b>Surgery cohort = high-risk 만 남음 (window 닫힘)</b><p>PTMC surgery 가 급감. 우리가 보유한 BABA 5,000 + MAeSTro/MASTER/KoMPASS quasi-experimental window 가 사실상 닫힘. <b>causal evidence 는 archival 자료가 됨.</b></p></div>
+  </div>
+
+  <table>
+    <thead><tr><th>Era</th><th>발생률</th><th>사망률</th><th>1차 치료</th><th>국제 비교</th></tr></thead>
+    <tbody>
+      <tr><td>1990s</td><td>baseline</td><td>baseline</td><td>thyroidectomy + RAI</td><td>한국 = OECD 중간</td></tr>
+      <tr><td>2000-2010</td><td><span class="bad">15× ↑</span></td><td>unchanged</td><td>thyroidectomy + RAI</td><td>한국 = 세계 1위 (Ahn 2014)</td></tr>
+      <tr><td>2014-2020</td><td>plateau</td><td>unchanged</td><td>thyroidectomy + RAI (대부분), AS 도입</td><td>한국 = "over-diagnosis 교과서" (Vaccarella 2016)</td></tr>
+      <tr><td>2020-2024</td><td>plateau, AS share ↑</td><td>unchanged</td><td>AS 1차 선택 비율 ↑</td><td>한국 = AS pioneer (MAeSTro)</td></tr>
+      <tr><td>2026 (present)</td><td>plateau</td><td>unchanged</td><td>AS standard for PTMC</td><td>한국 = quasi-experimental archive</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="as">
+  <h2>Active surveillance vs surgery dynamics — MAeSTro / MASTER / KoMPASS</h2>
+  <p class="sub">AS vs surgery · 한국 cohort · uptake trend · surveillance bias warning</p>
+  <p class="note">한국 AS 운동의 3 개 main cohort. Samsung grant 의 quasi-experimental target trial emulation 의 main exposure cohort 들이다.</p>
+  <div class="cards">
+    <div class="card gold"><h4>MAeSTro</h4>
+      <p><b>Multi-center Active SurveillancE TRial On thyroid cancer</b></p>
+      <p>대표 PI 박영주 (SNU), 다기관 prospective AS cohort. PTMC 환자가 main, follow-up &gt;5 년. Tumor growth + lymph node metastasis 가 endpoint.</p>
+      <p><b>Samsung 가치:</b> AS arm 의 primary exposure data + outcome trajectory.</p></div>
+    <div class="card blue"><h4>MASTER</h4>
+      <p><b>Management of Asymptomatic small papillary Thyroid carcinoma in adults</b></p>
+      <p>다기관 등록 (Asan/Samsung Medical/세브란스 등). MAeSTro 와 partial overlap, 다른 환자집단 포함.</p>
+      <p><b>Samsung 가치:</b> External validation cohort. MAeSTro 결과 transferability.</p></div>
+    <div class="card violet"><h4>KoMPASS</h4>
+      <p><b>Korean Multi-center Papillary thyroid cancer Active Surveillance Study</b></p>
+      <p>한국 다기관 AS cohort. Patient-reported outcome 과 cost-effectiveness 데이터.</p>
+      <p><b>Samsung 가치:</b> Patient-reported outcome + cost dimension.</p></div>
+  </div>
+
+  <div class="matrix">
+    <div class="h row">Trade-off</div>
+    <div class="h">MAeSTro</div><div class="h">MASTER</div><div class="h">KoMPASS</div><div class="h">BABA 5,000 (Yu)</div>
+    <div class="c head">Surgery vs AS</div>
+    <div class="c good">AS prospective</div><div class="c good">AS multi-center</div><div class="c good">AS + PRO</div><div class="c warn">surgery only (robotic)</div>
+    <div class="c head">Sample size</div>
+    <div class="c good">~1,000+</div><div class="c good">~500+</div><div class="c warn">~수백</div><div class="c good">5,000</div>
+    <div class="c head">Follow-up</div>
+    <div class="c good">&gt;5y</div><div class="c warn">~3y</div><div class="c warn">~3y</div><div class="c good">long FUP</div>
+    <div class="c head">Yu access</div>
+    <div class="c warn">outreach pending</div><div class="c warn">outreach pending</div><div class="c warn">outreach pending</div><div class="c good">Yu central asset</div>
+    <div class="c head">Sample-size 약점</div>
+    <div class="c good">large</div><div class="c warn">mid</div><div class="c warn">small</div><div class="c good">large</div>
+  </div>
+
+  <div class="callout red"><b>Surveillance bias warning:</b> AS cohort 자체가 selection bias 를 내장 — AS 를 선택한 환자는 더 안정적/저위험인 경향. 이를 통제하려면 <b>propensity matching + target trial emulation</b> (Hernán-Robins) 으로 디자인. Samsung grant 의 main analytic backbone.</div>
+</section>
+
+<section id="extinguish">
+  <h2>Self-extinguishing data structure — 창문은 닫히고 있다</h2>
+  <p class="sub">self-extinguishing · current quasi-experimental window · future surgery cohort 축소</p>
+  <p class="note">이 section 은 grant 의 가장 솔직하고 가장 강한 framing: 우리가 보유한 quasi-experimental window 는 <b>본질적으로 archival 자료</b>가 된다. 그래서 지금이 기회.</p>
+  <table>
+    <thead><tr><th>Layer</th><th>현재 (2026)</th><th>2030 (proj.)</th><th>Archival value</th></tr></thead>
+    <tbody>
+      <tr><td>Surgery cohort 비율</td><td>still substantial (transition era)</td><td><span class="bad">→ high-risk only</span></td><td>현재 cohort 만이 PTMC surgery + AS 양쪽을 동시 보유</td></tr>
+      <tr><td>AS cohort 비율</td><td>중간 (MAeSTro/MASTER/KoMPASS)</td><td><span class="good">→ standard</span></td><td>AS 비율이 standard 되면 selection bias 가 더 강해짐</td></tr>
+      <tr><td>BABA (Yu)</td><td>5,000 robotic thyroidectomy</td><td><span class="bad">future = high-risk only</span></td><td>현재 cohort 가 PTMC + high-risk 양쪽 포함, 이후는 high-risk biased</td></tr>
+      <tr><td>CTC/EMT</td><td>62 (biological readout)</td><td>~200 (가능, future cohort)</td><td>biological mechanism 은 archival 후에도 transferable</td></tr>
+      <tr><td>Causal claim</td><td><span class="good">AS vs surgery counterfactual 가능</span></td><td><span class="bad">→ AS-only data 만</span></td><td>현재만이 두 arm 비교 — archival 가치 최고</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout red"><b>핵심 framing:</b> "AS 가 임상 표준이 되기 전에" causal evidence 를 잡지 않으면 <b>나중에는 불가능</b>하다. 이것이 Samsung 30억 의 시간적 imperative.</div>
+
+  <div class="callout"><b>Reviewer rebuttal:</b> "10년 후 surgery cohort 사라지면 모델 가치도 사라지지 않냐?" → <b>"맞다 — 그래서 우리 framework 의 transferability (prostate/DCIS/lymphoma) 가 핵심 archival asset. PTC = 자가-소멸 자연 실험, framework = 영구 자산."</b></div>
+</section>
+
+<section id="baba">
+  <h2>Yu 5,000 BABA cohort — central asset</h2>
+  <p class="sub">BABA · trans-axillary robotic thyroidectomy · Yu central asset · validation pillar</p>
+  <p class="note">유형원 교수의 5,000 BABA cohort = trans-axillary robotic thyroidectomy 시행 환자. 이 cohort 가 Samsung grant 의 main exposure data + Paper 2 H&amp;E 외부검증의 central asset 이다.</p>
+  <table>
+    <thead><tr><th>속성</th><th>값</th><th>Samsung 가치</th><th>Paper 가치</th></tr></thead>
+    <tbody>
+      <tr><td>Sample size</td><td>~5,000</td><td>main exposure cohort (target trial)</td><td>Paper 2 K2 H&amp;E confirmatory gate</td></tr>
+      <tr><td>Surgery type</td><td>trans-axillary robotic (BABA)</td><td>uniform surgery (confound 감소)</td><td>uniform tissue collection</td></tr>
+      <tr><td>Tissue access</td><td>FFPE block (long-term)</td><td>retrospective biomarker possible</td><td>H&amp;E + IHC + molecular</td></tr>
+      <tr><td>Clinical outcome</td><td>long FUP (~5-10 y)</td><td>OS / DFS endpoint</td><td>survival validation</td></tr>
+      <tr><td>BRAF/RAS status</td><td>partial, expansion possible</td><td>driver-stratified target trial</td><td>Paper 1 BRAF-neg subspace</td></tr>
+      <tr><td>Selection</td><td>robotic thyroidectomy → selected</td><td>propensity matching로 control</td><td>본문 limitation 명시</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green"><b>Yu vs others:</b> 5,000 BABA 는 단일-PI / 단일-surgical-protocol 의 uniform cohort — 다기관 noise 없음. <b>"Yu central asset"</b> 이 Samsung grant 의 sample-size 약점 답안.</div>
+</section>
+
+<section id="ctc">
+  <h2>62 CTC/EMT cohort — biological readout layer</h2>
+  <p class="sub">62 CTC/EMT · biological readout · counterfactual progression endpoint</p>
+  <p class="note">62 CTC/EMT cohort = circulating tumor cell + EMT marker 가 측정된 환자. Samsung grant 의 mechanistic surrogate endpoint, 작아도 biological readout 의 의미.</p>
+  <table>
+    <thead><tr><th>Layer</th><th>값</th><th>Statistical power</th><th>Mechanistic value</th></tr></thead>
+    <tbody>
+      <tr><td>Sample size</td><td>62</td><td><span class="bad">low (small-N)</span></td><td><span class="good">mechanistic readout</span></td></tr>
+      <tr><td>CTC count</td><td>baseline + serial</td><td>longitudinal mixed model</td><td>tumor dissemination dynamics</td></tr>
+      <tr><td>EMT marker</td><td>Vimentin / E-cadherin / Snail / etc.</td><td>multi-marker composite</td><td>progression mechanism</td></tr>
+      <tr><td>Endpoint</td><td>EMT change vs counterfactual</td><td>causalimpact-style</td><td>biological progression surrogate</td></tr>
+      <tr><td>Samsung framing</td><td>biological readout layer</td><td>BABA 5,000 main + CTC 62 mechanistic</td><td>2-layer power separation</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Power separation:</b> CTC=62 가 작아도 BABA=5,000 에서 statistical power 회수. 두 layer 의 역할 분리:
+  <br/>· BABA 5,000 = main exposure cohort (target trial main analysis)
+  <br/>· CTC 62 = biological readout (mechanistic surrogate endpoint)
+  <br/>· EMT marker = counterfactual progression endpoint (causalimpact)</div>
+</section>
+
+<section id="k2">
+  <h2>K2 88.8% DM2 = Korean over-diagnosis signature</h2>
+  <p class="sub">K2 88.8% DM2 · Korean over-diagnosis signature · TCGA equivalent NBNR 4× HT rate</p>
+  <p class="note">K2 (PRJEB11591 Yoo 2016 SNU-GMI) 의 88.8% 가 DM2 (low DM1 silencing). 이는 <b>한국 over-diagnosis 환경의 분자적 fingerprint</b>: 한국 환자의 대다수가 indolent 한 BRAF-negative / RAS-driven / DM1-low PTC 이라는 의미.</p>
+  <table>
+    <thead><tr><th>Cohort</th><th>DM1 비율</th><th>DM2 비율</th><th>Interpretation</th></tr></thead>
+    <tbody>
+      <tr><td>K2 (PRJEB11591 Yoo 2016)</td><td>~11%</td><td><span class="hi">88.8%</span></td><td>한국 over-diagnosis signature — 대부분 indolent</td></tr>
+      <tr><td>TCGA-THCA</td><td>~40-50%</td><td>~50-60%</td><td>미국 cohort, mixed enrichment</td></tr>
+      <tr><td>TCGA-THCA DM1 sub-B (n=56)</td><td>96% mutation-negative</td><td>—</td><td>TCGA equivalent of K2 NBNR + 4× HT rate</td></tr>
+      <tr><td>Lee ATC/Normal</td><td>—</td><td>—</td><td>ATC enrichment (post-progression)</td></tr>
+      <tr><td>Landa GSE76039 PDTC/ATC</td><td>—</td><td>—</td><td>PDTC vs ATC d=+3.47 (advanced)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green"><b>K2 NBNR ↔ TCGA DM1 sub-B bridge:</b> K2 의 NBNR (Yoo 2016 mutation-negative) cohort 는 TCGA DM1 sub-B (n=56, 96% mutation-negative + 4× HT rate) 와 equivalent. Paper 1 의 dark matter framing 이 한국 cohort 에서 회수 가능한 axis 임을 증명.</div>
+
+  <div class="callout blue"><b>Paper 2 K2 H&amp;E escalation:</b> K2 NBNR 환자에서 image-DM1 escalation 으로 surveillance vs surgery 의사결정 layer 추가. 한국 over-diagnosis 환경에서 H&amp;E-기반 분자 risk 회수의 axis.</div>
+</section>
+
+<section id="transfer">
+  <h2>다른 over-treated cancer 로의 transfer — prostate / DCIS / lymphoma</h2>
+  <p class="sub">transfer · Samsung future direction · framework reproducibility</p>
+  <p class="note">한국 PTC 의 자가-소멸 자연 실험이 닫혀도, 우리 framework 가 archival value 를 유지하려면 다른 over-treated cancer 로 transfer 필요. Samsung grant 의 future direction 의 핵심.</p>
+  <table>
+    <thead><tr><th>대상</th><th>Over-treatment 정도</th><th>AS cohort</th><th>Transfer 어려움</th><th>Samsung 가치</th></tr></thead>
+    <tbody>
+      <tr><td><b>Low-risk prostate cancer</b></td><td>matched (Korean PTC 와 유사)</td><td>PRIAS / GAP3 / 한국 다기관</td><td><span class="good">low (framework match)</span></td><td>causal triage framework 1차 transfer target</td></tr>
+      <tr><td><b>DCIS (ductal carcinoma in situ)</b></td><td>strong over-treatment 의심</td><td>LORIS / COMET / LORD</td><td><span class="warn">mid (mammography 의존)</span></td><td>imaging-molecular axis transfer</td></tr>
+      <tr><td><b>Indolent lymphoma (follicular)</b></td><td>watch-and-wait 이미 표준</td><td>multi-center registries</td><td><span class="warn">mid (FL 의 heterogeneity)</span></td><td>molecular risk stratification transfer</td></tr>
+      <tr><td><b>Renal small mass (&lt;4cm)</b></td><td>active surveillance 부상</td><td>DISSRM / 한국 registry</td><td><span class="warn">mid (imaging-driven)</span></td><td>radiology-molecular transfer</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green"><b>Transfer logic:</b> 한국 PTC 의 quasi-experimental window 가 닫혀도, <b>framework 자체</b> (target trial emulation + DR learner + DM1-like dark matter axis + image surrogate + CTC mechanistic readout) 는 transferable.
+  <br/>· 1차 transfer target: low-risk prostate (PRIAS/GAP3 가 MAeSTro 와 유사)
+  <br/>· 2차 transfer target: DCIS (LORIS/COMET/LORD)
+  <br/>· 3차 transfer target: indolent lymphoma (FL watch-and-wait)
+  <br/>이 transfer 가 framework reproducibility 의 stress test 가 된다.</div>
+</section>
+
+<section id="hierarchy">
+  <h2>Causal claim hierarchy — what we can claim vs what target trial actually shows</h2>
+  <p class="sub">claim hierarchy · decision support · NOT immunogenicity/causal proof · CROSS-Neo tone</p>
+  <p class="note">우리가 본문에서 사용할 수 있는 claim 의 layer 를 명확히 분리한다. Reviewer 의 "claim boundary 가 모호하다" 공격에 대비.</p>
+  <table>
+    <thead><tr><th>Layer</th><th>Claim</th><th>가능 여부</th><th>Evidence backing</th></tr></thead>
+    <tbody>
+      <tr><td>L1 — Association</td><td>"DM1 = dedifferentiation marker (TCGA + Korean cohort)"</td><td><span class="good">YES</span></td><td>10/12 contrasts FDR&lt;0.01, 4/4 cohort sign, TDS-16 ρ=0.954</td></tr>
+      <tr><td>L2 — Prognostic prediction</td><td>"TERT_or_DM1 1y ROC=0.83"</td><td><span class="good">YES</span></td><td>TERT HR=7.57, AUC 0.90/0.97/0.95</td></tr>
+      <tr><td>L3 — Decision support</td><td>"K2 NBNR escalation hypothesis"</td><td><span class="hi">YES (hypothesis)</span></td><td>K2 88.8% DM2 + TCGA DM1 sub-B 4× HT</td></tr>
+      <tr><td>L4 — Quasi-experimental causal</td><td>"AS vs surgery counterfactual via target trial emulation"</td><td><span class="hi">YES (with assumptions)</span></td><td>BABA 5,000 + MAeSTro/MASTER/KoMPASS + DR learner + IPW</td></tr>
+      <tr><td>L5 — Mechanistic causal</td><td>"DM1 causes dedifferentiation"</td><td><span class="bad">NO</span></td><td>association only — not knock-out / not Mendelian randomization</td></tr>
+      <tr><td>L6 — Treatment-changing causal</td><td>"DM1+ 환자에게 다른 치료 권고"</td><td><span class="bad">NO (yet)</span></td><td>prospective trial 필요 — Samsung future direction</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><b>Claim boundary statement (cover paragraph 1 표준):</b> "<i>본 연구는 decision support 및 risk stratification 의 분자 axis 를 제시한다. Mechanistic causation 이나 treatment-changing causal claim 은 prospective trial 의 영역으로 명시 분리한다.</i>" — CROSS-Neo tone 과 동일.</div>
+</section>
+
+<section id="closing">
+  <h2>Honest closing — "10년 후 AS가 표준이 되면 이 모델의 임상가치는?"</h2>
+  <p class="sub">honest closing · self-extinguishing → transfer + reproducible causal framework</p>
+  <p class="note">이 페이지의 가장 솔직한 마무리. Reviewer / Yu 교수 / 삼성 평가관 모두에게 같은 정직한 답.</p>
+
+  <h3>Question</h3>
+  <p style="font-family:Newsreader,Georgia,serif;font-style:italic;font-size:18px;color:#fff;margin:10px 0;padding:14px 18px;border-left:4px solid var(--gold);background:rgba(255,210,138,.04)">
+    "10년 후 AS 가 표준이 되어 한국 PTC surgery cohort 가 사라지면, 이 모델의 임상가치는 어떻게 됩니까?"
+  </p>
+
+  <h3>Answer (3 layers)</h3>
+  <div class="cards">
+    <div class="card green"><h4>Layer 1: Transfer asset</h4>
+      <p>Framework 자체 (target trial + DR learner + DM1-like dark matter + image surrogate + CTC readout) 가 prostate / DCIS / indolent lymphoma 로 transfer.</p>
+      <p><b>가치:</b> over-treated cancer 의 일반화된 causal triage stack — 한국 PTC 가 닫혀도 다른 cancer 에서 살아남는다.</p></div>
+    <div class="card blue"><h4>Layer 2: Reproducible causal framework</h4>
+      <p>"한국 PTC = 자가-소멸 자연 실험" 이라는 연구 자체가 <b>causal evidence 의 archive</b>. 미래 cohort 가 닫혀도 우리가 잡은 quasi-experimental result 는 reproducibility benchmark 가 된다.</p>
+      <p><b>가치:</b> "이 시기에만 가능한 evidence" 의 archival 자료 — 미래 연구자가 우리 framework 를 inherit.</p></div>
+    <div class="card violet"><h4>Layer 3: Framework asset</h4>
+      <p>분자 axis (DM1 dark matter) + image axis (H&amp;E → DM1) + immunology axis (HT-overlap) + causal axis (target trial emul) 의 4-axis framework 가 PTC 외에 transferable.</p>
+      <p><b>가치:</b> "platform" 가치 — 한 cohort 에 종속되지 않고 새 cohort 에 plug-in.</p></div>
+  </div>
+
+  <div class="callout green"><b>Honest one-liner:</b> "10년 후 한국 PTC surgery cohort 가 사라지면, 이 모델은 <b>한국 PTC 모델</b>로서는 임상가치 축소. 그러나 <b>over-treated cancer 의 causal triage framework</b> 로서는 prostate / DCIS / lymphoma 로 transfer 가능 — 그 transfer 가능성이 framework 자체의 archival 가치다."</div>
+
+  <div class="callout red"><b>안 솔직하게 답하면 안 되는 이유:</b> 평가관/reviewer 가 이미 한국 over-diagnosis 환경을 알고 있다. "transferable + archival + framework" 의 3-layer 가 honest framing. 70% 이상 ROI 약속은 거짓말.</div>
+</section>
+
+<section id="siblings">
+  <h2>Sibling links — family 30+ 페이지</h2>
+  <p class="sub">siblings · 2026-05-14 family</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800">
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">유 미팅 통합 브리핑</a>
+    <a href="reviewer_war_room_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Reviewer war room</a>
+    <a href="method_comparison_atlas_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Method comparison atlas</a>
+    <a href="korean_overdiagnosis_epi_context_2026_05_14.html" style="border:1px solid var(--violet);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--violet)">Korean over-diagnosis epi (this)</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Evidence atlas</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Honest negatives wall</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--violet);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--violet)">Triangulation</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Decision board</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Figure gallery</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Methodology atlas</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">90-day Gantt</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--blue);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--blue)">Venue strategy</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html" style="border:1px solid var(--blue);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--blue)">KR 1-pager</a>
+    <a href="grant_samsung_causal_kthyro_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Samsung grant</a>
+    <a href="track1_dm1_command_room.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">T1 DM1</a>
+    <a href="track2_histology_command_room.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">T2 Histology</a>
+    <a href="track3_hla_isolated_command_room.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">T3 HLA #1</a>
+    <a href="track4_korean_gd_command_room.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">T4 HLA #2</a>
+    <a href="track5_samsung_command_room.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">T5 Samsung</a>
+    <a href="paper1_nature_cancer_board.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 NC board</a>
+    <a href="paper11_pancancer.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 11 pancancer</a>
+    <a href="paper2_master_view.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 master</a>
+    <a href="paper2-hla/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 HLA dossier</a>
+    <a href="paper4-hla/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 4 HLA dossier</a>
+    <a href="hla_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA atlas</a>
+    <a href="driver_gene_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Driver atlas</a>
+    <a href="index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Hub home</a>
+  </div>
+</section>
+
+<p class="footer">Korean PTC Over-diagnosis Epi Context · 2026-05-14 · Seungho Cook · self-extinguishing natural experiment · transferable causal framework · marathon mode 5/4-6/13 · NC↑ floor</p>
+
+</main>
+</body>
+</html>

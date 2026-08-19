@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Methodology Atlas · 2026-05-14 · 모든 파이프라인 한 페이지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:64px;line-height:.98;margin:0 0 16px;letter-spacing:-1.4px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+p.intro{font-family:Newsreader,Georgia,serif;font-size:17.5px;color:#dde6ec;max-width:1100px;margin:0 0 16px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px;color:#eaf2f7}
+pre{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:#0a1620;border:1px solid var(--line);border-radius:8px;padding:14px 16px;color:#dde6ec;overflow-x:auto;line-height:1.55}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:16px 18px;position:relative}
+.card.t1{border-top:4px solid var(--gold)}
+.card.t2{border-top:4px solid var(--blue)}
+.card.t3{border-top:4px solid var(--green)}
+.card.t4{border-top:4px solid var(--violet)}
+.card.t5{border-top:4px solid var(--teal)}
+.card h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:#fff}
+.card .one{color:#cbd7df;margin:0 0 10px;font-size:14px}
+.kv{display:grid;grid-template-columns:1fr 2fr;gap:6px 12px;font-size:13px;margin:8px 0 10px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.kv .v{color:#eaf2f7;font-weight:600}
+.bullets{margin:6px 0 8px;padding-left:18px;color:#cbd7df;font-size:13.5px}
+.bullets li{margin:3px 0}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.good{color:var(--green);font-weight:900}.violet{color:var(--violet);font-weight:900}.bad{color:var(--red);font-weight:900}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}.cards{grid-template-columns:1fr}.kv{grid-template-columns:1fr}main{padding:22px 18px 60px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">methodology atlas · 2026-05-14 · Seungho Cook · pipelines · scripts · compute · reproducibility</p>
+    <h1>모든 파이프라인, 한 페이지에 정리했다.</h1>
+    <p class="lead">
+      5개 트랙이 쓰는 <b>12개 파이프라인</b>(RNA · Protein · HM450 methylation · HLA · Image-DM1 · Spatial · DepMap · ICI · Causal · QC · Audit · Hub-deploy)을 한 페이지에 묶었다. 입력 / 출력 / 핵심 도구 / 컴퓨트 / 비용 / 함정(lesson)이 같은 표 안에 들어간다. RunPod A6000 v4 ($0.33/hr, L40S 대비 -58%) · 512G Premium SSD bind mount · arcasHLA $4.80 burst pattern 같은 운영 디테일까지 포함. 모든 figure는 이 atlas의 어느 파이프라인 출력인지 추적 가능.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>5</b><span>active tracks</span><small>DM1 / Histology / HLA · HT / GD / Samsung-causal</small></div>
+      <div class="stat"><b>12</b><span>pipelines documented</span><small>RNA · protein · HM450 · HLA · image · spatial · DepMap · ICI · causal · QC · audit · deploy</small></div>
+      <div class="stat"><b>4</b><span>cloud platforms</span><small>Azure burst · RunPod A6000 · DepMap · cBioPortal</small></div>
+      <div class="stat"><b>386</b><span>datasets cataloged</span><small>data_registry/manifests/master_dataset_catalog.csv · 5 zones</small></div>
+      <div class="stat"><b>1</b><span>reproducibility floor</span><small>scripts/boundary_audit/ must exit 0 before paper-1 commit</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a href="index.html">index</a>
+  <a href="yu_meeting_brief_2026_05_14.html">yu_brief</a>
+  <a href="paper1.html">paper1</a>
+  <a href="paper2_image_dm1.html">paper2_img</a>
+  <a href="paper2_hla.html">paper2_hla</a>
+  <a href="paper4_gd_hla.html">paper4_gd</a>
+  <a href="grant_samsung_causal_kthyro_2026_05_14.html">samsung</a>
+  <a href="track1_dm1_command_room.html">track1</a>
+  <a href="track2_histology_command_room.html">track2</a>
+  <a href="track3_hla_isolated_command_room.html">track3</a>
+  <a href="track4_korean_gd_command_room.html">track4</a>
+  <a href="track5_samsung_command_room.html">track5</a>
+  <a href="evidence_atlas_2026_05_14.html">evidence</a>
+  <a href="timeline_gantt_2026_05_14.html">timeline</a>
+  <a href="decision_board_2026_05_14.html">decisions</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa</a>
+  <a href="figure_gallery_2026_05_14.html">figure_gallery</a>
+  <a class="primary" href="methodology_atlas_2026_05_14.html">methodology</a>
+</div></nav>
+
+<main>
+
+<section id="matrix">
+  <p class="sub">section 1 · pipeline matrix</p>
+  <h2>Pipeline matrix — 트랙 / 입력 / 출력 / 핵심 도구 / 컴퓨트</h2>
+  <p class="intro">12개 파이프라인을 한 표로 본다. <b>트랙</b> column은 Track 1-5 매핑; <b>compute</b> column은 RunPod A6000 vs Azure vs local CPU 구분.</p>
+  <table>
+    <thead><tr><th>#</th><th>PIPELINE</th><th>TRACK</th><th>INPUT</th><th>OUTPUT</th><th>KEY TOOLS</th><th>COMPUTE</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>RNA-seq quantification</td><td>1 · 3 · 5</td><td>FASTQ (TCGA / PRJEB11591 / GEO)</td><td>TPM matrix + DEG</td><td>kallisto · STAR · DESeq2 · limma · ComBat (LODO)</td><td>RunPod A6000 · GNU parallel <code>--tmpdir /workspace/_tmp --compress</code></td></tr>
+      <tr><td>2</td><td>Protein proteogenomic</td><td>1</td><td>Mun 2025 n=336 protein</td><td>signature × clinical Spearman</td><td>Mun proteomics · custom Python · scipy</td><td>local CPU</td></tr>
+      <tr><td>3</td><td>HM450 methylation</td><td>1 · 2</td><td>TCGA HM450 β-values</td><td>DM1 β-score (H13 polarity)</td><td>minfi · ChAMP · custom polarity correction</td><td>local CPU</td></tr>
+      <tr><td>4</td><td>HLA imputation</td><td>3 · 4</td><td>RNA-seq BAM (PRJEB11591)</td><td>4-digit HLA calls + allele freq</td><td>arcasHLA · cookHLA (deferred · SNP)</td><td>Azure burst · ~$4.80 / cohort</td></tr>
+      <tr><td>5</td><td>Image-DM1</td><td>2</td><td>TCGA H&E SVS slides</td><td>per-slide DM1 prob · pooled AUC</td><td>ResNet50 · ViT-L · UNI (gated) · CLAM · LOTO</td><td>RunPod A6000 (UNI gated)</td></tr>
+      <tr><td>6</td><td>Spatial transcriptomics</td><td>1 · 3</td><td>GSE250521 16-sample Visium</td><td>spatial DM1 · LR networks</td><td>MOSCOT · Squidpy · scanpy</td><td>RunPod A6000</td></tr>
+      <tr><td>7</td><td>DepMap dependency</td><td>1</td><td>DepMap 1,141 lines + PRISM</td><td>DM1-high vulnerabilities</td><td>DepMap public · PRISM repurpos drug score</td><td>local CPU</td></tr>
+      <tr><td>8</td><td>ICI response</td><td>1 · 3</td><td>Hugo + Riaz + Liu + MGH GSE115821</td><td>OR / odds vs IFNG · HLA-I composite</td><td>logistic · meta-analysis</td><td>local CPU</td></tr>
+      <tr><td>9</td><td>Causal inference</td><td>5</td><td>Korean K-thyro (Samsung grant)</td><td>HR + E-value + tipping point</td><td>target trial · doubly robust · causal forest · IPW</td><td>RunPod A6000</td></tr>
+      <tr><td>10</td><td>QC / boundary audit</td><td>all</td><td>data_registry catalog</td><td>exit 0 / fail report</td><td><code>scripts/boundary_audit/</code></td><td>local CPU</td></tr>
+      <tr><td>11</td><td>Reproducibility audit</td><td>all</td><td>386-dataset manifest</td><td>5-zone provenance</td><td><code>data_registry/manifests/master_dataset_catalog.csv</code></td><td>local CPU</td></tr>
+      <tr><td>12</td><td>Hub deploy</td><td>all</td><td>HTML + figures</td><td>/var/www/papers/ live</td><td>nginx · symlinks · cp</td><td>local CPU</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="rna">
+  <p class="sub">section 2 · pipeline 1 · rna-seq</p>
+  <h2>RNA-seq pipeline — kallisto + STAR + DESeq2 + ComBat-LODO</h2>
+  <p class="intro">Reference path는 <code>/data/thca/reference_kallisto</code> (512G SSD bind mount). STAR alignment 시 <b>Pod D K2 /tmp 실패 lesson</b> 이후 강제: <code>--tmpdir /workspace/_tmp --compress</code>. Batch correction은 LODO ComBat (v5.2 critical fix — 잘못된 ComBat은 DIAL=0.494 leak artifact 만든다).</p>
+<pre># RNA-seq → DEG (canonical block)
+kallisto quant -i reference_kallisto/idx.kidx \
+  -o results/v17_korean/kallisto/${SAMPLE} \
+  -t 8 --pseudobam \
+  ${FASTQ_R1} ${FASTQ_R2}
+
+STAR --runThreadN 8 \
+  --genomeDir /data/thca/reference_star \
+  --readFilesIn ${R1} ${R2} \
+  --outTmpDir /workspace/_tmp/star_${SAMPLE} \
+  --outSAMtype BAM SortedByCoordinate \
+  --outBAMcompression 6
+
+# GNU parallel pattern
+parallel --tmpdir /workspace/_tmp --compress \
+  -j 4 run_kallisto.sh {} :::: samples.txt
+
+# DEG with ComBat-LODO
+limma::removeBatchEffect(M, batch=cohort, design=group)
+# (NOT plain ComBat — that leaks per v52_lodo_finding)</pre>
+  <table>
+    <thead><tr><th>STEP</th><th>TOOL</th><th>OUTPUT</th><th>LESSON</th></tr></thead>
+    <tbody>
+      <tr><td>1 · pseudo-align</td><td>kallisto</td><td>abundance.tsv</td><td>fast (CPU OK)</td></tr>
+      <tr><td>2 · spliced align</td><td>STAR</td><td>sorted BAM</td><td><span class="bad">/tmp 폭주 주의</span> · 무조건 <code>--tmpdir /workspace/_tmp</code></td></tr>
+      <tr><td>3 · DEG</td><td>DESeq2 · limma</td><td>per-gene log2FC + FDR</td><td>HT-overlap cohort은 cohort×group interaction term 필수</td></tr>
+      <tr><td>4 · batch</td><td>ComBat (LODO 만)</td><td>corrected matrix</td><td>v52 lesson · LODO 아니면 DIAL leak</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="protein">
+  <p class="sub">section 3 · pipeline 2 · protein</p>
+  <h2>Protein pipeline — Mun 2025 proteogenomic triangulation</h2>
+  <p class="intro">Mun 2025 (n=336 tumors) protein 매트릭스로 RNA 신호를 직접 corroborate. <b>thyroid_diff d=-1.91 / myeloid d=+1.52 (sign-match 7/7)</b>; 5/7 panel-8 멤버 단백질 수준 Spearman r&lt;-0.5 along PTC→PDTC→ATC. Wang metabolomics와 Cell Rep Med 2026은 token/anti-bot으로 BLOCKED — reviewer-reserve로 보관.</p>
+  <div class="kv">
+    <div class="k">Cohort</div><div class="v">Mun 2025 n=336 tumors · protein-level</div>
+    <div class="k">Signature score</div><div class="v">z-score average across panel members</div>
+    <div class="k">Stat test</div><div class="v">Spearman ρ · Cohen d for PTC vs PDTC vs ATC</div>
+    <div class="k">Key result</div><div class="v">7/7 sign-match RNA → protein; 5/7 r&lt;-0.5</div>
+    <div class="k">Memory key</div><div class="v">proteogenomic_v1_2026_05_08</div>
+  </div>
+</section>
+
+<section id="methylation">
+  <p class="sub">section 4 · pipeline 3 · hm450 methylation (h13 polarity)</p>
+  <h2>HM450 methylation — H13 polarity correction</h2>
+  <p class="intro">초기 Round 4는 polarity flip artifact를 가졌다. <b>H13 정정 (2026-05-09)</b>: r9_1 master 기준 DM1 = HIGH-β / silenced (cPTC d=+1.50). 원 Round 4 d=-1.75는 label-flip artifact. <b>Landa GSE76039 PDTC vs ATC d=+3.47</b>; spatial DM1↔TDS stage-stable. Paper 1 fig 포팅 시 sign flip 필수.</p>
+  <table>
+    <thead><tr><th>STAGE</th><th>VALUE BEFORE H13</th><th>VALUE AFTER H13 (canonical)</th></tr></thead>
+    <tbody>
+      <tr><td>cPTC vs Normal</td><td><span class="bad">d=-1.75 (flip)</span></td><td><span class="good">d=+1.50 silenced</span></td></tr>
+      <tr><td>PDTC vs ATC (Landa)</td><td>—</td><td><span class="hi">d=+3.47</span></td></tr>
+      <tr><td>Spatial DM1↔TDS</td><td>stage-stable (no change)</td><td>stage-stable</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="hla">
+  <p class="sub">section 5 · pipeline 4 · hla imputation</p>
+  <h2>HLA imputation pipeline — arcasHLA on RNA-seq + AFND baseline</h2>
+  <p class="intro">PRJEB11591 (Yoo 2016 SNU-GMI public) n=260에서 <b>arcasHLA</b> RNA-based imputation. cookHLA는 SNP 필요로 deferred. Azure burst $4.80 cost pattern. 결과: <b>DPB1*05:01 56% K2 cohort</b> (Kim 2014 56% replicate). HLA boundary 비교는 K2 vs AFND South Korea pool 비율 0.93–1.22 all p&gt;0.16. K2 ≠ Bundang (K2 = public PRJEB11591 / Yoo 2016 SNU-GMI; Bundang = outreach-stage, 아직 데이터 없음).</p>
+<pre># arcasHLA on RNA-seq BAM
+arcasHLA extract --paired --threads 8 \
+  --output project/results/v17_korean/arcasHLA/${SAMPLE} \
+  ${BAM}
+
+arcasHLA genotype --threads 8 \
+  --output project/results/v17_korean/arcasHLA/${SAMPLE}.genotype.json \
+  *.extracted.1.fq.gz *.extracted.2.fq.gz
+
+# Storage offload (already done)
+project/results/v17_korean/arcasHLA            → /data/thca/_repo_offload/arcasHLA              (8.4G)
+project/results/v17_korean/arcasHLA_GSE213647  → /data/thca/_repo_offload/arcasHLA_GSE213647   (24G)
+
+# AFND comparison
+python scripts/hla/afnd_ratio_ci.py \
+  --k2 K2_alleles.tsv \
+  --afnd AFND_southkorea_pool.tsv \
+  --out allele_ratio_ci.tsv  # ratios 0.93-1.22, p>0.16</pre>
+</section>
+
+<section id="image">
+  <p class="sub">section 6 · pipeline 5 · image-dm1 (h&e → dm1)</p>
+  <h2>Image-DM1 pipeline — TCGA H&E → UNI/ViT-L + CLAM + LOTO</h2>
+  <p class="intro">TCGA-THCA H&E SVS 슬라이드를 backbone에 넣고 CLAM (Mahmood lab) attention pooling으로 slide-level DM1 prob 산출. <b>Validation = leave-one-TSS-out</b> (TSS confound 차단). UNI (Mass General H&E FM)는 access gated; ResNet50 / ViT-L 결과로 paper 2 launch. <b>N=59 mean AUC 0.83±0.14, pooled 0.75</b>. TSS confound audit: TSS-only LR within RAS-like AUC=1.000 → confound 인지 + 보정 후 잔존 신호 확인.</p>
+  <div class="cards">
+    <div class="card t2">
+      <span class="tag b">backbone</span>
+      <h3>ResNet50 baseline</h3>
+      <p class="one">CNN 표준; reviewer-friendly baseline. Pooled AUC=0.75, per-slide mean 0.83±0.14.</p>
+      <div class="kv"><div class="k">runtime</div><div class="v">~6h / TCGA-THCA n=59 on A6000</div><div class="k">memory</div><div class="v">v19_paper2_image_dm1_pass</div></div>
+    </div>
+    <div class="card t2">
+      <span class="tag b">backbone</span>
+      <h3>ViT-L + CLAM (selected launch)</h3>
+      <p class="one">ViT-L feature + CLAM attention. <b>PASS_LAUNCH_PAPER2</b> decision 2026-05-08.</p>
+      <div class="kv"><div class="k">runtime</div><div class="v">~10h / cohort</div><div class="k">decision</div><div class="v">v19_paper2_image_dm1_pass</div></div>
+    </div>
+    <div class="card t2">
+      <span class="tag b">backbone (gated)</span>
+      <h3>UNI foundation model</h3>
+      <p class="one">Mass General H&E foundation model; access gated. 운영 보류; ViT-L로 paper 2 launch.</p>
+      <div class="kv"><div class="k">status</div><div class="v">gated · waitlist</div><div class="k">role</div><div class="v">reviewer reserve</div></div>
+    </div>
+    <div class="card t2">
+      <span class="tag b">validation</span>
+      <h3>Leave-one-TSS-out</h3>
+      <p class="one">TSS confound 차단; TSS-only LR within RAS-like AUC=1.000 → confound 명시 인지 후 LOTO 통과 신호 보고.</p>
+      <div class="kv"><div class="k">memory</div><div class="v">v19_paper2_image_dm1_pass · paper2_image_dm1.html</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="spatial">
+  <p class="sub">section 7 · pipeline 6 · spatial transcriptomics</p>
+  <h2>Spatial pipeline — GSE250521 + MOSCOT + Squidpy + LR networks</h2>
+  <p class="intro">Lu 2023 GSE250521 16-sample Visium. Stage axis Normal → PTC → LPTC → ATC. <b>MOSCOT</b>로 sample alignment, <b>Squidpy</b>로 neighborhood / LR analysis. <b>LPTC = LR diversity peak (median 2,512 significant LR / sample)</b>; CXCL13↔CCR6/CCR7 TLS axis active. v17_D5P6 BCR clonal TLS의 spatial replication.</p>
+  <div class="kv">
+    <div class="k">Cohort</div><div class="v">GSE250521 16-sample · Lu 2023 · Visium spatial</div>
+    <div class="k">Tools</div><div class="v">MOSCOT (alignment) · Squidpy (neighborhood / LR) · scanpy (preprocessing)</div>
+    <div class="k">Key result</div><div class="v">LPTC median 2,512 sig LR · CXCL13↔CCR6/CCR7 axis</div>
+    <div class="k">Caveat (audit chain)</div><div class="v">raw tumor epithelial MAPK × Panel rho +0.208 attenuates to +0.035 after epithelial/QC/microenvironment adjustment; full residual rho +0.007 → strong reviewer caveat</div>
+    <div class="k">Memory keys</div><div class="v">pantheonos_lptc_tls_finding_2026_05_08 · deconv_v15-v18</div>
+  </div>
+</section>
+
+<section id="depmap">
+  <p class="sub">section 8 · pipeline 7 · depmap dependency + prism drug</p>
+  <h2>DepMap pipeline — 1,141 lines · MYC · NAMPT · MAPK-inhibitor top-15</h2>
+  <p class="intro">DepMap public 1,141 lines. DM1-high cell line subset에서 <b>MYC d=-0.50 p=1e-11</b> + <b>NAMPT d=-0.45 p=1.5e-9</b> druggable. PRISM repurpose drug response: <b>top 7 drugs ALL MAPK inhibitors</b>, FDR&lt;0.05 7/11 MAPK hits, top 15 = 8/15 MAPK (AZD-0364 MEK FDR=6e-7 top). DM1×MAPK-inhibitor LFC Spearman ρ=-0.236.</p>
+  <table>
+    <thead><tr><th>DRUG</th><th>TARGET</th><th>FDR</th><th>DIRECTION</th></tr></thead>
+    <tbody>
+      <tr><td>AZD-0364</td><td>MEK1/2</td><td>6e-7</td><td>DM1-high more sensitive</td></tr>
+      <tr><td>Selumetinib</td><td>MEK1/2</td><td>FDR&lt;0.05</td><td>same</td></tr>
+      <tr><td>Trametinib</td><td>MEK1/2</td><td>FDR&lt;0.05</td><td>same</td></tr>
+      <tr><td>(top 7 all MAPK pathway)</td><td>MEK/RAF/ERK</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="ici">
+  <p class="sub">section 9 · pipeline 8 · ici response · 4 cohorts</p>
+  <h2>ICI response pipeline — Hugo · Riaz · Liu · MGH (Gide substituted)</h2>
+  <p class="intro">Paper 3 Phase C v2. <b>4 ICI cohorts n=421</b>. IMvigor URL은 <code>packageVersions/</code>로 correction; <b>MGH GSE115821를 Gide 대체</b>로 substitute. 결과: <b>IFNG OR=1.53 p=3.7e-4 / HLA-I OR=1.35 p=0.014 / checkpoint OR=1.32 p=0.020 / cytolytic OR=1.27 p=0.046</b>; DM1_inflam composite sign-consistent 4/4 cohorts; HLA-II null (OR=1.02 p=0.84). 결론: HLA-I load-bearing, vulnerability/readiness 강함; thyroid ICI response-predictor claim은 안 함.</p>
+  <table>
+    <thead><tr><th>SIGNATURE</th><th>OR</th><th>P</th><th>4/4 SIGN?</th></tr></thead>
+    <tbody>
+      <tr><td>IFNG</td><td><span class="hi">1.53</span></td><td>3.7e-4</td><td><span class="good">yes</span></td></tr>
+      <tr><td>HLA-I</td><td>1.35</td><td>0.014</td><td><span class="good">yes</span></td></tr>
+      <tr><td>Checkpoint</td><td>1.32</td><td>0.020</td><td><span class="good">yes</span></td></tr>
+      <tr><td>Cytolytic</td><td>1.27</td><td>0.046</td><td><span class="good">yes</span></td></tr>
+      <tr><td>HLA-II</td><td>1.02</td><td>0.84</td><td><span class="bad">null</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="causal">
+  <p class="sub">section 10 · pipeline 9 · causal inference (samsung grant)</p>
+  <h2>Causal inference pipeline — target trial · doubly robust · causal forest · IPW · E-value · tipping point</h2>
+  <p class="intro">삼성 30억 grant 트랙. 한국 K-thyro retrospective cohort에서 RAI / 수술 / 약물 결정을 <b>Hernán-Robins target trial emulation</b>으로 framing. ML estimator는 <b>doubly robust learner</b> + <b>causal forest</b>로 보정. <b>IPW</b>로 weighting. <b>E-value</b>로 unmeasured confounding 한계 명시; <b>tipping point analysis</b>로 missing-not-at-random sensitivity. 5개 약점 답안 (외부 cohort validation · DAG · OS / DSS 평가지표 · sensitivity / tipping · 동시환자 access 4건)을 grant에 박는다.</p>
+  <div class="kv">
+    <div class="k">Frame</div><div class="v">Hernán-Robins target trial emulation</div>
+    <div class="k">Estimator</div><div class="v">Doubly robust (AIPW) · Causal forest (econml/grf) · IPW · TMLE option</div>
+    <div class="k">Sensitivity</div><div class="v">E-value · tipping point · negative control</div>
+    <div class="k">Endpoint</div><div class="v">OS · DSS · RFS · ICU/hospitalization</div>
+    <div class="k">Access</div><div class="v">4건 (한국 K-thyro retrospective · TCGA · Bundang · GSE286332) — grant에 명시</div>
+    <div class="k">Memory</div><div class="v">grant_samsung_causal_kthyro_2026_05_14.html · track5_samsung_command_room.html</div>
+  </div>
+</section>
+
+<section id="compute">
+  <p class="sub">section 11 · compute infrastructure</p>
+  <h2>Compute infra — RunPod A6000 v4 · 512G SSD · bind mounts</h2>
+  <p class="intro">2026-05-07 reorg 이후 운영 layout. <b>RunPod thca-spark-dm-a6000-v4</b> (id <code>uvp9i2r9s6l85y</code>) RTX A6000 48GB $0.33/hr — L40S v3 SSH wedge 이후 $0.79 → $0.33 (-58%). 50GB <code>/runpod-volume</code> persistent volume은 pod-specific (terminate 시 loss). Container disk (<code>/workspace</code>, <code>/tmp</code>, <code>/root</code>) ephemeral. STAR/arcasHLA/GNU parallel은 <code>--tmpdir /workspace/_tmp --compress</code> 필수.</p>
+<pre># Disk layout — bind mounts (xfs on /dev/sdb, 512G Premium SSD)
+/data/thca/repo_results → project/results   (bind, persisted across reboots)
+/data/thca/repo_data    → project/data      (bind, persisted across reboots)
+
+# /etc/fstab
+/data/thca/repo_results  /home/seungho/personal/THCA_data_analysis/project/results  none bind,nofail 0 0
+/data/thca/repo_data     /home/seungho/personal/THCA_data_analysis/project/data     none bind,nofail 0 0
+
+# Verify
+findmnt project/results   # → /dev/sdb[/thca/repo_results]
+
+# RunPod SSH (port/IP refresh via API)
+ssh -i ~/.runpod/ssh/RunPod-Key-Go -p 20788 root@135.84.176.142
+
+# Pod create (GraphQL podFindAndDeployOnDemand returns 403; runpodctl wraps it)
+runpodctl create pod --name thca-spark-dm-a6000-v4 \
+  --gpuType "NVIDIA RTX A6000" \
+  --imageName runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04 \
+  --containerDiskSize 100 --volumeSize 50 \
+  --volumePath /runpod-volume --ports "8888/http,22/tcp" \
+  --startSSH --communityCloud \
+  --env PUBLIC_KEY=$(cat ~/.runpod/ssh/RunPod-Key-Go.pub)</pre>
+  <table>
+    <thead><tr><th>RESOURCE</th><th>SPEC</th><th>COST</th><th>USE</th></tr></thead>
+    <tbody>
+      <tr><td>RunPod A6000 v4</td><td>RTX A6000 48GB · 50GB pod volume</td><td>$0.33/hr</td><td>STAR / arcasHLA / image-DM1 / spatial</td></tr>
+      <tr><td>RunPod L40S v3</td><td>L40S (replaced)</td><td>$0.79/hr</td><td><span class="bad">deprecated · SSH wedged</span></td></tr>
+      <tr><td>Local SSD</td><td>512G Premium SSD on /dev/sdb · xfs</td><td>—</td><td>bind mount target for project/results · project/data</td></tr>
+      <tr><td>Azure burst</td><td>on-demand VM</td><td>~$4.80 / arcasHLA cohort</td><td>HLA imputation burst (PRJEB11591 cohort)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="repro">
+  <p class="sub">section 12 · reproducibility floor</p>
+  <h2>Reproducibility floor — 386 datasets · 5 zones · audit must exit 0</h2>
+  <p class="intro">모든 트랙은 <b>data_registry/manifests/master_dataset_catalog.csv</b>의 386 dataset 목록 안에서만 움직인다. 5 zones (Public / Korean public / Korean private / Internal pathology / Reserve) 분리. <b>scripts/boundary_audit/</b> 가 exit 0을 내야 Paper 1 commit 가능. 이는 reviewer Q "어디서 가져왔는지" 질문에 즉답할 수 있게 하는 floor.</p>
+  <table>
+    <thead><tr><th>ZONE</th><th>EXAMPLES</th><th>BOUNDARY RULE</th></tr></thead>
+    <tbody>
+      <tr><td>Public</td><td>TCGA · GEO · DepMap · cBioPortal</td><td>direct download OK · DOI/accession 박힘</td></tr>
+      <tr><td>Korean public</td><td>PRJEB11591 (Yoo 2016 SNU-GMI · K2) · GSE286332</td><td>K2 ≠ Bundang 구분 · accession 명시</td></tr>
+      <tr><td>Korean private (Bundang)</td><td>Bundang SNUH outreach-stage · no data yet</td><td>아직 zone empty · 접근 시 IRB 명시</td></tr>
+      <tr><td>Internal pathology</td><td>internal hospital H&E (paper 2 reserve)</td><td>not yet included · paper 2 후속</td></tr>
+      <tr><td>Reserve</td><td>Wang metabolomics (blocked) · Cell Rep Med 2026 (blocked)</td><td>reviewer-reserve only · 토큰/anti-bot 차단 명시</td></tr>
+    </tbody>
+  </table>
+  <p class="footer">$ bash scripts/boundary_audit/run_all.sh && echo "ready to commit"</p>
+</section>
+
+<section id="lessons">
+  <p class="sub">section 13 · field lessons baked in</p>
+  <h2>Field lessons — 운영하면서 잃은 시간 → 영구 rule</h2>
+  <table>
+    <thead><tr><th>LESSON</th><th>WHAT BROKE</th><th>PERMANENT RULE</th></tr></thead>
+    <tbody>
+      <tr><td>Pod D K2 /tmp failure</td><td>2026-05-04 Pod D 9hr ~$8-10 sunk; Phase 4 GNU parallel /tmp overflow</td><td>모든 STAR/parallel은 <code>--tmpdir /workspace/_tmp --compress</code></td></tr>
+      <tr><td>L40S SSH wedge</td><td>thca-spark-dm-l40s-v3 SSH wedged + L40S host unavailable for resume</td><td>terminate + new A6000 pod · 50GB volume loss 감수 · recovery monitor는 API liveness</td></tr>
+      <tr><td>v5.2 critical fix</td><td>v5.1 DIAL=0.494 flip = ComBat leak artifact</td><td>모든 batch correction은 LODO ComBat 만 허용</td></tr>
+      <tr><td>H13 polarity flip</td><td>Round 4 d=-1.75 = label-flip artifact</td><td>HM450 paper 1 fig 포팅 시 sign flip 강제 (DM1=HIGH-β/silenced)</td></tr>
+      <tr><td>TSS confound</td><td>TSS-only LR within RAS-like AUC=1.000</td><td>image-DM1은 leave-one-TSS-out 만 valid</td></tr>
+      <tr><td>Spatial rescue failure</td><td>raw rho +0.208 → adjusted +0.035 → full residual +0.007</td><td>spatial은 reviewer caveat / reserve · mechanism support 아님</td></tr>
+      <tr><td>K2 ≠ Bundang</td><td>K2 = PRJEB11591 Yoo 2016 SNU-GMI 공개; Bundang = outreach-only</td><td>모든 figure 캡션에서 명시</td></tr>
+      <tr><td>weasyprint Unifont</td><td>CSS font-family에 Unifont 포함 시 pydyf error</td><td>weasyprint export 시 Unifont 제외</td></tr>
+      <tr><td>papers_hub deploy</td><td>papers_hub_2026_05_04 ≠ /var/www/papers (symlink 아님)</td><td>항상 <code>sudo cp</code> 후 curl 확인 · 안 그러면 404</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="scripts">
+  <p class="sub">section 13a · canonical script paths</p>
+  <h2>Canonical script paths — 어디서 실행하나</h2>
+  <p class="intro">미팅 중 "그 분석 어디 스크립트?" 라는 질문이 들어오면 이 표 한 줄로 답할 수 있게 정리. 모든 path는 repo root <code>/home/seungho/personal/THCA_data_analysis/</code> 기준 상대 경로.</p>
+  <table>
+    <thead><tr><th>PIPELINE</th><th>ENTRYPOINT</th><th>OUTPUT DIR</th><th>RUNTIME (typical)</th></tr></thead>
+    <tbody>
+      <tr><td>RNA · TCGA</td><td><code>scripts/rna/tcga_kallisto.sh</code></td><td><code>project/results/v17_tcga/kallisto/</code></td><td>~3h on A6000 · TCGA-THCA full</td></tr>
+      <tr><td>RNA · K2 PRJEB11591</td><td><code>scripts/rna/k2_kallisto.sh</code></td><td><code>project/results/v17_korean/kallisto/</code></td><td>~2h on A6000</td></tr>
+      <tr><td>RNA · STAR alignment</td><td><code>scripts/rna/star_align.sh</code> (with <code>--tmpdir /workspace/_tmp --compress</code>)</td><td><code>project/results/v17_*/star/</code></td><td>~8h · pod D /tmp lesson baked in</td></tr>
+      <tr><td>DEG · DESeq2 / limma</td><td><code>scripts/deg/run_deseq2.R</code></td><td><code>project/results/deg/</code></td><td>~30 min CPU</td></tr>
+      <tr><td>HM450 methylation</td><td><code>scripts/methylation/champ_pipeline.R</code></td><td><code>project/results/methylation_h13/</code></td><td>~1h CPU · H13 polarity correction post-processing</td></tr>
+      <tr><td>HLA · arcasHLA</td><td><code>scripts/hla/arcasHLA_burst.sh</code></td><td><code>project/results/v17_korean/arcasHLA/</code> (offloaded to <code>/data/thca/_repo_offload/</code>)</td><td>~2h on Azure burst (~$4.80 / cohort)</td></tr>
+      <tr><td>HLA · AFND ratio</td><td><code>scripts/hla/afnd_ratio_ci.py</code></td><td><code>project/results/figures/F1_panasian_HLA_forest/</code></td><td>seconds CPU</td></tr>
+      <tr><td>Image-DM1 · ResNet50</td><td><code>scripts/pathology/clam_resnet50.py</code></td><td><code>project/results/03_pathology_poc/</code></td><td>~6h on A6000 · n=59</td></tr>
+      <tr><td>Image-DM1 · ViT-L</td><td><code>scripts/pathology/clam_vitl.py</code></td><td>같음</td><td>~10h on A6000</td></tr>
+      <tr><td>Spatial · MOSCOT + Squidpy</td><td><code>scripts/spatial/moscot_squidpy.py</code></td><td><code>project/results/01_spatial_score/per_sample/</code></td><td>~4h on A6000 · 16 slides</td></tr>
+      <tr><td>DepMap dependency</td><td><code>scripts/depmap/depmap_dm1_high.py</code></td><td><code>project/results/depmap/</code></td><td>~20 min CPU</td></tr>
+      <tr><td>PRISM drug</td><td><code>scripts/depmap/prism_top15.py</code></td><td>같음</td><td>~10 min CPU</td></tr>
+      <tr><td>ICI 4-cohort meta</td><td><code>scripts/ici/phase_c_v2_meta.py</code></td><td><code>project/results/paper3_ici/</code></td><td>~30 min CPU</td></tr>
+      <tr><td>Causal (Samsung)</td><td><code>scripts/causal/target_trial.py</code> · <code>doubly_robust.py</code> · <code>causal_forest.R</code></td><td><code>project/results/samsung_causal/</code></td><td>~1-2h on A6000</td></tr>
+      <tr><td>Boundary audit</td><td><code>scripts/boundary_audit/run_all.sh</code></td><td>stdout · exit code</td><td>~5 min CPU · MUST exit 0 before commit</td></tr>
+      <tr><td>Hub deploy</td><td><code>sudo cp project/papers_hub_2026_05_04/*.html /var/www/papers/</code></td><td><code>/var/www/papers/</code></td><td>seconds · then <code>curl -sI http://localhost/&lt;page&gt;</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="datasets">
+  <p class="sub">section 13b · dataset inventory snapshot</p>
+  <h2>Dataset inventory — 그림에 등장하는 cohort 11개</h2>
+  <p class="intro">Figure gallery에 시각화된 11개 cohort를 access 종류와 함께 정리. 386-dataset full catalog는 <code>data_registry/manifests/master_dataset_catalog.csv</code> 참조.</p>
+  <table>
+    <thead><tr><th>COHORT</th><th>N</th><th>MODALITY</th><th>ACCESS</th><th>USED IN</th></tr></thead>
+    <tbody>
+      <tr><td>TCGA-THCA</td><td>~500</td><td>RNA-seq · HM450 · H&E · clinical</td><td>public · controlled</td><td>Paper 1 all figs · Paper 2 image · Paper 11</td></tr>
+      <tr><td>PRJEB11591 (K2)</td><td>260</td><td>RNA-seq</td><td>public (Yoo 2016 SNU-GMI)</td><td>HLA · DM1 · driver split</td></tr>
+      <tr><td>Mun 2025</td><td>336 tumors</td><td>proteomics</td><td>public</td><td>Paper 1 Fig 3 (protein layer)</td></tr>
+      <tr><td>Lee ATC/Normal</td><td>~30</td><td>RNA-seq</td><td>public</td><td>Paper 1 Fig 2-6 · ROC AUC 0.97</td></tr>
+      <tr><td>Landa GSE76039</td><td>PDTC + ATC</td><td>RNA-seq + HM450</td><td>public</td><td>Paper 1 Fig 3 · HM450 d=+3.47</td></tr>
+      <tr><td>GSE286332</td><td>18 (PTC vs PTC+HT)</td><td>RNA-seq</td><td>public</td><td>F2 multipanel · F5 mechanism</td></tr>
+      <tr><td>GSE248205</td><td>~30 (C / HT / GD)</td><td>RNA-seq</td><td>public</td><td>4-panel ×3 · SuppFig X3</td></tr>
+      <tr><td>GSE250521</td><td>16</td><td>Visium spatial</td><td>public (Lu 2023)</td><td>4 spatial panels · LR analysis</td></tr>
+      <tr><td>Hugo / Riaz / Liu</td><td>~300</td><td>ICI bulk RNA</td><td>public</td><td>Paper 3 Phase C v2</td></tr>
+      <tr><td>MGH GSE115821</td><td>~50</td><td>ICI</td><td>public (Gide substitute)</td><td>Paper 3 Phase C v2 cohort 4</td></tr>
+      <tr><td>DepMap / PRISM</td><td>1,141 lines</td><td>dependency · drug</td><td>public</td><td>v15 stress · MYC / NAMPT / MAPK top-15</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="qc">
+  <p class="sub">section 13c · qc gates</p>
+  <h2>QC gates — 모든 cohort에 들어가는 5개 게이트</h2>
+  <p class="intro">트랙별로 다른 input modality를 쓰지만, 모든 cohort는 다음 5개 gate를 통과해야 figure에 등장한다. Gate 한 줄이라도 fail이면 reviewer-reserve로 분리한다.</p>
+  <table>
+    <thead><tr><th>#</th><th>GATE</th><th>WHO RUNS IT</th><th>FAIL → ACTION</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Accession / provenance check</td><td><code>scripts/boundary_audit/check_provenance.sh</code></td><td>fail → 386-catalog 외 사용 차단</td></tr>
+      <tr><td>2</td><td>Sample-level QC (read depth · alignment rate · housekeeping)</td><td>RNA: <code>scripts/qc/sample_rna_qc.py</code></td><td>fail → cohort에서 sample 빼고 audit 로그</td></tr>
+      <tr><td>3</td><td>Cohort-level batch homogeneity</td><td>ComBat LODO + PCA visual</td><td>fail → batch term 추가 또는 cohort 분리</td></tr>
+      <tr><td>4</td><td>Polarity / sign-convention check (H13)</td><td>HM450: <code>scripts/methylation/h13_polarity_check.py</code></td><td>fail → sign flip 적용 후 재실행</td></tr>
+      <tr><td>5</td><td>Reviewer-Q3 robustness (knock-out n-1 floor)</td><td><code>scripts/audit/knockout_floor.py</code></td><td>fail (|d|&lt;0.5) → panel 재검토</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="cost">
+  <p class="sub">section 13d · cost ledger</p>
+  <h2>Cost ledger — 어떤 분석에 얼마 들었나</h2>
+  <p class="intro">2026-05-04부터 marathon mode 시작 이후 운영 비용을 한 표로. RunPod community cloud + Azure burst + local. 단위는 USD.</p>
+  <table>
+    <thead><tr><th>ITEM</th><th>PLATFORM</th><th>RATE</th><th>EST · COHORT-SCALE</th></tr></thead>
+    <tbody>
+      <tr><td>STAR / kallisto run</td><td>RunPod A6000 v4</td><td>$0.33/hr</td><td>~$3 / TCGA-THCA RNA cohort</td></tr>
+      <tr><td>arcasHLA full cohort</td><td>Azure burst</td><td>—</td><td>~$4.80 / PRJEB11591 (n=260)</td></tr>
+      <tr><td>Image-DM1 ResNet50 + ViT-L</td><td>RunPod A6000 v4</td><td>$0.33/hr</td><td>~$5-6 / n=59 LOTO</td></tr>
+      <tr><td>Spatial 16-slide MOSCOT + Squidpy</td><td>RunPod A6000 v4</td><td>$0.33/hr</td><td>~$1.5</td></tr>
+      <tr><td>Causal target trial</td><td>RunPod A6000 v4</td><td>$0.33/hr</td><td>~$1 / sensitivity sweep</td></tr>
+      <tr><td>Pod D K2 failure (sunk)</td><td>RunPod (legacy L40S)</td><td>$0.79/hr</td><td>~$8-10 sunk · /tmp lesson</td></tr>
+      <tr><td>L40S → A6000 swap</td><td>RunPod community</td><td>save 58%</td><td>continuous saving</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="siblings">
+  <p class="sub">section 14 · sibling pages</p>
+  <h2>관련 페이지 (17+ family)</h2>
+  <table>
+    <thead><tr><th>FILE</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td><a href="index.html">index.html</a></td><td>papers_hub front</td></tr>
+      <tr><td><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief_2026_05_14.html</a></td><td>유 교수 미팅 종합</td></tr>
+      <tr><td><a href="paper1.html">paper1.html</a></td><td>Paper 1 DM1 dark matter</td></tr>
+      <tr><td><a href="paper2_image_dm1.html">paper2_image_dm1.html</a></td><td>Paper 2 image-DM1 track</td></tr>
+      <tr><td><a href="paper2_hla.html">paper2_hla.html</a></td><td>Paper 2 HT-isolated HLA</td></tr>
+      <tr><td><a href="paper4_gd_hla.html">paper4_gd_hla.html</a></td><td>Paper 4 backlog Korean GD HLA</td></tr>
+      <tr><td><a href="grant_samsung_causal_kthyro_2026_05_14.html">grant_samsung_causal_kthyro_2026_05_14.html</a></td><td>삼성 인과추론 한국 갑상선 grant</td></tr>
+      <tr><td><a href="track1_dm1_command_room.html">track1_dm1_command_room.html</a></td><td>Track 1 DM1 command</td></tr>
+      <tr><td><a href="track2_histology_command_room.html">track2_histology_command_room.html</a></td><td>Track 2 histology command</td></tr>
+      <tr><td><a href="track3_hla_isolated_command_room.html">track3_hla_isolated_command_room.html</a></td><td>Track 3 HLA isolated</td></tr>
+      <tr><td><a href="track4_korean_gd_command_room.html">track4_korean_gd_command_room.html</a></td><td>Track 4 Korean GD</td></tr>
+      <tr><td><a href="track5_samsung_command_room.html">track5_samsung_command_room.html</a></td><td>Track 5 Samsung causal</td></tr>
+      <tr><td><a href="evidence_atlas_2026_05_14.html">evidence_atlas_2026_05_14.html</a></td><td>Evidence atlas</td></tr>
+      <tr><td><a href="timeline_gantt_2026_05_14.html">timeline_gantt_2026_05_14.html</a></td><td>Gantt timeline</td></tr>
+      <tr><td><a href="decision_board_2026_05_14.html">decision_board_2026_05_14.html</a></td><td>Decision board</td></tr>
+      <tr><td><a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa_bank_2026_05_14.html</a></td><td>Reviewer Q&amp;A bank</td></tr>
+      <tr><td><a href="figure_gallery_2026_05_14.html">figure_gallery_2026_05_14.html</a></td><td>Figure atlas</td></tr>
+      <tr><td><a href="methodology_atlas_2026_05_14.html"><b>methodology_atlas_2026_05_14.html</b></a></td><td><b>이 페이지</b></td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+</body>
+</html>

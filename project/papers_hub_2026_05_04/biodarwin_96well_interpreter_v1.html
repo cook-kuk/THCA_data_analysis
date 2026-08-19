@@ -1,0 +1,1026 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BioDarwin 96-well interpreter v1</title>
+<style>
+body { margin:0; background:#0f1418; color:#e8edf0; font:14px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+header { padding:34px 5vw 20px; background:#0c1014; border-bottom:1px solid #27313a; }
+h1 { margin:.2rem 0 .5rem; font-size:34px; line-height:1.06; }
+.lead { color:#cfd8dd; max-width:1100px; }
+main { padding:24px 5vw 56px; }
+.note { background:#171e24; border-left:3px solid #c59b3b; padding:10px 14px; margin:0 0 18px; }
+table.data { width:100%; border-collapse:collapse; font-size:13px; margin:10px 0 28px; }
+table.data th, table.data td { border-bottom:1px solid #2a3640; padding:7px 8px; text-align:left; vertical-align:top; }
+table.data th { color:#f1d58b; background:#141b21; position:sticky; top:0; }
+code { color:#f1d58b; }
+</style>
+</head>
+<body>
+<header>
+  <div style="color:#c59b3b;text-transform:uppercase;letter-spacing:.12em;font-weight:700;font-size:12px;">BioDarwin 96-well interpreter</div>
+  <h1>All practical local algorithms on one wetlab plate</h1>
+  <p class="lead">BigMHC IM/EL, RF_biophys, GA public adapter, BioDarwin public-anchor v3, mode bank v4, RF-anchor heuristic, and regime router v1 are scored on the same 96-well board.</p>
+</header>
+<main>
+  <div class="note">Locked-control metrics are computed only on the 25 labeled rows. Class-II and invalid-peptide rows are carried through as helper/probe lanes, and BigMHC is only called on valid class-I peptides.</div>
+  <h2>Summary</h2>
+  <pre>{
+  "generated_at": "2026-05-11T01:29:42",
+  "plate_rows": 96,
+  "bigmhc_scored_rows": 90,
+  "bigmhc_eligible_rows": 90,
+  "locked_metric_rows": 25,
+  "positive_locked_rows": 9,
+  "negative_locked_rows": 16,
+  "helper_lane_rows": 6,
+  "hit_candidates": 3,
+  "fail_candidates": 49,
+  "probe_candidates": 6,
+  "best_locked_control": [
+    {
+      "algorithm": "BioDarwin_public_anchor_v3",
+      "score_col": "BioDarwin_public_anchor_v3",
+      "n": 25,
+      "positives": 9,
+      "AUPRC": 0.643013784461153,
+      "AUROC": 0.6805555555555556,
+      "top5_hits": 4,
+      "top5_precision": 0.8,
+      "top10_hits": 5,
+      "top10_precision": 0.5,
+      "top24_hits": 9,
+      "top24_precision": 0.375
+    }
+  ],
+  "outputs": {
+    "plate": "/home/seungho/personal/THCA_data_analysis/project/results/biodarwin_96well_interpreter_2026_05_11/biodarwin_96well_interpreter_v1.tsv",
+    "metrics": "/home/seungho/personal/THCA_data_analysis/project/results/biodarwin_96well_interpreter_2026_05_11/biodarwin_96well_interpreter_v1_metrics.tsv",
+    "html": "/home/seungho/personal/THCA_data_analysis/project/papers_hub_2026_05_04/biodarwin_96well_interpreter_v1.html"
+  },
+  "elapsed_s": 0.56
+}</pre>
+  <h2>Locked-control metrics</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>algorithm</th>
+      <th>score_col</th>
+      <th>n</th>
+      <th>positives</th>
+      <th>AUPRC</th>
+      <th>AUROC</th>
+      <th>top5_hits</th>
+      <th>top5_precision</th>
+      <th>top10_hits</th>
+      <th>top10_precision</th>
+      <th>top24_hits</th>
+      <th>top24_precision</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BioDarwin_public_anchor_v3</td>
+      <td>BioDarwin_public_anchor_v3</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.6430</td>
+      <td>0.6806</td>
+      <td>4</td>
+      <td>0.8000</td>
+      <td>5</td>
+      <td>0.5000</td>
+      <td>9</td>
+      <td>0.3750</td>
+    </tr>
+    <tr>
+      <td>BioDarwin_mode_bank_v4</td>
+      <td>BioDarwin_mode_bank_v4</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.6430</td>
+      <td>0.6806</td>
+      <td>4</td>
+      <td>0.8000</td>
+      <td>5</td>
+      <td>0.5000</td>
+      <td>9</td>
+      <td>0.3750</td>
+    </tr>
+    <tr>
+      <td>BioDarwin_regime_router_v1</td>
+      <td>BioDarwin_regime_router_v1</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.6302</td>
+      <td>0.6597</td>
+      <td>4</td>
+      <td>0.8000</td>
+      <td>4</td>
+      <td>0.4000</td>
+      <td>9</td>
+      <td>0.3750</td>
+    </tr>
+    <tr>
+      <td>BigMHC_IM</td>
+      <td>BigMHC_IM</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.5920</td>
+      <td>0.6458</td>
+      <td>4</td>
+      <td>0.8000</td>
+      <td>4</td>
+      <td>0.4000</td>
+      <td>9</td>
+      <td>0.3750</td>
+    </tr>
+    <tr>
+      <td>BioDarwin_RF_anchor_heuristic_v1</td>
+      <td>BioDarwin_RF_anchor_heuristic_v1</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.5595</td>
+      <td>0.5972</td>
+      <td>3</td>
+      <td>0.6000</td>
+      <td>5</td>
+      <td>0.5000</td>
+      <td>9</td>
+      <td>0.3750</td>
+    </tr>
+    <tr>
+      <td>GA_public_feature_adapter_v0</td>
+      <td>GA_public_feature_adapter_v0</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.5246</td>
+      <td>0.6042</td>
+      <td>3</td>
+      <td>0.6000</td>
+      <td>4</td>
+      <td>0.4000</td>
+      <td>9</td>
+      <td>0.3750</td>
+    </tr>
+    <tr>
+      <td>BigMHC_EL</td>
+      <td>BigMHC_EL</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.4137</td>
+      <td>0.4444</td>
+      <td>1</td>
+      <td>0.2000</td>
+      <td>2</td>
+      <td>0.2000</td>
+      <td>9</td>
+      <td>0.3750</td>
+    </tr>
+    <tr>
+      <td>RF_biophys</td>
+      <td>RF_biophys_norm</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.3164</td>
+      <td>0.3542</td>
+      <td>1</td>
+      <td>0.2000</td>
+      <td>3</td>
+      <td>0.3000</td>
+      <td>9</td>
+      <td>0.3750</td>
+    </tr>
+  </tbody>
+</table>
+  <h2>Top plate rows by consensus</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>plate_well</th>
+      <th>source_id</th>
+      <th>peptide</th>
+      <th>hla_allele</th>
+      <th>mhc_class</th>
+      <th>analysis_role</th>
+      <th>wetlab_priority</th>
+      <th>wetlab_reason</th>
+      <th>BigMHC_IM</th>
+      <th>BigMHC_EL</th>
+      <th>RF_biophys_score</th>
+      <th>GA_public_feature_adapter_v0</th>
+      <th>BioDarwin_public_anchor_v3</th>
+      <th>BioDarwin_mode_bank_v4</th>
+      <th>BioDarwin_regime_router_v1</th>
+      <th>score_consensus</th>
+      <th>score_disagreement</th>
+      <th>topline_vote_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>G12</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>ATQNQLLFY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>hit_reference</td>
+      <td>known positive control</td>
+      <td>0.9869</td>
+      <td>0.9833</td>
+      <td>0.5456</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>1.0000</td>
+      <td>0.9326</td>
+      <td>0.1650</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>B09</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>SGIDTIMYY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.9685</td>
+      <td>0.8445</td>
+      <td>0.5416</td>
+      <td>0.9256</td>
+      <td>0.9933</td>
+      <td>0.9909</td>
+      <td>0.9911</td>
+      <td>0.9116</td>
+      <td>0.1610</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>D05</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>SESNNYMNY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>hit_reference</td>
+      <td>known positive control</td>
+      <td>0.9674</td>
+      <td>0.5370</td>
+      <td>0.5308</td>
+      <td>0.7403</td>
+      <td>0.9986</td>
+      <td>0.9950</td>
+      <td>0.9922</td>
+      <td>0.8783</td>
+      <td>0.1842</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>H05</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>TIGKLEPYY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>hit_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.9122</td>
+      <td>0.3118</td>
+      <td>0.5439</td>
+      <td>0.5794</td>
+      <td>0.9719</td>
+      <td>0.9624</td>
+      <td>0.9661</td>
+      <td>0.8327</td>
+      <td>0.1921</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>E09</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>GSASFGTVY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>hit_reference</td>
+      <td>known positive control</td>
+      <td>0.9317</td>
+      <td>0.4495</td>
+      <td>0.4670</td>
+      <td>0.6715</td>
+      <td>0.9702</td>
+      <td>0.9650</td>
+      <td>0.9526</td>
+      <td>0.8213</td>
+      <td>0.2259</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>H03</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>LLFGYPVYV</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>hit_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.8506</td>
+      <td>0.9778</td>
+      <td>0.3760</td>
+      <td>0.9352</td>
+      <td>0.8645</td>
+      <td>0.8640</td>
+      <td>0.8464</td>
+      <td>0.7663</td>
+      <td>0.2665</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>H11</td>
+      <td>TRANSGENE_TG4050_MEDRXIV2026</td>
+      <td>NLVPMVATV</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>hit_candidate</td>
+      <td>consensus hit candidate</td>
+      <td>0.7750</td>
+      <td>0.8738</td>
+      <td>0.4501</td>
+      <td>0.8504</td>
+      <td>0.7886</td>
+      <td>0.7879</td>
+      <td>0.7960</td>
+      <td>0.7326</td>
+      <td>0.1708</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>H12</td>
+      <td>TRANSGENE_TG4050_MEDRXIV2026</td>
+      <td>KVDDTFYYV</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>probe_candidate</td>
+      <td>balanced probe</td>
+      <td>0.6791</td>
+      <td>0.9676</td>
+      <td>0.4844</td>
+      <td>0.8510</td>
+      <td>0.6869</td>
+      <td>0.6871</td>
+      <td>0.7158</td>
+      <td>0.6819</td>
+      <td>0.1250</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>F01</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>SSTESSPEY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>hit_reference</td>
+      <td>known positive control</td>
+      <td>0.7248</td>
+      <td>0.1128</td>
+      <td>0.5770</td>
+      <td>0.3469</td>
+      <td>0.7725</td>
+      <td>0.7649</td>
+      <td>0.8020</td>
+      <td>0.6808</td>
+      <td>0.1702</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>H10</td>
+      <td>TRANSGENE_TG4050_MEDRXIV2026</td>
+      <td>GILGFVFTL</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>probe_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.7635</td>
+      <td>0.4825</td>
+      <td>0.3875</td>
+      <td>0.6354</td>
+      <td>0.7962</td>
+      <td>0.7917</td>
+      <td>0.7857</td>
+      <td>0.6723</td>
+      <td>0.2151</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>H01</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>GILGFVFTL</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>probe_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.7635</td>
+      <td>0.4825</td>
+      <td>0.3875</td>
+      <td>0.6354</td>
+      <td>0.7962</td>
+      <td>0.7917</td>
+      <td>0.7857</td>
+      <td>0.6723</td>
+      <td>0.2151</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>E01</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>IFDVLPNFY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.6466</td>
+      <td>0.8104</td>
+      <td>0.5084</td>
+      <td>0.7707</td>
+      <td>0.6723</td>
+      <td>0.6688</td>
+      <td>0.7047</td>
+      <td>0.6644</td>
+      <td>0.0843</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>H04</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>TQNQLLFYM</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>probe_candidate</td>
+      <td>balanced probe</td>
+      <td>0.7148</td>
+      <td>0.1236</td>
+      <td>0.5391</td>
+      <td>0.3548</td>
+      <td>0.7665</td>
+      <td>0.7581</td>
+      <td>0.7880</td>
+      <td>0.6622</td>
+      <td>0.1678</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>G11</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>CLGGLLTMV</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>probe_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.8181</td>
+      <td>0.0525</td>
+      <td>0.4025</td>
+      <td>0.2231</td>
+      <td>0.8706</td>
+      <td>0.8623</td>
+      <td>0.8497</td>
+      <td>0.6531</td>
+      <td>0.3104</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>H02</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>RVWSEFEMK</td>
+      <td>HLA-A*03:01</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.6011</td>
+      <td>0.6285</td>
+      <td>0.6052</td>
+      <td>0.6544</td>
+      <td>0.6226</td>
+      <td>0.6199</td>
+      <td>0.6602</td>
+      <td>0.6486</td>
+      <td>0.0428</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>A01</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>RTIGKLEPY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.6142</td>
+      <td>0.0515</td>
+      <td>0.6469</td>
+      <td>0.2097</td>
+      <td>0.6738</td>
+      <td>0.6635</td>
+      <td>0.6910</td>
+      <td>0.6128</td>
+      <td>0.2081</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>A11</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>AYYQSADPY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.4959</td>
+      <td>0.5693</td>
+      <td>0.6031</td>
+      <td>0.5800</td>
+      <td>0.5220</td>
+      <td>0.5180</td>
+      <td>0.5516</td>
+      <td>0.5659</td>
+      <td>0.0809</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>F04</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>ASPTDQEFY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>hit_reference</td>
+      <td>known positive control</td>
+      <td>0.4688</td>
+      <td>0.0647</td>
+      <td>0.6601</td>
+      <td>0.2541</td>
+      <td>0.5295</td>
+      <td>0.5185</td>
+      <td>0.5341</td>
+      <td>0.5261</td>
+      <td>0.1890</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>G08</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>CLRSHQGRY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.5302</td>
+      <td>0.0162</td>
+      <td>0.5494</td>
+      <td>0.1466</td>
+      <td>0.5864</td>
+      <td>0.5765</td>
+      <td>0.6197</td>
+      <td>0.5117</td>
+      <td>0.1811</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>G04</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>DWFRARYSY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.4758</td>
+      <td>0.3430</td>
+      <td>0.4854</td>
+      <td>0.4604</td>
+      <td>0.5159</td>
+      <td>0.5091</td>
+      <td>0.5610</td>
+      <td>0.4988</td>
+      <td>0.0380</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>F10</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>SVSSLLSQF</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>hit_reference</td>
+      <td>known positive control</td>
+      <td>0.4428</td>
+      <td>0.3159</td>
+      <td>0.5813</td>
+      <td>0.4197</td>
+      <td>0.4661</td>
+      <td>0.4626</td>
+      <td>0.4978</td>
+      <td>0.4947</td>
+      <td>0.0912</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>F07</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>NVTIHFWLK</td>
+      <td>HLA-A*03:01</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.4597</td>
+      <td>0.1267</td>
+      <td>0.4447</td>
+      <td>0.3131</td>
+      <td>0.5143</td>
+      <td>0.5045</td>
+      <td>0.5482</td>
+      <td>0.4536</td>
+      <td>0.0907</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>H07</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>QPAWLQGRY</td>
+      <td>HLA-A*29:02</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>probe_candidate</td>
+      <td>balanced probe</td>
+      <td>0.3164</td>
+      <td>0.3149</td>
+      <td>0.5501</td>
+      <td>0.3834</td>
+      <td>0.3534</td>
+      <td>0.3468</td>
+      <td>0.3790</td>
+      <td>0.3981</td>
+      <td>0.1041</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>C07</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>SLNRANFRK</td>
+      <td>HLA-A*03:01</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.2723</td>
+      <td>0.2015</td>
+      <td>0.5767</td>
+      <td>0.3028</td>
+      <td>0.3050</td>
+      <td>0.2991</td>
+      <td>0.3235</td>
+      <td>0.3616</td>
+      <td>0.1487</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>C02</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>RLQEAGLRR</td>
+      <td>HLA-A*03:01</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.1577</td>
+      <td>0.1203</td>
+      <td>0.7311</td>
+      <td>0.2042</td>
+      <td>0.1820</td>
+      <td>0.1775</td>
+      <td>0.1634</td>
+      <td>0.3145</td>
+      <td>0.3362</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>B02</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>IFDVLPNFY</td>
+      <td>HLA-A*03:01</td>
+      <td>I</td>
+      <td>exploratory_probe</td>
+      <td>fail_candidate</td>
+      <td>consensus fail candidate</td>
+      <td>0.2128</td>
+      <td>0.0053</td>
+      <td>0.4793</td>
+      <td>0.0935</td>
+      <td>0.2691</td>
+      <td>0.2584</td>
+      <td>0.2965</td>
+      <td>0.2640</td>
+      <td>0.1163</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>D09</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>SESNNYMNY</td>
+      <td>HLA-B*44:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>hit_reference</td>
+      <td>known positive control</td>
+      <td>0.1809</td>
+      <td>0.4386</td>
+      <td>0.4705</td>
+      <td>0.3366</td>
+      <td>0.1936</td>
+      <td>0.1915</td>
+      <td>0.2349</td>
+      <td>0.2620</td>
+      <td>0.1011</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>H08</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>LQSDGPIWK</td>
+      <td>HLA-A*03:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.1123</td>
+      <td>0.0517</td>
+      <td>0.6287</td>
+      <td>0.0791</td>
+      <td>0.1614</td>
+      <td>0.1518</td>
+      <td>0.1532</td>
+      <td>0.2394</td>
+      <td>0.2652</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>G06</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>AQSGAVVQW</td>
+      <td>HLA-B*44:02</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.1236</td>
+      <td>0.6956</td>
+      <td>0.5245</td>
+      <td>0.3588</td>
+      <td>0.1217</td>
+      <td>0.1223</td>
+      <td>0.1527</td>
+      <td>0.2384</td>
+      <td>0.1782</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>A06</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>REEQKELQW</td>
+      <td>HLA-B*44:03</td>
+      <td>I</td>
+      <td>locked_metric_control</td>
+      <td>fail_reference</td>
+      <td>known negative control</td>
+      <td>0.0686</td>
+      <td>0.8392</td>
+      <td>0.7150</td>
+      <td>0.2042</td>
+      <td>0.0458</td>
+      <td>0.0504</td>
+      <td>0.0400</td>
+      <td>0.2291</td>
+      <td>0.3657</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>B05</td>
+      <td>GRITSTONE_AU2016369519_MANUFACTURE_USE</td>
+      <td>YVYVADVAAK</td>
+      <td>HLA-C*01:04</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>consensus fail candidate</td>
+      <td>0.0845</td>
+      <td>0.0081</td>
+      <td>0.4905</td>
+      <td>0.3061</td>
+      <td>0.1290</td>
+      <td>0.1203</td>
+      <td>0.1495</td>
+      <td>0.2110</td>
+      <td>0.1507</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>B11</td>
+      <td>MODERNA_WO2017020026_CONCATEMERIC_RNA</td>
+      <td>AMERICAN</td>
+      <td>HLA-C*93:73</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.0015</td>
+      <td>0.0000</td>
+      <td>0.6891</td>
+      <td>0.2798</td>
+      <td>0.0324</td>
+      <td>0.0262</td>
+      <td>0.0103</td>
+      <td>0.2097</td>
+      <td>0.3582</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>D02</td>
+      <td>MODERNA_WO2017020026_CONCATEMERIC_RNA</td>
+      <td>AMERICAN</td>
+      <td>HLA-C*93:73</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.0015</td>
+      <td>0.0000</td>
+      <td>0.6891</td>
+      <td>0.2798</td>
+      <td>0.0324</td>
+      <td>0.0262</td>
+      <td>0.0103</td>
+      <td>0.2097</td>
+      <td>0.3582</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>E08</td>
+      <td>BIONTECH_WO2020252039_NEOANTIGEN_COMPOSITIONS</td>
+      <td>KKNKKDDI</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>negative_control</td>
+      <td>fail_reference</td>
+      <td>designed fail control</td>
+      <td>0.1360</td>
+      <td>0.0004</td>
+      <td>0.5178</td>
+      <td>0.0388</td>
+      <td>0.1396</td>
+      <td>0.1392</td>
+      <td>0.1711</td>
+      <td>0.1936</td>
+      <td>0.1733</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>H09</td>
+      <td>TRANSGENE_TG4050_ASCO2023_PDF</td>
+      <td>ELQSDGPIW</td>
+      <td>HLA-B*44:02</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>consensus fail candidate</td>
+      <td>0.0823</td>
+      <td>0.2610</td>
+      <td>0.5221</td>
+      <td>0.1388</td>
+      <td>0.1191</td>
+      <td>0.1119</td>
+      <td>0.1353</td>
+      <td>0.1888</td>
+      <td>0.1754</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <td>C09</td>
+      <td>MODERNA_WO2017020026_CONCATEMERIC_RNA</td>
+      <td>AMERICAN</td>
+      <td>HLA-B*35:14</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>router disagreement probe</td>
+      <td>0.0313</td>
+      <td>0.0000</td>
+      <td>0.6891</td>
+      <td>0.0171</td>
+      <td>0.0631</td>
+      <td>0.0567</td>
+      <td>0.0426</td>
+      <td>0.1866</td>
+      <td>0.3540</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <td>E10</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>YEMFNDKSF</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>consensus fail candidate</td>
+      <td>0.1166</td>
+      <td>0.0069</td>
+      <td>0.4525</td>
+      <td>0.0905</td>
+      <td>0.1636</td>
+      <td>0.1544</td>
+      <td>0.1933</td>
+      <td>0.1855</td>
+      <td>0.1078</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>E06</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>YEMFNDKSF</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>consensus fail candidate</td>
+      <td>0.1166</td>
+      <td>0.0069</td>
+      <td>0.4525</td>
+      <td>0.0905</td>
+      <td>0.1636</td>
+      <td>0.1544</td>
+      <td>0.1933</td>
+      <td>0.1855</td>
+      <td>0.1078</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>C08</td>
+      <td>GRITSTONE_AU2016369519_MANUFACTURE_USE</td>
+      <td>YEMFNDKSF</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>consensus fail candidate</td>
+      <td>0.1166</td>
+      <td>0.0069</td>
+      <td>0.4525</td>
+      <td>0.0905</td>
+      <td>0.1636</td>
+      <td>0.1544</td>
+      <td>0.1933</td>
+      <td>0.1855</td>
+      <td>0.1078</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <td>F02</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>YEMFNDKSF</td>
+      <td>HLA-A*02:01</td>
+      <td>I</td>
+      <td>high_confidence_core</td>
+      <td>fail_candidate</td>
+      <td>consensus fail candidate</td>
+      <td>0.1166</td>
+      <td>0.0069</td>
+      <td>0.4525</td>
+      <td>0.0905</td>
+      <td>0.1636</td>
+      <td>0.1544</td>
+      <td>0.1933</td>
+      <td>0.1855</td>
+      <td>0.1078</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+</main>
+</body>
+</html>

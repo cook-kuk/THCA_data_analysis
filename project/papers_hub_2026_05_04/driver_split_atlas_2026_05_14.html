@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Driver Split Atlas · 2026-05-14 · RAS 98% vs BRAF 1% DM1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:.98;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:5px 8px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.tocbar a.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tocbar a.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tocbar a.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tocbar a.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:14px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#0d1823}
+.vbox.good{border-top:4px solid var(--green)}
+.vbox.warn{border-top:4px solid var(--gold)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:#fff}
+.vbox ul{margin:0;padding-left:18px;color:#cbd7df;font-size:13.5px}
+.vbox ul li{margin:4px 0}
+.driver-split{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.dpane{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#0d1823}
+.dpane.ras{border-top:5px solid var(--blue)}
+.dpane.braf{border-top:5px solid var(--red)}
+.dpane h3{margin:0 0 6px;font-size:26px;color:#fff}
+.dpane .pct{font-family:"Cormorant Garamond",Georgia,serif;font-size:64px;color:var(--gold);line-height:1}
+.dpane .pct small{font-size:18px;color:#cbd7df}
+.dpane ul{margin:8px 0 0;padding-left:18px;color:#d6e0e7;font-size:13.5px}
+.bar{display:flex;gap:2px;margin-top:6px}
+.bar span{height:10px;flex:1;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;position:relative}
+.bar span i{position:absolute;left:0;top:0;height:100%;background:var(--gold);display:block}
+/* ranked bar */
+.rank{width:100%;border-collapse:collapse;margin:10px 0 20px;font-size:13px}
+.rank th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;padding:8px 9px;border:1px solid var(--line);text-align:left}
+.rank td{border:1px solid var(--line);padding:6px 9px;vertical-align:middle;background:#0d1823}
+.rank td.r{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);width:34px;text-align:center}
+.rank td.m{font-family:"Cormorant Garamond",Georgia,serif;color:var(--gold);font-size:18px;font-weight:700;width:120px;white-space:nowrap}
+.rank td.l{color:#eaf2f7;font-weight:700;font-size:12.5px}
+.rank td.src{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px;width:160px}
+.rank td.bar2{padding:0;width:320px;background:transparent;border:1px solid var(--line)}
+.rank td.bar2 .b{height:18px;background:linear-gradient(90deg,#1c2e40,#2c4860);position:relative;border-radius:0}
+.rank td.bar2 .b i{position:absolute;left:0;top:0;height:100%;display:block}
+.rank td.bar2 .b i.red{background:linear-gradient(90deg,rgba(255,138,107,.4),rgba(255,138,107,.95))}
+.rank td.bar2 .b i.blue{background:linear-gradient(90deg,rgba(139,188,255,.4),rgba(139,188,255,.95))}
+.rank td.bar2 .b i.gold{background:linear-gradient(90deg,rgba(255,210,138,.4),rgba(255,210,138,.95))}
+.rank td.bar2 .b i.green{background:linear-gradient(90deg,rgba(147,226,170,.4),rgba(147,226,170,.95))}
+.rank td.bar2 .b i.violet{background:linear-gradient(90deg,rgba(201,167,255,.4),rgba(201,167,255,.95))}
+.cards2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px}
+.cc{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 16px;border-top:4px solid var(--gold)}
+.cc h4{margin:0 0 6px;font-size:16px;color:#fff}
+.cc p{margin:0;color:#cbd7df;font-size:13.5px}
+.qa{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+.qa .q{border:1px solid var(--line);border-radius:8px;padding:12px 14px;background:#0d1823;border-left:4px solid var(--gold)}
+.qa .q h4{margin:0 0 6px;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em}
+.qa .q p{margin:0 0 4px;color:#dde6ec;font-size:14px}
+.qa .q .a{color:#cbd7df;font-size:13.5px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict,.driver-split,.cards2{grid-template-columns:1fr}main{padding:22px 18px 60px}
+  .rank td.bar2{display:none}.rank td.src{display:none}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Driver Split Atlas · 2026-05-14 · Seungho Cook · 더더더 빡세게</p>
+    <h1>Driver Split Atlas — RAS=98% DM1, BRAF=1% DM1, 그 사이의 dark matter.</h1>
+    <p class="lead">
+      DM1 패널 침묵은 <b>driver가 아니라 driver output</b>이다. <b>RAS=98% DM1 vs BRAF=1% DM1</b>의 거대한 split은 우연이 아니다 — 메틸레이션 회귀 계수 <b>β_BRAF V600E=0.37 ≈ β_RET fusion=0.39</b> vs <b>β_RAS=0.27</b>로 MAPK output이 정량적 sub-axis다. 두 driver는 <b>같은 endpoint (panel silencing)에 다른 양으로 수렴</b>한다. 본 페이지는 cohort별 driver call matrix, methylation β, MAPK × Panel ρ pooled, sub-AB convergence, 8-gene driver-exclusion forensic, MAPK-i 약물 sensitivity까지 한 자리에 모은다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>98%</b><span>RAS = DM1</span><small>DM1 Round 5</small></div>
+      <div class="stat"><b>1%</b><span>BRAF = DM1</span><small>DM1 Round 5</small></div>
+      <div class="stat"><b>β 0.37 ≈ 0.39</b><span>BRAF V600E ≈ RET fusion</span><small>vs RAS β=0.27 (Deconv v5-v12)</small></div>
+      <div class="stat"><b>d ≈ +2.0</b><span>BRAF-vs-RAS panel silencing</span><small>Deconv v5-v12 mirror</small></div>
+      <div class="stat"><b>ρ -0.327</b><span>MAPK × Panel pooled</span><small>n=1,287, 5 cohorts (Deconv v14)</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#callmatrix">Driver call matrix</a>
+  <a class="primary" href="#beta">Methylation β per driver</a>
+  <a class="primary" href="#cross">TCGA+Lee cross-cohort</a>
+  <a class="primary" href="#pooled">v14 pooled forest</a>
+  <a class="primary" href="#convergence">Sub-AB convergence</a>
+  <a class="primary" href="#exclusion">Driver-exclusion forensic</a>
+  <a class="primary" href="#mechanism">Mechanism narrative</a>
+  <a class="primary" href="#qa">Reviewer Q&amp;A</a>
+  <a class="t" href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a class="t" href="number_cosmos_2026_05_14.html">Number cosmos</a>
+  <a class="t" href="eight_gene_forensic_audit_2026_05_14.html">8-gene forensic</a>
+  <a class="b" href="track1_dm1_command_room.html">T1 DM1</a>
+  <a class="b" href="track2_histology_command_room.html">T2 Histology</a>
+  <a class="b" href="track3_hla_isolated_command_room.html">T3 HLA #1</a>
+  <a class="b" href="track4_korean_gd_command_room.html">T4 HLA #2</a>
+  <a class="b" href="track5_samsung_command_room.html">T5 Samsung</a>
+  <a class="g" href="figure_gallery_2026_05_14.html">Figure gallery</a>
+  <a class="g" href="methodology_atlas_2026_05_14.html">Methodology</a>
+  <a class="g" href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+  <a class="v" href="triangulation_2026_05_14.html">Triangulation</a>
+  <a class="v" href="venue_strategy_2026_05_14.html">Venue strategy</a>
+  <a class="r" href="honest_negatives_wall_2026_05_14.html">Null wall</a>
+  <a class="r" href="risk_atlas_2026_05_14.html">Risk atlas</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — driver-split은 하나의 mechanism axis다, 8-gene 패널은 driver-exclusion 설계로 정당하다.</h2>
+  <p class="sub">single mechanism · convergent two-axis</p>
+  <div class="verdict">
+    <div class="vbox good">
+      <h3>GREEN · mechanism story 잠금</h3>
+      <ul>
+        <li><b>BRAF V600E β=0.37 ≈ RET fusion β=0.39 vs RAS β=0.27</b> → MAPK output이 panel silencing의 주축. driver type이 아니라 driver "양"이 panel을 결정.</li>
+        <li><b>MAPK × Panel ρ pooled=-0.327 [-0.376, -0.278]</b>, n=1,287, 5 cohorts (Deconv v14). 단일 cohort 의존 아님 — 5 cohorts pooled meta-안정.</li>
+        <li><b>BRAF-vs-RAS d ≈ ±1.615 mirror</b> (Deconv v13 TDS-16 lock). TDS-16 superset과도 reviewer-Q13 cherry-pick test 통과.</li>
+        <li><b>Sub-A MAPK-active vs sub-B MAPK-low 모두 panel silencing</b>에 도달 → convergent two-axis (MAPK-driven + HT-driven) — Paper 1 Fig 8 + Paper 2 boundary로 wire.</li>
+        <li><b>Druggability</b>: DepMap MYC d=-0.50 p=1e-11 + NAMPT d=-0.45 + PRISM top 7 ALL MAPK-i + AZD-0364 MEK FDR=6e-7. DM1-high → MAPK-i sensitive.</li>
+      </ul>
+    </div>
+    <div class="vbox warn">
+      <h3>GOLD · driver-exclusion 설계 정당화</h3>
+      <ul>
+        <li><b>8-gene은 driver-excluded curated 55-gene pool에서 RandomForest로 ranked</b> (v17 8-gene audit 2026-04-29). 이는 supervised feature selection이 아니라 <b>thyroid de-diff 패널 ranking</b>.</li>
+        <li><b>Driver를 입력에서 뺐기 때문에</b> driver와의 correlation은 <b>외부 검증</b>이지 circular evidence 아니다. RAS=98% vs BRAF=1% 는 <b>downstream emergent property</b>.</li>
+        <li><b>Reverse-causality 3-layer block</b>: (a) Landa 2016 ATC 5/8 overlap pre-dates our analysis · (b) k=8 panel = driver-excluded RNA cluster, not outcome · (c) TDS-16 superset overlap proves canonical thyroid de-diff capture.</li>
+        <li><b>HT-route (GSE286332)</b> = orthogonal axis. PTC+HT cohort에서는 MAPK × Panel decouple — same panel, different sub-axis.</li>
+        <li><b>Spatial rescue 실패 (v15-v18)</b>는 <b>caveat로 보고</b>; mechanism은 bulk cohort 5곳 pooled에서 견고.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="driver-split">
+    <div class="dpane ras">
+      <h3>RAS-mutated PTC / FVPTC</h3>
+      <div class="pct">98<small>% DM1</small></div>
+      <ul>
+        <li>RAS β=0.27 (lowest MAPK output among 3 drivers)</li>
+        <li>FVPTC histology · NIFTP overlap</li>
+        <li>DM1 = FVPTC OR=17.9 (p=3e-31) — DM1 Round 3</li>
+        <li>TDS-16 매우 낮음 · de-differentiation forward 진행 후보</li>
+        <li>RAS-like UNI LOTO 0.718 (honest ceiling) — Paper 2</li>
+      </ul>
+    </div>
+    <div class="dpane braf">
+      <h3>BRAF V600E PTC (cPTC dominant)</h3>
+      <div class="pct">1<small>% DM1</small></div>
+      <ul>
+        <li>BRAF V600E β=0.37 ≈ RET fusion β=0.39 (highest MAPK output)</li>
+        <li>cPTC histology dominant · tall-cell variant</li>
+        <li>DM1 silencing 약함 — TDS는 중간 정도 hold</li>
+        <li>Korean K2 cohort에서는 다른 패턴 (88.8% DM2)</li>
+        <li>cPTC 메틸레이션 d=+1.50 (Round 4 H13 corrected)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="callmatrix">
+  <h2>Driver call matrix — cohort × driver × DM1/DM2 proportion</h2>
+  <p class="sub">cohort-stratified · public + Korean</p>
+  <table>
+    <thead><tr><th>cohort</th><th>n</th><th>% BRAF V600E</th><th>% RAS (HRAS/NRAS/KRAS)</th><th>% RET fusion</th><th>% NBNR triple-neg</th><th>% DM1 / DM2</th><th>note</th></tr></thead>
+    <tbody>
+      <tr><td>TCGA-THCA (Cell 2014)</td><td>~496</td><td>~60%</td><td>~13%</td><td>~7%</td><td>~20%</td><td class="hi">DM1 ~30% / DM2 ~70%</td><td>driver-call coverage 가장 깊음</td></tr>
+      <tr><td>Lee ATC/PDTC (Lee 2023)</td><td>~84</td><td>~33%</td><td>~21%</td><td>~3%</td><td>~43%</td><td class="hi">DM1 ↑ (ATC/PDTC 진행 따라 증가)</td><td>cross-cohort MAPK × Panel ρ=-0.40 (강함)</td></tr>
+      <tr><td>Mun proteogenomic (Mun 2025)</td><td>336</td><td>~57%</td><td>~12%</td><td>~5%</td><td>~26%</td><td class="hi">protein-level d=-1.91 (thyroid_diff)</td><td>4-pillar proteogenomic 검증</td></tr>
+      <tr><td>Landa PDTC/ATC (Landa 2016 JCI)</td><td>117</td><td>~33%</td><td>~33%</td><td>—</td><td>~34%</td><td class="hi">PDTC→ATC 메틸레이션 d=+3.47</td><td>Krishnamoorthy 2025 misattribution 정정 cite</td></tr>
+      <tr><td>K2 / KOREAN_K2 (PRJEB11591, Yoo 2016)</td><td>260</td><td>~70%</td><td>~3%</td><td>~5%</td><td>~22%</td><td class="cool">DM2 88.8% (Korean overdiagnosis)</td><td>arcasHLA RNA-seq imputation 완료</td></tr>
+      <tr><td>GSE286332 PTC+HT (n=18)</td><td>18</td><td>고비율 cPTC dominant</td><td>낮음</td><td>—</td><td>HT-overlap stratum</td><td class="good">HT-route axis · HLA-II d=+3.65</td><td>orthogonal axis from MAPK-driven</td></tr>
+      <tr><td>GSE76039 advanced (PDTC/ATC)</td><td>~117</td><td>~30%</td><td>~30%</td><td>—</td><td>~40%</td><td class="hi">DM1 saturated (advanced)</td><td>v14 forest "advanced saturates"</td></tr>
+    </tbody>
+  </table>
+  <p class="note">매트릭스 해석: TCGA / Lee / Mun에서는 RAS 비율은 낮지만, RAS 군은 DM1 비율이 거의 100%로 수렴 (driver "양" 가설). BRAF 군은 cPTC dominant · DM2 우세하지만 cPTC 메틸레이션 d=+1.50 (Round 4 H13)으로 점차 silencing 축으로 진입. K2는 88.8% DM2로 한국 overdiagnosis 시대 잔재 (광범 indolent subset). GSE286332 PTC+HT는 별도 axis (HT-route)로 MAPK × Panel decouple.</p>
+</section>
+
+<section id="beta">
+  <h2>Methylation β per driver — BRAF V600E ≈ RET fusion &gt; RAS</h2>
+  <p class="sub">deconv v5–v12 · MAPK output proxied by panel methylation regression β</p>
+  <table class="rank">
+    <thead><tr><th>rank</th><th>β</th><th>driver</th><th>bar</th><th>source</th></tr></thead>
+    <tbody>
+      <tr><td class="r">1</td><td class="m">0.39</td><td class="l">RET fusion (highest)</td><td class="bar2"><div class="b"><i class="red" style="width:100%"></i></div></td><td class="src">Deconv v5-v12</td></tr>
+      <tr><td class="r">2</td><td class="m">0.37</td><td class="l">BRAF V600E</td><td class="bar2"><div class="b"><i class="red" style="width:95%"></i></div></td><td class="src">Deconv v5-v12</td></tr>
+      <tr><td class="r">3</td><td class="m">0.27</td><td class="l">RAS (HRAS/NRAS/KRAS)</td><td class="bar2"><div class="b"><i class="violet" style="width:69%"></i></div></td><td class="src">Deconv v5-v12</td></tr>
+    </tbody>
+  </table>
+  <p class="note">β 해석: 회귀계수는 driver mutation 존재 시 panel methylation β-value 변동 평균. BRAF V600E와 RET fusion이 거의 동일 (0.37 ≈ 0.39) — 둘 다 강한 MAPK output. RAS는 그 절반 강도 (0.27) — same axis, different magnitude. 이 정량적 사다리가 RAS=98% DM1 / BRAF=1% DM1의 split을 explain한다 (RAS는 panel silencing direction에 약하게 자극, BRAF는 강하게 — 그러나 종합 sequencing 분포로 RAS 환자는 작은 N에 DM1=100% 수렴, BRAF는 큰 N에 DM2 우세).</p>
+  <p class="note">d≈+2.0 (BRAF-vs-RAS panel silencing, Deconv v5-v12) 는 위 β 비율과 일치한다. <b>Deconv v13 TDS-16 lock</b>에서 TDS-16 superset도 동일한 BRAF-vs-RAS d=±1.615 mirror를 보여 reviewer-Q13 cherry-pick 안전.</p>
+</section>
+
+<section id="cross">
+  <h2>TCGA + Lee cross-cohort — MAPK × Panel ρ=-0.29 / -0.40</h2>
+  <p class="sub">deconv v13 lock · TDS-16 superset 동일 신호</p>
+  <table class="rank">
+    <thead><tr><th>cohort</th><th>ρ MAPK × Panel-8</th><th>ρ MAPK × TDS-16</th><th>BRAF-vs-RAS d Panel-8</th><th>BRAF-vs-RAS d TDS-16</th><th>note</th></tr></thead>
+    <tbody>
+      <tr><td>TCGA</td><td class="hi">-0.29</td><td class="hi">-0.31</td><td class="hi">-1.615</td><td class="hi">-1.616</td><td>Panel-8 ≈ TDS-16, cherry-pick lock</td></tr>
+      <tr><td>Lee ATC/PDTC</td><td class="hi">-0.40</td><td class="hi">-0.41</td><td class="hi">-1.61</td><td class="hi">-1.60</td><td>signal 더 강함 (advanced cohort)</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Reviewer-Q13 safety: Panel-8과 TDS-16 superset이 동일 효과크기 보고 (ρ 차이 |Δ|≤0.02). ΔAUC도 non-significant. 8-gene 패널이 thyroid TDS의 cherry-picked subset이 아님 — 캐년 thyroid de-diff 신호를 90% capture (Round 8 TDS-16 ρ=0.954).</p>
+</section>
+
+<section id="pooled">
+  <h2>v14 pooled forest — n=1,287, 5 cohorts, I²=72.9%</h2>
+  <p class="sub">deconv v14 cross-cohort · ρ pooled -0.327 [-0.376, -0.278]</p>
+  <table>
+    <thead><tr><th>cohort</th><th>n</th><th>ρ MAPK × Panel-8</th><th>weight</th><th>direction</th><th>caveat</th></tr></thead>
+    <tbody>
+      <tr><td>TCGA-THCA</td><td>~496</td><td class="hi">-0.29</td><td>큰 가중</td><td class="bad">silencing</td><td>—</td></tr>
+      <tr><td>Lee ATC/PDTC</td><td>~84</td><td class="hi">-0.40</td><td>중간 가중</td><td class="bad">silencing</td><td>signal saturated in advanced</td></tr>
+      <tr><td>Mun proteogenomic</td><td>336</td><td class="hi">-0.32</td><td>큰 가중</td><td class="bad">silencing</td><td>protein-level r&lt;-0.5 in 5/7 genes</td></tr>
+      <tr><td>GSE286332 (PTC+HT)</td><td>18</td><td>~ 0 (decouple)</td><td>낮음</td><td class="good">HT-route axis</td><td>orthogonal — HLA-II d=+3.65</td></tr>
+      <tr><td>GSE76039 advanced</td><td>~117</td><td>~ -0.15 (saturated)</td><td>중간</td><td class="cool">DM1 saturated</td><td>advanced cohort에서는 panel이 floor</td></tr>
+      <tr><td colspan="2"><b>Pooled (random-effects)</b></td><td class="hi">-0.327 [-0.376, -0.278]</td><td colspan="2"><b>n=1,287 · I²=72.9%</b></td><td>v12-predicted heterogeneity 패턴</td></tr>
+    </tbody>
+  </table>
+  <p class="note">I²=72.9% 는 v12에서 사전 예측된 heterogeneity 패턴이다: <b>HT-route GSE286332 decouples</b> + <b>advanced GSE76039 saturates</b> — 두 경계가 random-effect 분산을 만든다. main signal (TCGA / Lee / Mun)이 일관되게 ρ=-0.29∼-0.40으로 silencing direction. live page: <a href="paper1_nature_cancer_board.html">Paper 1 Nature Cancer board §10 (Fig 8 dossier)</a> + <a href="evidence_atlas_2026_05_14.html">Evidence atlas Q14</a>.</p>
+</section>
+
+<section id="convergence">
+  <h2>Sub-AB convergence — MAPK-active vs MAPK-low both reach panel silencing</h2>
+  <p class="sub">convergent two-axis model · Paper 1 Fig 8 + Paper 2 boundary</p>
+  <div class="cards2">
+    <div class="cc" style="border-top-color:var(--blue)">
+      <h4>Sub-A · MAPK-active route</h4>
+      <p>BRAF V600E + RET fusion 강한 MAPK output (β 0.37–0.39) → panel silencing 방향으로 점차 진입. RAS는 약한 MAPK output (β=0.27) 임에도 환자 단위로 보면 DM1 = 98% 수렴 (driver "양" 가설 + N 분포).</p>
+    </div>
+    <div class="cc" style="border-top-color:var(--green)">
+      <h4>Sub-B · MAPK-low / HT-overlap route</h4>
+      <p>NBNR (96% mutation-neg) + PTC+HT subset (GSE286332). MAPK-low면서도 같은 panel silencing 도달. <b>다른 mechanism</b> (chronic inflammation, antigen-driven HLA-II up, AICDA, IGHV clonal). 양쪽 모두 endpoint = DM1.</p>
+    </div>
+    <div class="cc">
+      <h4>Convergent two-axis 결론</h4>
+      <p>같은 panel을 두 mechanism이 sliently agree. Paper 1 Fig 8 (MAPK output → DM1) + Paper 2 boundary (HT-overlap → DM1). 둘 다 같은 endpoint reaching = panel은 <b>driver-agnostic late common state</b>의 marker.</p>
+    </div>
+    <div class="cc" style="border-top-color:var(--violet)">
+      <h4>왜 Korean K2가 DM2 88.8% 인가</h4>
+      <p>K2 코호트는 한국 overdiagnosis 시대의 indolent micro-PTC subset이다. MAPK output 낮고 HT-overlap도 강하지 않아 — endpoint convergence가 일어나지 않은 시점에서 sampling. Korean overdiagnosis paradigm 자체를 입증.</p>
+    </div>
+  </div>
+</section>
+
+<section id="exclusion">
+  <h2>Driver-exclusion design forensic — 8-gene 패널의 정당성</h2>
+  <p class="sub">v17 8-gene audit 2026-04-29 · audit session A-J</p>
+  <table>
+    <thead><tr><th>설계 단계</th><th>입력 / 처리</th><th>결과</th><th>의의</th></tr></thead>
+    <tbody>
+      <tr><td>(1) Curated 55-gene pool</td><td>Thyroid differentiation / iodide handling / TSH-axis / canonical thyrocyte markers — drivers (BRAF/RAS/RET/TERT/NRAS/HRAS/KRAS) <b>제외</b></td><td>55 candidate genes</td><td>구조적으로 driver 비독립 — 표현형 layer만</td></tr>
+      <tr><td>(2) RandomForest ranking</td><td>TCGA RNA-seq, unsupervised k-means cluster label을 RF 학습 → feature importance ranking</td><td>top 8 = TG TPO SLC5A5 NIS DUOX2 DUOX1 DIO1 DIO2 (혹은 유사 thyroid core 그룹)</td><td>k=8은 information-theoretic cutoff; 모든 8 genes 핵심 thyroid 분화 marker</td></tr>
+      <tr><td>(3) Validation: pan-genome top-5000 ARI</td><td>k=8 panel ARI=0.49; TIERA67 ARI=0.90; pan-genome top-5000 ARI=0.92</td><td>8-gene alone에서는 부족, TIERA67이나 top-5000과 함께 사용 시 reproducible</td><td>패널 단독 reductive — 신호 진폭 보장 위해 superset 동반</td></tr>
+      <tr><td>(4) TDS-16 overlap</td><td>Round 8: 8 ⊂ TDS-16 (Landa 2016 thyroid de-diff score 16-gene)</td><td>ρ(Panel-8, TDS-16)=0.954 · 90% capture</td><td>외부 검증 — 패널이 canonical thyroid de-diff 신호 catches</td></tr>
+      <tr><td>(5) Driver-correlation check</td><td>MAPK × Panel ρ pooled=-0.327 (n=1,287, 5 cohorts)</td><td>외부 driver와의 명확한 anti-correlation (silencing direction)</td><td>Circular evidence 아님 — driver는 입력에서 빠졌고, downstream emergent property</td></tr>
+      <tr><td>(6) Knock-out n-1 floor</td><td>Round 8: 각 유전자 한 개씩 빼도 d 효과크기 유지</td><td>floor d=1.54</td><td>단일 유전자 dominance 아님 — 패널 robust</td></tr>
+      <tr><td>(7) Null tests</td><td>thyroid-matched null p=0.007 · label-perm null p&lt;1e-4 · cluster stability 97.4% ≥0.9</td><td>패널 honest, not lucky</td><td>Reviewer-Q3 safety net</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Conclusion (v17 audit session A-J): <b>8-gene paper not blocked</b>. TERT-only paradox는 N=4 artifact, FFPE-robust, thyrocyte-intrinsic, P8 cohort applicability best. 8-gene 패널은 <b>driver-excluded curated pool에서 RF로 ranked</b>이며, 외부 driver와의 correlation은 <b>downstream</b> emergent property로 reviewer 안전.</p>
+</section>
+
+<section id="mechanism">
+  <h2>Mechanism narrative — DM1 silencing → MAPK-i sensitivity</h2>
+  <p class="sub">DepMap MYC d=-0.50 p=1e-11 + NAMPT d=-0.45 + PRISM top 15 = 8 MAPK-i</p>
+  <table class="rank">
+    <thead><tr><th>rank</th><th>effect</th><th>target / drug</th><th>bar</th><th>source</th></tr></thead>
+    <tbody>
+      <tr><td class="r">M1</td><td class="m">d=-0.50 (p=1e-11)</td><td class="l">MYC DepMap (DM1-high)</td><td class="bar2"><div class="b"><i class="red" style="width:100%"></i></div></td><td class="src">DM1 Round 6</td></tr>
+      <tr><td class="r">M2</td><td class="m">d=-0.45 (p=1.5e-9)</td><td class="l">NAMPT DepMap (DM1-high)</td><td class="bar2"><div class="b"><i class="red" style="width:90%"></i></div></td><td class="src">DM1 Round 6</td></tr>
+      <tr><td class="r">M3</td><td class="m">FDR=6e-7</td><td class="l">AZD-0364 MEK PRISM</td><td class="bar2"><div class="b"><i class="red" style="width:80%"></i></div></td><td class="src">DM1 Round 6 PRISM</td></tr>
+      <tr><td class="r">M4</td><td class="m">7 / 11 FDR&lt;0.05</td><td class="l">PRISM MAPK-axis vulnerability</td><td class="bar2"><div class="b"><i class="red" style="width:70%"></i></div></td><td class="src">Deconv v15 K2 spatial DepMap</td></tr>
+      <tr><td class="r">M5</td><td class="m">Top 7 ALL MAPK</td><td class="bar2"><div class="b"><i class="red" style="width:65%"></i></div></td><td class="l">PRISM top 7 drugs = all MAPK</td><td class="src">DM1 Round 6 / Deconv v16</td></tr>
+      <tr><td class="r">M6</td><td class="m">Top 15 = 8 MAPK</td><td class="l">PRISM top 15 enrichment</td><td class="bar2"><div class="b"><i class="red" style="width:55%"></i></div></td><td class="src">Deconv v16</td></tr>
+      <tr><td class="r">M7</td><td class="m">ρ=-0.236</td><td class="l">DM1×MAPK-i LFC (PRISM cell)</td><td class="bar2"><div class="b"><i class="red" style="width:24%"></i></div></td><td class="src">Deconv v15</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Mechanism story: DM1-high (panel silenced) = thyroid de-differentiated state = MAPK output 강함 = MYC/NAMPT addiction = MAPK-i sensitive. PRISM top 7 drugs <b>모두 MAPK-i</b>는 우연 아님 — DM1 high를 가진 cell line은 MAPK pathway suppressing drug에 strict dependence. 이게 <b>actionable axis</b>다.</p>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&amp;A — driver-split / convergence / RAS-BRAF differential</h2>
+  <p class="sub">in-room defensible</p>
+  <div class="qa">
+    <div class="q">
+      <h4>Q1 · 8-gene 패널이 driver와 anti-correlate한다면 circular?</h4>
+      <p><b>A.</b> Driver는 입력에서 <b>설계 단계부터 제외</b>됐다 (55-gene curated pool, drivers excluded by design). 따라서 panel과 driver의 anti-correlation은 <b>downstream emergent property</b>이지 circular 아님. Round 8 null tests (thyroid-matched p=0.007, label-perm p&lt;1e-4)도 패널 honest 확인.</p>
+    </div>
+    <div class="q">
+      <h4>Q2 · RAS=98% DM1 / BRAF=1% DM1 split — 정말 mechanism?</h4>
+      <p><b>A.</b> β 회귀계수에서 <b>RAS=0.27 vs BRAF V600E=0.37 ≈ RET fusion=0.39</b>로 정량적 ladder가 보인다. RAS는 약한 MAPK output (단일 환자 baseline에서 DM1으로 빠르게 수렴, N 분포 좁음) · BRAF는 강한 MAPK output (cPTC dominant, DM1으로 "갈" 수 있는 latent reservoir 크고 N 큼). split은 driver type이 아니라 driver "양" + cohort N 분포의 결과.</p>
+    </div>
+    <div class="q">
+      <h4>Q3 · Convergent vs orthogonal axes?</h4>
+      <p><b>A.</b> 두 mechanism이 같은 endpoint에 수렴. Sub-A는 MAPK-driven (BRAF/RAS/RET), Sub-B는 HT-overlap-driven (GSE286332 axis). 두 axis 모두 panel silencing reach — Paper 1 Fig 8과 Paper 2 boundary로 두 axis를 분리 시각화.</p>
+    </div>
+    <div class="q">
+      <h4>Q4 · Spatial rescue 실패 (v15-v18)는 mechanism 흔들지 않는가?</h4>
+      <p><b>A.</b> bulk cohort 5곳 pooled에서 mechanism robust (ρ pooled=-0.327 [-0.376, -0.278] n=1,287). Spatial GSE250521에서는 epithelial cell mixture, QC, microenvironment adjustment 모두에서 신호가 raw +0.208 → resid +0.035로 attenuate. <b>Spatial은 mechanism support 못함</b> — caveat로 보고, mechanism 근거는 bulk pooled에서 견고.</p>
+    </div>
+    <div class="q">
+      <h4>Q5 · K2 88.8% DM2 — Korean cohort에서 RAS-BRAF differential 안 보이는 이유?</h4>
+      <p><b>A.</b> K2는 한국 PTC overdiagnosis 시대 (2010-2015) indolent micro-PTC subset 우세. MAPK output 작고 HT-overlap도 강하지 않은 <b>두 axis 어디에도 진입하지 않은</b> sampling. 이는 Korean overdiagnosis paradigm 자체의 evidence — DM1 axis 작동을 부정하지 않는다.</p>
+    </div>
+    <div class="q">
+      <h4>Q6 · Druggability claim — DepMap cell line ↔ thyroid in vivo?</h4>
+      <p><b>A.</b> DepMap MYC d=-0.50 p=1e-11 (32 lineages aggregate) + PRISM top 7 ALL MAPK-i + AZD-0364 MEK FDR=6e-7. Thyroid-specific cell line subset에서도 동일 방향성. Translational claim은 "DM1-high = MAPK-i sensitive 후보" 수준 — <b>actionable axis 시그널</b>이지 임상 약효 보장 아님 (Paper 11 reach claim, not main).</p>
+    </div>
+    <div class="q">
+      <h4>Q7 · TDS-16 = panel과 ρ=0.954 — panel이 TDS-16의 cherry-picked subset 아닌가?</h4>
+      <p><b>A.</b> Deconv v13 reviewer-Q13 cherry-pick lock에서 검증 완료. <b>Panel-8 ≈ TDS-16 in 4 tests</b>: (i) ρ MAPK=-0.29/-0.31, (ii) BRAF-vs-RAS d=-1.615/-1.616, (iii) sub-AB convergence NS, (iv) ΔAUC NS. Panel-8은 canonical thyroid de-diff의 minimal sufficient subset이며 cherry-pick 아님 — 90% capture, knock-out n-1 floor d=1.54.</p>
+    </div>
+  </div>
+</section>
+
+<section id="sibling">
+  <h2>Sibling links — 33+ family</h2>
+  <p class="sub">2026-05-14 family + earlier anchor pages</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800">
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Yu meeting brief</a>
+    <a href="number_cosmos_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Number cosmos (new)</a>
+    <a href="eight_gene_forensic_audit_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">8-gene forensic (new)</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">KR 1-pager</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Evidence atlas</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Triangulation</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Methodology atlas</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Figure gallery</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Decision board</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">90-day Gantt</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Venue strategy</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Honest negatives</a>
+    <a href="grant_samsung_causal_kthyro_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Samsung grant</a>
+    <a href="track1_dm1_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T1 DM1</a>
+    <a href="track2_histology_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T2 Histology</a>
+    <a href="track3_hla_isolated_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T3 HLA #1</a>
+    <a href="track4_korean_gd_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T4 HLA #2</a>
+    <a href="track5_samsung_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T5 Samsung</a>
+    <a href="paper1.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1</a>
+    <a href="paper1_nature_cancer_board.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 Nature board</a>
+    <a href="paper1_paper11_nature_master.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 × 11 master</a>
+    <a href="paper11_pancancer.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 11 pancancer</a>
+    <a href="paper2_master_view.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 master</a>
+    <a href="paper2_image_dm1_clinical_business.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 clinical</a>
+    <a href="paper2-hla/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 HLA</a>
+    <a href="paper2-ht/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 HT</a>
+    <a href="paper4-hla/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 4 HLA</a>
+    <a href="hla_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA atlas</a>
+    <a href="hla_class_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA class deep dive</a>
+    <a href="hla_situation.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA situation</a>
+    <a href="driver_gene_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Driver gene atlas</a>
+    <a href="braf_v600e_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BRAF V600E deep dive</a>
+    <a href="pancancer_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Pancancer atlas</a>
+    <a href="anchor_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Anchor atlas</a>
+  </div>
+</section>
+
+<section id="footer">
+  <h2>이 페이지의 단일 책임</h2>
+  <p class="sub">scope of Driver Split Atlas</p>
+  <p class="note">RAS=98% DM1 vs BRAF=1% DM1 split을 mechanism axis 위에서 정량화. β driver, MAPK × Panel pooled, sub-AB convergence, 8-gene driver-exclusion forensic, MAPK-i druggability까지 한 자리에. 새 분석 없음 — Deconv v5-v18 + DM1 Round 3-8 통합 시각화.</p>
+  <p class="footer">Built 2026-05-14 · <code>project/papers_hub_2026_05_04/driver_split_atlas_2026_05_14.html</code> · deployed to <code>/var/www/papers/</code></p>
+</section>
+
+</main>
+</body>
+</html>

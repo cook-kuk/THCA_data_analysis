@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>K2 H&E access 결정 트리 · 2026-05-14 · 4주 내 단일 critical 결정</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.vbox.green{border-top:5px solid var(--green)}
+.vbox.red{border-top:5px solid var(--red)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px}
+.vbox p{margin:0 0 10px;color:#cbd7df;font-size:14px}
+.branches{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:14px}
+.branch{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 18px;min-height:280px;position:relative}
+.branch.a{border-top:5px solid var(--green)}
+.branch.b{border-top:5px solid var(--gold)}
+.branch.c{border-top:5px solid var(--red)}
+.branch.d{border-top:5px solid var(--blue)}
+.branch .head{font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.1em;color:var(--gold);font-weight:800;margin-bottom:8px}
+.branch h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:#fff;line-height:1.1}
+.branch p{margin:0 0 10px;font-size:13.5px;color:#cbd7df}
+.branch .out{font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;background:rgba(255,255,255,.05);border-radius:4px;padding:7px 9px;color:#dde6ec}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px}
+.card h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:#fff;line-height:1.1}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.tree{margin-top:18px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:13px;background:#0a141d;border:1px solid var(--line);border-radius:8px;padding:18px 22px;color:#dde6ec;white-space:pre-wrap;line-height:1.55}
+.tree b{color:var(--gold);font-weight:900}
+.tree .ok{color:var(--green);font-weight:900}
+.tree .no{color:var(--red);font-weight:900}
+.tree .alt{color:var(--blue);font-weight:900}
+.tree .partial{color:var(--gold);font-weight:900}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.siblings{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:800}
+.siblings a{border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5}
+.siblings a.gold{border-color:var(--gold);color:var(--gold)}
+.siblings a.teal{border-color:var(--teal);color:var(--teal)}
+.siblings a.green{border-color:var(--green);color:var(--green)}
+.siblings a.red{border-color:var(--red);color:var(--red)}
+.siblings a.blue{border-color:var(--blue);color:var(--blue)}
+.siblings a.violet{border-color:var(--violet);color:var(--violet)}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}.verdict{grid-template-columns:1fr}.branches{grid-template-columns:1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">K2 H&E access 결정 트리 · 2026-05-14 · 4주 내 단일 critical 결정 · for Yu in-room</p>
+    <h1>K2 H&E access — 단 한 결정, 4 갈래, 90일 운명을 가른다.</h1>
+    <p class="lead">
+      Paper 2 (Histology) 의 main-paper venue, Samsung 30억 grant 의 외부 validation 강도, Paper 1 의 ST1 흡수 옵션 — 이 셋이 한 결정에 묶여 있다.
+      그 결정은 <b>K2 H&E 슬라이드의 4주 내 IRB + 인벤토리 확정 여부</b> 단 하나다. 본 트리는 <b>YES / PARTIAL / NO / ALT</b> 4개 분기, 각 분기의 downstream paper venue / Samsung pillar / fallback 경로를 한 화면에 정리한다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>1</b><span>critical 결정</span><small>K2 H&E IRB + slide inventory · 4주 horizon</small></div>
+      <div class="stat"><b>4</b><span>주 내 회신 floor</span><small>2026-06-11 KST · 외부검증 gate</small></div>
+      <div class="stat"><b>4</b><span>분기</span><small>YES · PARTIAL · NO · ALT 외부 cohort</small></div>
+      <div class="stat"><b>3</b><span>fallback 라우트</span><small>분당 자체 · Asan / Samsung Medical / Severance · methods-route LUAD/BRCA</small></div>
+      <div class="stat"><b>2+1</b><span>papers + grant 영향</span><small>Paper 2 venue · Paper 1 ST1 흡수 · Samsung pillar</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#question">The question</a>
+  <a class="primary" href="#tree">결정 트리</a>
+  <a class="primary" href="#A">Branch A · YES</a>
+  <a class="primary" href="#B">Branch B · PARTIAL</a>
+  <a class="primary" href="#C">Branch C · NO</a>
+  <a class="primary" href="#D">Branch D · ALT</a>
+  <a href="#logic">Logic table</a>
+  <a href="#impact">Downstream impact</a>
+  <a href="#today">Yu today</a>
+  <a href="#planB">Plan B trigger</a>
+  <a href="#qa">Reviewer Q&A</a>
+  <a href="#sib">Sibling links</a>
+  <a href="yu_meeting_brief_2026_05_14.html">미팅 브리프</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — 결정 트리는 mapped, 분기별 paper venue / Samsung pillar / fallback 모두 잠금</h2>
+  <p class="sub">single-page decision support · in-room read · Yu single ruling</p>
+  <div class="verdict">
+    <div class="vbox green">
+      <h3 class="good">Mapped (green)</h3>
+      <p>4개 분기 (YES / PARTIAL / NO / ALT) 모두 downstream Paper 2 venue, Paper 1 ST1 흡수 옵션, Samsung pillar 영향이 단일 표로 정리됨. 분기 logic = IRB status × slide count × FFPE quality × timeline.</p>
+      <p>각 분기마다 reviewer-safe story 가 준비되어 있고, fallback 도 3개 (분당 자체 · 한국 외부 기관 · methods-route LUAD/BRCA) 가 미리 매핑됨.</p>
+    </div>
+    <div class="vbox red">
+      <h3 class="bad">Yu single ruling</h3>
+      <p>이 페이지의 모든 분기는 Yu 의 한 결정 — <b>K2 H&E IRB + inventory 4주 내 확정 가능?</b> — 에 의해 자동으로 잠긴다. PARTIAL 또는 NO 가 나올 경우 즉시 plan B trigger 가 작동하고, Paper 2 main-paper 위상이 ST1 흡수로 강등.</p>
+      <p>의사결정은 today in-room. 회신 시한 = 2026-06-11 KST (4주). Week 2 status check 가 plan B trigger.</p>
+    </div>
+  </div>
+</section>
+
+<section id="question">
+  <h2>The single critical question — "K2 H&E 슬라이드, 4주 내 IRB + inventory 확정 가능?"</h2>
+  <p class="sub">one question, four answers, ninety-day downstream</p>
+  <p class="note">K2 (PRJEB11591 Yoo 2016 SNU-GMI public, n=260 RNA-seq) 는 RNA layer 가 이미 잠겨 있고, arcasHLA imputation 완료 (DPB1*05:01 56% 한국 인구 일치). 이 코호트의 <b>H&E 슬라이드 (FFPE block 또는 digital WSI)</b> 가 확보되면 Paper 2 의 leave-one-TSS-out 0.852 신호가 <b>외부 코호트 LOTO replication</b> 으로 잠긴다. 이는 Nat Commun main paper 의 단일 결정 gate.</p>
+  <table>
+    <thead><tr><th>구성 요소</th><th>요구 floor</th><th>현재 상태</th><th>리스크</th></tr></thead>
+    <tbody>
+      <tr><td>IRB approval (분당 SNUH / SNU-GMI joint)</td><td>4주 내 fast-track 또는 amendment</td><td class="hi">미확정 · Yu in-room 결정 필요</td><td class="bad">IRB 회신 8-12주 시 PARTIAL 분기 자동 trigger</td></tr>
+      <tr><td>Slide inventory (n ≥ 50)</td><td>FFPE block 또는 digital WSI · DM1/DM2 label 매칭</td><td class="cool">RNA n=260 중 H&E 매칭 가능 추정 n ≈ 80-150</td><td class="bad">실제 매칭 시 dropout 발생 가능 → 정확한 count 필요</td></tr>
+      <tr><td>FFPE quality (≥ stainable, ≥ 90% epithelium)</td><td>QC pass rate ≥ 70% target</td><td class="cool">2015-2016 vintage · 일부 staining fade 우려</td><td class="hi">노화 slide 재염색 필요 시 timeline 2-4주 추가</td></tr>
+      <tr><td>Digital scan path (Aperio / Hamamatsu)</td><td>20× minimum · TIFF / SVS</td><td class="cool">분당 SNUH 자체 scanner 가용 추정</td><td class="hi">throughput ~30 slides/day → n=100 시 4일</td></tr>
+      <tr><td>Annotation overlay (DM1 / DM2 label)</td><td>RNA 기반 ground truth · 자동 매핑</td><td class="good">RNA layer 완료 · script ready</td><td class="cool">low risk · 자동화</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="tree">
+  <h2>결정 트리 — 한 화면 ASCII view</h2>
+  <p class="sub">root question · 4 branches · downstream venue / pillar / fallback</p>
+  <div class="tree"><b>Q: K2 H&E IRB + inventory 4주 내 확정?</b>
+  │
+  ├─ <span class="ok">YES (Branch A)</span> ─── IRB approved · n ≥ 50 · FFPE pass ≥ 70%
+  │                  │
+  │                  └─→ Paper 2 LOTO replication on K2 H&E
+  │                  └─→ <b>Nat Commun main paper</b> (high-impact route)
+  │                  └─→ Samsung pillar 강화 (외부 validation 명시)
+  │                  └─→ Paper 1 ST1 흡수 옵션 폐기 (Paper 2 독립)
+  │
+  ├─ <span class="partial">PARTIAL (Branch B)</span> ── IRB 8-12주 delay · n &lt; 50 또는 quality 이슈
+  │                  │
+  │                  └─→ Paper 2 conditional · pre-K2 bioRxiv deposit
+  │                  └─→ <b>Cell Rep Med / Med (npj)</b> fallback venue
+  │                  └─→ Samsung pillar 부분 강화 (validation pending)
+  │                  └─→ Bundang internal pilot 병행 (n ≈ 30 target)
+  │
+  ├─ <span class="no">NO (Branch C)</span> ─── IRB block · cohort 미가용 · slide 손실
+  │                  │
+  │                  └─→ Paper 2 main → Paper 1 ST1 흡수 (supp table)
+  │                  └─→ <b>Methods-route paper</b> (LUAD/BRCA audit framework)
+  │                  └─→ Samsung pillar dropped · 다른 axis 강화
+  │                  └─→ Paper 1 single anchor manuscript
+  │
+  └─ <span class="alt">ALT (Branch D)</span> ── K2 대신 다른 한국 외부 cohort
+                     │
+                     └─→ 분당 SNUH 자체 H&E + RNA prospective
+                     └─→ Asan Medical Center (AMC) collaboration
+                     └─→ Samsung Medical Center (SMC) collaboration
+                     └─→ Severance (Yonsei) collaboration
+                     └─→ Pan-Korean 4-center pool (long-shot, paper 4-6 개월 delay)
+</div>
+</section>
+
+<section id="A">
+  <h2>Branch A · YES — IRB 4주 내 + slide inventory n ≥ 50</h2>
+  <p class="sub">main-paper route · Nat Commun · Samsung pillar 강화</p>
+  <div class="cards">
+    <div class="card" style="border-top:5px solid var(--green)">
+      <span class="tag g">Branch A · YES</span>
+      <h3>K2 LOTO replication → Paper 2 main paper 위상</h3>
+      <p class="note">UNI-final overall LOTO=0.852 가 K2 H&E (외부, 별개 기관, 별개 scanner) 에서 ≥ 0.78 floor 를 cleared 하면 <b>외부검증 잠금</b>. 이는 Paper 2 reviewer Q1 (generalization) 의 가장 강력한 답안.</p>
+      <div class="kv">
+        <div class="k">Replication target AUC</div><div class="v">≥ 0.78 floor · 0.80+ target</div>
+        <div class="k">N target</div><div class="v">≥ 50 (statistics floor) · 100+ ideal</div>
+        <div class="k">Venue</div><div class="v">Nat Commun primary · Nature Cancer reach</div>
+        <div class="k">Samsung impact</div><div class="v">외부 validation pillar 잠금 · 선정 +5-10%</div>
+        <div class="k">Paper 1 ST1</div><div class="v">흡수 옵션 폐기 · Paper 2 독립 publication</div>
+        <div class="k">Timeline</div><div class="v">2026-06-11 IRB → 2026-07-15 scan complete → 2026-08-20 manuscript v9</div>
+      </div>
+    </div>
+    <div class="card" style="border-top:5px solid var(--green)">
+      <span class="tag g">예상 wetlab / compute</span>
+      <h3>분당 H&E scan → /data RunPod A6000 v4 → CLAM 추론 pipeline</h3>
+      <ul class="bullets">
+        <li>분당 SNUH 자체 scanner 사용 (Aperio AT2 또는 Hamamatsu NanoZoomer)</li>
+        <li>SVS → /data/thca/repo_data/k2_he 로 bind-mount 저장 (root disk 보호)</li>
+        <li>UNI-final (Mass General foundation model) inference + CLAM aggregation</li>
+        <li>LOTO 가 아니라 <b>외부 cohort holdout</b> 으로 frame — reviewer 가 더 강하게 평가</li>
+        <li>RNA-seq RNA layer label (DM1/DM2) 와 자동 매칭 (이미 K2 RNA n=260 잠금 상태)</li>
+        <li>STAR / arcasHLA 가 아니므로 <code>--tmpdir</code> overflow 위험 없음 (이건 GPU inference 단)</li>
+        <li>비용 추정: A6000 v4 · $0.33/hr · 100 slide × ~5 min infer = ~$3 GPU + ~$50 scan staff</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="B">
+  <h2>Branch B · PARTIAL — IRB 8-12주 delay 또는 quality 이슈</h2>
+  <p class="sub">conditional acceptance · npj / Cell Rep Med fallback · bioRxiv timing 조정</p>
+  <div class="cards">
+    <div class="card" style="border-top:5px solid var(--gold)">
+      <span class="tag">Branch B · PARTIAL</span>
+      <h3>n &lt; 50 또는 IRB 회신 8-12주 — 부분 외부검증 + npj fallback</h3>
+      <p class="note">IRB amendment 가 4주 이상 걸리거나 slide 가용량이 50개 미만이면 <b>fallback venue (Cell Rep Med / npj Precision Oncology / Med)</b> 로 전환. bioRxiv 는 pre-K2 단계로 우선 deposit. K2 결과는 revision 단계에서 추가.</p>
+      <div class="kv">
+        <div class="k">대안 N floor</div><div class="v">≥ 30 (pilot floor) · honest pilot framing</div>
+        <div class="k">Venue</div><div class="v">Cell Rep Med · npj Precision Oncology · Med · Genome Medicine</div>
+        <div class="k">bioRxiv 전략</div><div class="v">2026-06-30 deposit (K2-pending tag) · revision 시 update</div>
+        <div class="k">Samsung impact</div><div class="v">validation "in progress" pillar · 선정 +2-3%</div>
+        <div class="k">Plan B trigger</div><div class="v">Week 2 (2026-05-28) status check → B/C/D 결정</div>
+      </div>
+    </div>
+    <div class="card" style="border-top:5px solid var(--gold)">
+      <span class="tag">분당 internal pilot 병행</span>
+      <h3>K2 외에 분당 SNUH 자체 prospective n=30 우선 진행</h3>
+      <ul class="bullets">
+        <li>K2 IRB 회신 대기 중 분당 SNUH 자체 H&E 30-50 case prospective 시작</li>
+        <li>장점: IRB 빠름 · scanner 동일 · BABA cohort 와 통합 가능</li>
+        <li>단점: 같은 기관 → 외부검증 강도 약함 (TSS confound 우려)</li>
+        <li>해결: 분당 + K2 partial 합산 → 외부 + internal 두 axis 로 reviewer 답변</li>
+        <li>Samsung 30억 grant 의 K-Thyro Foundation 자체 cohort 기반 마련</li>
+        <li>Paper 2 revision 단계에서 K2 full 결과 추가 → 강한 두 번째 cycle</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="C">
+  <h2>Branch C · NO — IRB block 또는 cohort 미가용</h2>
+  <p class="sub">Paper 2 → Paper 1 ST1 흡수 · methods-route 전환</p>
+  <div class="cards">
+    <div class="card" style="border-top:5px solid var(--red)">
+      <span class="tag r">Branch C · NO</span>
+      <h3>K2 H&E 미가용 — Paper 2 main 폐기, Paper 1 ST1 흡수</h3>
+      <p class="note">IRB 가 block 되거나 슬라이드가 손실 / 미가용 시 Paper 2 의 main-paper 위상은 폐기. 단, image-DM1 신호 자체는 살아 있으므로 <b>Paper 1 의 supplementary Table 1 (ST1) 또는 supplementary Figure 8 (SF8)</b> 로 흡수. Honest pilot framing.</p>
+      <div class="kv">
+        <div class="k">Paper 2 위상</div><div class="v">Independent → Paper 1 ST1 / SF8 흡수</div>
+        <div class="k">대체 main paper</div><div class="v">Methods-route audit framework (LUAD/BRCA)</div>
+        <div class="k">Venue</div><div class="v">Paper 1 unaffected (Nat Comm) · Methods-route Bioinformatics / NMI</div>
+        <div class="k">Samsung impact</div><div class="v">외부 validation pillar dropped · 다른 axis 강화 필요</div>
+        <div class="k">Honest framing</div><div class="v">"single-center pilot, generalization not claimed"</div>
+        <div class="k">Reviewer Q1</div><div class="v">"K2 access blocked; LUAD/BRCA cross-cancer methods test 로 대체"</div>
+      </div>
+    </div>
+    <div class="card" style="border-top:5px solid var(--red)">
+      <span class="tag r">Methods-route paper</span>
+      <h3>LUAD/BRCA H&E audit framework — TCGA cross-cancer methodology</h3>
+      <ul class="bullets">
+        <li>TCGA LUAD / BRCA frozen H&E + RNA-seq → 동일 framework 으로 audit</li>
+        <li>Generalization 을 코호트 단위가 아닌 <b>cancer type 단위</b> 로 전환</li>
+        <li>Methodology contribution 위주 (LOTO / center-holdout / honest pilot)</li>
+        <li>Venue: Bioinformatics / Nature Methods Insight / NMI 등 methods-friendly</li>
+        <li>Impact factor 는 낮지만 reproducibility 강조 — Yu Cook lab brand 강화</li>
+        <li>예상 timeline: 2026-09-30 v1 submission · 2027-01 acceptance target</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="D">
+  <h2>Branch D · ALT — 다른 외부 코호트 (K2 plan 변경)</h2>
+  <p class="sub">분당 자체 · Asan · Samsung Medical · Severance · 한국 4-center pool</p>
+  <div class="cards">
+    <div class="card" style="border-top:5px solid var(--blue)">
+      <span class="tag b">Branch D · ALT</span>
+      <h3>K2 대신 한국 외부 medical center 협업 — 신규 cohort assembly</h3>
+      <p class="note">K2 가 안 되면 K2 와 동등 또는 더 강한 외부 cohort 를 새로 확보. Yu network 활용. 단점은 시간 (4-6 개월 추가) 이지만 장점은 H&E + RNA 두 layer prospective 한 통제.</p>
+      <div class="kv">
+        <div class="k">분당 SNUH 자체</div><div class="v">prospective 30-100 case · IRB 빠름 · 자체 scanner</div>
+        <div class="k">Asan Medical Center (AMC)</div><div class="v">대규모 cohort 가능 · IRB 협조 필요</div>
+        <div class="k">Samsung Medical Center (SMC)</div><div class="v">Samsung grant 와 자연스러운 통합</div>
+        <div class="k">Severance (Yonsei)</div><div class="v">Yu network 외 · 새 outreach 필요</div>
+        <div class="k">예상 추가 delay</div><div class="v">4-6 개월 (cohort assembly + scan)</div>
+        <div class="k">Venue 영향</div><div class="v">Nat Commun 유지 가능 (Yu network 가 강하면)</div>
+      </div>
+    </div>
+    <div class="card" style="border-top:5px solid var(--blue)">
+      <span class="tag b">Pan-Korean 4-center pool</span>
+      <h3>분당 + Asan + Samsung + Severance — 4-center collaborative cohort</h3>
+      <ul class="bullets">
+        <li>Long-shot 옵션: 한국 4-center pool 로 n &gt; 300 확보</li>
+        <li>장점: Paper 2 → Nature Cancer / Nature Medicine reach 가능</li>
+        <li>단점: 협업 협의 6-9 개월 · IRB 4 곳 동시 · data harmonization 비용</li>
+        <li>Samsung 30억 grant 의 핵심 axis 로 활용 (consortium 형 funding)</li>
+        <li>Paper 2 main paper 위상 강화 + 한국 갑상선암 imaging consortium 으로 brand</li>
+        <li>Yu Cook lab × 4-center → 추가 5-10 개 paper 가능 (HLA / driver / IFN / TLS)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="logic">
+  <h2>Decision logic table — IRB × slide count × FFPE quality × timeline</h2>
+  <p class="sub">deterministic branch assignment · in-room evaluation</p>
+  <table>
+    <thead><tr><th>IRB status</th><th>Slide count</th><th>FFPE quality</th><th>Timeline (주)</th><th>분기</th><th>Venue</th></tr></thead>
+    <tbody>
+      <tr><td class="good">approved (4주 내)</td><td class="good">≥ 50</td><td class="good">≥ 70% pass</td><td class="good">4-6</td><td class="good">A (YES)</td><td>Nat Commun main</td></tr>
+      <tr><td class="good">approved (4주 내)</td><td class="hi">30-50</td><td class="good">≥ 70% pass</td><td class="good">4-8</td><td class="hi">A → B 경계</td><td>Cell Rep Med upper</td></tr>
+      <tr><td class="hi">pending (8-12주)</td><td class="cool">≥ 50</td><td class="good">≥ 70% pass</td><td class="hi">10-14</td><td class="hi">B (PARTIAL)</td><td>Cell Rep Med / npj</td></tr>
+      <tr><td class="hi">pending (8-12주)</td><td class="hi">30-50</td><td class="hi">50-70% pass</td><td class="bad">12-18</td><td class="hi">B → C 경계</td><td>npj / Med</td></tr>
+      <tr><td class="bad">denied</td><td>-</td><td>-</td><td>-</td><td class="bad">C (NO)</td><td>Paper 1 ST1 흡수 + methods-route</td></tr>
+      <tr><td class="bad">timeout (&gt;12주)</td><td>-</td><td>-</td><td>-</td><td class="bad">C → D 자동 trigger</td><td>한국 외부 cohort 신규</td></tr>
+      <tr><td class="cool">N/A (K2 변경)</td><td class="cool">분당 30+</td><td class="cool">신규 prospective</td><td class="cool">16-24</td><td class="cool">D (ALT)</td><td>Nat Commun 유지 (Yu network)</td></tr>
+      <tr><td class="cool">N/A (4-center)</td><td class="cool">300+</td><td class="cool">신규 prospective</td><td class="cool">24-36</td><td class="cool">D (4-center pool)</td><td>Nature Cancer / Nat Med reach</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="impact">
+  <h2>Downstream impact per branch — Paper 2 venue × Samsung pillar × Paper 1 ST1</h2>
+  <p class="sub">90-day rollup · grant + paper integration</p>
+  <table>
+    <thead><tr><th>분기</th><th>Paper 2 venue</th><th>Paper 2 위상</th><th>Samsung pillar</th><th>Paper 1 ST1</th><th>bioRxiv timing</th><th>Yu lab brand</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="good">A (YES)</td>
+        <td class="good">Nat Commun primary</td>
+        <td class="good">Main paper 독립</td>
+        <td class="good">외부 validation pillar 잠금 (+5-10%)</td>
+        <td>흡수 옵션 폐기</td>
+        <td>2026-07-15 (K2 결과 동시)</td>
+        <td class="good">Yu × Cook × 한국 H&E imaging consortium</td>
+      </tr>
+      <tr>
+        <td class="hi">B (PARTIAL)</td>
+        <td class="hi">Cell Rep Med / npj</td>
+        <td class="hi">Main paper conditional</td>
+        <td class="hi">Validation "in progress" (+2-3%)</td>
+        <td>가능 (revision)</td>
+        <td>2026-06-30 (K2 pending tag)</td>
+        <td class="hi">Yu × Cook × 분당 internal pilot</td>
+      </tr>
+      <tr>
+        <td class="bad">C (NO)</td>
+        <td class="bad">Paper 1 ST1 흡수</td>
+        <td class="bad">독립성 폐기</td>
+        <td class="bad">외부 validation pillar 폐기</td>
+        <td>흡수 (Paper 1 ST1)</td>
+        <td>2026-06-15 (Paper 1 단독)</td>
+        <td>Paper 1 단일 anchor 강화</td>
+      </tr>
+      <tr>
+        <td class="cool">D (ALT)</td>
+        <td class="cool">Nat Commun → Nat Cancer reach</td>
+        <td class="cool">Main paper + consortium</td>
+        <td class="cool">Consortium pillar 강화 (+10-15%)</td>
+        <td>흡수 옵션 폐기</td>
+        <td>2026-09-30 (delay)</td>
+        <td class="cool">Yu × Cook × 4-center 한국 imaging brand</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="today">
+  <h2>Yu 가 today in-room 결정할 수 있는 것 — confidence level + IRB pre-screen</h2>
+  <p class="sub">single ruling · 30분 안 결정 가능 · slide inventory pre-check</p>
+  <table>
+    <thead><tr><th>#</th><th>결정 사항</th><th>Yu in-room 가능 여부</th><th>응답 시간</th><th>다음 step</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>K2 IRB 4주 내 fast-track 가능성</td><td class="good">YES (Yu 1차 평가)</td><td>30초</td><td>YES → IRB 신청서 작성 시작 (이번 주)</td></tr>
+      <tr><td>2</td><td>분당 SNUH 자체 scanner 가용성</td><td class="good">YES (Yu 직접 확인)</td><td>30초</td><td>가용 → scan throughput 일정 30 slide/day 가정</td></tr>
+      <tr><td>3</td><td>K2 슬라이드 보관 위치 (분당 vs SNU)</td><td class="hi">PARTIAL (Yu 알지만 inventory 필요)</td><td>1주 (inventory 확인 필요)</td><td>주 1회 status update</td></tr>
+      <tr><td>4</td><td>FFPE block 노화 우려 (2015-2016 vintage)</td><td class="hi">PARTIAL (pilot 10 slide 사전 staining test)</td><td>2-3주 (pilot 결과)</td><td>pilot pass → full inventory · fail → branch B/C</td></tr>
+      <tr><td>5</td><td>분당 자체 prospective n=30 pilot 시작 가부</td><td class="good">YES (Yu 결정 only)</td><td>30초</td><td>K2 와 병행 진행 결정 (B 분기 보험)</td></tr>
+      <tr><td>6</td><td>K2 실패 시 Asan / Samsung / Severance 우선순위</td><td class="cool">YES (Yu network 평가)</td><td>1-2분</td><td>1순위 outreach 시작 (week 4 trigger)</td></tr>
+      <tr><td>7</td><td>4-center pool consortium grant 안건화</td><td class="cool">PARTIAL (Yu lab 의향)</td><td>30분</td><td>의향 있음 → 9월 grant cycle 준비</td></tr>
+      <tr><td>8</td><td>Paper 2 main paper 위상 절대 사수 vs ST1 흡수 수용</td><td class="hi">CRITICAL (Yu 최종)</td><td>5-10분</td><td>전략 의도 명시 → Paper 1 v8 prose 조정</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="planB">
+  <h2>Plan B trigger — Week 2 status check (2026-05-28 KST)</h2>
+  <p class="sub">automated check-in · branch switch criteria · no-regret design</p>
+  <table>
+    <thead><tr><th>Week</th><th>Date (KST)</th><th>Check-in</th><th>Branch A 유지 조건</th><th>Branch B/C/D trigger 조건</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>2026-05-14</td><td>Yu meeting · 본 페이지 read</td><td>Yu 결정 = YES probable (≥ 60% confidence)</td><td>YES probable &lt; 60% → 즉시 분당 pilot 병행 (B 보험)</td></tr>
+      <tr><td>1</td><td>2026-05-21</td><td>IRB 신청서 제출 status</td><td>IRB 제출 완료</td><td>제출 지연 1주 이상 → B 자동 시작 (분당 pilot 가속)</td></tr>
+      <tr><td>2</td><td>2026-05-28</td><td>IRB 1차 회신 + slide inventory pre-check</td><td>IRB 1차 회신 + inventory n ≥ 50 가능 추정</td><td>회신 없음 또는 n &lt; 30 → B/C 분기, 4-center outreach 시작 (D)</td></tr>
+      <tr><td>3</td><td>2026-06-04</td><td>FFPE staining pilot (10 slide) 결과</td><td>pilot pass rate ≥ 70%</td><td>pilot pass &lt; 50% → C 분기 (slide quality 이슈) 확정</td></tr>
+      <tr><td>4</td><td>2026-06-11</td><td>최종 branch lock · IRB final + inventory final</td><td>모든 조건 met → A 잠금</td><td>한 조건이라도 fail → B/C/D 자동 확정 · Paper 2 prose 조정</td></tr>
+      <tr><td>5-8</td><td>2026-06-18 ~ 07-09</td><td>(A 분기) scan + inference + LOTO replication</td><td>외부 LOTO AUC ≥ 0.78</td><td>AUC &lt; 0.70 → honest pilot framing 으로 전환 (B-)</td></tr>
+      <tr><td>9-12</td><td>2026-07-16 ~ 08-06</td><td>(A 분기) Paper 2 v9 manuscript + reviewer Q&A</td><td>v9 manuscript ready · supp K2 figures locked</td><td>—</td></tr>
+      <tr><td>13</td><td>2026-08-13</td><td>bioRxiv deposit + Nat Commun submission</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&A 사전 답안 — K2 why · alternatives · fallback rigor</h2>
+  <p class="sub">pre-emptive reviewer defense · in-paper text-ready</p>
+  <table>
+    <thead><tr><th>#</th><th>Reviewer 가 물을 수 있는 것</th><th>Branch별 답안</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Q1</td>
+        <td>Why K2 specifically? (왜 K2 가 외부 cohort 선택)</td>
+        <td>
+          K2 = PRJEB11591 Yoo 2016 SNU-GMI public · n=260 · 한국 인구 (Bundang/SNU vs TCGA Western 인구 차이) · RNA-seq + arcasHLA imputation 이미 잠금 · DPB1*05:01 56% 한국 인구 일치 확인. <b>한국 imaging cohort 의 정직한 외부 검증</b>.
+        </td>
+      </tr>
+      <tr>
+        <td>Q2</td>
+        <td>Why not TCGA-LUAD/BRCA 대신 K2 (다른 cancer type 으로 cross-validate)?</td>
+        <td>
+          THCA 의 DM1/DM2 stratification 은 thyroid-specific signature (TG/TPO/SLC5A5 등) 에 의존. Cross-cancer 검증은 methods-route fallback (Branch C) 으로 보유, 단 main 검증은 same-cancer external 이 표준. K2 가 그 표준.
+        </td>
+      </tr>
+      <tr>
+        <td>Q3</td>
+        <td>What if K2 fails? (실패 시 robustness)</td>
+        <td>
+          Branch B/C/D 모두 사전에 mapped. PARTIAL → npj/Cell Rep Med · NO → Paper 1 ST1 흡수 + methods-route · ALT → 한국 4-center pool. 실패가 paper 자체를 무효화하지 않음.
+        </td>
+      </tr>
+      <tr>
+        <td>Q4</td>
+        <td>Sample size justification (n ≥ 50 floor 근거)</td>
+        <td>
+          UNI-final overall LOTO=0.852 · 95% CI [0.78, 0.91] 추정 · 외부 검증에서 ≥ 0.78 confirm 위한 minimum N = 50 (Hanley & McNeil 1982 공식 기반). Bundang internal pilot (n=59) 와 통합 시 N=100+ 가능.
+        </td>
+      </tr>
+      <tr>
+        <td>Q5</td>
+        <td>Scanner / staining batch effect</td>
+        <td>
+          UNI-final 은 Mass General H&E foundation model 로 staining/scanner variation 에 부분 robust. K2 의 분당 scanner vs original 의 scanner 차이는 supp figure 로 명시. Stain normalization (Macenko / Reinhard) optional 비교.
+        </td>
+      </tr>
+      <tr>
+        <td>Q6</td>
+        <td>FFPE quality (2015-2016 vintage)</td>
+        <td>
+          10 slide pilot staining test (Week 3) 가 일차 floor. Pass rate &lt; 50% 시 NO 분기 자동. ≥ 70% 시 full inventory. Pilot 결과 자체가 supp methods 에 명시.
+        </td>
+      </tr>
+      <tr>
+        <td>Q7</td>
+        <td>Why bunch 분당 prospective n=30 가 K2 보다 약함?</td>
+        <td>
+          분당 자체 = same-center, K2 = different-center → 후자가 external generalization 강함. 단, 분당 prospective 는 H&E + RNA 두 layer 의 동시 prospective 통제 → 다른 axis 에서 강함 (Branch B fallback).
+        </td>
+      </tr>
+      <tr>
+        <td>Q8</td>
+        <td>한국 imaging consortium (4-center pool) feasibility</td>
+        <td>
+          Branch D long-shot. Yu network 가 1차 평가. 9월 grant cycle 에 consortium 안건화 가능. Paper 2 의 main paper 위상은 Branch A 가 가장 빠름.
+        </td>
+      </tr>
+      <tr>
+        <td>Q9</td>
+        <td>K2 가 SNU 소유인데 분당이 access 권한 있나?</td>
+        <td>
+          K2 (PRJEB11591) 는 European Nucleotide Archive (ENA) public RNA-seq · H&E slide 는 SNU-GMI / 분당 SNUH 보관. Yu 가 SNU 갑상선외과 network 활용 가능 (Yoo 2016 저자 그룹). 이 결정이 본 페이지의 핵심.
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="decisiondecision">
+  <h2>최종 decision matrix — Yu single ruling 4가지 시나리오</h2>
+  <p class="sub">5-min in-room evaluation</p>
+  <div class="decision">
+    <h3>Yu 의 4가지 가능한 ruling</h3>
+    <p><b class="good">Ruling 1 (YES, high confidence):</b> IRB 4주 내 가능 + slide n ≥ 50 추정 → Branch A 즉시 시작 · 분당 pilot 병행 (보험) · Nat Commun main paper 잠금</p>
+    <p style="margin-top:8px"><b class="hi">Ruling 2 (PARTIAL, medium confidence):</b> IRB 8-12주 예상 + slide n=30-50 추정 → Branch B/A 경계 · 분당 pilot 우선 시작 · npj/Cell Rep Med 준비</p>
+    <p style="margin-top:8px"><b class="bad">Ruling 3 (NO, low confidence):</b> IRB block 가능성 높음 또는 slide 미가용 → Branch C 즉시 · Paper 1 ST1 흡수 prose 작성 시작 · methods-route LUAD/BRCA 시작</p>
+    <p style="margin-top:8px"><b class="cool">Ruling 4 (ALT, K2 plan 변경):</b> K2 대신 분당 + 한국 외부 기관 (Asan/SMC/Severance) → Branch D · Yu network 평가 · 9월 consortium grant 안건</p>
+  </div>
+</section>
+
+<section id="sib">
+  <h2>Sibling links — 96+ family · 본 페이지와 함께 navigation</h2>
+  <p class="sub">paper 2 family · yu meeting family · grant family · cross-cut</p>
+  <div class="siblings">
+    <a class="gold" href="yu_meeting_brief_2026_05_14.html">유 미팅 통합 브리프</a>
+    <a class="gold" href="yu_specific_faq_2026_05_14.html">Yu FAQ</a>
+    <a class="gold" href="yu_personal_note_draft_2026_05_14.html">Yu 개인 노트</a>
+    <a class="gold" href="yu_lab_onboarding_doc_2026_05_14.html">Yu lab onboarding (신규)</a>
+    <a class="gold" href="reproducibility_container_spec_2026_05_14.html">Reproducibility container (신규)</a>
+    <a class="teal" href="paper2_image_dm1.html">Paper 2 결론</a>
+    <a class="teal" href="paper2_master_view.html">Paper 2 master view</a>
+    <a class="teal" href="paper2_image_dm1_clinical_business.html">Paper 2 clinical/business</a>
+    <a class="teal" href="paper2_image_dm1_conclusion.html">Paper 2 conclusion long</a>
+    <a class="teal" href="track2_histology_command_room.html">Track 2 command room</a>
+    <a class="green" href="paper1.html">Paper 1 hub</a>
+    <a class="green" href="paper1_nature_cancer_board.html">Paper 1 Nat Cancer board</a>
+    <a class="green" href="track1_dm1_command_room.html">Track 1 command room</a>
+    <a class="violet" href="track5_samsung_command_room.html">Track 5 Samsung command room</a>
+    <a class="violet" href="grant_samsung_causal_kthyro_2026_05_14.html">Samsung 30억 grant</a>
+    <a class="blue" href="venue_strategy_2026_05_14.html">Venue strategy</a>
+    <a class="blue" href="timeline_gantt_2026_05_14.html">90-day Gantt</a>
+    <a class="blue" href="decision_board_2026_05_14.html">Decision board</a>
+    <a class="blue" href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A bank</a>
+    <a class="red" href="risk_atlas_2026_05_14.html">Risk atlas</a>
+    <a class="red" href="honest_negatives_wall_2026_05_14.html">Honest negatives</a>
+    <a class="red" href="data_registry_map_2026_05_14.html">Data registry map</a>
+    <a href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+    <a href="methodology_atlas_2026_05_14.html">Methodology atlas</a>
+    <a href="triangulation_2026_05_14.html">Triangulation</a>
+    <a href="figure_gallery_2026_05_14.html">Figure gallery</a>
+    <a href="why_now_timing_2026_05_14.html">Why now timing</a>
+    <a href="voice_protected_tracker_2026_05_14.html">Voice-protected tracker</a>
+    <a href="marathon_mode_dashboard_2026_05_14.html">Marathon dashboard</a>
+    <a href="v17_audit_history_timeline_2026_05_14.html">v17 audit history</a>
+    <a href="tls_bcell_mechanism_dossier_2026_05_14.html">TLS B-cell mechanism</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html">KR 1-pager</a>
+    <a href="investor_pitch_en_2026_05_14.html">EN investor pitch</a>
+    <a href="bd_outreach_state_2026_05_14.html">BD outreach state</a>
+    <a href="paper2-hla/index.html">Paper 2 HLA dossier</a>
+    <a href="paper4-hla/index.html">Paper 4 HLA dossier</a>
+    <a href="paper11_pancancer.html">Paper 11 pancancer</a>
+    <a href="hla_atlas.html">HLA atlas</a>
+    <a href="anchor_atlas.html">Anchor atlas</a>
+    <a href="pancancer_atlas.html">Pan-cancer atlas</a>
+    <a href="driver_gene_atlas.html">Driver gene atlas</a>
+    <a href="index.html">Hub home</a>
+  </div>
+  <p class="footer">Generated 2026-05-14 KST · K2 H&E access decision tree · Yu × Cook lab · 분당 SNUH × Cook lab agentic AI · 갑상선암 imaging external validation</p>
+</section>
+
+</main>
+</body>
+</html>

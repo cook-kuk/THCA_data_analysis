@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cancer Vaccine Master Report</title>
+<style>
+:root{
+  --bg:#07111b; --ink:#eff5ff; --muted:#aebbd0; --line:#243347;
+  --gold:#f0c36a; --teal:#59d8bb; --blue:#7bb2ff; --rose:#ef7b8d;
+  --good:#72e0a9; --warn:#ff9b6d; --panel:#0f1a2b; --panel2:#0c1524;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+    radial-gradient(circle at 12% 0%, rgba(89,216,187,.14), transparent 26%),
+    radial-gradient(circle at 86% 10%, rgba(123,178,255,.12), transparent 24%),
+    linear-gradient(180deg,#06101a 0%, #081422 52%, #07111b 100%);
+  color:var(--ink);font:15px/1.62 system-ui,-apple-system,Segoe UI,sans-serif;
+}
+a{color:var(--teal);text-decoration:none}
+a:hover{color:var(--gold)}
+.wrap{max-width:1360px;margin:0 auto;padding:28px 24px 72px}
+.hero{
+  border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(15,26,43,.98),rgba(8,16,28,.96));
+  padding:34px 32px 26px;box-shadow:0 28px 84px -24px rgba(0,0,0,.5)
+}
+.kicker{font:700 11px/1.4 "JetBrains Mono",monospace;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
+h1{margin:.38rem 0 .55rem;font-size:clamp(38px,5vw,66px);line-height:1.01;letter-spacing:-.04em}
+.lead{max-width:1120px;color:#d8e4f5;font-size:18px;margin:0}
+.lead b{color:#fff3d0}
+.hero-metrics{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:10px;margin-top:22px}
+.metric{border:1px solid var(--line);border-radius:12px;padding:12px 13px;background:rgba(255,255,255,.03);min-height:88px}
+.metric b{display:block;font:700 24px/1 "Cormorant Garamond",serif;color:var(--gold)}
+.metric span{display:block;margin-top:6px;font:700 10px/1.2 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.hero-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:10px 14px;background:#0b1524;color:var(--ink);font:700 11px/1.2 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase}
+.btn.primary{background:linear-gradient(180deg,rgba(240,195,106,.16),rgba(15,26,43,.96));border-color:rgba(240,195,106,.28);color:#fff3d0}
+.btn:hover{transform:translateY(-1px)}
+
+.layout{display:grid;grid-template-columns:236px minmax(0,1fr);gap:28px;max-width:1360px;margin:0 auto;padding:0 24px 72px}
+@media(max-width:1040px){.layout{grid-template-columns:1fr}.toc{display:none}}
+.toc{position:sticky;top:0;align-self:start;padding:24px 0;max-height:100vh;overflow:auto;border-right:1px solid var(--line)}
+.toc h4{font:700 10px/1.2 "JetBrains Mono",monospace;letter-spacing:.2em;text-transform:uppercase;color:var(--gold);margin:0 0 12px}
+.toc ol{list-style:none;padding:0;margin:0;counter-reset:item}
+.toc li{counter-increment:item;margin:6px 0;font-size:12.5px}
+.toc li::before{content:counter(item,decimal-leading-zero) " ";color:var(--gold);font:700 10px/1.2 "JetBrains Mono",monospace;margin-right:6px}
+.toc a{color:#d8e4f5}
+.toc .sub{margin-left:24px;font-size:11.5px;color:#91a1b7}
+.toc .sub::before{content:"› ";color:var(--muted)}
+main{padding-top:18px;min-width:0}
+section{padding:30px 0;border-bottom:1px solid var(--line)}
+section h2{margin:0 0 8px;font-size:38px;line-height:1.05;letter-spacing:-.03em}
+section h2 .num{color:var(--gold);font:700 13px/1.2 "JetBrains Mono",monospace;letter-spacing:.18em;margin-right:12px;vertical-align:middle}
+.sub{font:700 10px/1.3 "JetBrains Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+p{margin:8px 0 12px}
+.grid{display:grid;gap:14px;margin-top:14px}
+.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:900px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,rgba(15,26,43,.98),rgba(8,16,28,.96));padding:16px 16px 14px;box-shadow:0 20px 44px -24px rgba(0,0,0,.4)}
+.card .k{font:700 10px/1.2 "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.card h3{margin:8px 0 8px;font-size:22px;line-height:1.1}
+.card p{margin:0;color:#d8e4f5;line-height:1.55;font-size:13px}
+.pill{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;border:1px solid var(--line);font:700 10px/1.2 "JetBrains Mono",monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:rgba(255,255,255,.03);margin-right:6px}
+.pill.good{color:var(--good);border-color:rgba(114,224,169,.32);background:rgba(114,224,169,.08)}
+.pill.blue{color:var(--blue);border-color:rgba(123,178,255,.32);background:rgba(123,178,255,.08)}
+.pill.warn{color:var(--warn);border-color:rgba(255,155,109,.32);background:rgba(255,155,109,.08)}
+.timeline{display:grid;gap:14px;margin-top:14px}
+.event{display:grid;grid-template-columns:150px 1fr;gap:14px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(15,26,43,.98),rgba(8,16,28,.96));overflow:hidden}
+.stamp{padding:16px 14px;background:rgba(255,255,255,.03);border-right:1px solid var(--line)}
+.stamp .d{font:700 18px/1 "Cormorant Garamond",serif;color:var(--gold)}
+.stamp .t{margin-top:6px;font:700 10px/1.2 "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.event .body{padding:16px 16px 14px}
+.event h3{margin:0 0 8px;font-size:22px;line-height:1.08}
+.event p{margin:0;color:#d8e4f5}
+.event .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:12px}
+th,td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+th{background:#121f34;color:var(--gold);font:700 10px/1.2 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase}
+tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+td strong{color:var(--gold)}
+.matrix{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,rgba(15,26,43,.98),rgba(8,16,28,.96));box-shadow:0 20px 44px -24px rgba(0,0,0,.42);margin-top:14px}
+.matrix .head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);background:rgba(255,255,255,.02)}
+.matrix .head .t{font-size:15px;font-weight:700;line-height:1.2}
+.matrix .head .s{font:700 10px/1.2 "JetBrains Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.matrix table{margin:0}
+.good{color:var(--good);font-weight:700}
+.blue{color:var(--blue);font-weight:700}
+.callout{
+  border:1px solid rgba(240,195,106,.22);background:linear-gradient(180deg,rgba(240,195,106,.10),rgba(15,26,43,.96));
+  border-radius:16px;padding:16px 16px 14px;margin-top:14px
+}
+.callout h3{margin:0 0 8px;font-size:22px}
+.callout p{margin:0;color:#d8e4f5;line-height:1.6}
+.callout ul{margin:10px 0 0 18px;color:#d8e4f5;padding:0}
+.callout li{margin:6px 0}
+.link-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:14px}
+@media(max-width:900px){.link-grid{grid-template-columns:1fr}}
+.link-card{display:block;border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;background:linear-gradient(180deg,rgba(15,26,43,.98),rgba(8,16,28,.96));color:var(--ink)}
+.link-card:hover{border-color:rgba(240,195,106,.42)}
+.link-card .k{font:700 10px/1.2 "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.link-card h4{margin:8px 0 8px;font-size:18px;line-height:1.12}
+.link-card p{margin:0;color:#d8e4f5;font-size:13px;line-height:1.5}
+footer{padding:28px 24px 40px;border-top:1px solid var(--line);background:#050d16;color:var(--muted);text-align:center;font:700 11px/1.6 "JetBrains Mono",monospace;letter-spacing:.04em}
+footer a{color:var(--gold)}
+@media(max-width:1040px){.hero-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.event{grid-template-columns:1fr}.stamp{border-right:0;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="hub-enh-strip">
+  <span class="live">⚡ Cancer vaccine · Master report · 2026-05-13</span>
+  <span><strong>13 sources · 119,237 records</strong> · platform scale</span>
+  <span><strong>0.854 RF AUROC</strong> · baseline</span>
+  <span><strong>66.3% 7-pep cover</strong> · deliverable</span>
+  <span><strong>GADGVGKSAL</strong> · top KRAS PAAD lead</span>
+  <span><strong>contextual MoE router</strong> · per-dataset winner</span>
+  <span><strong>96-well validation scaffold</strong> · wetlab handoff</span>
+</div>
+<section class="hero">
+  <div class="wrap" style="padding:0">
+    <div class="kicker">Lumenix · Cancer Vaccine Master Report · customer-facing synthesis</div>
+    <h1>Cancer vaccine<br/>master report</h1>
+    <p class="lead">
+      This is the long-form synthesis for a first-time customer MD. It combines the chronology, the data spine, the comparison logic, the 96-well scaffold, and the claim boundary into one page that can be read without chasing a dozen tabs in the wrong order.
+      Start with the <b>clean brief</b>, then use this report as the full narrative.
+    </p>
+    <div class="hero-metrics">
+      <div class="metric"><b>13</b><span>Sources</span></div>
+      <div class="metric"><b>119,237</b><span>Cleaned records</span></div>
+      <div class="metric"><b>19,817</b><span>Leakage-free benchmark</span></div>
+      <div class="metric"><b>0.854</b><span>RF AUROC</span></div>
+      <div class="metric"><b>66.3%</b><span>7-peptide coverage</span></div>
+      <div class="metric"><b>96</b><span>Well validation scaffold</span></div>
+      <div class="metric"><b>1</b><span>Decision system</span></div>
+    </div>
+    <div class="hero-links">
+      <a class="btn primary" href="cancer_vaccine_clean_brief_2026_05_12.html">Clean brief</a>
+      <a class="btn" href="cancer_vaccine_timeline_2026_05_13.html">Timeline index</a>
+      <a class="btn" href="cancer_vaccine_full_dossier.html">Full dossier</a>
+      <a class="btn" href="biodarwin_public_router_impact_dossier.html">Router dossier</a>
+      <a class="btn" href="biodarwin_96well_interpreter_v1.html">96-well interpreter</a>
+      <a class="btn" href="biodarwin_external_mega_comparison_2026_05_11.html">External comparison</a>
+    </div>
+  </div>
+</section>
+
+<div class="layout">
+  <nav class="toc">
+    <h4>Contents</h4>
+    <ol>
+      <li><a href="#thesis">Thesis</a></li>
+      <li><a href="#read">How to read this</a></li>
+      <li><a href="#scoreboard">Scoreboard</a></li>
+      <li><a href="#chronology">Chronology</a></li>
+      <li><a href="#data">Data spine</a></li>
+      <li><a href="#figures">Important figures</a></li>
+      <li><a href="#algorithms">Algorithm comparison</a></li>
+      <li><a href="#biodarwin">BioDarwin evolution</a></li>
+      <li><a href="#external">External landscape</a></li>
+      <li><a href="#wetlab">96-well scaffold</a></li>
+      <li><a href="#impact">Why high impact</a></li>
+      <li><a href="#pages">Pages to open next</a></li>
+      <li><a href="#ask">What to ask next</a></li>
+      <li><a href="#boundary">Claim boundary</a></li>
+      <li><a href="#sources">Reproducibility anchors</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section id="thesis">
+      <h2><span class="num">01</span>Thesis</h2>
+      <div class="sub">One sentence, but enough context to be useful.</div>
+      <div class="callout">
+        <h3>The platform is a decision system, not a single model.</h3>
+        <p>It ingests public neoantigen data, audits leakage, ranks candidates with simple and LM-based models, adds a router / ensemble layer, and turns the shortlist into executable outputs plus a 96-well validation path.</p>
+      </div>
+    </section>
+
+    <section id="read">
+      <h2><span class="num">02</span>How to read this</h2>
+      <div class="sub">The page is written for a customer MD who wants order, not inside baseball.</div>
+      <div class="grid grid-3">
+        <div class="card"><div class="k">Step 1</div><h3>Read the clean brief</h3><p>Front door. Fast. Pitch-deck style.</p></div>
+        <div class="card"><div class="k">Step 2</div><h3>Read this master report</h3><p>Long form. Explains the logic behind the brief.</p></div>
+        <div class="card"><div class="k">Step 3</div><h3>Then inspect the deep pages</h3><p>Timeline, router dossier, interpreter, external comparison, partner pack.</p></div>
+      </div>
+    </section>
+
+    <section id="scoreboard">
+      <h2><span class="num">03</span>Scoreboard</h2>
+      <div class="sub">What matters now, in one place.</div>
+      <div class="matrix">
+        <div class="head"><div class="t">Current scoreboard</div><div class="s">core facts</div></div>
+        <table>
+          <thead><tr><th>Metric</th><th>Value</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Sources ingested</td><td><strong>13</strong></td><td>Broad public benchmark base</td></tr>
+            <tr><td>Cleaned records</td><td><strong>119,237</strong></td><td>Master corpus scale</td></tr>
+            <tr><td>Leakage-free benchmark</td><td><strong>19,817</strong></td><td>Safe evaluation pool</td></tr>
+            <tr><td>RF 5-fold AUROC</td><td><strong>0.854 +/- 0.008</strong></td><td>Strongest simple baseline</td></tr>
+            <tr><td>7-peptide coverage</td><td><strong>66.3%</strong></td><td>Executable set-cover candidate</td></tr>
+            <tr><td>Top KRAS candidate</td><td><strong>GADGVGKSAL</strong></td><td>Practical PAAD lead</td></tr>
+            <tr><td>ESM2 LOSO rescue</td><td><strong>+0.073</strong></td><td>Partial domain-shift fix</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="presentation">
+      <h2><span class="num">04</span>Presentation flow</h2>
+      <div class="sub">This is the order a customer MD can present without rearranging the story.</div>
+      <div class="grid grid-3">
+        <div class="card">
+          <div class="k">Slide 1</div>
+          <h3>Problem and data spine</h3>
+          <p>Open with the 13-source corpus, leakage audit, and why neoantigen selection is easy to overclaim.</p>
+        </div>
+        <div class="card">
+          <div class="k">Slide 2</div>
+          <h3>What rises to the top</h3>
+          <p>Show the scoreboard, the RF anchor, and the KRAS lead so the audience sees a real output.</p>
+        </div>
+        <div class="card">
+          <div class="k">Slide 3</div>
+          <h3>Why the figure matters</h3>
+          <p>Use the source/leakage figure, the NeoQ decision-rule figure, and the structure figure together.</p>
+        </div>
+        <div class="card">
+          <div class="k">Slide 4</div>
+          <h3>Why the comparison is fair</h3>
+          <p>Show RF, ESM2, XGBoost, MHCflurry, PRIME, and same-board champions as a winner map.</p>
+        </div>
+        <div class="card">
+          <div class="k">Slide 5</div>
+          <h3>How it becomes a validation system</h3>
+          <p>Move to the 96-well plate, the interpreter, and the hit / fail / helper / probe lanes.</p>
+        </div>
+        <div class="card">
+          <div class="k">Slide 6</div>
+          <h3>What we need next</h3>
+          <p>Close with the locked batch ask so the project becomes a live validation platform, not only a ranking system.</p>
+        </div>
+      </div>
+      <div class="matrix">
+        <div class="head"><div class="t">Talk track table</div><div class="s">one sentence per slide</div></div>
+        <table>
+          <thead><tr><th>Slide</th><th>Headline</th><th>Speaker line</th><th>Why it lands</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Why this is hard</td><td>Neoantigen selection is noisy and easy to overclaim.</td><td>Gets attention without hype.</td></tr>
+            <tr><td>2</td><td>What we used</td><td>We audited the data instead of hiding the mess.</td><td>Gives the page credibility.</td></tr>
+            <tr><td>3</td><td>What we found</td><td>RF anchors the ranking, ESM2 rescues some shift rows.</td><td>Makes the output concrete.</td></tr>
+            <tr><td>4</td><td>Why the stack wins</td><td>BioDarwin + NeoQ is the only stack that combines ranking, audit, structure, and deliverable.</td><td>Explains the comparison logic.</td></tr>
+            <tr><td>5</td><td>How we validate</td><td>The 96-well plate turns ranking into a live readout schema.</td><td>Bridges to wetlab.</td></tr>
+            <tr><td>6</td><td>What we need</td><td>Give us a locked prospective batch.</td><td>Ends with a clear ask.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="chronology">
+      <h2><span class="num">05</span>Chronology</h2>
+      <div class="sub">The project makes the most sense when read in order.</div>
+      <div class="timeline">
+        <article class="event"><div class="stamp"><div class="d">2026-05-07</div><div class="t">Literature map</div></div><div class="body"><h3>Post-TESLA field map</h3><p><code>post_tesla_key_papers.md</code> framed the field shift from binding-only prediction to presentation / recognition / clinical-response logic.</p><div class="meta"><span class="pill good">context</span><span class="pill">TESLA</span><span class="pill">field logic</span></div></div></article>
+        <article class="event"><div class="stamp"><div class="d">2026-05-08</div><div class="t">Master corpus</div></div><div class="body"><h3>Full dossier built</h3><p><code>cancer_vaccine_full_dossier.html</code> consolidated the data spine, leakage control, and structural support.</p><div class="meta"><span class="pill blue">master page</span><span class="pill">119,237 records</span><span class="pill">leakage control</span></div></div></article>
+        <article class="event"><div class="stamp"><div class="d">2026-05-09</div><div class="t">Execution surface</div></div><div class="body"><h3>Agent page turned the work into a tool</h3><p><code>cancer_vaccine_agent.html</code> turned the project into an interactive execution surface.</p><div class="meta"><span class="pill">agent</span><span class="pill good">interactive</span><span class="pill">execution</span></div></div></article>
+        <article class="event"><div class="stamp"><div class="d">2026-05-10</div><div class="t">Search build</div></div><div class="body"><h3>GA/RL search and RF anchor expansion</h3><p>The BioDarwin path began: RF anchor, GA/RL search, and score-weight exploration.</p><div class="meta"><span class="pill warn">search</span><span class="pill">RF anchor</span><span class="pill">GA / RL</span></div></div></article>
+        <article class="event"><div class="stamp"><div class="d">2026-05-11</div><div class="t">Router + validation</div></div><div class="body"><h3>Lookup to contextual MoE plus 96-well scaffolding</h3><p><code>biodarwin_public_router_impact_dossier.html</code> recorded the climb from lookup to GA/RL to LOBO blend to contextual MoE.</p><div class="meta"><span class="pill good">router</span><span class="pill">96-well</span><span class="pill">prospective scaffold</span></div></div></article>
+        <article class="event"><div class="stamp"><div class="d">2026-05-11</div><div class="t">External compare</div></div><div class="body"><h3>Public comparator landscape and reviewer-safe boundary</h3><p><code>biodarwin_external_mega_comparison_2026_05_11.html</code> added the public winners and separated them from same-board champions.</p><div class="meta"><span class="pill">baseline map</span><span class="pill blue">reviewer-safe</span><span class="pill">dataset-specific winners</span></div></div></article>
+        <article class="event"><div class="stamp"><div class="d">2026-05-12</div><div class="t">Pitch front door</div></div><div class="body"><h3>Clean brief and partner pack</h3><p>The clean brief became the pitch-deck front door; the partner pack translated the same stack into a customer-facing ask.</p><div class="meta"><span class="pill good">pitch deck</span><span class="pill">customer ask</span><span class="pill">click-to-enlarge figures</span></div></div></article>
+        <article class="event"><div class="stamp"><div class="d">2026-05-13</div><div class="t">Chronology layer</div></div><div class="body"><h3>Timeline and master report</h3><p>This report collapses the whole sequence into one long-form narrative for a first-time customer MD.</p><div class="meta"><span class="pill gold">timeline</span><span class="pill">master report</span><span class="pill">front door</span></div></div></article>
+      </div>
+    </section>
+
+    <section id="figurewall">
+      <h2><span class="num">06</span>Figure wall</h2>
+      <div class="sub">Use these blocks when you want the page to feel like a pitch deck.</div>
+      <div class="grid grid-3">
+        <div class="card"><div class="k">Figure A</div><h3>Source / leakage wall</h3><p>What came in, what was removed, and why the benchmark is honest.</p></div>
+        <div class="card"><div class="k">Figure B</div><h3>NeoQ decision rule</h3><p>Why the shortlist is rule-based rather than highest-score-wins.</p></div>
+        <div class="card"><div class="k">Figure C</div><h3>Algorithm winner map</h3><p>Shows the floor, the rescue branch, the challenger, and the front door stack.</p></div>
+        <div class="card"><div class="k">Figure D</div><h3>TESLA reference panel</h3><p>Benchmarks the field without pretending it is the whole story.</p></div>
+        <div class="card"><div class="k">Figure E</div><h3>96-well interpretation</h3><p>Bridges the retrospective ranking to the prospective lab decision surface.</p></div>
+        <div class="card"><div class="k">Figure F</div><h3>Ask / boundary panel</h3><p>Makes the next step explicit so the deck ends with an action.</p></div>
+      </div>
+    </section>
+
+    <section id="data">
+      <h2><span class="num">07</span>Data spine</h2>
+      <div class="sub">What was used and why it matters.</div>
+      <div class="grid grid-2">
+        <div class="card"><div class="k">Core corpus</div><h3>Primary cancer vaccine data</h3><p>13 sources, 119,237 cleaned records, and 19,817 leakage-free benchmark rows form the main evaluation base. The structural layer adds 115 ESMFold structures and the executable shortlist adds the 7-peptide set cover plus the KRAS lead <code>GADGVGKSAL</code>.</p></div>
+        <div class="card"><div class="k">Public comparator layer</div><h3>External and industrial context</h3><p>59 public industrial sources, 54 fetch successes, 3,668 extracted entities, 26,323 candidate pairs, 11,511 Class I score-ready rows, and 666 Class II rows were used to build the external comparison map and the customer-facing boundary.</p></div>
+      </div>
+      <div class="matrix">
+        <div class="head"><div class="t">Evidence stack</div><div class="s">what each layer contributes</div></div>
+        <table>
+          <thead><tr><th>Layer</th><th>Example evidence</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>Literature</td><td>TESLA, post-TESLA key papers</td><td>Defines the field boundary and what is now expected.</td></tr>
+            <tr><td>Data</td><td>13-source core corpus</td><td>Shows scale and traceability.</td></tr>
+            <tr><td>Model</td><td>RF anchor, GA/RL, router, MoE</td><td>Shows the stack is adaptive, not a single static score.</td></tr>
+            <tr><td>Validation</td><td>96-well plate + interpreter</td><td>Gives a live validation scaffold.</td></tr>
+            <tr><td>External</td><td>MHCflurry, PRIME, DeepImmuno, NetMHCpan, BAR-Neo, KG_GA, CROSS-Neo</td><td>Prevents overclaiming and clarifies where the project wins.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="figures">
+      <h2><span class="num">08</span>Important figures</h2>
+      <div class="sub">This is the figure logic that a customer MD should care about.</div>
+      <div class="grid grid-2">
+        <div class="card"><div class="k">Figure family</div><h3>Source / leakage</h3><p>Proves the shortlist is not inflated by leakage.</p></div>
+        <div class="card"><div class="k">Figure family</div><h3>Model leaderboard</h3><p>Tests the ranking claim against RF, ESM2, XGBoost, and public comparators.</p></div>
+        <div class="card"><div class="k">Figure family</div><h3>Set-cover output</h3><p>Turns scores into a 7-peptide executable deliverable.</p></div>
+        <div class="card"><div class="k">Figure family</div><h3>KRAS lead</h3><p>Shows the concrete candidate that can be followed up.</p></div>
+        <div class="card"><div class="k">Figure family</div><h3>Structure evidence</h3><p>Anchors the shortlist in biology instead of score-only output.</p></div>
+        <div class="card"><div class="k">Figure family</div><h3>96-well interpreter</h3><p>Bridges retrospective ranking to prospective validation.</p></div>
+      </div>
+    </section>
+
+    <section id="algorithms">
+      <h2><span class="num">09</span>Algorithm comparison</h2>
+      <div class="sub">The story here is about role, not just score.</div>
+      <div class="matrix">
+        <div class="head"><div class="t">Algorithm / comparator matrix</div><div class="s">what was compared</div></div>
+        <table>
+          <thead><tr><th>Algorithm / comparator</th><th>Role</th><th>What it tested</th></tr></thead>
+          <tbody>
+            <tr><td>RF biophysics</td><td>Honest floor</td><td>Whether simple biophysical features already solve the task.</td></tr>
+            <tr><td>ESM2 + LogReg</td><td>Rescue branch</td><td>Whether protein-language features help under domain shift.</td></tr>
+            <tr><td>XGBoost</td><td>Challenger</td><td>Whether a nonlinear tabular model beats the anchor.</td></tr>
+            <tr><td>NetMHCpan / MHCflurry / PRIME / DeepImmuno / TransPHLA</td><td>Public comparators</td><td>Where the project sits in the broader literature.</td></tr>
+            <tr><td>BAR-Neo / KG_GA / CROSS-Neo</td><td>Same-board champions</td><td>How strong board-specific systems behave.</td></tr>
+            <tr><td>BioDarwin + NeoQ</td><td>Front-door stack</td><td>Whether ranking, audit, structure, and output can be unified.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <h3>What the comparison says</h3>
+        <ul>
+          <li>RF is the anchor.</li>
+          <li>ESM2 is the rescue branch.</li>
+          <li>XGBoost is the challenger.</li>
+          <li>Public comparators are the context, not the whole story.</li>
+          <li>BioDarwin + NeoQ is the only stack that combines ranking, audit, structure, and a deliverable in one front door.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="biodarwin">
+      <h2><span class="num">10</span>BioDarwin evolution</h2>
+      <div class="sub">How the model family got stronger.</div>
+      <div class="matrix">
+        <div class="head"><div class="t">Stage map</div><div class="s">lookup -> search -> router -> interpreter</div></div>
+        <table>
+          <thead><tr><th>Stage</th><th>Old state</th><th>New state</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>v1</td><td>Lookup policy</td><td>Frozen public pool baseline</td><td>Shows a naive policy is not enough.</td></tr>
+            <tr><td>v2</td><td>GA/RL</td><td>Feature-gated MoE</td><td>Shows the router can learn.</td></tr>
+            <tr><td>v3</td><td>LOBO blend</td><td>Freeze point</td><td>Gives a claim-safe operating line.</td></tr>
+            <tr><td>v4</td><td>Contextual MoE</td><td>Operating champion</td><td>Shows same-pool saturation explicitly.</td></tr>
+            <tr><td>Locked TG4050</td><td>Diagnostic test</td><td>Industrial stress test</td><td>Shows the route still beats a strong comparator.</td></tr>
+            <tr><td>96-well control</td><td>Score table</td><td>Wetlab-facing interpreter</td><td>Makes the system prospective-ready.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="external">
+      <h2><span class="num">11</span>External landscape</h2>
+      <div class="sub">There is no single universal winner across the public neoantigen landscape.</div>
+      <div class="matrix">
+        <div class="head"><div class="t">Public benchmark winners</div><div class="s">dataset-specific</div></div>
+        <table>
+          <thead><tr><th>Benchmark family</th><th>Strong method</th><th>Takeaway</th></tr></thead>
+          <tbody>
+            <tr><td>CEDAR partial</td><td>MHCflurry</td><td>This dataset rewards a different inductive bias.</td></tr>
+            <tr><td>ITSNdb</td><td>DeepImmuno</td><td>This dataset has its own winner logic.</td></tr>
+            <tr><td>NEPdb</td><td>PRIME</td><td>Public benchmark winners are dataset-specific.</td></tr>
+            <tr><td>TESLA mmc4</td><td>PRIME</td><td>Low positive-rate settings change the ceiling.</td></tr>
+            <tr><td>TESLA mmc7</td><td>PRIME / BigMHC_IM context</td><td>Benchmark sensitivity remains high.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="callout">
+        <h3>Implication</h3>
+        <p>The project should not claim universal SOTA. The stronger claim is that the router learns which expert family to use, and that the system is honest about when a public comparator is better.</p>
+      </div>
+    </section>
+
+    <section id="wetlab">
+      <h2><span class="num">12</span>96-well scaffold</h2>
+      <div class="sub">The bridge from retrospective ranking to prospective validation.</div>
+      <div class="grid grid-2">
+        <div class="card"><div class="k">Lane</div><h3>Hit / fail / helper / probe</h3><p>High-confidence candidates go to hit, low-confidence rows go to fail, ambiguous rows to helper, and exploratory rows to probe. That is the decision surface the wetlab can actually use.</p></div>
+        <div class="card"><div class="k">Why it matters</div><h3>It is a readout schema</h3><p>The plate is not just a list of wells. It is a schema that lets the interpreter update without redesigning the entire pipeline.</p></div>
+      </div>
+    </section>
+
+    <section id="impact">
+      <h2><span class="num">13</span>Why this is high impact</h2>
+      <div class="sub">The impact is structural, not rhetorical.</div>
+      <div class="grid grid-3">
+        <div class="card"><div class="k">1</div><h3>Traceable</h3><p>Every claim points back to a source file, result file, or web page.</p></div>
+        <div class="card"><div class="k">2</div><h3>Decision-ready</h3><p>The stack converts scores into a shortlist, router, and prospective scaffold.</p></div>
+        <div class="card"><div class="k">3</div><h3>Customer-readable</h3><p>A first-time customer MD can follow the chronology without reverse-engineering the repo.</p></div>
+      </div>
+      <div class="callout">
+        <h3>Bottom line</h3>
+        <p>The project is strongest when it is presented as a chronology of increasingly strict claims: literature map, corpus build, model build, router, comparator landscape, wetlab scaffold, and customer-facing brief.</p>
+      </div>
+    </section>
+
+    <section id="pages">
+      <h2><span class="num">14</span>Pages to open next</h2>
+      <div class="sub">This is the practical reading order.</div>
+      <div class="link-grid">
+        <a class="link-card" href="cancer_vaccine_clean_brief_2026_05_12.html"><div class="k">01 / front door</div><h4>Clean brief</h4><p>Pitch-deck page with the strongest summary, figures, and ask.</p></a>
+        <a class="link-card" href="cancer_vaccine_timeline_2026_05_13.html"><div class="k">02 / chronology</div><h4>Timeline index</h4><p>Explains the order of the stack and prevents confusion.</p></a>
+        <a class="link-card" href="cancer_vaccine_full_dossier.html"><div class="k">03 / evidence</div><h4>Full dossier</h4><p>Deep evidence page with sources, tables, and reproducibility anchors.</p></a>
+        <a class="link-card" href="biodarwin_public_router_impact_dossier.html"><div class="k">04 / router</div><h4>BioDarwin router dossier</h4><p>The progression from lookup to GA/RL to contextual MoE.</p></a>
+        <a class="link-card" href="biodarwin_96well_interpreter_v1.html"><div class="k">05 / wetlab</div><h4>96-well interpreter</h4><p>Hit / fail / helper / probe view for prospective validation.</p></a>
+        <a class="link-card" href="biodarwin_external_mega_comparison_2026_05_11.html"><div class="k">06 / comparator</div><h4>External comparison</h4><p>Public benchmark winners and dataset-specific context.</p></a>
+      </div>
+    </section>
+
+    <section id="ask">
+      <h2><span class="num">15</span>What to ask next</h2>
+      <div class="sub">These are the next data asks that would actually move the work forward.</div>
+      <div class="matrix">
+        <div class="head"><div class="t">Future ask table</div><div class="s">what is needed next</div></div>
+        <table>
+          <thead><tr><th>Ask</th><th>Needed data</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Prospective locked batch</td><td>Fresh peptides and labels</td><td>Turns the platform into a live validation story.</td></tr>
+            <tr><td>Independent cohort</td><td>Same pipeline, new population</td><td>Checks external reproducibility.</td></tr>
+            <tr><td>HLA / patient metadata</td><td>Typing and provenance</td><td>Reduces ambiguity in shortlist ranking.</td></tr>
+            <tr><td>Wetlab readout schema</td><td>Hit / fail / helper / probe</td><td>Lets the interpreter update cleanly.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="boundary">
+      <h2><span class="num">16</span>Claim boundary</h2>
+      <div class="sub">The report should be strong and honest at the same time.</div>
+      <div class="matrix">
+        <div class="head"><div class="t">Supported vs blocked</div><div class="s">what can be claimed now</div></div>
+        <table>
+          <thead><tr><th>Claim</th><th>Status</th><th>Reason</th></tr></thead>
+          <tbody>
+            <tr><td>Research-grade platform</td><td class="good">Supported</td><td>It has corpus, ranking, structure, router, and delivery layers.</td></tr>
+            <tr><td>Executable shortlist</td><td class="good">Supported</td><td>It produces concrete vaccine outputs, not just scores.</td></tr>
+            <tr><td>Universal predictor</td><td class="blue">Not supported</td><td>Assay and distribution shift remain real.</td></tr>
+            <tr><td>Wetlab superiority</td><td class="blue">Not supported</td><td>No new locked prospective batch yet.</td></tr>
+            <tr><td>One-number universal SOTA</td><td class="blue">Not supported</td><td>Dataset-specific winners remain strong.</td></tr>
+            <tr><td>Clinical deployment</td><td class="blue">Not supported</td><td>The work is still a research platform.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2><span class="num">17</span>Reproducibility anchors</h2>
+      <div class="sub">Use these as the stable file and URL anchors.</div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="k">Local files</div>
+          <h3>Result and evidence files</h3>
+          <p><code>project/results/cancer_vaccine_master_report_2026_05_13/CANCER_VACCINE_MASTER_REPORT.md</code><br/>
+          <code>project/results/cancer_vaccine_clean_brief_2026_05_12/CANCER_VACCINE_CLEAN_BRIEF.md</code><br/>
+          <code>project/results/biodarwin_paper_strategy_2026_05_11/BIODARWIN_PAPER_STRATEGY.md</code></p>
+        </div>
+        <div class="card">
+          <div class="k">Web deploy</div>
+          <h3>Public URLs</h3>
+          <p><code>http://40.82.129.113/papers_hub_2026_05_04/cancer_vaccine_master_report_2026_05_13.html</code><br/>
+          <code>http://40.82.129.113/papers_hub_2026_05_04/cancer_vaccine_timeline_2026_05_13.html</code></p>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  Cancer vaccine master report · long-form synthesis for first-time customer MDs ·
+  <a href="index.html">hub index</a> ·
+  <a href="cancer_vaccine_clean_brief_2026_05_12.html">clean brief</a> ·
+  <a href="cancer_vaccine_timeline_2026_05_13.html">timeline index</a>
+</footer>
+<!-- ===== HUB-WIDE ENHANCEMENT BUNDLE · auto-injected ===== -->
+<style>
+.hub-enh-strip{position:sticky;top:0;z-index:30;margin:0 0 16px;padding:8px 16px;background:linear-gradient(90deg,#fff3f0,#f3ece7,#fff3f0);border-bottom:2px solid #7B1F2A;display:flex;flex-wrap:wrap;gap:13px;align-items:center;font:600 11px/1.3 'JetBrains Mono',monospace,system-ui;color:#1A1A1A;letter-spacing:.02em;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.hub-enh-strip .live{color:#7B1F2A;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.hub-enh-strip strong{color:#7B1F2A}
+figure,div.figure,.fig{position:relative}
+.hub-star{position:absolute;top:8px;right:8px;z-index:50;font-family:'Cormorant Garamond',serif;font-weight:900;letter-spacing:.04em;pointer-events:none;animation:hub-pulse 1.6s ease-in-out infinite}
+.hub-star.s5{color:#dc2626;font-size:20px;text-shadow:0 0 8px rgba(255,255,255,1),0 0 4px #fff;padding:4px 8px;background:rgba(255,255,255,.95);border:2px solid #dc2626;border-radius:8px;box-shadow:0 0 16px rgba(220,38,38,.5),0 3px 10px rgba(0,0,0,.12)}
+.hub-star.s4{color:#dc2626;font-size:14px;text-shadow:0 0 5px rgba(255,255,255,1);padding:3px 6px;background:rgba(255,255,255,.92);border:1.5px solid #ef4444;border-radius:6px;box-shadow:0 0 8px rgba(220,38,38,.3)}
+.hub-star .crit-label{display:block;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.10em;color:#dc2626;text-align:center;margin-top:1px;font-weight:700;text-transform:uppercase}
+@keyframes hub-pulse{0%,100%{opacity:.92;transform:scale(1)}50%{opacity:1;transform:scale(1.06)}}
+figure.hub-crit5,.fig.hub-crit5,div.figure.hub-crit5{outline:3px solid #dc2626;outline-offset:-3px;box-shadow:0 0 20px rgba(220,38,38,.22)!important}
+figure.hub-crit,.fig.hub-crit,div.figure.hub-crit{outline:2px solid rgba(220,38,38,.55);outline-offset:-2px;box-shadow:0 0 12px rgba(220,38,38,.15)!important}
+.hub-megabox{margin:36px 0 24px;padding:20px 24px;border:1px solid #c9c9c9;border-left:4px solid #7B1F2A;background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.04);font:14px/1.7 'Newsreader','Noto Sans KR',serif}
+.hub-megabox h3{font-family:'Cormorant Garamond',serif;font-size:24px;margin:0 0 12px;color:#7B1F2A}
+.hub-megabox h4{font-family:'Cormorant Garamond',serif;font-size:17px;margin:14px 0 6px;color:#1A1A1A;letter-spacing:0;text-transform:none}
+.hub-megabox p{margin:6px 0 12px}
+.hub-megabox strong{color:#7B1F2A}
+.hub-megabox.gold{border-left-color:#B8893C;background:#fefaf0}
+.hub-megabox.gold h3{color:#B8893C}
+.hub-megabox.blue{border-left-color:#34547A;background:#E9F1F8}
+.hub-megabox.blue h3{color:#34547A}
+.hub-megabox.green{border-left-color:#3C6B4F;background:#EDF6ED}
+.hub-megabox.green h3{color:#3C6B4F}
+.hub-megabox.red{border-left-color:#dc2626;background:#fff5f5}
+.hub-megabox.red h3{color:#dc2626}
+.hub-megabox table{width:100%;border-collapse:collapse;font-size:12.5px;margin:10px 0;background:#fff}
+.hub-megabox th{background:#f3ece7;font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:6px 8px;border:1px solid #c9c9c9;text-align:left;letter-spacing:.04em}
+.hub-megabox td{padding:6px 8px;border:1px solid #c9c9c9;font-size:12.5px;line-height:1.55;vertical-align:top}
+.hub-fact-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:12px 0}
+.hub-fact{background:#fafafa;border:1px solid #c9c9c9;padding:12px 14px;border-radius:4px}
+.hub-fact h4{font-family:'JetBrains Mono',monospace;font-size:11px;color:#7B1F2A;margin:0 0 6px;letter-spacing:.06em;text-transform:none}
+.hub-fact .row{padding:5px 0;border-bottom:1px dashed #e8e8e8;font-size:12px;line-height:1.5}
+.hub-fact .row:last-child{border-bottom:none}
+@media (max-width:760px){.hub-fact-grid{grid-template-columns:1fr}}
+</style>
+<script>
+(function(){
+  /* Auto-add star badges based on filename patterns common across hub pages */
+  const STAR5_PATTERNS = ['hero','perfect','closure_to_pass','method_comparison','overview','dashboard','visual_summary','pipeline','strategy','main_finding','top_lead','MD_audit','wetlab_workflow','claim_ladder','evidence_moat','exec','flagship','integrated','priority_ranking','no_fp_top'];
+  const STAR4_PATTERNS = ['benchmark','correlation','attention','validation','ROC','forest','spatial_grid','cohort_funnel','calibration','tile','sensitivity','subgroup','threshold','operating_point','stage','distribution','impact','readiness','scorecard','signature'];
+  function basenameOfSrc(src){
+    if(!src) return '';
+    const m = src.match(/([^\/]+)$/);
+    return m ? m[1].split('?')[0].toLowerCase() : '';
+  }
+  function matchPatterns(bn, patterns){
+    return patterns.some(p => bn.includes(p.toLowerCase()));
+  }
+  function addBadge(el, level, label){
+    if(!el || el.querySelector('.hub-star')) return;
+    const stars = level===5 ? '★★★★★' : '★★★★';
+    const cls = level===5 ? 's5' : 's4';
+    const critCls = level===5 ? 'hub-crit5' : 'hub-crit';
+    el.classList.add(critCls);
+    const badge = document.createElement('div');
+    badge.className = 'hub-star ' + cls;
+    badge.innerHTML = stars + (label ? '<span class="crit-label">' + label + '</span>' : '');
+    el.appendChild(badge);
+  }
+  function processFigContainer(container){
+    const imgs = container.querySelectorAll('img');
+    let highestLevel = 0;
+    imgs.forEach(img => {
+      const bn = basenameOfSrc(img.getAttribute('src'));
+      if(matchPatterns(bn, STAR5_PATTERNS)) highestLevel = Math.max(highestLevel, 5);
+      else if(matchPatterns(bn, STAR4_PATTERNS)) highestLevel = Math.max(highestLevel, 4);
+    });
+    if(highestLevel === 5) addBadge(container, 5, 'critical');
+    else if(highestLevel === 4) addBadge(container, 4, 'key');
+  }
+  document.querySelectorAll('figure, div.figure, .fig').forEach(processFigContainer);
+})();
+</script>
+
+</body>
+</html>

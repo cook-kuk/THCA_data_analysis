@@ -1,0 +1,24 @@
+# CROSS-Neo reviewer response v10
+
+Generated: 2026-05-11T07:34:31
+
+## Task expansion
+
+The current work is organized into 20 tasks across analysis, execution, reviewer, and next-step tracks.
+
+## Core numbers
+
+- Known-answer top96: 91/96
+- Top10: 10/10
+- Confirmatory risk sum: 0.149
+- Execution: 96 wells / 114 order lines
+
+## Five-slide scaffold
+
+|   slide | title                              | headline                     | support                                            | claim_boundary                          |
+|--------:|:-----------------------------------|:-----------------------------|:---------------------------------------------------|:----------------------------------------|
+|       1 | One-line impact                    | 91/96 known-answer positives | retrospective top96 board with five red wells      | retrospective known-label visualization |
+|       2 | Why it is strong                   | 1.93x score recovery         | clean-CV recovery over failed stacker              | benchmark recovery only                 |
+|       3 | Why it is controlled               | 0.149 confirmatory risk sum  | frozen endpoint plan and result-entry sheets       | pre-assay endpoint statistics           |
+|       4 | Why it is executable               | 96 wells / 114 order lines   | candidate manifest, reagent order, and interpreter | execution scaffold only                 |
+|       5 | Why reviewers stay inside boundary | 20 next tasks + 8 controls   | task board and control manifest                    | reviewer-defense scaffold               |

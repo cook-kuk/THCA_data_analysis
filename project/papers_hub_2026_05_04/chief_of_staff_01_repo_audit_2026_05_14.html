@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Chief of Staff 01 · Repository audit · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:56px;line-height:1.02;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:36px;margin:0 0 6px;letter-spacing:-.4px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;margin:18px 0 8px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+p{margin:8px 0;color:#cfdae2}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-right:6px}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.callout{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.05),rgba(255,210,138,.02));padding:18px 20px;margin:14px 0}
+.callout h3{margin-top:0;color:var(--gold)}
+.callout.red{border-color:var(--red);background:linear-gradient(135deg,rgba(255,138,107,.05),rgba(255,138,107,.02))}
+.callout.red h3{color:var(--red)}
+.callout.green{border-color:var(--green);background:linear-gradient(135deg,rgba(147,226,170,.05),rgba(147,226,170,.02))}
+.callout.green h3{color:var(--green)}
+.callout.blue{border-color:var(--blue);background:linear-gradient(135deg,rgba(139,188,255,.05),rgba(139,188,255,.02))}
+.callout.blue h3{color:var(--blue)}
+ul{color:#cfdae2;font-size:14px;padding-left:20px}
+ul li{margin:4px 0}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px;padding:30px 0;border-top:1px solid var(--line)}
+.siblings{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.siblings a{border:1px solid var(--line);border-radius:5px;padding:7px 11px;background:#0d1823;color:#d3dee5;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:700}
+.siblings a.cur{border-color:var(--gold);color:var(--gold);background:#11202e}
+.siblings a:hover{background:#152432}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Chief of staff 01 · repository audit · 2026-05-14 · Seungho Cook</p>
+    <h1>Repo audit — 22 top-level dirs × 4 active tracks × 358 datasets cataloged.</h1>
+    <p class="lead">
+      파일시스템 단위에서 가장 정직한 상태 보고. <b>22개 top-level 디렉토리</b>가 root에 있고, 그중 <b>4개 active track</b>(Paper 1 DM1, Paper 2 H&E pathology pivot, Samsung CTC-EMT proposal, Brand Lumenix/BioDarwin scaffolding)이 실제 working artifact을 갖는다. <b>data_registry/</b>는 358 row master catalog를 5개 zone으로 강제 분리하고, image-DM1 path는 <b>closure battery 2026-05-04 verdict D</b>로 폐기되어 더 이상 resurrect 대상이 아니다. 본 페이지는 모든 숫자에 file-backed/claim/proposal 레이블을 붙인다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>22</b><span>top-level dirs</span><small>root inventory · file-backed</small></div>
+      <div class="stat"><b>4</b><span>active tracks</span><small>P1 · P2 · Samsung · Brand</small></div>
+      <div class="stat"><b>358</b><span>datasets in master CSV</span><small>master_dataset_catalog.csv lines</small></div>
+      <div class="stat"><b>5</b><span>zones</span><small>boundary-enforced separation</small></div>
+      <div class="stat"><b>verdict D</b><span>image-DM1 closure</span><small>2026-05-04 NO-GO locked</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#hero">Hero</a>
+  <a class="primary" href="#toplevel">Top-level inventory</a>
+  <a class="primary" href="#tracks">Active tracks</a>
+  <a class="primary" href="#realvspec">Real vs speculative</a>
+  <a class="primary" href="#lumenix">Lumenix inventory</a>
+  <a class="primary" href="#samsung">Samsung dirs</a>
+  <a class="primary" href="#closure">Closure battery</a>
+  <a class="primary" href="#marathon">Marathon mode</a>
+  <a class="primary" href="#storage">Storage architecture</a>
+  <a class="primary" href="#anticlutter">Anti-clutter</a>
+  <a class="primary" href="#cleanup">Cleanup actions</a>
+  <a class="primary" href="#siblings">Siblings</a>
+</div></nav>
+
+<main>
+
+<section id="rubric">
+  <p class="sub">Section 0 · evidence labeling rubric</p>
+  <h2>Every claim is labeled. No exceptions.</h2>
+  <p>본 chief-of-staff series 의 모든 문장은 다음 5개 라벨 중 하나로 분류된다. 라벨이 없는 문장은 작성하지 않는다. TCGA bulk RNA-seq 수치를 CTC 수치처럼 쓰는 식의 layer-mix는 모두 금지.</p>
+  <table>
+    <thead><tr><th>Label</th><th>What it means</th><th>Examples in this page</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag g">internal data — file-backed</span></td><td>local disk에 실제 파일이 존재하고 byte를 확인 가능. 본 audit은 <code>ls</code>/<code>wc -l</code>/<code>du</code> 출력에 근거</td><td>22 root dirs, 358 catalog lines, kthyro_public_pilot 279M, project/ 34G, samsung proposal 76M</td></tr>
+      <tr><td><span class="tag">internal claim — requires verification</span></td><td>memory/문서 안에 적혀있으나 본 페이지가 1차 검증을 못함</td><td>"GSE250521 16/16 slides z>2" — context 파일에 적혀있음, 본 페이지는 원자료 spot-level TSV는 열어보지 않음</td></tr>
+      <tr><td><span class="tag b">public proxy</span></td><td>TCGA-THCA 같은 공개 cohort로부터 도출된 fact</td><td>TCGA-THCA n=505 primary tumors</td></tr>
+      <tr><td><span class="tag v">literature-backed</span></td><td>출판된 논문에 명시된 fact</td><td>Yu 2024 IJS PTC n=62 87% CTC detection</td></tr>
+      <tr><td><span class="tag r">hypothesis · proposal</span></td><td>아직 데이터로 잠기지 않은 가설/제안</td><td>"Lumenix brand = analytical OS layer above tracks"</td></tr>
+    </tbody>
+  </table>
+  <p class="note">규칙 부속: TCGA ≠ CTC (자세히는 Page 03). 본 페이지에서 TCGA 숫자는 CTC argument에 쓰이지 않는다. arcasHLA 출력은 Paper 2 only — Paper 1 score에 합쳐지지 않는다.</p>
+</section>
+
+<section id="toplevel">
+  <p class="sub">Section 1 · top-level directory inventory · file-backed</p>
+  <h2>22 root dirs — purpose, size, ownership.</h2>
+  <p>directory listing은 <code>ls -la /home/seungho/personal/THCA_data_analysis/</code>, size는 <code>du -sh</code> 기반. last-modified은 directory의 mtime. 모든 row는 <span class="tag g">internal data — file-backed</span>.</p>
+  <table>
+    <thead><tr><th>Dir</th><th>Purpose (audit assessment)</th><th>Size</th><th>Last touched</th><th>Track owner</th></tr></thead>
+    <tbody>
+      <tr><td><code>project/</code></td><td>bind-mount to /data/thca/repo_results + repo_data. Manuscript-v8, papers_hub_2026_05_04, results/, supplementary/, lumenix_demo/spark/platform, reports/</td><td class="hi">34 GB</td><td>2026-05-13</td><td>Track A (P1/P2) + Track D (brand)</td></tr>
+      <tr><td><code>kthyro_public_pilot/</code></td><td>Samsung pilot working tree — TCGA scoring outputs, GSE250521 spot scoring, public_validation_expansion, ppt_evidence_package, samsung_ctc_emt_ngs_pitch_pack_2026_05_09.md</td><td>279 MB</td><td>2026-05-09</td><td>Track B (Samsung)</td></tr>
+      <tr><td><code>external/</code></td><td>3rd-party clones: SPARK, GigaTIME, hover_next_inference, HEX (4 sub-repos, isolated .git)</td><td>179 MB</td><td>2026-05-07</td><td>methodology library</td></tr>
+      <tr><td><code>kthyro_ctc_emt_samsung_proposal/</code></td><td>Samsung proposal v2 staging — README, assets, inputs, logs, outputs, scripts; smaller than pilot but Samsung-pitch focused</td><td>76 MB</td><td>2026-05</td><td>Track B (Samsung)</td></tr>
+      <tr><td><code>azure_gpu_phaseB_drug/</code></td><td>Phase B GPU drug-perturbation work directory (configs/docs/scripts); historical from pre-marathon sprints</td><td>—</td><td>2026-05-04</td><td>historical · Track A reserve</td></tr>
+      <tr><td><code>azure_gpu_phaseA/</code></td><td>Phase A GPU work; <b>image-DM1 NO-GO 2026-05-04</b> per CLOSURE_BATTERY</td><td>—</td><td>2026-05-04</td><td>DEPRECATED</td></tr>
+      <tr><td><code>data_registry/</code></td><td>5-zone manifest store + boundary audit reports; canonical source of dataset truth</td><td>500 KB</td><td>2026-05-08</td><td>infra</td></tr>
+      <tr><td><code>scripts/</code></td><td>boundary_audit/, utility scripts; must exit 0 before P1 commits</td><td>8.4 MB</td><td>2026-05</td><td>infra</td></tr>
+      <tr><td><code>figures/</code></td><td>final figures dump (small footprint)</td><td>724 KB</td><td>2026-05-09</td><td>P1/P2 publication</td></tr>
+      <tr><td><code>v15_neurips_repo/</code></td><td>frozen NeurIPS-track v15 (own .git inside); not in marathon scope</td><td>—</td><td>archived</td><td>archived</td></tr>
+      <tr><td><code>project_external_st/</code></td><td>external spatial transcriptomics triage repo (12 visium cohorts feed P1 supplement)</td><td>—</td><td>2026-05-03</td><td>Track A (P1 supp)</td></tr>
+      <tr><td><code>submission/</code></td><td>BMC + bioinformatics submission package staging</td><td>—</td><td>—</td><td>Track A</td></tr>
+      <tr><td><code>outreach/</code></td><td>Yu / Bundang / collaborator outreach drafts (Q1 of CLAUDE.md: 4 drafts NOT sent)</td><td>—</td><td>—</td><td>infra</td></tr>
+      <tr><td><code>reports/</code></td><td>v17_ultimate + miscellaneous reports</td><td>—</td><td>—</td><td>archived</td></tr>
+      <tr><td><code>configs/ + config/</code></td><td>YAML/JSON configs split between two dirs (duplicate naming hazard — see §10)</td><td>—</td><td>2026-05</td><td>infra</td></tr>
+      <tr><td><code>logs/</code></td><td>pipeline logs (rotated)</td><td>—</td><td>—</td><td>infra</td></tr>
+      <tr><td><code>output/</code></td><td>generic output bucket — should ideally redirect under project/results/</td><td>—</td><td>—</td><td>infra · audit candidate</td></tr>
+      <tr><td><code>node_modules/ + .venv/</code></td><td>Node (playwright) + Python virtualenv; do not commit</td><td>—</td><td>—</td><td>infra</td></tr>
+      <tr><td><code>.git/ + .claude/</code></td><td>git store + claude project store; <b>.claude has /memory/</b> with MEMORY.md index</td><td>—</td><td>2026-05-14</td><td>infra</td></tr>
+      <tr><td><code>AGENTS.md</code></td><td>agent-collaboration playbook</td><td>8 KB</td><td>2026-05-09</td><td>infra</td></tr>
+      <tr><td><code>CLAUDE.md</code></td><td>project context for Claude — disk layout, RunPod conventions, marathon mode</td><td>4.7 KB</td><td>2026-05-07</td><td>infra</td></tr>
+      <tr><td><code>README.md + QUICKSTART.md + REPRODUCIBILITY.md</code></td><td>orientation docs</td><td>—</td><td>2026-04-24</td><td>infra</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Note: 위 row 수는 <code>ls -la</code> 직접 출력. 22개는 top-level entry (file+dir+hidden combined) 중 dir 부분 + 주요 docfile 묶음 카운트.</p>
+</section>
+
+<section id="tracks">
+  <p class="sub">Section 2 · active tracks identified</p>
+  <h2>4 active tracks — A / B / C / D.</h2>
+  <p>현재 directory와 memory MEMORY.md 색인 기준으로 동시 진행 중인 4개 트랙. 각 트랙은 자체 working dir + paper/proposal/deliverable + voice-protected 영역을 가진다.</p>
+  <table>
+    <thead><tr><th>Track</th><th>Identity</th><th>Working dirs</th><th>Output venue</th><th>Status (2026-05-14)</th></tr></thead>
+    <tbody>
+      <tr><td class="hi">Track A</td><td>Paper 1 — DM1/DM2 thyroid dark matter molecular axis (post-closure-battery)</td><td><code>project/manuscript_v8/</code>, <code>project_external_st/</code>, <code>data_registry/paper1_cancer_core/</code></td><td>Cell Rep Med reach / Nat Cancer 도전 / Sci Rep base · bioRxiv 6/13 target</td><td><span class="good">molecular axis locked</span> · image-DM1 path dropped <span class="bad">verdict D</span> · voice-protected sections pending</td></tr>
+      <tr><td class="cool">Track B</td><td>Samsung 30억 / 3년 — PTC CTC-EMT serial 이후 thyroidectomy + matched NGS clone map (per pitch pack 2026-05-09)</td><td><code>kthyro_public_pilot/</code>, <code>kthyro_ctc_emt_samsung_proposal/</code></td><td>Samsung Science track (NOT Tech/ICT)</td><td>pilot evidence package live · CTC data 0건 internal · proposal narrative locked · IRB/Inocras questionnaire drafted</td></tr>
+      <tr><td>Track C</td><td>Paper 2 — H&E pathology → DM1 (CLAM/UNI ViT-L pivot after ResNet50 NO-GO)</td><td><code>project/manuscript_v8/</code> (P2 sections), <code>project/results/03_pathology_poc/</code></td><td>JCI Insight / npj Precision Oncology reach</td><td><span class="hi">UNI gated → ViT-L+CLAM PASS_LAUNCH_PAPER2</span> per memory v19_paper2_image_dm1_pass; image-DM1-as-Paper-1-block <b>still dropped</b></td></tr>
+      <tr><td>Track D</td><td>Brand layer — Lumenix / BioDarwin · analytical OS scaffolding above tracks</td><td><code>project/lumenix_demo/</code>, <code>project/lumenix_platform/</code>, <code>project/lumenix_spark/</code></td><td>Internal positioning · grant/BD instrument</td><td>scaffolding only — <span class="tag r">hypothesis · proposal</span>; no evidence beyond placeholder HTML</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout green">
+    <h3>Track separation discipline</h3>
+    <p>Track A and Track C share the manuscript_v8 directory but have boundary-audit-enforced separation. Track B is fully siloed in <code>kthyro_public_pilot/</code> + <code>kthyro_ctc_emt_samsung_proposal/</code> to avoid cross-contamination of Paper 1 manuscript with proposal-grade pitch language. Track D is brand-layer only and must never inject claims into manuscripts.</p>
+  </div>
+</section>
+
+<section id="realvspec">
+  <p class="sub">Section 3 · real vs speculative inventory</p>
+  <h2>Artifact-level label sweep.</h2>
+  <p>각 artifact을 <i>internal data file-backed</i> / <i>internal claim requires verification</i> / <i>public proxy</i> / <i>hypothesis</i> 으로 분류. 모호하면 더 약한 라벨(가설)을 채택.</p>
+  <table>
+    <thead><tr><th>Artifact</th><th>File path</th><th>Type</th><th>Label</th></tr></thead>
+    <tbody>
+      <tr><td>master_dataset_catalog.csv (358 rows · 5 zones · 32 columns)</td><td><code>data_registry/manifests/master_dataset_catalog.csv</code></td><td>CSV registry</td><td><span class="tag g">internal data — file-backed</span></td></tr>
+      <tr><td>paper1_cancer_core_manifest.csv (221 active rows)</td><td><code>data_registry/manifests/paper1_cancer_core_manifest.csv</code></td><td>CSV registry</td><td><span class="tag g">internal data — file-backed</span></td></tr>
+      <tr><td>TCGA-THCA 505 primary tumors / 7 vulnerability labels</td><td>derived from <code>kthyro_public_pilot/results/tables/tcga_thca_patient_vulnerability_scores.tsv</code> per master context</td><td>derived analytic</td><td><span class="tag b">public proxy</span> + <span class="tag">internal claim — requires verification</span> (TSV存在 confirmed by master context, byte-level not opened here)</td></tr>
+      <tr><td>GSE250521 spatial 16 slides 57,144 spots · 16/16 niche coherence z&gt;2</td><td><code>kthyro_public_pilot/results/tables/spatial_spot_vulnerability_scores.tsv</code> + spatial_coherence_summary_cleaned.tsv</td><td>derived analytic</td><td><span class="tag b">public proxy</span> + <span class="tag">internal claim — requires verification</span></td></tr>
+      <tr><td>Mun 2025 proteogenomic n=336 tumors (RNA d=-1.91 thyroid_diff)</td><td>per memory proteogenomic_v1_2026_05_08</td><td>literature + local re-analysis</td><td><span class="tag v">literature-backed</span> + <span class="tag">internal claim — requires verification</span></td></tr>
+      <tr><td>Korean K2 n=865 (PRJEB11591 + Lee 2014)</td><td><code>/data/thca/PRJEB11591_fastq/</code> + Lee 2014 metadata</td><td>FASTQ + clinical</td><td><span class="tag b">public proxy</span> · K2 ≠ Bundang (memory K2_vs_bundang_distinction)</td></tr>
+      <tr><td>arcasHLA n=260 K2 HLA imputation outputs</td><td><code>/data/thca/_repo_offload/arcasHLA/</code> (8.4 GB)</td><td>derived analytic — <b>Paper 2 ONLY</b></td><td><span class="tag g">internal data — file-backed</span> + boundary-locked to Paper 2</td></tr>
+      <tr><td>arcasHLA GSE213647 outputs</td><td><code>/data/thca/_repo_offload/arcasHLA_GSE213647/</code> (24 GB)</td><td>derived analytic</td><td><span class="tag g">internal data — file-backed</span></td></tr>
+      <tr><td>External GPL570 thyroid 206 samples · 168 contrast tests</td><td><code>kthyro_public_pilot/results/public_validation_expansion/tables/exact_kthyro_external_bulk_*.tsv</code></td><td>derived analytic on public bulk</td><td><span class="tag b">public proxy</span></td></tr>
+      <tr><td>Bulk thyroid proteomics proxy 461 samples</td><td>per pitch pack source list</td><td>literature + local rescoring</td><td><span class="tag v">literature-backed</span></td></tr>
+      <tr><td>Closure battery 2026-05-04 NO-GO (image-DM1 ResNet50 r=0.022)</td><td><code>CLOSURE_BATTERY_2026_05_04.md</code> + <code>project/reports/pathology_dm1_closure_battery_2026_05_04.md</code></td><td>internal experiment + decision report</td><td><span class="tag g">internal data — file-backed</span></td></tr>
+      <tr><td>Lumenix demo build script + run script</td><td><code>project/lumenix_demo/build_demo_data.py</code> (81 KB) + <code>run_lumenix_demo.py</code> (40 KB)</td><td>code only</td><td><span class="tag g">internal data — file-backed</span> + <span class="tag r">hypothesis · proposal</span> (brand layer not validated)</td></tr>
+      <tr><td>Lumenix platform index.html (67 KB)</td><td><code>project/lumenix_platform/index.html</code></td><td>marketing/scaffolding HTML</td><td><span class="tag r">hypothesis · proposal</span></td></tr>
+      <tr><td>Lumenix Spark — SPARK_DM_FULL_FLOW.md + dm_idea_generator.html</td><td><code>project/lumenix_spark/</code></td><td>idea-generation scaffolding</td><td><span class="tag r">hypothesis · proposal</span></td></tr>
+      <tr><td>Paper 1 DM1 narrative bundle</td><td><code>PAPER1_DM1_FULL_2026_05_04.md</code></td><td>internal audit doc</td><td><span class="tag g">internal data — file-backed</span> (manuscript-safe subset tagged inside)</td></tr>
+      <tr><td>Samsung pitch pack 2026-05-09</td><td><code>kthyro_public_pilot/results/samsung_ctc_emt_ngs_pitch_pack_2026_05_09.md</code></td><td>proposal narrative + boundary statements</td><td><span class="tag g">internal data — file-backed</span></td></tr>
+      <tr><td>Yu 2024 IJS PTC n=62 thyroidectomy CTC (87% detection)</td><td>literature reference in pitch pack</td><td>external publication</td><td><span class="tag v">literature-backed</span></td></tr>
+      <tr><td>Sato 2021 Thyroid BRAF V600E ctDNA n=22 (5/16 detected)</td><td>literature reference</td><td>external publication</td><td><span class="tag v">literature-backed</span></td></tr>
+      <tr><td>"AI-spatial theranostic validation platform" claim</td><td>master context §12 one-line proposal</td><td>positioning narrative</td><td><span class="tag r">hypothesis · proposal</span></td></tr>
+      <tr><td>BioDarwin brand</td><td>not present as file beyond mentions</td><td>brand concept</td><td><span class="tag r">hypothesis · proposal</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="lumenix">
+  <p class="sub">Section 4 · Lumenix dir inventory</p>
+  <h2>Brand-layer scaffolding — file-by-file honesty.</h2>
+  <p>"Lumenix"는 현재까지 brand-layer 스캐폴딩이지 evidence layer가 아니다. 3개 dir에 무엇이 있고 무엇이 비어있는지 그대로 적는다.</p>
+  <table>
+    <thead><tr><th>Dir</th><th>File</th><th>Size</th><th>Type</th><th>Label</th></tr></thead>
+    <tbody>
+      <tr><td><code>project/lumenix_demo/</code></td><td>build_demo_data.py</td><td>81 KB</td><td>data builder script</td><td><span class="tag g">file-backed</span> · code only · output unknown</td></tr>
+      <tr><td><code>project/lumenix_demo/</code></td><td>run_lumenix_demo.py</td><td>40 KB</td><td>demo runner</td><td><span class="tag g">file-backed</span> · code only</td></tr>
+      <tr><td><code>project/lumenix_demo/output/</code></td><td>(empty or near-empty)</td><td>—</td><td>output bucket</td><td><span class="tag r">scaffolding</span> · no proof of analytical claim</td></tr>
+      <tr><td><code>project/lumenix_platform/</code></td><td>index.html</td><td>67 KB</td><td>marketing HTML</td><td><span class="tag r">hypothesis · proposal</span> · positioning page only</td></tr>
+      <tr><td><code>project/lumenix_spark/</code></td><td>PAPER_DRAFT_OUTLINE.md</td><td>7.7 KB</td><td>draft outline</td><td><span class="tag g">file-backed</span> · outline, not paper</td></tr>
+      <tr><td><code>project/lumenix_spark/</code></td><td>SPARK_DM_FULL_FLOW.md</td><td>13.6 KB</td><td>flow doc</td><td><span class="tag g">file-backed</span></td></tr>
+      <tr><td><code>project/lumenix_spark/</code></td><td>dm_idea_generator.html</td><td>27.1 KB</td><td>idea generator UI</td><td><span class="tag r">scaffolding</span></td></tr>
+      <tr><td><code>project/lumenix_spark/</code></td><td>spark_dm_evidence.json</td><td>11.9 KB</td><td>JSON evidence ledger</td><td><span class="tag g">file-backed</span> · contents not opened here</td></tr>
+      <tr><td><code>project/lumenix_spark/</code></td><td>spark_dm_paper_report.html</td><td>20.9 KB</td><td>paper-style report</td><td><span class="tag r">scaffolding</span></td></tr>
+      <tr><td><code>project/lumenix_spark/</code></td><td>spark_dm_full_dashboard.html</td><td>13.7 KB</td><td>dashboard</td><td><span class="tag r">scaffolding</span></td></tr>
+      <tr><td><code>project/lumenix_spark/</code></td><td>.api_local.json (mode 600)</td><td>171 B</td><td>API key (kept out of git)</td><td><span class="tag g">file-backed</span> · sensitive</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <h3>Lumenix verdict</h3>
+    <p>Lumenix는 현재 <b>5개 HTML scaffolding + 2개 Python builder + 3개 markdown</b>이다. evidence-bearing run output (e.g. trained model checkpoint, validated cohort score table, peer-reviewed reproduction)은 본 directory 내 존재 증거가 없다. brand 사용은 "analytical OS positioning"으로만 허용하고, paper나 grant body에 "Lumenix가 X를 했다"는 식의 evidence claim은 금지.</p>
+  </div>
+</section>
+
+<section id="samsung">
+  <p class="sub">Section 5 · Samsung CTC-EMT proposal dirs</p>
+  <h2>Two parallel Samsung dirs — counts and intent.</h2>
+  <p><code>kthyro_public_pilot/</code> (279 MB) + <code>kthyro_ctc_emt_samsung_proposal/</code> (76 MB) 두 디렉토리가 동시 존재. 전자는 evidence pilot, 후자는 proposal staging. 중복 위험과 역할 분담을 명시.</p>
+  <table>
+    <thead><tr><th>Dir</th><th>Subdir / file</th><th>Role</th><th>File-backed?</th></tr></thead>
+    <tbody>
+      <tr><td><code>kthyro_public_pilot/</code></td><td><code>results/figures/proposal/</code></td><td>dark-theme PPT figures (figure1_public_pilot_data_flow_dark.png ~ figure8_pilot_conclusion_slide.png)</td><td><span class="tag g">yes</span> — listed in master context §8</td></tr>
+      <tr><td><code>kthyro_public_pilot/</code></td><td><code>results/tables/</code></td><td>TCGA patient scores, label summary, spatial spot scores, spatial slide summary, drug candidate ranking (cleaned)</td><td><span class="tag g">yes</span></td></tr>
+      <tr><td><code>kthyro_public_pilot/</code></td><td><code>results/public_validation_expansion/</code></td><td>v2 validation matrix (301 tests), exact GPL570 rescoring, axis separability, mutation-not-enough</td><td><span class="tag g">yes</span></td></tr>
+      <tr><td><code>kthyro_public_pilot/</code></td><td><code>results/ppt_evidence_package/</code> + 4 zipped evidence packs (v2, v3, v4 proteomics gap)</td><td>delivered evidence packages for Samsung</td><td><span class="tag g">yes</span></td></tr>
+      <tr><td><code>kthyro_public_pilot/</code></td><td><code>results/samsung_ctc_emt_ngs_pitch_pack_2026_05_09.md</code></td><td><b>Master pitch pack</b> — Science vs Tech/ICT verdict, 12-slide outline, 3-page prelim results, IRB checklist, Inocras questionnaire, claim boundaries</td><td><span class="tag g">yes</span></td></tr>
+      <tr><td><code>kthyro_public_pilot/</code></td><td><code>data_raw/ + data_processed/</code></td><td>local cache of public datasets used in pilot</td><td><span class="tag g">yes</span></td></tr>
+      <tr><td><code>kthyro_ctc_emt_samsung_proposal/</code></td><td><code>README.md</code></td><td>top entry to proposal</td><td><span class="tag g">yes</span></td></tr>
+      <tr><td><code>kthyro_ctc_emt_samsung_proposal/</code></td><td><code>assets/</code> + <code>outputs/</code> + <code>inputs/</code></td><td>proposal staging — figures/copy/refs</td><td><span class="tag g">yes</span></td></tr>
+      <tr><td><code>kthyro_ctc_emt_samsung_proposal/</code></td><td><code>scripts/</code> + <code>logs/</code></td><td>build helpers, log archive</td><td><span class="tag g">yes</span></td></tr>
+    </tbody>
+  </table>
+  <div class="callout red">
+    <h3>What we DON'T have here</h3>
+    <p>kthyro_public_pilot/ 와 kthyro_ctc_emt_samsung_proposal/ 둘 다 <b>internal CTC raw data 0건</b>. CTC count, EMT phenotype, BRAF V600E ctDNA, postoperative blood timepoint — 모두 없다. proposal의 핵심 데이터는 future serial 채집을 통해 생성될 것이며, 현재 pilot은 hypothesis-generation 단계에서만 작동한다 (master context §0 + §1 + §6 일관 명시).</p>
+  </div>
+</section>
+
+<section id="closure">
+  <p class="sub">Section 6 · closure battery status</p>
+  <h2>image-DM1 dropped — verdict D 2026-05-04.</h2>
+  <p>본 audit이 가장 중요하게 처리하는 결정. <code>CLOSURE_BATTERY_2026_05_04.md</code> 그대로 인용.</p>
+  <table>
+    <thead><tr><th>Option</th><th>Gate</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>A. 원본 image-DM1 유지</td><td>DM1_resid Spearman ≥ 0.20 OR AUROC ≥ 0.65</td><td><span class="bad">✗ best 0.080</span> · 모든 setting 미달</td></tr>
+      <tr><td>B. raw thyroid-lineage morphology pivot</td><td>raw Spearman ≥ 0.30 OR AUROC ≥ 0.70</td><td><span class="bad">✗</span> raw best 0.224/0.702 — stain↔depth artifact</td></tr>
+      <tr><td>C. gross histology / stage 모델 pivot</td><td>stage 또는 ATC 강함</td><td>△ ATC AUROC 0.689 BORDERLINE — prior art 풍부</td></tr>
+      <tr><td class="hi">D. full 폐기</td><td>molecular r &lt; 0.15 + AUROC &lt; 0.60 + stage 약함</td><td><span class="good">✓ 채택</span> molecular ≤0.080, stage r=−0.05</td></tr>
+      <tr><td>E. foundation model retry</td><td>ResNet raw/stage 신호 OR DM1_resid r ≥ 0.10</td><td><span class="bad">✗</span> raw 0.06, resid 0.022 — spec "otherwise no"</td></tr>
+    </tbody>
+  </table>
+  <p>다섯 가지 실패 원인 ranking (closure battery 5-cause): (1) ResNet50/ImageNet weak (partial), (2) 224 px tile too small <b>REJECTED</b> (448 r=0.017 worse), (3) depth-residualization removed morphology (partial, but stain↔depth artifact 정당화), (4) spot-level ST label ↔ H&E tile fundamentally mismatched <b>DOMINANT</b>, (5) hires resolution / single cohort (partial).</p>
+  <div class="callout red">
+    <h3>Binding rule</h3>
+    <p>Track A (Paper 1) image-DM1 angle은 <b>DO NOT RESURRECT</b>. foundation model retry (UNI/CONCH/Virchow2)는 향후 옵션이지만 marathon (5/4–6/13) 동안 금지. Track C (Paper 2 H&E)에서 살아남은 angle은 별개의 closure 경로 (memory <code>v19_paper2_image_dm1_pass</code>: ViT-L+CLAM PASS_LAUNCH_PAPER2 AUC 0.83) — Paper 2-bound only.</p>
+  </div>
+</section>
+
+<section id="marathon">
+  <p class="sub">Section 7 · marathon mode active</p>
+  <h2>2026-05-04 → 2026-06-13 paper-blocking only.</h2>
+  <p>CLAUDE.md + memory <code>v17_marathon_mode_post_pillar1</code> binding. NEW analysis 는 paper-blocking 만 허용. default mode = scaffolding/infra (chief-of-staff series 포함).</p>
+  <table>
+    <thead><tr><th>Zone</th><th>Allowed</th><th>Forbidden</th></tr></thead>
+    <tbody>
+      <tr><td>Scaffolding · infra</td><td>본 chief-of-staff pages · data_registry 정비 · audit script run · 페이지 빌드/배포</td><td>—</td></tr>
+      <tr><td>Manuscript voice-protected sections</td><td>—</td><td>Hook ¶1, Aim ¶4, Discussion §3.1 (Landa 2016 cite save), §3.4 Limitations, Cover ¶1, Reviewer Q9 — <b>본인 키보드 슬롯만</b></td></tr>
+      <tr><td>New sprint / new cohort / new analysis</td><td>only if paper-blocking</td><td>"고고", "faster", "다 해줘" 같은 트리거에 voice-protected sprint generate 금지 (memory <code>v17_sprint_vs_marathon_violation</code>)</td></tr>
+      <tr><td>Wet-lab roadmap</td><td>—</td><td>마라톤 종료 후로 미룸 (TROP2 IHC, sacituzumab IC50, organoid, xenograft 등)</td></tr>
+      <tr><td>RunPod G1/G2/G3 image-DM1</td><td>—</td><td>verdict D 폐기 (§6)</td></tr>
+    </tbody>
+  </table>
+  <p>본 audit은 scaffolding/infra zone에 해당하므로 marathon 위배 아님.</p>
+</section>
+
+<section id="storage">
+  <p class="sub">Section 8 · storage architecture</p>
+  <h2>/data bind mounts — 512G SSD + bind-mounted look-alike paths.</h2>
+  <p>root disk 123G; 512G Premium SSD mounted at <code>/data</code>. <code>project/results</code> 와 <code>project/data</code>는 bind mount이라 git tree에서는 동일한 path로 보이지만 storage는 /data에 떨어진다 (CLAUDE.md §"Disk layout").</p>
+  <table>
+    <thead><tr><th>Path</th><th>Backed by</th><th>Size / role</th><th>Boundary note</th></tr></thead>
+    <tbody>
+      <tr><td><code>project/results</code></td><td>bind mount → <code>/data/thca/repo_results</code> (xfs on /dev/sdb)</td><td>34 GB working tree (project/ total)</td><td>persistent via /etc/fstab nofail</td></tr>
+      <tr><td><code>project/data</code></td><td>bind mount → <code>/data/thca/repo_data</code></td><td>local cache of external datasets</td><td>same fstab</td></tr>
+      <tr><td><code>/data/thca/PRJEB11591_fastq/</code></td><td>raw FASTQ store</td><td>33 GB · Korean K2 PRJEB11591</td><td>Paper 2 input · K2 ≠ Bundang</td></tr>
+      <tr><td><code>/data/thca/_repo_offload/arcasHLA/</code></td><td>arcasHLA imputation outputs (K2)</td><td>8.4 GB</td><td>Paper 2 ONLY · do NOT cite for Paper 1</td></tr>
+      <tr><td><code>/data/thca/_repo_offload/arcasHLA_GSE213647/</code></td><td>arcasHLA outputs (GSE213647)</td><td>24 GB</td><td>Paper 2 ONLY</td></tr>
+      <tr><td><code>/data/thca/data_raw/</code> + <code>data_processed/</code></td><td>separate analysis tracks</td><td>—</td><td>pre-existing, don't disturb (CLAUDE.md)</td></tr>
+      <tr><td><code>/data/thca/reference_kallisto/</code> + <code>v17_korean/</code> + <code>v17_gse241184/</code></td><td>cohort outputs</td><td>—</td><td>pre-existing</td></tr>
+      <tr><td><code>/data/thca/_tmp</code></td><td>tmp staging for STAR/arcasHLA/GNU parallel</td><td>—</td><td>per <code>v17_pod_D_k2_star_tmp_failure</code> — use <code>--tmpdir /data/thca/_tmp --compress</code></td></tr>
+      <tr><td>master catalog count</td><td><code>data_registry/manifests/master_dataset_catalog.csv</code></td><td>358 lines (header + 357 data rows; CLAUDE.md says 386 total across all manifests including duplicates and quarantine)</td><td>canonical truth</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Sanity check: <code>findmnt project/results</code> should show source <code>/dev/sdb[/thca/repo_results]</code>. If empty, bind mount didn't apply.</p>
+</section>
+
+<section id="anticlutter">
+  <p class="sub">Section 9 · anti-clutter audit</p>
+  <h2>Duplicate / abandoned / legacy paths.</h2>
+  <table>
+    <thead><tr><th>Pattern</th><th>Location</th><th>Risk</th><th>Recommendation</th></tr></thead>
+    <tbody>
+      <tr><td>configs/ vs config/</td><td>two dirs with similar names at root</td><td>silent override risk — agents/scripts may load wrong file</td><td>consolidate into single <code>config/</code>; redirect or symlink the other</td></tr>
+      <tr><td>output/ at root</td><td>root-level catch-all bucket</td><td>bypasses /data bind mount — may sit on small root disk</td><td>move under <code>project/results/</code> or symlink to /data</td></tr>
+      <tr><td>v15_neurips_repo/ with own .git</td><td>nested git repo inside main repo</td><td>git submodule confusion, accidental commits</td><td>add to root .gitignore or convert to proper submodule</td></tr>
+      <tr><td>external/SPARK + GigaTIME + hover_next_inference + HEX</td><td>4 cloned repos under external/</td><td>same submodule confusion</td><td>treat as read-only methodology mirrors; pin versions</td></tr>
+      <tr><td>node_modules/ tracked in disk</td><td>root</td><td>large + reproducible from package-lock</td><td>ensure .gitignore covers</td></tr>
+      <tr><td>azure_gpu_phaseA/ and azure_gpu_phaseB_drug/</td><td>historical sprint dirs</td><td>image-DM1 NO-GO (Phase A) — risk of accidental resurrect</td><td>mark with README "DEPRECATED 2026-05-04 closure battery" + freeze permissions</td></tr>
+      <tr><td>4 zipped evidence packs in kthyro_public_pilot/results/</td><td>kthyro_samsung_ppt_evidence_package*.zip</td><td>multiple version drift</td><td>retain latest (v4_proteomics_gap_and_proxy); archive older versions</td></tr>
+      <tr><td>Top-level .md sprawl (40+ markdowns)</td><td>repo root</td><td>navigation friction; some superseded</td><td>move SUPERSEDED docs into <code>_archive/</code> dir, add "STATUS" header</td></tr>
+      <tr><td>tbi files at root (categorical-20002-*, finngen_R12_*)</td><td>tabix indexes loose at root</td><td>belong in data/ or external_resources/</td><td>relocate under <code>/data/thca/finngen/</code> with symlink</td></tr>
+      <tr><td>Large PDF at root ("AI-predicted spatial transcriptomics unlocks breast cancer biomarkers from pathology.pdf" 12.8 MB)</td><td>repo root</td><td>does not belong in tracked tree</td><td>move under <code>external/_papers/</code> and .gitignore</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="cleanup">
+  <p class="sub">Section 10 · recommended cleanup actions</p>
+  <h2>Concrete, idempotent next steps.</h2>
+  <ul>
+    <li><b>C1.</b> Decide single canonical location for configs (<code>config/</code>) and migrate <code>configs/</code> contents; leave a README pointer.</li>
+    <li><b>C2.</b> Move root <code>output/</code> into <code>project/results/misc/</code>; add tombstone symlink if scripts reference it.</li>
+    <li><b>C3.</b> Add explicit "STATUS: SUPERSEDED" headers to: <code>v17_graves_pivot.md</code> + <code>v17_paper2_pillar1_forest_strong.md</code> + <code>v19_paper3_GD_gating.md</code> (already noted in memory but file headers should match).</li>
+    <li><b>C4.</b> Re-run <code>scripts/boundary_audit/audit_paper1_no_hla_contamination.py</code> before any P1 manuscript commit; require exit 0.</li>
+    <li><b>C5.</b> Mark <code>azure_gpu_phaseA/</code> directory README with closure-battery verdict D reference + chmod 444 the relevant scripts (analogous to <code>project/reports/paper3_ici/PAPER3_ICI_TRACK_A_BUNDLE.md</code> frozen pattern).</li>
+    <li><b>C6.</b> Compress <code>kthyro_public_pilot/results/figures/proposal/</code> into a single signed-off "samsung_v5" artifact; deprecate older zip versions.</li>
+    <li><b>C7.</b> Audit root <code>.md</code> files: move all dated session recaps (SESSION_FULL_2026_*, SITUATION_FULL_2026_*) under <code>_archive/sessions/</code>.</li>
+    <li><b>C8.</b> Decide Lumenix brand surface scope: keep as scaffolding under <code>project/lumenix_*/</code> or unify under single <code>project/brand/</code>. Either way, prohibit <i>evidence claim</i> in lumenix* files.</li>
+    <li><b>C9.</b> Move loose tabix .tbi indexes + giant PDFs out of repo root.</li>
+    <li><b>C10.</b> Update CLAUDE.md to point at this chief-of-staff repo audit as authoritative directory map.</li>
+  </ul>
+  <div class="callout green">
+    <h3>Cleanup discipline</h3>
+    <p>모든 cleanup은 idempotent + reversible로 수행. 절대로 <code>rm -rf</code> 사용 금지; archive dir로 옮기는 mv 만. boundary-audit script가 0 exit을 유지하는지 매 commit 전 확인.</p>
+  </div>
+</section>
+
+<section id="siblings">
+  <p class="sub">Section 11 · sibling chief-of-staff pages</p>
+  <h2>10-page series navigation.</h2>
+  <p>본 페이지는 10개 chief-of-staff deliverable 중 1번. sibling은 다음과 같다 (일부는 본 빌드 이후 생성).</p>
+  <div class="siblings">
+    <a href="index.html">Hub home</a>
+    <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief 2026-05-14</a>
+    <a href="mega_launchpad_2026_05_14.html">Mega launchpad 2026-05-14</a>
+    <a class="cur" href="chief_of_staff_01_repo_audit_2026_05_14.html">01 · Repo audit</a>
+    <a href="chief_of_staff_02_data_evidence_registry_2026_05_14.html">02 · Data/evidence registry</a>
+    <a href="chief_of_staff_03_anti_hallucination_report_2026_05_14.html">03 · Anti-hallucination</a>
+    <a href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html">04 · DM1/DM2 signature</a>
+    <a href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html">05 · Samsung CTC-Spatial</a>
+    <a href="chief_of_staff_06_pathology_2d3d_demo_plan_2026_05_14.html">06 · Pathology 2D→3D</a>
+    <a href="chief_of_staff_07_brand_architecture_lumenix_biodarwin_2026_05_14.html">07 · Brand arch (Lumenix/BioDarwin)</a>
+    <a href="chief_of_staff_08_figure_slide_plan_2026_05_14.html">08 · Figure/slide plan</a>
+    <a href="chief_of_staff_09_next_actions_collaborators_2026_05_14.html">09 · Next actions/collab</a>
+    <a href="chief_of_staff_10_followup_prompts_2026_05_14.html">10 · Follow-up prompts</a>
+  </div>
+
+  <div class="footer">
+    Generated 2026-05-14 · Seungho Cook · /var/www/papers/ deployed copy<br>
+    Source: <code>/home/seungho/personal/THCA_data_analysis/project/papers_hub_2026_05_04/chief_of_staff_01_repo_audit_2026_05_14.html</code><br>
+    Inputs: <code>ls /home/seungho/personal/THCA_data_analysis/</code> · <code>du -sh</code> · <code>wc -l data_registry/manifests/master_dataset_catalog.csv</code> (358 lines) · CLAUDE.md · CLOSURE_BATTERY_2026_05_04.md · PAPER1_DM1_FULL_2026_05_04.md · KTHYRO_SAMSUNG_PPT_MASTER_CONTEXT.md · kthyro_public_pilot pitch pack 2026-05-09<br>
+    Labels: <span class="tag g">internal file-backed</span> <span class="tag">internal claim — requires verification</span> <span class="tag b">public proxy</span> <span class="tag v">literature-backed</span> <span class="tag r">hypothesis · proposal</span>
+  </div>
+</section>
+
+</main>
+</body>
+</html>

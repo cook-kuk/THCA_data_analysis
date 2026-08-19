@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Chief of Staff #18 · 7 Agent deep dives — BioFeynman/Mendel/Bayes/Curie/Fisher/Turing + DataHyena · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:54px;line-height:1.02;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:30px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.warn{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.agent{border:1px solid var(--line);border-radius:12px;background:#0d1823;padding:20px 22px;margin:18px 0;position:relative}
+.agent.feyn{border-top:6px solid var(--violet)}
+.agent.mendel{border-top:6px solid var(--green)}
+.agent.bayes{border-top:6px solid var(--teal)}
+.agent.curie{border-top:6px solid var(--red)}
+.agent.fisher{border-top:6px solid var(--blue)}
+.agent.turing{border-top:6px solid #cdd5dc}
+.agent.hyena{border-top:6px solid var(--gold)}
+.agent h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:#fff;line-height:1.1}
+.agent .who{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);font-size:11px;letter-spacing:.08em;margin:0 0 12px}
+.agent .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:8px}
+.agent .grid h4{margin:0 0 6px;font-size:14px;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;letter-spacing:.06em;text-transform:uppercase}
+.agent .grid ul{margin:0 0 0 18px;padding:0;color:#cbd7df;font-size:13.5px}
+.agent .grid ul li{margin:3px 0}
+.label{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;margin-left:6px}
+.label.file-backed{border-color:rgba(147,226,170,.5);color:var(--green)}
+.label.internal-claim{border-color:rgba(255,210,138,.5);color:var(--gold)}
+.label.public-proxy{border-color:rgba(139,188,255,.5);color:var(--blue)}
+.label.literature{border-color:rgba(201,167,255,.5);color:var(--violet)}
+.label.hypothesis{border-color:rgba(255,138,107,.5);color:var(--red)}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:800}
+.linkrow a{border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5}
+.linkrow a.gold{border-color:var(--gold);color:var(--gold)}
+.linkrow a.teal{border-color:var(--teal);color:var(--teal)}
+.statusgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px;font-size:12.5px}
+.statusgrid .row{border:1px solid var(--line);background:#0a1620;border-radius:6px;padding:8px 10px;color:#d7e1e8}
+.statusgrid .row b{color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.06em;display:block;margin-bottom:3px;text-transform:uppercase}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .agent .grid{grid-template-columns:1fr}.statusgrid{grid-template-columns:1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Chief of Staff · #18 · 7 Agent Deep Dives · 2026-05-14</p>
+    <h1>7 Agents — BioFeynman / BioMendel / BioBayes / BioCurie / BioFisher / BioTuring / DataHyena</h1>
+    <p class="lead">BioDarwin 엔진의 자가진화 루프를 구성하는 <b>7개 에이전트</b>를 과학자 namesake, 역할, 핵심 함수, 대표 task, 그리고 <b>repo 코드 매핑</b>으로 분해한다. 각 에이전트는 (1) 과학자 동기, (2) 핵심 도메인, (3) 현재 repo 산출물, (4) 실패 모드를 가진다. 7명 중 6명은 과학자명 기반(Feynman·Mendel·Bayes·Curie·Fisher·Turing), 1명만 메타포(DataHyena = 데이터 사냥꾼)다. <span class="label internal-claim">internal claim</span></p>
+    <div class="stats">
+      <div class="stat"><b>7</b><span>agents</span><small>6 scientist + 1 metaphor</small></div>
+      <div class="stat"><b>5</b><span>loop stages</span><small>generate → bind → test → contrast → validate</small></div>
+      <div class="stat"><b>358</b><span>datasets cataloged</span><small>data_registry · DataHyena 산출 <span class="label file-backed">file-backed</span></small></div>
+      <div class="stat"><b>260</b><span>K2 HLA imputed</span><small>arcasHLA · BioMendel <span class="label file-backed">file-backed</span></small></div>
+      <div class="stat"><b>0</b><span>boundary leak</span><small>BioTuring audit exit-0 <span class="label file-backed">file-backed</span></small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar">
+  <div class="row">
+    <a href="#hero" class="primary">#18 · 7 agents</a>
+    <a href="#overview">2 overview</a>
+    <a href="#feynman">3 BioFeynman</a>
+    <a href="#mendel">4 BioMendel</a>
+    <a href="#bayes">5 BioBayes</a>
+    <a href="#curie">6 BioCurie</a>
+    <a href="#fisher">7 BioFisher</a>
+    <a href="#turing">8 BioTuring</a>
+    <a href="#hyena">9 DataHyena</a>
+    <a href="#coord">10 coordination</a>
+    <a href="#fail">11 failure modes</a>
+    <a href="#alt">12 naming alternatives</a>
+    <a href="#siblings">13 siblings</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="overview">
+  <h2>2 · Agent overview — namesake · domain · function · repo · status</h2>
+  <p class="sub">internal-claim · 7개 에이전트 한 줄 요약 (자세한 내용은 §3~§9)</p>
+  <table>
+    <thead><tr><th>Agent</th><th>Namesake</th><th>Domain</th><th>Core function</th><th>Typical task</th><th>Repo connection</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td><b>BioFeynman</b></td><td>Richard Feynman</td><td>generative mechanism · physics-of-biology</td><td>hypothesis generation, path-integral 직관, what-if simulation</td><td>SPARK idea cycle · mechanism diagrams</td><td><code>lumenix_spark/dm_idea_generator.html</code></td><td>scaffolding <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td><b>BioMendel</b></td><td>Gregor Mendel</td><td>genetics · HLA · imputation · inheritance</td><td>arcasHLA orchestration, Pan-Asian inheritance, cross-cohort HLA</td><td>K2/GSE213647 imputation</td><td><code>project/results/v17_korean/arcasHLA</code></td><td>K2 n=260 done <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><b>BioBayes</b></td><td>Thomas Bayes</td><td>uncertainty · calibration · causal</td><td>target trial emulation, doubly robust, posterior, E-value, tipping point</td><td>v17_npj Cox · cross-neo finetune</td><td><code>causal_kthyro_weakness_audit.md</code></td><td>5 weaknesses scoped <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td><b>BioCurie</b></td><td>Marie Curie</td><td>experimental validation · assay</td><td>wet-lab protocol drafting, CTC enrichment, spatial assay, IRB support</td><td>Samsung CTC-Spatial proposal</td><td><code>kthyro_ctc_emt_samsung_proposal/</code></td><td>pitch pack v1 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><b>BioFisher</b></td><td>Ronald Fisher</td><td>statistics · cohort design</td><td>FDR, permutation, LOTO/LOSO, cluster stability, power</td><td>DM1 robustness · cross-cohort forest</td><td><code>project/results/</code></td><td>locked <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><b>BioTuring</b></td><td>Alan Turing</td><td>code · automation · reproducibility</td><td>CI/CD, boundary audit, container, GitHub workflows, Docker</td><td>zone audits · pre-commit</td><td><code>scripts/boundary_audit/</code></td><td>exit-0 gate <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td><b>DataHyena</b></td><td>metaphor (사냥꾼)</td><td>data hunting · cataloging</td><td>GEO/ENA/cBioPortal/DepMap crawler, dataset cataloging, gap analysis</td><td>master_dataset_catalog.csv</td><td><code>data_registry/manifests/</code></td><td>358 datasets · 5 zones <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Agent</th><th>Loop stage 주도</th><th>Loop stage 보조</th><th>Voice-protected 영향</th></tr></thead>
+    <tbody>
+      <tr><td>BioFeynman</td><td>1 generation</td><td>3·4 mechanism interpretation 보조</td><td>마라톤 모드에서 mechanism 해석 prose 금지 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioMendel</td><td>2 binding (HLA), 5 validation</td><td>3 test</td><td>HLA 코호트는 zone audit 통과 필수 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioBayes</td><td>4 contrast</td><td>3 test 보조</td><td>인과 prose는 Q9 voice-protected <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioCurie</td><td>5 validate</td><td>1·2 (실험 기반 가설)</td><td>"validated"·"treatment selection" 금지어 lock <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioFisher</td><td>3 test</td><td>2·4 보조</td><td>통계 수치는 항상 file-backed 라벨 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioTuring</td><td>* gate</td><td>모든 stage</td><td>commit/CI 차단 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>DataHyena</td><td>2 bind</td><td>1·3·5 (cohort lookup)</td><td>zone 위반 시 manifest 갱신 차단 <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="feynman">
+  <div class="agent feyn" id="feyn">
+    <p class="who">Agent 1 · Richard P. Feynman (1918–1988) · Path Integral · QED · "What I cannot create, I do not understand"</p>
+    <h3>BioFeynman — 생성적 메커니즘 모델러</h3>
+    <p class="note">생물학 가설을 <b>path-integral</b> 비유로 다룬다: 단일 정답이 아니라 가능한 경로의 weighted sum에서 가설을 샘플링. SPARK 프레임워크 idea cycle 4-pass와 동형 구조이며, <code>dm_idea_generator.html</code>에서 라이브로 작동한다. <span class="label file-backed">file-backed</span></p>
+    <div class="grid">
+      <div>
+        <h4>핵심 함수</h4>
+        <ul>
+          <li>가설 변이 6–10개 per cycle</li>
+          <li>mechanism diagram (Wnt antagonism, ECM stiffening 등)</li>
+          <li>what-if simulation (perturbation 가상실험)</li>
+          <li>quality bucket: basic / advanced / creative / visionary</li>
+          <li>SPARK Generative pipeline의 LLM_IGA + LLM_IRA</li>
+        </ul>
+      </div>
+      <div>
+        <h4>현재 repo 산출물</h4>
+        <ul>
+          <li><code>project/lumenix_spark/dm_idea_generator.html</code> — 라이브 챗봇 + 8 fallback ideas</li>
+          <li><code>project/lumenix_spark/spark_dm_evidence.json</code> — evidence panel</li>
+          <li><code>project/lumenix_spark/SPARK_DM_FULL_FLOW.md</code> §2.3 — SPARK Generative</li>
+          <li>cycles=4 · ideas/cycle=6–10 · DDA threshold=8/10</li>
+        </ul>
+      </div>
+      <div>
+        <h4>대표 task</h4>
+        <ul>
+          <li>"DM1↔DM2 H&amp;E feature 8가지 후보 idea"</li>
+          <li>"SFRP2/SFRP4 Wnt antagonism mechanism diagram"</li>
+          <li>"ATC-4 transition zone hypothesis (active vs static)"</li>
+          <li>"2D→3D tissue geometry path-integral 설명"</li>
+        </ul>
+      </div>
+      <div>
+        <h4>실패 모드 · 안전장치</h4>
+        <ul>
+          <li><b>Hallucination</b> 위험: claim마다 BioFisher/DataHyena와 페어링 필수</li>
+          <li>voice-protected section (Hook/Aim/§3.1/Q9) prose 생성 금지</li>
+          <li>"validated predictor" / "cures" / "blocks" 금지어</li>
+          <li>마라톤 모드에서 paper-blocking 외 사용 금지</li>
+        </ul>
+      </div>
+    </div>
+    <div class="statusgrid">
+      <div class="row"><b>status</b>scaffolding · live chatbot working · evidence panel 1-min refresh</div>
+      <div class="row"><b>connect</b>BioFisher (검증), DataHyena (코호트), BioCurie (실험 검증)</div>
+    </div>
+  </div>
+</section>
+
+<section id="mendel">
+  <div class="agent mendel">
+    <p class="who">Agent 2 · Gregor J. Mendel (1822–1884) · Pea garden · Inheritance · 1865 paper</p>
+    <h3>BioMendel — 유전·HLA·imputation 매니저</h3>
+    <p class="note">HLA imputation, allele 빈도, 코호트 간 inheritance modeling을 담당. K2 (PRJEB11591) n=260 RNA-seq에서 arcasHLA로 imputed된 결과가 가장 큰 산출물이며 (DPB1*05:01 ≈ 56% Kim 2014 replicate), Pan-Asian inheritance modeling의 베이스가 된다. <span class="label file-backed">file-backed</span></p>
+    <div class="grid">
+      <div>
+        <h4>핵심 함수</h4>
+        <ul>
+          <li>arcasHLA orchestration (RNA-seq HLA imputation)</li>
+          <li>cross-cohort HLA frequency 비교 (K2 vs AFND South Korea pool)</li>
+          <li>cookHLA fallback (SNP-based, deferred)</li>
+          <li>Pan-Asian inheritance modeling (Korean × Japanese × Chinese pool)</li>
+          <li>boundary 보호: paper2 zone (HLA/autoimmune) ↔ paper1 zone 분리</li>
+        </ul>
+      </div>
+      <div>
+        <h4>현재 repo 산출물</h4>
+        <ul>
+          <li><code>/data/thca/_repo_offload/arcasHLA/</code> — K2 RNA-seq HLA genotype (8.4G)</li>
+          <li><code>/data/thca/_repo_offload/arcasHLA_GSE213647/</code> — Korean validation (24G)</li>
+          <li><code>project/results/v17_korean/arcasHLA/ERR*.genotype.json</code></li>
+          <li>memory: <code>v17_arcasHLA_korean_k2.md</code></li>
+        </ul>
+      </div>
+      <div>
+        <h4>대표 task</h4>
+        <ul>
+          <li>K2 n=260 HLA imputation (완료)</li>
+          <li>K2 vs AFND South Korea pool 비교 (ratios 0.93–1.22, all p&gt;0.16)</li>
+          <li>Paper 4 backlog — Korean GD HLA Pan-Asian</li>
+          <li>Paper 2 zone boundary lock (HLA-isolated PTC)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>실패 모드 · 안전장치</h4>
+        <ul>
+          <li><b>Zone 누출</b>: paper1↔paper2 HLA contamination 위험 → boundary audit exit-0 gate</li>
+          <li><b>Imputation 오류</b>: cookHLA 필요한 case에서 RNA-seq imputation 강행 금지</li>
+          <li><b>AFND pool 부정확</b>: 신뢰구간 명시 필수</li>
+          <li>Bundang outreach-stage = K2 ≠ Bundang 구분 유지</li>
+        </ul>
+      </div>
+    </div>
+    <div class="statusgrid">
+      <div class="row"><b>status</b>K2 n=260 imputation done · K2 vs AFND ratios 0.93–1.22 p&gt;0.16</div>
+      <div class="row"><b>connect</b>DataHyena (코호트 매니페스트), BioFisher (test), BioTuring (zone audit)</div>
+    </div>
+  </div>
+</section>
+
+<section id="bayes">
+  <div class="agent bayes">
+    <p class="who">Agent 3 · Thomas Bayes (1701–1761) · Essay towards solving a problem in the doctrine of chances · 1763 posthumous</p>
+    <h3>BioBayes — 불확실성·캘리브레이션·인과 추론기</h3>
+    <p class="note">관찰 기반 cohort에서 RCT 없이 causal effect를 추정하기 위해 <b>target trial emulation</b>, <b>doubly robust</b>, <b>E-value</b>, <b>tipping point</b>를 일관되게 적용. v17_tert_recovery에서 TERT promoter mutation OS HR=4.33 (p=4.9e-6)을 다변량 Cox로 잠갔고, cross-neo finetune에서 calibration을 score-booster logistic으로 단순화한 것이 대표 작업. <span class="label file-backed">file-backed</span></p>
+    <div class="grid">
+      <div>
+        <h4>핵심 함수</h4>
+        <ul>
+          <li>target trial emulation (TTE)</li>
+          <li>doubly robust learner</li>
+          <li>E-value sensitivity</li>
+          <li>tipping point analysis</li>
+          <li>posterior over claims (claim space Bayesian)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>현재 repo 산출물</h4>
+        <ul>
+          <li>memory: <code>v17_tert_recovery_v2.md</code> — TERT OS HR=4.33</li>
+          <li>memory: <code>dm1_round3_2026_05_08</code> — TERT HR=7.57 [2.74, 20.91]</li>
+          <li>cross-neo finetune: <code>finetuned_claim_capped_score</code></li>
+          <li>causal weakness audit (5 weaknesses scoped) <span class="label internal-claim">internal claim</span></li>
+        </ul>
+      </div>
+      <div>
+        <h4>대표 task</h4>
+        <ul>
+          <li>multivariate Cox DSS (M1/M2 HR=0.530 p=0.036, age/stage adjusted)</li>
+          <li>cross-neo score-booster calibration C=1.0</li>
+          <li>Hugo+Riaz 4/7 module FLIP DIAL audit</li>
+          <li>Paper 3 ICI Phase C v2 — IFNG OR=1.53 p=3.7e-4</li>
+        </ul>
+      </div>
+      <div>
+        <h4>실패 모드 · 안전장치</h4>
+        <ul>
+          <li><b>인과 over-claim</b>: voice-protected Q9 prose 절대 생성 금지</li>
+          <li><b>RCT 부재</b>: "treatment selection" 금지어</li>
+          <li><b>cherry-picked cohort</b>: LOTO / 5-cohort forest로 검증</li>
+          <li><b>Simpson 위험</b>: stratified analysis 동반</li>
+        </ul>
+      </div>
+    </div>
+    <div class="statusgrid">
+      <div class="row"><b>status</b>5 weaknesses scoped · TERT HR locked · cross-neo finetune complete</div>
+      <div class="row"><b>connect</b>BioFisher (effect size 입력), BioCurie (validation 다음), BioFeynman (mechanism 가설)</div>
+    </div>
+  </div>
+</section>
+
+<section id="curie">
+  <div class="agent curie">
+    <p class="who">Agent 4 · Marie Skłodowska Curie (1867–1934) · Radium · 2 Nobel prizes (Physics, Chemistry)</p>
+    <h3>BioCurie — 실험 검증·assay 설계</h3>
+    <p class="note">"radium을 보려면 비싼 실험이 필요하다." BioCurie는 모든 in-silico claim을 wet-lab 가능 protocol로 강제 변환한다. Samsung Future Tech CTC-Spatial pitch pack v1이 대표 산출물이며, IRB·시약·플레이트 layout까지 끝까지 책임지는 유일한 에이전트다. <span class="label file-backed">file-backed</span></p>
+    <div class="grid">
+      <div>
+        <h4>핵심 함수</h4>
+        <ul>
+          <li>wet-lab protocol drafting (CTC enrichment 등)</li>
+          <li>spatial assay design (Visium / Xenium · serial section)</li>
+          <li>96-well execution map · plate v3/v4/v5/v6</li>
+          <li>IRB packet support · 코호트 협의</li>
+          <li>endpoint interpreter · pre-registered statistics</li>
+        </ul>
+      </div>
+      <div>
+        <h4>현재 repo 산출물</h4>
+        <ul>
+          <li><code>kthyro_ctc_emt_samsung_proposal/</code> — Samsung pitch v1</li>
+          <li><code>papers_hub_2026_05_04/kthyro_ctc_emt_*</code> — visual atlas, breakthrough case, paper-ready figure-table</li>
+          <li>cross-neo v6 execution packet (24 candidate · 114 reagent line)</li>
+          <li>cross-neo v7 known-answer 96-well visualization</li>
+        </ul>
+      </div>
+      <div>
+        <h4>대표 task</h4>
+        <ul>
+          <li>Samsung CTC-Spatial 30억 pitch deck</li>
+          <li>cross-neo confirmatory smoke test (6/6 unlocked)</li>
+          <li>Track C organoid protocol draft (2D→3D)</li>
+          <li>Paper 1 in-vitro KO 가설 → 후속 wet-lab</li>
+        </ul>
+      </div>
+      <div>
+        <h4>실패 모드 · 안전장치</h4>
+        <ul>
+          <li><b>Wet-lab 낙관</b>: "validated"·"clinical utility" 금지어</li>
+          <li><b>IRB risk</b>: cohort 협의 = BioMendel와 페어링</li>
+          <li><b>비용 hallucination</b>: 모든 cost는 internal-claim 라벨</li>
+          <li>"cures"·"blocks" 금지어 (mechanism candidate only)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="statusgrid">
+      <div class="row"><b>status</b>Samsung pitch v1 · cross-neo execution packet · CTC-EMT atlas live</div>
+      <div class="row"><b>connect</b>BioBayes (causal 출력 받아 design), BioFeynman (mechanism), BioMendel (HLA cohort), DataHyena (코호트 manifest)</div>
+    </div>
+  </div>
+</section>
+
+<section id="fisher">
+  <div class="agent fisher">
+    <p class="who">Agent 5 · Sir Ronald A. Fisher (1890–1962) · ANOVA · ML estimation · The Design of Experiments (1935)</p>
+    <h3>BioFisher — 통계·코호트 디자인</h3>
+    <p class="note">모든 통계 게이트의 표준 절차를 lock. permutation null · FDR · LOTO/LOSO · cluster stability · power analysis. Paper 1 reviewer-defense의 핵심이며, deconv v13/v14에서 5-cohort forest로 ρ=-0.327 [-0.376, -0.278] n=1,287을 잠근 것이 대표 작업. <span class="label file-backed">file-backed</span></p>
+    <div class="grid">
+      <div>
+        <h4>핵심 함수</h4>
+        <ul>
+          <li>FDR 조정 (BH · Bonferroni)</li>
+          <li>permutation null (label-perm / panel-perm)</li>
+          <li>LOTO / LOSO discipline</li>
+          <li>cluster stability 97.4% threshold</li>
+          <li>power analysis · prereg endpoint arms</li>
+        </ul>
+      </div>
+      <div>
+        <h4>현재 repo 산출물</h4>
+        <ul>
+          <li><code>project/results/</code> 전체 (bind mount /data)</li>
+          <li>memory: <code>dm1_robustness_v2026_05_08</code> — 10/12 contrast FDR&lt;0.01</li>
+          <li>memory: <code>deconv_v14_cross_cohort_forest_2026_05_09</code></li>
+          <li>memory: <code>dm1_round7/round8</code> — perm null p=0.29 (honest)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>대표 task</h4>
+        <ul>
+          <li>5-cohort pooled ρ=-0.327 (I²=72.9% v12-predicted)</li>
+          <li>thyroid-matched null p=0.007 (Round 8)</li>
+          <li>v15 K2 mini-index Panel-only z-score (246/260 DM2)</li>
+          <li>XGB 5-fold AUC=0.984 · LogReg AUC=0.903 perfect-calibrated</li>
+        </ul>
+      </div>
+      <div>
+        <h4>실패 모드 · 안전장치</h4>
+        <ul>
+          <li><b>Cherry-pick</b>: 100 random panel negative control 필수</li>
+          <li><b>p-hack</b>: pre-registered endpoint arms 사용</li>
+          <li><b>Cohort bias</b>: LOTO + sign-consistency 동반</li>
+          <li>Simpson · LOSO failure 인라인 caveat</li>
+        </ul>
+      </div>
+    </div>
+    <div class="statusgrid">
+      <div class="row"><b>status</b>locked · 5-cohort forest · cluster stability 97.4% · perm null transparent</div>
+      <div class="row"><b>connect</b>DataHyena (코호트), BioBayes (effect size 출력), BioTuring (CI gate)</div>
+    </div>
+  </div>
+</section>
+
+<section id="turing">
+  <div class="agent turing">
+    <p class="who">Agent 6 · Alan M. Turing (1912–1954) · Universal machine · 1936 paper · Enigma</p>
+    <h3>BioTuring — 코드·자동화·재현성</h3>
+    <p class="note">모든 commit/CI/audit 게이트의 최종 책임자. boundary audit이 exit-0 아니면 commit 차단. paper1 zone과 paper2/paper3 zone의 contamination을 차단하는 핵심 안전장치이며, RunPod /tmp overflow 같은 인프라 사고도 BioTuring 규약(`--tmpdir /workspace/_tmp --compress`)으로 차단된다. <span class="label file-backed">file-backed</span></p>
+    <div class="grid">
+      <div>
+        <h4>핵심 함수</h4>
+        <ul>
+          <li>CI/CD · GitHub workflows</li>
+          <li>boundary audit exit-0 gate</li>
+          <li>reproducibility container (Docker · conda env)</li>
+          <li>pre-commit hook (lint · audit · format)</li>
+          <li>RunPod 운영 규약 (tmpdir/compress · /data bind mount)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>현재 repo 산출물</h4>
+        <ul>
+          <li><code>scripts/boundary_audit/_common.py</code></li>
+          <li><code>scripts/boundary_audit/audit_paper1_no_hla_contamination.py</code></li>
+          <li><code>scripts/boundary_audit/audit_paper2_no_cancer_claim_contamination.py</code></li>
+          <li><code>scripts/boundary_audit/audit_bridge_quarantine.py</code></li>
+          <li><code>scripts/boundary_audit/build_zone_manifests.py</code></li>
+        </ul>
+      </div>
+      <div>
+        <h4>대표 task</h4>
+        <ul>
+          <li>commit 전 zone audit exit-0 강제</li>
+          <li>RunPod 운영 → Pod D /tmp overflow 재발 차단</li>
+          <li>bind mount layout 검증 (findmnt)</li>
+          <li>papers_hub auto-deploy → /var/www/papers/</li>
+        </ul>
+      </div>
+      <div>
+        <h4>실패 모드 · 안전장치</h4>
+        <ul>
+          <li><b>--no-verify 우회</b>: 사용자 명시 허가 외 금지</li>
+          <li><b>git push --force</b>: main/master 차단</li>
+          <li><b>credential 누출</b>: .env · credentials.json staging 차단</li>
+          <li>amend 대신 new commit (pre-commit fail 후)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="statusgrid">
+      <div class="row"><b>status</b>boundary audit exit-0 mandatory · 5 zones · 358 dataset manifest</div>
+      <div class="row"><b>connect</b>모든 agent · commit/CI 단일 gate</div>
+    </div>
+  </div>
+</section>
+
+<section id="hyena">
+  <div class="agent hyena">
+    <p class="who">Agent 7 · DataHyena (metaphor) · 데이터 사냥꾼 — 과학자 namesake 대신 메타포 채택. 흩어진 데이터를 후각으로 추적하는 무리 사냥 동물이 cohort hunter 역할에 더 잘 맞음.</p>
+    <h3>DataHyena — GEO·ENA·cBioPortal·DepMap 사냥꾼</h3>
+    <p class="note">7명 중 유일한 메타포 에이전트. 과학자 namesake가 데이터 hunting의 본질("scavenging across sources")을 잘 표현하지 못한다고 판단해 동물 메타포 채택. master_dataset_catalog.csv (358–386 dataset)이 BioDarwin 자가진화의 raw fuel을 공급한다. <span class="label file-backed">file-backed</span></p>
+    <div class="grid">
+      <div>
+        <h4>핵심 함수</h4>
+        <ul>
+          <li>GEO / ENA / cBioPortal / DepMap / SRA crawler</li>
+          <li>dataset cataloging · zone tagging</li>
+          <li>gap analysis (어떤 코호트가 비어 있는가)</li>
+          <li>cohort version pinning</li>
+          <li>FASTQ / count-matrix dispatch (Pod D · RunPod)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>현재 repo 산출물</h4>
+        <ul>
+          <li><code>data_registry/manifests/master_dataset_catalog.csv</code></li>
+          <li><code>data_registry/manifests/paper1_cancer_core_manifest.csv</code></li>
+          <li><code>data_registry/manifests/paper2_hla_autoimmune_manifest.csv</code></li>
+          <li><code>data_registry/manifests/reference_population_hla_manifest.csv</code></li>
+          <li><code>data_registry/manifests/restricted_or_rejected_manifest.csv</code></li>
+        </ul>
+      </div>
+      <div>
+        <h4>대표 task</h4>
+        <ul>
+          <li>358 dataset 카탈로그 · 5 zone 태깅</li>
+          <li>GSE286332 Korean PTC vs PTC+HT 매니페스트 등록</li>
+          <li>K2 PRJEB11591 FASTQ 33G inventory</li>
+          <li>cross-cohort gap analysis (paper11 pan-cancer)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>실패 모드 · 안전장치</h4>
+        <ul>
+          <li><b>Stale catalog</b>: 코호트 버전 pin 필수</li>
+          <li><b>Zone 누출</b>: BioTuring zone audit 동반</li>
+          <li><b>FASTQ overflow</b>: /data mount 강제, /tmp 금지</li>
+          <li>restricted_or_rejected 별도 manifest</li>
+        </ul>
+      </div>
+    </div>
+    <div class="statusgrid">
+      <div class="row"><b>status</b>358–386 datasets cataloged · 5 zones · K2 + GSE213647 + GSE286332 + GSE250521 anchors</div>
+      <div class="row"><b>connect</b>BioFisher (test cohort 공급), BioMendel (HLA cohort), BioTuring (zone audit), BioCurie (코호트 협의)</div>
+    </div>
+  </div>
+</section>
+
+<section id="coord">
+  <h2>10 · Coordination protocol — 트랙별 책임 맵</h2>
+  <p class="sub">internal-claim · 어떤 chief-of-staff deliverable은 누구 owner인가</p>
+  <table>
+    <thead><tr><th>Deliverable</th><th>Owner agent</th><th>지원 agent</th><th>현재 상태</th></tr></thead>
+    <tbody>
+      <tr><td>Paper 1 (DM1 paper)</td><td>BioFisher + BioBayes</td><td>DataHyena · BioTuring</td><td>manuscript_v8 marathon mode <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Paper 2 (image-DM1 HT)</td><td>BioFisher + BioCurie</td><td>BioMendel (HLA boundary)</td><td>v18 lock <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Paper 3 (ICI vulnerability)</td><td>BioBayes</td><td>BioFisher · DataHyena</td><td>Track A frozen, B-lite open <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Paper 4 backlog (Korean GD HLA)</td><td>BioMendel</td><td>DataHyena</td><td>4/4 gating <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Paper 11 (pan-cancer)</td><td>BioFisher</td><td>BioBayes · DataHyena</td><td>10 cancers FDR&lt;0.1 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Samsung CTC-Spatial pitch</td><td>BioCurie</td><td>전체 7</td><td>v1 deck deployed <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>cross-neo vaccine hub</td><td>BioBayes + BioCurie</td><td>BioFisher · BioFeynman</td><td>v8 known-answer · v17 command surface <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>SPARK DM idea generator</td><td>BioFeynman</td><td>BioFisher (검증)</td><td>live chatbot <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Lumenix brand architecture</td><td>chief of staff</td><td>(agent 외부)</td><td>cos_07 / cos_19 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>boundary audit</td><td>BioTuring</td><td>BioMendel (HLA zone)</td><td>exit-0 gate <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>Yu meeting briefs</td><td>chief of staff</td><td>전체</td><td>brief + rehearsal + minutes <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="fail">
+  <h2>11 · Failure modes — agent별 over-claim 리스크</h2>
+  <p class="sub">internal-claim · "어떤 agent가 어떻게 hallucinate / over-claim 하는가"</p>
+  <table>
+    <thead><tr><th>Agent</th><th>대표 over-claim</th><th>위험 신호</th><th>완화 방법</th></tr></thead>
+    <tbody>
+      <tr><td>BioFeynman</td><td>"mechanism이 증명되었다" (hallucination)</td><td>file-backed 라벨 없는 mechanism prose</td><td>BioFisher/BioCurie 검증 페어링, voice-protected 사용 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>BioMendel</td><td>"K2 HLA pattern은 cohort에 generalizable" (over-extrapolation)</td><td>AFND ratio CI 미표시</td><td>K2 vs AFND ratios 0.93–1.22 p&gt;0.16 명시 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioBayes</td><td>"causal effect 입증" (RCT 없이)</td><td>"treatment selection" 단어 사용</td><td>E-value · tipping point · target trial 명시 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioCurie</td><td>"clinical utility 검증됨" (wet-lab 낙관)</td><td>"validated predictor" 단어</td><td>금지어 lock + IRB/cost 라벨 강제 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioFisher</td><td>"p&lt;0.05 다 유의" (p-hack)</td><td>FDR/permutation 부재</td><td>pre-reg endpoint arms + LOTO 강제 <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>BioTuring</td><td>"audit 통과 = claim 검증" (혼동)</td><td>boundary audit ≠ scientific 검증</td><td>audit은 zone leak만 차단, claim 검증은 BioFisher/BioBayes <span class="label file-backed">file-backed</span></td></tr>
+      <tr><td>DataHyena</td><td>"cohort 매칭 = effect estimate" (혼동)</td><td>코호트 확보 후 effect size 자동 보고</td><td>BioFisher 거치지 않고 effect 발표 금지 <span class="label file-backed">file-backed</span></td></tr>
+    </tbody>
+  </table>
+  <div class="decision">
+    <h3>한 줄</h3>
+    <p>BioDarwin의 자가진화는 "변이 → 선택 → 유전"의 다윈 공리를 충실히 지킬 때만 작동한다. 각 agent의 over-claim은 selection gate (BioFisher/BioBayes/BioTuring) 없이는 immediate hallucination 위험으로 전환된다. <span class="label internal-claim">internal claim</span></p>
+  </div>
+</section>
+
+<section id="alt">
+  <h2>12 · Naming alternatives — explored but not adopted</h2>
+  <p class="sub">internal-claim · 다른 과학자명도 검토했으나 현재 7명 + DataHyena 유지</p>
+  <table>
+    <thead><tr><th>Agent</th><th>1번째 임시 후보</th><th>2번째 임시 후보</th><th>최종 채택</th><th>채택 이유</th></tr></thead>
+    <tbody>
+      <tr><td>generative</td><td>BioBohr</td><td>BioFeynman</td><td><b>BioFeynman</b></td><td>path-integral 비유가 가설 변이 풀에 더 직접적 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>genetics</td><td>BioMcClintock</td><td>BioMendel</td><td><b>BioMendel</b></td><td>HLA inheritance 직관, "single allele law" 직접 매핑 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>causal</td><td>BioPearl</td><td>BioBayes</td><td><b>BioBayes</b></td><td>posterior · E-value · tipping point 모두 Bayesian 용어 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>experimental</td><td>BioFleming</td><td>BioCurie</td><td><b>BioCurie</b></td><td>"비싼 실험으로만 보인다"는 직관, 2-Nobel weight <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>statistics</td><td>BioGalton</td><td>BioFisher</td><td><b>BioFisher</b></td><td>Galton 우생학 reputational risk; Fisher의 Design of Experiments 직접 매핑 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>code</td><td>BioHopper</td><td>BioTuring</td><td><b>BioTuring</b></td><td>universal machine 직관 + reproducibility gate 메타포 <span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>data hunting</td><td>BioDataLion</td><td>BioDataFox</td><td><b>DataHyena</b></td><td>"무리 사냥" + scavenging 직관, namesake 회피해 동물 메타포 채택 <span class="label internal-claim">internal claim</span></td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>후보</th><th>도메인</th><th>채택 안 한 이유</th><th>대체된 agent</th></tr></thead>
+    <tbody>
+      <tr><td>BioBohr</td><td>quantum / atomic physics</td><td>BioFeynman과 도메인 중복</td><td>BioFeynman (path-integral이 더 generative)</td></tr>
+      <tr><td>BioMcClintock</td><td>genetics · transposon</td><td>BioMendel과 핵심 함수 중복</td><td>BioMendel (HLA imputation 직관 더 직접적)</td></tr>
+      <tr><td>BioPearl</td><td>causal inference (Judea Pearl)</td><td>BioBayes와 도메인 중복 + Pearl은 generic 단어 충돌 가능</td><td>BioBayes</td></tr>
+      <tr><td>BioGalton</td><td>regression · biometrics</td><td>BioFisher와 통계 도메인 중복 + Galton 우생학 reputational risk</td><td>BioFisher</td></tr>
+      <tr><td>BioCajal</td><td>neuroscience · cell drawing</td><td>현재 트랙 (thyroid)에 도메인 mismatch</td><td>— (해당 없음)</td></tr>
+      <tr><td>BioDarwin (agent name)</td><td>evolution</td><td>"엔진 코드명"으로 보존, 개별 agent로 쓰지 않음 — 7-agent loop 전체가 BioDarwin</td><td>BioDarwin = engine (cos_17)</td></tr>
+      <tr><td>BioHopper (Grace Hopper)</td><td>code · compiler</td><td>BioTuring과 도메인 중복</td><td>BioTuring</td></tr>
+      <tr><td>BioWatson (James Watson)</td><td>structural biology · DNA</td><td>Watson controversy로 reputational risk</td><td>BioMendel</td></tr>
+      <tr><td>BioFleming (Alexander Fleming)</td><td>antibiotic discovery / serendipity</td><td>BioCurie와 wet-lab 도메인 중복</td><td>BioCurie</td></tr>
+      <tr><td>BioDataLion / BioDataFox</td><td>data hunting metaphor</td><td>"무리 사냥" 메타포가 hyena가 더 정확 (cohort scavenging)</td><td>DataHyena</td></tr>
+    </tbody>
+  </table>
+  <p class="note">7 + 1 구조가 self-evolving loop를 가장 깔끔하게 분할한다고 판단. 향후 트랙 확장 시 BioCajal (neuroscience), BioHaldane (population genetics), BioBohr (quantum dynamics for protein) 등을 추가 검토할 수 있음. <span class="label internal-claim">internal claim</span></p>
+  <table>
+    <thead><tr><th>미래 확장 후보</th><th>도메인</th><th>진입 트리거</th><th>예상 connect</th></tr></thead>
+    <tbody>
+      <tr><td>BioCajal</td><td>neuro · histology drawing</td><td>thyroid → CNS / GBM 확장 시</td><td>BioFeynman (mechanism) <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>BioHaldane</td><td>population genetics · evolution</td><td>Pan-Asian inheritance 본격화 시</td><td>BioMendel <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>BioBohr</td><td>quantum · protein dynamics</td><td>cryo-EM · AlphaFold 통합 시</td><td>BioFeynman <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>BioLovelace</td><td>algorithm history</td><td>BioTuring 부담 분산 시</td><td>BioTuring <span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>BioVenter</td><td>genome sequencing</td><td>WGS/scRNA 본격화 시</td><td>DataHyena <span class="label hypothesis">hypothesis</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="siblings">
+  <h2>13 · Sibling pages</h2>
+  <p class="sub">chief_of_staff family 00–19 · yu_meeting · mega_launchpad · index</p>
+  <div class="linkrow">
+    <a href="index.html" class="gold">papers_hub index</a>
+    <a href="chief_of_staff_00_package_index_2026_05_14.html">#00 package index</a>
+    <a href="chief_of_staff_01_repo_audit_2026_05_14.html">#01 repo audit</a>
+    <a href="chief_of_staff_02_data_evidence_registry_2026_05_14.html">#02 data registry</a>
+    <a href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html">#04 DM1/DM2 decision</a>
+    <a href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html">#05 Samsung CTC-Spatial</a>
+    <a href="chief_of_staff_07_brand_architecture_lumenix_biodarwin_2026_05_14.html">#07 brand architecture</a>
+    <a href="cos_17_biodarwin_engine_architecture_2026_05_14.html">#17 BioDarwin engine</a>
+    <a href="cos_18_seven_agent_deep_dives_2026_05_14.html" class="gold">#18 7 agent deep dives (이 페이지)</a>
+    <a href="cos_19_lumenix_legal_ip_trademark_2026_05_14.html">#19 Lumenix legal/IP</a>
+    <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+    <a href="rehearsal_script_yu_meeting_2026_05_14.html">Yu meeting rehearsal</a>
+    <a href="yu_meeting_minutes_template_2026_05_14.html">Yu meeting minutes</a>
+    <a href="mega_launchpad_2026_05_14.html">Mega launchpad</a>
+  </div>
+  <p class="footer">cos_18_seven_agent_deep_dives_2026_05_14.html · 7개 agent는 BioDarwin 엔진의 내부 코드 네이밍. 외부 노출은 Lumenix 브랜드로만 진행. evidence label scheme: file-backed / internal-claim / public-proxy / literature / hypothesis. <br/>본 문서의 과학자 이름은 namesake 메타포일 뿐, 해당 과학자 estate/저작권/상표와 관련 없음 — informational only.</p>
+</section>
+
+</main>
+</body>
+</html>

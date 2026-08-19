@@ -1,0 +1,211 @@
+{
+  "name": "CROSS-Neo Darwin-RL",
+  "generated_at": "2026-05-10T23:11:06",
+  "thesis": "A literature-mined knowledge graph decomposes public AI and biomedical methods into primitives; GA evolves candidate pipelines while an RL controller learns which mutation/search actions to use under leakage, modality and wetlab constraints.",
+  "genome": {
+    "preprocessing_genes": [
+      "label_confidence_model",
+      "split_policy",
+      "HLA_normalization",
+      "peptide_length_filter",
+      "patient_source_cluster_guard",
+      "modality_missingness_policy"
+    ],
+    "modality_genes": [
+      "peptide_sequence",
+      "HLA_allele",
+      "MS_EL",
+      "binding_affinity",
+      "RNA_expression",
+      "TCR_CDR3beta",
+      "pMHC_structure",
+      "biochemical_features",
+      "gene_context",
+      "assay_metadata"
+    ],
+    "model_genes": [
+      "tabular_GBDT",
+      "CNN_branch",
+      "LSTM_branch",
+      "protein_LM_embedding",
+      "structure_GNN",
+      "late_fusion_attention",
+      "mixture_of_experts",
+      "claim_safe_cap"
+    ],
+    "learning_genes": [
+      "binary_loss",
+      "confidence_weighted_loss",
+      "pairwise_ranking_loss",
+      "top_k_surrogate_loss",
+      "calibration_loss",
+      "distilled_rule_head"
+    ]
+  },
+  "rl_controller": {
+    "state": [
+      "source_split_metrics",
+      "low_leakage_metrics",
+      "HLA_coverage",
+      "modality_missingness",
+      "comparator_disagreement",
+      "search_diversity",
+      "wetlab_budget_remaining"
+    ],
+    "actions": [
+      "choose_label_confidence_model",
+      "choose_split_policy",
+      "activate_modality_branches",
+      "choose_encoder_family",
+      "choose_fusion_rule",
+      "choose_search_operator",
+      "compose_reward",
+      "allocate_96_well_arms"
+    ],
+    "policy": "contextual bandit first; upgrade to PPO/MCTS only after enough search traces exist"
+  },
+  "reward": [
+    {
+      "reward_component": "source_balanced_AUPRC",
+      "weight": 0.24,
+      "purpose": "prevents CEDAR/TESLA/source dominance"
+    },
+    {
+      "reward_component": "low_leakage_AUPRC",
+      "weight": 0.18,
+      "purpose": "rewards clean generalization"
+    },
+    {
+      "reward_component": "top96_precision",
+      "weight": 0.18,
+      "purpose": "matches 96-well wetlab yield"
+    },
+    {
+      "reward_component": "wetlab_interpreter_hit_yield",
+      "weight": 0.14,
+      "purpose": "direct assay utility after v6"
+    },
+    {
+      "reward_component": "external_comparator_delta",
+      "weight": 0.1,
+      "purpose": "must beat or complement BigMHC/PRIME/NetMHCpan"
+    },
+    {
+      "reward_component": "modality_completeness",
+      "weight": 0.06,
+      "purpose": "penalizes impossible candidates"
+    },
+    {
+      "reward_component": "novelty_diversity",
+      "weight": 0.05,
+      "purpose": "prevents copying one public model"
+    },
+    {
+      "reward_component": "interpretability",
+      "weight": 0.03,
+      "purpose": "supports reviewer defense"
+    },
+    {
+      "reward_component": "complexity_penalty",
+      "weight": 0.02,
+      "purpose": "keeps deployable search"
+    }
+  ],
+  "guardrails": [
+    {
+      "guardrail": "public_secret_boundary",
+      "rule": "Use public papers/code/features only; no proprietary extraction."
+    },
+    {
+      "guardrail": "source_leakage_guard",
+      "rule": "Patient/source/HLA/peptide-cluster splits are separate required reports."
+    },
+    {
+      "guardrail": "sparse_proxy_guard",
+      "rule": "Sparse features such as TCR availability cannot dominate without ablation."
+    },
+    {
+      "guardrail": "single_concept_cap",
+      "rule": "No primitive family can exceed a prespecified weight cap in claim-safe mode."
+    },
+    {
+      "guardrail": "random_search_baseline",
+      "rule": "GA/RL gains must beat fixed ensemble and random search under same budget."
+    },
+    {
+      "guardrail": "locked_wetlab_validation",
+      "rule": "Prospective claims require locked score before v6 wetlab results."
+    },
+    {
+      "guardrail": "modality_missingness_audit",
+      "rule": "Every modality branch needs missingness and availability stratification."
+    },
+    {
+      "guardrail": "complexity_budget",
+      "rule": "Report search generations, population, model count and CPU/GPU budget."
+    }
+  ],
+  "source_methods": [
+    {
+      "method": "BigMHC",
+      "source_url": "https://doi.org/10.1038/s42256-023-00694-6",
+      "paper_anchor": "Nature Machine Intelligence 2023"
+    },
+    {
+      "method": "ImmunoStruct",
+      "source_url": "https://www.nature.com/articles/s42256-025-01163-y",
+      "paper_anchor": "Nature Machine Intelligence 2025"
+    },
+    {
+      "method": "DeepImmuno",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7781330/",
+      "paper_anchor": "Frontiers Immunology 2021"
+    },
+    {
+      "method": "PRIME",
+      "source_url": "https://www.sciencedirect.com/science/article/pii/S2666379121000057",
+      "paper_anchor": "Cell Reports Medicine 2021"
+    },
+    {
+      "method": "NetMHCpan_4_1",
+      "source_url": "https://doi.org/10.1093/nar/gkaa379",
+      "paper_anchor": "Nucleic Acids Research 2020"
+    },
+    {
+      "method": "pMTnet",
+      "source_url": "https://www.nature.com/articles/s42256-021-00383-2",
+      "paper_anchor": "Nature Machine Intelligence 2021"
+    },
+    {
+      "method": "Harmonized_Neoantigen_ML",
+      "source_url": "https://doi.org/10.1016/j.immuni.2023.09.002",
+      "paper_anchor": "Immunity 2023"
+    },
+    {
+      "method": "CEDAR",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9825495/",
+      "paper_anchor": "Nucleic Acids Research 2023"
+    },
+    {
+      "method": "AutoML_Zero",
+      "source_url": "https://arxiv.org/abs/2003.03384",
+      "paper_anchor": "ICML 2020"
+    },
+    {
+      "method": "NAS_RL",
+      "source_url": "https://research.google/pubs/neural-architecture-search-with-reinforcement-learning/",
+      "paper_anchor": "ICLR 2017"
+    },
+    {
+      "method": "Regularized_Evolution",
+      "source_url": "https://arxiv.org/abs/1802.01548",
+      "paper_anchor": "AAAI 2019"
+    },
+    {
+      "method": "Deep_Distilling",
+      "source_url": "https://www.nature.com/articles/s43588-024-00593-9",
+      "paper_anchor": "Nature Computational Science 2024"
+    }
+  ],
+  "locked_validation_path": "Run GA/RL on retrospective data only, freeze architecture and thresholds, then evaluate actual v6 96-well interpreter calls."
+}

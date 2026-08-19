@@ -1,0 +1,1103 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CROSS-Neo GA/RL Full Comparison</title>
+<style>
+:root { --bg:#07111f; --panel:#101d2d; --ink:#edf5ff; --muted:#9fb0c5; --gold:#f2c46d; --line:#27384f; --red:#ff7d8d; --green:#57c785; }
+body { margin:0; background:var(--bg); color:var(--ink); font-family:Inter,Arial,sans-serif; line-height:1.5; }
+header { padding:48px 5vw 28px; border-bottom:1px solid var(--line); background:#0b1626; }
+.kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.08em; font-size:12px; }
+h1 { font-size:clamp(30px,5vw,62px); margin:8px 0 10px; line-height:1.0; }
+.lead { color:var(--muted); max-width:1100px; font-size:18px; }
+.stats { display:grid; grid-template-columns:repeat(6,minmax(130px,1fr)); gap:12px; margin-top:24px; }
+.stat { background:var(--panel); border:1px solid var(--line); padding:14px; border-radius:8px; }
+.stat b { display:block; font-size:26px; color:var(--gold); }
+.stat span { color:var(--muted); font-size:12px; }
+main { padding:28px 5vw 60px; max-width:1500px; margin:0 auto; }
+section { margin:34px 0; }
+h2 { font-size:24px; margin-bottom:12px; color:#fff; }
+.note { border-left:4px solid var(--gold); background:#101d2d; padding:14px 16px; color:var(--muted); }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:16px; }
+.card { border:1px solid var(--line); background:var(--panel); border-radius:8px; padding:12px; }
+.card img { width:100%; background:#fff; border-radius:6px; }
+.card h3 { margin:10px 0 4px; }
+.card p { color:var(--muted); }
+a { color:var(--gold); }
+table { width:100%; border-collapse:collapse; font-size:13px; background:var(--panel); }
+th, td { border:1px solid var(--line); padding:8px; vertical-align:top; }
+th { color:var(--gold); text-align:left; position:sticky; top:0; background:#101d2d; }
+.tablewrap { overflow:auto; border:1px solid var(--line); }
+.yes { color:var(--green); font-weight:700; }
+.no { color:var(--red); font-weight:700; }
+code { color:var(--gold); }
+@media (max-width:900px) { .stats { grid-template-columns:repeat(2,1fr); } }
+</style></head>
+<body><header>
+<div class="kicker">CROSS-Neo · GA/RL · all-comparator audit</div>
+<h1>KG-GA is the current champion, with a clean boundary.</h1>
+<p class="lead">This page compares the evolved knowledge-graph genetic controller against BigMHC, fixed CROSS-Neo scores, claim-safe fallback, strict no-overlap production rankers, and paperability-aware Darwin-RL outputs.</p>
+<div class="stats">
+<div class="stat"><b>0.933</b><span>KG-GA all AUPRC</span></div>
+<div class="stat"><b>0.943</b><span>KG-GA all AUROC</span></div>
+<div class="stat"><b>96/96</b><span>all-board top96 hits</span></div>
+<div class="stat"><b>0.978</b><span>frozen validation-like AUPRC</span></div>
+<div class="stat"><b>0.757</b><span>low/medium leakage AUPRC</span></div>
+<div class="stat"><b>BAR-Neo_confidence 0.857</b><span>strict no-overlap winner</span></div>
+</div>
+</header><main>
+<section><h2>Decision</h2>
+<p class="note"><b>Use KG_GA_evolved as the champion discovery/experiment-priority algorithm.</b> Use CROSS_claimsafe as the conservative claim-safe fallback. Use BAR-Neo_confidence for strict no-overlap production reliability. Do not claim prospective immunogenicity until locked mutant-vs-WT/decoy wetlab readout passes.</p></section>
+<section><h2>Figure Board</h2><div class="grid">
+        <article class="card">
+          <img src="assets/cross_neo_ga_rl_full_comparison/fig1_ga_rl_champion_heatmap.png" alt="Champion Heatmap">
+          <h3>Champion Heatmap</h3>
+          <p>All-board, frozen validation-like, low-leakage, v6, paperability.</p>
+          <a href="assets/cross_neo_ga_rl_full_comparison/fig1_ga_rl_champion_heatmap.png">PNG</a>
+        </article>
+        
+        <article class="card">
+          <img src="assets/cross_neo_ga_rl_full_comparison/fig2_ga_rl_auprc_lift_vs_comparators.png" alt="AUPRC Lift">
+          <h3>AUPRC Lift</h3>
+          <p>KG-GA delta against core comparators.</p>
+          <a href="assets/cross_neo_ga_rl_full_comparison/fig2_ga_rl_auprc_lift_vs_comparators.png">PNG</a>
+        </article>
+        
+        <article class="card">
+          <img src="assets/cross_neo_ga_rl_full_comparison/fig3_strict_no_overlap_context.png" alt="Strict No-Overlap Context">
+          <h3>Strict No-Overlap Context</h3>
+          <p>Where BAR-Neo reliability still wins.</p>
+          <a href="assets/cross_neo_ga_rl_full_comparison/fig3_strict_no_overlap_context.png">PNG</a>
+        </article>
+        
+        <article class="card">
+          <img src="assets/cross_neo_ga_rl_full_comparison/fig4_claim_boundary_board.png" alt="Claim Boundary">
+          <h3>Claim Boundary</h3>
+          <p>Allowed and blocked claims.</p>
+          <a href="assets/cross_neo_ga_rl_full_comparison/fig4_claim_boundary_board.png">PNG</a>
+        </article>
+        
+        <article class="card">
+          <img src="assets/cross_neo_ga_rl_full_comparison/fig5_public_competitor_context.png" alt="Public Comparator Context">
+          <h3>Public Comparator Context</h3>
+          <p>MHCflurry, PRIME, TransPHLA, NetMHCpan, RF_biophys and others.</p>
+          <a href="assets/cross_neo_ga_rl_full_comparison/fig5_public_competitor_context.png">PNG</a>
+        </article>
+        </div></section>
+<section><h2>Master Comparison</h2><div class="tablewrap"><table><thead><tr>
+<th>algorithm</th>
+<th>algorithm family</th>
+<th>claim track</th>
+<th>all AUPRC</th>
+<th>all AUROC</th>
+<th>all top96 hits</th>
+<th>frozen validation AUPRC</th>
+<th>low medium leakage AUPRC</th>
+<th>v6 smoke AUPRC</th>
+<th>paperability reward</th>
+<th>neo strict AUPRC</th>
+<th>headline score</th>
+<th>primary disposition</th>
+</tr></thead><tbody>
+<tr>
+<td>KG_GA_evolved</td>
+<td>new_ga_controller</td>
+<td>production/experiment-priority</td>
+<td>0.933</td>
+<td>0.943</td>
+<td>96.000</td>
+<td>0.978</td>
+<td>0.757</td>
+<td>0.812</td>
+<td>0.922</td>
+<td>NA</td>
+<td>0.840</td>
+<td>CHAMPION for retrospective + validation-like + low-leakage benchmark; freeze before prospective wetlab</td>
+</tr>
+<tr>
+<td>CROSS_claimsafe</td>
+<td>claim_safe_crossneo</td>
+<td>claim-safe prioritization</td>
+<td>0.861</td>
+<td>0.864</td>
+<td>96.000</td>
+<td>0.846</td>
+<td>0.617</td>
+<td>0.788</td>
+<td>0.750</td>
+<td>NA</td>
+<td>0.740</td>
+<td>Claim-safe fallback when GA/RL proxy/product features are too risky</td>
+</tr>
+<tr>
+<td>CROSS_integrated</td>
+<td>fixed_integrated_crossneo</td>
+<td>production/experiment-priority</td>
+<td>0.878</td>
+<td>0.896</td>
+<td>96.000</td>
+<td>0.714</td>
+<td>0.573</td>
+<td>0.790</td>
+<td>0.703</td>
+<td>NA</td>
+<td>0.700</td>
+<td>Fixed integrated comparator; strong but less novel than KG-GA</td>
+</tr>
+<tr>
+<td>CROSS_BMA</td>
+<td>bayesian_internal</td>
+<td>claim-safe prioritization</td>
+<td>0.861</td>
+<td>0.860</td>
+<td>89.000</td>
+<td>0.660</td>
+<td>0.636</td>
+<td>0.767</td>
+<td>0.613</td>
+<td>NA</td>
+<td>0.679</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>CROSS_stress</td>
+<td>stress_guarded_internal</td>
+<td>claim-safe prioritization</td>
+<td>0.872</td>
+<td>0.873</td>
+<td>91.000</td>
+<td>0.651</td>
+<td>0.601</td>
+<td>0.777</td>
+<td>0.616</td>
+<td>NA</td>
+<td>0.676</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>CROSS_finetuned</td>
+<td>finetuned_internal</td>
+<td>experiment-priority</td>
+<td>0.841</td>
+<td>0.863</td>
+<td>84.000</td>
+<td>0.606</td>
+<td>0.669</td>
+<td>0.681</td>
+<td>0.570</td>
+<td>NA</td>
+<td>0.651</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>BigMHC_IM</td>
+<td>public_immunogenicity</td>
+<td>external comparator + strict no-overlap production</td>
+<td>0.672</td>
+<td>0.722</td>
+<td>84.000</td>
+<td>0.334</td>
+<td>0.374</td>
+<td>0.672</td>
+<td>0.340</td>
+<td>0.777</td>
+<td>0.504</td>
+<td>External public comparator/component, not CROSS-Neo claim engine</td>
+</tr>
+<tr>
+<td>BigMHC_EL</td>
+<td>public_presentation</td>
+<td>external comparator</td>
+<td>0.648</td>
+<td>0.719</td>
+<td>70.000</td>
+<td>0.308</td>
+<td>0.306</td>
+<td>0.866</td>
+<td>0.321</td>
+<td>NA</td>
+<td>0.453</td>
+<td>External public comparator/component, not CROSS-Neo claim engine</td>
+</tr>
+<tr>
+<td>BAR-Neo_confidence</td>
+<td>production_reliability_ranker</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.857</td>
+<td>0.051</td>
+<td>Best strict no-overlap production reliability baseline; compare separately from 2,715-board GA</td>
+</tr>
+<tr>
+<td>BAR-Neo</td>
+<td>production_reliability_ranker</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.825</td>
+<td>0.050</td>
+<td>Best strict no-overlap production reliability baseline; compare separately from 2,715-board GA</td>
+</tr>
+<tr>
+<td>BAR-Neo_patient_gated</td>
+<td>production_reliability_ranker</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.820</td>
+<td>0.049</td>
+<td>Best strict no-overlap production reliability baseline; compare separately from 2,715-board GA</td>
+</tr>
+<tr>
+<td>BAR-Neo-X</td>
+<td>production_reliability_ranker</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.800</td>
+<td>0.048</td>
+<td>Best strict no-overlap production reliability baseline; compare separately from 2,715-board GA</td>
+</tr>
+<tr>
+<td>BAR-Neo-X_claim_safe</td>
+<td>production_reliability_ranker</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.800</td>
+<td>0.048</td>
+<td>Best strict no-overlap production reliability baseline; compare separately from 2,715-board GA</td>
+</tr>
+<tr>
+<td>RF_biophys</td>
+<td>neoimmune_stack_baseline</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.752</td>
+<td>0.045</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>MHCflurry_2.0_presentation</td>
+<td>neoimmune_stack_baseline</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.726</td>
+<td>0.044</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>clean_contextual_bma</td>
+<td>neoimmune_stack_baseline</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.699</td>
+<td>0.042</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>prespecified_equal_weight_C_QK_no_anchor</td>
+<td>neoimmune_stack_baseline</td>
+<td>strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.630</td>
+<td>0.038</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>KG_GA_evolved_controller</td>
+<td>new_ga_controller</td>
+<td>production/experiment-priority + strict no-overlap production</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.624</td>
+<td>0.037</td>
+<td>Production GA/RL branch in NeoImmune stack; strong but not clean-track allowed</td>
+</tr>
+<tr>
+<td>Wave8_TCR_SelfSim_no_exact</td>
+<td>clean_local_tcr</td>
+<td>strict no-overlap clean</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.619</td>
+<td>0.037</td>
+<td>Clean local TCR baseline; useful ablation/control</td>
+</tr>
+<tr>
+<td>Wave8_TCR_motif_only</td>
+<td>clean_local_tcr</td>
+<td>strict no-overlap clean</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.604</td>
+<td>0.036</td>
+<td>Clean local TCR baseline; useful ablation/control</td>
+</tr>
+<tr>
+<td>Wave8_TCR_SelfSim_full</td>
+<td>clean_local_tcr</td>
+<td>strict no-overlap clean</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.582</td>
+<td>0.035</td>
+<td>Clean local TCR baseline; useful ablation/control</td>
+</tr>
+<tr>
+<td>VQC</td>
+<td>neoimmune_stack_baseline</td>
+<td>strict no-overlap clean</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.454</td>
+<td>0.027</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>Stack_mean_E1</td>
+<td>neoimmune_stack_baseline</td>
+<td>strict no-overlap clean</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.447</td>
+<td>0.027</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>Wave8_TCR_only</td>
+<td>neoimmune_stack_baseline</td>
+<td>strict no-overlap clean</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.441</td>
+<td>0.026</td>
+<td>Clean local TCR baseline; useful ablation/control</td>
+</tr>
+<tr>
+<td>KG_GA_fixed_integrated</td>
+<td>fixed_integrated_crossneo</td>
+<td>production/experiment-priority</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.000</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>KG_GA_fixed_claimsafe</td>
+<td>claim_safe_crossneo</td>
+<td>claim-safe prioritization</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.000</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>BigMHC_IM_inside_GA</td>
+<td>public_immunogenicity</td>
+<td>external comparator component</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.000</td>
+<td>External public comparator/component, not CROSS-Neo claim engine</td>
+</tr>
+<tr>
+<td>BigMHC_EL_inside_GA</td>
+<td>public_presentation</td>
+<td>external comparator component</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.000</td>
+<td>External public comparator/component, not CROSS-Neo claim engine</td>
+</tr>
+<tr>
+<td>GA_TCR_expert_component</td>
+<td>neoimmune_ga_rl_component</td>
+<td>production/experiment-priority</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.000</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>GA_MD_control_component</td>
+<td>neoimmune_ga_rl_component</td>
+<td>production/experiment-priority</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.000</td>
+<td>Comparator or component</td>
+</tr>
+<tr>
+<td>GA_foreignness_component</td>
+<td>neoimmune_ga_rl_component</td>
+<td>production/experiment-priority</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>NA</td>
+<td>0.000</td>
+<td>Comparator or component</td>
+</tr>
+</tbody></table></div></section>
+<section><h2>Win/Loss</h2><div class="tablewrap"><table><thead><tr>
+<th>comparator</th>
+<th>delta all AUPRC</th>
+<th>delta frozen validation AUPRC</th>
+<th>delta low medium leakage AUPRC</th>
+<th>delta v6 smoke AUPRC</th>
+<th>delta paperability reward</th>
+<th>wins</th>
+<th>tested metrics</th>
+<th>win fraction</th>
+<th>disposition</th>
+</tr></thead><tbody>
+<tr>
+<td>CROSS_claimsafe</td>
+<td>0.073</td>
+<td>0.131</td>
+<td>0.140</td>
+<td>0.024</td>
+<td>0.172</td>
+<td>8.000</td>
+<td>8.000</td>
+<td>1.000</td>
+<td>champion wins all tested axes</td>
+</tr>
+<tr>
+<td>CROSS_integrated</td>
+<td>0.055</td>
+<td>0.264</td>
+<td>0.184</td>
+<td>0.021</td>
+<td>0.219</td>
+<td>8.000</td>
+<td>8.000</td>
+<td>1.000</td>
+<td>champion wins all tested axes</td>
+</tr>
+<tr>
+<td>CROSS_BMA</td>
+<td>0.073</td>
+<td>0.318</td>
+<td>0.121</td>
+<td>0.045</td>
+<td>0.310</td>
+<td>8.000</td>
+<td>8.000</td>
+<td>1.000</td>
+<td>champion wins all tested axes</td>
+</tr>
+<tr>
+<td>CROSS_stress</td>
+<td>0.062</td>
+<td>0.327</td>
+<td>0.156</td>
+<td>0.035</td>
+<td>0.306</td>
+<td>8.000</td>
+<td>8.000</td>
+<td>1.000</td>
+<td>champion wins all tested axes</td>
+</tr>
+<tr>
+<td>CROSS_finetuned</td>
+<td>0.092</td>
+<td>0.372</td>
+<td>0.088</td>
+<td>0.130</td>
+<td>0.353</td>
+<td>8.000</td>
+<td>8.000</td>
+<td>1.000</td>
+<td>champion wins all tested axes</td>
+</tr>
+<tr>
+<td>BigMHC_IM</td>
+<td>0.262</td>
+<td>0.644</td>
+<td>0.383</td>
+<td>0.139</td>
+<td>0.582</td>
+<td>8.000</td>
+<td>8.000</td>
+<td>1.000</td>
+<td>champion wins all tested axes</td>
+</tr>
+<tr>
+<td>BigMHC_EL</td>
+<td>0.286</td>
+<td>0.670</td>
+<td>0.451</td>
+<td>-0.054</td>
+<td>0.601</td>
+<td>7.000</td>
+<td>8.000</td>
+<td>0.875</td>
+<td>champion wins most axes</td>
+</tr>
+</tbody></table></div></section>
+<section><h2>Broader Public Comparator Context</h2>
+<p class="note">BigMHC is only one public comparator. Existing repo context also includes RF_biophys, MHCflurry, PRIME, TransPHLA, DeepImmuno, NetMHCpan_4.1, VQC, GP_quantum, Structure_LR, and ESM2_Bayesian. These rows are context-only AUROC benchmarks with possible overlap/training-status caveats, not locked same-board AUPRC.</p>
+<div class="tablewrap"><table><thead><tr>
+<th>method</th>
+<th>n context rows</th>
+<th>total scored</th>
+<th>datasets with auroc</th>
+<th>mean context AUROC</th>
+<th>best context AUROC</th>
+<th>min context AUROC</th>
+<th>claim use</th>
+</tr></thead><tbody>
+<tr>
+<td>RF_biophys</td>
+<td>8.000</td>
+<td>3816.000</td>
+<td>4.000</td>
+<td>0.891</td>
+<td>0.973</td>
+<td>0.753</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>PRIME</td>
+<td>8.000</td>
+<td>3839.000</td>
+<td>4.000</td>
+<td>0.669</td>
+<td>0.805</td>
+<td>0.567</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>ESM2_Bayesian</td>
+<td>1.000</td>
+<td>311.000</td>
+<td>1.000</td>
+<td>0.784</td>
+<td>0.784</td>
+<td>0.784</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>MHCflurry</td>
+<td>8.000</td>
+<td>3578.000</td>
+<td>4.000</td>
+<td>0.696</td>
+<td>0.756</td>
+<td>0.637</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>BigMHC_IM</td>
+<td>5.000</td>
+<td>2318.000</td>
+<td>2.000</td>
+<td>0.645</td>
+<td>0.748</td>
+<td>0.542</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>TransPHLA</td>
+<td>8.000</td>
+<td>3587.000</td>
+<td>4.000</td>
+<td>0.681</td>
+<td>0.728</td>
+<td>0.580</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>DeepImmuno</td>
+<td>1.000</td>
+<td>319.000</td>
+<td>1.000</td>
+<td>0.702</td>
+<td>0.702</td>
+<td>0.702</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>Structure_LR</td>
+<td>1.000</td>
+<td>311.000</td>
+<td>1.000</td>
+<td>0.689</td>
+<td>0.689</td>
+<td>0.689</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>VQC</td>
+<td>1.000</td>
+<td>319.000</td>
+<td>1.000</td>
+<td>0.599</td>
+<td>0.599</td>
+<td>0.599</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>GP_quantum</td>
+<td>1.000</td>
+<td>319.000</td>
+<td>1.000</td>
+<td>0.587</td>
+<td>0.587</td>
+<td>0.587</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+<tr>
+<td>NetMHCpan_4.1</td>
+<td>1.000</td>
+<td>319.000</td>
+<td>1.000</td>
+<td>0.567</td>
+<td>0.567</td>
+<td>0.567</td>
+<td>context-only, AUROC-only in this repo; do not use as locked same-board AUPRC unless rescored</td>
+</tr>
+</tbody></table></div>
+<h2>Public Context by Dataset</h2>
+<div class="tablewrap"><table><thead><tr>
+<th>benchmark scope</th>
+<th>method</th>
+<th>n scored</th>
+<th>n pos</th>
+<th>AUROC</th>
+<th>claim boundary</th>
+</tr></thead><tbody>
+<tr>
+<td>wave11_public_test::cedar_partial</td>
+<td>RF_biophys</td>
+<td>909.000</td>
+<td>851.000</td>
+<td>0.956</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::cedar_partial</td>
+<td>MHCflurry</td>
+<td>845.000</td>
+<td>787.000</td>
+<td>0.737</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::cedar_partial</td>
+<td>TransPHLA</td>
+<td>736.000</td>
+<td>678.000</td>
+<td>0.728</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::cedar_partial</td>
+<td>PRIME</td>
+<td>898.000</td>
+<td>840.000</td>
+<td>0.684</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::cedar_partial</td>
+<td>BigMHC_IM</td>
+<td>898.000</td>
+<td>840.000</td>
+<td>0.542</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>ESM2_Bayesian</td>
+<td>311.000</td>
+<td>130.000</td>
+<td>0.784</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>RF_biophys</td>
+<td>319.000</td>
+<td>136.000</td>
+<td>0.753</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>BigMHC_IM</td>
+<td>319.000</td>
+<td>136.000</td>
+<td>0.748</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>DeepImmuno</td>
+<td>319.000</td>
+<td>136.000</td>
+<td>0.702</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>Structure_LR</td>
+<td>311.000</td>
+<td>130.000</td>
+<td>0.689</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>MHCflurry</td>
+<td>319.000</td>
+<td>136.000</td>
+<td>0.637</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>VQC</td>
+<td>319.000</td>
+<td>136.000</td>
+<td>0.599</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>GP_quantum</td>
+<td>319.000</td>
+<td>136.000</td>
+<td>0.587</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>TransPHLA</td>
+<td>318.000</td>
+<td>135.000</td>
+<td>0.580</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>PRIME</td>
+<td>319.000</td>
+<td>136.000</td>
+<td>0.567</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::itsndb</td>
+<td>NetMHCpan_4.1</td>
+<td>319.000</td>
+<td>136.000</td>
+<td>0.567</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::nepdb</td>
+<td>RF_biophys</td>
+<td>572.000</td>
+<td>151.000</td>
+<td>0.973</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::nepdb</td>
+<td>TransPHLA</td>
+<td>562.000</td>
+<td>150.000</td>
+<td>0.694</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::nepdb</td>
+<td>MHCflurry</td>
+<td>413.000</td>
+<td>151.000</td>
+<td>0.655</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::nepdb</td>
+<td>PRIME</td>
+<td>609.000</td>
+<td>263.000</td>
+<td>0.620</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::tesla_mmc4</td>
+<td>RF_biophys</td>
+<td>605.000</td>
+<td>37.000</td>
+<td>0.884</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::tesla_mmc4</td>
+<td>PRIME</td>
+<td>605.000</td>
+<td>37.000</td>
+<td>0.805</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::tesla_mmc4</td>
+<td>MHCflurry</td>
+<td>599.000</td>
+<td>37.000</td>
+<td>0.756</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+<tr>
+<td>wave11_public_test::tesla_mmc4</td>
+<td>TransPHLA</td>
+<td>605.000</td>
+<td>37.000</td>
+<td>0.722</td>
+<td>context only; AUROC-only public benchmark, possible overlap/training-status caveats</td>
+</tr>
+</tbody></table></div></section>
+<section><h2>Claim Boundary</h2><div class="tablewrap"><table><thead><tr>
+<th>claim item</th>
+<th>answer</th>
+<th>evidence</th>
+<th>boundary</th>
+</tr></thead><tbody>
+<tr>
+<td>Is GA/RL the best current algorithm on the 2,715-row retrospective CROSS-Neo board?</td>
+<td>YES</td>
+<td>KG_GA_evolved all AUPRC 0.933 / AUROC 0.943 / top96 96/96.</td>
+<td>Retrospective labels; not prospective wetlab proof.</td>
+</tr>
+<tr>
+<td>Does GA/RL beat public BigMHC in this local board?</td>
+<td>YES</td>
+<td>KG_GA all AUPRC 0.933 vs BigMHC_IM 0.672 and BigMHC_EL 0.648.</td>
+<td>BigMHC remains public comparator and useful feature, not an obsolete method.</td>
+</tr>
+<tr>
+<td>Does GA/RL remain strong on frozen validation-like sources?</td>
+<td>YES</td>
+<td>KG_GA frozen validation-like AUPRC 0.978 / AUROC 0.999, top24 contains all 11 positives.</td>
+<td>Validation-like split is still retrospective, not prospective clinical validation.</td>
+</tr>
+<tr>
+<td>Does GA/RL dominate low/medium leakage subset?</td>
+<td>YES</td>
+<td>KG_GA low/medium leakage AUPRC 0.757; next strongest among CROSS comparators is finetuned 0.669.</td>
+<td>Leakage risk reduced, not eliminated.</td>
+</tr>
+<tr>
+<td>Is GA/RL best on v6 smoke confirmatory board?</td>
+<td>NO</td>
+<td>BigMHC_EL has v6 AUPRC 0.866; KG_GA has 0.812. KG_GA is still strong but not the v6 AUPRC winner.</td>
+<td>Small n=24 smoke board; all top24 recover 17/24 because the board itself has 17 positives.</td>
+</tr>
+<tr>
+<td>Is GA/RL allowed as clean science track?</td>
+<td>NO</td>
+<td>NeoImmune GA/RL includes public predictor/product-value components and is flagged clean_track_allowed=False.</td>
+<td>Use as production/experiment-priority branch; keep clean local track separate.</td>
+</tr>
+<tr>
+<td>Does GA/RL beat strict no-overlap production reliability rankers?</td>
+<td>NO / context-specific</td>
+<td>Strict no-overlap production AUPRC: BAR-Neo_confidence 0.857 (n=388) vs KG_GA_evolved_controller 0.624 (n=1875).</td>
+<td>Strict no-overlap rows are model-availability-specific and separate from the 2,715-row GA board; use BAR-Neo for reliability and KG-GA for integrated discovery.</td>
+</tr>
+<tr>
+<td>Can we call it immunogenicity proof?</td>
+<td>NO</td>
+<td>All current wins are label/benchmark/prioritization wins.</td>
+<td>Prospective mutant &gt; WT/decoy activation and killing assays are required.</td>
+</tr>
+</tbody></table></div></section>
+<section><h2>Ablation Gaps</h2><div class="tablewrap"><table><thead><tr>
+<th>module</th>
+<th>current status</th>
+<th>evidence</th>
+<th>gap</th>
+<th>priority</th>
+</tr></thead><tbody>
+<tr>
+<td>Knowledge graph</td>
+<td>implemented</td>
+<td>51 KG nodes / 62 edges in KG-GA package; method-mining graph also exists.</td>
+<td>Need graph-node removal ablations for final method paper.</td>
+<td>high</td>
+</tr>
+<tr>
+<td>Genetic algorithm controller</td>
+<td>implemented</td>
+<td>45 generations x 96 population; best all AUPRC 0.933.</td>
+<td>Need same-budget random search and GA-only vs guarded-GA ablations.</td>
+<td>high</td>
+</tr>
+<tr>
+<td>RL controller</td>
+<td>blueprint/paperability scaffold</td>
+<td>Darwin-RL method and paperability reward graphs exist, but no trained RL policy score column yet.</td>
+<td>Train or simulate policy-learning over mutation/action choices; otherwise call it Darwin/RL blueprint, not trained RL.</td>
+<td>highest</td>
+</tr>
+<tr>
+<td>Claim-safe fallback</td>
+<td>implemented</td>
+<td>CROSS_claimsafe top96 96/96, paperability 0.750, strong fallback.</td>
+<td>Use when production GA features are considered too risky.</td>
+<td>medium</td>
+</tr>
+<tr>
+<td>Public comparator graft</td>
+<td>implemented</td>
+<td>BigMHC IM/EL scored 2,715 rows and used as external comparator/features.</td>
+<td>Public training overlap audit remains needed before manuscript feature claims.</td>
+<td>high</td>
+</tr>
+<tr>
+<td>Prospective wetlab lock</td>
+<td>not yet passed</td>
+<td>v6 packet and assay interpreter exist; no real wetlab outcomes yet.</td>
+<td>Freeze KG-GA score/thresholds and run mutant/WT/decoy assay readout.</td>
+<td>highest</td>
+</tr>
+</tbody></table></div></section>
+<section><h2>Sources</h2>
+<ul>
+<li><code>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_kg_ga_evolutionary_ensemble_2026_05_10/kg_ga_benchmark.tsv</code></li>
+<li><code>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_kg_ga_evolutionary_ensemble_2026_05_10/kg_ga_v6_smoke_wetlab_comparison.tsv</code></li>
+<li><code>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_paperability_darwin_rl_2026_05_10/paperability_algorithm_ranking.tsv</code></li>
+<li><code>/home/seungho/personal/THCA_data_analysis/project/results/neoimmune_stack_2026_05_10/metrics/leaderboard_production_track_strict_no_overlap.tsv</code></li>
+<li><code>/home/seungho/personal/THCA_data_analysis/project/results/neoimmune_stack_2026_05_10/metrics/ga_rl_algorithm_metrics.tsv</code></li>
+<li><code>/home/seungho/personal/THCA_data_analysis/project/results/cross_neo_product_demo_2026_05_10/strong_competitors/strong_competitor_context_public_benchmarks.tsv</code></li>
+</ul>
+</section>
+</main></body></html>

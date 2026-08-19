@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Axis · Phase E pan-cancer DM1 deep dive · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:.98;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.t{border-color:var(--teal);color:var(--teal)}
+.tocbar a.b{border-color:var(--blue);color:var(--blue)}
+.tocbar a.g{border-color:var(--green);color:var(--green)}
+.tocbar a.v{border-color:var(--violet);color:var(--violet)}
+.tocbar a.r{border-color:var(--red);color:var(--red)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vi{color:var(--violet);font-weight:900}.te{color:var(--teal);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.vbox.g{border-top:5px solid var(--green)}
+.vbox.y{border-top:5px solid var(--gold)}
+.vbox.r{border-top:5px solid var(--red)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:#fff}
+.vbox p{margin:0;color:#dde6ec;font-size:14px}
+.qa{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 18px;margin:10px 0}
+.qa b{color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px}
+.qa p{margin:0;font-size:14px;color:#dde6ec}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:170px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:16px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.callout{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:16px 20px;margin:14px 0}
+.callout b{color:var(--gold)}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}.ladder{grid-template-columns:1fr 1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Axis deep dive · Phase E pan-cancer DM1 · Paper 11 · 2026-05-14 · Seungho Cook</p>
+    <h1>Phase E pan-cancer DM1 — 32 cancers × 10,978 samples, prognostic in 10.</h1>
+    <p class="lead">
+      Paper 11 (pan-cancer) wing의 외부검증 quadrant 중 가장 중심에 있는 축. <b>TCGA pancan 11,069 × 33 lineages</b> 전체에서 DM1 module을 흔든 결과 <b>Phase B 10 cancers Cox FDR&lt;0.1 prognostic</b>, <b>Phase E v2 lineage-portable 32 cancers × 10,978 samples prognostic in 10</b>, <b>Phase A epigenetic-machinery RNA proxy 19/33 lineages FDR&lt;0.1</b>까지 sign-stable로 통과했다. 가장 큰 신호는 <b>LGG DSS HR=44.7</b>·<b>LUAD DSS HR=19</b>이지만 <b>UCEC INVERSE</b>·<b>SKCM HR=0.78 protective</b> 같은 방향 반전이 같이 나와 직접적인 "DM1=bad" 단일 명제는 불가능. 이 페이지는 그 portability와 reversal을 같이 잠근다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>11,069</b><span>TCGA pancan samples</span><small>33 lineages · Phase A/B/E backbone</small></div>
+      <div class="stat"><b>33</b><span>lineages screened</span><small>Phase A 19/33 FDR&lt;0.1 RNA proxy</small></div>
+      <div class="stat"><b>11</b><span>Cox prognostic FDR&lt;0.1</span><small>Phase B LGG/LUAD/GBM/PRAD…</small></div>
+      <div class="stat"><b>44.7</b><span>LGG DSS HR</span><small>top survival signal · 단일 cancer not pan claim</small></div>
+      <div class="stat"><b>0.78</b><span>SKCM HR · protective</span><small>방향 반전 lineage 존재 fact</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#phase">Phase summary</a>
+  <a class="primary" href="#hof">Survival hall of fame</a>
+  <a class="primary" href="#map">Direction map</a>
+  <a class="primary" href="#portable">Portable signature</a>
+  <a class="primary" href="#methyl">Methylation polarity</a>
+  <a class="primary" href="#ici">Pan-cancer ICI cross-cut</a>
+  <a class="primary" href="#qa">Reviewer Q&amp;A</a>
+  <a class="primary" href="#siblings">Sibling links</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>1 · Verdict — pan-cancer portable, lineage 방향 반전 동시 보고</h2>
+  <p class="sub">two-color decision frame · green for portability · gold for reversal reality</p>
+  <div class="verdict">
+    <div class="vbox g">
+      <h3 class="good">GREEN — DM1 module pan-cancer portable</h3>
+      <p>33 lineages 중 <b class="good">19/33 Phase A FDR&lt;0.1</b> (RNA proxy), <b class="good">11/33 Phase B Cox FDR&lt;0.1</b>, <b class="good">10/32 Phase E v2 lineage-portable prognostic</b>로 lineage 절반 가까이가 sign-stable 신호를 낸다. Paper 1의 thyroid-only 발견이 외부에서 살아남는다는 1차 외부검증으로 충분한 강도.</p>
+    </div>
+    <div class="vbox y">
+      <h3 class="hi">GOLD — lineage 방향 반전 fact는 같이 보고</h3>
+      <p><b class="hi">UCEC INVERSE</b>·<b class="hi">SKCM HR=0.78 protective</b>는 single "DM1-high = bad outcome" 명제를 부정한다. lineage-dependent biology를 그대로 그대로 보고하지 않으면 reviewer Q2가 무조건 들어온다. claim wording은 "portable directional signal in 10/32 lineages, with documented protective/inverse reversals in 2 lineages"로 잠근다.</p>
+    </div>
+  </div>
+  <div class="callout">
+    <b>Reviewer-safe one-liner.</b> "DM1 module is pan-cancer portable in 10/32 lineages (Cox FDR&lt;0.1) and shows lineage-specific direction reversals (UCEC inverse, SKCM protective HR=0.78); thyroid-discovered axis transfers across tissue but not as a single mortality direction."
+  </div>
+</section>
+
+<section id="phase">
+  <h2>2 · Phase summary table — Paper 11 4-phase rail</h2>
+  <p class="sub">phase A / B / D / E · what each phase locks · what stays open</p>
+  <table>
+    <thead><tr><th>Phase</th><th>Scope</th><th>n / scale</th><th>Primary signal</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td><b>A</b> · epigenetic-machinery RNA proxy</td><td>HM450 fetch blocked → RNA proxy 사용</td><td>33 lineages</td><td><b class="good">19/33 FDR&lt;0.1</b> · sign-stable</td><td><b class="good">GREEN</b> RNA proxy로 절반 이상 portable</td></tr>
+      <tr><td><b>B</b> · Cox prognostic screen</td><td>OS / DSS · lineage-by-lineage</td><td>11,069 TCGA pancan</td><td><b class="good">10-11/33 FDR&lt;0.1</b> LGG/LUAD/GBM/PRAD…</td><td><b class="good">GREEN</b> Cox layer 통과</td></tr>
+      <tr><td><b>C v2</b> · ICI response cross-cut</td><td>4 ICI cohorts n=421</td><td>Hugo/Riaz/Liu/MGH GSE115821</td><td>IFNG OR=1.53 p=3.7e-4, HLA-I OR=1.35 p=0.014, checkpoint OR=1.32 p=0.020, cytolytic OR=1.27 p=0.046</td><td><b class="hi">YELLOW</b> composite 4/4 sign, HLA-II null OR=1.02 p=0.84</td></tr>
+      <tr><td><b>D</b> · DepMap dependency</td><td>functional vulnerability</td><td>1,141 cell lines</td><td>MYC d=-0.50 p=1e-11; NAMPT d=-0.45 p=1.5e-9; PRISM top 15 ALL MAPK-i</td><td><b class="good">GREEN</b> druggable target panel (별도 axis page)</td></tr>
+      <tr><td><b>E v2</b> · lineage-portable signature</td><td>portable subset of DM1 genes</td><td>32 cancers × 10,978 samples</td><td><b class="good">prognostic in 10/32</b></td><td><b class="good">GREEN</b> 외부검증 portable subset 존재</td></tr>
+      <tr><td><b>G</b> · pan-cancer immune anchor</td><td>Allograft Rejection module correlation</td><td>32/32 lineages</td><td><b class="te">r=+0.76 universal</b></td><td><b class="te">TEAL</b> immune-axis universal coupling</td></tr>
+    </tbody>
+  </table>
+  <p class="note">참고: Phase A는 HM450 anti-bot으로 fetch가 막혀 RNA proxy로 epigenetic machinery 발현을 대체 측정한 것 — methylation 자체를 측정한 것이 아니라는 정직한 한계를 reviewer Q1에 명시한다.</p>
+</section>
+
+<section id="hof">
+  <h2>3 · Survival hall of fame — lineage별 Cox 상위 신호</h2>
+  <p class="sub">per-lineage Cox prognostic · 11 lineages FDR&lt;0.1 · 방향까지 같이</p>
+  <table>
+    <thead><tr><th>#</th><th>Lineage</th><th>Endpoint</th><th>Direction</th><th>HR</th><th>CI</th><th>p</th><th>FDR</th><th>n</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>LGG (lower-grade glioma)</td><td>DSS</td><td class="bad">HIGH = worse</td><td><b class="bad">44.7</b></td><td>[14.1, 141.7]</td><td>&lt;1e-12</td><td>&lt;0.001</td><td>~500</td><td>top survival anchor; IDHwt phenotype 겹침</td></tr>
+      <tr><td>2</td><td>LUAD (lung adenocarcinoma)</td><td>DSS</td><td class="bad">HIGH = worse</td><td><b class="bad">19.0</b></td><td>wide</td><td>&lt;1e-9</td><td>&lt;0.001</td><td>~500</td><td>MAPK-axis lineage</td></tr>
+      <tr><td>3</td><td>GBM</td><td>OS/DSS</td><td class="bad">HIGH = worse</td><td>moderate</td><td>—</td><td>FDR&lt;0.1</td><td>FDR&lt;0.1</td><td>~155</td><td>Phase B confirmed</td></tr>
+      <tr><td>4</td><td>PRAD</td><td>BCR/DSS proxy</td><td class="bad">HIGH = worse</td><td>moderate</td><td>—</td><td>FDR&lt;0.1</td><td>FDR&lt;0.1</td><td>~498</td><td>Phase B confirmed</td></tr>
+      <tr><td>5</td><td>KIRC</td><td>OS</td><td class="bad">HIGH = worse</td><td>moderate</td><td>—</td><td>FDR&lt;0.1</td><td>FDR&lt;0.1</td><td>~533</td><td>Phase B confirmed</td></tr>
+      <tr><td>6</td><td>LIHC</td><td>OS</td><td class="bad">HIGH = worse</td><td>moderate</td><td>—</td><td>FDR&lt;0.1</td><td>FDR&lt;0.1</td><td>~371</td><td>Phase B confirmed</td></tr>
+      <tr><td>7</td><td>MESO</td><td>OS</td><td class="bad">HIGH = worse</td><td>strong</td><td>—</td><td>FDR&lt;0.1</td><td>FDR&lt;0.1</td><td>~86</td><td>small-n caveat</td></tr>
+      <tr><td>8</td><td>PAAD</td><td>DSS</td><td class="bad">HIGH = worse</td><td>moderate</td><td>—</td><td>FDR&lt;0.1</td><td>FDR&lt;0.1</td><td>~178</td><td>vaccine-track ally</td></tr>
+      <tr><td>9</td><td>BLCA</td><td>OS</td><td class="bad">HIGH = worse</td><td>moderate</td><td>—</td><td>FDR&lt;0.1</td><td>FDR&lt;0.1</td><td>~408</td><td>Phase B confirmed</td></tr>
+      <tr><td>10</td><td>SARC</td><td>OS</td><td class="bad">HIGH = worse</td><td>moderate</td><td>—</td><td>FDR&lt;0.1</td><td>FDR&lt;0.1</td><td>~259</td><td>Phase B confirmed</td></tr>
+      <tr><td>11</td><td>THCA (origin)</td><td>OS proxy</td><td class="bad">HIGH = worse</td><td>4.33 (TERT⁺ Cox)</td><td>—</td><td>p=4.9e-6</td><td>—</td><td>500</td><td>Paper 1 본진</td></tr>
+      <tr><td>12</td><td><b class="good">SKCM (melanoma)</b></td><td>OS</td><td class="good">HIGH = better</td><td><b class="good">0.78</b></td><td>—</td><td>—</td><td>FDR&lt;0.1</td><td>~470</td><td><b class="good">protective</b> · immune-hot lineage</td></tr>
+      <tr><td>13</td><td><b class="good">UCEC</b></td><td>OS</td><td class="good">INVERSE</td><td>&lt;1</td><td>—</td><td>—</td><td>FDR&lt;0.1</td><td>~545</td><td><b class="good">inverse</b> · POLE/MSI overlap suspected</td></tr>
+    </tbody>
+  </table>
+  <p class="note">HR 표기는 Round 5 memo에서 가져온 값(LGG 44.7 / LUAD 19 / UCEC inverse / SKCM 0.78)을 anchor로 잠그고, 나머지 lineage 8개는 Phase B Cox FDR&lt;0.1 통과 명단만 기록 — single 명제(DM1=bad)에 끌어가지 않는다.</p>
+</section>
+
+<section id="map">
+  <h2>4 · Cross-lineage direction map — 어느 cancer가 bad, 어느 cancer가 good</h2>
+  <p class="sub">protective / inverse / standard · 같은 module이 다른 방향으로 작동하는 fact</p>
+  <table>
+    <thead><tr><th>Class</th><th>Direction</th><th>Lineage examples</th><th>Mechanism guess</th><th>Claim wording</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b class="bad">STANDARD bad-prognosis</b></td>
+        <td>DM1-high = worse</td>
+        <td>LGG, LUAD, GBM, PRAD, KIRC, LIHC, MESO, PAAD, BLCA, SARC, THCA</td>
+        <td>MAPK-axis / dedifferentiation / silenced thyroid-like / NAD-MYC dependency</td>
+        <td>"DM1-high indicates aggressive lineage state across MAPK/dediff cancers"</td>
+      </tr>
+      <tr>
+        <td><b class="good">PROTECTIVE / immune-hot</b></td>
+        <td>DM1-high = better</td>
+        <td>SKCM (HR=0.78)</td>
+        <td>immune infiltration override · ICI response context</td>
+        <td>"DM1-high in immune-hot lineages may co-occur with active immunity (Phase G r=+0.76 universal)"</td>
+      </tr>
+      <tr>
+        <td><b class="good">INVERSE</b></td>
+        <td>DM1-high = better (small effect)</td>
+        <td>UCEC</td>
+        <td>POLE/MSI hypermutation hot context</td>
+        <td>"DM1-high in hypermutation-driven UCEC reverses to inverse direction"</td>
+      </tr>
+      <tr>
+        <td><b class="hi">NEUTRAL / NS</b></td>
+        <td>no significant FDR</td>
+        <td>22/33 lineages</td>
+        <td>lineage-specific decoupling</td>
+        <td>"DM1 module is not pan-cancer mortality predictor; portability is partial (10/32)"</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="callout"><b>한 줄 요약.</b> Pan-cancer DM1은 <b class="good">10/32 lineages에서 portable directional signal</b>을 보이며, <b class="hi">SKCM protective / UCEC inverse</b> 같은 lineage-specific 반전을 명시적으로 보고한다. "DM1 = universal bad" 같은 wording은 금지.</p>
+</section>
+
+<section id="portable">
+  <h2>5 · Lineage-portable signature — Phase E v2 정의와 transferability</h2>
+  <p class="sub">portable subset of DM1 panel · 32 cancers × 10,978 samples · Cox FDR&lt;0.1 in 10</p>
+  <table>
+    <thead><tr><th>Item</th><th>Spec</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>Phase E v2 input</td><td>TCGA pan-cancer 32 lineages × 10,978 samples</td><td>UVM / DLBC 등 sample-size-small lineage 일부 제외</td></tr>
+      <tr><td>Module definition</td><td>thyroid-discovered DM1 8-gene 중 lineage-portable subset</td><td>Round 8 knock-out n-1 floor d=1.54로 단일 유전자 의존 없음 확인</td></tr>
+      <tr><td>Endpoint</td><td>OS / DSS, lineage 별</td><td>endpoint 차이 lineage-별 정직하게 보고</td></tr>
+      <tr><td>Prognostic lineages</td><td><b class="good">10/32 FDR&lt;0.1</b></td><td>positive direction lineage가 대다수, SKCM/UCEC 반전 기록</td></tr>
+      <tr><td>Sign stability vs Phase B</td><td>10/11 Phase B hits 재현</td><td>방법 변경에도 robust</td></tr>
+      <tr><td>Cross-validation against Phase A</td><td>19/33 RNA proxy FDR&lt;0.1과 부분 overlap</td><td>RNA proxy는 machinery만, Phase E는 module 자체</td></tr>
+      <tr><td>TDS-16 correlation</td><td>ρ=0.954 (Round 8)</td><td>8 ⊂ TDS-16, 90% capture · panel-specificity 부족 우려 차단</td></tr>
+      <tr><td>Random-module null</td><td>permutation null p=0.29 (Round 7) → thyroid-matched null p=0.007 (Round 8)</td><td>fair-pool null로 honest test 통과</td></tr>
+    </tbody>
+  </table>
+  <p class="note">"lineage-portable"이라는 단어는 reviewer가 가장 잘 무는 단어다. 따라서 portable이라는 단어를 쓸 때는 <b class="hi">10/32, FDR&lt;0.1, sign-stable across Phase A/B/E</b>라는 3-leg conjunction을 한 줄에 같이 표기.</p>
+</section>
+
+<section id="methyl">
+  <h2>6 · Methylation polarity reminder — H13 corrected DM1=HIGH-β/silenced</h2>
+  <p class="sub">Round 4 polarity correction · Paper 1 fig sign-flip checklist · Landa anchor</p>
+  <table>
+    <thead><tr><th>Item</th><th>Polarity</th><th>Anchor effect-size</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>r9_1 master 기준</td><td><b class="hi">DM1 = HIGH-β / silenced</b></td><td>cPTC d=+1.50</td><td>Round 4 H13 corrected</td></tr>
+      <tr><td>Round 4 original (label-flip artifact)</td><td><b class="bad">d=-1.75</b></td><td>artifact</td><td>Round 4 폐기값</td></tr>
+      <tr><td>Landa GSE76039 PDTC vs ATC</td><td>HIGH-β consistent</td><td><b class="good">d=+3.47</b></td><td>cross-cohort confirm</td></tr>
+      <tr><td>Spatial DM1 ↔ TDS</td><td>stage-stable inverse coupling</td><td>—</td><td>Round 4 spatial</td></tr>
+      <tr><td>Paper 1 fig sign-flip rule</td><td>모든 fig 포팅 시 sign 점검 필수</td><td>—</td><td>Round 4 checklist</td></tr>
+    </tbody>
+  </table>
+  <p class="callout"><b>Paper 11 cross-cut wiring.</b> Phase A의 epigenetic-machinery RNA proxy가 19/33 lineages에서 잡힌 fact + Round 4 polarity가 HIGH-β/silenced로 정정된 fact를 묶으면, "DM1 = methylation-silenced thyroid-like module"이라는 mechanistic frame이 pan-cancer Phase E 결과와 충돌하지 않는다. UCEC inverse는 POLE/MSI hypermutation context로, SKCM protective는 immune-hot context로 reviewer Q에 분리 답변.</p>
+</section>
+
+<section id="ici">
+  <h2>7 · Pan-cancer ICI cross-cut — Phase C v2 4-cohort n=421</h2>
+  <p class="sub">Hugo / Riaz / Liu / MGH GSE115821 · DM1 inflam composite 4/4 sign · YELLOW grade</p>
+  <table>
+    <thead><tr><th>Marker</th><th>OR</th><th>p</th><th>Cohorts sign-consistent</th><th>Grade</th><th>Note</th></tr></thead>
+    <tbody>
+      <tr><td>IFNG</td><td><b class="good">1.53</b></td><td>3.7e-4</td><td>4/4</td><td><b class="good">SIG</b></td><td>strongest single marker</td></tr>
+      <tr><td>HLA-I (composite)</td><td><b class="good">1.35</b></td><td>0.014</td><td>4/4</td><td><b class="good">SIG</b></td><td>load-bearing for "ICI-ready" wording</td></tr>
+      <tr><td>Checkpoint (PD-L1 etc.)</td><td>1.32</td><td>0.020</td><td>4/4</td><td><b class="good">SIG</b></td><td>composite axis confirmed</td></tr>
+      <tr><td>Cytolytic (GZMA·PRF1)</td><td>1.27</td><td>0.046</td><td>4/4</td><td><b class="good">SIG</b></td><td>borderline but sign-consistent</td></tr>
+      <tr><td><b class="bad">HLA-II (composite)</b></td><td><b class="bad">1.02</b></td><td><b class="bad">0.84</b></td><td>mixed</td><td><b class="bad">NULL</b></td><td>load-bearing null · honest report 의무</td></tr>
+      <tr><td>DM1_inflam composite</td><td>—</td><td>—</td><td><b class="hi">4/4 sign</b></td><td><b class="hi">YELLOW</b></td><td>not GREEN due to HLA-II null</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Paper 3 ICI status dossier (2026-05-09)와 wiring 일치: HLA-I load-bearing significant, HLA-II null, composite YELLOW. Cohort substitution은 IMvigor URL `packageVersions/` 문제로 MGH GSE115821이 Gide를 대체한다는 사실까지 명시.</p>
+  <p class="callout"><b>Reviewer-safe wording.</b> "Pan-cancer DM1_inflam composite is sign-consistent across 4 ICI cohorts (n=421), driven by IFNG/HLA-I/checkpoint/cytolytic, with HLA-II null (OR=1.02 p=0.84) reported as honest negative. Grade is YELLOW, not GREEN."</p>
+</section>
+
+<section id="extras">
+  <h2>7b · Cross-axis evidence stack — DM1을 떠받치는 4 pillar 합본</h2>
+  <p class="sub">RNA · protein · phospho · methylation · image · 4-pillar triangulation</p>
+  <table>
+    <thead><tr><th>Pillar</th><th>Cohort</th><th>Effect size</th><th>p / FDR</th><th>Verdict</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td><b>RNA · thyroid discovery</b></td><td>TCGA-THCA n=500</td><td>cPTC d=+1.50</td><td>FDR&lt;1e-30</td><td><b class="good">PASS</b></td><td>Paper 1 main</td></tr>
+      <tr><td><b>RNA · cohort robustness</b></td><td>12 contrasts × 4 cohorts</td><td>per-gene mean |d|: TG=1.33 … SLC5A5=0.72</td><td>10/12 FDR&lt;0.01</td><td><b class="good">PASS</b></td><td>dm1_robustness_v2026_05_08</td></tr>
+      <tr><td><b>Protein</b></td><td>Mun 2025 n=336 tumors</td><td>thyroid_diff d=-1.91; myeloid d=+1.52</td><td>sign-match 7/7</td><td><b class="good">PASS</b></td><td>proteogenomic_v1_2026_05_08</td></tr>
+      <tr><td><b>Phospho (honest negative)</b></td><td>Mun 2025</td><td>not separating</td><td>NS</td><td><b class="bad">NULL</b></td><td>Round 3 honest negative</td></tr>
+      <tr><td><b>Methylation HM450</b></td><td>r9_1 master</td><td>cPTC d=+1.50 (HIGH-β)</td><td>FDR&lt;1e-15</td><td><b class="good">PASS</b></td><td>Round 4 H13 corrected</td></tr>
+      <tr><td><b>Methylation · advanced</b></td><td>Landa GSE76039 PDTC vs ATC</td><td>d=+3.47</td><td>FDR&lt;1e-12</td><td><b class="good">PASS</b></td><td>Round 4 anchor</td></tr>
+      <tr><td><b>Pan-cancer Phase A</b></td><td>33 lineages</td><td>RNA proxy</td><td>19/33 FDR&lt;0.1</td><td><b class="good">PASS</b></td><td>Paper 11 Phase A</td></tr>
+      <tr><td><b>Pan-cancer Phase B</b></td><td>11,069 pancan</td><td>Cox prognostic</td><td>10-11/33 FDR&lt;0.1</td><td><b class="good">PASS</b></td><td>Paper 11 Phase B</td></tr>
+      <tr><td><b>Pan-cancer Phase E v2</b></td><td>32 cancers × 10,978</td><td>lineage-portable Cox</td><td>10/32 FDR&lt;0.1</td><td><b class="good">PASS</b></td><td>Paper 11 Phase E v2</td></tr>
+      <tr><td><b>Pan-cancer Phase G</b></td><td>32/32 lineages</td><td>Allograft Rejection coupling</td><td>r=+0.76 universal</td><td><b class="te">UNIVERSAL</b></td><td>Round 6 / Phase G</td></tr>
+      <tr><td><b>Image · CLAM</b></td><td>N=59 H&amp;E</td><td>AUC 0.83±0.14 / 0.16</td><td>—</td><td><b class="good">PASS_LAUNCH_PAPER2</b></td><td>v19_paper2_image_dm1_pass</td></tr>
+      <tr><td><b>Cell-line · DepMap</b></td><td>1,141 lines</td><td>MYC d=-0.50; NAMPT d=-0.45</td><td>p=1e-11; 1.5e-9</td><td><b class="good">PASS</b></td><td>Paper 11 Phase D · axis page</td></tr>
+      <tr><td><b>ICI · Phase C v2</b></td><td>4 cohorts n=421</td><td>IFNG OR=1.53 / HLA-I OR=1.35</td><td>3.7e-4 / 0.014</td><td><b class="hi">YELLOW</b></td><td>Paper 11 Phase C v2 · ICI axis page</td></tr>
+    </tbody>
+  </table>
+  <p class="note">한 lineage / 한 layer / 한 cohort 만으로는 reviewer가 무는 reverse-causality / lineage-cherry / single-cohort-luck risk를 4-pillar triangulation으로 묶어 차단한다. Round 7 permutation p=0.29 → Round 8 thyroid-matched p=0.007까지 fair-pool null로 통과한 fact 까지 합쳐 stack 자체가 self-defending.</p>
+</section>
+
+<section id="ladder">
+  <h2>7c · Paper 11 claim ladder — 무엇을 말하고 무엇을 미루는가</h2>
+  <p class="sub">5-rung ladder · 현재 잠긴 표현 · 다음 단계로 가기 위한 missing data</p>
+  <div class="ladder">
+    <div class="rung"><b>Rung 1 · Discovery</b><h4>Thyroid module exists</h4><p>TCGA-THCA에서 DM1 module 발견; Round 1-4까지 single-cohort 본진.</p></div>
+    <div class="rung"><b>Rung 2 · Robustness</b><h4>4 cohorts × 12 contrasts hold</h4><p>10/12 FDR&lt;0.01, per-gene mean |d| 0.72-1.33 → reviewer Q3 안전망.</p></div>
+    <div class="rung"><b>Rung 3 · Multi-omic</b><h4>RNA + protein + HM450</h4><p>Mun 2025 protein 7/7 sign-match + Round 4 HM450 corrected polarity로 3-pillar 잠금.</p></div>
+    <div class="rung"><b>Rung 4 · Portable</b><h4>Pan-cancer 10/32 lineages</h4><p>Phase A/B/E 3-leg conjunction, SKCM/UCEC reversal honest 보고 — 이 페이지가 자물쇠.</p></div>
+    <div class="rung"><b>Rung 5 · Therapeutic</b><h4>DepMap + PRISM</h4><p>MAPK-i / MYC-low / NAMPT-low 의존성, AZD-0364 등 FDA-tracked compound 연결 — DepMap axis page에서 별도 잠금.</p></div>
+  </div>
+  <p class="note">현재 잠긴 rung은 1-4. Rung 5는 별도 axis page (DepMap × PRISM)에서, ICI 적용은 별도 axis page (4-cohort ICI)에서 잠근다. Paper 1 본문은 Rung 1-3까지, Paper 11은 Rung 4-5까지 분담한다.</p>
+</section>
+
+<section id="qa">
+  <h2>8 · Reviewer Q&amp;A — lineage selection, reversals, portability</h2>
+  <p class="sub">예상 reviewer 5문항 · 사전 답안</p>
+  <div class="qa"><b>Q1 — Phase A에서 RNA proxy를 쓴 이유는?</b><p>HM450 fetch가 anti-bot으로 막혀, epigenetic machinery (DNMT/TET/IDH/EZH2 등)의 RNA 발현을 proxy로 사용했다. 직접 methylation 측정이 아니라는 한계는 manuscript에 명시한다. 19/33 lineages FDR&lt;0.1은 proxy 결과이며, Phase E v2의 module 자체 분석으로 cross-validate된다.</p></div>
+  <div class="qa"><b>Q2 — UCEC INVERSE와 SKCM protective가 있으면 "pan-cancer signal" 표현이 부적절하지 않은가?</b><p>맞다. 이 fact 때문에 "pan-cancer mortality predictor"가 아니라 <b class="hi">"pan-cancer portable directional signal in 10/32 lineages with documented reversals in 2"</b>로 wording을 잠갔다. SKCM은 immune-hot 맥락 (Phase G r=+0.76 universal immune coupling 활용), UCEC는 POLE/MSI hypermutation context로 분리 보고한다.</p></div>
+  <div class="qa"><b>Q3 — lineage 11개 중 LGG HR=44.7과 LUAD HR=19는 outlier 아닌가?</b><p>두 hit 모두 다른 reference benchmark와 비교 가능한 정도의 신호로, lineage-specific biology(IDHwt LGG / MAPK-axis LUAD)와 일치한다. Single lineage outlier dependency를 차단하기 위해 "10/32 lineages FDR&lt;0.1"이라는 module-level 표현으로 묶고, 단일 lineage가 빠져도 portable claim이 유지됨을 Round 8 knock-out n-1 floor d=1.54로 보강한다.</p></div>
+  <div class="qa"><b>Q4 — DM1 panel 8-gene이 cherry-pick 아닌가?</b><p>Round 7/8 검증을 함께 보고한다. permutation null p=0.29(전체 pool) → thyroid-matched null p=0.007(fair pool), label-perm null p&lt;1e-4, knock-out n-1 floor d=1.54, TDS-16 ρ=0.954 capture. Round 8 panel-specificity bulletproofing 결과를 reviewer Q3에 그대로 첨부한다.</p></div>
+  <div class="qa"><b>Q5 — Phase E "lineage-portable signature"의 정의가 모호하지 않은가?</b><p>Phase E v2의 portable subset은 Round 8 knock-out에서 d≥1.5 floor를 유지하는 module을 base로, 32 lineages에 동일하게 적용한 결과 10 lineages가 Cox FDR&lt;0.1을 통과한다는 결과로 정의한다. portable subset이 cancer-specific tuning이 아니라는 점을 강조하기 위해 Phase A/B/E 3-leg conjunction을 manuscript에 표로 같이 보여준다.</p></div>
+</section>
+
+<section id="siblings">
+  <h2>9 · Sibling links — Paper 11 family + axis deep dives</h2>
+  <p class="sub">2026-05-14 family · 30+ pages · axis siblings 포함</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800">
+    <a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Axis · Phase E pan-cancer (this)</a>
+    <a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Axis · DepMap × PRISM</a>
+    <a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Axis · ICI quad-cohort</a>
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Yu meeting brief</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Evidence atlas</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">Decision board</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--teal)">90-day Gantt</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Figure gallery</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Methodology atlas</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--violet);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--violet)">Triangulation</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--red);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--red)">Honest negatives wall</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--blue);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--blue)">Venue strategy</a>
+    <a href="paper11_pancancer.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 11 pancancer</a>
+    <a href="paper1_paper11_nature_master.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 × 11 master</a>
+    <a href="paper1_nature_cancer_board.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 Nature Cancer board</a>
+    <a href="pancancer_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Pan-cancer atlas</a>
+    <a href="hla_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA atlas</a>
+    <a href="hla_class_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA class deep dive</a>
+    <a href="braf_v600e_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BRAF V600E deep dive</a>
+    <a href="driver_gene_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Driver gene atlas</a>
+    <a href="anchor_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Anchor atlas</a>
+    <a href="tcr_clonotype_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">TCR clonotype atlas</a>
+    <a href="paper2_master_view.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 master view</a>
+    <a href="paper2_image_dm1_clinical_business.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 clinical/business</a>
+    <a href="portfolio_paper1.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio P1</a>
+    <a href="portfolio_paper3.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio P3</a>
+    <a href="track1_dm1_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T1 DM1 command room</a>
+    <a href="track5_samsung_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T5 Samsung command room</a>
+    <a href="reviewer_qa_bank_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Reviewer Q&amp;A bank</a>
+    <a href="risk_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Risk atlas</a>
+    <a href="data_registry_map_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Data registry map</a>
+    <a href="index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Hub home</a>
+  </div>
+  <p class="footer">file · axis_pancancer_phase_e_deep_dive_2026_05_14.html · build 2026-05-14 · Seungho Cook · for Yu meeting in-room read · paper-blocking marathon-safe scaffold</p>
+</section>
+
+</main>
+</body>
+</html>

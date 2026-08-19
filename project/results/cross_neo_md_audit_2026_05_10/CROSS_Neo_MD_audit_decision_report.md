@@ -10,28 +10,32 @@
 
 | run_id                                 | candidate              | condition                      |   time_ps |   target_ns |   temperature_k |   speed_ns_per_day |
 |:---------------------------------------|:-----------------------|:-------------------------------|----------:|------------:|----------------:|-------------------:|
-| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_10ns             |    6600   |          10 |        300.402  |             20.9   |
-| prod_10ns_6UON_2fs300K                 | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_10ns             |   10000   |          10 |        299.997  |             41.9   |
-| 6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_replicate_screen |    1000   |           1 |        301.096  |             43.1   |
-| 6UON_GADGVGKSAL                        | GADGVGKSAL/HLA-C*08:02 | vacuum_smoke                   |       0.1 |          10 |         28.0727 |              0.417 |
-| 6VRN_HMTEVVRHC                         | HMTEVVRHC/HLA-A*02:01  | vacuum_smoke                   |       0.1 |          10 |         30.9585 |              0.267 |
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_10ns             |   10000   |        10   |        299.891  |             21     |
+| 6VRM_HMTEVVRHC_HLA-A0201_chainP_0p5ns  | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_replicate_screen |     500   |         0.5 |        300.355  |             22.4   |
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_10ns             |   10000   |        10   |        299.891  |             21     |
+| prod_10ns_6UON_2fs300K                 | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_10ns             |   10000   |        10   |        299.997  |             41.9   |
+| 6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_replicate_screen |    1000   |         1   |        301.096  |             43.1   |
+| 6UON_GADGVGKSAL                        | GADGVGKSAL/HLA-C*08:02 | vacuum_smoke                   |       0.1 |        10   |         28.0727 |              0.417 |
+| 6VRN_HMTEVVRHC                         | HMTEVVRHC/HLA-A*02:01  | vacuum_smoke                   |       0.1 |        10   |         30.9585 |              0.267 |
 
-Completed primary evidence: `GADGVGKSAL / HLA-C*08:02` reached 10,000 ps. `HMTEVVRHC / HLA-A*02:01` was still partial at the latest sync, at 6600.0 ps.
+Completed primary evidence: `GADGVGKSAL / HLA-C*08:02` reached 10,000 ps. `HMTEVVRHC / HLA-A*02:01` was still partial at the latest sync, at 10000.0 ps.
 
 ## 3. Which Simulations Are Still Partial
 
-- HMTEVVRHC primary 10 ns OpenMM CUDA run: latest synced time 6600.0 ps, temperature 300.40 K, speed 20.9 ns/day.
+- HMTEVVRHC primary 10 ns OpenMM CUDA run: latest synced time 10000.0 ps, temperature 299.89 K, speed 21.0 ns/day.
 - HMTEVVRHC alternate replicate watcher should start after the primary exits; do not score replicate consistency until those DCDs are present.
 
 ## 4. QC Status
 
-| run_id                                 | candidate              | condition                      |   total_time_ps |   peptide_rmsd_final_nm |   peptide_com_drift_final_nm | qc_status          |
-|:---------------------------------------|:-----------------------|:-------------------------------|----------------:|------------------------:|-----------------------------:|:-------------------|
-| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_10ns             |           nan   |            nan          |                 nan          | missing_trajectory |
-| prod_10ns_6UON_2fs300K                 | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_10ns             |         10000   |              0.138828   |                   0.659816   | ok                 |
-| 6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_replicate_screen |          1000   |              0.111929   |                   0.243361   | ok                 |
-| 6UON_GADGVGKSAL                        | GADGVGKSAL/HLA-C*08:02 | vacuum_smoke                   |             0.1 |              0.0100448  |                   0.00478767 | ok                 |
-| 6VRN_HMTEVVRHC                         | HMTEVVRHC/HLA-A*02:01  | vacuum_smoke                   |             0.1 |              0.00476196 |                   0.00222067 | ok                 |
+| run_id                                 | candidate              | condition                      |   total_time_ps |   peptide_rmsd_final_nm |   peptide_com_drift_final_nm | qc_status   |
+|:---------------------------------------|:-----------------------|:-------------------------------|----------------:|------------------------:|-----------------------------:|:------------|
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_10ns             |         10000   |              0.0651099  |                   0.404641   | ok          |
+| 6VRM_HMTEVVRHC_HLA-A0201_chainP_0p5ns  | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_replicate_screen |           500   |              0.0378221  |                   0.043586   | ok          |
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_10ns             |         10000   |              0.0651099  |                   0.404641   | ok          |
+| prod_10ns_6UON_2fs300K                 | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_10ns             |         10000   |              0.138828   |                   0.659816   | ok          |
+| 6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_replicate_screen |          1000   |              0.111929   |                   0.243361   | ok          |
+| 6UON_GADGVGKSAL                        | GADGVGKSAL/HLA-C*08:02 | vacuum_smoke                   |             0.1 |              0.0100448  |                   0.00478767 | ok          |
+| 6VRN_HMTEVVRHC                         | HMTEVVRHC/HLA-A*02:01  | vacuum_smoke                   |             0.1 |              0.00476196 |                   0.00222067 | ok          |
 
 GADGVGKSAL primary peptide RMSD final: 0.139 nm. Peptide COM drift final: 0.660 nm. This is compatible with a stable pilot, not a definitive binding claim.
 
@@ -39,6 +43,12 @@ GADGVGKSAL primary peptide RMSD final: 0.139 nm. Peptide COM drift final: 0.660 
 
 | run_id                                 | candidate              |   max_contact_occupancy |   sum_contact_occupancy |
 |:---------------------------------------|:-----------------------|------------------------:|------------------------:|
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  |                   0.97  |                   6.735 |
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  |                   1     |                   6.23  |
+| 6VRM_HMTEVVRHC_HLA-A0201_chainP_0p5ns  | HMTEVVRHC/HLA-A*02:01  |                   1     |                   7.5   |
+| 6VRM_HMTEVVRHC_HLA-A0201_chainP_0p5ns  | HMTEVVRHC/HLA-A*02:01  |                   1     |                   7.5   |
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  |                   0.97  |                   6.735 |
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  |                   1     |                   6.23  |
 | prod_10ns_6UON_2fs300K                 | GADGVGKSAL/HLA-C*08:02 |                   0.995 |                   6.525 |
 | prod_10ns_6UON_2fs300K                 | GADGVGKSAL/HLA-C*08:02 |                   1     |                   7.515 |
 | 6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns | GADGVGKSAL/HLA-C*08:02 |                   1     |                   6.7   |
@@ -54,6 +64,9 @@ GADGVGKSAL anchor contacts remained high in the completed primary and 1 ns repli
 
 | run_id                                 | candidate              | condition                      |   TCR_recognition_score |   tcr_peptide_contacts_tail | MD_evidence_label       |
 |:---------------------------------------|:-----------------------|:-------------------------------|------------------------:|----------------------------:|:------------------------|
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_10ns             |                  1      |                       63.81 | MD_VERY_STRONG          |
+| 6VRM_HMTEVVRHC_HLA-A0201_chainP_0p5ns  | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_replicate_screen |                  1      |                       70.5  | MD_VERY_STRONG          |
+| prod_10ns_6VRN_1fs300K                 | HMTEVVRHC/HLA-A*02:01  | explicit_cuda_10ns             |                  1      |                       63.81 | MD_VERY_STRONG          |
 | prod_10ns_6UON_2fs300K                 | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_10ns             |                  0.4404 |                       22.02 | MD_MODERATE             |
 | 6UON_GADGVGKSAL_HLA-C0802_chainC_1p0ns | GADGVGKSAL/HLA-C*08:02 | explicit_cuda_replicate_screen |                  0.504  |                       25.2  | MD_MODERATE             |
 | 6UON_GADGVGKSAL                        | GADGVGKSAL/HLA-C*08:02 | vacuum_smoke                   |                  0.54   |                       27    | MD_INSUFFICIENT_RUNTIME |
@@ -72,22 +85,22 @@ GADGVGKSAL has one completed 1 ns alternate screen and one 10 ns primary run. Th
 ## 9. Integration With CROSS-Neo Predictions
 
 - Joined prediction rows with MD candidate keys: 484
-- MD-supported model-high rows: 17
-- model-high but MD-low-or-insufficient rows: 11
-- model-low but MD-high rows: 4
+- MD-supported model-high rows: 182
+- model-high but MD-low-or-insufficient rows: 0
+- model-low but MD-high rows: 48
 
 Top MD-supported rows:
 
-| row_id     | source_dataset   | peptide    | hla_4digit   |   label |    score | model_name                             | split_name           | MD_evidence_label   |   MD_evidence_score |   wetlab_priority_score_evidence_adjusted |
-|:-----------|:-----------------|:-----------|:-------------|--------:|---------:|:---------------------------------------|:---------------------|:--------------------|--------------------:|------------------------------------------:|
-| CNV0_01132 | NEPdb            | GADGVGKSAL | HLA-C*08:02  |       1 | 0.918325 | source_qk_compact_gamma1               | source_heldout_NEPdb | MD_MODERATE         |            0.556608 |                                   1.63054 |
-| CNV0_01132 | NEPdb            | GADGVGKSAL | HLA-C*08:02  |       1 | 0.918325 | source_qk_compact_gamma1               | source_heldout_NEPdb | MD_MODERATE         |            0.556608 |                                   1.63054 |
-| CNV0_01132 | NEPdb            | GADGVGKSAL | HLA-C*08:02  |       1 | 0.747761 | v2_counterfactual_hgb                  | source_heldout_NEPdb | MD_MODERATE         |            0.556608 |                                   1.63054 |
-| CNV0_01132 | NEPdb            | GADGVGKSAL | HLA-C*08:02  |       1 | 0.728718 | source_prespecified_rf_qk_compact_w0.5 | source_heldout_NEPdb | MD_MODERATE         |            0.556608 |                                   1.63054 |
-| CNV0_01132 | NEPdb            | GADGVGKSAL | HLA-C*08:02  |       1 | 0.714364 | v2_counterfactual_lr_hla_ranknorm      | source_heldout_NEPdb | MD_MODERATE         |            0.556608 |                                   1.63054 |
-| CNV0_01132 | NEPdb            | GADGVGKSAL | HLA-C*08:02  |       1 | 0.700658 | v2_cf_plm_rf_hla_ranknorm              | source_heldout_NEPdb | MD_MODERATE         |            0.556608 |                                   1.63054 |
-| CNV0_01132 | NEPdb            | GADGVGKSAL | HLA-C*08:02  |       1 | 0.682372 | v2_counterfactual_lr                   | source_heldout_NEPdb | MD_MODERATE         |            0.556608 |                                   1.63054 |
-| CNV0_01132 | NEPdb            | GADGVGKSAL | HLA-C*08:02  |       1 | 0.604232 | v2_groupdro_proxy_cf_lr                | source_heldout_NEPdb | MD_MODERATE         |            0.556608 |                                   1.63054 |
+| row_id     | source_dataset   | peptide   | hla_4digit   |   label |    score | model_name                | split_name           | MD_evidence_label   |   MD_evidence_score |   wetlab_priority_score_evidence_adjusted |
+|:-----------|:-----------------|:----------|:-------------|--------:|---------:|:--------------------------|:---------------------|:--------------------|--------------------:|------------------------------------------:|
+| CNV0_01149 | NEPdb            | HMTEVVRHC | HLA-A*02:01  |       1 | 0.802273 | v2_cf_plm_rf_hla_ranknorm | source_heldout_NEPdb | MD_STRONG           |            0.743344 |                                 nan       |
+| CNV0_01150 | NEPdb            | HMTEVVRHC | HLA-A*02:01  |       1 | 0.802273 | v2_cf_plm_rf_hla_ranknorm | source_heldout_NEPdb | MD_STRONG           |            0.743344 |                                 nan       |
+| CNV0_01151 | NEPdb            | HMTEVVRHC | HLA-A*02:01  |       1 | 0.802273 | v2_cf_plm_rf_hla_ranknorm | source_heldout_NEPdb | MD_STRONG           |            0.743344 |                                   1.82549 |
+| CNV0_01152 | NEPdb            | HMTEVVRHC | HLA-A*02:01  |       1 | 0.802273 | v2_cf_plm_rf_hla_ranknorm | source_heldout_NEPdb | MD_STRONG           |            0.743344 |                                 nan       |
+| CNV0_01172 | NEPdb            | HMTEVVRHC | HLA-A*02:01  |       1 | 0.802273 | v2_cf_plm_rf_hla_ranknorm | source_heldout_NEPdb | MD_STRONG           |            0.743344 |                                 nan       |
+| CNV0_01176 | NEPdb            | HMTEVVRHC | HLA-A*02:01  |       1 | 0.802273 | v2_cf_plm_rf_hla_ranknorm | source_heldout_NEPdb | MD_STRONG           |            0.743344 |                                 nan       |
+| CNV0_01177 | NEPdb            | HMTEVVRHC | HLA-A*02:01  |       1 | 0.802273 | v2_cf_plm_rf_hla_ranknorm | source_heldout_NEPdb | MD_STRONG           |            0.743344 |                                 nan       |
+| CNV0_01183 | NEPdb            | HMTEVVRHC | HLA-A*02:01  |       1 | 0.802273 | v2_cf_plm_rf_hla_ranknorm | source_heldout_NEPdb | MD_STRONG           |            0.743344 |                                 nan       |
 
 ## 10. Allowed Claims
 

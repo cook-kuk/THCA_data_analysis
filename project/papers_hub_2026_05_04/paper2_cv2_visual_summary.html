@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper 2 H&amp;E Overlay Browser</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #151b23;
+      --panel2: #1c2430;
+      --ink: #e6edf3;
+      --muted: #98a6ba;
+      --line: #303846;
+      --gold: #d6b25e;
+      --teal: #63d5c4;
+      --blue: #57a6ff;
+      --red: #ff7b72;
+      --green: #35d39d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      line-height: 1.55;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .hero {
+      min-height: 76vh;
+      display: grid;
+      align-items: end;
+      padding: 58px 5vw 34px;
+      border-bottom: 1px solid var(--line);
+        background:
+        linear-gradient(180deg, rgba(13,17,23,0.05), rgba(13,17,23,0.96)),
+        url("assets/paper2_he_overlay_viewer/F15_raw_source_wall.png") center 35% / cover no-repeat;
+    }
+    .hero-inner { max-width: 1220px; }
+    .kicker {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    h1 {
+      margin: 10px 0 14px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: clamp(42px, 7vw, 88px);
+      line-height: 0.96;
+      font-weight: 650;
+      letter-spacing: 0;
+      max-width: 1120px;
+    }
+    .lead {
+      max-width: 980px;
+      color: #d8dee8;
+      font-size: 18px;
+    }
+    .hero-rail {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+      max-width: 1180px;
+    }
+    .hero-tile {
+      border: 1px solid rgba(214,178,94,0.45);
+      background: rgba(13,17,23,0.88);
+      border-radius: 8px;
+      padding: 14px 16px;
+      min-height: 126px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+    }
+    .hero-tile .k { color: var(--gold); font-size: 11px; text-transform: uppercase; letter-spacing: 0; font-weight: 800; }
+    .hero-tile .t { color: var(--ink); font-size: 16px; font-weight: 900; line-height: 1.1; }
+    .hero-tile .d { color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .hero-tile a { color: var(--teal); font-size: 12px; font-weight: 800; }
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 26px;
+      max-width: 1180px;
+    }
+    .stat {
+      border: 1px solid rgba(214,178,94,0.45);
+      background: rgba(13,17,23,0.84);
+      padding: 14px;
+      min-height: 92px;
+    }
+    .stat .v { color: var(--gold); font-size: 23px; font-weight: 900; }
+    .stat .l { color: var(--muted); font-size: 12px; margin-top: 5px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 32px;
+      max-width: 1540px;
+      margin: 0 auto;
+      padding: 34px 24px 84px;
+    }
+    nav {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      max-height: 100vh;
+      overflow: auto;
+      padding: 18px 0;
+    }
+    nav a {
+      display: block;
+      padding: 9px 12px;
+      border-left: 2px solid transparent;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    nav a:hover { color: var(--ink); border-left-color: var(--gold); text-decoration: none; }
+    section {
+      border-top: 1px solid var(--line);
+      padding: 34px 0;
+    }
+    section:first-child { border-top: 0; padding-top: 0; }
+    h2 {
+      margin: 0 0 18px;
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 34px;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+    h3 { margin: 0 0 10px; font-size: 17px; }
+    .num { color: var(--gold); margin-right: 10px; font-family: "JetBrains Mono", monospace; font-size: 18px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .muted { color: var(--muted); }
+    .good { color: var(--teal); }
+    .warn { color: var(--gold); }
+    .bad { color: var(--red); }
+    .figure {
+      border: 1px solid var(--line);
+      background: #100d0b;
+      border-radius: 8px;
+      padding: 8px;
+      margin: 18px 0;
+    }
+    .figure img {
+      width: 100%;
+      display: block;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 13px;
+    }
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { color: var(--gold); font-weight: 800; background: rgba(214,178,94,0.06); }
+    code {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      padding: 2px 5px;
+      border-radius: 4px;
+      color: #d8dee8;
+    }
+    .decision td:last-child {
+      color: var(--gold);
+      font-weight: 800;
+    }
+    .explorer {
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      gap: 16px;
+      min-height: 720px;
+    }
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 10px;
+    }
+    .filter-btn {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: #202938;
+    }
+    .search-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      margin: 0 0 16px;
+    }
+    .search-row input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #090b10;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 13px;
+    }
+    .count-chip {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 9px 10px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .explorer-list {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      max-height: 760px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+    .figure-option {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 10px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+    .figure-option:hover,
+    .figure-option.active {
+      border-color: var(--gold);
+      background: #202938;
+    }
+    .figure-option img {
+      width: 78px;
+      height: 58px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #ffffff;
+      display: block;
+    }
+    .figure-option strong {
+      display: block;
+      font-size: 12px;
+      color: var(--ink);
+      line-height: 1.25;
+    }
+    .figure-option span {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    .figure-option .group {
+      color: var(--gold);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+    .explorer-stage {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: #090b10;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .explorer-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+    }
+    .explorer-title {
+      flex: 1 1 360px;
+      min-width: 240px;
+    }
+    .explorer-title strong { display: block; color: var(--ink); font-size: 14px; }
+    .explorer-title span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .source-path {
+      color: #6e7681;
+      overflow-wrap: anywhere;
+    }
+    .viewer-btn {
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .viewer-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .viewer-window {
+      height: min(76vh, 820px);
+      overflow: auto;
+      padding: 16px;
+      background:
+        linear-gradient(45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(255,255,255,0.025) 25%, transparent 25%),
+        #090b10;
+      background-size: 20px 20px;
+    }
+    .viewer-window img {
+      display: block;
+      width: 100%;
+      max-width: none;
+      min-width: 420px;
+      height: auto;
+      margin: 0 auto;
+      cursor: zoom-in;
+      transform-origin: top center;
+    }
+    .lightbox[hidden] { display: none; }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background: rgba(4, 6, 9, 0.94);
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+    .lightbox-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      background: #0b1018;
+    }
+    .lightbox-title { flex: 1 1 420px; color: var(--ink); font-weight: 800; }
+    .lightbox-canvas {
+      overflow: auto;
+      padding: 18px;
+    }
+    .lightbox-canvas img {
+      display: block;
+      width: 100%;
+      min-width: 720px;
+      max-width: none;
+      height: auto;
+      margin: 0 auto;
+      transform-origin: top center;
+    }
+    .mini-gallery {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .mini-gallery a {
+      display: block;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 8px;
+      color: var(--ink);
+      font-size: 12px;
+    }
+    .mini-gallery img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      display: block;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    .he-browser {
+      display: grid;
+      grid-template-columns: 350px minmax(0, 1fr);
+      gap: 16px;
+      min-height: 720px;
+    }
+    .he-list {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      max-height: 780px;
+      overflow: auto;
+      padding-right: 6px;
+    }
+    .he-option {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: 86px minmax(0, 1fr);
+      gap: 10px;
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+    }
+    .he-option:hover,
+    .he-option.active {
+      border-color: var(--gold);
+      background: #202938;
+    }
+    .he-option img {
+      width: 86px;
+      height: 64px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #fff;
+      display: block;
+    }
+    .he-option strong { display:block; font-size:12px; line-height:1.25; }
+    .he-option span { display:block; margin-top:4px; color:var(--muted); font-size:11px; line-height:1.3; }
+    .he-group { color: var(--gold); text-transform: uppercase; font-size: 10px; }
+    .he-stage {
+      min-width: 0;
+      border: 1px solid var(--line);
+      background: #090b10;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .he-toolbar {
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:8px;
+      padding:12px;
+      border-bottom:1px solid var(--line);
+      background:var(--panel);
+    }
+    .he-title { flex: 1 1 360px; min-width: 240px; }
+    .he-title strong { display:block; color:var(--ink); font-size:14px; }
+    .he-title span { display:block; color:var(--muted); font-size:12px; margin-top:3px; }
+    .he-window {
+      height:min(76vh, 850px);
+      overflow:auto;
+      padding:16px;
+      background:#090b10;
+    }
+    .he-window img {
+      display:block;
+      width:100%;
+      max-width:none;
+      min-width:520px;
+      height:auto;
+      margin:0 auto;
+      cursor:zoom-in;
+      transform-origin:top center;
+    }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      nav { position: static; max-height: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .stat-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid { grid-template-columns: 1fr; }
+      .he-browser { grid-template-columns: 1fr; }
+      .he-list { grid-template-columns: repeat(2, minmax(0, 1fr)); max-height: none; }
+      .explorer { grid-template-columns: 1fr; }
+      .search-row { grid-template-columns: 1fr; }
+      .explorer-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        max-height: none;
+      }
+      .mini-gallery { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="kicker">Paper 2 · H&amp;E overlay browser · 2026-05-11</div>
+      <h1>Paper 2 H&amp;E Overlays First, Source Figures Second</h1>
+      <p class="lead">
+        The separated browser was too hard to read. This version starts with H&amp;E-fused overlays, then adds validation and editorial boards, and keeps the 81 separated source figures below as an appendix.
+      </p>
+      <div class="stat-strip">
+        <div class="stat"><div class="v">H&amp;E</div><div class="l">primary viewing mode</div></div>
+        <div class="stat"><div class="v">57</div><div class="l">review entries total</div></div>
+        <div class="stat"><div class="v">16</div><div class="l">GSE250521 slide overlays</div></div>
+        <div class="stat"><div class="v">4</div><div class="l">OpenCV fused boards</div></div>
+        <div class="stat"><div class="v">31</div><div class="l">validation/editorial/internal frames</div></div>
+        <div class="stat"><div class="v">81</div><div class="l">source figures still available</div></div>
+      </div>
+      <div class="hero-rail">
+        <div class="hero-tile">
+          <div class="k">Front door</div>
+          <div class="t">Max-impact assembly</div>
+          <div class="d">Raw source slides, real tiles, internal pathology, validation, and target-tier framing in one opening board.</div>
+          <a href="#he-overlay">Open viewer</a>
+        </div>
+        <div class="hero-tile">
+          <div class="k">Pathology anchor</div>
+          <div class="t">Internal slide-level readout</div>
+          <div class="d">Trajectory, replicate, heatmap, and per-case panels stay visible without collapsing into the appendix.</div>
+          <a href="#sources">Jump to sources</a>
+        </div>
+        <div class="hero-tile">
+          <div class="k">Reviewer lane</div>
+          <div class="t">Validation and journal bridge</div>
+          <div class="d">The audit sheet and Nature Communications bridge are already staged beside the H&amp;E story.</div>
+          <a href="#boundary">See claim boundary</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav>
+      <a href="#verdict">01 Verdict</a>
+      <a href="#he-overlay">02 H&amp;E Overlay Viewer</a>
+      <a href="#figure-explorer">03 Source Figure Appendix</a>
+      <a href="#source-sets">04 Source Sets</a>
+      <a href="#legacy-composites">05 CV2 Summary Boards</a>
+      <a href="#boundary">06 Boundary</a>
+      <a href="#sources">07 Sources</a>
+    </nav>
+
+    <main>
+      <section id="verdict">
+        <h2><span class="num">01</span>Verdict</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>What This Adds</h3>
+            <p class="muted">The Paper 2 visual review now starts from actual H&amp;E source material: raw GSE230424 slides and real GSE250521 tiles first, then H&amp;E-fused overlays, hotspot contours, and 16 GSE250521 H&amp;E+UNI-DM1 slide overlays.</p>
+          </div>
+          <div class="card">
+            <h3>Use Pattern</h3>
+            <p class="muted">Use the raw H&amp;E gallery first. If a reviewer asks where a control came from, use the separated 81-source browser below as the appendix.</p>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Layer</th><th>Headline</th><th>Use</th></tr></thead>
+          <tbody>
+            <tr><td>TCGA H&amp;E image-DM1</td><td>UNI LOTO pooled AUC <strong class="good">0.852</strong></td><td>Image classifier anchor</td></tr>
+            <tr><td>GSE250521 spatial RNA</td><td>Smoothed DM1/RAI rho <strong class="good">0.392</strong>; slide-centered 0.440</td><td>Path2Space-style spatial projection</td></tr>
+            <tr><td>GSE230424 external Visium</td><td>H&amp;E sample-centered rho <strong class="good">0.644</strong>; 200-spot downsample median 0.641</td><td>External thyroid support</td></tr>
+            <tr><td>Residual layer</td><td>GSE230424 downsample residual rho <strong class="warn">0.240</strong></td><td>Smaller signal beyond coord+QC</td></tr>
+            <tr><td>Smoothness adjustment</td><td>GSE230424 adjusted residual <strong class="bad">-0.121</strong></td><td>Specificity caveat, not hidden</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="he-overlay">
+        <h2><span class="num">02</span>H&amp;E Overlay Viewer + Impact Frames</h2>
+        <div class="grid">
+          <div class="card">
+            <h3>Primary View</h3>
+            <p class="muted">H&amp;E is now the anchor. The first entry is the raw-source wall with actual GSE230424 slides and real GSE250521 tiles; the review boards sit in the same browser after that.</p>
+          </div>
+          <div class="card">
+            <h3>What Is Not Included</h3>
+            <p class="muted">This still does not include private K2/Bundang hospital H&amp;E. It uses the current public/current Paper 2 H&amp;E and spatial-overlay assets already in the repo, plus review-frame boards and an internal pathology anchor already staged for the manuscript package.</p>
+          </div>
+        </div>
+        <div class="he-browser" data-he-browser>
+          <div class="he-list" id="heOverlayList" aria-label="H&E overlay list"></div>
+          <div class="he-stage">
+            <div class="he-toolbar">
+              <div class="he-title">
+                <strong id="heOverlayTitle">H&amp;E overlay</strong>
+                <span id="heOverlayCaption">Select an H&amp;E-fused board or slide overlay.</span>
+              </div>
+              <button class="viewer-btn" type="button" id="heZoomOut">Zoom out</button>
+              <button class="viewer-btn" type="button" id="heZoomReset">Reset</button>
+              <button class="viewer-btn" type="button" id="heZoomIn">Zoom in</button>
+              <button class="viewer-btn" type="button" id="heOpenFull">Full screen</button>
+            </div>
+            <div class="he-window" id="heOverlayViewport">
+              <img id="heOverlayImage" src="assets/paper2_he_overlay_viewer/F15_raw_source_wall.png" alt="Raw H&E source wall">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="figure-explorer">
+        <h2><span class="num">03</span>Separated Source Figure Appendix</h2>
+        <p class="muted">This is now the appendix browser. Use it when you need a specific control/source panel after reviewing the H&amp;E overlays above.</p>
+        <div class="filter-row" id="figureFilters" aria-label="Figure group filters"></div>
+        <div class="search-row">
+          <input id="figureSearch" type="search" placeholder="Search sample, figure, cohort, control, or source path">
+          <div class="count-chip" id="figureCount">Loading figures</div>
+        </div>
+        <div class="explorer" data-figure-explorer>
+          <div class="explorer-list" id="figureList" aria-label="Paper 2 figure list"></div>
+          <div class="explorer-stage">
+            <div class="explorer-toolbar">
+              <div class="explorer-title">
+                <strong id="figureTitle">Figure</strong>
+                <span id="figureCaption">Select a panel to inspect it.</span>
+                <span id="figureSource" class="source-path"></span>
+              </div>
+              <button class="viewer-btn" type="button" data-zoom-out>Zoom out</button>
+              <button class="viewer-btn" type="button" data-zoom-reset>Reset</button>
+              <button class="viewer-btn" type="button" data-zoom-in>Zoom in</button>
+              <button class="viewer-btn" type="button" data-open-lightbox>Full screen</button>
+            </div>
+            <div class="viewer-window" id="figureViewport">
+              <img id="figureImage" src="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png" alt="Paper 2 selected figure">
+            </div>
+          </div>
+        </div>
+        <p class="muted">This is the primary review component. It does not use the 9 CV2 composite summary boards as the figure list; it loads the separated source PNG manifest instead.</p>
+      </section>
+
+      <section id="source-sets">
+        <h2><span class="num">04</span>Separated Source Sets</h2>
+        <table>
+          <thead><tr><th>Set</th><th>What Opens In The Browser</th><th>Why It Is Split</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 slide overlays</td><td>16 individual UNI-DM1 spatial overlay PNGs</td><td>Each slide can be inspected without compressing it into a 16-panel mosaic.</td></tr>
+            <tr><td>Paper 2 main figures</td><td>Main figure PNGs from the image-DM1 pipeline</td><td>Each original figure remains a selectable unit for manuscript triage.</td></tr>
+            <tr><td>Path2Space spatial reanalysis</td><td>Spatial projection, decile, bootstrap, block, downsample, hotspot, and specificity controls</td><td>Controls are separated so reviewer-defense pieces do not get buried in a storyboard.</td></tr>
+            <tr><td>GSE230424 external thyroid</td><td>External H&amp;E/Visium support, residual controls, feature ablation, marker extension, and smoothness caveat figures</td><td>The support and caveat panels stay inspectable side by side.</td></tr>
+            <tr><td>Classifier audit controls</td><td>UNI LOTO, permutation, fold composition, retrain, confounding, and baseline figures</td><td>The audit layer is available without flattening it into a scorecard.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="legacy-composites">
+        <h2><span class="num">05</span>CV2 Summary Boards Kept Separate</h2>
+        <div class="card">
+          <h3>Not The Primary Browser</h3>
+          <p class="muted">These 9 OpenCV boards are retained as summary boards only. They are intentionally not used as the main figure list, because the review workflow now starts from the separated source assets above.</p>
+          <div class="mini-gallery">
+            <a href="assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png"><img src="assets/paper2_cv2_summary/fig01_paper2_cv2_evidence_scorecard.png" alt="">Evidence scorecard</a>
+            <a href="assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png"><img src="assets/paper2_cv2_summary/fig02_gse230424_cv2_he_overlay_mosaic.png" alt="">GSE230424 H&amp;E overlay mosaic</a>
+            <a href="assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png"><img src="assets/paper2_cv2_summary/fig03_gse250521_cv2_uni_slide_mosaic.png" alt="">GSE250521 UNI mosaic</a>
+            <a href="assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png"><img src="assets/paper2_cv2_summary/fig04_paper2_cv2_result_gallery.png" alt="">Figure map</a>
+            <a href="assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png"><img src="assets/paper2_cv2_summary/fig05_gse230424_cv2_hotspot_contours.png" alt="">Hotspot contours</a>
+            <a href="assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png"><img src="assets/paper2_cv2_summary/fig08_paper2_cv2_onepage_storyboard.png" alt="">One-page storyboard</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="boundary">
+        <h2><span class="num">06</span>Claim Boundary</h2>
+        <table class="decision">
+          <thead><tr><th>Question</th><th>Answer</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>Is this visually compelling?</td><td>Yes: direct H&amp;E overlays and slide mosaics now show the signal, not only tables.</td><td>Use for Paper 2</td></tr>
+            <tr><td>Is it statistically reinforced?</td><td>Yes: decile dose-response and 200-spot downsampling support robustness.</td><td>Use</td></tr>
+            <tr><td>Is molecular specificity fully proven?</td><td>No: GSE230424 smoothness-adjusted specificity fails.</td><td>Disclose caveat</td></tr>
+            <tr><td>Does this rescue Paper 1 MAPK x Panel spatial mechanism?</td><td>No: this visual pack is image-to-spatial-RNA support only.</td><td>Do not overclaim</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="sources">
+        <h2><span class="num">07</span>Sources And Paths</h2>
+        <table>
+          <thead><tr><th>Artifact</th><th>Path</th></tr></thead>
+          <tbody>
+            <tr><td>CV2 script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/paper2_cv2_visual_summary.py</code></td></tr>
+            <tr><td>Separated figure publisher</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/build_paper2_individual_figure_manifest.py</code></td></tr>
+            <tr><td>Separated web assets</td><td><code>project/papers_hub_2026_05_04/assets/paper2_individual_figures/</code></td></tr>
+            <tr><td>Separated manifest</td><td><code>assets/paper2_individual_figures/manifest.js</code></td></tr>
+            <tr><td>H&amp;E overlay assets</td><td><code>project/papers_hub_2026_05_04/assets/paper2_he_overlay_viewer/</code></td></tr>
+            <tr><td>H&amp;E overlay manifest</td><td><code>assets/paper2_he_overlay_viewer/overlay_manifest.js</code></td></tr>
+            <tr><td>CV2 output dir</td><td><code>analysis_supp/paper2_cv2_visual_summary_2026_05_10/</code></td></tr>
+            <tr><td>Existing Path2Space dossier</td><td><code>project/papers_hub_2026_05_04/paper2_path2space_spatial_reanalysis.html</code></td></tr>
+            <tr><td>GSE230424 raw H&amp;E</td><td><code>project/data/external/GSE230424/raw/*_HE.jpg.gz</code></td></tr>
+            <tr><td>GSE250521 predictions</td><td><code>analysis_supp/path2space_inspired_reanalysis_2026_05_09/path2space_spot_predictions.tsv.gz</code></td></tr>
+            <tr><td>GSE230424 predictions</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/gse230424_pathology_predictions.tsv.gz</code></td></tr>
+            <tr><td>GSE230424 hotspot contour table</td><td><code>analysis_supp/paper2_cv2_visual_summary_2026_05_10/paper2_cv2_gse230424_hotspot_contours.tsv</code></td></tr>
+            <tr><td>Caption scaffold</td><td><code>analysis_supp/paper2_cv2_visual_summary_2026_05_10/PAPER2_CV2_CAPTION_SCAFFOLD.md</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+  <div class="lightbox" id="figureLightbox" hidden>
+    <div class="lightbox-bar">
+      <div class="lightbox-title" id="lightboxTitle">Figure</div>
+      <button class="viewer-btn" type="button" data-lightbox-zoom-out>Zoom out</button>
+      <button class="viewer-btn" type="button" data-lightbox-reset>Reset</button>
+      <button class="viewer-btn" type="button" data-lightbox-zoom-in>Zoom in</button>
+      <button class="viewer-btn" type="button" data-lightbox-close>Close</button>
+    </div>
+    <div class="lightbox-canvas" id="lightboxCanvas">
+      <img id="lightboxImage" src="assets/paper2_individual_figures/phase1_gse250521__uni_dm1_overlay_GSM7980860_N-1.png" alt="Paper 2 enlarged figure">
+    </div>
+  </div>
+  <script src="assets/paper2_individual_figures/manifest.js"></script>
+  <script src="assets/paper2_he_overlay_viewer/overlay_manifest.js"></script>
+  <script>
+    const heOverlays = window.paper2HeOverlayFigures || [];
+    const heOverlayList = document.getElementById("heOverlayList");
+    const heOverlayTitle = document.getElementById("heOverlayTitle");
+    const heOverlayCaption = document.getElementById("heOverlayCaption");
+    const heOverlayImage = document.getElementById("heOverlayImage");
+    const heOverlayViewport = document.getElementById("heOverlayViewport");
+    let heActiveIndex = 0;
+    let heZoom = 1;
+
+    function setHeZoom(next) {
+      heZoom = clamp(next, 0.7, 3.4);
+      heOverlayImage.style.width = `${heZoom * 100}%`;
+    }
+
+    function renderHeOverlay(index) {
+      if (!heOverlays.length) return;
+      heActiveIndex = clamp(index, 0, heOverlays.length - 1);
+      const fig = heOverlays[heActiveIndex];
+      heOverlayTitle.textContent = fig.title;
+      heOverlayCaption.textContent = `${fig.group} · ${fig.caption}`;
+      heOverlayImage.src = fig.src;
+      heOverlayImage.alt = fig.title;
+      heOverlayViewport.scrollTo({ top: 0, left: 0 });
+      setHeZoom(1);
+      [...heOverlayList.querySelectorAll("button")].forEach((button, i) => {
+        button.classList.toggle("active", i === heActiveIndex);
+      });
+    }
+
+    function renderHeOverlayList() {
+      heOverlayList.textContent = "";
+      heOverlays.forEach((fig, index) => {
+        const button = document.createElement("button");
+        const thumb = document.createElement("img");
+        const meta = document.createElement("span");
+        const title = document.createElement("strong");
+        const group = document.createElement("span");
+        const caption = document.createElement("span");
+        button.type = "button";
+        button.className = "he-option";
+        thumb.src = fig.src;
+        thumb.alt = "";
+        title.textContent = `${String(index + 1).padStart(2, "0")}. ${fig.title}`;
+        group.className = "he-group";
+        group.textContent = fig.group;
+        caption.textContent = fig.caption;
+        meta.appendChild(title);
+        meta.appendChild(group);
+        meta.appendChild(caption);
+        button.appendChild(thumb);
+        button.appendChild(meta);
+        button.addEventListener("click", () => renderHeOverlay(index));
+        heOverlayList.appendChild(button);
+      });
+      renderHeOverlay(0);
+    }
+
+    const paper2Figures = window.paper2IndividualFigures || [];
+    const figureList = document.getElementById("figureList");
+    const figureFilters = document.getElementById("figureFilters");
+    const figureSearch = document.getElementById("figureSearch");
+    const figureCount = document.getElementById("figureCount");
+    const figureTitle = document.getElementById("figureTitle");
+    const figureCaption = document.getElementById("figureCaption");
+    const figureSource = document.getElementById("figureSource");
+    const figureImage = document.getElementById("figureImage");
+    const figureViewport = document.getElementById("figureViewport");
+    const lightbox = document.getElementById("figureLightbox");
+    const lightboxTitle = document.getElementById("lightboxTitle");
+    const lightboxImage = document.getElementById("lightboxImage");
+    const lightboxCanvas = document.getElementById("lightboxCanvas");
+    let activeFigure = 0;
+    let activeGroup = "All";
+    let filteredFigures = [];
+    let zoom = 1;
+    let lightboxZoom = 1;
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function setZoom(next) {
+      zoom = clamp(next, 0.7, 3.2);
+      figureImage.style.width = `${zoom * 100}%`;
+    }
+
+    function setLightboxZoom(next) {
+      lightboxZoom = clamp(next, 0.7, 4.5);
+      lightboxImage.style.width = `${lightboxZoom * 100}%`;
+    }
+
+    function groupCounts() {
+      const counts = new Map();
+      paper2Figures.forEach((fig) => counts.set(fig.group, (counts.get(fig.group) || 0) + 1));
+      return counts;
+    }
+
+    function renderFilters() {
+      const counts = groupCounts();
+      const groups = ["All", ...counts.keys()];
+      figureFilters.textContent = "";
+      groups.forEach((group) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "filter-btn";
+        const count = group === "All" ? paper2Figures.length : counts.get(group);
+        button.textContent = `${group} (${count})`;
+        button.classList.toggle("active", group === activeGroup);
+        button.addEventListener("click", () => {
+          activeGroup = group;
+          renderFilters();
+          applyFilters();
+        });
+        figureFilters.appendChild(button);
+      });
+    }
+
+    function applyFilters() {
+      const query = figureSearch.value.trim().toLowerCase();
+      filteredFigures = paper2Figures.filter((fig) => {
+        const groupMatch = activeGroup === "All" || fig.group === activeGroup;
+        const haystack = `${fig.title} ${fig.caption} ${fig.group} ${fig.sourcePath}`.toLowerCase();
+        return groupMatch && (!query || haystack.includes(query));
+      });
+      renderFigureList();
+      renderFigure(0);
+    }
+
+    function renderFigureList() {
+      figureList.textContent = "";
+      figureCount.textContent = `${filteredFigures.length} of ${paper2Figures.length} separated figures`;
+      if (!filteredFigures.length) {
+        const empty = document.createElement("div");
+        empty.className = "card muted";
+        empty.textContent = "No figures match this filter.";
+        figureList.appendChild(empty);
+        return;
+      }
+      filteredFigures.forEach((fig, index) => {
+        const button = document.createElement("button");
+        const thumb = document.createElement("img");
+        const meta = document.createElement("span");
+        const title = document.createElement("strong");
+        const group = document.createElement("span");
+        const caption = document.createElement("span");
+        button.type = "button";
+        button.className = "figure-option";
+        thumb.src = fig.src;
+        thumb.alt = "";
+        title.textContent = `${String(index + 1).padStart(2, "0")}. ${fig.title}`;
+        group.className = "group";
+        group.textContent = fig.group;
+        caption.textContent = fig.caption;
+        meta.appendChild(title);
+        meta.appendChild(group);
+        meta.appendChild(caption);
+        button.appendChild(thumb);
+        button.appendChild(meta);
+        button.addEventListener("click", () => renderFigure(index));
+        figureList.appendChild(button);
+      });
+    }
+
+    function renderFigure(index) {
+      if (!filteredFigures.length) {
+        activeFigure = 0;
+        figureTitle.textContent = "No figure selected";
+        figureCaption.textContent = "Change the group filter or search query.";
+        figureSource.textContent = "";
+        figureImage.removeAttribute("src");
+        return;
+      }
+      activeFigure = index;
+      const fig = filteredFigures[index];
+      figureTitle.textContent = fig.title;
+      figureCaption.textContent = fig.caption;
+      figureSource.textContent = fig.sourcePath;
+      figureImage.src = fig.src;
+      figureImage.alt = fig.title;
+      figureViewport.scrollTo({ top: 0, left: 0 });
+      setZoom(1);
+      [...figureList.querySelectorAll("button")].forEach((button, i) => {
+        button.classList.toggle("active", i === index);
+      });
+    }
+
+    function openLightbox() {
+      if (!filteredFigures.length) return;
+      const fig = filteredFigures[activeFigure];
+      lightboxTitle.textContent = fig.title;
+      lightboxImage.src = fig.src;
+      lightboxImage.alt = fig.title;
+      lightbox.hidden = false;
+      document.body.style.overflow = "hidden";
+      lightboxCanvas.scrollTo({ top: 0, left: 0 });
+      setLightboxZoom(1);
+    }
+
+    function closeLightbox() {
+      lightbox.hidden = true;
+      document.body.style.overflow = "";
+    }
+
+    document.querySelector("[data-zoom-out]").addEventListener("click", () => setZoom(zoom - 0.2));
+    document.querySelector("[data-zoom-reset]").addEventListener("click", () => {
+      setZoom(1);
+      figureViewport.scrollTo({ top: 0, left: 0 });
+    });
+    document.querySelector("[data-zoom-in]").addEventListener("click", () => setZoom(zoom + 0.2));
+    document.querySelector("[data-open-lightbox]").addEventListener("click", openLightbox);
+    figureImage.addEventListener("click", openLightbox);
+    document.querySelector("[data-lightbox-close]").addEventListener("click", closeLightbox);
+    document.querySelector("[data-lightbox-zoom-out]").addEventListener("click", () => setLightboxZoom(lightboxZoom - 0.25));
+    document.querySelector("[data-lightbox-reset]").addEventListener("click", () => {
+      setLightboxZoom(1);
+      lightboxCanvas.scrollTo({ top: 0, left: 0 });
+    });
+    document.querySelector("[data-lightbox-zoom-in]").addEventListener("click", () => setLightboxZoom(lightboxZoom + 0.25));
+    document.getElementById("heZoomOut").addEventListener("click", () => setHeZoom(heZoom - 0.2));
+    document.getElementById("heZoomReset").addEventListener("click", () => {
+      setHeZoom(1);
+      heOverlayViewport.scrollTo({ top: 0, left: 0 });
+    });
+    document.getElementById("heZoomIn").addEventListener("click", () => setHeZoom(heZoom + 0.2));
+    document.getElementById("heOpenFull").addEventListener("click", () => {
+      if (!heOverlays.length) return;
+      const fig = heOverlays[heActiveIndex];
+      lightboxTitle.textContent = fig.title;
+      lightboxImage.src = fig.src;
+      lightboxImage.alt = fig.title;
+      lightbox.hidden = false;
+      document.body.style.overflow = "hidden";
+      lightboxCanvas.scrollTo({ top: 0, left: 0 });
+      setLightboxZoom(1);
+    });
+    heOverlayImage.addEventListener("click", () => document.getElementById("heOpenFull").click());
+    figureSearch.addEventListener("input", applyFilters);
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !lightbox.hidden) closeLightbox();
+      if (event.key === "ArrowDown") renderFigure(clamp(activeFigure + 1, 0, filteredFigures.length - 1));
+      if (event.key === "ArrowUp") renderFigure(clamp(activeFigure - 1, 0, filteredFigures.length - 1));
+    });
+
+    renderHeOverlayList();
+    renderFilters();
+    applyFilters();
+  </script>
+</body>
+</html>

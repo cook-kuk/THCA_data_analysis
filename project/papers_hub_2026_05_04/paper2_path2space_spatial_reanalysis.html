@@ -200,8 +200,13 @@
       <a href="#controls">06 Controls</a>
       <a href="#gse230424">07 GSE230424</a>
       <a href="#gse248205">08 GSE248205</a>
-      <a href="#decision">09 Decision</a>
-      <a href="#sources">10 Sources</a>
+      <a href="#bootstrap">09 Bootstrap CI</a>
+      <a href="#hotspots">10 Hotspots</a>
+      <a href="#blocks">11 Spatial Blocks</a>
+      <a href="#distance">12 Distance Caveat</a>
+      <a href="#smoothness">13 Smoothness Caveat</a>
+      <a href="#decision">14 Decision</a>
+      <a href="#sources">15 Sources</a>
     </nav>
 
     <main>
@@ -309,10 +314,36 @@
             <tr><td>QC-only baseline</td><td>rho 0.476</td><td>Measured ST quality/cell-density axes are strong and must be disclosed</td></tr>
             <tr><td>UNI after within-slide QC residualization</td><td>rho 0.303</td><td>A morphology-aligned component remains after removing QC covariation</td></tr>
             <tr><td>Coordinate-domain aggregation</td><td>rho 0.581</td><td>Domain averaging strengthens the signal, matching Path2Space aggregation logic</td></tr>
+            <tr><td>GSE250521 matched random-module control</td><td>raw p=0.108; coord+QC residual-target p=0.004</td><td>Residual-layer specificity support; raw smoothness caveat</td></tr>
+            <tr><td>GSE250521 stage-generalization control</td><td>stage-centered rho 0.392; leave-one-stage-out raw rho 0.335</td><td>Not only stage mean; ATC/residual transfer caveat</td></tr>
             <tr><td>Within-slide permutation null</td><td>empirical p 0.001</td><td>Local alignment is not random field matching</td></tr>
           </tbody>
         </table>
         <p class="muted">The safe claim is deliberately narrow: pathology carries a reproducible spatial DM1/RAI signal, but measured ST QC variables explain substantial variation. This is a Paper 2 reinforcement, not a Paper 1 causal mechanism rescue.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse250521_random_module_specificity.png" alt="GSE250521 matched random-module specificity and spatial-smoothness adjustment">
+        </div>
+        <table>
+          <thead><tr><th>GSE250521 specificity layer</th><th>Observed UNI rho</th><th>Random-module result</th><th>Smoothness adjustment</th></tr></thead>
+          <tbody>
+            <tr><td>Raw smoothed DM1/RAI</td><td>0.418</td><td>89.6th percentile; p=0.108</td><td><strong class="bad">fails</strong>: expected 0.491, adjusted residual -0.073, p=0.908</td></tr>
+            <tr><td>Coord+QC residual target</td><td>0.213</td><td><strong class="good">100.0th percentile; p=0.004</strong></td><td>directional support: expected 0.168, adjusted residual +0.045, percentile 90.4%, p=0.100</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">The matched-random-module layer separates two claims. Raw DM1/RAI predictability is partly a spatial-smoothness/tissue-state property. The stricter coordinate+QC residual target remains above all 250 matched random modules before smoothness adjustment and stays directionally high after smoothness adjustment, supporting a smaller residual image-aligned DM1/RAI component.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse250521_stage_generalization_controls.png" alt="GSE250521 stage stratified and leave-one-stage-out controls">
+        </div>
+        <table>
+          <thead><tr><th>Stage control</th><th>DM1/RAI result</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>Existing LOSO, stage-centered evaluation</td><td><strong class="good">rho 0.392</strong></td><td>Positive after removing stage means</td></tr>
+            <tr><td>Existing LOSO by stage</td><td>PT 0.246; PTC 0.487; LPTC 0.471; ATC 0.191</td><td>PTC/LPTC strongest; ATC is weak</td></tr>
+            <tr><td>Leave-one-stage-out raw target</td><td><strong class="good">pooled rho 0.335; stage-centered rho 0.401</strong></td><td>Raw cross-stage transfer support</td></tr>
+            <tr><td>Leave-one-stage-out coord+QC residual target</td><td>pooled rho 0.140; stage-centered rho 0.170</td><td>Residual transfer remains positive but weak</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Stage controls answer a direct reviewer objection: the GSE250521 image signal is not just global PT/PTC/LPTC/ATC stage means. Stage-centered evaluation and leave-one-stage-out raw transfer remain positive. The boundary is also clear: the strict residual target transfers weakly and ATC is the least stable stage.</p>
       </section>
 
       <section id="gse230424">
@@ -324,12 +355,17 @@
           <thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
           <tbody>
             <tr><td>Modeled spots / samples</td><td>15,489 / 4</td><td><code>GSE230424_PATHOLOGY_THYROID_SUMMARY.json</code></td></tr>
+            <tr><td>Recovered disease labels</td><td>P1/P2 = PTC+HT; P3/P4 = HT</td><td><code>Supplementary Table S5</code></td></tr>
             <tr><td>Top axis</td><td><code>DM1_low_RAI_score</code></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
             <tr><td>H&amp;E sample-centered rho</td><td><strong class="good">0.644</strong></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
             <tr><td>H&amp;E domain-centered rho</td><td><strong class="good">0.910</strong></td><td><code>gse230424_domain_summary.tsv</code></td></tr>
             <tr><td>QC-only sample-centered rho</td><td><strong class="warn">0.732</strong></td><td><code>gse230424_model_comparison.tsv</code></td></tr>
             <tr><td>H&amp;E residual after coord+QC adjustment</td><td>0.283</td><td><code>gse230424_residual_alignment.tsv</code></td></tr>
             <tr><td>Strict residual-target H&amp;E rho after coord+QC removal</td><td><strong class="good">0.232</strong></td><td><code>residual_target_controls/gse230424_residual_target_model_comparison.tsv</code></td></tr>
+            <tr><td>Feature-family ablation</td><td>r96-only residual rho 0.246; RGB residual rho 0.143; density/texture residual rho 0.174</td><td><code>feature_ablation_controls/</code></td></tr>
+            <tr><td>Matched random-module specificity</td><td>raw percentile 99.2% (p=0.012); residual percentile 100.0% (p=0.004)</td><td><code>random_module_specificity/</code></td></tr>
+            <tr><td>Spatial-smoothness-adjusted specificity</td><td><strong class="bad">does not pass</strong>: raw adjusted residual -0.121; strict residual-target adjusted residual -0.190</td><td><code>spatial_autocorr_specificity/</code></td></tr>
+            <tr><td>Article S6 PTC-marker module H&amp;E rho</td><td>0.159; strict residual-target 0.071</td><td><code>ptc_marker_extension/</code></td></tr>
             <tr><td>Within-sample permutation p</td><td>0.001</td><td><code>gse230424_permutation_alignment.tsv</code></td></tr>
           </tbody>
         </table>
@@ -343,7 +379,7 @@
           </div>
           <div class="card">
             <h3>Boundary</h3>
-            <p class="muted">GEO exposes P1-P4 but not HT versus PTC+HT labels, and QC-only is stronger than H&amp;E. Use it as label-free spatial support with explicit QC residualization, not disease-group validation.</p>
+            <p class="muted">Supplementary Table S5 maps P1/P2 to PTC+HT and P3/P4 to HT, but disease groups are only n=2 slides each and QC-only is stronger than H&amp;E. Use it as local spatial support with explicit QC residualization, not robust disease-group validation.</p>
           </div>
         </div>
         <div class="figure">
@@ -353,6 +389,22 @@
           <img src="assets/paper2_path2space/fig_gse230424_residual_target_controls.png" alt="GSE230424 residual-target controls">
         </div>
         <p class="muted">The residual-target control is the strictest version of the test: observed DM1/low-RAI is first residualized within each sample against coordinates and ST QC variables, and H&amp;E is then trained to predict that residual. The retained rho 0.232 supports a smaller image-aligned component beyond the QC/tissue-density signal.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_feature_ablation_controls.png" alt="GSE230424 feature-family ablation controls">
+        </div>
+        <p class="muted">Feature-family ablation keeps the claim honest. Large-patch morphology at radius 96 is the strongest single family for both raw DM1/RAI (rho 0.645) and coord+QC residual DM1/RAI (rho 0.246), while RGB-only and density/texture-only features remain weaker. This argues against a single stain-summary artifact, but does not remove the QC/stain caveat.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_random_module_specificity.png" alt="GSE230424 matched random-module specificity controls">
+        </div>
+        <p class="muted">Matched random-module controls ask whether DM1/RAI is just another image-predictable spatial gene set. Among 250 expression/detection-matched random 8-gene modules, actual DM1/RAI sits at the 99.2nd percentile for raw H&amp;E prediction and above all matched null modules after coordinate+QC residualization. Leave-one-gene-out panel rho stays stable, arguing against single-gene dominance.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png" alt="GSE230424 spatial-autocorrelation-adjusted specificity caveat">
+        </div>
+        <p class="muted">Spatial-autocorrelation adjustment reverses the specificity readout. After modeling matched random-module H&amp;E predictability from neighbor autocorrelation, coordinate-block variance, and target standard deviation, DM1/RAI is below the expected random-module trend. This does not erase the positive H&amp;E signal, but it prevents a strong GSE230424-only molecular-specificity claim.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_ptc_marker_extension.png" alt="GSE230424 PTC marker extension">
+        </div>
+        <p class="muted">The article's own Supplementary Table S6 PTC-marker program is descriptively higher in PTC+HT than HT and modestly H&amp;E-predictable, but QC-only remains stronger and strict residual prediction is weak. Keep it as a supportive/caveat extension, not a main claim.</p>
       </section>
 
       <section id="gse248205">
@@ -373,13 +425,131 @@
         <p class="muted">This prevents overclaiming: not every thyroid autoimmune ST dataset gives a valid local H&amp;E signal. The Paper 2 evidence should lean on GSE250521 plus GSE230424, with GSE248205 retained as a caveat-only control.</p>
       </section>
 
+      <section id="bootstrap">
+        <h2><span class="num">09</span>Bootstrap Uncertainty</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_bootstrap_uncertainty.png" alt="Bootstrap uncertainty for Path2Space-inspired evidence layers">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Centered rho</th><th>95% bootstrap CI</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI DM1/RAI smoothed spots</td><td>0.440</td><td>0.408 to 0.475</td></tr>
+            <tr><td>GSE250521 UNI DM1/RAI coordinate domains</td><td>0.581</td><td>0.381 to 0.729</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI smoothed spots</td><td>0.644</td><td>0.634 to 0.655</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI coordinate domains</td><td>0.910</td><td>0.788 to 0.956</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI coord+QC residual target</td><td>0.232</td><td>0.217 to 0.248</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Bootstrap intervals stay above zero across the main spot-level, domain-level, and strict residual-target evidence layers. Treat these as descriptive stability intervals; independent-cohort replication remains the stronger validation layer.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_downsample_robustness.png" alt="Spot-budget downsampling robustness for Path2Space-inspired evidence layers">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>200 spots/group median rho</th><th>95% interval</th><th>Median top-bottom</th><th>Median hotspot lift</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI raw DM1/RAI</td><td><strong class="good">0.442</strong></td><td>0.411 to 0.473</td><td>1.481</td><td>3.50x</td></tr>
+            <tr><td>GSE250521 UNI coord+QC residual DM1/RAI</td><td>0.214</td><td>0.178 to 0.246</td><td>0.129</td><td>2.53x</td></tr>
+            <tr><td>GSE230424 H&amp;E raw DM1/low-RAI</td><td><strong class="good">0.641</strong></td><td>0.602 to 0.683</td><td>0.712</td><td>3.25x</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual DM1/low-RAI</td><td>0.240</td><td>0.173 to 0.302</td><td>0.161</td><td>1.50x</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Spot-budget equalization asks whether the strong GSE230424 result is mainly a large-sample artifact. Repeated 200-spot-per-slide/sample resampling preserves the raw signal and the smaller residual correlation. The residual hotspot-lift interval is wider and can approach baseline, so this layer should be used as rho/top-bottom robustness rather than a standalone hotspot claim.</p>
+      </section>
+
+      <section id="hotspots">
+        <h2><span class="num">10</span>Hotspot Concordance</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_hotspot_concordance.png" alt="Hotspot concordance for predicted and observed high DM1 RAI regions">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Exact top-decile precision</th><th>Lift / OR / permutation p</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI DM1/RAI</td><td>0.350</td><td>3.50x / OR 6.92 / p=0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI</td><td>0.333</td><td>3.32x / OR 6.22 / p=0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual target</td><td>0.163</td><td>1.63x / OR 1.90 / p=0.001</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">This layer converts continuous prediction into a spatial localization question: do predicted high-DM1/RAI spots recover observed high-DM1/RAI hotspots within each slide/sample? Exact top-k thresholds avoid tie-inflated hotspot rates. The residual-target test is weaker but remains enriched above independence after coordinate+QC removal.</p>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_decile_dose_response.png" alt="Predicted-decile dose response for Path2Space-inspired DM1 RAI signals">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Top-minus-bottom observed axis</th><th>Decile Spearman</th><th>Interpretation</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI raw DM1/RAI</td><td><strong class="good">1.479</strong></td><td>0.407</td><td>Strong threshold-independent ranking support</td></tr>
+            <tr><td>GSE250521 UNI coord+QC residual DM1/RAI</td><td>0.128</td><td>0.206</td><td>Small positive residual dose response</td></tr>
+            <tr><td>GSE230424 H&amp;E raw DM1/low-RAI</td><td><strong class="good">0.699</strong></td><td>0.607</td><td>Strong external ranking support</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual DM1/low-RAI</td><td>0.159</td><td>0.222</td><td>Small positive residual dose response</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Predicted-decile dose response avoids relying on a single top-decile hotspot threshold. Higher predicted bins carry progressively higher observed DM1/RAI within slide/sample. The raw layers are strong; residual layers remain positive but small, preserving the QC and spatial-smoothness caveats.</p>
+      </section>
+
+      <section id="blocks">
+        <h2><span class="num">11</span>Spatial-Block Controls</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_spatial_block_controls.png" alt="Spatial-block controls for image to DM1 RAI signal">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Block-centered rho</th><th>Block-stratified hotspot p</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI DM1/RAI</td><td>0.380</td><td>0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI</td><td>0.497</td><td>0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual target</td><td>0.198</td><td>0.001</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">Spatial blocks remove broad coordinate-domain means before correlation and preserve broad hotspot density during permutation. Signal attenuation is expected, but the main and strict residual-target layers remain positive, arguing against a purely broad-domain artifact.</p>
+      </section>
+
+      <section id="distance">
+        <h2><span class="num">12</span>Nearest-Hotspot Distance Caveat</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_path2space_hotspot_distance_controls.png" alt="Nearest-hotspot distance controls for predicted and observed high DM1 RAI spots">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Observed median distance</th><th>Block-null mean</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>GSE250521 UNI DM1/RAI</td><td>1.803 grid spacings</td><td>2.566</td><td>Pass; p=0.001</td></tr>
+            <tr><td>GSE230424 H&amp;E DM1/low-RAI</td><td>1.000 grid spacing</td><td>1.001</td><td>Caveat; p=0.998</td></tr>
+            <tr><td>GSE230424 H&amp;E coord+QC residual target</td><td>2.236 grid spacings</td><td>1.421</td><td>Caveat; p=1.000</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">The distance test allows near-miss localization rather than exact spot overlap. GSE250521 passes this stricter spatial-proximity control. In GSE230424, exact hotspot overlap and block-centered correlation remain positive, but nearest-distance is dominated by dense block geometry; keep this as an honest caveat rather than a support claim.</p>
+      </section>
+
+      <section id="smoothness">
+        <h2><span class="num">13</span>Smoothness-Adjusted Specificity Caveat</h2>
+        <div class="figure">
+          <img src="assets/paper2_path2space/fig_gse230424_spatial_autocorr_specificity.png" alt="Spatial autocorrelation adjusted random module specificity in GSE230424">
+        </div>
+        <table>
+          <thead><tr><th>Evidence layer</th><th>Observed H&amp;E rho</th><th>Expected from smoothness</th><th>Adjusted residual</th><th>Disposition</th></tr></thead>
+          <tbody>
+            <tr><td>GSE230424 raw smoothed DM1/RAI</td><td>0.644</td><td>0.765</td><td><strong class="bad">-0.121</strong></td><td>Below smoothness-matched expectation; percentile 1.6%, p=0.984</td></tr>
+            <tr><td>GSE230424 coord+QC residual target</td><td>0.232</td><td>0.422</td><td><strong class="bad">-0.190</strong></td><td>Below all matched random residuals; percentile 0.0%, p=1.000</td></tr>
+          </tbody>
+        </table>
+        <p class="muted">This is the strongest anti-overclaim control on the GSE230424 external cohort. The matched random-module test is impressive before adjustment, but after accounting for target spatial autocorrelation, coordinate-block variance, and target scale, DM1/RAI is not exceptional. Safe framing: H&amp;E recovers a positive local thyroid DM1/RAI axis, but GSE230424 alone does not prove molecular specificity independent of spatial smoothness.</p>
+      </section>
+
       <section id="decision">
-        <h2><span class="num">09</span>Decision Matrix</h2>
+        <h2><span class="num">14</span>Decision Matrix</h2>
         <table class="decision">
           <thead><tr><th>Question</th><th>Evidence</th><th>Disposition</th></tr></thead>
           <tbody>
             <tr><td>Can H&amp;E recover local DM1/RAI spatial signal?</td><td>Smoothed LOSO rho 0.392; 12/16 slides rho &gt; 0.2</td><td>Use for Paper 2</td></tr>
+            <tr><td>Is the GSE250521 signal specific to DM1/RAI?</td><td>Raw matched-random p=0.108 and smoothness-adjusted residual -0.073; coord+QC residual target rho 0.213, matched-random p=0.004, smoothness-adjusted residual +0.045</td><td>Residual-layer support; raw caveat</td></tr>
+            <tr><td>Is GSE250521 only a stage classifier?</td><td>Stage-centered DM1/RAI rho 0.392; leave-one-stage-out raw rho 0.335; residual leave-one-stage-out rho 0.140</td><td>No for raw/local signal; residual transfer caveat</td></tr>
             <tr><td>Does an independent thyroid Visium cohort support this?</td><td>GSE230424 DM1/low-RAI H&amp;E sample-centered rho 0.644; coord+QC residual rho 0.283; strict residual-target rho 0.232</td><td>Use as external support with QC caveat</td></tr>
+            <tr><td>Is the GSE230424 signal only a simple color/stain artifact?</td><td>r96-only morphology retains raw rho 0.645 and coord+QC residual rho 0.246; RGB-only residual rho 0.143</td><td>Not single-feature only; keep stain/QC caveat</td></tr>
+            <tr><td>Is DM1/RAI more specific than matched random modules?</td><td>250 matched random modules: raw percentile 99.2%, empirical p=0.012; residual-target percentile 100.0%, p=0.004</td><td>Unadjusted specificity support</td></tr>
+            <tr><td>Does that specificity survive spatial-smoothness adjustment?</td><td>Raw expected rho 0.765 vs observed 0.644, adjusted residual -0.121; residual-target expected 0.422 vs observed 0.232, adjusted residual -0.190</td><td>No; disclose caveat</td></tr>
+            <tr><td>Do the main effects survive bootstrap uncertainty?</td><td>GSE230424 residual-target rho 0.232, 95% CI 0.217 to 0.248; GSE250521 domain rho 0.581, CI 0.381 to 0.729</td><td>Stability support</td></tr>
+            <tr><td>Is GSE230424 only stronger because it has more spots?</td><td>After 1000 repeats at 200 spots/sample: raw median rho 0.641 [0.602, 0.683], residual median rho 0.240 [0.173, 0.302]</td><td>No for correlation robustness; residual hotspot lift remains weak</td></tr>
+            <tr><td>Do predicted high-DM1/RAI regions localize observed hotspots?</td><td>Exact top-decile lift: GSE250521 3.50x; GSE230424 3.32x; strict residual target 1.63x; all permutation p=0.001</td><td>Spatial localization support</td></tr>
+            <tr><td>Is hotspot support threshold-dependent?</td><td>Predicted-decile top-minus-bottom: GSE250521 raw 1.479 and residual 0.128; GSE230424 raw 0.699 and residual 0.159</td><td>No for raw signal; residual dose response is positive but small</td></tr>
+            <tr><td>Is the hotspot signal only broad coordinate-domain structure?</td><td>Block-centered rho remains 0.380 in GSE250521, 0.497 in GSE230424, and 0.198 in strict residual target; block-stratified hotspot p=0.001</td><td>Broad-domain artifact unlikely</td></tr>
+            <tr><td>Do predicted hotspots sit closer to observed hotspots under block nulls?</td><td>GSE250521 passes (1.803 vs 2.566 grid spacings, p=0.001); GSE230424 fails nearest-distance block null</td><td>Mixed; disclose caveat</td></tr>
             <tr><td>Does smoothing matter?</td><td>DM1/RAI rho 0.295 to 0.392</td><td>Yes, keep</td></tr>
             <tr><td>Does domain aggregation strengthen the signal?</td><td>DM1/RAI domain slide-centered rho 0.581</td><td>Strong supporting analysis</td></tr>
             <tr><td>Is it only coordinate/stage?</td><td>Coordinate-only rho 0.133; stage-only near null</td><td>No</td></tr>
@@ -393,7 +563,7 @@
       </section>
 
       <section id="sources">
-        <h2><span class="num">10</span>Sources And Paths</h2>
+        <h2><span class="num">15</span>Sources And Paths</h2>
         <table>
           <thead><tr><th>Artifact</th><th>Path</th></tr></thead>
           <tbody>
@@ -404,9 +574,21 @@
             <tr><td>SPAND table</td><td><code>path2space_spand_by_slide.tsv</code></td></tr>
             <tr><td>Cluster tables</td><td><code>path2space_spatial_cluster_*.tsv</code></td></tr>
             <tr><td>Strengthening controls</td><td><code>analysis_supp/path2space_inspired_reanalysis_2026_05_09/strengthening_controls/</code></td></tr>
+            <tr><td>GSE250521 random-module specificity and smoothness adjustment</td><td><code>analysis_supp/path2space_gse250521_random_module_specificity_2026_05_09/</code></td></tr>
+            <tr><td>GSE250521 stage-generalization controls</td><td><code>analysis_supp/path2space_stage_generalization_controls_2026_05_09/</code></td></tr>
             <tr><td>GSE230424 script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/gse230424_pathology_thyroid_axis.py</code></td></tr>
             <tr><td>GSE230424 report</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/GSE230424_PATHOLOGY_THYROID_REPORT.md</code></td></tr>
             <tr><td>GSE230424 residual-target controls</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/residual_target_controls/</code></td></tr>
+            <tr><td>GSE230424 feature-family ablation</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/feature_ablation_controls/</code></td></tr>
+            <tr><td>GSE230424 random-module specificity</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/random_module_specificity/</code></td></tr>
+            <tr><td>GSE230424 spatial-autocorrelation specificity caveat</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/spatial_autocorr_specificity/</code></td></tr>
+            <tr><td>GSE230424 PTC marker extension</td><td><code>analysis_supp/gse230424_pathology_thyroid_axis_2026_05_09/ptc_marker_extension/</code></td></tr>
+            <tr><td>Bootstrap uncertainty</td><td><code>analysis_supp/path2space_bootstrap_uncertainty_2026_05_09/</code></td></tr>
+            <tr><td>Spot-budget downsampling robustness</td><td><code>analysis_supp/path2space_downsample_robustness_2026_05_09/</code></td></tr>
+            <tr><td>Hotspot concordance</td><td><code>analysis_supp/path2space_hotspot_concordance_2026_05_09/</code></td></tr>
+            <tr><td>Predicted-decile dose response</td><td><code>analysis_supp/path2space_decile_dose_response_2026_05_09/</code></td></tr>
+            <tr><td>Spatial-block controls</td><td><code>analysis_supp/path2space_spatial_block_controls_2026_05_09/</code></td></tr>
+            <tr><td>Nearest-hotspot distance controls</td><td><code>analysis_supp/path2space_hotspot_distance_controls_2026_05_09/</code></td></tr>
             <tr><td>GSE248205 script</td><td><code>project/results/p2_image_dm1_v2_foundation_clam_2026_05_07/scripts/gse248205_pathology_aitd_axis.py</code></td></tr>
             <tr><td>GSE248205 report</td><td><code>analysis_supp/gse248205_pathology_aitd_axis_2026_05_09/GSE248205_PATHOLOGY_AITD_REPORT.md</code></td></tr>
           </tbody>

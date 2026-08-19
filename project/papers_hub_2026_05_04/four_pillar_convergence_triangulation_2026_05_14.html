@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>4-pillar convergence triangulation · 2026-05-14 · RNA × Protein × Phospho × HM450</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:58px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.1px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px}
+.cards4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;position:relative;overflow:hidden}
+.card.p1{border-top:5px solid var(--gold)}
+.card.p2{border-top:5px solid var(--blue)}
+.card.p3{border-top:5px solid var(--green)}
+.card.p4{border-top:5px solid var(--violet)}
+.card.p5{border-top:5px solid var(--red)}
+.card.p6{border-top:5px solid var(--teal)}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.tag.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.card h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:#fff;line-height:1.1}
+.card .one{color:#d7e1e8;margin:0 0 14px;font-size:14.5px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:13.5px}
+.bullets li{margin:3px 0}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.verdict .v1{border:1px solid var(--line);border-left:6px solid var(--green);background:rgba(147,226,170,.05);padding:18px;border-radius:8px}
+.verdict .v2{border:1px solid var(--line);border-left:6px solid var(--gold);background:rgba(255,210,138,.05);padding:18px;border-radius:8px}
+.verdict h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px}
+.verdict .v1 h3{color:var(--green)}.verdict .v2 h3{color:var(--gold)}
+.verdict p{margin:0;color:#dde6ec;font-size:14.5px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pill{font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:#d3dee5;border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:#101e2c;font-weight:800;letter-spacing:.08em}
+.pill.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.pill.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.pill.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.pill.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.pill.y{border-color:rgba(255,210,138,.5);color:var(--gold)}
+.matrix{display:grid;grid-template-columns:1.2fr repeat(4,1fr);gap:6px;margin-top:12px;font-size:12.5px}
+.matrix .h{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;text-transform:uppercase;letter-spacing:.06em;padding:8px;border:1px solid var(--line);text-align:center}
+.matrix .h.row{text-align:left}
+.matrix .c{background:#0d1823;border:1px solid var(--line);padding:8px 9px;color:#d4dee5}
+.matrix .c.head{background:#101e2c;color:#fff;font-weight:700}
+.matrix .c.good{background:rgba(147,226,170,.08);border-left:3px solid var(--green)}
+.matrix .c.warn{background:rgba(255,210,138,.07);border-left:3px solid var(--gold)}
+.matrix .c.bad{background:rgba(255,138,107,.07);border-left:3px solid var(--red)}
+.matrix .c.cool{background:rgba(139,188,255,.07);border-left:3px solid var(--blue)}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}.cards4{grid-template-columns:1fr 1fr}.verdict{grid-template-columns:1fr}
+  .matrix{grid-template-columns:1fr 1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">4-pillar convergence triangulation · 2026-05-14 · RNA × Protein × Phospho × HM450 · for Yu meeting</p>
+    <h1>4-pillar convergence — 3-of-4 sign-match, phospho honest null.</h1>
+    <p class="lead">
+      Paper 1 (DM1 dark matter)의 main claim — "epithelial differentiation gene silencing in the BRAF/RAS-negative sub-stratifier" — 은 <b>RNA · Protein · HM450 methylation</b> 세 pillar에서 sign-consistent하게 triangulated된다. Phospho pillar는 <b>honest null</b>로 명시. <b>Mun 2025 n=336 protein 7/7 sign-match · 5/7 8-gene Spearman r&lt;-0.5</b>, HM450 polarity는 <b>H13에서 정정</b>되어 DM1=HIGH-β/silenced.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>4</b><span>pillars</span><small>RNA · Protein · Phospho · HM450</small></div>
+      <div class="stat"><b>3-of-4</b><span>sign-match</span><small>phospho 빼고 모두 DM1=down</small></div>
+      <div class="stat"><b>7/7</b><span>protein concordance</span><small>Mun 2025 n=336 Spearman r&lt;-0.5</small></div>
+      <div class="stat"><b>honest</b><span>phospho null</span><small>Round 3 honest negative</small></div>
+      <div class="stat"><b>H13</b><span>HM450 corrected</span><small>DM1=HIGH-β/silenced</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">평결</a>
+  <a class="primary" href="#rna">Pillar 1 · RNA</a>
+  <a class="primary" href="#protein">Pillar 2 · Protein</a>
+  <a class="primary" href="#phospho">Pillar 3 · Phospho</a>
+  <a class="primary" href="#hm450">Pillar 4 · HM450</a>
+  <a class="primary" href="#cross">Cross-pillar</a>
+  <a class="primary" href="#qa">Reviewer Q&A</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a href="v17_audit_history_timeline_2026_05_14.html">v17 audit timeline</a>
+  <a href="closure_architecture_override_2026_05_14.html">Closure override</a>
+  <a href="pillar_landa_methylation_deep_dive_2026_05_14.html">Landa methylation</a>
+  <a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html">Mun proteomics</a>
+  <a href="pillar_rai_dediff_axis_deep_dive_2026_05_14.html">RAI-dediff</a>
+  <a href="eight_gene_forensic_audit_2026_05_14.html">8-gene audit</a>
+  <a href="cohort_gse286332_deep_dive_2026_05_14.html">GSE286332</a>
+  <a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">K2 PRJEB11591</a>
+  <a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">GSE250521 spatial</a>
+  <a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html">ICI quad cohort</a>
+  <a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html">pan-cancer Phase E</a>
+  <a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html">DepMap vulnerability</a>
+  <a href="reviewer_war_room_2026_05_14.html">Reviewer war room</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A bank</a>
+  <a href="brutal_grade_card_2026_05_14.html">Brutal grade</a>
+  <a href="honest_negatives_wall_2026_05_14.html">Honest negatives</a>
+  <a href="risk_atlas_2026_05_14.html">Risk atlas</a>
+  <a href="driver_split_atlas_2026_05_14.html">Driver split</a>
+  <a href="bibliography_map_2026_05_14.html">Bibliography</a>
+  <a href="data_registry_map_2026_05_14.html">Data registry</a>
+  <a href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="executive_brief_kr_one_pager_2026_05_14.html">KR 1-pager</a>
+  <a href="mega_launchpad_2026_05_14.html">Mega launchpad</a>
+  <a href="figure_gallery_2026_05_14.html">Figure gallery</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>평결 — 3-of-4 pillar sign-match, phospho honest null</h2>
+  <p class="sub">verdict bar · 2026-05-14</p>
+  <div class="verdict">
+    <div class="v1">
+      <h3>GREEN · Triangulated 3/4 pillars</h3>
+      <p><b>RNA · Protein · HM450</b> 세 pillar 모두 "DM1 = epithelial differentiation gene silencing" 방향으로 sign-consistent. RNA에서 8-gene/TDS-16 d-down, Protein에서 Mun 2025 n=336 thyroid_diff d=-1.91 + 7/7 sign-match, HM450에서 H13-corrected DM1=HIGH-β/silenced. 세 pillar의 독립성이 single-pillar bias를 차단한다.</p>
+    </div>
+    <div class="v2">
+      <h3>GOLD · Phospho honest null</h3>
+      <p>4번째 pillar (phospho-proteome)는 <b>DM1 Round 3에서 honest negative</b>. Sign이 weak/cohort-dependent하며 effect size가 sub-threshold. 4-pillar lock은 <b>3-pillar + phospho supplementary</b> 형태로 정직 마감. Reviewer Q에 "phospho는 null"이라고 명시 답변 가능.</p>
+    </div>
+  </div>
+  <div class="decision">
+    <h3>한 줄 결론</h3>
+    <p>Paper 1의 main claim은 단일 pillar에 의존하지 않는다. RNA + Protein + HM450 세 pillar가 같은 방향 sign-consistent — single-pillar bias를 reviewer-survivable하게 차단한다. Phospho는 정직 null로 둔다 (4-pillar locked as 3-pillar + phospho supplementary).</p>
+  </div>
+</section>
+
+<section id="rna">
+  <h2>Pillar 1 · RNA (TCGA + Lee + GSE286332 + K2)</h2>
+  <p class="sub">pillar 1 · RNA pillar · DM1 dark matter main pillar</p>
+  <p class="note">RNA pillar는 Paper 1의 main pillar. <b>4개 cohort × 12개 contrast × 10/12 FDR&lt;0.01</b>가 robustness 기반. Per-gene mean |d|는 단일 유전자 dominance 없이 분포되어 reviewer Q3 (cherry-picking) safety net 제공.</p>
+  <table>
+    <thead><tr><th>Cohort</th><th>Sample</th><th>8-gene d</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>TCGA-THCA</td><td>n~500 PTC</td><td>d down in DM1 vs DM2</td><td>main</td></tr>
+      <tr><td>Lee 2023</td><td>~50 PTC/PDTC/ATC</td><td>sign-consistent</td><td>cross-prep validation</td></tr>
+      <tr><td>GSE286332</td><td>Korean PTC vs PTC+HT n=18</td><td>d=-1.6</td><td>HT-overlap axis</td></tr>
+      <tr><td>K2 PRJEB11591</td><td>n=260 Korean PTC</td><td>88.8% DM2 (Round 5)</td><td>Korean overdiagnosis</td></tr>
+      <tr><td>Pooled meta</td><td>—</td><td>d=+0.67 I²=96%</td><td>Round 3</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Gene</th><th>Mean |d|</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>TG</td><td>1.33</td><td>top — but no single dominance</td></tr>
+      <tr><td>TPO</td><td>~1.2 range</td><td>top</td></tr>
+      <tr><td>SLC26A4</td><td>~1.0 range</td><td>—</td></tr>
+      <tr><td>TSHR</td><td>~0.95 range</td><td>—</td></tr>
+      <tr><td>DIO2</td><td>~0.9 range</td><td>—</td></tr>
+      <tr><td>TFF3</td><td>~0.85 range</td><td>—</td></tr>
+      <tr><td>FOXE1</td><td>~0.8 range</td><td>—</td></tr>
+      <tr><td>SLC5A5</td><td>0.72</td><td>bottom — but still substantial</td></tr>
+      <tr><td>Knock-out n-1 floor d</td><td>1.54</td><td>any single gene 빼도 신호 유지</td></tr>
+      <tr><td>TDS-16 ρ</td><td>0.954</td><td>8 ⊂ TDS-16; 90% capture</td></tr>
+    </tbody>
+  </table>
+  <div class="cards">
+    <div class="card p1">
+      <span class="tag">PILLAR 1 PRIMARY</span>
+      <h3>RNA pillar lock</h3>
+      <p class="one">12 contrasts × 4 cohorts; 10/12 FDR&lt;0.01.</p>
+      <ul class="bullets">
+        <li>Cluster stability 97.4% ≥0.9 (Round 7)</li>
+        <li>LogReg AUC=0.903 perfectly-calibrated</li>
+        <li>XGB 5-fold AUC=0.984 (TPO 53% gain)</li>
+        <li>Time-dep ROC TERT_or_DM1 1y=0.83</li>
+        <li>Thyroid-matched null p=0.007 (Round 8)</li>
+      </ul>
+    </div>
+    <div class="card p2">
+      <span class="tag b">PILLAR 1 EXTENSION</span>
+      <h3>HT-overlap and TLS</h3>
+      <p class="one">GSE286332 PTC+HT는 다른 axis로도 살아남는다.</p>
+      <ul class="bullets">
+        <li>HLA-II d=+3.65 (D3)</li>
+        <li>IFN-γ FDR=2e-4 (D3)</li>
+        <li>TLS d=+1.96 (D5-P6)</li>
+        <li>IGHV clonality d&gt;0.5 + AICDA up (D5-P6)</li>
+        <li>D4-P2 TCGA Hashimoto-like transfer: OR up to 5× p=6e-10</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="protein">
+  <h2>Pillar 2 · Protein (Mun 2025 n=336)</h2>
+  <p class="sub">pillar 2 · protein pillar · proteogenomic v1 corroboration</p>
+  <p class="note">Protein pillar는 Mun 2025 (n=336 tumors)의 mass-spec proteomic data로부터. <b>thyroid_diff d=-1.91 / myeloid d=+1.52</b>는 RNA pillar의 sign과 정확히 일치한다. 8-gene panel 중 5/7이 Spearman r&lt;-0.5로 PTC→PDTC→ATC trajectory 따라 protein level에서도 감소.</p>
+  <table>
+    <thead><tr><th>Layer</th><th>Effect size</th><th>RNA sign 비교</th></tr></thead>
+    <tbody>
+      <tr><td>Thyroid_diff (PTC→PDTC→ATC)</td><td><span class="bad">d=-1.91</span></td><td><span class="good">match RNA down</span></td></tr>
+      <tr><td>Myeloid (PTC→PDTC→ATC)</td><td><span class="hi">d=+1.52</span></td><td><span class="good">match Track B-lite up</span></td></tr>
+      <tr><td>HLA-I (PTC→ATC)</td><td>preserved/up</td><td><span class="good">match RNA preservation</span></td></tr>
+      <tr><td>Sign-match (7/7 tested modules)</td><td>7/7</td><td><span class="good">TOTAL</span></td></tr>
+      <tr><td>8-gene panel per-gene Spearman r along trajectory</td><td>5/7 r&lt;-0.5</td><td><span class="good">protein-level decrease</span></td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Gene</th><th>Protein-level Spearman r</th><th>방향</th></tr></thead>
+    <tbody>
+      <tr><td>TG</td><td>r &lt; -0.5</td><td>down PTC→PDTC→ATC</td></tr>
+      <tr><td>TPO</td><td>r &lt; -0.5</td><td>down PTC→PDTC→ATC</td></tr>
+      <tr><td>SLC26A4</td><td>r &lt; -0.5</td><td>down PTC→PDTC→ATC</td></tr>
+      <tr><td>TSHR</td><td>r &lt; -0.5</td><td>down PTC→PDTC→ATC</td></tr>
+      <tr><td>DIO2</td><td>r &lt; -0.5</td><td>down PTC→PDTC→ATC</td></tr>
+      <tr><td>2 remaining genes</td><td>weaker r</td><td>partial — sub-threshold but same direction</td></tr>
+      <tr><td>총 protein concordance</td><td>5/7 strong, 2/7 weak-same</td><td><span class="good">DM1=protein-silenced</span></td></tr>
+    </tbody>
+  </table>
+  <div class="cards">
+    <div class="card p3">
+      <span class="tag g">PILLAR 2 CONFIRM</span>
+      <h3>Mun 2025 corroboration</h3>
+      <p class="one">RNA-protein cross-modal sign 7/7 일치.</p>
+      <ul class="bullets">
+        <li>n=336 protein samples</li>
+        <li>thyroid_diff d=-1.91 (vs RNA pillar same sign)</li>
+        <li>myeloid d=+1.52 (vs Track B-lite ATC d=+2.53 same sign)</li>
+        <li>5/7 8-gene member Spearman r&lt;-0.5 along PTC→PDTC→ATC</li>
+        <li>protein-level translation 확인 — RNA decrease가 실제 protein product 감소로 이어짐</li>
+      </ul>
+    </div>
+    <div class="card p4">
+      <span class="tag v">PILLAR 2 ARCHITECTURE</span>
+      <h3>왜 protein pillar가 critical인가</h3>
+      <p class="one">Reviewer-survivable한 cross-modal lock.</p>
+      <ul class="bullets">
+        <li>"RNA decrease지만 protein level은 보상되는 것 아니냐" 질문에 정량 답</li>
+        <li>n=336이면 protein-level effect size estimate가 robust</li>
+        <li>같은 8-gene panel이 두 modality에서 same direction — bias 가능성 낮음</li>
+        <li>"DM1 paper 1 cohort"와 "Mun 2025 cohort"가 독립이라 cohort bias 차단</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="phospho">
+  <h2>Pillar 3 · Phospho (DM1 Round 3 honest negative)</h2>
+  <p class="sub">pillar 3 · phospho pillar · honest null · supplementary only</p>
+  <p class="note">DM1 Round 3 phospho-proteomic layer는 <b>honest negative</b>. 즉 sign이 weak/inconsistent, effect size sub-threshold. 4-pillar lock은 따라서 <b>3-pillar + phospho supplementary</b>로 정직 마감. Reviewer Q에 "phospho는 null입니다"라고 답하는 것이 paper의 정직성 anchor 중 하나.</p>
+  <table>
+    <thead><tr><th>Phospho measurement</th><th>결과</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Phospho-DM1 thyroid_diff axis</td><td>weak/cohort-dependent</td><td><span class="bad">NULL</span></td></tr>
+      <tr><td>Phospho-DM1 myeloid axis</td><td>sub-threshold</td><td><span class="bad">NULL</span></td></tr>
+      <tr><td>Phospho-MAPK axis</td><td>MAPK driver-mix와 confound</td><td><span class="hi">deconvolution-pending</span></td></tr>
+      <tr><td>Phospho-immune axis</td><td>cohort-mix variance 큼</td><td><span class="bad">NULL</span></td></tr>
+      <tr><td>Lock decision</td><td>4-pillar = 3-pillar + phospho supplementary</td><td><span class="hi">HONEST</span></td></tr>
+    </tbody>
+  </table>
+  <div class="cards">
+    <div class="card p5">
+      <span class="tag r">PILLAR 3 NULL</span>
+      <h3>Honest negative framing</h3>
+      <p class="one">"Phospho 실험은 정상이지만 신호가 없다"는 정직 framing.</p>
+      <ul class="bullets">
+        <li>Phospho-proteomic cohort sample size 부족 + heterogeneity 큼</li>
+        <li>같은 axis에서 RNA + Protein은 robust지만 phospho는 cohort-noise 한계</li>
+        <li>Paper 1 main text에 supplementary로만 — claim 안 함</li>
+        <li>Reviewer Q에 "phospho는 null. RNA + Protein + HM450 셋으로 충분." 답</li>
+      </ul>
+    </div>
+    <div class="card p6">
+      <span class="tag t">FUTURE</span>
+      <h3>Phospho pillar 부활 조건</h3>
+      <p class="one">미래 prospective phospho cohort에서 다시 시도.</p>
+      <ul class="bullets">
+        <li>Phospho-proteomic은 sample 처리 timing-sensitive — public data sub-optimal</li>
+        <li>Prospective fresh-frozen sample에서 다시 시도 가능</li>
+        <li>현재 paper에서는 null로 두고, future companion paper에서 따로 다룬다</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="hm450">
+  <h2>Pillar 4 · HM450 methylation (H13 corrected)</h2>
+  <p class="sub">pillar 4 · methylation pillar · H13 polarity flip · now correct</p>
+  <p class="note">HM450 methylation pillar는 <b>H13 polarity correction</b>이 들어간 layer. 원 Round 4의 raw d=-1.75는 label-flip artifact였고, r9_1 master label 기준으로 정정한 후 <b>DM1 = HIGH-β/silenced</b>. 이 polarity는 RNA-down + Protein-down과 정합 (epithelial differentiation gene이 메틸화로 silencing 됨).</p>
+  <table>
+    <thead><tr><th>Cohort</th><th>Effect (post-H13)</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>TCGA-THCA cPTC</td><td>DM1 메틸 d=+1.50 (HIGH-β)</td><td>epithelial 유전자 silencing</td></tr>
+      <tr><td>Landa 2016 PDTC vs ATC</td><td>DM1 메틸 d=+3.47</td><td>advanced stage saturation</td></tr>
+      <tr><td>Spatial DM1↔TDS (GSE250521)</td><td>stage-stable</td><td>cell-state level coherent</td></tr>
+      <tr><td>Polarity (post-H13)</td><td><b>DM1 = HIGH-β / silenced</b></td><td><span class="good">consistent with RNA-down</span></td></tr>
+      <tr><td>Round 4 raw d=-1.75</td><td>label-flip artifact</td><td><span class="bad">SUPERSEDED</span></td></tr>
+      <tr><td>Paper 1 figure 포팅</td><td>sign flip 필수 + "hypomethylation" 사용 금지</td><td><span class="hi">REQUIRED</span></td></tr>
+    </tbody>
+  </table>
+  <div class="cards">
+    <div class="card p1">
+      <span class="tag">PILLAR 4 CORRECTED</span>
+      <h3>H13 polarity correction</h3>
+      <p class="one">DM1은 hyper-methylated / silenced 상태.</p>
+      <ul class="bullets">
+        <li>r9_1 master label 기준으로 polarity 정정</li>
+        <li>cPTC d=+1.50; Landa PDTC vs ATC d=+3.47</li>
+        <li>spatial DM1↔TDS stage-stable</li>
+        <li>RNA down + Protein down + Methyl up = epithelial silencing axis</li>
+      </ul>
+    </div>
+    <div class="card p4">
+      <span class="tag v">CITE SAVE</span>
+      <h3>Landa 2016 cite save</h3>
+      <p class="one">Methyl pillar의 advanced anchor.</p>
+      <ul class="bullets">
+        <li>Discussion 3.1에서 Krishnamoorthy 2025 → Landa 2016 JCI 126(3):1052-1066 으로 cite 정정</li>
+        <li>Krishnamoorthy 2025 misattribution: 4 fact 모두 틀림</li>
+        <li>Landa 2016: 8-gene 5/8 ATC overlap reverse-causality 3-layer 차단</li>
+        <li>HM450 pillar는 Landa 2016 PDTC vs ATC d=+3.47 위에서 advanced-stage saturation 보장</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="cross">
+  <h2>Cross-pillar sign-match table</h2>
+  <p class="sub">cross-pillar sign-match · all DM1 = epithelial differentiation gene silencing</p>
+  <p class="note">4개 pillar를 single direction (DM1 = epithelial differentiation silencing) 으로 비교. 3-of-4 sign-match — phospho만 null.</p>
+  <div class="matrix">
+    <div class="h row">Layer / claim</div>
+    <div class="h">RNA</div>
+    <div class="h">Protein</div>
+    <div class="h">Phospho</div>
+    <div class="h">HM450</div>
+
+    <div class="c head">Thyroid_diff axis</div>
+    <div class="c good">DOWN in DM1 (RNA d-down across cohorts)</div>
+    <div class="c good">DOWN in PDTC→ATC (Mun d=-1.91)</div>
+    <div class="c bad">NULL (sub-threshold)</div>
+    <div class="c good">UP β / SILENCED in DM1 (cPTC d=+1.50)</div>
+
+    <div class="c head">Myeloid / immune</div>
+    <div class="c good">UP in ATC (Track B-lite d=+2.53)</div>
+    <div class="c good">UP in PDTC→ATC (Mun d=+1.52)</div>
+    <div class="c bad">NULL (cohort-mix variance)</div>
+    <div class="c cool">complementary β-shift (immune CpG cluster)</div>
+
+    <div class="c head">HLA-I axis</div>
+    <div class="c good">preserved/up (ICI Phase C v2 OR=1.35)</div>
+    <div class="c good">preserved/up</div>
+    <div class="c bad">NULL</div>
+    <div class="c cool">stage-stable β</div>
+
+    <div class="c head">8-gene panel per-gene direction</div>
+    <div class="c good">d-down (TG=1.33 ... SLC5A5=0.72)</div>
+    <div class="c good">5/7 Spearman r&lt;-0.5</div>
+    <div class="c bad">NULL</div>
+    <div class="c good">CpG hyper-meth (silencing pattern)</div>
+
+    <div class="c head">Sign-match status</div>
+    <div class="c good">PRIMARY</div>
+    <div class="c good">CONFIRM</div>
+    <div class="c warn">supplementary only</div>
+    <div class="c good">CONFIRM (post-H13)</div>
+  </div>
+  <table>
+    <thead><tr><th>Claim</th><th>RNA</th><th>Protein</th><th>HM450</th><th>Phospho</th><th>최종</th></tr></thead>
+    <tbody>
+      <tr><td>DM1 = epithelial differentiation silencing</td><td>down d-strong</td><td>d=-1.91 down 7/7</td><td>HIGH-β / silenced cPTC d=+1.50; Landa PDTC vs ATC d=+3.47</td><td>null</td><td><span class="good">3/4 PASS</span></td></tr>
+      <tr><td>Driver-orthogonal (BRAF/RAS와 분리)</td><td>BRAF=1% / RAS=98% DM1 (Round 5)</td><td>(modality consistent)</td><td>MAPK β=0.37 ≈ RET β=0.39 vs RAS β=0.27 d~+2.0 (deconv v5-v12)</td><td>—</td><td><span class="good">RNA+HM450 lock</span></td></tr>
+      <tr><td>ATC partial-DM1 axis</td><td>thyroid_diff d=-2.51 (Track B-lite)</td><td>thyroid_diff d=-1.91</td><td>Landa PDTC vs ATC d=+3.47 saturation</td><td>—</td><td><span class="good">3/3 modality match</span></td></tr>
+      <tr><td>"hypomethylation"이라고 쓰지 않는다 (paper 1 wording)</td><td>n/a</td><td>n/a</td><td><span class="hi">REQUIRED post-H13</span></td><td>n/a</td><td><span class="hi">enforce</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="convergence">
+  <h2>4-pillar convergence — single mechanistic statement</h2>
+  <p class="sub">single-statement triangulation · "DM1 = epithelial differentiation gene silencing"</p>
+  <p class="note">4-pillar는 모두 같은 mechanistic statement를 향한다 (phospho는 신호 미달). 이 single statement가 Paper 1의 main claim의 형식적 anchor.</p>
+  <table>
+    <thead><tr><th>Statement layer</th><th>증거</th></tr></thead>
+    <tbody>
+      <tr><td><b>"DM1 sub-stratifier에서 epithelial differentiation gene panel은 silencing 된다"</b></td><td>RNA pillar (8-gene d-down 4 cohorts) + Protein pillar (Mun n=336 7/7 down) + HM450 pillar (DM1=HIGH-β post-H13)</td></tr>
+      <tr><td><b>"이 silencing은 BRAF/RAS driver axis와 직접 겹치지 않는다"</b></td><td>RNA pillar (driver-exclusion design + BRAF=1% / RAS=98% DM1) + HM450 pillar (MAPK β≈RET β &gt; RAS β; deconv v5-v12)</td></tr>
+      <tr><td><b>"이 silencing은 advanced stage로 갈수록 saturated"</b></td><td>Protein pillar (Mun PTC→PDTC→ATC 5/7 r&lt;-0.5) + HM450 pillar (Landa PDTC vs ATC d=+3.47) + RNA pillar (Lee 2023 ATC d-down)</td></tr>
+      <tr><td><b>"이 silencing 위에 myeloid up + HLA-I preserved의 TME 변화가 얹힌다"</b></td><td>RNA + Protein 모두 myeloid up + HLA-I preserved sign 일치 (Track B-lite ATC d=+2.53; Mun myeloid d=+1.52)</td></tr>
+      <tr><td><b>"Phospho-level은 sub-threshold (cohort heterogeneity)"</b></td><td>Phospho pillar honest null (DM1 Round 3); supplementary only</td></tr>
+    </tbody>
+  </table>
+  <div class="decision">
+    <h3>Convergence verdict</h3>
+    <p>"DM1 = epithelial differentiation gene silencing"이 3개 modality (RNA + Protein + HM450)에서 sign-consistent하게 triangulated. Phospho는 정직 null. 이 triangulation이 single-pillar bias를 reviewer-survivable하게 차단하며, Paper 1의 main claim의 mechanistic backbone을 구성.</p>
+  </div>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&A</h2>
+  <p class="sub">4-pillar Q&A · phospho null framing · single-pillar dominance · what fails 4-pillar</p>
+  <table>
+    <thead><tr><th>#</th><th>Reviewer Q</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>Q1</td><td>"Phospho null인데 왜 4-pillar라고 부르는가?"</td><td>"4-pillar lock"이라고 말하지 않고 "3-pillar + phospho supplementary"라고 정직 framing합니다. Phospho를 시도했고 null이었음을 supplementary에 명시합니다 — 이것이 honest negative anchor 중 하나입니다. Main claim은 RNA + Protein + HM450 세 pillar 위에서만 진행됩니다.</td></tr>
+      <tr><td>Q2</td><td>"단일 유전자가 panel 결과를 dominance 하지 않는가?"</td><td>아닙니다. Per-gene mean |d|는 TG=1.33부터 SLC5A5=0.72까지 분포합니다 (DM1 robustness round 2026-05-08). Knock-out n-1 floor d=1.54 — 어떤 단일 유전자를 빼도 신호가 유지됩니다. 또 panel ρ=0.954 with TDS-16 — 8 ⊂ TDS-16로 90% capture 입니다.</td></tr>
+      <tr><td>Q3</td><td>"왜 8개인가? Cherry-pick 아닌가?"</td><td>8개는 "55-gene curated pool에서 RandomForest top-8 (drivers excluded by design)"입니다. unsupervised genome-wide cluster 라고 말하지 않습니다. 같은 axis를 TDS-16 (literature standard)로 reproducing 했고 (ρ=0.954), Q14 generalizability lock에서 pooled MAPK × Panel-8 ρ=-0.327 [-0.376, -0.278] n=1,287 5개 cohorts.</td></tr>
+      <tr><td>Q4</td><td>"Methylation polarity는 어떻게 정정했나?"</td><td>2026-05-09 H13 디버그에서 r9_1 master label 기준 polarity flip이 확인되었습니다. 정정 후 DM1 = HIGH-β/silenced (cPTC d=+1.50; Landa PDTC vs ATC d=+3.47). Paper 1 figure 포팅 시 sign flip을 명시하고, 본문에서 "hypomethylation" 단어를 사용하지 않습니다.</td></tr>
+      <tr><td>Q5</td><td>"Protein pillar의 cohort independence는?"</td><td>Mun 2025 n=336은 우리 main RNA cohort들과 독립입니다. cohort overlap이 있는 sample은 sensitivity analysis로 제거해도 7/7 sign-match가 유지됩니다.</td></tr>
+      <tr><td>Q6</td><td>"무엇이 이 4-pillar을 fail시키는가?"</td><td>(1) Phospho는 이미 null로 명시; (2) Spatial level mechanism은 v15-v18 rescue failure로 reviewer caveat (raw +0.110 generic vs random +0.099 percentile 0.545); (3) 단일 cohort dependence는 4-cohort sign agreement + Mun n=336 + Landa 2016으로 차단; (4) Closure-architecture artifact 가능성은 v5.2 LODO ComBat 정정으로 5/5 classifier DIAL=0.000으로 차단. 모든 fail-condition은 명시적으로 manuscript에 등재됩니다.</td></tr>
+      <tr><td>Q7</td><td>"Protein과 RNA의 numerical concordance는?"</td><td>RNA에서 8-gene d-down + Track B-lite ATC d=+2.53 myeloid / -2.51 thyroid_diff; Protein에서 Mun d=-1.91 thyroid_diff / +1.52 myeloid. Sign 7/7 match, 그리고 magnitude도 같은 order. 8-gene panel 자체로는 5/7 protein-level Spearman r&lt;-0.5 along PTC→PDTC→ATC.</td></tr>
+      <tr><td>Q8</td><td>"HM450 pillar의 mechanism은?"</td><td>Deconv v5-v12: 8-gene methylation은 MAPK-pathway-driven (BRAF V600E β=0.37 ≈ RET fusion β=0.39 vs RAS β=0.27 d≈+2.0). TCGA+Lee MAPK×Panel ρ=-0.29/-0.40. Sub-A (MAPK-active) vs sub-B (MAPK-low) 둘 다 panel silencing에 도달 — convergent two-axis model.</td></tr>
+      <tr><td>Q9</td><td>"이 4-pillar evidence는 어디서 나온 메모리/실행 결과인가?"</td><td>RNA: <code>v17_audit_session_2026_04_29</code> + <code>dm1_robustness_v2026_05_08</code> + <code>dm1_round3-round8</code>; Protein: <code>proteogenomic_v1_2026_05_08</code> (Mun 2025); HM450: <code>dm1_round4_2026_05_08</code> (H13 update) + <code>deconv_v5_v12_findings_2026_05_08</code> + <code>deconv_v13_tds16_panel_mapk_2026_05_09</code> + <code>deconv_v14_cross_cohort_forest_2026_05_09</code>; Phospho: <code>dm1_round3_2026_05_08</code> (honest null).</td></tr>
+      <tr><td>Q10</td><td>"이게 Paper 1 main claim의 전부인가, 아니면 Paper 2/3와도 연결되나?"</td><td>이 4-pillar는 Paper 1의 mechanistic backbone입니다. Paper 2 (H&E → DM1)는 RNA pillar 위에 image projection을 얹은 형태 (<code>v19_paper2_image_dm1_pass</code> AUC 0.83±0.14); Paper 3 (ICI vulnerability)는 RNA pillar의 ATC partial-DM1 axis 위에서 vulnerability/readiness 주장 (Track B-lite + DIAL audit). 모두 같은 axis의 다른 시각입니다.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="sibling">
+  <h2>Sibling links — 4-pillar / pillar deep-dives / Paper 1 가족</h2>
+  <p class="sub">family of pages · for Yu meeting navigation</p>
+  <table>
+    <thead><tr><th>분류</th><th>페이지</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td>Today new</td><td><a href="v17_audit_history_timeline_2026_05_14.html">v17_audit_history_timeline</a></td><td>A-J 세션 + 12 findings</td></tr>
+      <tr><td>Today new</td><td><a href="closure_architecture_override_2026_05_14.html">closure_architecture_override</a></td><td>v5.2 LODO ComBat</td></tr>
+      <tr><td>Yu brief</td><td><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief_2026_05_14</a></td><td>2026-05-14 통합 브리핑</td></tr>
+      <tr><td>Pillar</td><td><a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html">pillar_mun_2025_proteomics</a></td><td>Protein pillar deep dive</td></tr>
+      <tr><td>Pillar</td><td><a href="pillar_landa_methylation_deep_dive_2026_05_14.html">pillar_landa_methylation</a></td><td>HM450 pillar deep dive (post-H13)</td></tr>
+      <tr><td>Pillar</td><td><a href="pillar_rai_dediff_axis_deep_dive_2026_05_14.html">pillar_rai_dediff_axis</a></td><td>RAI-dediff axis</td></tr>
+      <tr><td>Axis</td><td><a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html">axis_depmap_vulnerability</a></td><td>DepMap vulnerability</td></tr>
+      <tr><td>Axis</td><td><a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html">axis_ici_quad_cohort</a></td><td>ICI Phase C v2</td></tr>
+      <tr><td>Axis</td><td><a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html">axis_pancancer_phase_e</a></td><td>pan-cancer Phase E</td></tr>
+      <tr><td>Cohort</td><td><a href="cohort_gse286332_deep_dive_2026_05_14.html">cohort_gse286332_deep_dive</a></td><td>GSE286332 HT-overlap</td></tr>
+      <tr><td>Cohort</td><td><a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">cohort_k2_prjeb11591_deep_dive</a></td><td>K2 PRJEB11591</td></tr>
+      <tr><td>Cohort</td><td><a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">cohort_gse250521_spatial_deep_dive</a></td><td>spatial rescue failure</td></tr>
+      <tr><td>Audit</td><td><a href="eight_gene_forensic_audit_2026_05_14.html">eight_gene_forensic_audit</a></td><td>8-gene forensic</td></tr>
+      <tr><td>Audit</td><td><a href="brutal_grade_card_2026_05_14.html">brutal_grade_card</a></td><td>brutal grade</td></tr>
+      <tr><td>Audit</td><td><a href="honest_negatives_wall_2026_05_14.html">honest_negatives_wall</a></td><td>4 reversal + phospho null + spatial null</td></tr>
+      <tr><td>Audit</td><td><a href="driver_split_atlas_2026_05_14.html">driver_split_atlas</a></td><td>BRAF=1% / RAS=98% DM1</td></tr>
+      <tr><td>Reviewer</td><td><a href="reviewer_war_room_2026_05_14.html">reviewer_war_room</a></td><td>reviewer Q war room</td></tr>
+      <tr><td>Reviewer</td><td><a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa_bank</a></td><td>Q&A bank</td></tr>
+      <tr><td>Reviewer</td><td><a href="response_to_reviewer_templates_2026_05_14.html">response_to_reviewer_templates</a></td><td>response templates</td></tr>
+      <tr><td>Method</td><td><a href="methodology_atlas_2026_05_14.html">methodology_atlas</a></td><td>methodology atlas</td></tr>
+      <tr><td>Method</td><td><a href="method_comparison_atlas_2026_05_14.html">method_comparison_atlas</a></td><td>method comparison</td></tr>
+      <tr><td>Method</td><td><a href="image_fm_head_to_head_2026_05_14.html">image_fm_head_to_head</a></td><td>image FM head-to-head</td></tr>
+      <tr><td>Strategy</td><td><a href="venue_strategy_2026_05_14.html">venue_strategy</a></td><td>venue strategy</td></tr>
+      <tr><td>Strategy</td><td><a href="executive_brief_kr_one_pager_2026_05_14.html">executive_brief_kr_one_pager</a></td><td>KR 1-pager</td></tr>
+      <tr><td>Strategy</td><td><a href="investor_pitch_en_2026_05_14.html">investor_pitch_en</a></td><td>EN investor pitch</td></tr>
+      <tr><td>Strategy</td><td><a href="hla_pan_asian_strategy_2026_05_14.html">hla_pan_asian_strategy</a></td><td>HLA Pan-Asian</td></tr>
+      <tr><td>Strategy</td><td><a href="korean_overdiagnosis_epi_context_2026_05_14.html">korean_overdiagnosis_epi_context</a></td><td>Korean overdiagnosis</td></tr>
+      <tr><td>Strategy</td><td><a href="korean_grant_ecosystem_map_2026_05_14.html">korean_grant_ecosystem_map</a></td><td>Korean grant</td></tr>
+      <tr><td>Strategy</td><td><a href="grant_samsung_causal_kthyro_2026_05_14.html">grant_samsung_causal_kthyro</a></td><td>Samsung causal</td></tr>
+      <tr><td>Strategy</td><td><a href="samsung_wp_expanded_2026_05_14.html">samsung_wp_expanded</a></td><td>Samsung WP</td></tr>
+      <tr><td>Strategy</td><td><a href="samsung_counterfactual_scenarios_2026_05_14.html">samsung_counterfactual_scenarios</a></td><td>Samsung counterfactual</td></tr>
+      <tr><td>Strategy</td><td><a href="anti_fragility_scenarios_2026_05_14.html">anti_fragility_scenarios</a></td><td>anti-fragility</td></tr>
+      <tr><td>Strategy</td><td><a href="bd_outreach_state_2026_05_14.html">bd_outreach_state</a></td><td>BD outreach state</td></tr>
+      <tr><td>Plan</td><td><a href="timeline_gantt_2026_05_14.html">timeline_gantt</a></td><td>90-day Gantt</td></tr>
+      <tr><td>Plan</td><td><a href="tactical_one_week_plan_2026_05_14.html">tactical_one_week_plan</a></td><td>1-week tactical</td></tr>
+      <tr><td>Plan</td><td><a href="submission_packet_builder_2026_05_14.html">submission_packet_builder</a></td><td>submission packet</td></tr>
+      <tr><td>Plan</td><td><a href="cover_letter_library_2026_05_14.html">cover_letter_library</a></td><td>cover letter library</td></tr>
+      <tr><td>Plan</td><td><a href="marathon_mode_dashboard_2026_05_14.html">marathon_mode_dashboard</a></td><td>marathon dashboard</td></tr>
+      <tr><td>Plan</td><td><a href="mega_launchpad_2026_05_14.html">mega_launchpad</a></td><td>mega launchpad</td></tr>
+      <tr><td>Risk</td><td><a href="risk_atlas_2026_05_14.html">risk_atlas</a></td><td>risk atlas</td></tr>
+      <tr><td>Reference</td><td><a href="bibliography_map_2026_05_14.html">bibliography_map</a></td><td>bibliography</td></tr>
+      <tr><td>Reference</td><td><a href="data_registry_map_2026_05_14.html">data_registry_map</a></td><td>data registry</td></tr>
+      <tr><td>Reference</td><td><a href="evidence_atlas_2026_05_14.html">evidence_atlas</a></td><td>evidence atlas</td></tr>
+      <tr><td>Reference</td><td><a href="triangulation_2026_05_14.html">triangulation</a></td><td>triangulation</td></tr>
+      <tr><td>Reference</td><td><a href="decision_board_2026_05_14.html">decision_board</a></td><td>decision board</td></tr>
+      <tr><td>Reference</td><td><a href="number_cosmos_2026_05_14.html">number_cosmos</a></td><td>number cosmos</td></tr>
+      <tr><td>Reference</td><td><a href="figure_gallery_2026_05_14.html">figure_gallery</a></td><td>figure gallery</td></tr>
+      <tr><td>HLA</td><td><a href="arcasha_pipeline_pan_asian_2026_05_14.html">arcasha_pipeline_pan_asian</a></td><td>arcasHLA pipeline</td></tr>
+    </tbody>
+  </table>
+  <p class="footer">four_pillar_convergence_triangulation_2026_05_14 · built by Seungho Cook · for Yu meeting in-room read · RNA × Protein × Phospho × HM450 · "DM1 = epithelial differentiation gene silencing" main claim mechanistic backbone</p>
+</section>
+
+</main>
+</body>
+</html>

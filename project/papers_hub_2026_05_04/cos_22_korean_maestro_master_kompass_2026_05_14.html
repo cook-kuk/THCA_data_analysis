@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Chief of Staff #22 · Korean MAeSTro/MASTER/KoMPASS architecture · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:56px;line-height:1.02;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:30px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;margin:18px 0 8px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.warn{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.banner{border:1px solid var(--red);border-radius:10px;background:linear-gradient(135deg,rgba(255,138,107,.08),rgba(255,138,107,.02));padding:16px 18px;margin:0 0 18px;font-size:14px;color:#ffd6c8}
+.banner b{color:var(--red);font-family:"JetBrains Mono","SF Mono",monospace;letter-spacing:.06em}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.linkrow{display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:800}
+.linkrow a{border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5}
+.linkrow a.gold{border-color:var(--gold);color:var(--gold)}
+.linkrow a.teal{border-color:var(--teal);color:var(--teal)}
+.label{display:inline-block;border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.06em;margin-left:6px}
+.label.file-backed{border-color:rgba(147,226,170,.5);color:var(--green)}
+.label.internal-claim{border-color:rgba(255,210,138,.5);color:var(--gold)}
+.label.public-proxy{border-color:rgba(139,188,255,.5);color:var(--blue)}
+.label.literature{border-color:rgba(201,167,255,.5);color:var(--violet)}
+.label.hypothesis{border-color:rgba(255,138,107,.5);color:var(--red)}
+.label.informational{border-color:rgba(255,138,107,.7);color:var(--red);background:rgba(255,138,107,.05)}
+.ladder{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:140px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:15px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.callout{border-left:4px solid var(--violet);background:rgba(201,167,255,.05);padding:12px 16px;margin:10px 0;font-size:13.5px;color:#e6dffd}
+.timeline{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.tstep{border:1px solid var(--line);border-radius:8px;padding:12px;background:#0d1823;min-height:130px}
+.tstep b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
+.tstep h4{margin:0 0 6px;font-size:14px;color:#fff}
+.tstep p{margin:0;color:#cbd7df;font-size:12.5px}
+.arms{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.arm{border:1px solid var(--line);border-radius:8px;padding:16px;background:#0d1823;min-height:200px}
+.arm.surgery{border-left:4px solid var(--red)}
+.arm.as{border-left:4px solid var(--teal)}
+.arm b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.arm h4{margin:0 0 8px;font-size:17px;color:#fff;font-family:"Cormorant Garamond",Georgia,serif}
+.arm p{margin:0 0 8px;color:#cbd7df;font-size:13px}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .ladder{grid-template-columns:1fr}.timeline{grid-template-columns:1fr 1fr}.arms{grid-template-columns:1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero" id="hero">
+  <div class="inner">
+    <p class="kicker">Chief of Staff · #22 · Korean MAeSTro/MASTER/KoMPASS · 2026-05-14</p>
+    <h1>Korean MAeSTro / MASTER / KoMPASS cohort architecture</h1>
+    <p class="lead">한국 저위험 PTC <b>능동감시 (Active Surveillance, AS) vs 즉시 갑상선절제</b> 비교 코호트 — <b>MAeSTro · MASTER · KoMPASS</b>는 한국에서 진행 중인 (또는 진행 가능한) 다기관 갑상선암 outcome registry의 핵심 가족이다. Samsung Aim 1과 AS-vs-Surgery target trial emulation (cos_14 + cos_15), Paper 1 K2 secondary lane, HLA #2 backlog comparator를 동시에 연결한다. <span class="label informational">internal navigation only — actual cohort access requires institutional confirmation + IRB + DUA</span></p>
+    <div class="stats">
+      <div class="stat"><b>≥500</b><span>/arm target · internal claim</span><small>Yu meeting context (requires verification)</small></div>
+      <div class="stat"><b>2</b><span>arms</span><small>Arm A AS · Arm B immediate thyroidectomy</small></div>
+      <div class="stat"><b>6</b><span>mo · surveillance interval</span><small>US + Tg + clinical (literature standard)</small></div>
+      <div class="stat"><b>5</b><span>outcome endpoints</span><small>PFS · size growth · LN · distant met · DSS</small></div>
+      <div class="stat"><b>3</b><span>registries · family</span><small>MAeSTro · MASTER · KoMPASS</small></div>
+    </div>
+    <p class="banner"><b>registry verification status</b> · MAeSTro · MASTER · KoMPASS는 한국 갑상선암 연구계에서 진행 중 또는 계획된 multi-center outcome registry의 internal/literature 인식 명칭이다. <u>각 registry의 정확한 운영자 · 가입 기관 · 누적 N · 데이터 공유 정책은 institutional 직접 확인이 필요한 internal claim</u>이다. 본 페이지는 <b>설계의 architecture와 cross-track 활용</b>을 정리하며, 실제 데이터 접근은 Yu 교수님 + 분당 SNUH + 가입 기관의 동의 필요.</p>
+  </div>
+</header>
+
+<nav class="tocbar">
+  <div class="row">
+    <a href="#hero" class="primary">#22 · MAeSTro/MASTER/KoMPASS</a>
+    <a href="#maestro">2 MAeSTro</a>
+    <a href="#master">3 MASTER</a>
+    <a href="#kompass">4 KoMPASS</a>
+    <a href="#combined">5 combined N</a>
+    <a href="#inex">6 inclusion/exclusion</a>
+    <a href="#arms">7 arms</a>
+    <a href="#outcome">8 outcomes</a>
+    <a href="#surveillance">9 surveillance</a>
+    <a href="#access">10 data access</a>
+    <a href="#tracks">11 cohort × Track</a>
+    <a href="#risk">12 risk</a>
+    <a href="#causal">13 causal cross-track</a>
+    <a href="#siblings">14 siblings</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="maestro">
+  <h2>2 · MAeSTro — Multicenter Active Surveillance prospective</h2>
+  <p class="sub">literature + Yu meeting context · requires verification</p>
+  <p class="note"><b>MAeSTro</b> (Multicenter Active Surveillance Trial of Low-Risk Thyroid Carcinoma)는 한국 저위험 PTC AS 코호트의 대표적 prospective registry로 알려져 있다 <span class="label literature">literature</span>. 일본 Kuma Hospital Miyauchi (Ito 2003-) 모델을 따르는 한국 다기관 연구로, 저위험 PTC 환자에서 AS vs 즉시 수술 선택의 outcome trajectory를 추적한다. 본 페이지의 MAeSTro 관련 모든 운영 세부 사항(가입 기관 · 누적 N · 데이터 공유 정책)은 institutional 확인 필요한 internal claim이다.</p>
+  <table>
+    <thead><tr><th>차원</th><th>내용</th><th>레이블</th></tr></thead>
+    <tbody>
+      <tr><td>Full name</td><td>Multicenter Active Surveillance Trial of Low-Risk Thyroid Carcinoma</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Design</td><td>multi-center prospective observational</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Target population</td><td>low-risk PTC (cN0, T1a · T1b ≤1.5cm 등), AS 선택 가능 환자</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Primary endpoint</td><td>tumor size growth, LN appearance, treatment crossover</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>가입 기관</td><td>다기관 (서울 주요 tertiary center · 분당 SNUH 포함 추정)</td><td><span class="label internal-claim">internal claim · requires verification</span></td></tr>
+      <tr><td>운영 시점</td><td>2010년대 중반 이후 (Korean Thyroid Association 후원 추정)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>누적 N</td><td>≥500-1,000 (placeholder · 검증 필요)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>Yu 교수 역할</td><td>분당 SNUH 가입 site의 PI 또는 collaborator (추정)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>현재 상태</td><td>active enrollment 가능성 · publication track record 있음 (Korean PTC AS 분야)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>국제 참조</b>: Kuma Hospital (Ito 2003) 1,235 PTMC AS 코호트 + Memorial Sloan Kettering (Tuttle 2017) 291 PTMC AS 코호트 + Korean MAeSTro (multi-center). 한국 코호트는 이 글로벌 표준에 정합하면서 한국 환자 인구 특성 반영. <span class="label literature">literature</span></div>
+</section>
+
+<section id="master">
+  <h2>3 · MASTER — multi-center Korean outcome registry</h2>
+  <p class="sub">internal claim · Yu-related multi-center registry</p>
+  <p class="note"><b>MASTER</b>는 한국 갑상선암 multi-center outcome registry의 internal/literature 명칭으로 인식되며, Yu 교수님 그룹이 PI/coordinator 역할일 가능성이 있다 <span class="label internal-claim">internal claim · requires verification</span>. AS-only가 아닌 broad 갑상선암 outcome registry (treatment + follow-up + outcome 전수)일 가능성이 있다.</p>
+  <table>
+    <thead><tr><th>차원</th><th>내용 (placeholder)</th><th>레이블</th></tr></thead>
+    <tbody>
+      <tr><td>Full name</td><td>(placeholder) Multicenter Active Surveillance Trial/Registry — MASTER 또는 유사 명칭</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>Design</td><td>multi-center prospective + retrospective hybrid (가정)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>Target population</td><td>전체 PTC/DTC outcome 추적 (treatment-agnostic)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>Primary endpoint</td><td>DSS · recurrence · treatment response · QoL</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>가입 기관</td><td>한국 주요 tertiary center · 분당 SNUH 포함 추정</td><td><span class="label internal-claim">internal claim · requires verification</span></td></tr>
+      <tr><td>운영자</td><td>Yu 영준 교수 또는 인접 그룹 (verification 필요)</td><td><span class="label internal-claim">internal claim · requires verification</span></td></tr>
+      <tr><td>누적 N</td><td>TBD (verification 필요)</td><td><span class="label internal-claim">internal claim · requires verification</span></td></tr>
+      <tr><td>분당 SNUH 5,000례 archive (cos_20)와 관계</td><td>일부 overlap 가능성 (가정) — institutional cohort sub-registry의 multi-center pooled view</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>Yu 사전 확인 필수</b>: MASTER의 정확한 약자 풀이 (Multi-center Active Surveillance Treatment outcome Registry 등) · 운영 PI · 가입 기관 · 누적 N · 데이터 공유 정책 모두 Yu 교수님 직접 확인 필요. 본 페이지의 MASTER 관련 표는 placeholder이며 verification 후 갱신.</div>
+</section>
+
+<section id="kompass">
+  <h2>4 · KoMPASS — Korean PTC Active Surveillance</h2>
+  <p class="sub">internal claim · outcome cohort name</p>
+  <p class="note"><b>KoMPASS</b>는 한국 PTC AS 환자의 outcome 추적 registry의 internal/literature 명칭으로 인식된다. MAeSTro와 명칭/scope overlap 가능성이 있으며, 한국 갑상선암 학회 또는 인접 multi-center consortium 운영일 가능성이 있다 <span class="label internal-claim">internal claim · requires verification</span>.</p>
+  <table>
+    <thead><tr><th>차원</th><th>내용 (placeholder)</th><th>레이블</th></tr></thead>
+    <tbody>
+      <tr><td>Full name</td><td>(placeholder) Korean Multicenter PTC Active Surveillance Study — KoMPASS</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>Design</td><td>multi-center prospective AS cohort</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>Target population</td><td>저위험 PTC (T1a ≤1cm primary · AS 선택)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>Primary endpoint</td><td>AS 안정성 · treatment crossover · size growth · LN appearance</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>MAeSTro와의 관계</td><td>(a) 별도 registry 가능성 (b) MAeSTro의 sub-cohort 가능성 (c) 후속 phase 가능성 — verification 필요</td><td><span class="label internal-claim">internal claim · requires verification</span></td></tr>
+      <tr><td>가입 기관</td><td>한국 다기관 (verification 필요)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>운영 시점</td><td>2010년대 후반 이후 (가정)</td><td><span class="label internal-claim">internal claim</span></td></tr>
+      <tr><td>누적 N</td><td>TBD (verification 필요)</td><td><span class="label internal-claim">internal claim · requires verification</span></td></tr>
+    </tbody>
+  </table>
+  <div class="banner"><b>중복/구분 가능성</b> · MAeSTro · MASTER · KoMPASS 세 명칭은 (a) 모두 별도 registry · (b) 일부 동일 데이터의 다른 명칭 · (c) phase 변화로 인한 명칭 변경 — 세 시나리오 모두 가능. <u>가장 안전한 wording 전략은 "한국 PTC outcome registry 가족"으로 묶고 정확한 분리는 Yu 확인 후 결정</u>한다.</div>
+</section>
+
+<section id="combined">
+  <h2>5 · Combined N estimate — ≥500/arm target</h2>
+  <p class="sub">internal claim · Yu meeting context</p>
+  <p class="note">Yu 교수 meeting context에서 AS-vs-Surgery target trial emulation의 정량적 가이드라인으로 <b>≥500/arm</b> target이 언급되었다는 internal note가 있다 <span class="label internal-claim">internal claim · requires verification</span>. 본 섹션은 세 registry 합산 가정 시 가능한 N을 정리한다.</p>
+  <table>
+    <thead><tr><th>Cohort</th><th>예상 N (placeholder)</th><th>AS arm 예상</th><th>Surgery arm 예상</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>MAeSTro</td><td>500-1,000 (verification 필요)</td><td>~300-600 (AS-enriched)</td><td>~100-200 (crossover)</td><td>AS-focused</td></tr>
+      <tr><td>MASTER</td><td>TBD</td><td>~200-400 (subset)</td><td>~1,000+ (broad outcome)</td><td>broad outcome registry 가정 시</td></tr>
+      <tr><td>KoMPASS</td><td>TBD</td><td>~300-500 (가정)</td><td>~100-200 (crossover)</td><td>AS-focused 가능성</td></tr>
+      <tr><td>분당 SNUH BABA archive (cos_20)</td><td>~5,000 (internal claim)</td><td>—</td><td>~5,000 (surgery only · BABA 기법)</td><td>surgery arm의 backbone 가능</td></tr>
+      <tr><td><b>합산 추정 (placeholder)</b></td><td>≥1,000 AS · ≥5,000 surgery</td><td>≥500 (target 달성 가능)</td><td>≥1,000 (margin sufficient)</td><td>target trial emulation에 충분 가능성</td></tr>
+    </tbody>
+  </table>
+  <h3>5.1 ≥500/arm target의 통계적 정당화</h3>
+  <table>
+    <thead><tr><th>Effect size 가정</th><th>n=500/arm power</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>HR=0.7 (AS vs surgery, 5-year event)</td><td>~85-90% (event rate ~10%)</td><td>powered for 30% relative reduction</td></tr>
+      <tr><td>HR=0.8</td><td>~60-70%</td><td>marginal · 더 큰 N 필요</td></tr>
+      <tr><td>HR=0.9 (very subtle)</td><td>&lt;40%</td><td>underpowered</td></tr>
+      <tr><td>Tumor size growth ≥3mm at 2y (binary)</td><td>powered for 10% absolute difference</td><td>충분</td></tr>
+      <tr><td>LN appearance at 5y (binary)</td><td>powered for 5-10% absolute difference</td><td>충분</td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>≥500/arm 결정 wording</b>: target trial emulation 문헌 (cos_14 Hernán/Robins)은 <u>moderate effect size + 5-10년 follow-up</u>에 대해 ≥500/arm이 power 보장 region이라고 권고한다. 본 코호트 가족 합산은 이 region에 도달 가능. 그러나 stratified analysis (driver × stage × HT-overlap)는 더 큰 N 또는 stratum-specific oversampling 필요.</div>
+</section>
+
+<section id="inex">
+  <h2>6 · Inclusion/Exclusion criteria — low-risk PTC</h2>
+  <p class="sub">literature + cos_15 AS protocol — standard low-risk definition</p>
+  <p class="note">한국 PTC AS 코호트의 표준 inclusion/exclusion 기준은 다음과 같다. 일본 Ito 2003 / Tuttle 2017 / Korean Thyroid Association guideline 표준에 정합 <span class="label literature">literature</span>.</p>
+  <table>
+    <thead><tr><th>구분</th><th>기준</th><th>이유</th><th>레이블</th></tr></thead>
+    <tbody>
+      <tr><td><b>Inclusion</b></td><td>biopsy-proven PTC (cytology Bethesda VI 또는 V high-suspect)</td><td>diagnosis 확실성</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Inclusion</td><td>Tumor size T1a ≤1cm · 또는 cohort 정책에 따라 T1b ≤1.5cm</td><td>size 저위험 기준</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Inclusion</td><td>cN0 (clinically node-negative on preop US)</td><td>LN 음성 저위험</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Inclusion</td><td>No extrathyroidal extension (ETE) on US</td><td>local invasion 음성</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Inclusion</td><td>No high-risk variant on cytology (tall-cell · hobnail · diffuse sclerosing)</td><td>aggressive histology 음성</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Inclusion</td><td>Age ≥18 (성인)</td><td>법정 동의 + 임상 표준</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Inclusion</td><td>충분한 follow-up 가능 환자 (geographic accessibility · compliance)</td><td>long-term surveillance 가능성</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td><b>Exclusion</b></td><td>Tumor ≥1.5cm (또는 cohort 정책에 따라 ≥1cm)</td><td>size 위험 cutoff 초과</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Exclusion</td><td>cN1 (preop US suspect LN) 또는 distant met</td><td>node-positive 또는 metastatic</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Exclusion</td><td>ETE on US or pathology</td><td>local invasion</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Exclusion</td><td>High-risk variant (tall-cell · hobnail · diffuse sclerosing · poorly differentiated · anaplastic)</td><td>aggressive histology</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Exclusion</td><td>Tumor proximity to trachea/RLN (anatomical high-risk)</td><td>anatomical 합병증 위험</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Exclusion</td><td>Multi-focal high-burden disease</td><td>multifocality 위험</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Exclusion</td><td>Patient preference for immediate surgery</td><td>AS 거부</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Exclusion</td><td>Pregnancy (during AS window)</td><td>관리 복잡성</td><td><span class="label literature">literature</span></td></tr>
+      <tr><td>Exclusion</td><td>Active autoimmune thyroid disease (Hashimoto, Graves) — cohort 정책</td><td>baseline noise · 단 Hashimoto는 자체 흥미로움</td><td><span class="label literature">literature</span></td></tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>한국 특이 고려</b>: 한국 PTC는 BRAF V600E 60-80% dominance · 한국 AS 선호도 일본보다 낮은 경향 · 의료 접근성 매우 높음 (US/Tg 추적 부담 낮음). 이로 인해 ≥500/arm 달성이 일본보다 어렵지만, multi-center 합산은 가능한 windows다.</div>
+</section>
+
+<section id="arms">
+  <h2>7 · Treatment arms — Arm A AS · Arm B immediate surgery</h2>
+  <p class="sub">target trial emulation arms · cos_15 protocol</p>
+  <p class="note">AS-vs-Surgery target trial emulation의 두 arm 정의다 (cos_14 Hernán/Robins primer + cos_15 protocol 기반).</p>
+  <div class="arms">
+    <div class="arm as">
+      <b>Arm A · Active Surveillance</b>
+      <h4>Active Surveillance (AS)</h4>
+      <p><b>Treatment</b>: no immediate surgery. Surveillance schedule with imaging + lab + clinical assessment.</p>
+      <p><b>Schedule</b>: 6-month US + Tg + clinical evaluation; annual after 2y if stable.</p>
+      <p><b>Crossover trigger</b>: tumor size growth ≥3mm in any dimension; new LN appearance; ETE development; patient preference change.</p>
+      <p><b>Endpoint</b>: PFS (no crossover) at 2y/5y/10y · size trajectory · LN appearance.</p>
+      <p><b>Crossover policy</b>: censored at crossover OR (in causal analysis) inverse probability of crossover weighting (IPW · cos_14).</p>
+    </div>
+    <div class="arm surgery">
+      <b>Arm B · Immediate Surgery</b>
+      <h4>Immediate Thyroidectomy</h4>
+      <p><b>Treatment</b>: lobectomy or total thyroidectomy + (선택적) LN dissection, within 8-12 weeks of diagnosis.</p>
+      <p><b>Approach</b>: BABA (분당 SNUH 표준) · open · endoscopic — center 정책별. cos_20 BABA archive와 매핑.</p>
+      <p><b>Adjuvant</b>: RAI consider for intermediate risk (post-pathology stratification).</p>
+      <p><b>Endpoint</b>: pathology-confirmed residual disease · post-op Tg trajectory · recurrence at 2y/5y/10y · DSS.</p>
+      <p><b>Subgroups</b>: lobectomy-only vs total thyroidectomy · LN dissection extent · driver-stratified outcomes.</p>
+    </div>
+  </div>
+  <h3>7.1 Arm 정의에서 중요한 정직성</h3>
+  <table>
+    <thead><tr><th>이슈</th><th>처리</th></tr></thead>
+    <tbody>
+      <tr><td>Arm assignment = observational (not randomized)</td><td>(a) Arm allocation 시 patient preference + physician recommendation 매개 · (b) confounding by indication 존재 → cos_14 IPW + DR learner 필요</td></tr>
+      <tr><td>Crossover 처리</td><td>(a) intention-to-treat: arm 시작 시점 기준 (b) per-protocol: crossover 후 censored OR weighted</td></tr>
+      <tr><td>Surgery arm 내부 heterogeneity</td><td>lobectomy vs total · LN dissection extent · 추가 stratification 필요</td></tr>
+      <tr><td>AS arm 내부 heterogeneity</td><td>surveillance compliance · imaging quality · reader variability · 별도 보고</td></tr>
+      <tr><td>Time-zero alignment</td><td>diagnosis date (cytology Bethesda VI confirmation) = time 0 일관 적용</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="outcome">
+  <h2>8 · Outcome registry — PFS / size / LN / distant met / DSS</h2>
+  <p class="sub">primary + secondary endpoints</p>
+  <p class="note">한국 PTC AS-vs-Surgery 비교의 표준 outcome set이다.</p>
+  <table>
+    <thead><tr><th>Outcome</th><th>측정</th><th>Timepoint</th><th>Primary/Secondary</th></tr></thead>
+    <tbody>
+      <tr><td><b>PFS (progression-free survival)</b></td><td>composite: size growth ≥3mm + LN appearance + distant met + crossover</td><td>2y / 5y / 10y</td><td><b>Primary (AS arm)</b></td></tr>
+      <tr><td><b>Tumor size growth</b></td><td>US-based · ≥3mm in any dimension (Kuma standard)</td><td>6mo / 12mo / 24mo / annual</td><td>Primary trajectory</td></tr>
+      <tr><td><b>LN appearance</b></td><td>cervical US-based · suspect node ≥5mm + biopsy if indicated</td><td>6mo / 12mo / annual</td><td>Primary safety</td></tr>
+      <tr><td><b>Distant metastasis</b></td><td>chest CT (if indicated) · bone scan (if indicated)</td><td>annual or symptom-triggered</td><td>Primary safety</td></tr>
+      <tr><td><b>DSS (disease-specific survival)</b></td><td>death from thyroid cancer (rare in low-risk PTC)</td><td>10y / 20y</td><td>Long-term primary</td></tr>
+      <tr><td>OS (overall survival)</b></td><td>death any cause</td><td>10y / 20y</td><td>Secondary</td></tr>
+      <tr><td>Tg trajectory (post-op Arm B)</td><td>Tg / anti-Tg / TSH lab</td><td>3mo / 6mo / annual</td><td>Surrogate residual disease</td></tr>
+      <tr><td>Crossover rate (Arm A → B)</td><td>cumulative incidence</td><td>2y / 5y / 10y</td><td>Behavior-secondary</td></tr>
+      <tr><td>Surgical complication (Arm B)</td><td>RLN injury · hypocalcemia · bleeding · infection</td><td>30-day post-op</td><td>Safety-secondary</td></tr>
+      <tr><td>QoL</td><td>cancer-specific QoL questionnaire (subset)</td><td>baseline / 12mo / 24mo</td><td>Patient-reported</td></tr>
+      <tr><td>RAI use</td><td>RAI dose · uptake · cumulative dose</td><td>treatment-driven</td><td>Resource-use secondary</td></tr>
+      <tr><td>Healthcare cost</td><td>cumulative cost per arm (Korea NHIS proxy)</td><td>10y aggregate</td><td>Health-economics secondary</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="surveillance">
+  <h2>9 · Surveillance schedule — 6mo US + Tg + clinical</h2>
+  <p class="sub">literature standard · cos_15 protocol</p>
+  <p class="note">한국 저위험 PTC AS의 표준 surveillance schedule (Kuma Miyauchi 2010s + Korean Thyroid Association guideline 정합) <span class="label literature">literature</span>.</p>
+  <div class="timeline">
+    <div class="tstep"><b>Year 0</b><h4>Baseline</h4><p>Cytology Bethesda VI confirmation · neck US (tumor size · LN) · TSH · Tg · anti-Tg · informed consent for AS</p></div>
+    <div class="tstep"><b>Year 0.5</b><h4>6-month</h4><p>Neck US · Tg · clinical assessment · documentation of size change</p></div>
+    <div class="tstep"><b>Year 1</b><h4>12-month</h4><p>Neck US · Tg · clinical · annual Q&A on AS continuation preference</p></div>
+    <div class="tstep"><b>Year 2 →</b><h4>Annual after 2y stable</h4><p>If size stable 2y, transition to annual US · biennial Tg · symptom-triggered escalation</p></div>
+  </div>
+  <h3>9.1 Surveillance modalities</h3>
+  <table>
+    <thead><tr><th>Modality</th><th>Frequency</th><th>Threshold</th><th>Action trigger</th></tr></thead>
+    <tbody>
+      <tr><td>Neck US</td><td>6mo (Y0-2) → annual</td><td>tumor size change ≥3mm OR new suspect LN ≥5mm</td><td>FNA / consideration of surgery</td></tr>
+      <tr><td>Tg (serum thyroglobulin)</td><td>6-12mo</td><td>baseline-relative significant change (context-dependent)</td><td>imaging escalation</td></tr>
+      <tr><td>anti-Tg</td><td>annual</td><td>seroconversion or change</td><td>baseline Tg validity check</td></tr>
+      <tr><td>TSH</td><td>annual</td><td>—</td><td>baseline thyroid function</td></tr>
+      <tr><td>Clinical exam (palpation · symptom)</td><td>6mo (Y0-2) → annual</td><td>new mass · voice change · dysphagia</td><td>imaging escalation</td></tr>
+      <tr><td>Chest CT (if indicated)</td><td>symptom-triggered or annual high-suspect</td><td>nodule appearance</td><td>biopsy / staging</td></tr>
+      <tr><td>FDG-PET (rarely)</td><td>symptom + Tg-rise</td><td>FDG-avid lesion</td><td>biopsy / staging</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="access">
+  <h2>10 · Data sharing access — IRB + DUA + central warehouse</h2>
+  <p class="sub">access pathway · requires institutional confirmation</p>
+  <p class="note">Korean MAeSTro/MASTER/KoMPASS 가족의 데이터 접근은 (a) 운영 기관(또는 Korean Thyroid Association) consortium agreement, (b) 본 PI institution IRB · DUA, (c) central data warehouse 또는 federated query 가용성 확인 필요. 본 페이지의 access pathway는 일반적 multi-center registry 표준에 기반한 placeholder이다 <span class="label hypothesis">hypothesis · requires verification</span>.</p>
+  <table>
+    <thead><tr><th>Step</th><th>요구사항</th><th>예상 시간</th><th>레이블</th></tr></thead>
+    <tbody>
+      <tr><td>1. Yu 교수 inquiry + consortium PI contact</td><td>운영 PI + steering committee 동의 sought</td><td>2-4주</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>2. Consortium proposal review</td><td>본 연구의 목적 · methodology · output sharing 검토</td><td>4-8주</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>3. 본 PI institution IRB amendment</td><td>retrospective registry data 사용 amendment</td><td>4-8주 (overlap)</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>4. DUA between consortium and 본 PI</td><td>data use agreement · 익명화 · 보관 · 폐기 · 출판 정책</td><td>4-12주</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>5. Central data warehouse access OR federated query</td><td>(a) de-identified export OR (b) federated analytical query · institutional standard</td><td>2-4주 (after DUA)</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>6. Variable mapping + harmonization</td><td>multi-center variable consistency check</td><td>4-8주</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td>7. Analytical sandbox setup</td><td>secure compute environment</td><td>2-4주</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+      <tr><td><b>Total estimate</b></td><td>institutional baseline</td><td>3-6개월</td><td><span class="label hypothesis">hypothesis</span></td></tr>
+    </tbody>
+  </table>
+  <h3>10.1 Access 가능성 시나리오</h3>
+  <table>
+    <thead><tr><th>Scenario</th><th>가능성</th><th>접근 path</th></tr></thead>
+    <tbody>
+      <tr><td>Yu 교수 = 운영 PI (가입 site PI)</td><td>가장 가능성 높음</td><td>분당 SNUH BABA archive 직접 + multi-center summary access</td></tr>
+      <tr><td>Yu = collaborator, 운영 PI 별도</td><td>가능성 중</td><td>Yu 통한 consortium PI 소개 + 별도 application</td></tr>
+      <tr><td>Yu가 운영 PI 아닌 경우</td><td>가능성 중-저</td><td>consortium PI 직접 contact · 본 PI proposal 별도 제출</td></tr>
+      <tr><td>Federated query만 가능</td><td>가능성 중</td><td>aggregate-only analysis · patient-level no export</td></tr>
+      <tr><td>Access denied</td><td>가능성 저</td><td>fallback = 분당 SNUH BABA archive only (cos_20)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="tracks">
+  <h2>11 · Cohort × Track usage matrix</h2>
+  <p class="sub">Samsung Aim 1 + AS-vs-Surgery emulation + Paper 1 K2 secondary + HLA #2 backlog</p>
+  <table>
+    <thead><tr><th>Track</th><th>본 cohort 가족 활용 layer</th><th>예상 산출</th><th>역할 강도</th><th>레이블</th></tr></thead>
+    <tbody>
+      <tr><td><b>Samsung Aim 1 (CTC)</b></td><td>50 prospective 신규 cohort enrollment의 base population sampling frame · low-risk PTC subset의 CTC trajectory 비교 가설</td><td>Samsung 제안서 Aim 1 cohort frame</td><td>★★★★☆</td><td><span class="label internal-claim">Samsung primary frame</span></td></tr>
+      <tr><td><b>AS-vs-Surgery target trial emulation</b></td><td>cos_14 (Hernán/Robins) + cos_15 (AS protocol) 본 emulation의 primary observational data source</td><td>target trial emulation result</td><td>★★★★★ (primary)</td><td><span class="label internal-claim">causal emulation primary</span></td></tr>
+      <tr><td>Paper 1 (DM1 molecular dark matter)</td><td>K2 secondary — Korean PTC outcome stratification에서 DM1 high-risk subset의 long-term outcome 검증</td><td>Paper 1 secondary analysis panel</td><td>★★★☆☆</td><td><span class="label file-backed">Paper 1 secondary</span></td></tr>
+      <tr><td>Paper 4 (Korean GD HLA / Pan-Asian backlog)</td><td>HLA #2 backlog comparator — 한국 PTC HLA 분포의 Pan-Asian comparator base</td><td>HLA Pan-Asian backbone</td><td>★★★☆☆</td><td><span class="label file-backed">Paper 4 backlog</span></td></tr>
+      <tr><td>cos_05 Samsung CTC-Spatial proposal</td><td>cohort architecture 섹션의 base population</td><td>제안서 cohort 섹션</td><td>★★★★☆</td><td><span class="label internal-claim">proposal cohort frame</span></td></tr>
+      <tr><td>cos_14 Hernán/Robins target trial primer</td><td>target trial framework 적용 대상 cohort</td><td>causal inference layer</td><td>★★★★★</td><td><span class="label internal-claim">causal primer instantiation</span></td></tr>
+      <tr><td>cos_15 AS-vs-Surgery protocol</td><td>protocol-specific application</td><td>protocol instantiation</td><td>★★★★★</td><td><span class="label internal-claim">protocol cohort</span></td></tr>
+      <tr><td>cos_16 AI bridge model</td><td>AS arm의 H&E (lobectomy crossover subset) · imaging-clinical bridge training</td><td>image-to-outcome bridge model training</td><td>★★★☆☆</td><td><span class="label internal-claim">AI bridge data</span></td></tr>
+      <tr><td>cos_17 BioDarwin engine</td><td>cohort-level evolutionary trajectory 시뮬레이션 base</td><td>simulation data anchor</td><td>★★☆☆☆</td><td><span class="label internal-claim">simulation anchor</span></td></tr>
+      <tr><td>cos_20 BABA 5,000례</td><td>surgery arm의 institutional backbone</td><td>BABA-MAeSTro intersection</td><td>★★★★★</td><td><span class="label internal-claim">cohort intersection</span></td></tr>
+      <tr><td>cos_21 62 CTC</td><td>Yu lab CTC subset이 본 cohort의 sub-sampling 가능성</td><td>CTC × MAeSTro sub-sampling</td><td>★★★☆☆</td><td><span class="label internal-claim">sub-sampling</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="risk">
+  <h2>12 · Risk — surveillance bias · loss to follow-up · harmonization</h2>
+  <p class="sub">multi-center registry risk profile</p>
+  <p class="note">Multi-center PTC AS 코호트 가족의 핵심 risk는 (a) surveillance bias, (b) loss to follow-up, (c) multi-center harmonization 세 축이다.</p>
+  <table>
+    <thead><tr><th>Risk class</th><th>구체적 우려</th><th>완화 전략</th><th>심각도</th></tr></thead>
+    <tbody>
+      <tr><td><b>Surveillance bias</b></td><td>AS arm은 high-frequency US로 detection 증가 (lead-time + length bias)</td><td>(a) detection time을 단일 baseline에 align (time-zero 표준화) · (b) detection density adjustment · (c) Tg/clinical-only sub-analysis</td><td>★★★★★</td></tr>
+      <tr><td><b>Loss to follow-up</b></td><td>장기 AS는 환자 dropout 증가 (compliance fatigue)</td><td>(a) inverse probability of follow-up weighting (cos_14) · (b) sensitivity analysis with multiple imputation · (c) 6mo follow-up rate reporting · (d) Korean NHIS proxy linkage</td><td>★★★★☆</td></tr>
+      <tr><td><b>Multi-center harmonization</b></td><td>center별 imaging quality · reader variability · Tg assay platform 차이</td><td>(a) central reader review subset · (b) Tg assay cross-calibration · (c) center fixed effects · (d) leave-one-center-out sensitivity</td><td>★★★★☆</td></tr>
+      <tr><td>Confounding by indication</td><td>AS 선택 환자 = 더 unhealthy/older or vice versa (preference + physician recommendation)</td><td>(a) IPW propensity adjustment · (b) DR learner (cos_14) · (c) sensitivity analysis on unmeasured confounding (E-value)</td><td>★★★★★</td></tr>
+      <tr><td>Crossover handling</td><td>AS → surgery crossover 빈번 (Korean cohort 20-30% in 5y placeholder)</td><td>(a) ITT + per-protocol dual reporting · (b) IPW for crossover · (c) hypothetical estimand framework</td><td>★★★★☆</td></tr>
+      <tr><td>Time-zero alignment</td><td>diagnosis vs first-AS visit time-zero 불일치</td><td>(a) diagnosis date = time 0 일관 적용 · (b) sensitivity with first-AS visit</td><td>★★★☆☆</td></tr>
+      <tr><td>Outcome ascertainment heterogeneity</td><td>center별 outcome definition (예: progression criteria) 차이</td><td>(a) central outcome adjudication · (b) outcome definition harmonization protocol</td><td>★★★☆☆</td></tr>
+      <tr><td>Low event rate (low-risk PTC)</td><td>DSS event 매우 드물어 long-term power 부족</td><td>(a) composite PFS endpoint 사용 · (b) ≥10y follow-up 필요 · (c) intermediate-risk subset 확장</td><td>★★★★☆</td></tr>
+      <tr><td>Korean overdiagnosis paradigm</td><td>한국 PTC = 88.8% DM2 (Korean Round 5) → AS 대상 풀 다른 의미</td><td>(a) Korean cohort 특이성 명시 · (b) 일본 Kuma + 미국 MSK 비교 · (c) Pan-Asian Pillar III 확장</td><td>★★★☆☆</td></tr>
+      <tr><td>Driver-stratified analysis underpowered</td><td>BRAF/RAS/RET 분기에서 RAS subset 너무 작음</td><td>(a) BRAF dominant analysis primary · (b) other-driver descriptive · (c) pooled multi-center</td><td>★★★★☆</td></tr>
+      <tr><td>Patient autonomy on arm choice</td><td>arm = patient choice (not randomized)</td><td>(a) target trial emulation framework 명시 · (b) confounding adjustment 강화 · (c) RCT가 아님을 정직히 명시</td><td>★★★★★</td></tr>
+      <tr><td>Data sharing 거부 가능성</td><td>consortium 또는 운영 PI 동의 불발</td><td>(a) fallback = 분당 SNUH BABA archive only · (b) Yu 교수 다른 collaborator 통한 접근 · (c) 일본 Kuma · 미국 MSK literature comparison</td><td>★★★★☆</td></tr>
+    </tbody>
+  </table>
+  <div class="banner"><b>가장 중요한 reviewer 공격</b> = "AS arm은 observational이라 RCT가 아니어서 confounding by indication 처리가 약하다" — 답: cos_14 Hernán/Robins target trial emulation framework + cos_15 protocol-defined intervention + IPW + DR learner + E-value sensitivity로 다층 처리. 그리고 RCT 시도 자체가 윤리적/실현적으로 어려운 한국 환경에서 emulation이 best feasible answer임을 명시.</div>
+</section>
+
+<section id="causal">
+  <h2>13 · Cross-track to causal inference — cos_14 + cos_15</h2>
+  <p class="sub">IPW + DR learner + monitoring schedule emulation</p>
+  <p class="note">MAeSTro/MASTER/KoMPASS 가족 = AS-vs-Surgery target trial emulation의 base data. cos_14 (Hernán/Robins primer) + cos_15 (AS protocol)와의 정합 mapping이다.</p>
+  <table>
+    <thead><tr><th>Target trial component</th><th>본 cohort 가족 instantiation</th><th>레이블</th></tr></thead>
+    <tbody>
+      <tr><td>Eligibility criteria</td><td>§6 inclusion/exclusion — low-risk PTC 표준</td><td><span class="label internal-claim">cos_15 instantiation</span></td></tr>
+      <tr><td>Treatment strategies</td><td>Arm A AS · Arm B immediate surgery (§7)</td><td><span class="label internal-claim">cos_15 instantiation</span></td></tr>
+      <tr><td>Assignment procedures</td><td>observational (preference + physician) · NOT randomization</td><td><span class="label internal-claim">target trial emulation</span></td></tr>
+      <tr><td>Follow-up period</td><td>2y/5y/10y · diagnosis-date time-zero</td><td><span class="label internal-claim">cos_15 instantiation</span></td></tr>
+      <tr><td>Outcome</td><td>PFS composite · size growth · LN · distant met · DSS (§8)</td><td><span class="label internal-claim">cos_15 instantiation</span></td></tr>
+      <tr><td>Causal contrasts</td><td>ATE · ATT · 가능 시 ATU (rare AS-eligible undergoing surgery)</td><td><span class="label literature">causal inference standard</span></td></tr>
+      <tr><td>Analysis plan</td><td>(a) IPW propensity-adjusted Cox · (b) DR learner (cos_14) · (c) g-formula · (d) marginal structural model</td><td><span class="label literature">Hernán/Robins methods</span></td></tr>
+      <tr><td>Sensitivity analyses</td><td>(a) E-value unmeasured confounding · (b) tipping-point analysis · (c) per-protocol vs ITT · (d) center fixed effects · (e) leave-one-center-out</td><td><span class="label literature">causal sensitivity</span></td></tr>
+    </tbody>
+  </table>
+  <h3>13.1 Monitoring schedule emulation</h3>
+  <p class="note">cos_15에서 모니터링 schedule이 outcome ascertainment에 영향을 주는 점을 다룬다. 본 cohort의 surveillance schedule (§9)을 emulation framework에 명시.</p>
+  <table>
+    <thead><tr><th>Monitoring 시나리오</th><th>Emulation 처리</th><th>예상 효과</th></tr></thead>
+    <tbody>
+      <tr><td>AS arm = 6mo US + Tg</td><td>scheduled detection time grid 사용</td><td>baseline (literature)</td></tr>
+      <tr><td>Surgery arm = post-op 6mo + annual</td><td>post-op detection grid</td><td>asymmetric ascertainment 처리</td></tr>
+      <tr><td>Hypothetical "if both arms had same schedule"</td><td>standardization to common schedule</td><td>schedule effect adjustment</td></tr>
+      <tr><td>Detection censoring</td><td>missing US visit = informative censoring 처리</td><td>IPW for missing visit</td></tr>
+    </tbody>
+  </table>
+  <h3>13.2 Cross-track output</h3>
+  <table>
+    <thead><tr><th>Output</th><th>설명</th><th>레이블</th></tr></thead>
+    <tbody>
+      <tr><td>Target trial emulation manuscript</td><td>AS-vs-Surgery emulation primary paper</td><td><span class="label internal-claim">manuscript track</span></td></tr>
+      <tr><td>Driver-stratified causal contrast</td><td>BRAF vs RAS vs Other에서 AS-vs-Surgery 효과 분기</td><td><span class="label internal-claim">cross-track Paper 1</span></td></tr>
+      <tr><td>K-Thyro vulnerability label × outcome</td><td>RAI-low subset의 AS-vs-Surgery 효과 분기</td><td><span class="label internal-claim">cross-track Samsung WP4</span></td></tr>
+      <tr><td>HLA-low subset × outcome</td><td>HLA-low immune-invisible subset의 outcome 분기</td><td><span class="label internal-claim">cross-track Paper 3</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="siblings">
+  <h2>14 · Sibling links — Chief of Staff family 00-22</h2>
+  <p class="sub">internal navigation · all dark-theme deliverables</p>
+  <div class="linkrow">
+    <a href="index.html" class="gold">index</a>
+    <a href="chief_of_staff_00_package_index_2026_05_14.html">00 · package index</a>
+    <a href="chief_of_staff_01_repo_audit_2026_05_14.html">01 · repo audit</a>
+    <a href="chief_of_staff_02_data_evidence_registry_2026_05_14.html">02 · data evidence</a>
+    <a href="chief_of_staff_03_anti_hallucination_report_2026_05_14.html">03 · anti-hallucination</a>
+    <a href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html">04 · DM1/DM2 decision</a>
+    <a href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html" class="teal">05 · Samsung CTC-Spatial</a>
+    <a href="chief_of_staff_06_pathology_2d3d_demo_plan_2026_05_14.html">06 · 2D/3D pathology</a>
+    <a href="chief_of_staff_07_brand_architecture_lumenix_biodarwin_2026_05_14.html">07 · brand</a>
+    <a href="chief_of_staff_08_figure_slide_plan_2026_05_14.html">08 · figure/slide</a>
+    <a href="chief_of_staff_09_next_actions_collaborators_2026_05_14.html">09 · next actions</a>
+    <a href="chief_of_staff_10_followup_prompts_2026_05_14.html">10 · followup prompts</a>
+    <a href="cos_11_ctc_enrichment_vendor_comparison_2026_05_14.html">11 · CTC vendor</a>
+    <a href="cos_12_spatial_vendor_comparison_2026_05_14.html">12 · spatial vendor</a>
+    <a href="cos_13_foundation_model_literature_scan_2026_05_14.html">13 · FM lit scan</a>
+    <a href="cos_14_hernan_robins_target_trial_primer_2026_05_14.html" class="teal">14 · Hernán/Robins</a>
+    <a href="cos_15_as_vs_surgery_protocol_2026_05_14.html" class="teal">15 · AS vs surgery</a>
+    <a href="cos_16_ai_bridge_model_architecture_2026_05_14.html">16 · AI bridge</a>
+    <a href="cos_17_biodarwin_engine_architecture_2026_05_14.html">17 · BioDarwin</a>
+    <a href="cos_18_seven_agent_deep_dives_2026_05_14.html">18 · seven agents</a>
+    <a href="cos_19_lumenix_legal_ip_trademark_2026_05_14.html">19 · Lumenix legal</a>
+    <a href="cos_20_baba_cohort_inventory_2026_05_14.html" class="teal">20 · BABA cohort</a>
+    <a href="cos_21_62_ctc_cohort_design_2026_05_14.html" class="teal">21 · 62 CTC</a>
+    <a href="cos_22_korean_maestro_master_kompass_2026_05_14.html" class="gold">22 · MAeSTro/MASTER/KoMPASS (this)</a>
+    <a href="yu_meeting_brief_2026_05_14.html" class="gold">Yu meeting brief</a>
+    <a href="yu_meeting_minutes_template_2026_05_14.html">Yu meeting minutes</a>
+    <a href="rehearsal_script_yu_meeting_2026_05_14.html">Yu rehearsal</a>
+    <a href="mega_launchpad_2026_05_14.html" class="gold">mega launchpad</a>
+  </div>
+  <p class="footer">cos_22 · Korean MAeSTro/MASTER/KoMPASS cohort architecture · 2026-05-14 · informational only — all registry claims (운영 PI · 가입 기관 · 누적 N · 데이터 공유 정책) require institutional confirmation + IRB + DUA before any access · 모든 registry claim은 기관 확인 + IRB + DUA 후 데이터 접근 시작</p>
+</section>
+
+</main>
+</body>
+</html>

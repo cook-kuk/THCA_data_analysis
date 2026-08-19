@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>cos_16 · AI bridge model — CTC ↔ tissue ecology</title>
+<style>
+  :root{
+    --bg:#0a0d12; --bg2:#0f1319; --panel:#141a22; --panel2:#1a2230;
+    --ink:#e6ecf3; --muted:#9aa6b2; --line:#28323f; --line2:#3a4757;
+    --acc:#7fd4ff; --acc2:#f3c969; --warn:#ff8b6b; --ok:#7ee3a8; --bad:#ff7a7a;
+    --tag:#1f2a3a; --pill:#0d3a4a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:linear-gradient(180deg,var(--bg) 0,var(--bg2) 100%);color:var(--ink);font-family:-apple-system,Segoe UI,Roboto,"Helvetica Neue","Apple SD Gothic Neo","Noto Sans KR",sans-serif;line-height:1.62;font-size:15.5px}
+  a{color:var(--acc);text-decoration:none;border-bottom:1px dotted #355}
+  a:hover{color:#fff;border-bottom-color:#7fd4ff}
+  header.hero{padding:56px 7vw 40px;background:radial-gradient(1100px 360px at 12% -20%,#15324a 0%,transparent 60%),radial-gradient(900px 320px at 88% 0%,#3a2a14 0%,transparent 55%),#0a0d12;border-bottom:1px solid var(--line)}
+  .breadcrumb{font-size:12.5px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+  h1{font-size:34px;margin:0 0 10px;line-height:1.18;font-weight:700;letter-spacing:-.01em}
+  h1 .sub{display:block;font-size:18px;color:var(--acc2);font-weight:500;margin-top:8px;letter-spacing:0}
+  .hero p.lede{color:#cdd6e0;font-size:16.5px;max-width:920px;margin-top:18px}
+  .hero .tagrow{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+  .tag{background:var(--tag);border:1px solid var(--line2);padding:5px 11px;border-radius:999px;font-size:12.5px;color:#cfdde9}
+  .tag.warn{background:#3a2018;color:#ffc4b3;border-color:#5a2e23}
+  .tag.ok{background:#102a1f;color:#a6f0c8;border-color:#1f4a35}
+  .tag.acc{background:#0e2a36;color:#aee6ff;border-color:#1f4a5b}
+  main{padding:36px 7vw 90px;max-width:1180px;margin:0 auto}
+  section{margin:32px 0;padding:26px 28px;background:var(--panel);border:1px solid var(--line);border-radius:14px}
+  section h2{margin:0 0 4px;font-size:21.5px;letter-spacing:-.005em;color:#fff}
+  section h2 .num{color:var(--acc);font-weight:600;margin-right:10px;font-variant-numeric:tabular-nums}
+  section h3{font-size:16.5px;color:#cfdde9;margin:22px 0 8px}
+  section h4{font-size:14.5px;color:#a9bccc;margin:16px 0 6px;text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  .one-liner{color:var(--acc2);font-size:14.5px;margin:0 0 14px;font-style:italic}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.8px;background:var(--panel2);border-radius:8px;overflow:hidden}
+  th,td{padding:9px 11px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+  th{background:#19222d;color:#cde0ef;font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line2)}
+  tbody tr:nth-child(even){background:#161d27}
+  tbody tr:hover{background:#1c2632}
+  td code{background:#0c1218;padding:1px 6px;border-radius:4px;color:#aee6ff;font-size:12.5px}
+  ul,ol{padding-left:22px;margin:6px 0 12px}
+  li{margin:5px 0}
+  .callout{background:#0e2030;border-left:4px solid var(--acc);padding:12px 16px;border-radius:0 8px 8px 0;margin:14px 0;font-size:14.5px;color:#cfe3f3}
+  .callout.warn{background:#2a1612;border-left-color:var(--warn);color:#ffd7c6}
+  .callout.ok{background:#0f2218;border-left-color:var(--ok);color:#bff3d6}
+  .callout.note{background:#1b1a26;border-left-color:#b48bd8;color:#e0d2f0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .card{background:var(--panel2);border:1px solid var(--line);padding:14px 16px;border-radius:10px}
+  .card h4{margin-top:0}
+  .pill{display:inline-block;background:var(--pill);padding:2px 8px;border-radius:6px;font-size:12px;color:#aee6ff;margin-right:4px}
+  .pill.warn{background:#3a2018;color:#ffc4b3}
+  .pill.ok{background:#102a1f;color:#a6f0c8}
+  .pill.gold{background:#3a2e10;color:#ffe3a6}
+  .src{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .src em{color:#a9bccc;font-style:normal}
+  .formula{background:#0c1218;border:1px solid var(--line);padding:12px 16px;border-radius:8px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;color:#aee6ff;overflow-x:auto;white-space:pre}
+  .siblings{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:14px}
+  .sib{background:var(--panel2);border:1px solid var(--line);padding:9px 12px;border-radius:8px;font-size:13px}
+  .sib b{display:block;color:#fff;font-weight:600;margin-bottom:2px}
+  .sib span{color:var(--muted);font-size:11.5px}
+  .toc{background:#0e131a;border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin:18px 0}
+  .toc h3{margin-top:0;color:#cde0ef;font-size:14px;text-transform:uppercase;letter-spacing:.07em}
+  .toc ol{columns:2;column-gap:28px;padding-left:18px;margin:0}
+  .toc li{margin:3px 0;break-inside:avoid}
+  .toc a{color:#cdd6e0;border-bottom:none}
+  .toc a:hover{color:var(--acc)}
+  footer{padding:36px 7vw;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);text-align:center}
+  hr.divider{border:none;border-top:1px dashed var(--line2);margin:18px 0}
+  .label-good{color:var(--ok)}
+  .label-bad{color:var(--bad)}
+  .label-warn{color:var(--warn)}
+  .label-acc{color:var(--acc)}
+  .archblock{background:#101824;border:1px solid var(--line2);border-radius:12px;padding:18px 20px;margin:14px 0}
+  .archblock h4{margin-top:0;color:#fff;font-size:15px;text-transform:none;letter-spacing:0}
+  .archblock .io{display:grid;grid-template-columns:120px 1fr;gap:8px 14px;font-size:13.5px;margin-top:8px}
+  .archblock .io .k{color:var(--acc2);font-weight:600}
+  .archblock .io .v{color:#cfdde9}
+  .ascii{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:#aee6ff;background:#0c1218;border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;white-space:pre;line-height:1.45}
+  @media (max-width:840px){
+    h1{font-size:26px}
+    main{padding:24px 5vw 60px}
+    .grid2,.grid3{grid-template-columns:1fr}
+    .toc ol{columns:1}
+  }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="breadcrumb">cos_16 · chief_of_staff family · Samsung Aim 3 AI architecture · 2026-05-14</div>
+  <h1>AI bridge model — CTC blood-side ↔ tissue ecology
+    <span class="sub">CLIP-style contrastive bridge, n=50 PTC × 3 timepoints, foundation framing 정직 봉합</span>
+  </h1>
+  <p class="lede">
+    Samsung CTC-Spatial 제안서 <b>Aim 3</b> AI architecture.
+    CTC EMT phenotype (혈액)과 tissue niche feature (조직)을 같은 환자에서 동시에 가지는 (paired) sample로 contrastive learning bridge를 학습한다.
+    "Foundation model"이라는 단어의 정확한 의미를 솔직하게 좁힌다 — pan-cancer pretrain은 foundation, thyroid CTC fine-tune은 domain-adapted multimodal model.
+  </p>
+  <div class="tagrow">
+    <span class="tag acc">Aim 3 architecture</span>
+    <span class="tag">three encoders + contrastive head</span>
+    <span class="tag">UNI · Nicheformer · CLIP-style</span>
+    <span class="tag">leave-one-patient-out</span>
+    <span class="tag warn">n=50 → domain model, not foundation</span>
+  </div>
+</header>
+
+<main>
+
+<div class="toc">
+  <h3>목차</h3>
+  <ol>
+    <li><a href="#s1">1. Verdict / hypothesis</a></li>
+    <li><a href="#s2">2. The bridging problem</a></li>
+    <li><a href="#s3">3. Architecture overview</a></li>
+    <li><a href="#s4">4. CTC encoder</a></li>
+    <li><a href="#s5">5. Tissue spatial encoder</a></li>
+    <li><a href="#s6">6. Contrastive bridge head</a></li>
+    <li><a href="#s7">7. Pretrain strategy</a></li>
+    <li><a href="#s8">8. Fine-tune on Yu data</a></li>
+    <li><a href="#s9">9. Downstream tasks</a></li>
+    <li><a href="#s10">10. Honest claim ceiling</a></li>
+    <li><a href="#s11">11. Validation strategy</a></li>
+    <li><a href="#s12">12. Compute &amp; cost</a></li>
+    <li><a href="#s13">13. Public-data ablation</a></li>
+    <li><a href="#s14">14. Risk register</a></li>
+    <li><a href="#s15">15. Reviewer Q&amp;A</a></li>
+    <li><a href="#s15b">15b. Comparable systems delta</a></li>
+    <li><a href="#s15c">15c. Software stack</a></li>
+    <li><a href="#s15d">15d. 3-year milestones</a></li>
+    <li><a href="#s16">16. Sibling links</a></li>
+  </ol>
+</div>
+
+<!-- 1 -->
+<section id="s1">
+  <h2><span class="num">01</span>Verdict / hypothesis</h2>
+  <p class="one-liner">Hypothesis: CTC EMT-phenotype features (혈액)과 tissue niche features (조직)은 같은 환자에서 co-encode 가능한 latent representation을 가진다. CLIP-style contrastive learning이 둘을 동일 공간에 align한다.</p>
+  <div class="callout">
+    이는 가설이지 증명된 사실이 아니다. 본 페이지는 (a) 가설의 정당화, (b) architecture proposal, (c) 정직한 claim ceiling, (d) 실패 시 fallback을 함께 보고한다.
+    "Foundation model" 단어는 pan-cancer pretrain에만 사용하고, thyroid-specific layer는 "domain-adapted multimodal model"로 명시한다.
+    Reviewer 2의 "왜 n=50이 foundation인가" 공격을 미리 닫는다.
+  </div>
+  <table>
+    <thead><tr><th>축</th><th>본 페이지 입장</th><th>Claim boundary</th></tr></thead>
+    <tbody>
+      <tr><td>Bridging가설</td><td>CTC × tissue paired representation 학습 가능</td><td>identifiability 보장 안 됨; validation 필요</td></tr>
+      <tr><td>Foundation 단어</td><td>Pan-cancer (TCGA + UNI + Nicheformer) 단계만</td><td>Thyroid fine-tune은 domain model</td></tr>
+      <tr><td>n=50 데이터</td><td>fine-tune 규모; pretrain은 공개데이터</td><td>LOPO validation; permutation null 필수</td></tr>
+      <tr><td>Downstream</td><td>recurrence prediction (blood-only) + AS-suitable subgroup</td><td>clinical deployment 아님</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 2 -->
+<section id="s2">
+  <h2><span class="num">02</span>The bridging problem</h2>
+  <p class="one-liner">CTC는 single-cell 혈액 관측; tissue는 anchored spatial niche. 같은 환자가 둘 다 가짐 → 두 modality를 공유 잠재공간에 매핑하면 (a) blood-only prediction (b) blood → tissue inference (c) AS heterogeneous effect 모두 풀린다.</p>
+
+  <h3>2-1. Modality 비교</h3>
+  <table>
+    <thead><tr><th>특성</th><th>CTC (blood)</th><th>Tissue (FFPE/fresh + ST)</th></tr></thead>
+    <tbody>
+      <tr><td>Spatial resolution</td><td>single-cell, no spatial</td><td>10x Visium 또는 GeoMx ROI</td></tr>
+      <tr><td>Sample frequency</td><td>serial (pre / 2wk / 3mo / 6mo)</td><td>once, surgical</td></tr>
+      <tr><td>Phenotype layer</td><td>EMT markers + IHC + targeted DNA/RNA</td><td>spatial transcriptomics + niche</td></tr>
+      <tr><td>Information richness</td><td>state of individual cells in circulation</td><td>microenvironment context</td></tr>
+      <tr><td>Public data scale</td><td>매우 제한적</td><td>TCGA / HTAN / CELLxGENE 풍부</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2-2. 왜 bridge가 가치 있는가</h3>
+  <ul>
+    <li><b>혈액에서 조직 추론:</b> 조직 biopsy 없이 niche 상태 추정 가능성</li>
+    <li><b>Serial sampling 활용:</b> 조직은 1회, CTC는 4회 → 동적 추적</li>
+    <li><b>AS 결정 지원:</b> baseline CTC × tissue 정보로 progression-risk subgroup</li>
+    <li><b>Cross-modality transfer:</b> tissue-rich public data로 CTC encoder 정규화</li>
+  </ul>
+
+  <h3>2-3. Bridging이 실패하는 경우</h3>
+  <div class="callout warn">
+    Bridge collapse: CTC encoder와 tissue encoder가 trivial representation으로 수렴 (e.g., 평균 embedding으로 cosine similarity 1).
+    이는 contrastive learning의 알려진 실패 모드이며, BarlowTwins-style decorrelation loss + temperature scheduling으로 mitigate.
+    실패 시 fallback: CTC-only model (Aim 1) + tissue-only model (Aim 2) 각각의 baseline 유지.
+  </div>
+</section>
+
+<!-- 3 -->
+<section id="s3">
+  <h2><span class="num">03</span>Architecture overview</h2>
+  <p class="one-liner">Three encoders + contrastive bridge head. 명시적으로 multimodal CLIP-style 구조.</p>
+
+  <div class="ascii">
+       ┌────────────────────────┐                ┌────────────────────────┐
+       │   CTC encoder (E_C)    │                │ Tissue encoder (E_T)   │
+       │                        │                │                        │
+       │  • EMT marker IHC      │                │  • UNI image embed     │
+       │  • CTC patch image     │                │  • Nicheformer niche   │
+       │  • Targeted DNA/RNA    │                │  • Histology features  │
+       │  • Transformer         │                │  • Spatial transformer │
+       └──────────┬─────────────┘                └────────────┬───────────┘
+                  │                                            │
+                  │              ┌──────────────────┐          │
+                  └─────────────►│ Bridge head (B)  │◄─────────┘
+                                 │ CLIP-style       │
+                                 │ contrastive loss │
+                                 │ + decorrelation  │
+                                 └─────────┬────────┘
+                                           │
+                                  z_C ║ z_T  shared latent
+                                           │
+                       ┌───────────────────┴────────────────────┐
+                       │           Downstream heads             │
+                       │  • PFS prediction (Cox / survival)     │
+                       │  • Tissue niche inference (linear)     │
+                       │  • CATE for AS vs Surgery (causal)     │
+                       └────────────────────────────────────────┘
+  </div>
+
+  <h3>3-1. 구성 요소 요약</h3>
+  <table>
+    <thead><tr><th>Component</th><th>Input</th><th>Output dim</th><th>Pretrain source</th></tr></thead>
+    <tbody>
+      <tr><td>CTC encoder E_C</td><td>CTC IHC + image patch + targeted DNA/RNA</td><td>512</td><td>제한적; Yu 62 fine-tune + public CTC limited pretrain</td></tr>
+      <tr><td>Tissue encoder E_T</td><td>FFPE H&amp;E (UNI) + ST (Nicheformer)</td><td>512</td><td>TCGA-pan + UNI ImageNet → pathology → Nicheformer pan-tissue scRNA</td></tr>
+      <tr><td>Bridge head B</td><td>(z_C, z_T)</td><td>128 joint</td><td>Yu 50 paired</td></tr>
+      <tr><td>PFS head</td><td>z_C 또는 z_T 또는 joint</td><td>survival risk</td><td>MAeSTro/MASTER outcome</td></tr>
+      <tr><td>Niche head</td><td>z_C</td><td>5-niche softmax</td><td>tissue label from ST</td></tr>
+      <tr><td>CATE head</td><td>z_joint + treatment</td><td>τ(x)</td><td>cos_15 protocol output</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 4 -->
+<section id="s4">
+  <h2><span class="num">04</span>CTC encoder (E_C)</h2>
+  <p class="one-liner">Transformer over CTC patch + targeted DNA/RNA panel. EMT-aware tokenization.</p>
+
+  <h3>4-1. Input modalities</h3>
+  <ul>
+    <li><b>CTC patch image:</b> high-resolution fluorescence + brightfield (CD45-negative, EpCAM/CK/VIM/etc multi-channel) — 256×256 patches per detected CTC</li>
+    <li><b>IHC channel readout:</b> per-channel intensity vector (E-cadherin, N-cadherin, vimentin, Snail/Slug, ZEB1, PAX8, TG, CD45) — categorical + continuous</li>
+    <li><b>Targeted DNA panel:</b> BRAF V600E, TERT promoter, RET/NTRK/ALK fusion, RAS — variant calls</li>
+    <li><b>Targeted RNA panel:</b> EMT pathway transcripts, thyroid lineage, immune escape — log-normalized counts</li>
+  </ul>
+
+  <h3>4-2. Tokenization scheme</h3>
+  <div class="archblock">
+    <h4>Per-CTC token sequence</h4>
+    <div class="io">
+      <div class="k">[IMG]</div><div class="v">CTC patch ViT embed (16-patch grid → 196 tokens)</div>
+      <div class="k">[IHC]</div><div class="v">channel intensity vector → 1 token per channel (10 tokens)</div>
+      <div class="k">[DNA]</div><div class="v">variant indicator vector → 1 token per gene (12 tokens)</div>
+      <div class="k">[RNA]</div><div class="v">log-normalized count → 1 token per transcript (50 tokens)</div>
+      <div class="k">[CLS]</div><div class="v">aggregator token for CTC-level representation</div>
+    </div>
+  </div>
+
+  <h3>4-3. Architecture</h3>
+  <ul>
+    <li>6-layer transformer, 8 heads, hidden 512</li>
+    <li>Modality embedding (image / IHC / DNA / RNA) added to position embedding</li>
+    <li>Pre-LN + GELU + dropout 0.1</li>
+    <li>CLS-token output → z_C (512-d)</li>
+  </ul>
+
+  <h3>4-4. Patient-level aggregation</h3>
+  <p>여러 CTC가 검출되는 환자는 CTC-level z_C를 attention-pooling으로 patient-level z_C^P로 집계. Yu 데이터에서 환자당 평균 CTC는 ~5-15개 수준.</p>
+
+  <h3>4-5. CTC-side pretrain</h3>
+  <div class="callout warn">
+    공개 CTC 이미지는 매우 제한적이며 (대부분 proprietary CellSearch/CanPatrol 출력) cross-cancer CTC public dataset은 small.
+    따라서 E_C는 (a) UNI image encoder를 시작점으로 CTC patch에 domain-adapt, (b) Yu 62 cohort에서 self-supervised pretrain (SimCLR-style),
+    (c) targeted DNA/RNA는 random init + Yu fine-tune.
+    Pretrain breadth는 명확히 제한적이며, "foundation"이라고 부르지 않는다.
+  </div>
+</section>
+
+<!-- 5 -->
+<section id="s5">
+  <h2><span class="num">05</span>Tissue spatial encoder (E_T)</h2>
+  <p class="one-liner">UNI (이미지) + Nicheformer (spatial transcriptomics) 또는 Visium HD foundation 모델. 이쪽은 공개 pretrain이 풍부해 진짜 foundation-level이다.</p>
+
+  <h3>5-1. Backbone 선택</h3>
+  <table>
+    <thead><tr><th>Module</th><th>Source</th><th>Pretrain scale</th><th>사용 이유</th></tr></thead>
+    <tbody>
+      <tr><td>UNI</td><td>Mahmood lab 2024</td><td>100k+ pathology WSI (Mass General Brigham)</td><td>WSI patch embedding 강함</td></tr>
+      <tr><td>Nicheformer</td><td>Theis lab 2024</td><td>~100M spatial spots</td><td>spatial niche representation</td></tr>
+      <tr><td>scGPT</td><td>Wang lab 2024</td><td>33M cells (CELLxGENE)</td><td>scRNA prior, fallback</td></tr>
+      <tr><td>Visium HD foundation</td><td>10x Genomics 2025</td><td>HD-resolution ST</td><td>future option</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5-2. Input pipeline</h3>
+  <ul>
+    <li>FFPE H&amp;E WSI → tissue mask → 256×256 patches at 0.5 μm/pixel</li>
+    <li>UNI ViT embedding → 1024-d per patch</li>
+    <li>Spatial transcriptomics → spot-level expression vector → Nicheformer embedding 512-d</li>
+    <li>Patch × ST alignment via coordinate matching</li>
+    <li>Spatial transformer (8-layer) over aligned tokens → tissue-level z_T (512-d)</li>
+  </ul>
+
+  <h3>5-3. ROI selection (Yu lab)</h3>
+  <p>Surgery arm 환자의 FFPE block에서 사전 정의된 5-niche ROI (invasive front / core / lymphovascular / immune / CAF) 추출. 각 niche에서 sub-token화하여 niche-aware tokenization.</p>
+</section>
+
+<!-- 6 -->
+<section id="s6">
+  <h2><span class="num">06</span>Contrastive bridge head (B)</h2>
+  <p class="one-liner">CLIP의 image-text contrastive loss를 CTC-tissue paired sample에 적용. 같은 환자 같은 timepoint pair = positive; 다른 환자/timepoint = negative.</p>
+
+  <h3>6-1. Loss formulation</h3>
+  <div class="formula">L_contrast = -log( exp(sim(z_C, z_T) / τ) / Σ_k exp(sim(z_C, z_T_k) / τ) )
+
+sim(a, b) = a · b / (||a|| · ||b||)
+τ = learnable temperature (initialized 0.07)
+</div>
+
+  <h3>6-2. Decorrelation regularization (BarlowTwins-style)</h3>
+  <div class="formula">L_decorr = Σ_i (1 - C_ii)² + λ · Σ_{i≠j} C_ij²
+
+C = cross-correlation matrix of z_C and z_T over batch
+</div>
+  <p>이 항은 bridge collapse를 막는다. Empirically Δ ablation에서 수렴 안정성 큰 영향.</p>
+
+  <h3>6-3. Combined loss</h3>
+  <div class="formula">L_total = L_contrast + α · L_decorr + β · L_downstream
+α=0.05, β=1.0 (typical CLIP+regularization setup)
+</div>
+
+  <h3>6-4. Pair construction strategy</h3>
+  <ul>
+    <li><b>Positive:</b> 같은 환자, 같은 timepoint의 (CTC, tissue) pair</li>
+    <li><b>Hard negative:</b> 같은 niche의 다른 환자 (false-positive 위험 방지)</li>
+    <li><b>Easy negative:</b> 다른 niche 다른 환자</li>
+    <li>Batch size 32 (n 작아서 mini-batch contrastive 위험 → MoCo-style queue로 negative pool 확대)</li>
+  </ul>
+</section>
+
+<!-- 7 -->
+<section id="s7">
+  <h2><span class="num">07</span>Pretrain strategy</h2>
+  <p class="one-liner">Foundation 단어가 의미 있는 곳에서만 사용. Tissue side는 진짜 foundation, CTC side는 limited.</p>
+
+  <table>
+    <thead><tr><th>Stage</th><th>Encoder</th><th>Data</th><th>Scale</th><th>Foundation?</th></tr></thead>
+    <tbody>
+      <tr><td>Stage 0a</td><td>UNI</td><td>Mass General Brigham WSI pathology</td><td>100k+ slides</td><td><span class="label-good">Yes (pre-existing)</span></td></tr>
+      <tr><td>Stage 0b</td><td>Nicheformer</td><td>pan-tissue spatial transcriptomics</td><td>~100M spots</td><td><span class="label-good">Yes (pre-existing)</span></td></tr>
+      <tr><td>Stage 1</td><td>E_T (combined)</td><td>TCGA-PanCancer + HTAN + CELLxGENE</td><td>11k+ patients tissue</td><td><span class="label-good">Yes (pan-cancer)</span></td></tr>
+      <tr><td>Stage 2</td><td>E_C image</td><td>UNI cross-domain adapt to CTC patch</td><td>~수천 patch</td><td><span class="label-warn">Domain-adapted</span></td></tr>
+      <tr><td>Stage 3</td><td>Bridge B</td><td>Yu 50 PTC × 3 timepoints</td><td>~150 paired</td><td><span class="label-bad">No — domain fine-tune</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>7-1. 정직 framing</h3>
+  <div class="callout">
+    "본 과제는 Stage 0a/0b/1까지를 <b>foundation model contribution</b>으로 보고하고 (pan-cancer pretrain은 정통 foundation의 정의에 부합),
+    Stage 2/3은 <b>domain-adapted multimodal model</b>로 명시한다.
+    Thyroid는 first downstream task이며, 본 framework의 foundation level transferability는 다른 cancer (low-risk prostate, DCIS, indolent lymphoma)로의 transfer에서 평가한다."
+  </div>
+</section>
+
+<!-- 8 -->
+<section id="s8">
+  <h2><span class="num">08</span>Fine-tune on Yu data</h2>
+  <p class="one-liner">n=50 PTC × pre/2wk/3mo × matched FFPE → ~150 paired CTC-tissue pairs.</p>
+
+  <h3>8-1. Data structure</h3>
+  <table>
+    <thead><tr><th>Timepoint</th><th>CTC sampling</th><th>Tissue available?</th><th>Paired count target</th></tr></thead>
+    <tbody>
+      <tr><td>Pre-op (T=0)</td><td>50 patients</td><td>50 (surgical) + biopsy if AS</td><td>50</td></tr>
+      <tr><td>+2wk (post-op)</td><td>50</td><td>0 (no second sampling)</td><td>50 (CTC only; pair with T=0 tissue)</td></tr>
+      <tr><td>+3mo</td><td>50</td><td>0</td><td>50 (CTC only)</td></tr>
+      <tr><td>Total</td><td>150 CTC observations</td><td>50 FFPE</td><td>150 paired (using T=0 tissue as anchor)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8-2. Training regimen</h3>
+  <ul>
+    <li>5-fold leave-one-patient-out (LOPO) for outer evaluation</li>
+    <li>Within each fold: 80/20 train/val split</li>
+    <li>Adam optimizer, cosine schedule, lr 1e-4 → 1e-5</li>
+    <li>~50-200 epochs, early stopping on val contrast loss</li>
+    <li>Augmentation: image (crop/flip/jitter), DNA/RNA (random masking 10%)</li>
+  </ul>
+
+  <h3>8-3. Identifiability concerns</h3>
+  <div class="callout warn">
+    n=150 paired는 representation alignment 학습에 절대적으로 부족할 수 있다. Reviewer 2가 즉시 공격할 지점.
+    <b>대응:</b> (a) Stage 1/2 pretrained encoder를 freeze한 채 bridge head만 학습 (parameters 적음), (b) permutation null test (cross-patient shuffle → contrastive loss random baseline 비교), (c) bridge embedding의 patient-cluster identifiability test.
+  </div>
+</section>
+
+<!-- 9 -->
+<section id="s9">
+  <h2><span class="num">09</span>Downstream tasks</h2>
+  <p class="one-liner">Bridge가 align되면 풀리는 세 가지 task. 각각의 baseline + 본 architecture의 incremental value.</p>
+
+  <div class="grid3">
+    <div class="card">
+      <h4>(a) Blood-only PFS prediction</h4>
+      <p>Baseline: 기존 clinical risk score (ATA, ETE, tumor size)</p>
+      <p>Proposed: z_C only → Cox PH</p>
+      <p>Comparison: AUC, C-index, integrated Brier score</p>
+    </div>
+    <div class="card">
+      <h4>(b) Tissue niche inference from blood</h4>
+      <p>Baseline: random / cohort prevalence</p>
+      <p>Proposed: z_C → linear probe → 5-niche softmax</p>
+      <p>Metric: niche-level accuracy, macro-F1</p>
+    </div>
+    <div class="card">
+      <h4>(c) HTE for AS vs Surgery</h4>
+      <p>Baseline: clinical-only causal forest</p>
+      <p>Proposed: z_joint + treatment → CATE</p>
+      <p>Comparison: subgroup CATE CI overlap with baseline (decorrelation)</p>
+    </div>
+  </div>
+
+  <h3>9-1. Task별 success criterion</h3>
+  <table>
+    <thead><tr><th>Task</th><th>Pass criterion</th><th>Fail action</th></tr></thead>
+    <tbody>
+      <tr><td>(a) blood-only PFS</td><td>C-index ≥ baseline + 0.03</td><td>blood-only inference 제거; tissue-only로 보고</td></tr>
+      <tr><td>(b) niche inference</td><td>macro-F1 ≥ 0.4 (vs random ~0.2 for 5-class)</td><td>niche inference downgrade to exploratory</td></tr>
+      <tr><td>(c) HTE</td><td>CATE distribution이 clinical-only baseline과 통계적 차이</td><td>HTE는 clinical-only로만 보고</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 10 -->
+<section id="s10">
+  <h2><span class="num">10</span>Honest claim ceiling</h2>
+  <p class="one-liner">"Foundation model"이라는 단어를 두 곳에서만 쓴다.</p>
+
+  <table>
+    <thead><tr><th>Component</th><th>Allowed framing</th><th>Forbidden framing</th></tr></thead>
+    <tbody>
+      <tr><td>Pan-cancer Stage 1 pretrain</td><td>"Pan-cancer foundation pretrain layer (TCGA + HTAN + CELLxGENE)"</td><td>"Thyroid foundation model"</td></tr>
+      <tr><td>UNI / Nicheformer Stage 0</td><td>"Pre-existing foundation backbones"</td><td>"우리가 만든 foundation"</td></tr>
+      <tr><td>Yu 50 fine-tune</td><td>"Domain-adapted multimodal model, thyroid first downstream"</td><td>"Thyroid foundation model"</td></tr>
+      <tr><td>Bridge head</td><td>"CTC-tissue contrastive bridge learned on n=50"</td><td>"Foundation bridge"</td></tr>
+      <tr><td>Downstream (a/b/c)</td><td>"Hypothesis-generating outputs validated under LOPO"</td><td>"Clinical decision-ready predictor"</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    이 framing은 Memo <code>causal_kthyro_weakness_audit §2</code>의 reviewer 약점을 직접 닫는다. ChatGPT 기본 wording은 "foundation"을 광범하게 사용하는데, reviewer 2가 "왜 n=500 단일 질병이 foundation인가"를 물으면 답이 없다. 본 페이지의 split framing이 정직 방어선.
+  </div>
+</section>
+
+<!-- 11 -->
+<section id="s11">
+  <h2><span class="num">11</span>Validation strategy</h2>
+  <p class="one-liner">Leave-one-patient-out + permutation null + E-value for causal claims. cos_14 도구 연동.</p>
+
+  <h3>11-1. LOPO</h3>
+  <ol>
+    <li>각 fold에서 한 환자 전체 (모든 timepoint) leave out</li>
+    <li>나머지 49 환자에서 학습</li>
+    <li>Held-out patient에서 (a) blood-only PFS, (b) niche inference, (c) CATE 평가</li>
+    <li>50-fold 결과 aggregate → mean ± std</li>
+  </ol>
+
+  <h3>11-2. Permutation null</h3>
+  <ul>
+    <li>(CTC, tissue) pair를 cross-patient random shuffle</li>
+    <li>Shuffle된 데이터로 동일 학습 → contrastive loss / downstream metric 분포</li>
+    <li>실제 데이터 metric이 permutation null의 95-percentile 밖이면 bridge가 signal-bearing</li>
+    <li>1000회 permutation</li>
+  </ul>
+
+  <h3>11-3. Bridge identifiability test</h3>
+  <ul>
+    <li>학습된 z_C가 환자 ID를 예측할 수 있는지 (over-specific) — linear probe accuracy</li>
+    <li>z_C가 timepoint를 예측할 수 있는지 — temporal coherence</li>
+    <li>z_T-anchored retrieval: 같은 환자 다른 timepoint CTC가 top-k retrieval에 들어오는지</li>
+  </ul>
+
+  <h3>11-4. Causal claim validation</h3>
+  <div class="callout">
+    Downstream task (c) HTE에서 CATE가 z_joint에 의존한다고 주장하려면 E-value 보고 필수. cos_14 §7과 동일 framework.
+  </div>
+</section>
+
+<!-- 12 -->
+<section id="s12">
+  <h2><span class="num">12</span>Compute &amp; cost</h2>
+  <p class="one-liner">A100 × 4 GPU-week for pretrain alignment + A6000 fine-tune. 본 lab의 RunPod 운영 기준 (CLAUDE.md 참고).</p>
+
+  <table>
+    <thead><tr><th>Stage</th><th>GPU</th><th>Time</th><th>Cost estimate (USD)</th></tr></thead>
+    <tbody>
+      <tr><td>Stage 0a/0b backbones</td><td>pre-existing</td><td>0</td><td>0 (download)</td></tr>
+      <tr><td>Stage 1 pan-cancer pretrain</td><td>A100 × 4</td><td>~2 weeks</td><td>~$3,000 (RunPod community)</td></tr>
+      <tr><td>Stage 2 CTC domain-adapt</td><td>A6000 × 1</td><td>~3 days</td><td>~$25</td></tr>
+      <tr><td>Stage 3 fine-tune (LOPO 50-fold)</td><td>A6000 × 1</td><td>~7 days</td><td>~$55</td></tr>
+      <tr><td>Inference + downstream</td><td>A6000 × 1</td><td>~2 days</td><td>~$15</td></tr>
+      <tr><td>Permutation null (1000×)</td><td>A6000 × 1</td><td>~14 days</td><td>~$110</td></tr>
+      <tr><td>총합</td><td colspan="2">~5 GPU-weeks</td><td>~$3,200</td></tr>
+    </tbody>
+  </table>
+
+  <h3>12-1. Reproducibility container</h3>
+  <ul>
+    <li>Docker image with pinned versions: PyTorch 2.4, UNI weights, Nicheformer weights</li>
+    <li>Manifest published in sibling <code>reproducibility_container_spec_2026_05_14.html</code></li>
+    <li>Code repo: GitHub post-acceptance; pre-acceptance internal</li>
+    <li>Random seeds fixed; deterministic flag set; LOPO seeds reported</li>
+  </ul>
+</section>
+
+<!-- 13 -->
+<section id="s13">
+  <h2><span class="num">13</span>Public-data ablation</h2>
+  <p class="one-liner">Bridge를 빼면 무엇이 남는가? Tissue-only / blood-only baseline이 본 architecture의 incremental value를 검증하는 기준선.</p>
+
+  <table>
+    <thead><tr><th>Variant</th><th>Components used</th><th>Expected outcome</th></tr></thead>
+    <tbody>
+      <tr><td>Tissue-only (E_T only)</td><td>UNI + Nicheformer + Cox</td><td>Baseline AUC; AS 환자는 사용 불가</td></tr>
+      <tr><td>Blood-only (E_C only)</td><td>CTC features + Cox</td><td>AS 환자 사용 가능; AUC 낮을 가능성</td></tr>
+      <tr><td>No bridge (concat)</td><td>[z_C; z_T] concat + Cox</td><td>중간 AUC; modality alignment 없음</td></tr>
+      <tr><td>Full bridge</td><td>z_joint contrastive aligned</td><td><b>가설 우위; 검증 필요</b></td></tr>
+    </tbody>
+  </table>
+
+  <h3>13-1. Public-data baseline (no Yu)</h3>
+  <p>Yu 데이터 없이 TCGA + 공개 ST로 tissue-only PFS 예측 baseline을 만들어 reviewer-safe replication 기준선 제공. 본 과제의 incremental value는 이 baseline 대비 측정.</p>
+</section>
+
+<!-- 14 -->
+<section id="s14">
+  <h2><span class="num">14</span>Risk register</h2>
+  <p class="one-liner">6-축 risk + mitigation.</p>
+
+  <table>
+    <thead><tr><th>Risk</th><th>Level</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Bridge collapse</td><td><span class="label-bad">HIGH</span></td><td>Decorrelation loss + temperature scheduling + permutation null monitoring</td></tr>
+      <tr><td>n=50 over-fitting</td><td><span class="label-bad">HIGH</span></td><td>LOPO + frozen pretrained encoders + minimal bridge head parameters</td></tr>
+      <tr><td>EMT phenotype drift across timepoints</td><td><span class="label-warn">MED</span></td><td>Strict assay protocol + duplicate readers + spike-in controls</td></tr>
+      <tr><td>CTC public-data scarcity</td><td><span class="label-warn">MED</span></td><td>UNI cross-domain adapt + Yu 62 self-supervised pretrain</td></tr>
+      <tr><td>Reviewer "foundation" 공격</td><td><span class="label-warn">MED</span></td><td>§10 honest framing 분리</td></tr>
+      <tr><td>Cost overrun GPU</td><td><span class="label-good">LOW</span></td><td>RunPod community A6000 $0.33/hr 예산</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 15 -->
+<section id="s15">
+  <h2><span class="num">15</span>Reviewer Q&amp;A</h2>
+
+  <h3>Q1. "왜 n=50이 foundation model인가?"</h3>
+  <div class="callout">
+    아닙니다. Foundation은 Stage 0a/0b/1 (UNI / Nicheformer / TCGA-PanCancer pretrain)에만 적용되는 단어입니다.
+    Yu 50 환자 fine-tune은 domain-adapted multimodal model이며, thyroid는 first downstream task로 명시합니다.
+    Reviewer 2가 "왜 foundation인가"를 물으면, 본 architecture는 답을 두 부분으로 분리합니다 — pan-cancer foundation backbone + thyroid domain fine-tune.
+  </div>
+
+  <h3>Q2. "Bridge가 identifiable한가?"</h3>
+  <div class="callout">
+    Permutation null test로 검증합니다. (CTC, tissue) pair를 cross-patient shuffle한 데이터에서 contrastive loss / downstream metric 분포를 계산하고,
+    실제 데이터가 그 분포의 95-percentile 밖이면 bridge가 signal-bearing이라고 보고합니다.
+    추가로 z_C-anchored cross-timepoint retrieval (같은 환자 다른 timepoint top-k retrieval)으로 identifiability을 직접 확인합니다.
+    Identifiability이 실패하면 본 페이지 §14에 명시된 fallback (CTC-only + tissue-only separate baselines)으로 보고합니다.
+  </div>
+
+  <h3>Q3. "Public-data ablation은?"</h3>
+  <div class="callout">
+    §13 ablation table 그대로. (a) tissue-only, (b) blood-only, (c) no-bridge concat, (d) full bridge 4-variant.
+    각 variant의 LOPO C-index와 niche F1을 보고. Full bridge의 incremental value가 (c) no-bridge concat 대비 통계적 의미가 없으면 main claim에서 빼고 robustness check로만 보고.
+  </div>
+
+  <h3>Q4. "HTE interpretability는 어떻게 보장하는가?"</h3>
+  <div class="callout">
+    Causal forest의 subgroup CATE를 보고할 때 (i) SHAP 또는 attention attribution으로 z_joint의 어느 dimension이 dominant인지,
+    (ii) 그 dimension이 clinical variable과 어떻게 연관되는지 (post-hoc linear regression of z_joint dimension on clinical features),
+    (iii) E-value로 unmeasured confounder의 robustness 평가.
+    "Black box CATE"가 아니라 "clinical-feature-anchored CATE"로 framing.
+  </div>
+
+  <h3>Q5. "공개 CTC 데이터가 거의 없는데 어떻게 정당화하는가?"</h3>
+  <div class="callout">
+    동의합니다. 본 architecture는 CTC side에서 foundation level pretrain을 약속하지 않습니다.
+    CTC encoder E_C는 (a) UNI image encoder cross-domain adapt + (b) Yu 62 self-supervised SimCLR-style pretrain만 사용하며,
+    이는 "domain-adapted CTC representation"으로 명시합니다.
+    Tissue side만이 진짜 foundation pretrain입니다.
+  </div>
+
+  <h3>Q6. "Quantum-inspired sidecar와 어떻게 연결되는가?"</h3>
+  <div class="callout">
+    Bridge head에서 small-N high-D representation alignment는 tensor network / quantum kernel sidecar의 대상 ablation입니다.
+    그러나 이는 clinical performance improvement 주장이 아니라 NISQ future-proofing benchmark입니다 (memo §4).
+    Classical bridge + quantum-inspired bridge를 같은 LOPO benchmark에서 보고하고, 우위가 없으면 negative result로 보고합니다.
+  </div>
+</section>
+
+<!-- 15b -->
+<section id="s15b">
+  <h2><span class="num">15b</span>Architecture deltas vs comparable systems</h2>
+  <p class="one-liner">2024-2026의 multimodal biomedical foundation 시도들과 본 architecture의 차별점.</p>
+  <table>
+    <thead><tr><th>System</th><th>Modalities</th><th>Pretrain scale</th><th>본 architecture와 차이</th></tr></thead>
+    <tbody>
+      <tr><td>CONCH (Mahmood 2024)</td><td>Pathology image + report text</td><td>1.17M pathology image-text pairs</td><td>본 과제는 image-text가 아니라 image-spatial. 그러나 contrastive 학습 패러다임은 유사.</td></tr>
+      <tr><td>PLIP (Pathology-Language IP)</td><td>WSI + text</td><td>200k pairs from medical Twitter</td><td>본 과제는 small Yu cohort fine-tune; PLIP는 noisy text supervision</td></tr>
+      <tr><td>Geneformer</td><td>scRNA only</td><td>30M cells</td><td>본 과제 tissue side에서 Nicheformer로 대체</td></tr>
+      <tr><td>Tahoe-100M</td><td>scRNA + drug perturbation</td><td>100M cells × perturb</td><td>본 architecture와 직접 비교 X; future direction</td></tr>
+      <tr><td>본 architecture</td><td>CTC (혈액) + tissue ST + path</td><td>Pan-cancer Stage 1 + Yu 50 fine-tune</td><td>유일하게 CTC blood-side를 cross-modality bridge에 포함</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 15c -->
+<section id="s15c">
+  <h2><span class="num">15c</span>Software stack</h2>
+  <p class="one-liner">모든 모델은 open-source 또는 academic license. Reproducibility container에 pinning.</p>
+  <table>
+    <thead><tr><th>Layer</th><th>Tool</th><th>Version</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Training</td><td>PyTorch + PyTorch Lightning</td><td>2.4 + 2.4</td><td>RunPod A6000 community cloud</td></tr>
+      <tr><td>Image encoder</td><td>UNI</td><td>2024 release</td><td>Mahmood lab academic license</td></tr>
+      <tr><td>Spatial encoder</td><td>Nicheformer</td><td>2024 release</td><td>Theis lab</td></tr>
+      <tr><td>scRNA backbone</td><td>scGPT (fallback)</td><td>0.2.x</td><td>Wang lab</td></tr>
+      <tr><td>Survival</td><td>lifelines + pycox</td><td>0.29 / 0.2.x</td><td>Cox + deep survival</td></tr>
+      <tr><td>Causal</td><td>DoWhy + EconML</td><td>0.11 / 0.15</td><td>cos_14 §12 stack</td></tr>
+      <tr><td>Experiment tracking</td><td>Weights &amp; Biases</td><td>0.18</td><td>private project</td></tr>
+      <tr><td>Container</td><td>Docker</td><td>—</td><td>reproducibility_container_spec_2026_05_14</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 15d -->
+<section id="s15d">
+  <h2><span class="num">15d</span>Milestones — 3-year Aim 3 schedule</h2>
+  <p class="one-liner">Samsung 30억/3년 grant Aim 3 부분의 시간축.</p>
+  <table>
+    <thead><tr><th>Quarter</th><th>Milestone</th><th>Deliverable</th><th>Go/No-Go</th></tr></thead>
+    <tbody>
+      <tr><td>Y1Q1</td><td>Stage 0 backbone integration</td><td>UNI + Nicheformer working pipeline</td><td>—</td></tr>
+      <tr><td>Y1Q2</td><td>Stage 1 pan-cancer pretrain</td><td>z_T on TCGA-PanCancer 11k</td><td>cluster purity ≥ 0.6</td></tr>
+      <tr><td>Y1Q3</td><td>Stage 2 CTC domain-adapt</td><td>E_C on Yu 62 CTC patches</td><td>self-supervised loss converged</td></tr>
+      <tr><td>Y1Q4</td><td>Stage 3 bridge head v1</td><td>contrastive bridge on initial pairs</td><td>permutation null pass</td></tr>
+      <tr><td>Y2Q1</td><td>Prospective CTC cohort expand</td><td>n=100 paired</td><td>IRB + assay QC</td></tr>
+      <tr><td>Y2Q2</td><td>LOPO benchmark v1</td><td>tasks (a)/(b)/(c) report</td><td>task (a) C-index ≥ baseline+0.03</td></tr>
+      <tr><td>Y2Q3</td><td>HTE causal forest integration</td><td>CATE on AS vs Surgery</td><td>E-value ≥ 1.5</td></tr>
+      <tr><td>Y2Q4</td><td>Ablation suite</td><td>4-variant table (§13)</td><td>incremental value documented</td></tr>
+      <tr><td>Y3Q1</td><td>Quantum-inspired sidecar benchmark</td><td>tensor network bridge alternative</td><td>negative-allowed</td></tr>
+      <tr><td>Y3Q2</td><td>External replication</td><td>independent thyroid cohort</td><td>generalization check</td></tr>
+      <tr><td>Y3Q3</td><td>Cross-cancer transfer pilot</td><td>low-risk prostate / DCIS proof-of-concept</td><td>foundation transfer demonstration</td></tr>
+      <tr><td>Y3Q4</td><td>Submission package</td><td>preprint + reproducibility</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 16 -->
+<section id="s16">
+  <h2><span class="num">16</span>Sibling links — chief_of_staff family</h2>
+  <div class="siblings">
+    <a class="sib" href="chief_of_staff_00_package_index_2026_05_14.html"><b>cos_00 · package index</b><span>전체 가이드</span></a>
+    <a class="sib" href="chief_of_staff_01_repo_audit_2026_05_14.html"><b>cos_01 · repo audit</b><span>repo 현황</span></a>
+    <a class="sib" href="chief_of_staff_02_data_evidence_registry_2026_05_14.html"><b>cos_02 · data evidence registry</b><span>dataset manifest</span></a>
+    <a class="sib" href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html"><b>cos_04 · DM1/DM2 signature</b><span>signature 결정</span></a>
+    <a class="sib" href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html"><b>cos_05 · Samsung CTC-Spatial</b><span>master proposal</span></a>
+    <a class="sib" href="chief_of_staff_07_brand_architecture_lumenix_biodarwin_2026_05_14.html"><b>cos_07 · brand architecture</b><span>Lumenix / BioDarwin</span></a>
+    <a class="sib" href="cos_14_hernan_robins_target_trial_primer_2026_05_14.html"><b>cos_14 · Hernán-Robins primer</b><span>methods anchor</span></a>
+    <a class="sib" href="cos_15_as_vs_surgery_protocol_2026_05_14.html"><b>cos_15 · AS vs Surgery protocol</b><span>protocol detail</span></a>
+    <a class="sib" href="cos_16_ai_bridge_model_architecture_2026_05_14.html"><b>cos_16 · AI bridge model</b><span>현재 페이지</span></a>
+    <a class="sib" href="yu_meeting_brief_2026_05_14.html"><b>Yu meeting brief</b><span>유형원 자료</span></a>
+    <a class="sib" href="mega_launchpad_2026_05_14.html"><b>mega launchpad</b><span>전체 hub</span></a>
+    <a class="sib" href="rehearsal_script_yu_meeting_2026_05_14.html"><b>rehearsal script</b><span>리허설</span></a>
+    <a class="sib" href="grant_samsung_causal_kthyro_2026_05_14.html"><b>grant samsung causal_kthyro</b><span>Causal K-Thyro</span></a>
+    <a class="sib" href="samsung_wp_expanded_2026_05_14.html"><b>samsung WP expanded</b><span>WP 구조</span></a>
+    <a class="sib" href="quantum_sidecar_deep_dive_2026_05_14.html"><b>quantum sidecar deep dive</b><span>NISQ future-proofing</span></a>
+    <a class="sib" href="reproducibility_container_spec_2026_05_14.html"><b>reproducibility container spec</b><span>Docker stack</span></a>
+    <a class="sib" href="ctc_emt_62_cohort_2026_05_14.html"><b>CTC/EMT 62 cohort</b><span>Yu 62명 dossier</span></a>
+    <a class="sib" href="image_fm_head_to_head_2026_05_14.html"><b>image FM head to head</b><span>UNI / pathology FM 비교</span></a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  cos_16 · AI bridge model architecture · 2026-05-14<br>
+  Samsung CTC-Spatial proposal Aim 3 · 작성: Seungho Cook (Co-PI)<br>
+  Sibling: cos_14 (methods primer) · cos_15 (AS vs Surgery protocol)<br>
+  Honest framing: pan-cancer pretrain = foundation; thyroid n=50 = domain-adapted multimodal model
+</footer>
+
+</body>
+</html>

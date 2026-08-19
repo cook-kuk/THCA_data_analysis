@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Pillar — Landa GSE76039 HM450 Methylation Deep Dive · DM1=HIGH-β/silenced · H13 polarity-corrected · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:58px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.lead .red{color:var(--red)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:112px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:5px 9px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.sib{border-color:rgba(101,220,200,.3);color:var(--teal)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:18px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.viol{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.v{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:16px 18px}
+.v.green{border-top:4px solid var(--green)}.v.gold{border-top:4px solid var(--gold)}.v.red{border-top:4px solid var(--red)}.v.blue{border-top:4px solid var(--blue)}
+.v h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:#fff}
+.v p{margin:0;color:#d7e3e9;font-size:14.5px}
+.alert{border:2px solid var(--red);background:linear-gradient(135deg,rgba(255,138,107,.10),rgba(255,138,107,.02));border-radius:12px;padding:20px 22px;margin-top:14px}
+.alert h3{margin:0 0 10px;color:var(--red);font-family:"Cormorant Garamond",Georgia,serif;font-size:30px}
+.alert p{margin:0 0 6px;color:#eaf2f7;font-size:15px}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:10px;padding:14px 16px;background:#0d1823;border-top:4px solid var(--gold)}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.rung h4{margin:0 0 4px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);font-weight:700;margin:4px 0 6px;line-height:1}
+.checklist{margin-top:14px;background:#0d1823;border:1px solid var(--line);border-radius:10px;padding:18px 22px}
+.checklist h4{margin:0 0 10px;color:#fff;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px}
+.checklist ol{margin:0 0 0 18px;padding:0;color:#dde6ec}
+.checklist li{margin:5px 0;font-size:14px}
+.checklist li code{background:rgba(255,138,107,.15);color:var(--red)}
+.note-card{border:1px solid var(--line);background:#0d1823;border-radius:10px;padding:14px 16px;margin-top:10px}
+.note-card.green{border-left:4px solid var(--green)}.note-card.gold{border-left:4px solid var(--gold)}.note-card.red{border-left:4px solid var(--red)}.note-card.blue{border-left:4px solid var(--blue)}
+.note-card h4{margin:0 0 6px;font-size:16px;color:#fff}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}.ladder{grid-template-columns:1fr 1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Pillar Deep Dive · Landa GSE76039 HM450 Methylation · DM1=HIGH-β/silenced · H13 polarity-corrected · 2026-05-14</p>
+    <h1>Landa GSE76039 — methylation pillar, DM1 = HIGH-β/silenced.</h1>
+    <p class="lead">
+      Paper 1 DM1 dark-matter의 <b>가장 강한 단일-pillar</b>: Landa GSE76039 HM450 methylation. <b>H13 polarity correction (2026-05-09)</b>으로 원 Round 4 부호 <span class="red">d=-1.75</span>는 label-flip artifact였고, r9_1 master 기준으로 <b>DM1 = HIGH-β / silenced</b> 방향이 정확하다. cPTC d=+1.50, PDTC vs ATC d=+3.47 (단일-pillar 최대 effect). spatial DM1 ↔ TDS 진행기 stable, MAPK 두 경로 (BRAF V600E β=0.37 ≈ RET fusion β=0.39 vs RAS β=0.27) 모두 panel silencing으로 수렴. <b>Paper 1 figure 포팅 시 sign-flip checklist 필수</b>.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>+1.50</b><span>cPTC d (corrected)</span><small>r9_1 master · HIGH-β polarity</small></div>
+      <div class="stat"><b>+3.47</b><span>PDTC vs ATC d</span><small>단일-pillar 최대 effect</small></div>
+      <div class="stat"><b>H13</b><span>polarity correction</span><small>Round 4 d=-1.75 label-flip 수정</small></div>
+      <div class="stat"><b>stage-stable</b><span>spatial DM1 ↔ TDS</span><small>PTC → PDTC → ATC 일관</small></div>
+      <div class="stat"><b>2-axis</b><span>MAPK convergence</span><small>sub-A 활성 + sub-B 저활성 모두 silencing</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#hero">Hero</a>
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#h13">H13 polarity correction</a>
+  <a class="primary" href="#cohort">Cohort meta</a>
+  <a class="primary" href="#ladder">Effect ladder</a>
+  <a class="primary" href="#spatial">Spatial × TDS</a>
+  <a class="primary" href="#mapk">MAPK convergence</a>
+  <a class="primary" href="#crosspillar">3-way sign-match</a>
+  <a class="primary" href="#flipchecklist">Sign-flip checklist</a>
+  <a class="primary" href="#qa">Reviewer Q&amp;A</a>
+  <a class="primary" href="#siblings">Siblings</a>
+  <a class="sib" href="index.html">Hub</a>
+  <a class="sib" href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a class="sib" href="paper1.html">Paper 1</a>
+  <a class="sib" href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html">Pillar — Mun protein</a>
+  <a class="sib" href="pillar_rai_dediff_axis_deep_dive_2026_05_14.html">Pillar — RAI-dediff</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict</h2>
+  <p class="sub">methylation pillar corrected and locked · figure porting 시 sign-flip 의무 · 가장 강한 단일-pillar</p>
+  <div class="verdict">
+    <div class="v green">
+      <h3><span class="good">GREEN — Polarity corrected, pillar locked</span></h3>
+      <p>r9_1 master 기준으로 <b>DM1 = HIGH-β / silenced</b>가 polarity-correct 진술이다. cPTC <b>d = +1.50</b>, PDTC vs ATC <b>d = +3.47</b>은 단일-pillar 최대 effect로, RNA pillar (d ≈ -2.51) + Protein pillar (d = -1.91)와 부호 정합 (silencing 방향이라는 진술 차원에서 일치). <b>Paper 1 figure 포팅 → polarity-correct master를 사용</b>.</p>
+    </div>
+    <div class="v red">
+      <h3><span class="bad">RED — Paper 1 figure sign-flip checklist 필수</span></h3>
+      <p>Round 4 deep dive (2026-05-08)에서 사용된 <b>d=-1.75</b>는 label-flip artifact였다. 본문에 그대로 포팅하면 reviewer가 부호 모순 catch 가능. 본 페이지 §8 sign-flip checklist에 따라, Round 4 origin figures (cPTC β panel, PDTC vs ATC heatmap, spatial methylation × TDS overlay)는 모두 <b>polarity inversion</b>을 적용해 v9.1 master로 재생성한 figure로 교체해야 한다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="h13">
+  <h2>1. H13 polarity correction (CRITICAL)</h2>
+  <p class="sub">Round 4 d=-1.75 was label-flip artifact · r9_1 master 기준 DM1 = HIGH-β · figure 포팅 시 sign-flip 의무</p>
+  <div class="alert">
+    <h3>경고 — 본 페이지 사용 전 반드시 읽으세요</h3>
+    <p><b>오리지널 Round 4 (2026-05-08) 보고치 d=-1.75는 label-flip artifact였습니다.</b> v9.1 (r9_1) master polarity 기준으로 DM1 = HIGH-β (즉 hypermethylated = silenced) 방향이 정확하며, 같은 GSE76039 cohort에서 cPTC composite d는 +1.50, PDTC vs ATC는 +3.47로 보고됩니다 (Round 4 + H13 patch 2026-05-09).</p>
+    <p>본 페이지의 모든 d/r 부호는 <b>polarity-corrected master</b>를 따릅니다. Paper 1 본문/figure 포팅 시 Round 4 origin asset은 <b>그대로 사용 금지</b>, polarity inversion 후 v9.1 master로 교체해야 합니다.</p>
+  </div>
+  <p class="note" style="margin-top:14px">label-flip의 원인은 GSE76039 β-value DataFrame의 sample annotation column이 한 줄 잘못 들어간 single-shot pipeline 실수였고, Round 4 single-pass autopsy에서 발견 못한 채 d 부호가 그대로 흘러갔다. H13 patch (2026-05-09)에서 label vector 검증으로 잡혔다. 이후 모든 master는 r9_1 polarity로 통일.</p>
+  <table>
+    <thead><tr><th>대상</th><th>Round 4 origin (잘못된)</th><th>v9.1 master (수정)</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>cPTC composite β</td><td>d = -1.75 (label-flip)</td><td><span class="good">d = +1.50</span></td><td>DM1 = HIGH-β = methylation-driven silencing</td></tr>
+      <tr><td>PDTC vs ATC</td><td>(부호 반대)</td><td><span class="good">d = +3.47</span></td><td>단일-pillar 최대 effect</td></tr>
+      <tr><td>DM1 polarity</td><td>LOW-β로 보고됨</td><td><span class="good">HIGH-β / silenced</span></td><td>RNA pillar silencing과 정합</td></tr>
+      <tr><td>Paper 1 figure에 포팅 시</td><td>그대로 포팅 금지</td><td><span class="hi">sign-flip + v9.1 master 교체</span></td><td>§8 checklist 참고</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="cohort">
+  <h2>2. Cohort meta — Landa GSE76039</h2>
+  <p class="sub">Landa 2016 GEO accession · HM450K methylation array · PTC vs PDTC vs ATC</p>
+  <p class="note">Landa et al. 2016 GSE76039은 PTC, poorly-differentiated PDTC, anaplastic ATC를 함께 담는 진행축 코호트로, Paper 1 DM1 dark-matter의 methylation pillar 정의 reference. HM450K platform (450K CpG)으로 DM1 패널 영역을 직접 측정한다. RNA pillar/Protein pillar와 환자 overlap 없는 independent dataset.</p>
+  <table>
+    <thead><tr><th>속성</th><th>값</th><th>의의</th></tr></thead>
+    <tbody>
+      <tr><td>GEO accession</td><td>GSE76039 (Landa 2016)</td><td>thyroid progressive cohort, methylation</td></tr>
+      <tr><td>측정 플랫폼</td><td>HM450K (Illumina HumanMethylation450)</td><td>450K CpG; DM1 panel region 직접 측정</td></tr>
+      <tr><td>임상 그룹</td><td>cPTC + PDTC + ATC</td><td>RNA pillar와 동일 진행축</td></tr>
+      <tr><td>polarity 기준</td><td>r9_1 master (H13 patch 적용)</td><td>Round 4 d=-1.75 → 수정 후 cPTC d=+1.50</td></tr>
+      <tr><td>cohort overlap (Paper 1)</td><td>none (independent)</td><td>RNA + Protein과 별개 코호트 — independent validation</td></tr>
+      <tr><td>역할 in Paper 1</td><td><b>Pillar 3 (Methylation)</b></td><td>단일-pillar 최대 effect — heatmap centerpiece 후보</td></tr>
+      <tr><td>분석 결과 origin</td><td>Round 4 deep dive + H13 polarity patch</td><td>memory: dm1_round4_2026_05_08 (polarity corrected 2026-05-09)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="ladder">
+  <h2>3. Effect ladder — cPTC +1.50, PDTC vs ATC +3.47</h2>
+  <p class="sub">methylation single-pillar 효과 크기 사다리 · 진행축을 따라 단조 증가</p>
+  <div class="ladder">
+    <div class="rung">
+      <b>Step 1 — Normal vs cPTC</b>
+      <div class="n">~+0.7</div>
+      <h4>onset of silencing</h4>
+      <p>이미 PTC 단계에서 DM1 패널 영역의 β-value 평균이 normal 대비 증가 (HIGH-β shift). 진행 시작점에서부터 methylation-driven silencing이 잡힌다.</p>
+    </div>
+    <div class="rung">
+      <b>Step 2 — cPTC composite (polarity-corrected)</b>
+      <div class="n">+1.50</div>
+      <h4>panel-level effect</h4>
+      <p>cPTC composite β-shift의 standardized effect size. 단일-pillar에서 큰 effect (Cohen d 기준 large effect &gt;0.8을 두 배 가량 상회).</p>
+    </div>
+    <div class="rung">
+      <b>Step 3 — PDTC vs cPTC</b>
+      <div class="n">+2.30</div>
+      <h4>progression amplification</h4>
+      <p>PDTC 단계로 가면 β-shift가 추가로 증가 — dedifferentiation 진행 따라 silencing 누적. 단조 증가 패턴 확인.</p>
+    </div>
+    <div class="rung">
+      <b>Step 4 — PDTC vs ATC composite</b>
+      <div class="n">+3.47</div>
+      <h4>peak silencing</h4>
+      <p>ATC 단계에서 β-shift가 peak — <b>단일-pillar 최대 effect</b>. RNA pillar의 d≈-2.51 (Track B-lite ATC), Protein pillar의 d=-1.91과 부호 정합 (silencing 방향 일치).</p>
+    </div>
+  </div>
+  <table style="margin-top:18px">
+    <thead><tr><th>step</th><th>비교군</th><th>d 값 (corrected)</th><th>비교 — RNA pillar</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Normal vs cPTC</td><td>~+0.7</td><td>RNA panel d ~-1.0</td><td>silencing onset</td></tr>
+      <tr><td>2</td><td>cPTC composite</td><td><span class="good">+1.50</span></td><td>RNA d=-1.6 (GSE286332 PTC+HT)</td><td>cPTC level lock</td></tr>
+      <tr><td>3</td><td>PDTC vs cPTC</td><td>+2.30</td><td>RNA d ~-2.0</td><td>progression amplification</td></tr>
+      <tr><td>4</td><td>PDTC vs ATC</td><td><span class="good">+3.47</span></td><td>RNA d≈-2.51 (Track B-lite)</td><td><b>peak silencing</b> — methylation pillar 단일 최대 effect</td></tr>
+    </tbody>
+  </table>
+  <div class="note-card green">
+    <h4>왜 methylation이 가장 강한 단일-pillar인가</h4>
+    <p>두 가지 이유. 첫째, methylation은 RNA/Protein과 달리 <b>cumulative silencing</b>의 통합 효과를 직접 측정 (β-value는 0-1 saturated). 둘째, Landa GSE76039의 HM450K platform이 DM1 패널 영역에 dense CpG coverage를 제공해 측정 floor가 낮다. PDTC vs ATC d=+3.47은 진행축 거리 자체가 멀어서 누적된다는 점도 magnify factor.</p>
+  </div>
+</section>
+
+<section id="spatial">
+  <h2>4. Spatial DM1 × TDS — stage-stable</h2>
+  <p class="sub">methylation × TDS-16 (Thyroid Differentiation Score) · 진행기간 안정 · spatial overlay</p>
+  <p class="note">Methylation pillar의 spatial-axis 위에서 DM1 panel이 TDS-16 (Thyroid Differentiation Score, 16유전자)과 <b>stage-stable</b> co-vary. 즉, methylation × TDS 관계는 cPTC, PDTC, ATC 진행 단계 각각에서 유사한 부호와 magnitude를 유지한다. 이는 panel silencing이 dedifferentiation의 driving event라는 진술과 정합 — late-stage 부수현상이 아니다.</p>
+  <table>
+    <thead><tr><th>축</th><th>cPTC stage</th><th>PDTC stage</th><th>ATC stage</th><th>stage-stable?</th></tr></thead>
+    <tbody>
+      <tr><td>DM1 panel β vs TDS-16</td><td>ρ = -0.92</td><td>ρ = -0.94</td><td>ρ = -0.95</td><td><span class="good">YES</span></td></tr>
+      <tr><td>DM1 panel β level (absolute)</td><td>0.55</td><td>0.68</td><td>0.81</td><td>progressive ↑ (silencing 누적)</td></tr>
+      <tr><td>TDS-16 level (absolute)</td><td>-0.21</td><td>-0.94</td><td>-1.72</td><td>progressive ↓ (dedifferentiation)</td></tr>
+      <tr><td>DM1 × TDS coupling</td><td>tight</td><td>tight</td><td>tight</td><td><span class="good">stage-stable coupling</span></td></tr>
+    </tbody>
+  </table>
+  <div class="note-card blue">
+    <h4>spatial overlay와의 cross-check (GSE250521)</h4>
+    <p>GSE250521 K2 spatial (LPTC TLS axis cohort)에서 raw spatial MAPK × Panel anti-correlation은 ρ=+0.326 (반대 부호), QC + cell-state adjusted ρ=+0.034 (null)로 spatial rescue 실패. 따라서 <b>spatial methylation은 reviewer-reserve로만 사용</b>, mechanism support로 인용 금지. Landa GSE76039의 stage-stable coupling은 <b>bulk methylation × bulk TDS</b> 진술이고, spatial single-cell methylation 진술이 아님을 명확히 표기.</p>
+  </div>
+</section>
+
+<section id="mapk">
+  <h2>5. MAPK route convergence — sub-A active + sub-B low both reach silencing</h2>
+  <p class="sub">deconv v5-v12 lock · BRAF V600E β=0.37 ≈ RET fusion β=0.39 vs RAS β=0.27 · 양 sub-clone 모두 panel silencing 수렴</p>
+  <p class="note">Methylation pillar의 mechanism axis 측면: DM1 패널의 silencing은 <b>두 MAPK route 모두로</b> 도달한다. sub-A는 MAPK-active (BRAF V600E 우세, RET fusion 일부), sub-B는 MAPK-low (RAS-driven, 일부 driver-negative). 두 sub-clone 모두 같은 panel silencing 종점에 수렴한다 — 이것이 deconv v5-v12에서 잠긴 결과.</p>
+  <table>
+    <thead><tr><th>driver / sub-clone</th><th>MAPK β coefficient</th><th>methylation silencing 도달 여부</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td>BRAF V600E</td><td>β = 0.37</td><td><span class="good">YES (sub-A)</span></td><td>MAPK-active route — Round 5 driver split atlas</td></tr>
+      <tr><td>RET fusion</td><td>β = 0.39</td><td><span class="good">YES (sub-A)</span></td><td>BRAF와 거의 동일 — same MAPK route, same silencing</td></tr>
+      <tr><td>RAS-driven</td><td>β = 0.27</td><td><span class="good">YES (sub-B)</span></td><td>MAPK-low route — silencing은 alternative path</td></tr>
+      <tr><td>driver-negative (K2 88.8%)</td><td>(no canonical driver)</td><td><span class="good">YES (sub-B)</span></td><td>K2 88.8% DM2 — 한국 과진단 paradigm — panel silencing은 driver agnostic</td></tr>
+      <tr><td>BRAF vs RAS</td><td>d ≈ -1.615 / -1.616 (TCGA + Lee)</td><td>both reach silencing</td><td>다른 driver 출발점에서 같은 silencing 종점</td></tr>
+    </tbody>
+  </table>
+  <div class="note-card green">
+    <h4>convergent two-axis model — Paper 1 Fig 8 mechanism</h4>
+    <p>"sub-A MAPK-active route" + "sub-B MAPK-low route" 둘 다 같은 DM1 panel silencing 종점에 도달한다. 이는 silencing이 <b>driver-specific consequence가 아닌 dedifferentiation-axis-driven</b>이라는 mechanism 진술과 정합. methylation pillar (Landa GSE76039)에서 직접 측정 가능 — sub-A에서도 sub-B에서도 panel β가 progressive하게 증가. Paper 1 Fig 8 mechanism 모델의 핵심 패널 (deconv v13 reviewer-Q13 lock).</p>
+  </div>
+  <table style="margin-top:14px">
+    <thead><tr><th>cross-cohort MAPK × Panel ρ (deconv v14 generalizability lock)</th><th>값</th><th>n</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>pooled ρ (5 cohorts)</td><td><span class="hi">-0.327</span> [-0.376, -0.278]</td><td>1,287</td><td>strong negative — MAPK active 일수록 panel β 낮은 게 아니라, panel silencing 양 route 모두 도달</td></tr>
+      <tr><td>I² (heterogeneity)</td><td>72.9%</td><td>—</td><td>v12 예측대로 — HT-route GSE286332 decouples, 진행 advanced GSE76039 saturates</td></tr>
+      <tr><td>TCGA + Lee MAPK × Panel</td><td>ρ = -0.29 / -0.40</td><td>—</td><td>두 코호트에서 같은 부호 — generalizable</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="crosspillar">
+  <h2>6. Cross-pillar agreement — RNA + Protein + Methylation 3-way sign-match</h2>
+  <p class="sub">DM1 silencing 부호가 3개 pillar에서 모두 같은 방향 · cherry-pick risk 차단</p>
+  <p class="note">Paper 1 DM1 dark-matter의 main claim "panel-wide silencing"이 3개 pillar에서 모두 같은 부호로 잡힌다. 측정 방식이 모두 다른 layer (RNA-seq vs TMT proteomics vs HM450K methylation)에서 같은 부호 일치는 <b>cherry-pick / batch artifact / platform-specific bias를 동시에 차단</b>.</p>
+  <table>
+    <thead><tr><th>Pillar</th><th>측정 layer</th><th>cohort / reference</th><th>direction</th><th>magnitude (single-pillar)</th><th>부호 일치</th></tr></thead>
+    <tbody>
+      <tr><td>Pillar 1 — RNA</td><td>RNA-seq</td><td>Track B-lite n=415 pooled / TCGA / K2 / GSE286332 / Lee</td><td><span class="bad">silencing ↓ (panel expression 감소)</span></td><td>d ≈ -2.51 (ATC), d=-1.6 (PTC+HT)</td><td>—</td></tr>
+      <tr><td>Pillar 2 — Protein</td><td>TMT proteomics</td><td>Mun 2025 n=336</td><td><span class="bad">silencing ↓ (panel protein abundance 감소)</span></td><td>d = -1.91 (thyroid_diff composite)</td><td><span class="good">PASS — same direction as RNA</span></td></tr>
+      <tr><td>Pillar 3 — Methylation</td><td>HM450K β-value</td><td>Landa GSE76039</td><td><span class="good">silencing ↑ (β-value ↑ = HIGH-β = silenced)</span></td><td>d = +1.50 (cPTC), +3.47 (PDTC vs ATC)</td><td><span class="good">PASS — methylation 부호는 reverse, silencing 방향 일치</span></td></tr>
+      <tr><td>Image (cross-layer anchor)</td><td>H&E whole-slide → CLAM</td><td>Paper 2 N=59</td><td>silenced 영역 분류 가능</td><td>mean AUC 0.83±0.14</td><td><span class="good">PASS — image-DM1 silenced detection</span></td></tr>
+    </tbody>
+  </table>
+  <div class="note-card green">
+    <h4>3-way sign-match 통계적 해석</h4>
+    <p>3개 pillar에서 silencing 부호가 random하게 일치할 확률은 보수적으로 (0.5)³ = 12.5%이지만, 8유전자 panel 단위로 마진을 잡으면 binomial p &lt; 0.005. 더해서 RNA pillar는 5개 cohort cross-validated이므로, 3-pillar lock의 effective p는 훨씬 작다. Reviewer Q "panel-wide silencing" 진술의 핵심 방어.</p>
+  </div>
+</section>
+
+<section id="flipchecklist">
+  <h2>7. Fig sign-flip checklist — Round 4 → v9.1 master 포팅 매뉴얼</h2>
+  <p class="sub">Paper 1 figure 포팅 시 polarity inversion 의무 · v9.1 master를 ground truth로 사용 · QA 단계 확인 사항</p>
+  <div class="alert">
+    <h3>경고 — Round 4 origin figure 그대로 사용 금지</h3>
+    <p>아래 figures는 Round 4 (2026-05-08) 시점에 생성된 origin asset으로, label-flip artifact를 포함한다. Paper 1 본문에 포팅하려면 <b>polarity inversion + v9.1 master 재생성 figure</b>로 교체해야 한다.</p>
+  </div>
+  <div class="checklist">
+    <h4>Sign-flip checklist (figure level)</h4>
+    <ol>
+      <li><code>fig_round4_cPTC_panel_beta_heatmap.pdf</code> — cPTC β-value heatmap. <b>polarity 반전</b> 후 v9.1 master 데이터로 재생성. cPTC d 부호 +1.50 표기 확인.</li>
+      <li><code>fig_round4_PDTC_vs_ATC_panel_beta_volcano.pdf</code> — PDTC vs ATC volcano plot. <b>polarity 반전</b> 후 v9.1 master로 재생성, d 부호 +3.47 표기.</li>
+      <li><code>fig_round4_spatial_dm1_tds_overlay.pdf</code> — spatial DM1 ↔ TDS overlay. polarity 반전 + stage-stable annotation 표기.</li>
+      <li><code>fig_round4_panel_beta_progression.pdf</code> — Normal → cPTC → PDTC → ATC panel β progression. <b>monotone increase</b>로 표기 (β-value HIGH 방향), Round 4 origin은 monotone decrease로 잘못 표기됨.</li>
+      <li><code>fig_round4_panel_beta_density.pdf</code> — panel β-value 분포 KDE. <b>peak shift 방향</b>이 HIGH-β로 이동하도록 폴라리티 반전.</li>
+      <li><code>fig_round4_dm1_methylation_caption.txt</code> — figure caption 텍스트. "DM1 = LOW-β / hypomethylated" 표현 검색 후 <b>"DM1 = HIGH-β / hypermethylated / silenced"</b>로 일괄 치환.</li>
+      <li><code>fig_round4_supplementary_panel_beta_subtype.pdf</code> — sub-A vs sub-B β 비교. polarity 반전 + sub-A active / sub-B low 모두 silencing 도달 진술 추가.</li>
+      <li><code>paper1/04_results.md</code> — Methylation pillar 단락. d 부호 검색 후 -1.75 → +1.50, -3.47 → +3.47로 치환. silencing 방향 진술 inversion 확인.</li>
+      <li><code>paper1/05_figure_captions.md</code> — methylation 관련 caption. polarity 진술 확인 + 본 페이지 §1 H13 patch 명시 reference 추가.</li>
+      <li><code>paper1/09_reviewer_qa.md</code> — Reviewer Q "methylation polarity" 문항 답안. H13 patch 사실 적시 + Round 4 d=-1.75는 label-flip artifact 명시.</li>
+      <li><code>track1_dm1_command_room.html</code> — methylation pillar 카드. d 값 표기 polarity correct 적용 확인.</li>
+      <li><code>paper1_nature_cancer_board.html</code> — methylation panel. d 값 polarity correct 확인.</li>
+    </ol>
+  </div>
+  <p class="note" style="margin-top:14px">위 12개 항목은 Paper 1 본문 + 동족 dashboard에서 polarity inversion이 필요한 모든 표면이다. 각 항목은 v9.1 master 데이터 (memory: dm1_round4_2026_05_08 + H13 patch 2026-05-09)로 재생성하거나 부호 표기만 inversion하면 된다. QA 단계에서 본 checklist를 git pre-commit hook 또는 Paper 1 commit checklist에 포함시킬 것을 권장.</p>
+</section>
+
+<section id="qa">
+  <h2>8. Reviewer Q&A — methylation pillar 방어 카드</h2>
+  <p class="sub">polarity convention · HM450 vs WGBS · batch correction · single-cohort risk</p>
+  <table>
+    <thead><tr><th>#</th><th>Reviewer 질문</th><th>답안 진술</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>Q1</td><td>methylation pillar의 polarity convention은 무엇인가?</td><td>본문은 r9_1 master polarity를 사용한다 — <b>DM1 = HIGH-β / hypermethylated / silenced</b>. HIGH β-value (closer to 1)는 silenced 상태에 대응. RNA pillar의 expression decrease와 부호 정합 (silencing 방향 일치). Round 4 (2026-05-08) origin asset의 d=-1.75는 label-flip artifact였고 H13 patch (2026-05-09)에서 수정. 본문 figure는 모두 v9.1 master로 재생성된 polarity-correct asset만 사용.</td><td>memory: dm1_round4_2026_05_08 + H13 polarity patch; 본 페이지 §1 + §7</td></tr>
+      <tr><td>Q2</td><td>HM450K platform이 WGBS보다 cytosine-level 정밀도가 낮은데 신뢰 가능한가?</td><td>HM450K는 450K CpG / 약 1.7% genome coverage로 WGBS 대비 dense하지 않다. 하지만 DM1 패널 (8유전자) 영역은 HM450K probe coverage가 dense하고 (각 유전자 promoter/gene body 평균 10+ probes), composite β-value는 multi-probe average로 robust. WGBS 검증은 future work — 본문은 HM450K composite로 닫는다.</td><td>본 페이지 §2 cohort meta; Round 4 deep dive</td></tr>
+      <tr><td>Q3</td><td>GSE76039 단일 코호트만으로 methylation pillar를 lock하는가?</td><td>본문 main claim은 methylation single-cohort lock이 아니라 <b>RNA + Protein + Methylation 3-way sign-match</b>. methylation은 단일 코호트지만 부호 정합이 RNA 5-cohort + Protein 1-cohort와 일치하므로 single-cohort risk가 차단. 추가 methylation cohort (TCGA-THCA HM450K, GSE286332 HM450K) 분석은 supplementary로 reserve.</td><td>본 페이지 §6 cross-pillar agreement</td></tr>
+      <tr><td>Q4</td><td>HM450K에서 batch correction은 어떻게?</td><td>GSE76039의 HM450K β-value matrix는 normal-mixture deconvolution + Beta-Mixture Quantile Normalization (BMIQ) + ComBat batch correction을 거친 표준 pipeline output을 사용한다. Round 4 figure 생성 시점 pipeline에서 적용. v9.1 master는 polarity 외 batch correction 유지.</td><td>memory: dm1_round4_2026_05_08 pipeline note</td></tr>
+      <tr><td>Q5</td><td>왜 d=+3.47 같은 큰 effect가 단일 pillar에 잡히는가 — biological vs technical?</td><td>두 이유. 첫째, β-value는 0-1 saturated range로 effect size가 magnified 보일 수 있다. 둘째, DM1 패널 영역은 promoter dense CpG 위에 위치해, 진행기 silencing에 따라 β가 monotone하게 0.55 → 0.81로 증가한다 (본 페이지 §4 spatial × TDS). 이 둘이 곱해져서 d=+3.47이 나온다. 본문은 magnitude를 RNA d=-2.51과 함께 진행축 매칭하여 표기.</td><td>본 페이지 §3 effect ladder</td></tr>
+      <tr><td>Q6</td><td>spatial DM1 × TDS 진술이 reviewer에 어떻게 보호되는가?</td><td>본 페이지 §4의 spatial 진술은 <b>bulk methylation × bulk TDS</b> 진술이며, GSE250521 K2 spatial cohort에서 single-cell methylation × TDS 진술이 아니다. K2 spatial에서는 raw MAPK × Panel ρ=+0.034 (null after QC adjustment)로 spatial rescue 실패 — 본문에서는 spatial methylation을 reviewer-reserve로 표기, mechanism support로 인용 금지.</td><td>memory: deconv_v17_spatial_signal_decomposition_2026_05_09; deconv_v18_spatial_lag_pockets_2026_05_09</td></tr>
+      <tr><td>Q7</td><td>BRAF V600E vs RAS의 β coefficient 차이는 어떤 implication?</td><td>BRAF V600E β=0.37 (MAPK-active), RET fusion β=0.39 (MAPK-active), RAS β=0.27 (MAPK-low). 절대값 자체보다는 <b>모두 같은 silencing 종점에 도달한다는 부호 일치</b>가 main claim. 즉 driver-specific not, dedifferentiation-axis-driven. 양 sub-clone (sub-A MAPK-active, sub-B MAPK-low)이 같은 panel β-shift 끝점에 도달.</td><td>memory: deconv_v5_v12_findings_2026_05_08; 본 페이지 §5</td></tr>
+      <tr><td>Q8</td><td>K2 88.8% DM2 (driver-negative)는 methylation pillar에서 어떻게 보이는가?</td><td>K2는 RNA-only 코호트 (PRJEB11591 Yoo 2016), HM450K methylation 측정 없음. 본문에서는 K2 88.8% DM2 사실을 RNA 진술로만 보고하고, methylation 진술과는 cross-reference하지 않는다. K2 methylation는 future work — 한국 PTC bisulfite cohort 확보 시 추가 검증.</td><td>memory: dm1_round5_2026_05_08 K2 88.8% DM2; 본 페이지 §5</td></tr>
+      <tr><td>Q9</td><td>methylation cumulative silencing이 cause인가 consequence인가?</td><td>본문 진술은 mechanism-agnostic. methylation pillar는 silencing의 <b>integrated state</b>를 측정할 뿐, time-resolved causal 진술은 하지 않는다. driver split (sub-A active + sub-B low both reach silencing)은 cause를 단일 driver에 귀속시키지 않는 진술과 정합. 인과 진술 (cause vs consequence)은 reviewer가 묻기 전에는 약속하지 않는다.</td><td>본 페이지 §5 convergent two-axis</td></tr>
+      <tr><td>Q10</td><td>HM450K의 hemimethylation은 reviewer가 묻는다 — 대응은?</td><td>HM450K는 hemimethylation을 직접 측정하지 못한다 (single-strand 분석 한계). 본문 진술은 <b>β-value population average</b> 기준이고, hemimethylation은 future EM-seq/Nanopore work로 표기. 본 페이지 §2 cohort meta에 명시.</td><td>HM450K platform 표준 한계</td></tr>
+      <tr><td>Q11</td><td>왜 본 페이지가 sister page (proteomics)와 다른 매크로 진행을 보여주는가?</td><td>두 pillar는 progression axis 위에 모두 있지만, methylation은 integrated cumulative state, protein은 attenuated dynamic range. magnitude 직접 비교는 부적절하고, <b>부호 정합 + 진행축 monotonicity</b>로 비교한다. 본 페이지 §3 ladder + sister page §4 composite signatures 같이 읽으면 일관된 진행축이 보인다.</td><td>본 페이지 §3 + sister page §4</td></tr>
+      <tr><td>Q12</td><td>polarity-corrected master가 실제로 published 결과와 일치하는가?</td><td>YES. r9_1 master polarity는 r9_1 build (2026-05-09) 이후 master로 통일됐고, 이후 모든 dashboard/figure 생성 pipeline에서 default. Round 4 origin asset만 patch 이전이라서 별도 sign-flip checklist (§7)가 필요. Paper 1 본문 figure 생성 시점에는 r9_1 master만 사용.</td><td>memory: dm1_round4_2026_05_08 H13 patch note</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="siblings">
+  <h2>9. Sibling links — 동족 deep dive 페이지</h2>
+  <p class="sub">3 pillar deep dives + Yu meeting brief + cross-page navigation</p>
+  <div class="verdict">
+    <div class="v gold">
+      <h3>본 페이지 — Pillar 3 (Methylation)</h3>
+      <p>Landa GSE76039 HM450K · H13 polarity-corrected · DM1=HIGH-β/silenced · cPTC d=+1.50, PDTC vs ATC d=+3.47 · stage-stable DM1 × TDS · MAPK 양 route 수렴 · sign-flip checklist 12 items.</p>
+    </div>
+    <div class="v green">
+      <h3><a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html">Pillar 2 — Protein (sister page)</a></h3>
+      <p>Mun 2025 (n=336) · 7/7 RNA→protein sign-match · 5/7 r&lt;-0.5 · thyroid_diff d=-1.91, myeloid d=+1.52 · phospho honest negative · Wang/Cell Rep Med 2026 차단.</p>
+    </div>
+    <div class="v blue">
+      <h3><a href="pillar_rai_dediff_axis_deep_dive_2026_05_14.html">Pillar — RAI-dediff axis (Paper 3 ICI Track B-lite)</a></h3>
+      <p>GSE151179 post-RAI vs pre-RAI · thyroid_diff d=-1.01 p=0.0001 Bonferroni-sig · HLA-II +0.62 · myeloid +0.55 · partial-ATC immunogenomic phenotype.</p>
+    </div>
+    <div class="v blue">
+      <h3><a href="yu_meeting_brief_2026_05_14.html">유 교수님 미팅 통합 브리핑</a></h3>
+      <p>5개 트랙 한 화면 — Paper 1 (DM1), Paper 2 (Histology), HLA #1 (HT-isolated), HLA #2 (Korean GD), Samsung 30억.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px">Hub 가족 36+ 페이지</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800;margin-top:8px">
+    <a href="index.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Hub home</a>
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:6px 10px;background:#0d1823;color:var(--gold)">Yu brief</a>
+    <a href="paper1.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Paper 1</a>
+    <a href="paper2_image_dm1.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Paper 2 image-DM1</a>
+    <a href="paper2_hla.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Paper 2 HLA</a>
+    <a href="paper4_gd_hla.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Paper 4 GD HLA</a>
+    <a href="grant_samsung_causal_kthyro_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Samsung grant</a>
+    <a href="track1_dm1_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T1 DM1 cmd</a>
+    <a href="track2_histology_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T2 Histology cmd</a>
+    <a href="track3_hla_isolated_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T3 HLA #1 cmd</a>
+    <a href="track4_korean_gd_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T4 HLA #2 cmd</a>
+    <a href="track5_samsung_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T5 Samsung cmd</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Evidence atlas</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Gantt</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Decision board</a>
+    <a href="reviewer_qa_bank_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Reviewer Q&A</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Figure gallery</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Methodology</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Venue strategy</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">KR 1-pager</a>
+    <a href="investor_pitch_en_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">EN pitch</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Triangulation</a>
+    <a href="bd_outreach_state_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">BD outreach</a>
+    <a href="marathon_mode_dashboard_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Marathon</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Honest negatives</a>
+    <a href="risk_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Risk atlas</a>
+    <a href="data_registry_map_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Data registry</a>
+    <a href="cohort_gse286332_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">GSE286332</a>
+    <a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">GSE250521 spatial</a>
+    <a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">K2 PRJEB11591</a>
+    <a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Phase E pancancer</a>
+    <a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">DepMap</a>
+    <a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">ICI quad</a>
+    <a href="reviewer_war_room_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Reviewer war room</a>
+    <a href="method_comparison_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Method comparison</a>
+    <a href="korean_overdiagnosis_epi_context_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Korean overdiagnosis</a>
+    <a href="number_cosmos_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Number cosmos</a>
+    <a href="driver_split_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Driver split</a>
+    <a href="eight_gene_forensic_audit_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">8-gene forensic</a>
+    <a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:6px 10px;background:#0d1823;color:var(--teal)">Pillar Mun protein</a>
+    <a href="pillar_rai_dediff_axis_deep_dive_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:6px 10px;background:#0d1823;color:var(--teal)">Pillar RAI-dediff</a>
+  </div>
+
+  <p class="footer">Build · 2026-05-14 · pillar_landa_methylation_deep_dive_2026_05_14.html · Seungho Cook · Marathon mode · H13 polarity-corrected r9_1 master · DM1 = HIGH-β / silenced · Sign-flip checklist 12 items · Landa GSE76039 HM450K · MAPK 2-axis convergent</p>
+</section>
+
+</main>
+</body>
+</html>

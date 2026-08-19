@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CROSS-Neo Immunogenicity Algorithm Compare</title>
+  <style>
+    :root { --bg:#101418; --panel:#151c22; --ink:#e9edf0; --muted:#98a5ad; --gold:#c59b3b; --line:#28323a; --teal:#69a7a2; --red:#d16b5f; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui, -apple-system, Segoe UI, sans-serif; }
+    header { padding:42px 5vw 28px; border-bottom:1px solid var(--line); background:#0d1115; }
+    .kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.12em; font-size:12px; font-weight:700; }
+    h1 { margin:.25rem 0 .6rem; font-size:clamp(30px,4vw,56px); line-height:1.05; }
+    .lead { max-width:980px; color:#cfd7dc; font-size:18px; }
+    .stats { display:grid; grid-template-columns:repeat(6,minmax(120px,1fr)); gap:10px; margin-top:24px; }
+    .stat { border:1px solid var(--line); background:var(--panel); padding:13px 14px; border-radius:8px; }
+    .stat b { display:block; font-size:23px; color:#fff; }
+    .stat span { color:var(--muted); font-size:12px; }
+    main { display:grid; grid-template-columns:260px minmax(0,1fr); gap:28px; padding:28px 5vw 60px; }
+    nav { position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto; padding:14px; border:1px solid var(--line); border-radius:8px; background:#111820; }
+    nav a { display:block; color:#cbd5da; text-decoration:none; padding:7px 0; border-bottom:1px solid #1f2930; }
+    section { margin-bottom:34px; }
+    h2 { color:#fff; border-bottom:1px solid var(--line); padding-bottom:8px; }
+    .num { color:var(--gold); margin-right:8px; }
+    .note { border-left:3px solid var(--gold); padding:10px 14px; background:#171f26; color:#d9e0e4; }
+    table.data { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0; }
+    table.data th, table.data td { border-bottom:1px solid var(--line); padding:7px 8px; text-align:left; vertical-align:top; }
+    table.data th { color:#f4d891; background:#141b21; position:sticky; top:0; }
+    img { max-width:100%; border:1px solid var(--line); border-radius:8px; background:#fff; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+    code { color:#f4d891; }
+    @media (max-width: 900px) { main { grid-template-columns:1fr; } nav { position:static; } .stats { grid-template-columns:repeat(2,1fr); } .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="kicker">CROSS-Neo · immunogenicity comparator · 2026-05-10</div>
+  <h1>BigMHC graft + CROSS-Neo immunogenicity test</h1>
+  <p class="lead">A public immunogenicity algorithm lane was run locally and compared against CROSS-Neo/Kaggle-style scores on the same retrospective known-answer label set. The output is an assay-prioritization scaffold, not prospective wetlab validation.</p>
+  <div class="stats">
+    <div class="stat"><b>2,715</b><span>candidates scored</span></div>
+    <div class="stat"><b>96/96</b><span>integrated top96</span></div>
+    <div class="stat"><b>91/96</b><span>stress-guarded top96</span></div>
+    <div class="stat"><b>84/96</b><span>BigMHC IM top96</span></div>
+    <div class="stat"><b>0.878</b><span>integrated AUPRC</span></div>
+    <div class="stat"><b>0</b><span>auto claim-safe upgrades</span></div>
+  </div>
+</header>
+<main>
+<nav>
+  <a href="#summary">01 Summary</a>
+  <a href="#strategy">02 Strategy Matrix</a>
+  <a href="#metrics">03 Algorithm Benchmark</a>
+  <a href="#slices">04 Slice Stress</a>
+  <a href="#top">05 Top Candidates</a>
+  <a href="#formula">06 Grafted Score</a>
+  <a href="#sources">07 Sources</a>
+</nav>
+<article>
+<section id="summary">
+  <h2><span class="num">01</span>Summary</h2>
+  <p>BigMHC IM alone is useful but not sufficient: it recovers 84/96 known positives at top96. Existing CROSS-Neo stress-guarded ranking recovers 91/96. The fixed integrated immunogenicity score recovers 96/96 in this retrospective board.</p>
+  <p class="note">Boundary: high top-k recovery here is known-answer and overlap-heavy. Use it to design the 96-well immunogenicity test, not to claim prospective discovery.</p>
+  <div class="grid">
+    <img src="assets/cross_neo_immunogenicity_algorithm_compare/fig1_top96_precision_comparison.png" alt="top96 precision comparison">
+    <img src="assets/cross_neo_immunogenicity_algorithm_compare/fig2_auprc_auroc_scatter.png" alt="AUPRC AUROC comparison">
+  </div>
+</section>
+<section id="strategy">
+  <h2><span class="num">02</span>Strategy Matrix</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>algorithm_family</th>
+      <th>paper_basis</th>
+      <th>local_status</th>
+      <th>cross_neo_role</th>
+      <th>claim_boundary</th>
+      <th>priority</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>BigMHC IM</td>
+      <td>presentation model transfer-learned on immune response data</td>
+      <td>run_actual_local_weights</td>
+      <td>external immunogenicity comparator and discovery feature</td>
+      <td>public model; audit overlap before clean benchmark claims</td>
+      <td>P0</td>
+    </tr>
+    <tr>
+      <td>BigMHC EL / NetMHCpan-like presentation</td>
+      <td>MHC-I eluted-ligand/presentation likelihood</td>
+      <td>BigMHC EL run actual; NetMHCpan cited as conceptual standard</td>
+      <td>presentation gate; cannot prove TCR activation alone</td>
+      <td>presentation support only</td>
+      <td>P0</td>
+    </tr>
+    <tr>
+      <td>pMTnet + TEPCAM</td>
+      <td>TCR-pMHC or TCR-peptide recognition expert scores</td>
+      <td>actual local pilot already available for TCR-supported rows</td>
+      <td>TCR recognition lane and disagreement queue</td>
+      <td>diagnostic expert score until paired wetlab or clean TCR benchmark</td>
+      <td>P0</td>
+    </tr>
+    <tr>
+      <td>Neoantigen fitness model</td>
+      <td>presentation amplitude plus TCR-recognition probability</td>
+      <td>implemented as fixed proxy: BigMHC presentation + mutant/WT foreignness</td>
+      <td>interpretable bridge between presentation and recognition</td>
+      <td>proxy unless mutant/WT quantitative presentation is available</td>
+      <td>P1</td>
+    </tr>
+    <tr>
+      <td>DeepImmuno / PRIME-like peptide-HLA immunogenicity</td>
+      <td>peptide-HLA immunogenicity independent of binding-only prediction</td>
+      <td>not run; included in strategy and public-overlap audit lane</td>
+      <td>future external comparator after training-corpus audit</td>
+      <td>do not import public scores as clean features without overlap audit</td>
+      <td>P1</td>
+    </tr>
+    <tr>
+      <td>ImmunoStruct / structure-aware multimodal</td>
+      <td>sequence, structure, biochemical class-I pMHC immunogenicity</td>
+      <td>not run; strategy-only due novelty/checkpoint access</td>
+      <td>future P0 if code/checkpoints are usable; currently approximated by MD lane</td>
+      <td>no headline until reproduced locally and overlap audited</td>
+      <td>P2</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="metrics">
+  <h2><span class="num">03</span>Algorithm Benchmark</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>score_column</th>
+      <th>AUROC</th>
+      <th>AUPRC</th>
+      <th>top10_precision</th>
+      <th>top24_precision</th>
+      <th>top48_precision</th>
+      <th>top96_precision</th>
+      <th>top96_hits</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.896</td>
+      <td>0.878</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>96</td>
+    </tr>
+    <tr>
+      <td>immunogenicity_claim_safe_score</td>
+      <td>0.864</td>
+      <td>0.861</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>96</td>
+    </tr>
+    <tr>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.873</td>
+      <td>0.872</td>
+      <td>1.000</td>
+      <td>0.917</td>
+      <td>0.958</td>
+      <td>0.948</td>
+      <td>91</td>
+    </tr>
+    <tr>
+      <td>bma_v2_discovery_score</td>
+      <td>0.860</td>
+      <td>0.861</td>
+      <td>1.000</td>
+      <td>0.917</td>
+      <td>0.938</td>
+      <td>0.927</td>
+      <td>89</td>
+    </tr>
+    <tr>
+      <td>finetuned_experiment_priority_score</td>
+      <td>0.863</td>
+      <td>0.841</td>
+      <td>1.000</td>
+      <td>0.917</td>
+      <td>0.917</td>
+      <td>0.875</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <td>bigmhc_im_score</td>
+      <td>0.722</td>
+      <td>0.672</td>
+      <td>0.900</td>
+      <td>0.792</td>
+      <td>0.812</td>
+      <td>0.875</td>
+      <td>84</td>
+    </tr>
+    <tr>
+      <td>finetuned_score_booster_prob</td>
+      <td>0.860</td>
+      <td>0.831</td>
+      <td>0.900</td>
+      <td>0.833</td>
+      <td>0.875</td>
+      <td>0.865</td>
+      <td>83</td>
+    </tr>
+    <tr>
+      <td>bigmhc_el_score</td>
+      <td>0.719</td>
+      <td>0.648</td>
+      <td>0.700</td>
+      <td>0.667</td>
+      <td>0.688</td>
+      <td>0.729</td>
+      <td>70</td>
+    </tr>
+    <tr>
+      <td>impact_portfolio_score</td>
+      <td>0.887</td>
+      <td>0.842</td>
+      <td>0.500</td>
+      <td>0.625</td>
+      <td>0.542</td>
+      <td>0.698</td>
+      <td>67</td>
+    </tr>
+    <tr>
+      <td>v4_claim_unlock_score</td>
+      <td>0.864</td>
+      <td>0.816</td>
+      <td>0.500</td>
+      <td>0.708</td>
+      <td>0.354</td>
+      <td>0.604</td>
+      <td>58</td>
+    </tr>
+    <tr>
+      <td>fitness_foreignness_proxy</td>
+      <td>0.500</td>
+      <td>0.434</td>
+      <td>0.500</td>
+      <td>0.708</td>
+      <td>0.354</td>
+      <td>0.604</td>
+      <td>58</td>
+    </tr>
+    <tr>
+      <td>tcr_recognition_score_norm</td>
+      <td>0.506</td>
+      <td>0.440</td>
+      <td>1.000</td>
+      <td>0.583</td>
+      <td>0.354</td>
+      <td>0.177</td>
+      <td>17</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="slices">
+  <h2><span class="num">04</span>Slice Stress</h2>
+  <p>BigMHC helps most where the previous stress-guarded score was weak, especially TESLA-style low-prevalence slices. That makes it a useful external comparator even when the integrated score remains claim-capped.</p>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>slice</th>
+      <th>score_column</th>
+      <th>AUROC</th>
+      <th>AUPRC</th>
+      <th>top24_precision</th>
+      <th>top96_precision</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>leakage=high</td>
+      <td>bigmhc_im_score</td>
+      <td>0.696</td>
+      <td>0.711</td>
+      <td>0.917</td>
+      <td>0.927</td>
+    </tr>
+    <tr>
+      <td>leakage=high</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.892</td>
+      <td>0.900</td>
+      <td>1.000</td>
+      <td>1.000</td>
+    </tr>
+    <tr>
+      <td>leakage=high</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.872</td>
+      <td>0.883</td>
+      <td>0.917</td>
+      <td>0.948</td>
+    </tr>
+    <tr>
+      <td>leakage=low</td>
+      <td>bigmhc_im_score</td>
+      <td>0.893</td>
+      <td>0.384</td>
+      <td>0.417</td>
+      <td>0.292</td>
+    </tr>
+    <tr>
+      <td>leakage=low</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.917</td>
+      <td>0.564</td>
+      <td>0.583</td>
+      <td>0.271</td>
+    </tr>
+    <tr>
+      <td>leakage=low</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.909</td>
+      <td>0.588</td>
+      <td>0.625</td>
+      <td>0.281</td>
+    </tr>
+    <tr>
+      <td>leakage=medium</td>
+      <td>bigmhc_im_score</td>
+      <td>0.722</td>
+      <td>0.417</td>
+      <td>0.217</td>
+      <td>0.217</td>
+    </tr>
+    <tr>
+      <td>leakage=medium</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.833</td>
+      <td>0.727</td>
+      <td>0.217</td>
+      <td>0.217</td>
+    </tr>
+    <tr>
+      <td>leakage=medium</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.933</td>
+      <td>0.760</td>
+      <td>0.217</td>
+      <td>0.217</td>
+    </tr>
+    <tr>
+      <td>source=CEDAR</td>
+      <td>bigmhc_im_score</td>
+      <td>0.539</td>
+      <td>0.955</td>
+      <td>1.000</td>
+      <td>0.990</td>
+    </tr>
+    <tr>
+      <td>source=CEDAR</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.709</td>
+      <td>0.975</td>
+      <td>1.000</td>
+      <td>1.000</td>
+    </tr>
+    <tr>
+      <td>source=CEDAR</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.503</td>
+      <td>0.936</td>
+      <td>0.917</td>
+      <td>0.948</td>
+    </tr>
+    <tr>
+      <td>source=ITSNdb_Val</td>
+      <td>bigmhc_im_score</td>
+      <td>0.673</td>
+      <td>0.202</td>
+      <td>0.167</td>
+      <td>0.062</td>
+    </tr>
+    <tr>
+      <td>source=ITSNdb_Val</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.947</td>
+      <td>0.705</td>
+      <td>0.250</td>
+      <td>0.073</td>
+    </tr>
+    <tr>
+      <td>source=ITSNdb_Val</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>1.000</td>
+      <td>1.000</td>
+      <td>0.292</td>
+      <td>0.073</td>
+    </tr>
+    <tr>
+      <td>source=ITSNdb_main</td>
+      <td>bigmhc_im_score</td>
+      <td>0.587</td>
+      <td>0.688</td>
+      <td>0.625</td>
+      <td>0.750</td>
+    </tr>
+    <tr>
+      <td>source=ITSNdb_main</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.433</td>
+      <td>0.645</td>
+      <td>0.625</td>
+      <td>0.594</td>
+    </tr>
+    <tr>
+      <td>source=ITSNdb_main</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.343</td>
+      <td>0.697</td>
+      <td>0.833</td>
+      <td>0.531</td>
+    </tr>
+    <tr>
+      <td>source=NEPdb</td>
+      <td>bigmhc_im_score</td>
+      <td>0.889</td>
+      <td>0.770</td>
+      <td>0.958</td>
+      <td>0.802</td>
+    </tr>
+    <tr>
+      <td>source=NEPdb</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.882</td>
+      <td>0.760</td>
+      <td>0.917</td>
+      <td>0.833</td>
+    </tr>
+    <tr>
+      <td>source=NEPdb</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.790</td>
+      <td>0.687</td>
+      <td>0.917</td>
+      <td>0.792</td>
+    </tr>
+    <tr>
+      <td>source=TESLA_mmc4</td>
+      <td>bigmhc_im_score</td>
+      <td>0.864</td>
+      <td>0.291</td>
+      <td>0.333</td>
+      <td>0.219</td>
+    </tr>
+    <tr>
+      <td>source=TESLA_mmc4</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.870</td>
+      <td>0.329</td>
+      <td>0.417</td>
+      <td>0.260</td>
+    </tr>
+    <tr>
+      <td>source=TESLA_mmc4</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.484</td>
+      <td>0.055</td>
+      <td>0.000</td>
+      <td>0.010</td>
+    </tr>
+    <tr>
+      <td>source=TESLA_mmc7_validation</td>
+      <td>bigmhc_im_score</td>
+      <td>0.992</td>
+      <td>0.570</td>
+      <td>0.167</td>
+      <td>0.042</td>
+    </tr>
+    <tr>
+      <td>source=TESLA_mmc7_validation</td>
+      <td>immunogenicity_discovery_score</td>
+      <td>0.999</td>
+      <td>0.950</td>
+      <td>0.167</td>
+      <td>0.042</td>
+    </tr>
+    <tr>
+      <td>source=TESLA_mmc7_validation</td>
+      <td>stress_guarded_discovery_score</td>
+      <td>0.538</td>
+      <td>0.018</td>
+      <td>0.000</td>
+      <td>0.021</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="top">
+  <h2><span class="num">05</span>Top Integrated Candidates</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>candidate_id</th>
+      <th>peptide</th>
+      <th>hla_allele_4digit</th>
+      <th>label</th>
+      <th>source_name</th>
+      <th>leakage_risk_level</th>
+      <th>bigmhc_im_score</th>
+      <th>bigmhc_el_score</th>
+      <th>immunogenicity_discovery_score</th>
+      <th>immunogenicity_action</th>
+      <th>immunogenicity_claim_blockers</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CNV0_00340</td>
+      <td>REDDPVRML</td>
+      <td>HLA-B*40:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.925</td>
+      <td>0.982</td>
+      <td>0.695</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00498</td>
+      <td>NATTIANHW</td>
+      <td>HLA-B*53:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.899</td>
+      <td>0.993</td>
+      <td>0.695</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_02448</td>
+      <td>ILDKVLVHL</td>
+      <td>HLA-A*02:01</td>
+      <td>1</td>
+      <td>ITSNdb_main</td>
+      <td>low</td>
+      <td>0.577</td>
+      <td>0.980</td>
+      <td>0.679</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00824</td>
+      <td>ALMATQTFY</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.975</td>
+      <td>0.857</td>
+      <td>0.679</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00310</td>
+      <td>KEYQETIGQIEL</td>
+      <td>HLA-B*40:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.856</td>
+      <td>0.977</td>
+      <td>0.673</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00779</td>
+      <td>RTLMENQHW</td>
+      <td>HLA-B*58:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.813</td>
+      <td>0.992</td>
+      <td>0.665</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_02473</td>
+      <td>KEFEDDIINW</td>
+      <td>HLA-B*44:03</td>
+      <td>1</td>
+      <td>ITSNdb_main</td>
+      <td>high</td>
+      <td>0.749</td>
+      <td>0.986</td>
+      <td>0.665</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;public_tool_overlap;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00441</td>
+      <td>KEDEIQDISL</td>
+      <td>HLA-B*40:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.880</td>
+      <td>0.941</td>
+      <td>0.663</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00442</td>
+      <td>MHAQSAEL</td>
+      <td>HLA-B*15:10</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.891</td>
+      <td>0.964</td>
+      <td>0.660</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00545</td>
+      <td>REVIQNSKEVL</td>
+      <td>HLA-B*40:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.844</td>
+      <td>0.982</td>
+      <td>0.659</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00858</td>
+      <td>MIAEPAHFY</td>
+      <td>HLA-A*30:02</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.951</td>
+      <td>0.845</td>
+      <td>0.659</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00821</td>
+      <td>NADPASHEIW</td>
+      <td>HLA-B*53:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.783</td>
+      <td>0.983</td>
+      <td>0.659</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00399</td>
+      <td>TVLSLSCLY</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.964</td>
+      <td>0.850</td>
+      <td>0.655</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00722</td>
+      <td>KEDSAVFYEL</td>
+      <td>HLA-B*40:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.828</td>
+      <td>0.907</td>
+      <td>0.654</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00758</td>
+      <td>KETEVFYEL</td>
+      <td>HLA-B*40:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.846</td>
+      <td>0.982</td>
+      <td>0.654</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00561</td>
+      <td>HHGDAFHLL</td>
+      <td>HLA-B*39:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.819</td>
+      <td>0.995</td>
+      <td>0.653</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00642</td>
+      <td>APRPGPRQL</td>
+      <td>HLA-B*07:02</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.870</td>
+      <td>0.993</td>
+      <td>0.652</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00897</td>
+      <td>FPGPIFHL</td>
+      <td>HLA-B*35:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.879</td>
+      <td>0.894</td>
+      <td>0.651</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00714</td>
+      <td>KEIDEVGDLL</td>
+      <td>HLA-B*40:01</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.833</td>
+      <td>0.973</td>
+      <td>0.650</td>
+      <td>wetlab_priority_with_claim_boundary</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+    <tr>
+      <td>CNV0_00362</td>
+      <td>NVFDEAILAA</td>
+      <td>HLA-A*02:05</td>
+      <td>1</td>
+      <td>CEDAR</td>
+      <td>high</td>
+      <td>0.841</td>
+      <td>0.940</td>
+      <td>0.648</td>
+      <td>watchlist_or_active_learning</td>
+      <td>high_leakage;patient_context_cap</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+<section id="formula">
+  <h2><span class="num">06</span>Grafted Score</h2>
+  <p><code>immunogenicity_discovery_score = 0.30 CROSS-Neo + 0.25 BigMHC IM + 0.15 BigMHC EL + 0.15 TCR expert + 0.10 mutant/WT foreignness proxy + 0.05 MD/control readiness</code></p>
+  <p><code>immunogenicity_claim_safe_score</code> applies existing validity, patient-context and overlap caps. Current run intentionally produces no automatic claim-safe promotion.</p>
+</section>
+<section id="sources">
+  <h2><span class="num">07</span>Sources + Paths</h2>
+  <p>Results: <code>project/results/cross_neo_immunogenicity_algorithm_compare_2026_05_10</code></p>
+  <p>Script: <code>scripts/build_cross_neo_immunogenicity_algorithm_compare.py</code></p>
+  <p>External local model: <code>/data/thca/_tmp/relocated_2026_05_09/bigmhc</code></p>
+  <p>Primary literature used for strategy: BigMHC, NetMHCpan-4.1, pMTnet, PanPep, DeepImmuno, neoantigen fitness model, ImmunoStruct.</p>
+</section>
+</article>
+</main>
+</body>
+</html>

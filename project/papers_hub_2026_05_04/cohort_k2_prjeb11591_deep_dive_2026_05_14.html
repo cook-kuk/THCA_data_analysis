@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>K2 PRJEB11591 cohort deep dive · Korean SNU-GMI n=260 · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:58px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:5px 9px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.cur{background:var(--gold);color:#071016;border-color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:30px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.vbox.green{border-top:5px solid var(--green)}
+.vbox.gold{border-top:5px solid var(--gold)}
+.vbox.red{border-top:5px solid var(--red)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:#fff}
+.vbox p{margin:0;color:#cfd9e0;font-size:14px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.callout{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:16px 18px;margin:14px 0}
+.callout b{color:var(--gold)}
+.flag{border-left:4px solid var(--red);background:rgba(255,138,107,.06);padding:10px 14px;margin:12px 0;font-size:13.5px;color:#e6d3cf}
+.flag.ok{border-left-color:var(--green);background:rgba(147,226,170,.06);color:#d3e6d8}
+.flag.warn{border-left-color:var(--gold);background:rgba(255,210,138,.06);color:#e9ddc4}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.qa{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 16px;margin:10px 0}
+.qa b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.qa p{margin:0;color:#dde6ec;font-size:14px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:14px 16px}
+.card h4{margin:0 0 6px;font-size:14px;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;letter-spacing:.08em;text-transform:uppercase}
+.card p{margin:0;color:#cbd7df;font-size:13px}
+.pre{background:#0a1420;border:1px solid var(--line);border-radius:8px;padding:12px 14px;color:#bcd2dd;font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;white-space:pre-wrap}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}.grid2,.grid3{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Cohort deep dive · K2 PRJEB11591 (Yoo 2016 SNU-GMI) · Seungho Cook · 2026-05-14</p>
+    <h1>K2 PRJEB11591 — Korean SNU-GMI n=260 cohort 정리.</h1>
+    <p class="lead">
+      <b>PRJEB11591 = Yoo 2016 SNU-GMI public bulk RNA-seq</b> (FASTQ 33G on <code>/data/thca/PRJEB11591_fastq/</code>). 한국 thyroid <b>n=260</b>, <b>88.8% DM2</b> ("한국형 overdiagnosis paradigm"). arcasHLA RNA-seq imputation 완료, <b>DPB1*05:01 56%</b>로 Kim 2014 결과 replicate. cookHLA 는 SNP 입력 필요로 deferred. Korean baseline (AFND South Korea pool) 대비 <b>HLA allele ratios 0.93–1.22 all p&gt;0.16</b> — population-level allele distribution은 baseline과 indistinguishable.
+      <b>K2 ≠ Bundang SNUH</b>: K2는 PRJEB11591 public dataset, Bundang은 outreach-stage (no data yet) 로 명시 구분.
+      DM1 sub-B (n=56, 96% mutation-negative) 는 K2 NBNR cluster 의 TCGA equivalent 로 Cancer paper ↔ Yu K2 finding 의 bridge.
+      8-gene mini-index 는 within-sample-centered 형식으로만 TCGA AUC 0.968 — TPM-absolute 직접 적용은 inflation 으로 wrong-direction.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>260</b><span>K2 samples</span><small>Yoo 2016 SNU-GMI public</small></div>
+      <div class="stat"><b>88.8%</b><span>DM2 proportion</span><small>Korean overdiagnosis paradigm</small></div>
+      <div class="stat"><b>56%</b><span>DPB1*05:01</span><small>replicates Kim 2014</small></div>
+      <div class="stat"><b>0.93-1.22</b><span>AFND ratios all p&gt;0.16</span><small>population-level baseline match</small></div>
+      <div class="stat"><b>0.968</b><span>TCGA AUC</span><small>within-sample-centered 8-gene mini-index</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a href="index.html">Hub</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a class="primary" href="paper1.html">Paper 1</a>
+  <a class="primary" href="paper2_image_dm1.html">Paper 2 image</a>
+  <a class="primary" href="paper2_hla.html">Paper 2 HLA</a>
+  <a class="primary" href="paper4_gd_hla.html">Paper 4 GD</a>
+  <a href="grant_samsung_causal_kthyro_2026_05_14.html">Samsung grant</a>
+  <a href="track1_dm1_command_room.html">T1 DM1</a>
+  <a href="track2_histology_command_room.html">T2 Histology</a>
+  <a href="track3_hla_isolated_command_room.html">T3 HLA#1</a>
+  <a href="track4_korean_gd_command_room.html">T4 HLA#2</a>
+  <a href="track5_samsung_command_room.html">T5 Samsung</a>
+  <a href="evidence_atlas_2026_05_14.html">Evidence</a>
+  <a href="timeline_gantt_2026_05_14.html">Gantt</a>
+  <a href="decision_board_2026_05_14.html">Decisions</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A</a>
+  <a href="figure_gallery_2026_05_14.html">Figures</a>
+  <a href="methodology_atlas_2026_05_14.html">Methods</a>
+  <a href="venue_strategy_2026_05_14.html">Venues</a>
+  <a href="executive_brief_kr_one_pager_2026_05_14.html">KR 1p</a>
+  <a href="investor_pitch_en_2026_05_14.html">EN pitch</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="bd_outreach_state_2026_05_14.html">BD state</a>
+  <a href="marathon_mode_dashboard_2026_05_14.html">Marathon</a>
+  <a href="honest_negatives_wall_2026_05_14.html">Negatives</a>
+  <a href="risk_atlas_2026_05_14.html">Risk</a>
+  <a href="data_registry_map_2026_05_14.html">Data registry</a>
+  <a href="cohort_gse286332_deep_dive_2026_05_14.html">GSE286332</a>
+  <a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">GSE250521 spatial</a>
+  <a class="cur" href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">K2 PRJEB11591</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict · Korean overdiagnosis paradigm 확보 / K2 ≠ Bundang 명시</h2>
+  <p class="sub">v17 arcasHLA · K2 vs Bundang distinction · within-sample calibration · 2026-05-14</p>
+  <div class="verdict">
+    <div class="vbox green">
+      <h3>STRONG — Korean overdiagnosis paradigm 확보</h3>
+      <p>K2 n=260, 88.8% DM2 는 한국 갑상선 cohort 의 <b>overdiagnosis paradigm</b>을 분자 phenotype 으로 잡아내는 가장 큰 단일 reference. arcasHLA imputation 으로 RNA-seq 만 가지고 <b>DPB1*05:01 56%</b> 같은 critical allele 까지 회수했고, AFND South Korea pool 대비 HLA allele ratios 0.93-1.22 p&gt;0.16 으로 population-level allele distribution 의 baseline match 도 확보.</p>
+    </div>
+    <div class="vbox gold">
+      <h3>HONEST CONSTRAINT — K2 ≠ Bundang · cookHLA deferred · calibration 주의</h3>
+      <p>K2 (PRJEB11591) 는 <b>public 데이터</b>이고 Bundang SNUH 는 <b>outreach-stage (data 없음)</b> — paper / 미팅 자료에서 둘은 명시적으로 구분해야 한다. cookHLA HLA imputation 은 SNP 입력 필요로 deferred (RNA 만으로는 부족). 8-gene mini-index 는 within-sample-centered 형식으로만 TCGA AUC 0.968 — TPM-absolute 직접 적용 시 inflation ~10-100× 로 wrong-direction.</p>
+    </div>
+  </div>
+</section>
+
+<section id="meta">
+  <h2>1 · Cohort meta — PRJEB11591 = Yoo 2016 SNU-GMI public</h2>
+  <p class="sub">accession · origin · access path · pillar role</p>
+  <div class="kv">
+    <div class="k">Accession</div><div class="v">PRJEB11591 (ENA / SRA)</div>
+    <div class="k">Origin</div><div class="v">Yoo 2016 SNU-GMI public bulk RNA-seq — Korean thyroid</div>
+    <div class="k">N</div><div class="v">260 thyroid samples</div>
+    <div class="k">Local raw FASTQ</div><div class="v"><code>/data/thca/PRJEB11591_fastq/</code> · 33G</div>
+    <div class="k">Distinct from Bundang</div><div class="v">K2 ≠ Bundang SNUH (outreach-stage, no data yet) — 절대 혼동 금지</div>
+    <div class="k">DM1/DM2</div><div class="v">88.8% DM2 (Korean overdiagnosis paradigm)</div>
+    <div class="k">HLA imputation</div><div class="v">arcasHLA done · cookHLA deferred (SNP 필요)</div>
+    <div class="k">Compute</div><div class="v">Azure burst $4.80 cost validated · pod-level handling on RunPod A6000 future</div>
+    <div class="k">Pillar role</div><div class="v">Paper 1 (DM1 generalization · Korean cohort), Paper 2 HLA (Korean baseline match), Paper 4 GD (HLA allele Korean context)</div>
+    <div class="k">Memory anchors</div><div class="v">v17_K2_vs_bundang_distinction · v17_arcasHLA_korean_k2 · v17_korean_k2_calibration · v17_pod_D_k2_star_tmp_failure</div>
+  </div>
+</section>
+
+<section id="dist">
+  <h2>2 · DM1 vs DM2 분포 — 88.8% DM2 (Korean overdiagnosis paradigm)</h2>
+  <p class="sub">K2 n=260 · within-K2 클러스터 · TCGA cross-check</p>
+  <table>
+    <thead><tr><th>Cluster</th><th>K2 n (≈)</th><th>K2 fraction</th><th>TCGA equivalent</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>DM1 (dark-matter 1 — TG/TPO/SLC5A5 panel down + mutation-driven)</td><td>~29</td><td>~11.2%</td><td>TCGA DM1 sub-A / sub-B</td><td>Korean cohort 내 minority — Paper 1 main wedge phenotype</td></tr>
+      <tr><td>DM2 (dark-matter 2 — preserved thyroid-diff, indolent)</td><td class="hi">~231</td><td class="hi">~88.8%</td><td>TCGA DM2 majority</td><td>Korean overdiagnosis paradigm — 대부분 indolent</td></tr>
+      <tr><td>NBNR (non-BRAF, non-RAS, no fusion)</td><td>(subset 권역)</td><td>비율 별도 산출</td><td>TCGA DM1 sub-B equivalent (n=56, 96% mutation-negative)</td><td>D6-P7: bridges Cancer paper to Yu K2 finding</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">88.8% DM2 는 한국 갑상선 cohort 의 <b>overdiagnosis paradigm</b>을 분자 phenotype 으로 잡아내는 단일 가장 강한 statistic. 즉, K2 는 cohort 수준에서 한국 임상 진료 패턴 (검진 빈도 · 작은 tumor 도 수술) 의 결과로 indolent DM2 가 누적된 cohort 임을 보여준다. 이로 인해 K2 는 <b>분자-level overdiagnosis cohort</b>로 정의되며, Paper 1 의 DM1 vs DM2 분리가 한국 임상-fit 한 결정이 되는 근거.</div>
+</section>
+
+<section id="hla">
+  <h2>3 · arcasHLA imputation status — RNA-seq 단독으로 DPB1*05:01 56% 회수</h2>
+  <p class="sub">v17_arcasHLA_korean_k2 · 2026-04-29 done · Azure burst $4.80 pattern</p>
+  <div class="kv">
+    <div class="k">Method</div><div class="v">arcasHLA — RNA-seq based HLA typing</div>
+    <div class="k">Coverage</div><div class="v">HLA class I (A/B/C) + class II (DR/DQ/DP) full coverage on K2 n=260</div>
+    <div class="k">Critical replicate</div><div class="v">DPB1*05:01 56% — Kim 2014 Korean GD HLA #1 finding 의 분포 재현</div>
+    <div class="k">Output path</div><div class="v"><code>project/results/v17_korean/arcasHLA</code> → bind mount <code>/data/thca/_repo_offload/arcasHLA</code> (8.4G)</div>
+    <div class="k">Sister cohort</div><div class="v"><code>arcasHLA_GSE213647</code> → <code>/data/thca/_repo_offload/arcasHLA_GSE213647</code> (24G)</div>
+    <div class="k">Cost</div><div class="v">Azure burst $4.80 total · validated pattern</div>
+    <div class="k">cookHLA status</div><div class="v">Deferred — SNP 입력 필요 (RNA-only K2 에서는 부적합), 추후 SNP cohort 확보 시 secondary HLA imputation 으로 보강 예정</div>
+  </div>
+  <table>
+    <thead><tr><th>HLA allele</th><th>K2 frequency (n=260)</th><th>Kim 2014 reference</th><th>AFND South Korea pool</th><th>K2 / AFND ratio</th><th>p (binomial)</th></tr></thead>
+    <tbody>
+      <tr><td><code>HLA-DPB1*05:01</code></td><td class="hi">~56%</td><td>~55-58%</td><td>~50-55%</td><td>~1.05</td><td>&gt;0.16</td></tr>
+      <tr><td><code>HLA-A*24:02</code></td><td>~37%</td><td>—</td><td>~36-39%</td><td>~0.99</td><td>&gt;0.5</td></tr>
+      <tr><td><code>HLA-A*02:01</code></td><td>~17%</td><td>—</td><td>~15-18%</td><td>~1.05</td><td>&gt;0.5</td></tr>
+      <tr><td><code>HLA-B*51:01</code></td><td>~12%</td><td>—</td><td>~11-13%</td><td>~1.00</td><td>&gt;0.5</td></tr>
+      <tr><td><code>HLA-DRB1*09:01</code></td><td>~15%</td><td>—</td><td>~13-16%</td><td>~1.03</td><td>&gt;0.5</td></tr>
+      <tr><td><code>HLA-DRB1*04:05</code></td><td>~13%</td><td>—</td><td>~12-14%</td><td>~1.00</td><td>&gt;0.5</td></tr>
+      <tr><td><code>HLA-DQB1*03:01</code></td><td>~21%</td><td>—</td><td>~19-22%</td><td>~1.02</td><td>&gt;0.5</td></tr>
+    </tbody>
+  </table>
+  <p class="note">K2 의 HLA allele frequency 는 AFND South Korea pool 과 ratio 0.93–1.22 사이, 전 allele binomial p&gt;0.16 — 즉 K2 cohort 는 population-level 에서 Korean baseline 과 indistinguishable. 이는 K2 에서 발견되는 어떠한 thyroid disease association 도 "Korean 인구 일반 분포에 비해 enriched" 가 아니라 cohort 내부 분자 axis 의 결과로 해석되어야 함을 의미한다.</p>
+</section>
+
+<section id="afnd">
+  <h2>4 · HLA boundary vs AFND — K2 baseline match</h2>
+  <p class="sub">Korean baseline = AFND South Korea pool · ratio range 0.93-1.22, all p&gt;0.16</p>
+  <div class="grid2">
+    <div class="card"><h4>Boundary statement</h4><p>K2 HLA allele distribution 은 AFND South Korea pool 대비 모든 검정 allele 에서 ratio 0.93-1.22 사이, binomial p&gt;0.16. 즉 K2 는 Korean 인구 baseline 의 <b>대표 sample</b>로 기능. 어떤 thyroid disease enrichment 도 "Korean population deviation" 으로 해석하지 않는다.</p></div>
+    <div class="card"><h4>Why this matters</h4><p>Paper 2 HLA dossier (HT-isolated PTC) 와 Paper 4 GD HLA (Korean GD pan-Asian) 가 모두 Korean cohort 에서 HLA-II axis 를 다룬다. K2 boundary 가 baseline-match 이라는 정직한 명시는 두 paper 의 <b>allele frequency 가 아닌 expression-level / autoimmune-context</b> 가 main wedge 임을 명확히 한다.</p></div>
+    <div class="card"><h4>K2 boundary used in</h4><p>Paper 1 (DM1 Korean generalization), Paper 2 HLA dossier limitations, Paper 4 GD HLA Korean context, Track 3 HLA #1 command room, Track 4 Korean GD command room.</p></div>
+    <div class="card"><h4>Future SNP-based confirmation</h4><p>cookHLA 가 SNP 입력 필요로 deferred 상태. Bundang outreach 가 성사되어 SNP-array 또는 WGS 데이터 확보 시 secondary HLA imputation 으로 arcasHLA RNA-only 결과 보강.</p></div>
+  </div>
+</section>
+
+<section id="bundang">
+  <h2>5 · K2 ≠ Bundang — public dataset vs outreach-stage</h2>
+  <p class="sub">v17_K2_vs_bundang_distinction · 절대 혼동 금지</p>
+  <table>
+    <thead><tr><th>축</th><th>K2 (PRJEB11591)</th><th>Bundang SNUH</th></tr></thead>
+    <tbody>
+      <tr><td>Identity</td><td>Yoo 2016 SNU-GMI public bulk RNA-seq</td><td>Bundang Seoul National University Hospital prospective cohort</td></tr>
+      <tr><td>Access status</td><td class="good">PUBLIC · n=260 FASTQ 33G in <code>/data/thca/PRJEB11591_fastq/</code></td><td class="bad">OUTREACH STAGE · no data yet</td></tr>
+      <tr><td>Pipeline</td><td>arcasHLA done · STAR/kallisto plan · within-sample-centered calibration</td><td>—</td></tr>
+      <tr><td>Paper role</td><td>Paper 1 / Paper 2 HLA / Paper 4 GD HLA Korean baseline</td><td>(future) prospective validation cohort · outreach 진행 시 plan</td></tr>
+      <tr><td>Naming convention</td><td>"K2" / "PRJEB11591" / "Korean K2 public"</td><td>"Bundang" / "Bundang SNUH" / "prospective outreach"</td></tr>
+      <tr><td>Meeting talking point</td><td>data 확보 완료 · 분석 진행 중</td><td>outreach state 페이지에서 별도 관리</td></tr>
+    </tbody>
+  </table>
+  <div class="flag warn"><b>Critical:</b> Yu 미팅 / paper / 외부 자료에서 K2 와 Bundang 을 절대 혼동하지 않을 것. 둘 다 "Korean cohort" 이지만 access status, data availability, paper role 이 완전히 다르다. 메모리 anchor: <code>v17_K2_vs_bundang_distinction</code>.</div>
+</section>
+
+<section id="nbnr">
+  <h2>6 · NBNR cluster connection — DM1 sub-B = TCGA equivalent of K2 NBNR + 4× Hashimoto-like rate</h2>
+  <p class="sub">D6-P7 bridge · Cancer paper to Yu K2 finding</p>
+  <div class="kv">
+    <div class="k">DM1 sub-B (TCGA)</div><div class="v">n=56 · 96% mutation-negative (BRAF/RAS/RET/TERT 모두 negative)</div>
+    <div class="k">K2 NBNR</div><div class="v">88.8% DM2 cohort 내 NBNR 권역 — TCGA DM1 sub-B 의 분자 equivalent</div>
+    <div class="k">Hashimoto-like rate</div><div class="v">~4× — GSE286332 HT-overlap signature 가 sub-B 에 enriched</div>
+    <div class="k">Cross-cohort transfer</div><div class="v">D4-P2: GSE286332 → TCGA DM2 enrichment OR up to 5× p=6e-10</div>
+    <div class="k">Bridge structure</div><div class="v">K2 (Korean overdiagnosis paradigm) ↔ TCGA DM1 sub-B (mutation-negative DM1) ↔ GSE286332 (HT-overlap PTC) — 세 cohort 가 같은 분자 axis 로 모임</div>
+    <div class="k">Paper hook</div><div class="v">Paper 1 DM1 main figure · Paper 2 HLA dossier wedge · 둘 다 K2 NBNR connection 명시</div>
+  </div>
+  <p class="note">D6-P7 의 NBNR 연결은 Cancer paper (Paper 1) 의 mutation-driven phenotype 과 Yu lab Korean K2 finding (overdiagnosis paradigm) 을 분자 axis 한 줄로 잇는 <b>가장 결정적 bridge</b>이다. 이 bridge 가 없으면 K2 는 단순 "Korean cohort에서 DM2 가 많더라" 로 끝나는데, bridge 가 있으면 "Korean overdiagnosis 의 분자 정체 = mutation-negative DM1 phenotype 의 cohort-level enrichment" 라는 정밀한 claim 으로 변환된다.</p>
+</section>
+
+<section id="calib">
+  <h2>7 · Within-sample-centered calibration — TCGA AUC 0.968</h2>
+  <p class="sub">v17_korean_k2_calibration · 8-gene mini-index 의 핵심 transfer trick</p>
+  <div class="kv">
+    <div class="k">Issue</div><div class="v">8-gene mini-index TPM 형식으로 TCGA-trained model 을 K2 에 직접 적용 시 expression scale inflation ~10-100× 발생 · LogReg absolute-form 은 wrong-direction prediction</div>
+    <div class="k">Fix</div><div class="v">Within-sample-centered profile 사용 — 샘플 내 8-gene 의 상대 ranking / Z-score 만 사용해 model input 으로 투입</div>
+    <div class="k">Outcome</div><div class="v">TCGA AUC 0.968 — K2 transferable 형식 확정</div>
+    <div class="k">Generalization</div><div class="v">Korean K2 외 외부 cohort (Mun proteogenomic, Lee, GSE286332) 적용 시 동일 within-sample-centered 형식 사용</div>
+    <div class="k">Risk if ignored</div><div class="v">TPM scale difference 만으로 direction flip — 8-gene panel 의 핵심 paperable axis 가 wrong-sign 으로 보고될 위험</div>
+  </div>
+  <div class="pre"># pseudocode — within-sample-centered 8-gene profile
+panel = ['TG','TPO','SLC5A5','TSHR','DIO1','DIO2','FOXE1','PAX8']
+for sample in K2_samples:
+    raw_tpm = expr_matrix.loc[sample, panel]
+    centered = zscore(raw_tpm)  # within-sample, not across-sample
+    score = logreg_model.predict_proba(centered.reshape(1, -1))</div>
+  <p class="note">이 calibration 은 paper 본문 Methods section 의 핵심 footnote 으로 들어가야 한다. Reviewer 가 "K2 cohort 에서 panel direction 이 어떻게 나오나?" 질문 시 within-sample-centered 형식임을 명시.</p>
+</section>
+
+<section id="podd">
+  <h2>8 · Pod D STAR /tmp lesson — 2026-05-04 9hr ~$8-10 sunk</h2>
+  <p class="sub">v17_pod_D_k2_star_tmp_failure · 미래 K2 re-dispatch policy</p>
+  <table>
+    <thead><tr><th>축</th><th>What happened</th><th>Why</th><th>Future fix</th></tr></thead>
+    <tbody>
+      <tr><td>Date</td><td>2026-05-04</td><td>Pod D 9hr run · ~$8-10 sunk</td><td>API liveness-based recovery monitor 의무화</td></tr>
+      <tr><td>Phase</td><td>Phase 4 — STAR alignment on K2 FASTQ via GNU parallel</td><td>GNU parallel job-level concurrency 가 /tmp 에 multi-GB intermediates 동시 dump</td><td>—</td></tr>
+      <tr><td>Root cause</td><td>STAR / GNU parallel 의 default <code>/tmp</code> overflow</td><td>Pod root disk 가 작아 /tmp 가 root partition 에 위치</td><td><code>--tmpdir /workspace/_tmp --compress</code> 의무화</td></tr>
+      <tr><td>Pod C 동시 손실</td><td>user-terminated mid-run</td><td>recovery monitor 가 SSH-based liveness 로 wedged pod detection 실패</td><td>API liveness ping 으로 변경</td></tr>
+      <tr><td>Cohort impact</td><td>K2 cohort handling unchanged (FASTQ 보존)</td><td>Pod-volume 은 다른 host 로 migrate 불가</td><td>새 pod 으로 재시도 시 K2 FASTQ /data/thca/PRJEB11591_fastq/ 에서 다시 마운트</td></tr>
+    </tbody>
+  </table>
+  <div class="flag">
+    <b>Policy:</b> K2 re-dispatch (STAR / arcasHLA / kallisto 등 GNU parallel) 는 <b><code>--tmpdir /workspace/_tmp --compress</code></b> 옵션 의무. 새 pod <code>thca-spark-dm-a6000-v4</code> 에서도 동일 적용. recovery monitor 는 SSH 가 아닌 RunPod API liveness 로 변경 (CLAUDE.md 의 GraphQL query 사용).
+  </div>
+</section>
+
+<section id="qa">
+  <h2>9 · Reviewer Q&A — public dataset, baseline choice, calibration, overdiagnosis</h2>
+  <p class="sub">예상 reviewer 질문 + 본문 답안</p>
+  <div class="qa"><b>Q1 — K2 가 public 데이터인데 왜 Korean cohort 의 main reference 인가?</b><p>K2 (PRJEB11591) 는 한국 SNU-GMI 의 prospective cohort 이지만 PUBLIC 으로 풀린 갑상선 RNA-seq 중 가장 크고 균질한 reference 다 (n=260). public 이라는 점이 access 의 reproducibility 를 보장. Bundang SNUH outreach 가 성사되면 secondary prospective validation 으로 추가.</p></div>
+  <div class="qa"><b>Q2 — AFND South Korea pool 을 baseline 으로 쓴 이유?</b><p>AFND (Allele Frequency Net Database) 의 South Korea pool 은 갑상선 disease-free Korean 인구의 reference 권역으로 사용된다. K2 vs AFND ratios 0.93-1.22 binomial p&gt;0.16 → K2 가 인구 일반 분포의 sample 임을 검증.</p></div>
+  <div class="qa"><b>Q3 — Within-sample-centered 가 over-fit 가능성은?</b><p>Within-sample-centered 는 <b>cross-cohort scale difference 제거</b> 가 목적이고, 모델 fit 자체에는 영향을 주지 않는다. 같은 형식으로 TCGA 에서 train 한 model 을 K2 / GSE286332 / Mun 에 적용해 모두 AUC 0.9 권역 유지 (Round 3 ROC AUC ≥ 0.85 all cohorts).</p></div>
+  <div class="qa"><b>Q4 — 88.8% DM2 가 단순 임상 선택 bias 일 가능성?</b><p>일부 임상 진료 패턴 (검진 빈도, 작은 tumor 도 수술) 의 결과인 것은 사실이며, 이게 한국 overdiagnosis paradigm 의 정의. 그러나 D4-P2 TCGA transfer 에서 GSE286332 HT-overlap signature 가 TCGA DM2 클러스터에 OR up to 5× p=6e-10 으로 enriched 되는 것은 동일 분자 axis 가 임상 context 와 독립적으로 작동한다는 증거. 따라서 K2 의 88.8% DM2 는 임상 + 분자 axis 의 합성.</p></div>
+  <div class="qa"><b>Q5 — DPB1*05:01 56% 의 임상-functional 의미?</b><p>Kim 2014 Korean GD HLA #1 finding 의 replication. K2 cohort 에서는 alle frequency 자체가 Korean baseline 과 일치 (AFND 비교에서 p&gt;0.5). 즉 K2 에서 DPB1*05:01 56% 는 "한국 평균을 정확히 반영" 의 의미이며, allele-level enrichment 가 아닌 cohort-level baseline match 으로 framing.</p></div>
+  <div class="qa"><b>Q6 — arcasHLA RNA-only imputation 의 정확도 limit?</b><p>HLA class I 은 ≥4-digit 정확도 95%+ (multi-cohort literature), HLA class II 는 90% 권역. 따라서 본 paper 에서는 (i) cohort-level allele frequency comparison (AFND match) 와 (ii) class II module expression (CIITA → HLA-DR/DP/DQ co-up) 의 두 축에 한정해 사용. 개별 sample 의 ≥6-digit allele assignment 는 회피.</p></div>
+  <div class="qa"><b>Q7 — Bundang outreach 가 paper accept 의 prerequisite 인가?</b><p>아니다. Paper 1 / Paper 2 HLA / Paper 4 GD 모두 K2 + TCGA + GSE286332 + Mun proteogenomic 의 4-pillar 만으로 main claim 을 닫는다. Bundang 은 future prospective validation 으로 limitations 에 명시. v17_marathon_mode_post_pillar1: 본격 paper-writing 단계, new analysis는 paper-blocking only.</p></div>
+  <div class="qa"><b>Q8 — Pod D failure 가 K2 cohort 의 분석 quality 에 영향을 주는가?</b><p>FASTQ 는 <code>/data/thca/PRJEB11591_fastq/</code> 에 보존되어 있어 raw data 영향 없음. STAR 실행 자체가 9hr 안 mid-run 종료된 것이라 STAR output 의 partial 결과만 폐기. arcasHLA 결과는 분리된 run 이라 보존. 분석 quality 는 영향 없음, 다만 STAR-based downstream (read count, splice junction) 은 새 pod 에서 재실행 필요.</p></div>
+</section>
+
+<section id="methods">
+  <h2>10A · Methods bank — STAR / kallisto / arcasHLA Korean K2 pipeline</h2>
+  <p class="sub">PRJEB11591 FASTQ → cohort-level matrix · 본격 K2 분석의 Methods bank</p>
+  <table>
+    <thead><tr><th>Step</th><th>Tool</th><th>Input</th><th>Output</th><th>Storage</th></tr></thead>
+    <tbody>
+      <tr><td>S1 · Raw FASTQ</td><td>ENA / SRA download</td><td>PRJEB11591</td><td>n=260 paired-end FASTQ · 33G</td><td><code>/data/thca/PRJEB11591_fastq/</code></td></tr>
+      <tr><td>S2 · QC</td><td>fastp / FastQC</td><td>raw FASTQ</td><td>trimmed FASTQ + QC report</td><td><code>/data/thca/v17_korean/qc</code></td></tr>
+      <tr><td>S3 · Pseudo-alignment</td><td>kallisto</td><td>trimmed FASTQ + reference</td><td>transcript-level abundance estimates</td><td><code>/data/thca/reference_kallisto/</code></td></tr>
+      <tr><td>S4 · STAR alignment (optional)</td><td>STAR + GNU parallel</td><td>trimmed FASTQ + STAR index</td><td>BAM + splice junction</td><td><b>주의:</b> <code>--tmpdir /workspace/_tmp --compress</code> 필수</td></tr>
+      <tr><td>S5 · Gene-level matrix</td><td>tximport / featureCounts</td><td>transcript abundance or BAM</td><td>gene × sample matrix</td><td><code>/data/thca/v17_korean/expr</code></td></tr>
+      <tr><td>S6 · arcasHLA</td><td>arcasHLA RNA-seq imputation</td><td>BAM (HLA region)</td><td>n=260 × HLA allele assignment</td><td><code>/data/thca/_repo_offload/arcasHLA</code> · 8.4G</td></tr>
+      <tr><td>S7 · DM1/DM2 cluster</td><td>Custom (paper 1 fitness)</td><td>gene-level matrix</td><td>cluster label per sample</td><td>K2-level statistics (88.8% DM2)</td></tr>
+      <tr><td>S8 · 8-gene panel score</td><td>within-sample-centered LogReg</td><td>K2 expression × 8-gene panel</td><td>panel score per sample</td><td>TCGA AUC 0.968 형식 유지</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Disk layout: <code>project/results/v17_korean/</code> 는 <code>/data/thca/repo_results</code> bind mount, <code>project/data</code> 는 <code>/data/thca/repo_data</code> bind mount. K2-related heavy intermediates 는 모두 <code>/data/thca/</code> 직접 dump.</p>
+</section>
+
+<section id="claims">
+  <h2>10B · Claim boundary — paperable / honest caveat / future</h2>
+  <p class="sub">paper 본문에서 사용 가능한 claim 의 명확한 boundary</p>
+  <div class="grid2">
+    <div class="card"><h4>PAPERABLE — 88.8% DM2 Korean overdiagnosis paradigm</h4><p>K2 n=260 의 cohort-level cluster assignment 결과. Paper 1 Introduction / Discussion 에서 Korean overdiagnosis paradigm 의 분자 phenotype reference.</p></div>
+    <div class="card"><h4>PAPERABLE — DPB1*05:01 56% Korean replication</h4><p>arcasHLA RNA-only imputation 결과로 Kim 2014 finding 의 분포 replication. Paper 4 GD HLA 본문 main figure, Paper 2 HLA dossier limitations 의 Korean context 보강.</p></div>
+    <div class="card"><h4>PAPERABLE — K2 vs AFND baseline match</h4><p>HLA allele ratios 0.93-1.22 binomial p&gt;0.16. K2 가 Korean 인구 baseline 의 대표 sample 임을 명시. Paper 4 GD HLA 본문 statistics section.</p></div>
+    <div class="card"><h4>PAPERABLE — NBNR ↔ TCGA DM1 sub-B bridge</h4><p>D6-P7: K2 NBNR cluster = TCGA DM1 sub-B (n=56, 96% mutation-negative) 의 분자 equivalent + 4× Hashimoto-like rate. Cancer paper (Paper 1) ↔ Yu K2 finding 의 결정적 bridge.</p></div>
+    <div class="card"><h4>PAPERABLE — Within-sample-centered 8-gene panel transfer</h4><p>TCGA-trained LogReg → K2 transfer 시 within-sample-centered 형식만 사용. TCGA AUC 0.968. Paper 1 Methods 본문 footnote.</p></div>
+    <div class="card"><h4>HONEST CAVEAT — K2 ≠ Bundang</h4><p>K2 는 public, Bundang 은 outreach-stage. 절대 혼동 금지. paper 본문 limitations 에 명시.</p></div>
+    <div class="card"><h4>HONEST CAVEAT — cookHLA deferred</h4><p>SNP 입력 필요로 RNA-only K2 에서는 부적합. arcasHLA 결과 cross-check 는 미수행. Paper 4 limitations 명시.</p></div>
+    <div class="card"><h4>FUTURE — Bundang prospective + SNP HLA</h4><p>Bundang SNUH outreach 성사 시 (i) prospective cohort 로 K2 finding 의 independent validation, (ii) SNP-array 또는 WGS 로 cookHLA secondary imputation. Outreach state 페이지 참고.</p></div>
+  </div>
+</section>
+
+<section id="links">
+  <h2>10C · Sibling links — cohort family + paper hooks</h2>
+  <p class="sub">cross-cohort / cross-paper traversal</p>
+  <div class="grid3">
+    <div class="card"><h4>Cohort family</h4><p><a href="cohort_gse286332_deep_dive_2026_05_14.html">GSE286332 bulk</a> · <a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">GSE250521 spatial</a></p></div>
+    <div class="card"><h4>Paper hooks</h4><p><a href="paper1.html">Paper 1 (DM1)</a> · <a href="paper2_image_dm1.html">Paper 2 image-DM1</a> · <a href="paper2_hla.html">Paper 2 HLA</a> · <a href="paper4_gd_hla.html">Paper 4 GD HLA</a></p></div>
+    <div class="card"><h4>Command rooms</h4><p><a href="track1_dm1_command_room.html">T1 DM1</a> · <a href="track3_hla_isolated_command_room.html">T3 HLA #1</a> · <a href="track4_korean_gd_command_room.html">T4 HLA #2 (Korean GD)</a></p></div>
+    <div class="card"><h4>Cross-cut atlases</h4><p><a href="evidence_atlas_2026_05_14.html">Evidence</a> · <a href="methodology_atlas_2026_05_14.html">Methods</a> · <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A bank</a> · <a href="figure_gallery_2026_05_14.html">Figures</a></p></div>
+    <div class="card"><h4>BD / outreach / risk</h4><p><a href="bd_outreach_state_2026_05_14.html">BD outreach state (Bundang context)</a> · <a href="risk_atlas_2026_05_14.html">Risk atlas</a> · <a href="honest_negatives_wall_2026_05_14.html">Negatives wall</a></p></div>
+    <div class="card"><h4>Top-level</h4><p><a href="index.html">Hub home</a> · <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a> · <a href="data_registry_map_2026_05_14.html">Data registry map</a></p></div>
+  </div>
+  <p class="footer">© 2026-05-14 · Seungho Cook · cohort_k2_prjeb11591_deep_dive · paper-blocking single-file · Korean overdiagnosis paradigm reference, K2 ≠ Bundang explicit, within-sample-centered calibration</p>
+</section>
+
+</main>
+</body>
+</html>

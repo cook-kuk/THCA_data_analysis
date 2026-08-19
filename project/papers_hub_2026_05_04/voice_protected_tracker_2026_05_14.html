@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Voice-protected tracker · 2026-05-14 · 마라톤 모드 compliance dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.warn{color:var(--gold);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.zonebox{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:6px}
+.zone{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;border-top:5px solid var(--gold)}
+.zone h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:#fff}
+.zone .why{color:#cbd7df;font-size:13.5px;margin:8px 0}
+.zone .why b{color:var(--gold)}
+.zone .who{font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:var(--red);font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:8px}
+.zone.b{border-top-color:var(--blue)}.zone.g{border-top-color:var(--green)}.zone.v{border-top-color:var(--violet)}.zone.t{border-top-color:var(--teal)}.zone.r{border-top-color:var(--red)}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.verdict .v{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:#0d1823}
+.verdict .v.ok{border-left:5px solid var(--green)}
+.verdict .v.no{border-left:5px solid var(--red)}
+.verdict .v h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px}
+.verdict .v.ok h3{color:var(--green)}.verdict .v.no h3{color:var(--red)}
+.checklist{margin:8px 0 14px;padding-left:0;list-style:none}
+.checklist li{padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#0d1823;margin-bottom:6px;font-size:14px}
+.checklist li.done{border-left:4px solid var(--green)}
+.checklist li b{color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.06em}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .zonebox{grid-template-columns:1fr}.verdict{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Voice-protected tracker · 2026-05-14 · 마라톤 모드 compliance · Seungho Cook</p>
+    <h1>6 zones × 5 papers — 음성 보호 구간 컴플라이언스 대시보드.</h1>
+    <p class="lead">
+      마라톤 모드 (2026-05-04 → 06-13) 동안 <b>6개 음성 보호 zone</b> (Hook / Aim / Discussion 3.1 / Limitations / Cover letter Para 1 / Reviewer Q9) 은 저자 키보드 전용이다. Claude는 scaffolding · methods · tables · figures · 숫자 정리만 한다. 본 페이지는 5개 논문 × 6 zone = <b>30 cell 매트릭스</b>로 status를 실시간 추적하며, "고고 / faster / 다 해줘" 가 sprint 권한이 아님을 명시한다. 오늘 위반 0건.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>6</b><span>voice-protected zones</span><small>Hook · Aim · Disc 3.1 · Limitations · Cover Para 1 · Q9</small></div>
+      <div class="stat"><b>5</b><span>active papers</span><small>P1 · P2 · HLA#1 · HLA#2 · Samsung</small></div>
+      <div class="stat"><b>0</b><span>오늘 위반 (2026-05-14)</span><small>scaffolding-only stance held</small></div>
+      <div class="stat"><b>1</b><span>logged sprint violation</span><small>2026-05-03 · "고고/faster" mis-trigger</small></div>
+      <div class="stat"><b>저자</b><span>키보드 전용</span><small>author-keyboard only enforced</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#zones">6 zones</a>
+  <a class="primary" href="#matrix">5×6 matrix</a>
+  <a class="primary" href="#allowed">Claude ok · author only</a>
+  <a class="primary" href="#violation">Sprint violation log</a>
+  <a href="#daily">Daily check</a>
+  <a href="#marathon">Marathon rules</a>
+  <a href="#can">Claude CAN</a>
+  <a href="#cannot">Claude CANNOT</a>
+  <a href="#qa">Reviewer Q&amp;A</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+  <a href="marathon_mode_dashboard_2026_05_14.html">Marathon dashboard</a>
+  <a href="decision_board_2026_05_14.html">Decision board</a>
+  <a href="risk_atlas_2026_05_14.html">Risk atlas</a>
+  <a href="honest_negatives_wall_2026_05_14.html">Honest negatives</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&amp;A bank</a>
+  <a href="bd_outreach_state_2026_05_14.html">BD outreach</a>
+  <a href="paper1.html">Paper 1</a>
+  <a href="paper2_image_dm1.html">Paper 2</a>
+  <a href="paper2_hla.html">HLA #1</a>
+  <a href="paper4_gd_hla.html">HLA #2</a>
+  <a href="track5_samsung_command_room.html">Samsung</a>
+  <a href="graphical_abstract_sketch_2026_05_14.html">Graphical abstract sketch</a>
+  <a href="yu_personal_note_draft_2026_05_14.html">Yu personal note</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — 오늘의 컴플라이언스</h2>
+  <p class="sub">2026-05-14 status · author-keyboard only stance</p>
+  <div class="verdict">
+    <div class="v ok">
+      <h3>Compliance OK — 음성 보호 zone 위반 0건</h3>
+      <p class="note">오늘 작성된 모든 outputs는 scaffolding/infra/tables/numbers/figures/cross-cut HTML. 음성 보호 zone에 들어갈 prose는 Claude가 생성하지 않았다. Yu 미팅 브리핑 · 명함식 dashboard · graphical abstract sketch · 개인 메모 draft 까지 모두 저자 voice 영역 침범 없음.</p>
+    </div>
+    <div class="v no">
+      <h3>"고고 / faster / 다 해줘" 는 sprint 권한 NOT</h3>
+      <p class="note">2026-05-03 한 차례 mis-trigger 기록. 마라톤 모드에서 위 단어들은 voice-protected section sprint generate 권한을 부여하지 <b class="bad">않는다</b>. Default = scaffolding. 음성 보호 zone은 본인 키보드. (memory <code>v17_sprint_vs_marathon_violation</code>)</p>
+    </div>
+  </div>
+  <div class="decision">
+    <h3>한 줄 결론</h3>
+    <p>음성 보호 = <b>Hook / Aim / Discussion 3.1 / Limitations / Cover letter Para 1 / Reviewer Q9</b>. 마라톤 6주 동안 위 6개는 저자 키보드 전용이며, Claude는 옆에서 숫자/표/스캐폴딩만 채운다. 오늘 위반 0건.</p>
+  </div>
+</section>
+
+<section id="zones">
+  <h2>6개 음성 보호 zone — 정의 · 이유 · 왜 Claude가 prose를 못 만드나</h2>
+  <p class="sub">six voice-protected zones explained</p>
+  <div class="zonebox">
+
+    <div class="zone">
+      <h3>Zone 1 — Hook</h3>
+      <p class="why"><b>무엇인가</b> · 논문/cover letter 첫 두 문장. 독자가 "왜 이 논문을 읽어야 하나" 결정하는 0.5초. <b>왜 보호되나</b> · 저자의 발견 동기, 의학적 배경, 17년 임상 자산이 응축된 곳. Claude의 일반론은 generic 해서 reviewer가 즉시 알아챈다. <b>대체 불가</b>.</p>
+      <p class="who">author-keyboard only · no Claude prose</p>
+    </div>
+
+    <div class="zone b">
+      <h3>Zone 2 — Aim</h3>
+      <p class="why"><b>무엇인가</b> · "본 연구의 목적은 …" 한 문단. 가설 진술과 검증 가능 형식. <b>왜 보호되나</b> · 검증 가능성·범위·boundary가 모두 여기 한 문단에 잠긴다. 저자가 직접 좁혀야 reviewer attack surface가 줄어든다. <b>대체 불가</b>.</p>
+      <p class="who">author-keyboard only · no Claude prose</p>
+    </div>
+
+    <div class="zone g">
+      <h3>Zone 3 — Discussion 3.1</h3>
+      <p class="why"><b>무엇인가</b> · Discussion 첫 sub-section. "본 연구의 핵심 발견을 prior literature 어디에 위치시키는가" 의 본문 단락. <b>왜 보호되나</b> · 저자의 cite 선택과 해석이 곧 voice. (예: Landa 2016 vs Krishnamoorthy 2025 cite save). Claude가 generic 하게 placement 하면 사실 오류 위험. <b>대체 불가</b>.</p>
+      <p class="who">author-keyboard only · no Claude prose</p>
+    </div>
+
+    <div class="zone v">
+      <h3>Zone 4 — Limitations</h3>
+      <p class="why"><b>무엇인가</b> · 정직한 한계 단락. N=18 cohort · TSS confound · 4-pillar에 phospho 누락 등. <b>왜 보호되나</b> · 잘못 쓰면 자해, 못 쓰면 reviewer attack. 저자가 sample size · cohort · method 한계를 직접 명명해야 신뢰가 잠긴다. <b>대체 불가</b>.</p>
+      <p class="who">author-keyboard only · no Claude prose</p>
+    </div>
+
+    <div class="zone t">
+      <h3>Zone 5 — Cover letter Paragraph 1</h3>
+      <p class="why"><b>무엇인가</b> · Cover letter 첫 문단. Editor가 reject vs go-to-review 결정하는 30초 구간. <b>왜 보호되나</b> · "이 논문이 본 학술지의 readership 에 왜 필수인가" 는 author가 직접 말해야 한다. Claude generic cover line은 editor가 패턴 인식한다. <b>대체 불가</b>.</p>
+      <p class="who">author-keyboard only · no Claude prose</p>
+    </div>
+
+    <div class="zone r">
+      <h3>Zone 6 — Reviewer Q9</h3>
+      <p class="why"><b>무엇인가</b> · 가상 reviewer Q&amp;A bank의 Q9 — "본 연구의 가장 약한 부분은 무엇이며 어떻게 방어하나". <b>왜 보호되나</b> · 약점 시인 + 방어 라인의 voice가 곧 paper credibility. 저자만이 본인 연구의 진짜 약점을 안다. <b>대체 불가</b>.</p>
+      <p class="who">author-keyboard only · no Claude prose</p>
+    </div>
+
+  </div>
+</section>
+
+<section id="matrix">
+  <h2>5 papers × 6 zones = 30 cells — per-paper × per-zone matrix</h2>
+  <p class="sub">draft · final · blocked status</p>
+  <table>
+    <thead><tr><th>논문</th><th>Hook</th><th>Aim</th><th>Disc 3.1</th><th>Limitations</th><th>Cover Para 1</th><th>Q9</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>Paper 1 · DM1 dark matter</b></td>
+        <td class="hi">draft v3</td>
+        <td class="good">final · locked</td>
+        <td class="hi">draft v2 · cite 정정 완료 (Landa 2016)</td>
+        <td class="hi">draft v2</td>
+        <td class="warn">draft v1 · Nat Comm 대상</td>
+        <td class="hi">draft v2 · phospho 한계</td>
+      </tr>
+      <tr>
+        <td><b>Paper 2 · Histology (H&amp;E → DM1)</b></td>
+        <td class="warn">draft v1 · K2 gate 전</td>
+        <td class="warn">draft v1 · "perfect subgroup" 폐기 후 재작성</td>
+        <td class="bad">blocked · K2 H&amp;E access 결정 대기</td>
+        <td class="hi">draft v2 · TSS confound 명시</td>
+        <td class="bad">blocked</td>
+        <td class="warn">draft v1 · N=59 cohort</td>
+      </tr>
+      <tr>
+        <td><b>HLA #1 · HT-isolated PTC</b></td>
+        <td class="hi">draft v2 · GSE286332 anchor</td>
+        <td class="good">final · locked · "HT-overlap only" framing</td>
+        <td class="hi">draft v2</td>
+        <td class="hi">draft v2 · n=18 single cohort</td>
+        <td class="warn">draft v1 · Sci Rep / Cell Rep Med 두 버전</td>
+        <td class="hi">draft v2</td>
+      </tr>
+      <tr>
+        <td><b>HLA #2 · Korean GD / Pan-Asian</b></td>
+        <td class="cool">backlog</td>
+        <td class="cool">backlog · 4/4 gating</td>
+        <td class="cool">backlog</td>
+        <td class="cool">backlog</td>
+        <td class="cool">backlog</td>
+        <td class="cool">backlog</td>
+      </tr>
+      <tr>
+        <td><b>Samsung 30억 grant</b></td>
+        <td class="hi">draft v2 · 5 약점 답안 반영</td>
+        <td class="hi">draft v2</td>
+        <td class="hi">draft v1 · 17년 임상 자산</td>
+        <td class="hi">draft v2 · 약점 1·2·3 단락</td>
+        <td class="warn">draft v1 · Cover Para 1 → 한국형 이유</td>
+        <td class="warn">draft v1</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note"><b class="good">final</b> = 저자 voice 잠금 / <b class="hi">draft v2+</b> = 저자 키보드로 1회 이상 수정 / <b class="warn">draft v1</b> = 저자 첫 통과 후 다음 회차 대기 / <b class="bad">blocked</b> = 외부 gate (K2 H&amp;E access 등) / <b class="cool">backlog</b> = 4/4 gating 미충족.</p>
+</section>
+
+<section id="allowed">
+  <h2>Claude-allowed vs author-only zone — 명확한 경계 매트릭스</h2>
+  <p class="sub">scaffolding ok · author-only zones forbidden</p>
+  <table>
+    <thead><tr><th>영역</th><th>Claude 작성 가능?</th><th>이유</th><th>예시</th></tr></thead>
+    <tbody>
+      <tr><td>Methods · Star Methods</td><td class="good">YES</td><td>재현 가능 절차 기술. voice 영향 적음.</td><td>STAR alignment / arcasHLA / RFE-RandomForest 절차</td></tr>
+      <tr><td>Results 본문 (숫자 진술)</td><td class="good">YES</td><td>측정치·표·통계 진술은 저자 voice 적음.</td><td>"AUC 0.852 [0.79, 0.91]" / "TERT⁺ OS HR=7.57"</td></tr>
+      <tr><td>Tables (T1-T6)</td><td class="good">YES</td><td>data-driven. 저자 voice 영역 아님.</td><td>cohort 표 · 효과크기 매트릭스 · pan-cancer HR 표</td></tr>
+      <tr><td>Figure captions (factual)</td><td class="good">YES</td><td>그림의 객관적 설명. voice 적음.</td><td>"Figure 3a, KM curves of TERT⁺ vs TERT⁻"</td></tr>
+      <tr><td>Cross-cut HTML pages</td><td class="good">YES</td><td>scaffolding · 정리 · 시각화 영역.</td><td>본 페이지 · Yu meeting brief · risk atlas · evidence atlas</td></tr>
+      <tr><td>Cover letter para 2-3 (factual)</td><td class="good">YES</td><td>numbers / venue rationale / fit 진술.</td><td>"본 연구는 11 lineages Cox FDR&lt;0.1 결과를 …"</td></tr>
+      <tr><td><b>Hook (논문 0.5초)</b></td><td class="bad">NO</td><td>저자 발견 동기 · 임상 voice 응축.</td><td><i>저자 키보드</i></td></tr>
+      <tr><td><b>Aim (가설 진술)</b></td><td class="bad">NO</td><td>검증 범위 · attack surface 잠금.</td><td><i>저자 키보드</i></td></tr>
+      <tr><td><b>Discussion 3.1 (literature 배치)</b></td><td class="bad">NO</td><td>cite 선택 · 해석 voice.</td><td><i>저자 키보드</i></td></tr>
+      <tr><td><b>Limitations (정직한 한계)</b></td><td class="bad">NO</td><td>cohort/method 한계 voice. 잘못 쓰면 자해.</td><td><i>저자 키보드</i></td></tr>
+      <tr><td><b>Cover letter Para 1</b></td><td class="bad">NO</td><td>editor 30초 결정 voice.</td><td><i>저자 키보드</i></td></tr>
+      <tr><td><b>Reviewer Q9 (약점 + 방어)</b></td><td class="bad">NO</td><td>약점 voice = paper credibility.</td><td><i>저자 키보드</i></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="violation">
+  <h2>Sprint violation log — 2026-05-03 한 차례 기록</h2>
+  <p class="sub">memory v17_sprint_vs_marathon_violation</p>
+  <table>
+    <thead><tr><th>일자</th><th>trigger</th><th>발생 zone</th><th>대응</th><th>현재 status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>2026-05-03</td>
+        <td>사용자 발화 "고고 / faster / 다 해줘"</td>
+        <td>Hook + Aim sprint generate 요청 misread</td>
+        <td>중단 · 음성 보호 룰 재공유 · memory 등재</td>
+        <td class="good">resolved · 이후 0건</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">"고고 / faster / 다 해줘"는 <b>속도 요청</b>일 뿐 <b class="bad">sprint generate 권한이 아니다</b>. 마라톤 모드에서 voice-protected zone 은 어떤 발화로도 자동 unlock 되지 않는다. 다음 회차에서도 동일 룰 유지.</p>
+  <table>
+    <thead><tr><th>패턴</th><th>해석</th><th>Claude 행동</th></tr></thead>
+    <tbody>
+      <tr><td>"빨리빨리"</td><td>속도 요청</td><td>scaffolding/infra 빠르게 · voice zone 변경 없음</td></tr>
+      <tr><td>"고고"</td><td>승인 신호 (scaffolding 대상)</td><td>scaffolding/infra 진행 · voice zone touch 없음</td></tr>
+      <tr><td>"faster"</td><td>병렬화·자동화 요청</td><td>병렬 build / mcp · voice zone touch 없음</td></tr>
+      <tr><td>"다 해줘"</td><td>scope 확장 요청</td><td>scope는 scaffolding 내에서 확장 · voice zone 침범 없음</td></tr>
+      <tr><td>"voice zone X 작성해줘"</td><td>명시적 위반 요청</td><td><b class="bad">거부</b> · 룰 재공유</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="daily">
+  <h2>Daily compliance check — 오늘 (2026-05-14)</h2>
+  <p class="sub">today's check · 0 violations</p>
+  <ul class="checklist">
+    <li class="done"><b>[v]</b> Hook prose 생성? <b class="good">NO</b> · 0건</li>
+    <li class="done"><b>[v]</b> Aim prose 생성? <b class="good">NO</b> · 0건</li>
+    <li class="done"><b>[v]</b> Discussion 3.1 prose 생성? <b class="good">NO</b> · 0건</li>
+    <li class="done"><b>[v]</b> Limitations prose 생성? <b class="good">NO</b> · 0건</li>
+    <li class="done"><b>[v]</b> Cover letter Para 1 prose 생성? <b class="good">NO</b> · 0건</li>
+    <li class="done"><b>[v]</b> Reviewer Q9 prose 생성? <b class="good">NO</b> · 0건</li>
+    <li class="done"><b>[v]</b> Scaffolding · tables · numbers · cross-cut HTML 작성 (allowed)? <b class="hi">YES</b> · 다수</li>
+    <li class="done"><b>[v]</b> "고고/faster/다 해줘" 발화에 voice zone touch? <b class="good">NO</b></li>
+  </ul>
+  <div class="decision">
+    <h3>오늘의 컴플라이언스 결론</h3>
+    <p>2026-05-14, voice-protected zone 위반 <b>0건</b>. 모든 outputs는 scaffolding 영역 내. Yu 미팅 브리핑 · graphical abstract sketch · 개인 메모 draft · 본 tracker 모두 author-keyboard zone 침범 없이 완료.</p>
+  </div>
+</section>
+
+<section id="marathon">
+  <h2>Marathon mode rules — 2026-05-04 → 06-13 (6주)</h2>
+  <p class="sub">paper-blocking-only window</p>
+  <table>
+    <thead><tr><th>룰</th><th>적용</th><th>예외</th></tr></thead>
+    <tbody>
+      <tr><td>새 분석은 paper-blocking only</td><td>2026-05-04 ~ 06-13</td><td>없음 · reviewer-ask 도 paper-blocking 으로 해석</td></tr>
+      <tr><td>Default mode = scaffolding / infra</td><td>모든 발화 기본</td><td>없음</td></tr>
+      <tr><td>Voice-protected zone = 본인 키보드</td><td>6개 zone</td><td>없음 · "고고/faster/다 해줘" 도 unlock 아님</td></tr>
+      <tr><td>Override 가능 zone</td><td>scaffolding · methods · tables · numbers · figs · cross-cut HTML</td><td>해당</td></tr>
+      <tr><td>One-shot override</td><td>명시적 "override" 발화 시</td><td>2026-05-08 PantheonOS port 사례 · 음성 보호 룰 유지</td></tr>
+    </tbody>
+  </table>
+  <p class="note">메모리: <code>v17_marathon_mode_post_pillar1</code> · <code>v17_sprint_vs_marathon_violation</code> · <code>v19_marathon_override_pantheonos_2026_05_08</code>. 마라톤 모드는 분석 sprint 시기가 아니라 manuscript writing 6주 윈도우. Pillar 1 STRONG 완료 후 정해진 룰.</p>
+</section>
+
+<section id="can">
+  <h2>What Claude CAN do — scaffolding · infra · numbers · figs</h2>
+  <p class="sub">positive list · explicitly allowed</p>
+  <table>
+    <thead><tr><th>카테고리</th><th>구체 예시</th><th>오늘 작업 여부</th></tr></thead>
+    <tbody>
+      <tr><td>HTML cross-cut 페이지</td><td>본 tracker · Yu meeting brief · risk atlas · evidence atlas · decision board</td><td class="good">YES · 다수</td></tr>
+      <tr><td>Tables (data-driven)</td><td>cohort 표 · 효과크기 매트릭스 · pan-cancer HR 표 · DepMap top-15</td><td class="good">YES</td></tr>
+      <tr><td>Figure caption (factual)</td><td>"Figure 3a, KM curves of TERT⁺ vs TERT⁻ in TCGA-THCA (n=…)"</td><td class="good">YES</td></tr>
+      <tr><td>Methods 본문 (재현 가능)</td><td>STAR alignment · arcasHLA imputation · RFE-RF · CLAM 절차</td><td class="good">YES</td></tr>
+      <tr><td>Results 본문 (숫자 진술)</td><td>"AUC 0.852 [0.79, 0.91]" / "TERT⁺ OS HR=7.57"</td><td class="good">YES</td></tr>
+      <tr><td>Reviewer Q&amp;A bank Q1-Q8, Q10+</td><td>일반 reviewer question 답안 (Q9 제외)</td><td class="good">YES</td></tr>
+      <tr><td>Cover letter Para 2-3 (factual)</td><td>numbers · venue rationale · fit 진술 (Para 1 제외)</td><td class="good">YES</td></tr>
+      <tr><td>Graphical abstract sketch</td><td>CSS-only cover image candidate · color palette · typography</td><td class="good">YES · 본일</td></tr>
+      <tr><td>Personal note draft skeleton</td><td>인사 · 결정 사항 요약 · commitment · ask · 감사 마무리 (저자가 voice 입힘)</td><td class="good">YES · 본일</td></tr>
+      <tr><td>Compliance tracker (본 페이지)</td><td>voice zone status 매트릭스</td><td class="good">YES · 본 페이지</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="cannot">
+  <h2>What Claude CANNOT do — voice-protected zones</h2>
+  <p class="sub">negative list · forbidden even on "고고/faster"</p>
+  <table>
+    <thead><tr><th>금지 작업</th><th>이유</th><th>"고고" 시</th></tr></thead>
+    <tbody>
+      <tr><td>Hook (첫 두 문장) prose 생성</td><td>저자 임상 voice 응축 zone</td><td class="bad">여전히 금지</td></tr>
+      <tr><td>Aim (가설 진술) prose 생성</td><td>검증 범위 · attack surface 잠금</td><td class="bad">여전히 금지</td></tr>
+      <tr><td>Discussion 3.1 prose 생성</td><td>cite 선택 voice · 사실 오류 risk</td><td class="bad">여전히 금지</td></tr>
+      <tr><td>Limitations prose 생성</td><td>한계 명명 voice = 신뢰 잠금</td><td class="bad">여전히 금지</td></tr>
+      <tr><td>Cover letter Para 1 prose 생성</td><td>editor 30초 voice</td><td class="bad">여전히 금지</td></tr>
+      <tr><td>Reviewer Q9 prose 생성</td><td>약점 voice = credibility</td><td class="bad">여전히 금지</td></tr>
+      <tr><td>위 zone의 "초안 짜줄게요" 류 자발적 제안</td><td>경계선 침범 위험</td><td class="bad">여전히 금지</td></tr>
+      <tr><td>위 zone의 "한 줄만 예시로" 제공</td><td>1줄도 voice 침해</td><td class="bad">여전히 금지</td></tr>
+    </tbody>
+  </table>
+  <p class="note">위 8개 항목은 어떤 발화 (고고/faster/다 해줘/빨리/사실 그냥…) 으로도 unlock 되지 않는다. 사용자가 명시적으로 "voice 룰을 잠시 해제한다"고 적었을 때만 해석 가능 — 본 마라톤 윈도우 동안 그 발화는 0회.</p>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&amp;A — 음성 보호 룰에 관해</h2>
+  <p class="sub">expected reviewer / Yu / collaborator questions</p>
+  <table>
+    <thead><tr><th>#</th><th>질문</th><th>답</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Q1</td>
+        <td>"왜 6개 zone만 보호하나? 나머지는 voice 가치 없나?"</td>
+        <td>나머지도 voice가 있지만, 위 6개는 <b>reviewer 결정과 editor 결정에 직결</b>되는 0.5초~30초 구간이라 우선 보호. Methods·Results·Tables는 voice 영향이 작아 scaffolding 으로 ok.</td>
+      </tr>
+      <tr>
+        <td>Q2</td>
+        <td>"Discussion 3.2/3.3 도 보호해야 하지 않나?"</td>
+        <td>3.1만 prior literature placement (cite 선택) 단락. 3.2/3.3 는 mechanism 해석 + future direction 으로, Claude scaffolding 후 저자 1회 통과만으로 voice 입힘 가능. 6 zone 기준 비용·이득 균형.</td>
+      </tr>
+      <tr>
+        <td>Q3</td>
+        <td>"Cover letter Para 1 만 보호하나? 나머지 단락은?"</td>
+        <td>Para 2-3 은 numbers · venue fit · reviewer 후보 진술이라 factual. Para 1만 editor가 reject/review-out 결정하는 voice 구간.</td>
+      </tr>
+      <tr>
+        <td>Q4</td>
+        <td>"Reviewer Q9 만 보호하면 Q1-Q8 은 Claude가 다 써주나?"</td>
+        <td>Q1-Q8, Q10+ 은 일반 reviewer question 으로 scaffolding ok. Q9 는 "본 연구의 가장 약한 부분은?" 으로, 약점 voice = paper credibility 라 보호.</td>
+      </tr>
+      <tr>
+        <td>Q5</td>
+        <td>"마라톤 모드 종료(06-13) 후에도 룰 유지?"</td>
+        <td>YES. 마라톤은 manuscript writing 윈도우일 뿐, voice-protected zone 룰은 영구. 마라톤 종료 후에도 6개 zone은 저자 키보드 전용.</td>
+      </tr>
+      <tr>
+        <td>Q6</td>
+        <td>"violation 발생 시 어떻게 enforcement?"</td>
+        <td>① 즉시 중단 ② 룰 재공유 ③ 메모리 등재 (v17_sprint_vs_marathon_violation 패턴) ④ daily check 에 기록. 2026-05-03 1건 기록, 이후 0건.</td>
+      </tr>
+      <tr>
+        <td>Q7</td>
+        <td>"Claude 가 zone 침해 위험 발화를 받으면 어떻게 응답하나?"</td>
+        <td>scaffolding 영역으로 재구성하여 진행 + 룰 명시. 본 페이지가 그 예시 — voice zone touch 없이 tracker scaffolding 으로 응답.</td>
+      </tr>
+      <tr>
+        <td>Q8</td>
+        <td>"override 발화 패턴은 무엇?"</td>
+        <td>"voice 룰을 잠시 해제한다" 또는 "이 zone 만 예외" 명시. 일반적인 "고고/faster/다 해줘" 는 override 아님. 마라톤 동안 명시적 override 발화 0회.</td>
+      </tr>
+      <tr>
+        <td>Q9 *</td>
+        <td>"본 tracker 자체의 가장 약한 부분은?"</td>
+        <td><i class="bad">* 이 답은 본 페이지 voice-protected zone Q9 정의 상 저자 키보드. Claude prose 비워둠.</i></td>
+      </tr>
+      <tr>
+        <td>Q10</td>
+        <td>"Yu 교수님이 prose 도 봐주실 수 있나?"</td>
+        <td>YES. voice-protected zone 은 first-author Cook + corresponding-author Yu 검토 모두 통과. 저자 voice 응축 후 Yu 가 한 회 통과해야 final lock.</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="examples">
+  <h2>Concrete examples — 어떤 줄이 voice zone 인가, 어떤 줄이 아닌가</h2>
+  <p class="sub">illustrative · line-level boundary</p>
+  <table>
+    <thead><tr><th>예시 문장</th><th>분류</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><td>"본 연구는 갑상선암에서 8-유전자 패널의 침묵이 분자적 dark matter 를 정의함을 보고한다."</td><td class="bad">Hook</td><td>논문 첫 문장 — 저자 voice</td></tr>
+      <tr><td>"갑상선암 TCGA-THCA n=507 의 mRNA-seq, methylation HM450, ATAC-seq 데이터를 ..."</td><td class="good">Methods</td><td>재현 가능 절차 — scaffolding ok</td></tr>
+      <tr><td>"본 연구의 목적은 driver-exclusion 설계의 8-유전자 패널이 BRAF/RAS-neg 환자에서 sub-stratifier 로 작동하는지 검증하는 것이다."</td><td class="bad">Aim</td><td>가설 진술 — 저자 voice</td></tr>
+      <tr><td>"TCGA-THCA 코호트에서 TERT⁺ 환자의 5년 OS hazard ratio 는 7.57 (95% CI [2.74, 20.91], p=9.3e-5) 이었다."</td><td class="good">Results</td><td>숫자 진술 — scaffolding ok</td></tr>
+      <tr><td>"Landa 등 2016 (JCI 126(3):1052-1066) 의 ATC 5/8 overlap 보고는 reverse-causality 가설을 ..."</td><td class="bad">Disc 3.1</td><td>cite 선택 + 해석 — 저자 voice</td></tr>
+      <tr><td>"Figure 3a는 TCGA-THCA 코호트의 TERT⁺ 대 TERT⁻ 환자에 대한 Kaplan-Meier 곡선을 나타낸다."</td><td class="good">Figure caption</td><td>factual caption — scaffolding ok</td></tr>
+      <tr><td>"본 연구의 한계는 n=18 GSE286332 단일 cohort, 인산화 layer 의 약한 신호, 그리고 ..."</td><td class="bad">Limitations</td><td>한계 명명 — 저자 voice</td></tr>
+      <tr><td>"Table 4는 32개 TCGA 코호트 ✖ 8-유전자 panel HR 값을 LGG (44.7) 부터 SKCM (0.78) 까지 정리한다."</td><td class="good">Table caption</td><td>factual table caption — scaffolding ok</td></tr>
+      <tr><td>"Editor 께. 본 논문은 분자적 dark matter 의 새로운 정의를 제시함으로써 ..."</td><td class="bad">Cover Para 1</td><td>editor 30초 voice — 저자 voice</td></tr>
+      <tr><td>"본 연구의 4-pillar (RNA+Protein+Phospho+HM450) 잠금은 reviewer Q3 의 generalizability 우려에 대해 ..."</td><td class="good">Cover Para 2</td><td>factual venue fit — scaffolding ok</td></tr>
+      <tr><td>"본 연구의 가장 약한 부분은 인산화 layer 에서 ... 이를 우리는 ... 로 방어한다."</td><td class="bad">Q9</td><td>약점 voice — 저자 voice</td></tr>
+      <tr><td>"Q3. 본 결과는 한국 cohort 에서 일반화되는가? A. K2 (PRJEB11591, n=260) 에서 ..."</td><td class="good">Q1-Q8 / Q10+</td><td>일반 reviewer Q&amp;A — scaffolding ok</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="enforcement">
+  <h2>Enforcement workflow — daily routine + violation 대응</h2>
+  <p class="sub">how voice protection is operationalized</p>
+  <table>
+    <thead><tr><th>step</th><th>action</th><th>주체</th><th>주기</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>매 발화의 voice zone touch 여부 즉시 판정</td><td>Claude (self-check)</td><td>모든 응답</td></tr>
+      <tr><td>2</td><td>"고고/faster/다 해줘" 발화 시 scaffolding 으로 재구성</td><td>Claude</td><td>발화 즉시</td></tr>
+      <tr><td>3</td><td>Voice zone touch 의심 시 즉시 중단 + 룰 명시</td><td>Claude</td><td>발화 즉시</td></tr>
+      <tr><td>4</td><td>본 페이지의 Daily check 표 업데이트</td><td>Cook (저자)</td><td>매일 1회</td></tr>
+      <tr><td>5</td><td>위반 발생 시 메모리 등재 + 다음 회차에서 패턴 재공유</td><td>Cook + Claude</td><td>위반 시</td></tr>
+      <tr><td>6</td><td>마라톤 모드 종료 (06-13) 후에도 룰 유지 — 영구</td><td>모두</td><td>영구</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="rationale">
+  <h2>Rationale — 왜 이 6개인가 (학술 검토 관점)</h2>
+  <p class="sub">why these six zones and not others</p>
+  <table>
+    <thead><tr><th>zone</th><th>reviewer/editor 결정에 미치는 시간</th><th>voice 응축도</th><th>오작성 시 손실</th></tr></thead>
+    <tbody>
+      <tr><td>Hook</td><td>0.5-2초 (skim 첫 통과)</td><td class="hi">최고</td><td>reject without review</td></tr>
+      <tr><td>Aim</td><td>10-20초 (가설 잠금)</td><td class="hi">매우 높음</td><td>scope creep 공격</td></tr>
+      <tr><td>Disc 3.1</td><td>30-60초 (literature 위치)</td><td class="hi">매우 높음</td><td>cite 오류 + placement 오류</td></tr>
+      <tr><td>Limitations</td><td>1-3분 (정직성 평가)</td><td class="hi">매우 높음</td><td>자해 또는 reviewer attack</td></tr>
+      <tr><td>Cover Para 1</td><td>30초 (editor 결정)</td><td class="hi">최고</td><td>desk reject</td></tr>
+      <tr><td>Q9</td><td>1-3분 (방어 voice)</td><td class="hi">매우 높음</td><td>credibility 손실</td></tr>
+      <tr><td>Methods / Results / Tables / Captions</td><td>5-30분 (재현성 평가)</td><td class="cool">낮음</td><td>scaffolding 가능</td></tr>
+    </tbody>
+  </table>
+  <p class="note">위 6개의 공통점: <b>의사 결정 시간 30초 이내</b> + <b>voice 응축도 매우 높음</b> + <b>오작성 시 즉시 손실</b>. 위 3개 조건 중 2개 이상 충족 시 zone 후보. Methods/Results 는 첫 조건 미충족 (5-30분 = 충분한 review 시간) 이라 제외.</p>
+</section>
+
+<section id="links">
+  <h2>Sibling links — voice protection family</h2>
+  <p class="sub">관련 페이지 모음</p>
+  <table>
+    <thead><tr><th>페이지</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief_2026_05_14.html</a></td><td>유 교수님 미팅 통합 브리핑 (parent)</td></tr>
+      <tr><td><a href="marathon_mode_dashboard_2026_05_14.html">marathon_mode_dashboard_2026_05_14.html</a></td><td>마라톤 모드 전체 dashboard</td></tr>
+      <tr><td><a href="graphical_abstract_sketch_2026_05_14.html">graphical_abstract_sketch_2026_05_14.html</a></td><td>graphical abstract sketch (이번 sprint)</td></tr>
+      <tr><td><a href="yu_personal_note_draft_2026_05_14.html">yu_personal_note_draft_2026_05_14.html</a></td><td>Yu 개인 메모 draft (이번 sprint)</td></tr>
+      <tr><td><a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa_bank_2026_05_14.html</a></td><td>Reviewer Q&amp;A bank (Q9 zone protected)</td></tr>
+      <tr><td><a href="decision_board_2026_05_14.html">decision_board_2026_05_14.html</a></td><td>Decision board</td></tr>
+      <tr><td><a href="risk_atlas_2026_05_14.html">risk_atlas_2026_05_14.html</a></td><td>Risk atlas</td></tr>
+      <tr><td><a href="honest_negatives_wall_2026_05_14.html">honest_negatives_wall_2026_05_14.html</a></td><td>Honest negatives wall</td></tr>
+      <tr><td><a href="evidence_atlas_2026_05_14.html">evidence_atlas_2026_05_14.html</a></td><td>Evidence atlas</td></tr>
+      <tr><td><a href="timeline_gantt_2026_05_14.html">timeline_gantt_2026_05_14.html</a></td><td>90-day Gantt</td></tr>
+      <tr><td><a href="methodology_atlas_2026_05_14.html">methodology_atlas_2026_05_14.html</a></td><td>Methodology atlas</td></tr>
+      <tr><td><a href="venue_strategy_2026_05_14.html">venue_strategy_2026_05_14.html</a></td><td>Venue strategy</td></tr>
+      <tr><td><a href="bd_outreach_state_2026_05_14.html">bd_outreach_state_2026_05_14.html</a></td><td>BD outreach state</td></tr>
+      <tr><td><a href="executive_brief_kr_one_pager_2026_05_14.html">executive_brief_kr_one_pager_2026_05_14.html</a></td><td>KR 1-pager</td></tr>
+      <tr><td><a href="investor_pitch_en_2026_05_14.html">investor_pitch_en_2026_05_14.html</a></td><td>EN investor pitch</td></tr>
+      <tr><td><a href="triangulation_2026_05_14.html">triangulation_2026_05_14.html</a></td><td>Triangulation</td></tr>
+      <tr><td><a href="figure_gallery_2026_05_14.html">figure_gallery_2026_05_14.html</a></td><td>Figure gallery</td></tr>
+      <tr><td><a href="data_registry_map_2026_05_14.html">data_registry_map_2026_05_14.html</a></td><td>Data registry map</td></tr>
+      <tr><td><a href="anti_fragility_scenarios_2026_05_14.html">anti_fragility_scenarios_2026_05_14.html</a></td><td>Anti-fragility scenarios</td></tr>
+      <tr><td><a href="arcasha_pipeline_pan_asian_2026_05_14.html">arcasha_pipeline_pan_asian_2026_05_14.html</a></td><td>arcasHLA Pan-Asian pipeline</td></tr>
+      <tr><td><a href="author_contributions_blocks_2026_05_14.html">author_contributions_blocks_2026_05_14.html</a></td><td>Author contributions blocks</td></tr>
+      <tr><td><a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html">axis_depmap_vulnerability_deep_dive_2026_05_14.html</a></td><td>DepMap vulnerability axis</td></tr>
+      <tr><td><a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html">axis_ici_quad_cohort_deep_dive_2026_05_14.html</a></td><td>ICI quad cohort axis</td></tr>
+      <tr><td><a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html">axis_pancancer_phase_e_deep_dive_2026_05_14.html</a></td><td>Pan-cancer Phase E axis</td></tr>
+      <tr><td><a href="brutal_grade_card_2026_05_14.html">brutal_grade_card_2026_05_14.html</a></td><td>Brutal grade card</td></tr>
+      <tr><td><a href="bibliography_map_2026_05_14.html">bibliography_map_2026_05_14.html</a></td><td>Bibliography map</td></tr>
+      <tr><td><a href="track1_dm1_command_room.html">track1_dm1_command_room.html</a></td><td>T1 DM1 command room</td></tr>
+      <tr><td><a href="track2_histology_command_room.html">track2_histology_command_room.html</a></td><td>T2 Histology command room</td></tr>
+      <tr><td><a href="track3_hla_isolated_command_room.html">track3_hla_isolated_command_room.html</a></td><td>T3 HLA #1 command room</td></tr>
+      <tr><td><a href="track4_korean_gd_command_room.html">track4_korean_gd_command_room.html</a></td><td>T4 HLA #2 command room</td></tr>
+      <tr><td><a href="track5_samsung_command_room.html">track5_samsung_command_room.html</a></td><td>T5 Samsung command room</td></tr>
+      <tr><td><a href="paper1.html">paper1.html</a></td><td>Paper 1 hub</td></tr>
+      <tr><td><a href="paper2_image_dm1.html">paper2_image_dm1.html</a></td><td>Paper 2 결론</td></tr>
+      <tr><td><a href="paper2_hla.html">paper2_hla.html</a></td><td>Paper 2 HLA 결론</td></tr>
+      <tr><td><a href="paper4_gd_hla.html">paper4_gd_hla.html</a></td><td>Paper 4 GD HLA</td></tr>
+      <tr><td><a href="index.html">index.html</a></td><td>Hub home</td></tr>
+    </tbody>
+  </table>
+  <p class="footer">Compiled 2026-05-14 · Seungho Cook · voice-protected tracker scaffold (no zone prose). Memory anchors: v17_marathon_mode_post_pillar1 · v17_sprint_vs_marathon_violation · v19_marathon_override_pantheonos_2026_05_08.</p>
+</section>
+
+</main>
+</body>
+</html>

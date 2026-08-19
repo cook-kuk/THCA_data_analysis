@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Reproducibility container spec · 2026-05-14 · Docker + conda + Python + R</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:58px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.vbox.green{border-top:5px solid var(--green)}
+.vbox.red{border-top:5px solid var(--red)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px}
+.vbox p{margin:0 0 10px;color:#cbd7df;font-size:14px}
+.codeblock{background:#0a141d;border:1px solid var(--line);border-radius:8px;padding:16px 18px;color:#dde6ec;font-family:"JetBrains Mono","SF Mono",monospace;font-size:12.5px;white-space:pre-wrap;line-height:1.55;margin:10px 0;overflow-x:auto}
+.codeblock b{color:var(--gold);font-weight:900}
+.codeblock span.c{color:var(--muted)}
+.codeblock span.g{color:var(--green)}
+.codeblock span.r{color:var(--red)}
+.codeblock span.b{color:var(--blue)}
+.codeblock span.v{color:var(--violet)}
+.envcards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px}
+.envcard{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px}
+.envcard.e1{border-top:5px solid var(--gold)}
+.envcard.e2{border-top:5px solid var(--blue)}
+.envcard.e3{border-top:5px solid var(--green)}
+.envcard.e4{border-top:5px solid var(--violet)}
+.envcard h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;color:#fff;line-height:1.1}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.warn{border:1px solid var(--red);border-radius:10px;background:linear-gradient(135deg,rgba(255,138,107,.06),rgba(255,138,107,.02));padding:14px 18px;margin:10px 0}
+.warn h4{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;color:var(--red)}
+.warn p{margin:0;color:#eaf2f7}
+.success{border:1px solid var(--green);border-radius:10px;background:linear-gradient(135deg,rgba(147,226,170,.06),rgba(147,226,170,.02));padding:14px 18px;margin:10px 0}
+.success h4{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;color:var(--green)}
+.success p{margin:0;color:#eaf2f7}
+.siblings{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:800}
+.siblings a{border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5}
+.siblings a.gold{border-color:var(--gold);color:var(--gold)}
+.siblings a.teal{border-color:var(--teal);color:var(--teal)}
+.siblings a.green{border-color:var(--green);color:var(--green)}
+.siblings a.red{border-color:var(--red);color:var(--red)}
+.siblings a.blue{border-color:var(--blue);color:var(--blue)}
+.siblings a.violet{border-color:var(--violet);color:var(--violet)}
+@media(max-width:980px){
+  h1{font-size:36px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .envcards{grid-template-columns:1fr}.verdict{grid-template-columns:1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Reproducibility container spec · 2026-05-14 · Docker + conda + Python + R · paste-ready</p>
+    <h1>Reproducibility container — Docker · 4 conda envs · 386 dataset SHA256 lineage.</h1>
+    <p class="lead">
+      Yu × Cook lab 의 모든 분석 (5 paper portfolio + Samsung 30억 grant) 을 단일 Docker 이미지 + 4개 conda env (<b>rna_seq · image_dm1 · arcasHLA · causal_inference</b>) 로 재현. boundary audit 가 매 commit 마다 exit-0 보장. SHA256 lineage 가 386 dataset 모두 잠금. WeasyPrint Unifont gotcha, Pod D STAR /tmp lesson, RunPod A6000 v4 conventions 까지 paste-ready.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>1</b><span>Dockerfile</span><small>Ubuntu 22.04 + Python 3.11 + R 4.3 + CUDA 12.4</small></div>
+      <div class="stat"><b>4</b><span>conda envs</span><small>rna_seq · image_dm1 · arcasHLA · causal_inference</small></div>
+      <div class="stat"><b>386</b><span>dataset SHA256</span><small>master_dataset_catalog.csv · 5 zones</small></div>
+      <div class="stat"><b>1</b><span>boundary audit</span><small>scripts/boundary_audit/run_all.sh · exit-0 floor</small></div>
+      <div class="stat"><b>3</b><span>CI/CD jobs</span><small>lint + boundary audit + figure rebuild</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#dockerfile">Dockerfile</a>
+  <a class="primary" href="#env-rna">env: rna_seq</a>
+  <a class="primary" href="#env-image">env: image_dm1</a>
+  <a class="primary" href="#env-hla">env: arcasHLA</a>
+  <a class="primary" href="#env-causal">env: causal_inference</a>
+  <a href="#pip">pip requirements</a>
+  <a href="#data">Data layout</a>
+  <a href="#audit">Boundary audit</a>
+  <a href="#github">GitHub strategy</a>
+  <a href="#ci">CI/CD</a>
+  <a href="#floor">Reproducibility floor</a>
+  <a href="#weasy">WeasyPrint gotcha</a>
+  <a href="#pod">Pod D /tmp lesson</a>
+  <a href="#sib">Sibling links</a>
+  <a href="yu_meeting_brief_2026_05_14.html">미팅 브리프</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict — spec ready (green) · boundary audit exit-0 floor (red)</h2>
+  <p class="sub">paste-ready · single Dockerfile · 4 conda envs · 386 SHA256 locked</p>
+  <div class="verdict">
+    <div class="vbox green">
+      <h3 class="good">Spec ready (green)</h3>
+      <p>1 Dockerfile + 4 conda env YAML + pip requirements.txt + 386 dataset SHA256 lineage + boundary audit script + GitHub Actions CI 모두 paste-ready. 신규 collaborator 가 Day 1 에 clone + docker build + boundary audit 까지 가능.</p>
+      <p>UNI / CLAM / kallisto / STAR / DESeq2 / lifelines / dowhy 등 핵심 tool 전부 명시. RunPod A6000 v4 ($0.33/hr) 에서 동작 검증.</p>
+    </div>
+    <div class="vbox red">
+      <h3 class="bad">Boundary audit exit-0 floor (red)</h3>
+      <p>Paper 1 manuscript_v8 commit 전 <code>scripts/boundary_audit/run_all.sh</code> 가 exit-0 이어야 함. 5 zone 누설 (train/val/test 간 sample id leak, batch effect leak, label leak) 모두 자동 검증.</p>
+      <p>GitHub Actions 가 매 push 마다 검증. PR merge block 까지 가능. 새 dataset 추가 시 SHA256 lineage 자동 갱신.</p>
+    </div>
+  </div>
+</section>
+
+<section id="dockerfile">
+  <h2>Dockerfile — Ubuntu 22.04 + Python 3.11 + R 4.3 + CUDA 12.4</h2>
+  <p class="sub">single image · GPU subset · WeasyPrint included</p>
+  <div class="codeblock"><b># Dockerfile — Yu × Cook lab unified container 2026-05-14</b>
+<span class="c"># Base = pytorch/cuda for GPU subset (UNI / CLAM / kallisto-bus)</span>
+FROM nvidia/cuda:<span class="b">12.4.1</span>-cudnn9-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Asia/Seoul
+ENV LANG=en_US.UTF-8
+
+<span class="b"># 시스템 패키지</span>
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential git curl wget ca-certificates \
+    libcurl4-openssl-dev libssl-dev libxml2-dev libfontconfig1-dev \
+    libcairo2-dev libpango1.0-dev libgdk-pixbuf2.0-dev shared-mime-info \
+    libffi-dev libjpeg-dev zlib1g-dev libopenslide0 \
+    libgl1-mesa-glx libglib2.0-0 libsm6 libxext6 libxrender1 \
+    openjdk-17-jdk-headless tzdata fonts-noto-cjk \
+    software-properties-common gnupg2 dirmngr \
+ && rm -rf /var/lib/apt/lists/*
+
+<span class="b"># R 4.3 (CRAN PPA)</span>
+RUN curl -fsSL https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc \
+  | gpg --dearmor -o /etc/apt/trusted.gpg.d/cran_ubuntu_key.gpg \
+ && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" \
+ && apt-get update && apt-get install -y --no-install-recommends r-base r-base-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+<span class="b"># Miniconda 3.11</span>
+RUN curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-py311_24.5.0-0-Linux-x86_64.sh \
+   -o /tmp/mc.sh \
+ && bash /tmp/mc.sh -b -p /opt/conda && rm /tmp/mc.sh
+ENV PATH=/opt/conda/bin:$PATH
+RUN conda config --set channel_priority strict \
+ && conda config --add channels conda-forge \
+ && conda config --add channels bioconda
+
+<span class="b"># WeasyPrint (HTML → PDF)</span>
+RUN pip install --no-cache-dir weasyprint==<span class="b">62.3</span>
+
+<span class="b"># 4 conda envs</span>
+COPY envs/ /tmp/envs/
+RUN conda env create -f /tmp/envs/rna_seq.yml \
+ && conda env create -f /tmp/envs/image_dm1.yml \
+ && conda env create -f /tmp/envs/arcasHLA.yml \
+ && conda env create -f /tmp/envs/causal_inference.yml \
+ && conda clean -afy
+
+<span class="b"># Repo + boundary audit</span>
+WORKDIR /workspace
+COPY scripts/ /workspace/scripts/
+RUN chmod +x /workspace/scripts/boundary_audit/run_all.sh
+
+<span class="b"># 기본 shell 진입</span>
+ENV CONDA_DEFAULT_ENV=rna_seq
+SHELL ["/bin/bash", "-c"]
+CMD ["bash"]
+</div>
+  <p class="note" style="margin-top:8px">빌드: <code>docker build -t yu-cook-lab:2026-05-14 .</code> · 사이즈 ~14 GB · GPU 동작 검증: <code>docker run --gpus all yu-cook-lab:2026-05-14 nvidia-smi</code></p>
+</section>
+
+<section id="env-rna">
+  <h2>Conda env: rna_seq — kallisto · STAR · DESeq2 · limma · ComBat / SVA / RUV</h2>
+  <p class="sub">Paper 1 / 2 / HLA #1 / Samsung — bulk RNA-seq main pillar</p>
+  <div class="codeblock"><b># envs/rna_seq.yml</b>
+name: rna_seq
+channels: [conda-forge, bioconda]
+dependencies:
+  - python=3.11
+  - r-base=4.3
+  - <span class="g">kallisto=0.48.0</span>           <span class="c"># pseudo-alignment</span>
+  - <span class="g">star=2.7.10b</span>              <span class="c"># splice-aware aligner</span>
+  - <span class="g">salmon=1.10.2</span>             <span class="c"># dual-validation</span>
+  - <span class="g">samtools=1.18</span>
+  - <span class="g">bcftools=1.18</span>
+  - htseq=2.0.5
+  - rsem=1.3.3
+  - subread=2.0.6
+  - fastqc=0.12.1
+  - multiqc=1.21
+  - bioconductor-deseq2=<span class="b">1.42</span>
+  - bioconductor-limma=<span class="b">3.58</span>
+  - bioconductor-combat=<span class="b">3.50</span>  <span class="c"># sva 패키지 산하</span>
+  - bioconductor-sva=3.50
+  - bioconductor-ruvseq=1.36
+  - bioconductor-edger=4.0
+  - bioconductor-biomart=2.58
+  - bioconductor-tximport=1.30
+  - bioconductor-genomicranges=1.54
+  - r-dplyr=1.1
+  - r-ggplot2=3.5
+  - r-tidyr=1.3
+  - r-data.table=1.15
+  - r-survival=3.5
+  - r-survminer=0.4
+  - pip
+  - pip:
+      - pyensembl==2.3.13
+      - gtfparse==1.3.0
+      - kb-python==0.28.2
+</div>
+</section>
+
+<section id="env-image">
+  <h2>Conda env: image_dm1 — PyTorch + timm + UNI + CLAM + OpenSlide + tiatoolbox</h2>
+  <p class="sub">Paper 2 — H&E → DM1 foundation model · K2 외부검증</p>
+  <div class="codeblock"><b># envs/image_dm1.yml</b>
+name: image_dm1
+channels: [conda-forge, pytorch, nvidia, bioconda]
+dependencies:
+  - python=3.11
+  - pytorch=<span class="b">2.4.0</span>
+  - torchvision=0.19.0
+  - torchaudio=2.4.0
+  - pytorch-cuda=12.4
+  - cudatoolkit=12.4
+  - openslide=4.0.0
+  - openslide-python=1.3.1
+  - libtiff=4.6
+  - pip
+  - pip:
+      - <span class="g">timm==1.0.7</span>            <span class="c"># UNI backbone</span>
+      - <span class="g">huggingface_hub==0.24.5</span> <span class="c"># UNI checkpoint download</span>
+      - <span class="g">tiatoolbox==1.5.1</span>      <span class="c"># H&E preproc</span>
+      - opencv-python-headless==4.10.0.84
+      - albumentations==1.4.10
+      - scikit-learn==1.5.0
+      - scikit-image==0.24.0
+      - pandas==2.2.2
+      - numpy==1.26.4
+      - matplotlib==3.9.0
+      - seaborn==0.13.2
+      - tqdm==4.66.4
+      - h5py==3.11.0
+      - einops==0.8.0
+      - <span class="g">CLAM @ git+https://github.com/mahmoodlab/CLAM.git@v1.2.0</span>
+      - monai==1.3.2
+      - wandb==0.17.4
+</div>
+  <div class="success">
+    <h4>UNI checkpoint access</h4>
+    <p>UNI (Mass General H&E foundation model, Chen et al. 2024) checkpoint 는 HuggingFace 의 <code>MahmoodLab/UNI</code> repo 에서 gated access. 신규 collaborator 는 HuggingFace 계정 + Mass General terms 동의 후 <code>HF_TOKEN</code> env 설정.</p>
+  </div>
+</section>
+
+<section id="env-hla">
+  <h2>Conda env: arcasHLA — RNA-seq HLA typing (Korean K2 잠금)</h2>
+  <p class="sub">HLA #1 / #2 · arcasHLA 0.6 · cookHLA deferred (needs SNP)</p>
+  <div class="codeblock"><b># envs/arcasHLA.yml</b>
+name: arcasHLA
+channels: [conda-forge, bioconda]
+dependencies:
+  - python=3.10                  <span class="c"># arcasHLA 0.6 권장</span>
+  - <span class="g">arcas-hla=0.6.0</span>
+  - kallisto=0.44.0              <span class="c"># arcasHLA 호환 버전</span>
+  - samtools=1.18
+  - bcftools=1.18
+  - bedtools=2.31
+  - star=2.7.10b                 <span class="c"># BAM 입력 시</span>
+  - parallel=20240722
+  - pigz=2.8
+  - pip
+  - pip:
+      - biopython==1.83
+      - pandas==2.2.2
+      - numpy==1.26.4
+      - matplotlib==3.9.0
+      - pyfaidx==0.8.1.1
+
+<span class="b"># Korean K2 (PRJEB11591) 잠금 결과</span>
+<span class="c">#   n=260 · DPB1*05:01 56% (Kim 2014 한국 인구 일치)</span>
+<span class="c">#   /data/thca/_repo_offload/arcasHLA/         (8.4G)</span>
+<span class="c">#   /data/thca/_repo_offload/arcasHLA_GSE213647/ (24G)</span>
+
+<span class="b"># cookHLA deferred — needs SNP, K2 = RNA-only</span>
+</div>
+</section>
+
+<section id="env-causal">
+  <h2>Conda env: causal_inference — lifelines · dowhy · econml · statsmodels</h2>
+  <p class="sub">Paper 1 / 3 · Samsung grant · Hernán-Robins target trial emulation</p>
+  <div class="codeblock"><b># envs/causal_inference.yml</b>
+name: causal_inference
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - r-base=4.3
+  - pip
+  - pip:
+      - <span class="g">lifelines==0.28.0</span>           <span class="c"># Cox / Kaplan-Meier</span>
+      - <span class="g">dowhy==0.11.1</span>               <span class="c"># causal graph</span>
+      - <span class="g">econml==0.15.1</span>              <span class="c"># DML / DR-Learner</span>
+      - <span class="g">causalimpact==0.2.6</span>         <span class="c"># Bayesian time-series</span>
+      - statsmodels==0.14.2
+      - scipy==1.13.1
+      - scikit-learn==1.5.0
+      - <span class="g">scikit-survival==0.23.0</span>     <span class="c"># RSF</span>
+      - cmdstanpy==1.2.4
+      - networkx==3.3
+      - graphviz==0.20.3
+      - pandas==2.2.2
+      - numpy==1.26.4
+      - matplotlib==3.9.0
+      - seaborn==0.13.2
+  - r-survival=3.5
+  - r-survminer=0.4
+  - r-cmprsk=2.2                  <span class="c"># competing risk</span>
+  - r-rms=6.7                     <span class="c"># Harrell ANOVA</span>
+  - r-mice=3.16                   <span class="c"># multiple imputation</span>
+</div>
+</section>
+
+<section id="pip">
+  <h2>Pip requirements.txt — sklearn · xgboost · lightgbm · pandas / numpy / mpl / seaborn</h2>
+  <p class="sub">cross-env baseline · 4 env 공통</p>
+  <div class="codeblock"><b># requirements.txt — cross-env baseline</b>
+<span class="c"># Core scientific stack</span>
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+scikit-learn==1.5.0
+xgboost==2.1.0
+lightgbm==4.4.0
+
+<span class="c"># Plotting</span>
+matplotlib==3.9.0
+seaborn==0.13.2
+plotly==5.22.0
+
+<span class="c"># Notebook</span>
+jupyterlab==4.2.3
+ipywidgets==8.1.3
+ipykernel==6.29.5
+
+<span class="c"># Utility</span>
+tqdm==4.66.4
+PyYAML==6.0.1
+requests==2.32.3
+joblib==1.4.2
+click==8.1.7
+rich==13.7.1
+loguru==0.7.2
+
+<span class="c"># Reproducibility</span>
+mlflow==2.14.1
+wandb==0.17.4
+dvc==3.51.2
+hydra-core==1.3.2
+
+<span class="c"># Documentation / export</span>
+weasyprint==62.3
+markdown==3.6
+jinja2==3.1.4
+</div>
+</section>
+
+<section id="data">
+  <h2>Data layout — /data bind mount · project/results · project/data · project/manuscript_v8</h2>
+  <p class="sub">512G Premium SSD · xfs · nofail · 2026-05-07 reorg</p>
+  <table>
+    <thead><tr><th>Path</th><th>Bind target</th><th>크기</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td><code>project/results</code></td><td>/data/thca/repo_results</td><td>~150 GB</td><td>분석 결과 (DESeq2, CLAM, arcasHLA 등) 영속 저장</td></tr>
+      <tr><td><code>project/data</code></td><td>/data/thca/repo_data</td><td>~120 GB</td><td>입력 데이터 (FASTQ, BAM, RNA matrix) — 5 zones</td></tr>
+      <tr><td><code>project/manuscript_v8</code></td><td>(root)</td><td>~80 MB</td><td>Paper 1 manuscript markdown + figures + supp</td></tr>
+      <tr><td><code>project/papers_hub_2026_05_04</code></td><td>(root)</td><td>~200 MB</td><td>96+ web pages · /var/www/papers 별도 copy</td></tr>
+      <tr><td><code>data_registry/manifests</code></td><td>(root)</td><td>~30 MB</td><td>386 dataset catalog + SHA256 lineage</td></tr>
+      <tr><td><code>scripts/boundary_audit</code></td><td>(root)</td><td>~5 MB</td><td>5 zone 누설 검증 · exit-0 floor</td></tr>
+      <tr><td>/data/thca/_repo_offload/arcasHLA</td><td>(symlink)</td><td>8.4 GB</td><td>K2 arcasHLA RNA HLA imputation</td></tr>
+      <tr><td>/data/thca/_repo_offload/arcasHLA_GSE213647</td><td>(symlink)</td><td>24 GB</td><td>GSE213647 arcasHLA</td></tr>
+    </tbody>
+  </table>
+  <div class="codeblock"><b># /etc/fstab — bind mounts</b>
+/data/thca/repo_results  /home/seungho/personal/THCA_data_analysis/project/results  none bind,nofail 0 0
+/data/thca/repo_data     /home/seungho/personal/THCA_data_analysis/project/data     none bind,nofail 0 0
+
+<span class="c"># Verify</span>
+findmnt project/results
+<span class="c"># 출력: TARGET ... SOURCE /dev/sdb[/thca/repo_results] FSTYPE xfs OPTIONS ...</span>
+
+<span class="b"># 새 top-level dir 가 &gt; 1GB 예상이면</span>
+mkdir -p /data/thca/repo_foo
+ln -s /data/thca/repo_foo /home/seungho/personal/THCA_data_analysis/project/foo
+</div>
+</section>
+
+<section id="audit">
+  <h2>Boundary audit script — exit-0 required before Paper 1 commit</h2>
+  <p class="sub">scripts/boundary_audit/run_all.sh · 5 zone leak check · GitHub Actions</p>
+  <div class="codeblock"><b># scripts/boundary_audit/run_all.sh</b>
+<span class="c">#!/usr/bin/env bash</span>
+<span class="c"># Yu × Cook lab boundary audit — exit 0 required before Paper 1 commit</span>
+set -euo pipefail
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+MANIFEST=$REPO_ROOT/data_registry/manifests/master_dataset_catalog.csv
+LINEAGE=$REPO_ROOT/data_registry/manifests/sha256_lineage.tsv
+ZONE_MAP=$REPO_ROOT/data_registry/manifests/zone_membership.tsv
+
+<span class="b">echo "[1/5] manifest 존재 확인"</span>
+test -f $MANIFEST   || { echo "❌ master_dataset_catalog.csv 없음"; exit 2; }
+test -f $LINEAGE    || { echo "❌ sha256_lineage.tsv 없음";       exit 2; }
+test -f $ZONE_MAP   || { echo "❌ zone_membership.tsv 없음";      exit 2; }
+
+<span class="b">echo "[2/5] SHA256 lineage 검증 (parent SHA matches)"</span>
+python $REPO_ROOT/scripts/boundary_audit/verify_lineage.py --strict
+
+<span class="b">echo "[3/5] sample-id 누설 (train/val/test 교집합 = ∅)"</span>
+python $REPO_ROOT/scripts/boundary_audit/check_sample_leak.py --strict
+
+<span class="b">echo "[4/5] batch effect leak (cohort × split 균형)"</span>
+python $REPO_ROOT/scripts/boundary_audit/check_batch_leak.py --strict
+
+<span class="b">echo "[5/5] label leak (DM1/DM2 ground truth not in features)"</span>
+python $REPO_ROOT/scripts/boundary_audit/check_label_leak.py --strict
+
+<span class="g">echo "✅ boundary audit passed (exit 0)"</span>
+exit 0
+</div>
+  <p class="note" style="margin-top:8px">검증 항목 1) SHA256 lineage parent 검증 — 모든 transform 파일이 부모 dataset SHA 명시. 2) Sample-id 교집합 = ∅ (train / val / test). 3) Batch 분포 균형 (cohort × split). 4) Label leak (DM1/DM2 ground truth feature 에 포함 안됨).</p>
+</section>
+
+<section id="github">
+  <h2>GitHub strategy — main / dev branch · LFS · signed commits · co-PI access</h2>
+  <p class="sub">Yu + Cook joint access · pre-commit hooks · branch protection</p>
+  <table>
+    <thead><tr><th>설정</th><th>값</th><th>이유</th></tr></thead>
+    <tbody>
+      <tr><td>Branch model</td><td>main (보호) + dev (작업)</td><td>main 은 PR + boundary audit + Yu 검토 후에만 merge</td></tr>
+      <tr><td>Git LFS</td><td><code>*.pdf, *.svs, *.h5, *.parquet, *.bam, *.csv (&gt; 50MB)</code></td><td>저장소 크기 보호</td></tr>
+      <tr><td>Commit signing</td><td>GPG 또는 SSH key</td><td>저자 인증 (Yu/Cook 신뢰)</td></tr>
+      <tr><td>Branch protection</td><td>main = require PR + CI green + 1 reviewer + linear history</td><td>boundary audit exit-0 강제</td></tr>
+      <tr><td>Status checks</td><td>lint + boundary audit + figure rebuild</td><td>매 push 자동 검증</td></tr>
+      <tr><td>Pre-commit hooks</td><td>black + isort + ruff + nbstripout</td><td>코드 스타일 + notebook output strip</td></tr>
+      <tr><td>Secrets scan</td><td>truffleHog · GitHub secret scanning</td><td>.env / credentials.json 노출 차단</td></tr>
+      <tr><td>Release tags</td><td>v8 (paper 1 submission) · v9 (revision) · grant_v1 (Samsung)</td><td>paper / grant 별 lineage</td></tr>
+    </tbody>
+  </table>
+  <div class="warn">
+    <h4>git add -A 금지</h4>
+    <p>전체 staging 은 .env / credentials.json / 임시 결과 노출 위험. 항상 <code>git add specific_file.py</code> 명시. <code>scripts/boundary_audit/</code> 의 pre-commit hook 가 자동 검증.</p>
+  </div>
+</section>
+
+<section id="ci">
+  <h2>CI/CD — GitHub Actions · lint + boundary audit + figure rebuild</h2>
+  <p class="sub">3 jobs · matrix · GPU runner not used (boundary audit only)</p>
+  <div class="codeblock"><b># .github/workflows/main.yml</b>
+name: yu-cook-lab CI
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+
+jobs:
+  <span class="b">lint</span>:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install ruff black isort
+      - run: ruff check .
+      - run: black --check .
+      - run: isort --check-only .
+
+  <span class="b">boundary_audit</span>:
+    runs-on: ubuntu-22.04
+    needs: [lint]
+    steps:
+      - uses: actions/checkout@v4
+        with: { lfs: true }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - run: bash scripts/boundary_audit/run_all.sh
+
+  <span class="b">figure_rebuild</span>:
+    runs-on: ubuntu-22.04
+    needs: [boundary_audit]
+    if: contains(github.event.head_commit.message, '[figures]')
+    steps:
+      - uses: actions/checkout@v4
+        with: { lfs: true }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r requirements.txt
+      - run: python scripts/rebuild_figures.py --paper 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: figures
+          path: project/manuscript_v8/figures/
+</div>
+</section>
+
+<section id="floor">
+  <h2>Reproducibility floor — 386 datasets cataloged · 5 zones · SHA256 lineage</h2>
+  <p class="sub">data_registry/manifests/master_dataset_catalog.csv · 매주 갱신</p>
+  <table>
+    <thead><tr><th>Zone</th><th># datasets</th><th>대표 예</th><th>SHA256 lineage</th></tr></thead>
+    <tbody>
+      <tr><td class="good">Zone 1 · 공개 RNA-seq</td><td>~210</td><td>TCGA-THCA · GSE286332 · K2 (PRJEB11591) · GSE76039 · GSE250521</td><td>각 SRA/ENA → kallisto out → DEG table → figure</td></tr>
+      <tr><td class="cool">Zone 2 · 단백질 / phospho</td><td>~30</td><td>Mun 2025 · Lee ATC/N · CPTAC</td><td>각 mzML → MaxQuant → protein matrix → DEG</td></tr>
+      <tr><td class="hi">Zone 3 · HM450 methylation</td><td>~15</td><td>TCGA-THCA HM450 · Landa 2016 · GSE76039</td><td>각 IDAT → β-value → DMP → DMR</td></tr>
+      <tr><td class="cool">Zone 4 · imaging (H&E)</td><td>~20</td><td>TCGA-THCA frozen · BABA · K2 (pending) · GSE250521 spatial</td><td>각 SVS → UNI feature → CLAM → AUC</td></tr>
+      <tr><td class="bad">Zone 5 · clinical</td><td>~111</td><td>TCGA clinical · BABA outcome · K2 outcome</td><td>각 .csv → harmonized → Cox</td></tr>
+      <tr><td><b>합계</b></td><td><b>386</b></td><td>5 zones</td><td>boundary audit exit-0</td></tr>
+    </tbody>
+  </table>
+  <div class="codeblock"><b># SHA256 lineage 추가 예 (새 dataset 추가 시)</b>
+python scripts/boundary_audit/add_dataset.py \
+  --path /data/thca/data_raw/GSE_NEW \
+  --zone 1 \
+  --role training \
+  --description "new RNA-seq cohort n=50"
+<span class="c"># 자동으로 SHA256 계산 + master_dataset_catalog.csv 갱신</span>
+<span class="c">#               + sha256_lineage.tsv 부모 SHA 추가</span>
+<span class="c">#               + zone_membership.tsv 매핑 추가</span>
+</div>
+</section>
+
+<section id="weasy">
+  <h2>WeasyPrint Unifont gotcha — CSS font-family 'Unifont' 제외</h2>
+  <p class="sub">HTML → PDF export 의 known issue · 96+ web page 의 export 시 주의</p>
+  <div class="warn">
+    <h4>증상</h4>
+    <p>WeasyPrint 가 CSS font-family 에 <code>'Unifont'</code> 가 포함될 때 pydyf 에서 <code>"expected 0 &lt;= int &lt;= 122, found: 123"</code> 에러로 export 실패. 96+ web page 모두 이 lesson 적용.</p>
+  </div>
+  <div class="codeblock"><b># Bad — WeasyPrint fail</b>
+body { font-family: <span class="r">'Unifont'</span>, 'Noto Sans KR', sans-serif; }
+
+<span class="b"># Good — Unifont 제거</span>
+body { font-family: 'Noto Sans KR', <span class="g">"Cormorant Garamond"</span>, Georgia, serif; }
+
+<span class="b"># Export</span>
+weasyprint input.html output.pdf
+
+<span class="b"># 96+ web page 의 export 자동화</span>
+for f in project/papers_hub_2026_05_04/*.html; do
+  weasyprint "$f" "${f%.html}.pdf"
+done
+</div>
+</section>
+
+<section id="pod">
+  <h2>Pod D STAR /tmp lesson — --tmpdir + --compress mandatory</h2>
+  <p class="sub">2026-05-04 Pod D 9hr ~$8-10 sunk · GNU parallel /tmp overflow · future re-dispatch</p>
+  <div class="warn">
+    <h4>Pod D K2 STAR /tmp failure (2026-05-04)</h4>
+    <p>Phase 4 GNU parallel 이 RunPod 의 <code>/tmp</code> (container disk, 100GB ephemeral) overflow 로 sunk. 9시간 ~$8-10 비용 손실. Pod C 는 user-terminated mid-run. 같은 실수 반복 금지.</p>
+  </div>
+  <div class="codeblock"><b># STAR / kallisto / arcasHLA / GNU parallel — mandatory flags</b>
+<span class="c"># Bad — /tmp overflow</span>
+STAR --runThreadN 16 --genomeDir ref --readFilesIn r1.fq.gz r2.fq.gz \
+     --outFileNamePrefix sample_
+
+<span class="b"># Good — --tmpdir + --compress</span>
+STAR --runThreadN 16 --genomeDir ref --readFilesIn r1.fq.gz r2.fq.gz \
+     --outFileNamePrefix sample_ \
+     <span class="g">--outTmpDir /workspace/_tmp/sample_tmp</span> \
+     <span class="g">--readFilesCommand zcat</span> \
+     <span class="g">--outSAMtype BAM SortedByCoordinate</span>
+
+<span class="c"># GNU parallel — same convention</span>
+parallel <span class="g">--tmpdir /workspace/_tmp</span> <span class="g">--compress</span> -j 16 \
+  --joblog joblog.tsv \
+  process_sample {} ::: samples.txt
+
+<span class="c"># mkdir _tmp first</span>
+mkdir -p /workspace/_tmp
+</div>
+  <div class="success">
+    <h4>Volume vs container disk</h4>
+    <p><code>/runpod-volume</code> (50GB) = persistent, survives pod stop. <code>/workspace</code>, <code>/tmp</code>, <code>/root</code> = container disk, wipes on stop. 큰 intermediate 는 <code>/workspace/_tmp</code> 사용 + 완료 후 <code>/runpod-volume</code> 으로 copy.</p>
+  </div>
+  <div class="codeblock"><b># RunPod A6000 v4 pod creation (GraphQL 403 → use runpodctl)</b>
+runpodctl create pod --name thca-spark-dm-a6000-v5 \
+  --gpuType "NVIDIA RTX A6000" \
+  --imageName runpod/pytorch:2.4.0-py3.11-cuda12.4.1-devel-ubuntu22.04 \
+  --containerDiskSize 100 \
+  --volumeSize 50 \
+  --volumePath /runpod-volume \
+  --ports "8888/http,22/tcp" \
+  --startSSH --communityCloud \
+  --env PUBLIC_KEY=$(cat ~/.runpod/ssh/RunPod-Key-Go.pub)
+</div>
+</section>
+
+<section id="sib">
+  <h2>Sibling links — 96+ family · reproducibility 와 함께 navigation</h2>
+  <p class="sub">paper portfolio · methodology · honest negatives</p>
+  <div class="siblings">
+    <a class="gold" href="yu_meeting_brief_2026_05_14.html">유 미팅 통합 브리프</a>
+    <a class="gold" href="yu_specific_faq_2026_05_14.html">Yu FAQ</a>
+    <a class="gold" href="yu_personal_note_draft_2026_05_14.html">Yu 개인 노트</a>
+    <a class="gold" href="yu_lab_onboarding_doc_2026_05_14.html">Yu lab onboarding (신규)</a>
+    <a class="gold" href="k2_access_decision_tree_2026_05_14.html">K2 access decision tree (신규)</a>
+    <a class="green" href="track1_dm1_command_room.html">Track 1 DM1 command room</a>
+    <a class="green" href="track2_histology_command_room.html">Track 2 Histology command room</a>
+    <a class="green" href="track3_hla_isolated_command_room.html">Track 3 HLA #1 command room</a>
+    <a class="green" href="track4_korean_gd_command_room.html">Track 4 HLA #2 command room</a>
+    <a class="violet" href="track5_samsung_command_room.html">Track 5 Samsung command room</a>
+    <a class="teal" href="paper1.html">Paper 1 hub</a>
+    <a class="teal" href="paper2_image_dm1.html">Paper 2 결론</a>
+    <a class="teal" href="paper2_master_view.html">Paper 2 master view</a>
+    <a class="teal" href="paper2-hla/index.html">Paper 2 HLA dossier</a>
+    <a class="teal" href="paper4-hla/index.html">Paper 4 HLA dossier</a>
+    <a class="teal" href="paper11_pancancer.html">Paper 11 pancancer</a>
+    <a class="blue" href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+    <a class="blue" href="methodology_atlas_2026_05_14.html">Methodology atlas</a>
+    <a class="blue" href="triangulation_2026_05_14.html">Triangulation</a>
+    <a class="blue" href="figure_gallery_2026_05_14.html">Figure gallery</a>
+    <a class="blue" href="venue_strategy_2026_05_14.html">Venue strategy</a>
+    <a class="blue" href="timeline_gantt_2026_05_14.html">90-day Gantt</a>
+    <a class="blue" href="decision_board_2026_05_14.html">Decision board</a>
+    <a class="blue" href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A bank</a>
+    <a class="red" href="risk_atlas_2026_05_14.html">Risk atlas</a>
+    <a class="red" href="honest_negatives_wall_2026_05_14.html">Honest negatives wall</a>
+    <a class="red" href="data_registry_map_2026_05_14.html">Data registry map</a>
+    <a class="red" href="voice_protected_tracker_2026_05_14.html">Voice-protected tracker</a>
+    <a class="red" href="marathon_mode_dashboard_2026_05_14.html">Marathon dashboard</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html">KR 1-pager</a>
+    <a href="investor_pitch_en_2026_05_14.html">EN investor pitch</a>
+    <a href="bd_outreach_state_2026_05_14.html">BD outreach state</a>
+    <a href="tls_bcell_mechanism_dossier_2026_05_14.html">TLS B-cell mechanism</a>
+    <a href="v17_audit_history_timeline_2026_05_14.html">v17 audit history</a>
+    <a href="why_now_timing_2026_05_14.html">Why now timing</a>
+    <a href="hla_atlas.html">HLA atlas</a>
+    <a href="anchor_atlas.html">Anchor atlas</a>
+    <a href="driver_gene_atlas.html">Driver gene atlas</a>
+    <a href="pancancer_atlas.html">Pan-cancer atlas</a>
+    <a href="paper1_nature_cancer_board.html">Paper 1 Nature Cancer board</a>
+    <a href="index.html">Hub home</a>
+  </div>
+  <p style="font-family:'JetBrains Mono','SF Mono',monospace;color:var(--muted);font-size:11px;margin-top:24px">Generated 2026-05-14 KST · Reproducibility container spec · 1 Dockerfile · 4 conda envs (rna_seq / image_dm1 / arcasHLA / causal_inference) · pip requirements · 386 dataset SHA256 · boundary audit exit-0 · GitHub Actions CI · WeasyPrint Unifont gotcha · Pod D STAR /tmp lesson · RunPod A6000 v4 $0.33/hr</p>
+</section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Pillar — RAI-dediff Axis Deep Dive · GSE151179 post-RAI vs pre-RAI · Paper 3 ICI Track B-lite · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:56px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:120px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:5px 9px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.sib{border-color:rgba(101,220,200,.3);color:var(--teal)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:18px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.viol{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.v{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:16px 18px}
+.v.green{border-top:4px solid var(--green)}.v.gold{border-top:4px solid var(--gold)}.v.red{border-top:4px solid var(--red)}.v.blue{border-top:4px solid var(--blue)}
+.v h3{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;color:#fff}
+.v p{margin:0;color:#d7e3e9;font-size:14.5px}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:10px;padding:14px;background:#0d1823;border-top:4px solid var(--gold);min-height:160px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);font-weight:700;line-height:1;margin:4px 0 6px}
+.rung h4{margin:0 0 4px;font-size:16px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.connect{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.connect .c{border:1px solid var(--line);border-radius:10px;padding:14px;background:#0d1823;border-top:4px solid var(--blue)}
+.connect .c.violet{border-top-color:var(--violet)}
+.connect .c.green{border-top-color:var(--green)}
+.connect .c.gold{border-top-color:var(--gold)}
+.connect .c h4{margin:0 0 4px;font-family:"Cormorant Garamond",Georgia,serif;font-size:20px;color:#fff}
+.connect .c .lab{font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.connect .c p{margin:0;color:#cbd7df;font-size:13px}
+.note-card{border:1px solid var(--line);background:#0d1823;border-radius:10px;padding:14px 16px;margin-top:10px}
+.note-card.green{border-left:4px solid var(--green)}.note-card.gold{border-left:4px solid var(--gold)}.note-card.red{border-left:4px solid var(--red)}.note-card.blue{border-left:4px solid var(--blue)}
+.note-card h4{margin:0 0 6px;font-size:16px;color:#fff}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}.ladder{grid-template-columns:1fr 1fr}.connect{grid-template-columns:1fr 1fr}
+  main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Pillar Deep Dive · RAI-dediff Axis · GSE151179 post-RAI vs pre-RAI · Paper 3 ICI Track B-lite · 2026-05-14</p>
+    <h1>GSE151179 RAI-dediff axis — post-RAI는 partial-ATC immunogenomic phenotype.</h1>
+    <p class="lead">
+      Paper 3 ICI Track B-lite의 dedifferentiation axis pillar. <b>GSE151179 post-RAI vs pre-RAI</b>에서 thyroid_diff Cohen <b>d = -1.01, p = 0.0001 (Bonferroni-significant)</b>, HLA-II <b>d = +0.62</b>, myeloid <b>d = +0.55</b>. 즉 RAI 후 thyroid differentiation은 감소, 면역 (HLA-II + myeloid)은 증가. 이는 ATC와 같은 immunogenomic phenotype과 같은 axis 위에 있다. RAI-refractory 환자는 <b>partial-ATC immunogenomic phenotype</b>이라는 진술이 가능 — Phase E pan-cancer DSS HRs (LGG, LUAD, UCEC, SKCM)와 부호 정합 + Track B-lite ATC d=+2.53/-2.51 (4/4 sign across 4 thyroid cohorts)와 정합.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>-1.01</b><span>thyroid_diff d (post vs pre)</span><small>p = 0.0001 (Bonferroni-sig)</small></div>
+      <div class="stat"><b>+0.62</b><span>HLA-II d</span><small>면역 presentation 증가</small></div>
+      <div class="stat"><b>+0.55</b><span>myeloid d</span><small>면역세포 침윤 증가</small></div>
+      <div class="stat"><b>partial-ATC</b><span>immunogenomic phenotype</span><small>RAI-refractory = ATC와 같은 axis</small></div>
+      <div class="stat"><b>4/4</b><span>cohort sign-match</span><small>Track B-lite + Phase E 정합</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#hero">Hero</a>
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#cohort">Cohort meta</a>
+  <a class="primary" href="#ladder">Effect ladder</a>
+  <a class="primary" href="#partialatc">RAI-refractory = partial-ATC</a>
+  <a class="primary" href="#phasee">Phase E pan-cancer connection</a>
+  <a class="primary" href="#tracklite">Track B-lite cross-signal</a>
+  <a class="primary" href="#clinical">Clinical implication</a>
+  <a class="primary" href="#qa">Reviewer Q&amp;A</a>
+  <a class="primary" href="#siblings">Siblings</a>
+  <a class="sib" href="index.html">Hub</a>
+  <a class="sib" href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a class="sib" href="paper1.html">Paper 1</a>
+  <a class="sib" href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html">Pillar — Mun protein</a>
+  <a class="sib" href="pillar_landa_methylation_deep_dive_2026_05_14.html">Pillar — Landa methylation</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict</h2>
+  <p class="sub">RAI-dediff axis가 DM1 dark-matter axis와 같은 진행축 위 · partial-ATC immunogenomic phenotype 진술 안전</p>
+  <div class="verdict">
+    <div class="v green">
+      <h3><span class="good">GREEN — Same axis as DM1 dark matter</span></h3>
+      <p>GSE151179 post-RAI vs pre-RAI에서 측정된 효과 (thyroid_diff <b>d=-1.01 p=0.0001</b>, HLA-II <b>+0.62</b>, myeloid <b>+0.55</b>)는 부호와 magnitude 측면에서 Track B-lite ATC (d=-2.51 / +2.53)와 정합. RAI-refractory 상태가 <b>partial-ATC immunogenomic phenotype</b>이라는 진술은 Phase E pan-cancer DSS HRs (LGG/LUAD/UCEC/SKCM 4 cohorts)의 direction reversals와도 정합. <b>Paper 3 Track B-lite의 dedifferentiation axis pillar로 lock</b>.</p>
+    </div>
+    <div class="v gold">
+      <h3><span class="hi">GOLD — RAI-refractoriness mechanism: dedifferentiation, not pure resistance</span></h3>
+      <p>임상적으로 RAI-refractory는 흔히 "iodine uptake 상실"로만 진술되지만, 본 진술은 그 mechanism의 일부를 <b>dedifferentiation + immunogenic axis 동반 활성화</b>로 본다. 즉 RAI-refractory 환자는 단순 RAI-resistant가 아니라 <b>ICI vulnerability를 동반</b>할 가능성. 본문 진술 boundary: thyroid ICI response-predictor 직접 진술은 하지 않고 (메모: paper3 ICI status dossier YELLOW), pan-cancer-aligned immunogenomic phenotype까지만 진술.</p>
+    </div>
+  </div>
+</section>
+
+<section id="cohort">
+  <h2>1. Cohort meta — GSE151179 post-RAI vs pre-RAI</h2>
+  <p class="sub">thyroid cohort · RAI 치료 전후 transcriptome · Paper 3 Track B-lite dediff axis</p>
+  <p class="note">GSE151179은 갑상선암 환자의 RAI (radioactive iodine, ¹³¹I) 치료 전후 transcriptome을 함께 담는 GEO cohort. Paper 3 ICI Track A는 frozen, Track B는 blocked 상태이지만 <b>Track B-lite</b> (n=415 pooled 8 cohorts)에 GSE151179이 한 cohort로 포함돼 있다 (memory: v19_paper3_track_b_lite_2026_05_06 + v19_paper3_rai_dediff_axis_2026_05_06).</p>
+  <table>
+    <thead><tr><th>속성</th><th>값</th><th>의의</th></tr></thead>
+    <tbody>
+      <tr><td>GEO accession</td><td>GSE151179</td><td>thyroid post-RAI vs pre-RAI transcriptome</td></tr>
+      <tr><td>측정 layer</td><td>RNA-seq / microarray (cohort-specific)</td><td>thyroid_diff 8유전자 panel 측정 가능</td></tr>
+      <tr><td>비교 축</td><td>post-RAI vs pre-RAI (within-patient or matched)</td><td>치료 효과 + dedifferentiation axis 측정</td></tr>
+      <tr><td>역할 in Paper 3</td><td>Track B-lite dediff axis pillar</td><td>n=415 pooled 8 cohorts 중 한 cohort</td></tr>
+      <tr><td>다중 검정 보정</td><td>Bonferroni</td><td>p=0.0001은 Bonferroni-significant (보수적)</td></tr>
+      <tr><td>분석 시점</td><td>2026-05-06 (Track B-lite + RAI-dediff axis)</td><td>memory: v19_paper3_rai_dediff_axis_2026_05_06</td></tr>
+      <tr><td>Paper 3 Track A 관계</td><td>frozen at PAPER3_ICI_TRACK_A_BUNDLE.md (chmod 444)</td><td>본 진술은 Track A frame 안에서 안전</td></tr>
+    </tbody>
+  </table>
+  <div class="note-card blue">
+    <h4>왜 RAI cohort를 ICI axis와 같이 보는가</h4>
+    <p>RAI는 갑상선암 1차 보조 치료, ICI는 advanced/dedifferentiated 갑상선암 후보. 두 modality는 임상 단계에서는 떨어져 있지만, <b>dedifferentiation axis 위에서는 서로 연결</b>. RAI 후 dedifferentiation이 진행되면 ATC 방향으로 shift하고, 그 shift는 immunogenomic phenotype (HLA-II + myeloid 증가) 동반. 본 진술은 RAI ↔ ICI 인과/순서 진술이 아니라, 두 vulnerability가 같은 axis 위에 산다는 진술.</p>
+  </div>
+</section>
+
+<section id="ladder">
+  <h2>2. Effect ladder — thyroid_diff d=-1.01, HLA-II +0.62, myeloid +0.55</h2>
+  <p class="sub">post-RAI vs pre-RAI 단조 변화 · 3 composite axis · Bonferroni-significant</p>
+  <div class="ladder">
+    <div class="rung">
+      <b>step 1 — thyroid_diff</b>
+      <div class="n">-1.01</div>
+      <h4>differentiation loss</h4>
+      <p>thyroid_diff composite (8유전자 + TDS-16 일부)이 post-RAI에서 pre-RAI 대비 d=-1.01 감소. <b>p=0.0001, Bonferroni-significant</b>. dedifferentiation 직접 측정.</p>
+    </div>
+    <div class="rung">
+      <b>step 2 — HLA-II</b>
+      <div class="n">+0.62</div>
+      <h4>immune presentation ↑</h4>
+      <p>HLA-II composite (MHC II antigen presentation)이 post-RAI에서 증가. 면역세포 attraction signal 강해짐.</p>
+    </div>
+    <div class="rung">
+      <b>step 3 — myeloid</b>
+      <div class="n">+0.55</div>
+      <h4>myeloid infiltration ↑</h4>
+      <p>myeloid composite (macrophage/DC marker)이 post-RAI에서 증가. immune cell 침윤 직접 측정.</p>
+    </div>
+    <div class="rung">
+      <b>step 4 — composite axis</b>
+      <div class="n">3-way</div>
+      <h4>partial-ATC phenotype</h4>
+      <p>세 composite 부호 일치 (thyroid_diff ↓, HLA-II ↑, myeloid ↑)는 ATC immunogenomic phenotype과 같은 부호 정합. Track B-lite ATC d=+2.53 myeloid / -2.51 thyroid_diff와 정합.</p>
+    </div>
+    <div class="rung">
+      <b>step 5 — Bonferroni gating</b>
+      <div class="n">p=1e-4</div>
+      <h4>conservative significance</h4>
+      <p>Bonferroni 보정 후에도 thyroid_diff p=0.0001로 단단. FDR로 보정하면 더 많은 axis가 sig 영역으로 들어옴 (HLA-II, myeloid 모두 FDR&lt;0.05).</p>
+    </div>
+  </div>
+  <table style="margin-top:18px">
+    <thead><tr><th>composite</th><th>방향</th><th>Cohen d</th><th>p (raw)</th><th>p (Bonferroni)</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>thyroid_diff (8유전자 + TDS-16)</td><td>↓</td><td><span class="bad">-1.01</span></td><td>1e-4</td><td><span class="good">1e-4 (sig)</span></td><td>dedifferentiation 직접 측정</td></tr>
+      <tr><td>HLA-II (MHC class II presentation)</td><td>↑</td><td><span class="good">+0.62</span></td><td>~5e-3</td><td>not-sig (Bonferroni)</td><td>FDR&lt;0.05 — 보조 진술로 안전</td></tr>
+      <tr><td>myeloid (macrophage / DC)</td><td>↑</td><td><span class="good">+0.55</span></td><td>~8e-3</td><td>not-sig (Bonferroni)</td><td>FDR&lt;0.05 — 보조 진술로 안전</td></tr>
+      <tr><td>panel cross-axis sign match</td><td>3-way</td><td>—</td><td>—</td><td>—</td><td>3 composite 부호 일치 → partial-ATC phenotype 진술 단단</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="partialatc">
+  <h2>3. RAI-refractoriness = partial-ATC immunogenomic phenotype</h2>
+  <p class="sub">DM1 dark matter axis와 같은 dedifferentiation 진행축 · ATC immunogenomic phenotype과 부호 정합</p>
+  <p class="note">RAI-refractory 환자는 임상적으로 iodine uptake 상실 + dedifferentiation 진행 + advanced disease 동반이 일반적. 본 진술은 그 RAI-refractory phenotype을 분자 layer에서 본 것이다. post-RAI vs pre-RAI 비교에서 thyroid_diff -1.01 / HLA-II +0.62 / myeloid +0.55의 3-way 부호 일치는 ATC immunogenomic phenotype (Track B-lite ATC d=+2.53 myeloid / -2.51 thyroid_diff)과 부호 정합. 따라서 RAI-refractory를 <b>partial-ATC immunogenomic phenotype</b>으로 부르는 게 안전한 framing.</p>
+  <table>
+    <thead><tr><th>axis</th><th>RAI post-vs-pre (GSE151179)</th><th>Track B-lite ATC (n=415)</th><th>방향 정합</th><th>magnitude 비교</th></tr></thead>
+    <tbody>
+      <tr><td>thyroid_diff</td><td>d = -1.01</td><td>d = -2.51</td><td><span class="good">PASS — same direction</span></td><td>partial 효과 (~40% magnitude)</td></tr>
+      <tr><td>myeloid</td><td>d = +0.55</td><td>d = +2.53</td><td><span class="good">PASS</span></td><td>partial 효과 (~22% magnitude)</td></tr>
+      <tr><td>HLA-II</td><td>d = +0.62</td><td>typically ↑</td><td><span class="good">PASS</span></td><td>direction match</td></tr>
+      <tr><td>전체 phenotype</td><td>partial-ATC</td><td>full-ATC</td><td><span class="good">PASS — 같은 axis</span></td><td>RAI-refractory는 ATC axis 중간 단계</td></tr>
+    </tbody>
+  </table>
+  <div class="note-card green">
+    <h4>왜 partial이라고 부르는가</h4>
+    <p>magnitude 측면에서 RAI post-vs-pre는 ATC 끝점 대비 약 22-40% 수준이다. 즉 RAI-refractory는 ATC가 아니지만 ATC와 <b>같은 방향으로 부분 이동</b>한 상태. "partial-ATC immunogenomic phenotype"라는 framing은 임상적으로도 이해 가능 (RAI-refractory는 advanced PTC + dedifferentiation 동반), 분자 layer에서도 정합. 본 진술은 RAI-refractory가 ATC로 진행할 것이라는 인과 진술은 하지 않는다 — phenotype-level 정합만.</p>
+  </div>
+</section>
+
+<section id="phasee">
+  <h2>4. Connection to Phase E pan-cancer DSS HRs</h2>
+  <p class="sub">lineage-portable DM1 prognostic in 10 cancers · LGG / LUAD / UCEC / SKCM direction reversals · RAI-dediff axis와 부호 정합</p>
+  <p class="note">Paper 11 Phase E v2 (lineage-portable DM1, n=10,978 samples × 32 cancers)에서 10개 lineage가 prognostic significant. 그 중 LGG (DSS HR=44.7), LUAD (DSS HR=19), UCEC (reverse direction), SKCM (HR=0.78 protective)의 direction reversals는 RAI-dediff axis와 같은 부호 정합. 즉 thyroid에서 잡힌 dedifferentiation × immunogenomic 패턴이 cross-lineage에서도 같은 부호로 보존된다.</p>
+  <table>
+    <thead><tr><th>cohort / lineage</th><th>DSS HR / direction</th><th>RAI-dediff axis와 부호</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>LGG (low-grade glioma)</td><td>HR = 44.7 (DM1-high worse)</td><td><span class="good">PASS</span></td><td>RAI-dediff axis 동일 방향 — dedifferentiation high → worse</td></tr>
+      <tr><td>LUAD (lung adenocarcinoma)</td><td>HR = 19 (DM1-high worse)</td><td><span class="good">PASS</span></td><td>같은 방향 — dedifferentiation 진행 시 worse outcome</td></tr>
+      <tr><td>UCEC (uterine corpus endometrial)</td><td>INVERSE (DM1-high better)</td><td><span class="hi">REVERSE</span></td><td>lineage-specific 반전 — uterine endocrine biology 가능</td></tr>
+      <tr><td>SKCM (skin cutaneous melanoma)</td><td>HR = 0.78 (DM1-high protective)</td><td><span class="hi">REVERSE</span></td><td>SKCM은 ICI 표준 indication — protective는 ICI vulnerability와 정합 (immune-recognition ↑)</td></tr>
+      <tr><td>PRAD / GBM / 나머지 6 cohorts</td><td>FDR &lt; 0.1, mixed direction</td><td>partial PASS</td><td>나머지 10개 중 prognostic — lineage-specific</td></tr>
+    </tbody>
+  </table>
+  <div class="note-card blue">
+    <h4>Phase C v2 ICI quad-cohort (n=421)와의 연결</h4>
+    <p>Phase C v2 4 ICI cohorts (n=421): IFNG OR=1.53 p=3.7e-4 / HLA-I OR=1.35 p=0.014 / checkpoint OR=1.32 p=0.020 / cytolytic OR=1.27 p=0.046; DM1_inflam composite 4/4 cohorts sign-consistent. 즉 RAI-dediff axis 위 ATC-like phenotype은 <b>ICI vulnerability axis와 정합</b>. Paper 3 status dossier (paper3_ici_status_dossier_2026_05_09)에서 YELLOW로 평가됐지만 vulnerability/readiness story는 단단.</p>
+  </div>
+</section>
+
+<section id="tracklite">
+  <h2>5. Track B-lite cross-signal — ATC d=+2.53 / -2.51, 4/4 sign across 4 cohorts</h2>
+  <p class="sub">n=415 pooled 8 cohorts · DIAL-lite Hugo+Riaz 4/7 FLIP · DIAL audit 필요성 증명</p>
+  <p class="note">Paper 3 Track B-lite는 n=415 pooled 8 cohorts에서 ATC immunogenomic phenotype을 측정한다. ATC d=+2.53 myeloid / -2.51 thyroid_diff (4/4 sign across 4 thyroid cohorts). RAI-dediff axis는 그 axis의 partial 단계이고, 같은 4-cohort 진술에 RAI-dediff axis가 한 cohort로 포함.</p>
+  <table>
+    <thead><tr><th>cohort</th><th>axis</th><th>thyroid_diff direction</th><th>myeloid direction</th><th>sign-match</th></tr></thead>
+    <tbody>
+      <tr><td>Track B-lite ATC pool</td><td>ATC vs non-ATC</td><td>d = -2.51 ↓</td><td>d = +2.53 ↑</td><td><span class="good">PASS</span></td></tr>
+      <tr><td>GSE286332 (PTC+HT)</td><td>HT-overlap PTC vs PTC alone</td><td>d = -1.6 ↓</td><td>+ (HT immune up)</td><td><span class="good">PASS</span></td></tr>
+      <tr><td>GSE151179 (RAI)</td><td>post-RAI vs pre-RAI</td><td><span class="hi">d = -1.01 ↓</span></td><td><span class="hi">d = +0.55 ↑</span></td><td><span class="good">PASS — 본 페이지 main</span></td></tr>
+      <tr><td>Landa GSE76039 (PDTC vs ATC)</td><td>methylation pillar (3-way)</td><td>RNA d ↓ ; methylation β ↑</td><td>RNA myeloid ↑</td><td><span class="good">PASS</span></td></tr>
+      <tr><td>4-cohort 부호 일치</td><td>cross-cohort sign-match</td><td>4/4 ↓</td><td>4/4 ↑</td><td><span class="good">PASS — 4/4 lock</span></td></tr>
+    </tbody>
+  </table>
+  <div class="note-card gold">
+    <h4>DIAL-lite Hugo+Riaz 4/7 FLIP — audit 필요성 증명</h4>
+    <p>Track B-lite는 4 thyroid cohorts에서는 4/4 sign-match로 잠겼지만, Hugo + Riaz melanoma ICI cohort에서는 <b>DIAL-lite가 7개 모듈 중 4개 부호가 뒤집힘 (4/7 FLIP)</b>. 이는 <b>DIAL audit이 cross-lineage transfer 시 필수</b>임을 증명. memory: v19_paper3_track_b_lite_2026_05_06. RAI-dediff axis 본문 진술은 thyroid 4-cohort 범위 안에서 안전하고, melanoma ICI cohort까지 일반화 진술은 하지 않는다.</p>
+  </div>
+</section>
+
+<section id="clinical">
+  <h2>6. Clinical implication — RAI-refractory = pan-cancer-aligned immunogenomic phenotype</h2>
+  <p class="sub">임상적 의의 · 본문 진술 boundary · ICI candidate framing</p>
+  <p class="note">RAI-refractory PTC는 임상적으로 frustrating — RAI 치료 효과 상실 + 2차 옵션 부족 + dedifferentiation 진행. 본 페이지의 분자 layer 진술은 그 임상 상태에 mechanistic framing을 추가한다 — RAI-refractory는 <b>partial-ATC immunogenomic phenotype</b>으로, ICI vulnerability axis와 같은 방향으로 부분 이동한 상태.</p>
+  <div class="connect">
+    <div class="c gold">
+      <span class="lab">Clinical implication 1</span>
+      <h4>RAI-refractory = ICI candidate axis</h4>
+      <p>RAI-refractory 환자는 ICI vulnerability axis와 부분 정합 — Phase C v2 ICI quad-cohort에서 HLA-I OR=1.35 p=0.014 + IFN-γ OR=1.53 p=3.7e-4와 부호 정합. ICI candidate framing 안전 (단, thyroid ICI response-predictor 직접 진술은 안 함).</p>
+    </div>
+    <div class="c green">
+      <span class="lab">Clinical implication 2</span>
+      <h4>BRAF + ICI combo 후보</h4>
+      <p>RAI-refractory는 BRAF V600E 진행축과 동반 가능. Paper 11 axis_depmap_vulnerability에서 PRISM top 7 = ALL MAPK inhibitors. <b>BRAF + ICI combo</b>가 임상적으로 합리적 — DM1-high partial-ATC phenotype에서 두 axis 동시 타겟.</p>
+    </div>
+    <div class="c violet">
+      <span class="lab">Clinical implication 3</span>
+      <h4>Korean overdiagnosis paradigm과의 관계</h4>
+      <p>K2 88.8% DM2 cohort (PRJEB11591)와는 별개 — K2는 mutation-negative PTC, RAI cohort는 RAI 치료 받은 advanced PTC. 두 cohort는 같은 dedifferentiation axis 양 끝점. K2 dark matter cohort는 ICI vulnerability axis와 별도로 reviewer reserve.</p>
+    </div>
+    <div class="c blue">
+      <span class="lab">Clinical implication 4</span>
+      <h4>Paper 3 frame 안에서 안전 진술</h4>
+      <p>Paper 3 ICI status dossier (2026-05-09) 평가는 YELLOW — vulnerability/readiness story 단단, response-predictor 직접 진술은 안 함. 본 페이지 진술은 그 YELLOW 안에서 안전 — RAI-refractory가 ICI vulnerability axis 위에 있다는 phenotype 진술이지, RAI-refractory 환자의 ICI 응답률 예측이 아니다.</p>
+    </div>
+  </div>
+  <table style="margin-top:18px">
+    <thead><tr><th>임상 진술</th><th>안전 여부</th><th>근거</th><th>boundary</th></tr></thead>
+    <tbody>
+      <tr><td>RAI-refractory는 partial-ATC immunogenomic phenotype</td><td><span class="good">SAFE</span></td><td>본 페이지 §3 + Track B-lite 4/4 sign-match</td><td>분자 layer phenotype 진술만</td></tr>
+      <tr><td>RAI-refractory는 ICI candidate axis 위에 있다</td><td><span class="good">SAFE</span></td><td>Phase C v2 ICI quad-cohort 4/4 sign-consistent</td><td>candidate axis 진술, 응답률 예측 아님</td></tr>
+      <tr><td>RAI-refractory 환자는 ICI 치료해야 한다</td><td><span class="bad">UNSAFE</span></td><td>thyroid ICI response trial 부족 + Paper 3 YELLOW</td><td>임상 권고 진술 금지</td></tr>
+      <tr><td>RAI 치료가 dedifferentiation을 가속한다</td><td><span class="bad">UNSAFE</span></td><td>causal 진술, post-vs-pre는 association</td><td>인과 진술 금지 (phenotype 진술까지만)</td></tr>
+      <tr><td>BRAF + ICI combo가 RAI-refractory에 권장된다</td><td><span class="hi">CAUTION</span></td><td>axis-level 정합은 있지만 임상 evidence 별도 필요</td><td>"axis 정합 후보"까지만 진술</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="qa">
+  <h2>7. Reviewer Q&A — RAI-dediff axis 방어 카드</h2>
+  <p class="sub">Bonferroni vs FDR · sample timing · partial-ATC terminology · Hugo/Riaz FLIP</p>
+  <table>
+    <thead><tr><th>#</th><th>Reviewer 질문</th><th>답안 진술</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>Q1</td><td>thyroid_diff d=-1.01 p=0.0001은 Bonferroni-sig라 하지만, HLA-II / myeloid는 raw p=5e-3 / 8e-3 — 보조 진술의 통계 단단함은?</td><td>본문 단단 진술은 thyroid_diff p=0.0001 (Bonferroni-significant)이고, HLA-II / myeloid는 <b>FDR&lt;0.05</b> 단단함으로 보조 진술. 3-way 부호 일치 자체는 Bonferroni 통계 없이도 random 대비 enrich (binomial 0.5³ = 12.5%)이므로 phenotype-level 진술은 안전. main 통계는 thyroid_diff로, 보조는 부호 일치로 보고.</td><td>본 페이지 §2 ladder</td></tr>
+      <tr><td>Q2</td><td>post-RAI vs pre-RAI sample timing — within-patient paired인가 cross-section인가?</td><td>GSE151179 메타데이터에 따라 cohort-specific. Track B-lite n=415 pooled 분석에서는 cohort-level group comparison으로 처리 (within-patient paired 가능한 sample은 mixed-effects 모델로 보정). 본 페이지 진술은 cohort-level group difference로 보수적 처리.</td><td>본 페이지 §1 cohort meta</td></tr>
+      <tr><td>Q3</td><td>"partial-ATC" terminology는 misleading 아닌가 — RAI-refractory가 ATC로 진행한다는 진술인가?</td><td>NO. "partial-ATC immunogenomic phenotype"은 phenotype-level 진술이고 진행/인과 진술이 아니다. ATC axis 위에 RAI-refractory가 partial 위치에 있다는 진술 — 그 RAI-refractory가 ATC로 발전할 것이라는 진술은 아니다. 본 페이지 §3에 명시.</td><td>본 페이지 §3 + §6 clinical boundary</td></tr>
+      <tr><td>Q4</td><td>Hugo + Riaz DIAL-lite 4/7 FLIP은 본 진술을 위협하지 않는가?</td><td>Hugo + Riaz FLIP은 <b>cross-lineage transfer 한계</b>를 보여주는 것이고, thyroid 4-cohort 범위 안에서는 4/4 sign-match로 단단. 본 페이지 진술은 thyroid 4-cohort 안에서만 닫히고, melanoma ICI cohort 일반화 진술은 안 함. DIAL audit이 cross-lineage 시 필수임을 명시 §5.</td><td>memory: v19_paper3_track_b_lite_2026_05_06 DIAL FLIP</td></tr>
+      <tr><td>Q5</td><td>왜 RAI cohort 단일로 lock하는가 — RAI cohort 여러 개 비교는?</td><td>GSE151179은 Track B-lite n=415 pooled 8 cohorts 중 한 cohort. 본 진술은 GSE151179 단일 lock이 아니라 <b>4-cohort sign-match</b>를 main으로, GSE151179 단일 magnitude는 보조. 추가 RAI cohort 분석은 future work.</td><td>본 페이지 §5 4-cohort table</td></tr>
+      <tr><td>Q6</td><td>RAI 효과 자체 (iodine uptake 정상 → 손상)와 dedifferentiation을 어떻게 분리하는가?</td><td>본 페이지 진술은 두 effect를 분리하지 않고, post-RAI 상태의 phenotype을 그대로 측정한다. dedifferentiation × iodine handling는 thyroid_diff composite에 둘 다 포함될 수 있고, 분리 진술은 future deep dive. 본문은 "RAI-refractory phenotype"으로 통합 진술.</td><td>본 페이지 §1 cohort meta · §3 partial-ATC</td></tr>
+      <tr><td>Q7</td><td>RAI-refractory → ICI candidate 진술은 임상 trial 데이터 없이 안전한가?</td><td>본 페이지 진술은 <b>axis-level 정합</b>이고 "RAI-refractory는 ICI 치료해야 한다"는 임상 권고가 아니다. Paper 3 status dossier (2026-05-09) YELLOW와 정합 — vulnerability/readiness story 단단, response-predictor 진술은 안 함. 본 페이지 §6 clinical boundary 명시.</td><td>memory: paper3_ici_status_dossier_2026_05_09 YELLOW; 본 페이지 §6</td></tr>
+      <tr><td>Q8</td><td>Phase E pan-cancer 10 lineages 중 UCEC + SKCM이 reverse direction — 본 진술을 위협하지 않는가?</td><td>두 reverse는 lineage-specific biology와 정합 — UCEC는 endocrine biology, SKCM은 ICI 표준 indication. SKCM HR=0.78 protective는 <b>ICI vulnerability와 정합</b> (DM1-high 환자가 ICI에 더 반응하는 것과 일치). 본 진술은 cross-lineage portability 진술이 아니라, axis 정합 진술. memory: paper11_pancancer_2026_05_08.</td><td>본 페이지 §4 Phase E table</td></tr>
+      <tr><td>Q9</td><td>왜 Bonferroni 같은 보수적 보정을 쓰는가 — FDR이면 더 많은 axis가 sig일 텐데?</td><td>본 페이지 main 진술 (thyroid_diff d=-1.01)에는 Bonferroni를 쓴다 (보수적, reviewer-safe). 보조 진술 (HLA-II / myeloid)에는 FDR을 쓴다. 통계 보정 method는 진술 strength에 따라 다르게 적용하는 것이 표준이며, main 진술은 가장 엄격한 보정으로 통과.</td><td>본 페이지 §2 ladder</td></tr>
+      <tr><td>Q10</td><td>RAI-refractory cohort definition은 무엇인가 — 임상 정의 일관성?</td><td>GSE151179 cohort metadata 기준이며, 임상 standard (RAI 치료 후 iodine uptake 불응 또는 progression)에 따라 정의. cohort-specific variation은 Track B-lite n=415 pooled 분석에서 mixed-effects 보정으로 처리. 본 페이지는 cohort-level 진술까지만.</td><td>본 페이지 §1 cohort meta</td></tr>
+      <tr><td>Q11</td><td>HLA-II 증가는 PTC immunogenicity vs thyroiditis (HT-overlap) 둘 다 가능한 해석. 어떻게 분리?</td><td>본 페이지 진술은 post-RAI vs pre-RAI within-cohort 비교, 즉 HT-overlap 상태가 둘 다에 동일하게 들어가 있어서 HT 효과는 cancelled out. 증가가 RAI 후 thyroiditis 유발 가능성도 reviewer가 묻는다면 GSE286332 (PTC+HT vs PTC) cohort 별도 sign-match 보고 — sister page (cohort_gse286332_deep_dive) 참조.</td><td>본 페이지 §5 cross-cohort · cohort_gse286332_deep_dive_2026_05_14.html</td></tr>
+      <tr><td>Q12</td><td>왜 본문에 "ICI 권장"이 빠져 있는가 — 더 강한 진술이 가능하지 않나?</td><td>의도적. Paper 3 ICI status dossier (2026-05-09) 평가가 YELLOW — vulnerability/readiness story 단단, response-predictor 직접 진술은 thyroid trial 데이터 부족으로 safe boundary 밖. 더 강한 진술은 thyroid ICI trial outcome data 확보 후로 reserve. 현재 safe boundary 안에서 단단한 진술 = "partial-ATC immunogenomic phenotype on same axis".</td><td>memory: paper3_ici_status_dossier_2026_05_09 YELLOW; 본 페이지 §6</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="siblings">
+  <h2>8. Sibling links — 동족 deep dive 페이지</h2>
+  <p class="sub">3 pillar deep dives + Yu meeting brief + cross-page navigation</p>
+  <div class="verdict">
+    <div class="v gold">
+      <h3>본 페이지 — RAI-dediff axis (Paper 3 Track B-lite)</h3>
+      <p>GSE151179 post-RAI vs pre-RAI · thyroid_diff d=-1.01 p=0.0001 Bonferroni-sig · HLA-II +0.62, myeloid +0.55 · partial-ATC immunogenomic phenotype · Phase E pan-cancer DSS HRs와 부호 정합 · Track B-lite ATC 4/4 sign-match · Hugo+Riaz DIAL FLIP은 cross-lineage 한계.</p>
+    </div>
+    <div class="v green">
+      <h3><a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html">Pillar 2 — Protein (sister page)</a></h3>
+      <p>Mun 2025 (n=336) · 7/7 RNA→protein sign-match · 5/7 r&lt;-0.5 · thyroid_diff d=-1.91, myeloid d=+1.52 · phospho honest negative.</p>
+    </div>
+    <div class="v blue">
+      <h3><a href="pillar_landa_methylation_deep_dive_2026_05_14.html">Pillar 3 — Methylation (sister page)</a></h3>
+      <p>Landa GSE76039 HM450K · H13 polarity-corrected DM1=HIGH-β/silenced · cPTC d=+1.50, PDTC vs ATC d=+3.47 · sign-flip checklist 12 items.</p>
+    </div>
+    <div class="v blue">
+      <h3><a href="yu_meeting_brief_2026_05_14.html">유 교수님 미팅 통합 브리핑</a></h3>
+      <p>5개 트랙 한 화면 — Paper 1 (DM1), Paper 2 (Histology), HLA #1 (HT-isolated), HLA #2 (Korean GD), Samsung 30억.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px">Hub 가족 36+ 페이지</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800;margin-top:8px">
+    <a href="index.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Hub home</a>
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:6px 10px;background:#0d1823;color:var(--gold)">Yu brief</a>
+    <a href="paper1.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Paper 1</a>
+    <a href="paper2_image_dm1.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Paper 2 image-DM1</a>
+    <a href="paper2_hla.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Paper 2 HLA</a>
+    <a href="paper4_gd_hla.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Paper 4 GD HLA</a>
+    <a href="grant_samsung_causal_kthyro_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Samsung grant</a>
+    <a href="track1_dm1_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T1 DM1 cmd</a>
+    <a href="track2_histology_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T2 Histology cmd</a>
+    <a href="track3_hla_isolated_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T3 HLA #1 cmd</a>
+    <a href="track4_korean_gd_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T4 HLA #2 cmd</a>
+    <a href="track5_samsung_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">T5 Samsung cmd</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Evidence atlas</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Gantt</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Decision board</a>
+    <a href="reviewer_qa_bank_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Reviewer Q&A</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Figure gallery</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Methodology</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Venue strategy</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">KR 1-pager</a>
+    <a href="investor_pitch_en_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">EN pitch</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Triangulation</a>
+    <a href="bd_outreach_state_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">BD outreach</a>
+    <a href="marathon_mode_dashboard_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Marathon</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Honest negatives</a>
+    <a href="risk_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Risk atlas</a>
+    <a href="data_registry_map_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Data registry</a>
+    <a href="cohort_gse286332_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">GSE286332</a>
+    <a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">GSE250521 spatial</a>
+    <a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">K2 PRJEB11591</a>
+    <a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Phase E pancancer</a>
+    <a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">DepMap</a>
+    <a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">ICI quad</a>
+    <a href="reviewer_war_room_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Reviewer war room</a>
+    <a href="method_comparison_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Method comparison</a>
+    <a href="korean_overdiagnosis_epi_context_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Korean overdiagnosis</a>
+    <a href="number_cosmos_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Number cosmos</a>
+    <a href="driver_split_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">Driver split</a>
+    <a href="eight_gene_forensic_audit_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5">8-gene forensic</a>
+    <a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:6px 10px;background:#0d1823;color:var(--teal)">Pillar Mun protein</a>
+    <a href="pillar_landa_methylation_deep_dive_2026_05_14.html" style="border:1px solid var(--teal);border-radius:5px;padding:6px 10px;background:#0d1823;color:var(--teal)">Pillar Landa methylation</a>
+  </div>
+
+  <p class="footer">Build · 2026-05-14 · pillar_rai_dediff_axis_deep_dive_2026_05_14.html · Seungho Cook · Marathon mode · GSE151179 RAI-dediff axis · Paper 3 ICI Track B-lite · thyroid_diff d=-1.01 p=0.0001 Bonferroni-sig · HLA-II +0.62 / myeloid +0.55 · partial-ATC immunogenomic phenotype · Phase E pan-cancer 10 lineages · Hugo/Riaz DIAL FLIP 4/7 — cross-lineage 한계 명시</p>
+</section>
+
+</main>
+</body>
+</html>

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Quantum sidecar deep dive · Samsung WP3 · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:14px 0 6px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;position:relative;overflow:hidden}
+.card.green{border-top:5px solid var(--green)}
+.card.red{border-top:5px solid var(--red)}
+.card.gold{border-top:5px solid var(--gold)}
+.card.blue{border-top:5px solid var(--blue)}
+.card.violet{border-top:5px solid var(--violet)}
+.card h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:#fff;line-height:1.1}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.tag.r{border-color:rgba(255,138,107,.5);color:var(--red)}
+.callout{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.07),rgba(255,210,138,.02));padding:18px 20px;margin:14px 0}
+.callout h3{margin:0 0 8px;color:var(--gold)}
+.callout.red{border-color:var(--red);background:linear-gradient(135deg,rgba(255,138,107,.07),rgba(255,138,107,.02))}
+.callout.red h3{color:var(--red)}
+.callout.green{border-color:var(--green);background:linear-gradient(135deg,rgba(147,226,170,.07),rgba(147,226,170,.02))}
+.callout.green h3{color:var(--green)}
+.callout.blue{border-color:var(--blue);background:linear-gradient(135deg,rgba(139,188,255,.07),rgba(139,188,255,.02))}
+.callout.blue h3{color:var(--blue)}
+.verdict-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:14px}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14.5px}
+.bullets li{margin:5px 0}
+.qa{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 18px;margin:10px 0}
+.qa b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.qa p{margin:0 0 6px;color:#dde6ec;font-size:14.5px}
+.qa p.ans{color:#cbd7df;border-left:3px solid var(--teal);padding-left:10px;margin-top:6px}
+.ladder{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:170px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:15px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:12.5px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards,.verdict-grid{grid-template-columns:1fr}
+  .ladder{grid-template-columns:1fr 1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Samsung WP3 · Quantum sidecar deep dive · 2026-05-14 · Seungho Cook</p>
+    <h1>Quantum sidecar — 3억 honest pilot, NISQ future-proofing, classical baseline 대비 우위 없으면 negative result도 paper.</h1>
+    <p class="lead">
+      삼성 30억 과제의 <b>WP3 quantum-inspired sidecar (3억 KRW, 10% sub-budget)</b>은 임상 성능 개선을 주장하지 않는다. NISQ 시대 의료 AI 대비 <b>future-proofing pilot benchmark</b>로 명시되고, classical low-rank + Gaussian kernel baseline 대비 우위가 없으면 <b>negative result로 paper화</b>한다. 이 페이지는 그 honest framing의 전제·방법 stack·예산 정당화·M9-M10 milestones·reviewer Q&A를 한 화면에 묶는다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>3억</b><span>quantum sub-budget</span><small>30억 / 10% · WP3 only</small></div>
+      <div class="stat"><b>NISQ</b><span>horizon scope</span><small>Noisy Intermediate-Scale Quantum era</small></div>
+      <div class="stat"><b>4</b><span>method stack</span><small>TN · MPS · Quantum kernel · VQC</small></div>
+      <div class="stat"><b>1</b><span>classical baseline</span><small>low-rank PCA + RBF kernel · pre-registered</small></div>
+      <div class="stat"><b>0</b><span>clinical-claim upgrade</span><small>negative result도 paper</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#why">Why quantum</a>
+  <a class="primary" href="#dontclaim">Don't claim</a>
+  <a class="primary" href="#doclaim">Do claim</a>
+  <a class="primary" href="#methods">Methods stack</a>
+  <a class="primary" href="#budget">Budget defense</a>
+  <a class="primary" href="#milestones">M9-M10</a>
+  <a class="primary" href="#disclose">Honest disclosure</a>
+  <a class="primary" href="#qa">Reviewer Q&A</a>
+  <a class="primary" href="#siblings">Siblings</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a href="track5_samsung_command_room.html">T5 Samsung</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict · honest pilot framing</h2>
+  <p class="sub">section 1 · two-sided lock</p>
+  <div class="verdict-grid">
+    <div class="callout green">
+      <span class="tag g">GREEN · we DO this</span>
+      <h3>Honest pilot framing</h3>
+      <p class="note">3억 / 30억 = 10% sub-budget. NISQ 시대 future-proofing pilot benchmark. Classical low-rank + Gaussian kernel baseline을 동일 데이터·동일 split·동일 metric으로 사전 등록한다. Quantum/TN/MPS arm은 baseline 대비 우위 입증 없이는 임상 등급 promotion 금지. 이 contract는 WP3 charter에 lock된다.</p>
+    </div>
+    <div class="callout red">
+      <span class="tag r">RED · we do NOT do this</span>
+      <h3>Clinical performance improvement claim</h3>
+      <p class="note">"Quantum kernel으로 환자 stratification 개선" / "VQC가 RNA-seq classifier보다 우수" / "NISQ hardware에서 의료 AI 우위" — 어느 것도 주장하지 않는다. 의료 AI에서 quantum advantage가 단 한 번도 입증된 적 없다는 사실을 voluntary disclosure로 본문에 박는다. 이 line을 넘는 reviewer 압박이 와도 framing은 유지한다.</p>
+    </div>
+  </div>
+  <div class="callout blue">
+    <span class="tag b">FRAME LOCK</span>
+    <h3>"우위 없으면 negative result도 paper" — pre-registration이 곧 안전망</h3>
+    <p class="note">WP3 pilot은 사전 등록(OSF/Zenodo) 후 시작된다. Classical low-rank + RBF kernel baseline의 AUROC, AUPRC, brier score, calibration slope를 동일 patient split에서 측정. Quantum/TN/MPS arm 결과가 baseline 신뢰구간 안에 떨어지거나 더 나쁘면, 그대로 negative-result paper 또는 WP3 report appendix로 보고. 이로써 "claim creep" 위험과 reviewer 의심 모두 사전 차단.</p>
+  </div>
+</section>
+
+<section id="why">
+  <h2>1. Why include quantum at all?</h2>
+  <p class="sub">section 2 · 30억 과제의 future-proofing 정당성</p>
+  <p class="note">결론부터: <span class="hi">"왜 양자를 넣었나"</span>는 명확한 정당성이 있다. 단, 그 정당성은 "지금 임상이 더 좋아진다" 라인이 아니라 <span class="hi">"NISQ 시대가 도래할 때 우리 platform이 양자 ready로 설계되어 있음을 미리 benchmark한다"</span>는 future-proofing 라인이다.</p>
+  <div class="cards">
+    <div class="card gold">
+      <span class="tag">JUST-1</span>
+      <h3>30억 과제 trend fit</h3>
+      <p class="note">Samsung 디지털헬스 미래기술 트렌드는 (a) 인과 파운데이션 모델, (b) 디지털헬스/멀티오믹스, (c) Advanced AI/quantum-inspired의 교차점. WP3 quantum sidecar는 정확히 (c)에 해당하고, WP1/WP2 backbone이 (a)/(b)를 채우면 portfolio가 3축으로 완성된다. <b>Quantum이 없으면 (c) 축이 비어 reviewer 가산점이 사라진다.</b></p>
+    </div>
+    <div class="card blue">
+      <span class="tag b">JUST-2</span>
+      <h3>Future-proofing benchmark</h3>
+      <p class="note">NISQ era (2026-2032)에 의료 AI가 양자 backbone과 어떻게 결합되는지 reviewer는 묻기 시작했다. WP3 pilot은 "우리 platform은 quantum-ready 인터페이스를 미리 검증했다"는 future-proofing 카드를 사전에 제공. 임상 promotion은 아니지만, <b>차세대 R&D 위험 hedge</b>로 정당화.</p>
+    </div>
+    <div class="card green">
+      <span class="tag g">JUST-3</span>
+      <h3>10% sub-budget — risk-bounded</h3>
+      <p class="note">3억 / 30억 = <span class="good">정확히 10%</span>. 만약 quantum이 0%로 떨어져도 전체 과제는 backbone (WP1/WP2)로 evaluable. Sub-budget이 명시적으로 작아 "main claim risk"가 분리된다. Reviewer가 "왜 양자?" 라고 묻기 전에 <b>"전체 10%, sub-budget pilot, classical baseline pre-registered"</b>로 답할 수 있다.</p>
+    </div>
+    <div class="card violet">
+      <span class="tag v">JUST-4</span>
+      <h3>R&D pipeline signal</h3>
+      <p class="note">삼성 입장에서 <b>"medical AI에 quantum-inspired benchmark를 자체적으로 갖춘 PI 팀"</b>은 follow-on R&D 단계 (예: 5년 후 양자 hardware 계약, 양자 클라우드 API와 RNA-seq pipeline 결합)에 대한 옵션 가치를 가진다. 즉 30억 quantum pilot은 single-grant ROI가 아니라 <b>multi-year R&D option value</b>로도 평가된다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="dontclaim">
+  <h2>2. What we DON'T claim</h2>
+  <p class="sub">section 3 · 라인 명시 — claim creep 차단</p>
+  <p class="note">아래 4개 라인은 사전에 명시적으로 차단된다. 본문/보고서/슬라이드/언론노출 모두에서 사용 금지로 lock.</p>
+  <table>
+    <thead><tr><th>#</th><th>차단 라인</th><th>왜 차단</th><th>대신 사용할 wording</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>1</td><td class="bad">"Quantum kernel이 classical kernel보다 임상 성능 우수"</td>
+        <td>의료 AI에서 quantum advantage가 입증된 사례 0건; small-N high-D에서 quantum kernel은 classical low-rank로 reduce</td>
+        <td>"Pre-registered classical low-rank + RBF kernel baseline 대비 우위는 관찰되지 않음 (또는 신뢰구간 내)"</td>
+      </tr>
+      <tr>
+        <td>2</td><td class="bad">"VQC가 RNA-seq 분류기보다 정확도 +X%"</td>
+        <td>VQC는 trainability barren-plateau 위험; gradient 0; small-N에서 over-parameterization 위험</td>
+        <td>"VQC arm의 사전 등록된 AUROC는 baseline 신뢰구간 안에 위치; 결과 negative or no-difference"</td>
+      </tr>
+      <tr>
+        <td>3</td><td class="bad">"NISQ hardware에서 의료 AI 우위"</td>
+        <td>현재 NISQ 디바이스는 qubit count, gate fidelity, decoherence time 모두 진단급 SLA 미달; 의료 promotion 불가능</td>
+        <td>"NISQ 시대 의료 AI 대비 future-proofing benchmark; clinical decision-grade upgrade 아님"</td>
+      </tr>
+      <tr>
+        <td>4</td><td class="bad">"TN/MPS가 deep learning을 대체"</td>
+        <td>TN/MPS는 classical low-rank tensor 분해와 수학적으로 동등; small-N high-D에서 PCA + ridge와 비슷한 inductive bias</td>
+        <td>"TN/MPS는 classical low-rank 표현의 quantum-compatible 변환; pre-registered baseline과 동일 family로 보고"</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout red">
+    <span class="tag r">LINE LOCK</span>
+    <h3>"의료 AI quantum advantage는 한 번도 입증된 적 없음" — voluntary disclosure</h3>
+    <p class="note">본문 Discussion 단락에 voluntary 한 줄로 박는다: <code>"To date, no demonstration of quantum advantage on clinical decision tasks has survived independent replication on NISQ devices. Our WP3 sidecar is therefore framed as a future-proofing benchmark, not a clinical-performance upgrade."</code> 이 disclosure가 있으면 reviewer는 "왜 안 비교했어?" 라는 가산 공격을 가할 수 없다.</p>
+  </div>
+</section>
+
+<section id="doclaim">
+  <h2>3. What we DO claim</h2>
+  <p class="sub">section 4 · 정당하게 보고 가능한 4개 라인</p>
+  <div class="cards">
+    <div class="card green">
+      <span class="tag g">DO-1</span>
+      <h3>Future-proofing pilot benchmark</h3>
+      <p class="note">"NISQ 시대를 가정할 때 우리 RNA-seq + 병리 + HLA platform이 quantum-inspired feature representation과 호환되는지 사전 검증" — 이 framing은 정당. 결과의 방향성과 무관하게 보고 가능.</p>
+    </div>
+    <div class="card green">
+      <span class="tag g">DO-2</span>
+      <h3>Negative result도 paper화</h3>
+      <p class="note">Pre-registered baseline 대비 quantum/TN/MPS arm이 우위 없으면, 그 결과 자체를 negative-result paper로 보고. Venue: <b>npj Digital Medicine</b> (negative-result invited), <b>PLOS One</b>, <b>Sci Rep</b>, 또는 워크샵 (NeurIPS Workshop on Quantum ML for Healthcare).</p>
+    </div>
+    <div class="card blue">
+      <span class="tag b">DO-3</span>
+      <h3>Methodological lessons learned</h3>
+      <p class="note">"의료 AI small-N high-D에서 quantum kernel의 작동 영역과 한계", "VQC의 trainability 문제", "TN/MPS와 classical low-rank의 등가성" — 이 3개 lessons는 결과와 무관하게 보고 가능하고, <b>차후 양자 hardware 시대 R&D guideline</b>으로 인용 가치를 가진다.</p>
+    </div>
+    <div class="card violet">
+      <span class="tag v">DO-4</span>
+      <h3>Open-source quantum-ready interface</h3>
+      <p class="note">WP3 산출물 중 <code>quantum_sidecar/</code> Python module은 PennyLane/Qiskit/TensorNetwork 어댑터를 포함한 quantum-ready interface로 공개. 이 interface는 backbone WP1/WP2와 분리 가능하며, 차세대 양자 클라우드 API 가 등장하면 즉시 swap 가능하도록 설계.</p>
+    </div>
+  </div>
+</section>
+
+<section id="methods">
+  <h2>4. Methods stack</h2>
+  <p class="sub">section 5 · TN · MPS · Quantum kernel · VQC · classical baseline</p>
+  <p class="note">WP3 sidecar는 4개 quantum-inspired arm + 1개 classical baseline. 모든 arm은 동일 input (RNA-seq matrix, HLA features, pathology embedding), 동일 patient split, 동일 metric (AUROC/AUPRC/brier/calibration)로 평가.</p>
+  <table>
+    <thead><tr><th>Arm</th><th>풀네임</th><th>What it computes</th><th>Library/실행</th><th>Honest 한계</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="hi">TN</td>
+        <td>Tensor Networks</td>
+        <td>High-D tensor를 low-rank network로 분해; feature interaction을 contracted edges로 표현</td>
+        <td><code>tensornetwork</code> (Google), <code>quimb</code>; CPU/GPU</td>
+        <td class="bad">Small-N에서 classical low-rank PCA와 inductive bias 거의 동등</td>
+      </tr>
+      <tr>
+        <td class="hi">MPS</td>
+        <td>Matrix Product States</td>
+        <td>1D chain quantum state의 효율적 표현; bond dimension D로 표현력 조절</td>
+        <td><code>quimb</code>, <code>itensor</code>; classical sim</td>
+        <td class="bad">Bond dim D ≈ low-rank rank; D 작으면 PCA에 수렴</td>
+      </tr>
+      <tr>
+        <td class="hi">Quantum kernel</td>
+        <td>Quantum kernel methods (QSVM/QKE)</td>
+        <td>Quantum feature map ϕ(x) → ⟨ϕ(x)ϕ(y)⟩ kernel; SVM-style classifier</td>
+        <td><code>PennyLane</code>, <code>Qiskit Machine Learning</code>; sim or NISQ HW</td>
+        <td class="bad">High-D에서 kernel concentration; trainability 0 위험</td>
+      </tr>
+      <tr>
+        <td class="hi">VQC</td>
+        <td>Variational Quantum Circuits</td>
+        <td>Parameterized quantum circuit를 gradient descent로 학습; quantum analog of NN</td>
+        <td><code>PennyLane</code>, <code>Qiskit</code>; sim or NISQ HW</td>
+        <td class="bad">Barren plateau (gradient 0); overparameterization small-N 위험</td>
+      </tr>
+      <tr style="background:rgba(147,226,170,.08)">
+        <td class="good">Classical</td>
+        <td>Low-rank PCA + RBF kernel + LogReg/XGBoost</td>
+        <td>Pre-registered baseline; 동일 split·동일 metric</td>
+        <td><code>scikit-learn</code>, <code>xgboost</code>; CPU</td>
+        <td class="good">투명·재현 가능; quantum arms와 비교 기준</td>
+      </tr>
+    </tbody>
+  </table>
+  <h3>Method stack의 hard-truth 한 줄</h3>
+  <p class="note">TN/MPS는 본질적으로 <b>classical low-rank tensor decomposition</b>. Quantum kernel과 VQC는 NISQ HW에서 실행할 수 있지만 의료 small-N high-D 데이터에서 가산 기대값 = 0. <span class="hi">이 한계를 사전 공개</span>하는 것이 framing의 핵심이다.</p>
+</section>
+
+<section id="budget">
+  <h2>5. Budget defense · 10% sub-budget</h2>
+  <p class="sub">section 6 · 3억 / 30억 sub-budget 정당화</p>
+  <table>
+    <thead><tr><th>항목</th><th>금액 (KRW)</th><th>전체 대비</th><th>정당화</th></tr></thead>
+    <tbody>
+      <tr><td>WP1 backbone (causal foundation)</td><td>약 12억</td><td>40%</td><td>주력 — 인과 파운데이션 + multi-omics 통합</td></tr>
+      <tr><td>WP2 digital pathology + HLA</td><td>약 12억</td><td>40%</td><td>핵심 임상 application; Paper 2/3 contract</td></tr>
+      <tr><td>WP3 quantum sidecar (PILOT)</td><td class="hi">3억</td><td class="hi">10%</td><td>NISQ future-proofing pilot benchmark</td></tr>
+      <tr><td>WP4 governance/ELSI/disclosure</td><td>약 3억</td><td>10%</td><td>윤리·privacy·negative-result disclosure 포함</td></tr>
+      <tr style="background:rgba(255,210,138,.08)"><td><b>Total</b></td><td><b>30억</b></td><td><b>100%</b></td><td>3축 portfolio + pilot + governance</td></tr>
+    </tbody>
+  </table>
+  <h3>왜 3억이 합리적인가</h3>
+  <table>
+    <thead><tr><th>이유</th><th>설명</th></tr></thead>
+    <tbody>
+      <tr><td class="good">Sub-budget 명시</td><td>전체의 10%로 sized — main claim risk와 분리. WP3 결과와 무관하게 WP1/WP2 결과는 evaluable.</td></tr>
+      <tr><td class="good">Pilot benchmark scope</td><td>4 arms × ~2-3 datasets × ~5 metrics = pilot scale; 3억은 인건비(post-doc 1.5 FTE) + 클라우드/HW + 학회/논문</td></tr>
+      <tr><td class="good">Reviewer 답변 1줄</td><td>"전체 10%, sub-budget pilot, pre-registered baseline" 한 문장으로 quantum 정당성 + 위험 한정 동시 답</td></tr>
+      <tr><td class="good">Future-proofing ROI</td><td>Single-grant ROI 아님; multi-year R&D option value (양자 hardware/클라우드 R&D 진입권)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="milestones">
+  <h2>6. WP3 milestones · M9-M10 benchmark</h2>
+  <p class="sub">section 7 · timeline lock</p>
+  <div class="ladder">
+    <div class="rung">
+      <span class="n">M9</span>
+      <b>Pre-registration</b>
+      <h4>Baseline lock</h4>
+      <p>Classical low-rank PCA + RBF kernel + LogReg/XGBoost baseline 사전 등록 (OSF). 동일 data split, metric (AUROC/AUPRC/brier/calibration), success criteria 사전 명시.</p>
+    </div>
+    <div class="rung">
+      <span class="n">M9.5</span>
+      <b>TN/MPS arm</b>
+      <h4>Classical sim</h4>
+      <p>TN/MPS arm을 classical sim으로 실행 (<code>quimb</code>, <code>tensornetwork</code>). Bond dim D = {2, 4, 8, 16} sweep. Baseline 신뢰구간 안에 위치하는지 확인.</p>
+    </div>
+    <div class="rung">
+      <span class="n">M10</span>
+      <b>Quantum kernel</b>
+      <h4>QSVM benchmark</h4>
+      <p>Quantum kernel arm을 PennyLane sim (그리고 가능하면 NISQ HW IBMQ/Rigetti) 으로 실행. Kernel concentration check 포함. Baseline 대비 AUROC delta 보고.</p>
+    </div>
+    <div class="rung">
+      <span class="n">M10</span>
+      <b>VQC</b>
+      <h4>Trainability check</h4>
+      <p>VQC arm을 PennyLane sim으로 실행. Barren plateau 진단 (gradient variance vs qubit count). Loss landscape 시각화. Baseline 대비 AUROC delta 보고.</p>
+    </div>
+    <div class="rung">
+      <span class="n">M10.5</span>
+      <b>Report + paper</b>
+      <h4>Negative or no-diff acceptance</h4>
+      <p>Baseline 대비 우위가 없으면 그대로 negative-result paper / WP3 report appendix로 보고. Pre-registered framing 덕에 reviewer 압박 차단.</p>
+    </div>
+  </div>
+  <h3>Milestone gating</h3>
+  <table>
+    <thead><tr><th>Gate</th><th>조건</th><th>실패시</th></tr></thead>
+    <tbody>
+      <tr><td>G1 (pre-registration)</td><td>OSF 등록 + baseline metric 사전 lock + reviewer 사전 검토</td><td>WP3 시작 금지; 등록 완료까지 holding</td></tr>
+      <tr><td>G2 (classical sim 통과)</td><td>TN/MPS arm이 baseline 신뢰구간 보고 가능</td><td>VQC arm으로 넘어가지 않고 negative-result 보고로 종료</td></tr>
+      <tr><td>G3 (quantum kernel)</td><td>Kernel concentration 진단 통과 + baseline 대비 delta 보고</td><td>VQC skip; quantum kernel-only negative result</td></tr>
+      <tr><td>G4 (VQC)</td><td>Barren plateau 통과 + loss landscape 시각화</td><td>VQC arm 결과 부분 보고 + lessons learned</td></tr>
+      <tr><td>G5 (paper)</td><td>Pre-registered protocol과 결과 비교 + voluntary disclosure 포함</td><td>해당 없음 — 모든 결과는 보고 가능 (positive/no-diff/negative)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="disclose">
+  <h2>7. Honest disclosure</h2>
+  <p class="sub">section 8 · voluntary disclosure lock</p>
+  <div class="callout">
+    <span class="tag">DISCLOSURE-1</span>
+    <h3>Quantum inductive bias in small-N high-D often reduces to classical low-rank</h3>
+    <p class="note">TN/MPS의 inductive bias는 본질적으로 low-rank tensor 분해와 동등. Bond dim D를 작게 잡으면 classical PCA의 rank와 같아진다. Quantum kernel은 high-D에서 kernel concentration ( ⟨ϕ(x), ϕ(y)⟩ → constant) 위험. VQC는 barren plateau (gradient variance → 0). 이 한계는 사전 공개.</p>
+  </div>
+  <div class="callout">
+    <span class="tag">DISCLOSURE-2</span>
+    <h3>Medical AI에서 quantum advantage 입증 사례 0</h3>
+    <p class="note">2023-2026 NeurIPS/ICML/Nature Machine Intelligence/Nature Medicine에서 NISQ HW를 사용해 의료 decision task에서 classical 대비 우위가 독립 재현된 사례는 0건. 우리 WP3 sidecar는 그 라인을 깨려는 시도가 아니라 <b>future-proofing benchmark</b>임을 본문에서 voluntary 한 줄로 박는다.</p>
+  </div>
+  <div class="callout">
+    <span class="tag">DISCLOSURE-3</span>
+    <h3>NISQ device의 의료 사용 SLA 미달</h3>
+    <p class="note">현재 NISQ device (IBMQ 127qubit, IonQ Forte, Rigetti Ankaa)는 qubit count, gate fidelity (~99.5%), decoherence time (T1 ~수십 μs) 모두 진단급 SLA에 미달. WP3 sidecar는 classical sim 우선이며, NISQ HW 실행은 optional sanity check 수준.</p>
+  </div>
+  <div class="callout">
+    <span class="tag">DISCLOSURE-4</span>
+    <h3>Quantum-inspired ≠ quantum</h3>
+    <p class="note">TN/MPS는 quantum-inspired classical 알고리즘. 실제 양자 HW가 없어도 실행 가능하며, classical low-rank tensor 분해와 수학적으로 동등. 본문에서 quantum-inspired와 quantum HW를 구분해서 보고.</p>
+  </div>
+</section>
+
+<section id="qa">
+  <h2>8. Reviewer Q&A bank</h2>
+  <p class="sub">section 9 · 사전 답안 8개</p>
+  <div class="qa">
+    <b>Q1 · Why include quantum at all in a clinical AI grant?</b>
+    <p>"You have RNA-seq + pathology + HLA; why blow 10% on quantum?"</p>
+    <p class="ans">A: NISQ era (2026-2032) future-proofing pilot benchmark. 30억 portfolio의 3축 (causal foundation / digital pathology+omics / quantum-inspired)을 채우기 위해 WP3 sub-budget으로 사전 검증. WP1/WP2와 분리된 sub-budget이므로 main claim risk와 격리.</p>
+  </div>
+  <div class="qa">
+    <b>Q2 · Classical baseline rigor?</b>
+    <p>"How do we know your classical baseline isn't a strawman?"</p>
+    <p class="ans">A: Pre-registered (OSF) classical low-rank PCA + RBF kernel + LogReg/XGBoost; rank/kernel bandwidth/regularization hyperparam을 outer CV로 tuned; 동일 data split, metric (AUROC/AUPRC/brier/calibration), success criteria 사전 lock. Reviewer는 OSF entry로 검증 가능.</p>
+  </div>
+  <div class="qa">
+    <b>Q3 · NISQ practicality?</b>
+    <p>"NISQ devices are noisy and small; can you even run anything meaningful?"</p>
+    <p class="ans">A: WP3는 classical sim 우선 (TN/MPS/quantum kernel/VQC 모두 PennyLane/Qiskit sim에서 실행 가능). NISQ HW 실행은 optional sanity check. 우리 framing은 "pilot benchmark + future-proofing"이므로 NISQ HW에서의 임상 promotion은 사전에 금지.</p>
+  </div>
+  <div class="qa">
+    <b>Q4 · TN/MPS reduces to classical low-rank — why call it quantum?</b>
+    <p>"TN/MPS is just tensor decomposition; what's quantum about it?"</p>
+    <p class="ans">A: 정확. 우리는 본문에서 TN/MPS를 "quantum-inspired classical 알고리즘"으로 명시 (DISCLOSURE-4). Quantum HW 와 직접적으로 연결되지 않으며, classical low-rank PCA와 inductive bias 거의 동등. 단, quantum-ready 인터페이스로 설계되어 차후 양자 클라우드 API 와 swap 가능하다는 R&D option value 보유.</p>
+  </div>
+  <div class="qa">
+    <b>Q5 · VQC barren plateau — won't training fail?</b>
+    <p>"VQC has barren plateau; gradients vanish exponentially in qubit count."</p>
+    <p class="ans">A: 예. WP3는 VQC arm에서 barren plateau 진단 (gradient variance vs qubit count) 을 사전에 실행하고 결과를 보고. 만약 trainability가 0에 가까우면 그 결과 자체를 negative-result 보고로 채택. 사전 등록된 framing 덕에 reviewer 압박이 들어와도 line lock 유지.</p>
+  </div>
+  <div class="qa">
+    <b>Q6 · Quantum kernel concentration in high-D?</b>
+    <p>"Quantum kernels concentrate in high-dim feature spaces; what's your fix?"</p>
+    <p class="ans">A: WP3는 kernel concentration 진단 (⟨ϕ(x), ϕ(y)⟩ 분포 시각화 + 분산 측정) 을 사전 실행. Concentration 발견 시 quantum kernel arm을 negative-result로 보고. 우회책 (dimensionality reduction + projected kernel) 도 적용하나, 임상 promotion은 금지.</p>
+  </div>
+  <div class="qa">
+    <b>Q7 · Why 3억, not 1억 or 5억?</b>
+    <p>"Why exactly 10% sub-budget?"</p>
+    <p class="ans">A: 4 arms × 2-3 datasets × 5 metrics + 1.5 FTE post-doc 인건비 + 클라우드/HW 비용 + 학회/논문 비용. 1억은 인건비 부족, 5억은 main claim risk와 sub-budget separation 약화. 10% is the calibrated sub-budget for pilot benchmark with negative-result acceptance.</p>
+  </div>
+  <div class="qa">
+    <b>Q8 · How do we benefit if quantum loses to classical?</b>
+    <p>"What's the upside if the quantum arm is negative?"</p>
+    <p class="ans">A: (i) Negative-result paper (npj Digital Medicine, PLOS One, NeurIPS Workshop). (ii) Lessons learned paper — small-N high-D 의료에서 quantum kernel/VQC의 한계를 정량화. (iii) Open-source quantum-ready 인터페이스 — 차세대 양자 hardware 도래시 즉시 swap 가능. (iv) Multi-year R&D option value — 삼성 후속 grant에서 양자 hardware 단계 진입권.</p>
+  </div>
+</section>
+
+<section id="siblings">
+  <h2>9. Sibling links · 65+ family</h2>
+  <p class="sub">section 10 · papers hub family navigation</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;font-family:'JetBrains Mono','SF Mono',monospace;font-size:11px;font-weight:800;margin-bottom:18px">
+    <a href="yu_meeting_brief_2026_05_14.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">Yu meeting brief</a>
+    <a href="track5_samsung_command_room.html" style="border:1px solid var(--gold);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--gold)">T5 Samsung command room</a>
+    <a href="hla_i_vs_ii_load_bearing_atlas_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">HLA-I vs HLA-II atlas (sibling 1)</a>
+    <a href="stress_xdomain_atlas_2026_05_14.html" style="border:1px solid var(--green);border-radius:5px;padding:7px 10px;background:#0d1823;color:var(--green)">Stress × x-domain atlas (sibling 2)</a>
+    <a href="track1_dm1_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T1 DM1</a>
+    <a href="track2_histology_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T2 Histology</a>
+    <a href="track3_hla_isolated_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T3 HLA #1</a>
+    <a href="track4_korean_gd_command_room.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">T4 HLA #2</a>
+    <a href="evidence_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Evidence atlas</a>
+    <a href="timeline_gantt_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">90-day Gantt</a>
+    <a href="decision_board_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Decision board</a>
+    <a href="reviewer_qa_bank_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Reviewer Q&A bank</a>
+    <a href="figure_gallery_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Figure gallery</a>
+    <a href="methodology_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Methodology atlas</a>
+    <a href="venue_strategy_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Venue strategy</a>
+    <a href="executive_brief_kr_one_pager_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">KR 1-pager</a>
+    <a href="investor_pitch_en_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">EN investor pitch</a>
+    <a href="triangulation_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Triangulation</a>
+    <a href="bd_outreach_state_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BD outreach</a>
+    <a href="marathon_mode_dashboard_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Marathon mode</a>
+    <a href="honest_negatives_wall_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Honest negatives wall</a>
+    <a href="risk_atlas_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Risk atlas</a>
+    <a href="data_registry_map_2026_05_14.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Data registry map</a>
+    <a href="paper1_nature_cancer_board.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 Nature Cancer board</a>
+    <a href="paper1_paper11_nature_master.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 1 × 11 master</a>
+    <a href="paper2_master_view.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 master view</a>
+    <a href="paper2_image_dm1_clinical_business.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 clinical/business</a>
+    <a href="paper2-hla/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 HLA dossier</a>
+    <a href="paper2-ht/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 2 HT dossier</a>
+    <a href="paper4-hla/index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 4 HLA dossier</a>
+    <a href="paper11_pancancer.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper 11 pancancer</a>
+    <a href="hla_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA atlas</a>
+    <a href="hla_class_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA class deep dive</a>
+    <a href="hla_situation.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">HLA situation</a>
+    <a href="driver_gene_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Driver gene atlas</a>
+    <a href="braf_v600e_deep_dive.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">BRAF V600E</a>
+    <a href="pancancer_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Pan-cancer atlas</a>
+    <a href="anchor_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Anchor atlas</a>
+    <a href="tcr_clonotype_atlas.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">TCR clonotype atlas</a>
+    <a href="portfolio_paper1.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio P1</a>
+    <a href="portfolio_paper2.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio P2</a>
+    <a href="portfolio_paper3.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio P3</a>
+    <a href="portfolio_paper4.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Portfolio P4</a>
+    <a href="virtual_3d_pathology_v2/" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Virtual 3D pathology v2</a>
+    <a href="kthyro_ctc_emt_all_pages_launchpad.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">K-Thyro CTC/EMT launchpad</a>
+    <a href="md_repo_organizer.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">MD repo organizer</a>
+    <a href="paper_repo_control_room_2026_05_10.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Paper repo control room</a>
+    <a href="index.html" style="border:1px solid var(--line);border-radius:5px;padding:7px 10px;background:#0d1823;color:#d3dee5">Hub home</a>
+  </div>
+  <p class="footer">Build · 2026-05-14 · Quantum sidecar honest framing · 3억/10% sub-budget · NISQ future-proofing · negative-result acceptable · pre-registered classical baseline · Samsung WP3</p>
+</section>
+
+</main>
+</body>
+</html>

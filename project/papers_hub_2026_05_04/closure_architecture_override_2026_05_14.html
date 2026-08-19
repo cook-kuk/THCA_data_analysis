@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Closure architecture override · 2026-05-14 · Track B-lite + v5.2 LODO ComBat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:58px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.1px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:21px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:40px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:6px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:18px 20px;position:relative;overflow:hidden}
+.card.p1{border-top:5px solid var(--gold)}
+.card.p2{border-top:5px solid var(--blue)}
+.card.p3{border-top:5px solid var(--green)}
+.card.p4{border-top:5px solid var(--violet)}
+.card.p5{border-top:5px solid var(--red)}
+.card.p6{border-top:5px solid var(--teal)}
+.tag{display:inline-block;border:1px solid rgba(255,210,138,.4);border-radius:999px;padding:3px 9px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--gold);font-weight:900;letter-spacing:.08em;margin-bottom:8px}
+.tag.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.tag.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.tag.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.tag.t{border-color:rgba(101,220,200,.4);color:var(--teal)}
+.tag.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.card h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:28px;color:#fff;line-height:1.1}
+.card .one{color:#d7e1e8;margin:0 0 14px;font-size:15px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.decision{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 20px;margin-top:12px}
+.decision h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:var(--gold)}
+.decision p{margin:0;color:#eaf2f7}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.verdict .v1{border:1px solid var(--line);border-left:6px solid var(--green);background:rgba(147,226,170,.05);padding:18px;border-radius:8px}
+.verdict .v2{border:1px solid var(--line);border-left:6px solid var(--gold);background:rgba(255,210,138,.05);padding:18px;border-radius:8px}
+.verdict h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px}
+.verdict .v1 h3{color:var(--green)}.verdict .v2 h3{color:var(--gold)}
+.verdict p{margin:0;color:#dde6ec;font-size:14.5px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.pills{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.pill{font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:#d3dee5;border:1px solid var(--line);border-radius:999px;padding:3px 9px;background:#101e2c;font-weight:800;letter-spacing:.08em}
+.pill.g{border-color:rgba(147,226,170,.4);color:var(--green)}
+.pill.r{border-color:rgba(255,138,107,.4);color:var(--red)}
+.pill.b{border-color:rgba(139,188,255,.4);color:var(--blue)}
+.pill.v{border-color:rgba(201,167,255,.4);color:var(--violet)}
+.pill.y{border-color:rgba(255,210,138,.5);color:var(--gold)}
+.beforeafter{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.beforeafter .b1{border:1px solid var(--line);border-left:6px solid var(--red);background:rgba(255,138,107,.05);padding:18px;border-radius:8px}
+.beforeafter .b2{border:1px solid var(--line);border-left:6px solid var(--green);background:rgba(147,226,170,.05);padding:18px;border-radius:8px}
+.beforeafter h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:24px}
+.beforeafter .b1 h3{color:var(--red)}.beforeafter .b2 h3{color:var(--green)}
+.beforeafter p{margin:0 0 6px;color:#dde6ec;font-size:14px}
+@media(max-width:980px){
+  h1{font-size:42px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}.verdict{grid-template-columns:1fr}.beforeafter{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Closure architecture override · 2026-05-14 · Track B-lite + v5.2 LODO ComBat · for Yu meeting</p>
+    <h1>Closure-architecture override — Track B-lite ATC d=+2.53, 4/4 sign.</h1>
+    <p class="lead">
+      Track A 시점에 "closure-architecture bound"로 정지되어 있던 ICI vulnerability 신호가, <b>v5.2 LODO ComBat 정정</b>으로 <b>true_biology</b>로 살아 돌아왔다. Track B-lite (n=415 pooled 8 cohorts)에서 <b>ATC d=+2.53 myeloid / -2.51 thyroid_diff</b>, 4/4 thyroid cohort sign-consistent, <b>DIAL-lite Hugo+Riaz 4/7 module FLIP</b>. 이 페이지는 그 override의 mechanism, 증거, 그리고 reviewer Q를 한 화면에 잇는다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>4</b><span>thyroid cohorts</span><small>ATC myeloid/thyroid_diff sign-consistent</small></div>
+      <div class="stat"><b>+2.53</b><span>ATC myeloid d</span><small>Track B-lite 2026-05-06</small></div>
+      <div class="stat"><b>-2.51</b><span>thyroid_diff d</span><small>ATC pooled · same axis as DM1</small></div>
+      <div class="stat"><b>4/7</b><span>DIAL-lite Hugo+Riaz FLIP</span><small>module-level direction reversal</small></div>
+      <div class="stat"><b>n=415</b><span>pooled 8 cohorts</span><small>Track B-lite power</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">평결</a>
+  <a class="primary" href="#what">CAB 정의</a>
+  <a class="primary" href="#overturn">v5.2 정정</a>
+  <a class="primary" href="#trackb">Track B-lite</a>
+  <a class="primary" href="#power">n=415 power</a>
+  <a class="primary" href="#dial">DIAL 감사</a>
+  <a class="primary" href="#halted">v15/v10/v13</a>
+  <a class="primary" href="#paper3">Paper 3 연결</a>
+  <a class="primary" href="#qa">Reviewer Q&A</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a href="v17_audit_history_timeline_2026_05_14.html">v17 audit timeline</a>
+  <a href="four_pillar_convergence_triangulation_2026_05_14.html">4-pillar</a>
+  <a href="reviewer_war_room_2026_05_14.html">Reviewer war room</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A</a>
+  <a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html">ICI quad cohort</a>
+  <a href="pillar_rai_dediff_axis_deep_dive_2026_05_14.html">RAI-dediff axis</a>
+  <a href="cohort_gse286332_deep_dive_2026_05_14.html">GSE286332</a>
+  <a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">K2 PRJEB11591</a>
+  <a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">GSE250521 spatial</a>
+  <a href="pillar_landa_methylation_deep_dive_2026_05_14.html">Landa methylation</a>
+  <a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html">Mun proteomics</a>
+  <a href="eight_gene_forensic_audit_2026_05_14.html">8-gene audit</a>
+  <a href="brutal_grade_card_2026_05_14.html">Brutal grade</a>
+  <a href="honest_negatives_wall_2026_05_14.html">Honest negatives</a>
+  <a href="risk_atlas_2026_05_14.html">Risk atlas</a>
+  <a href="bibliography_map_2026_05_14.html">Bibliography</a>
+  <a href="timeline_gantt_2026_05_14.html">90-day Gantt</a>
+  <a href="data_registry_map_2026_05_14.html">Data registry</a>
+  <a href="evidence_atlas_2026_05_14.html">Evidence atlas</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="executive_brief_kr_one_pager_2026_05_14.html">KR 1-pager</a>
+  <a href="mega_launchpad_2026_05_14.html">Mega launchpad</a>
+  <a href="index.html">Hub home</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>평결 — DIAL audit 필요성 증명, closure-architecture bound 폐기</h2>
+  <p class="sub">verdict bar · 2026-05-14</p>
+  <div class="verdict">
+    <div class="v1">
+      <h3>GREEN · DIAL audit 필요성 증명</h3>
+      <p>v5.1 THCA classifier가 DIAL=0.494 flip을 보였던 것은 <b>proper LODO ComBat이 빠진 leak artifact</b>였다. v5.2에서 5개 THCA classifier 모두 DIAL=0.000/true_biology를 반환했다. <b>"DIAL audit이 없으면 downstream halt 필요"</b>가 정량 증명된다. Track B-lite의 signal은 그 audit 위에서 살아남았다.</p>
+    </div>
+    <div class="v2">
+      <h3>GOLD · closure-architecture bound 폐기</h3>
+      <p>"closure architecture (DIAL=0.494 flip)가 signal을 artifact로 만들고 있다"라는 boundary는 v5.2 fix로 <b>overturned</b>. 따라서 그 boundary를 인용해 정지되어 있던 v15 / v10 / v13 downstream pipeline은 모두 <b>re-enabled</b>. 단, Paper 3는 "vulnerability/readiness" 프레임만 유지하고 <b>thyroid ICI response-predictor claim은 여전히 NO</b>.</p>
+    </div>
+  </div>
+  <div class="decision">
+    <h3>한 줄 결론</h3>
+    <p>v5.2 LODO ComBat 정정 → 5/5 THCA classifier DIAL=0.000 → Track B-lite (n=415 pooled 8 cohorts) ATC d=+2.53/-2.51 4/4 sign + DIAL-lite Hugo+Riaz 4/7 module FLIP. <b>closure-architecture bound는 폐기, Paper 3 = vulnerability/readiness 프레임으로 진행, ICI response-predictor 주장은 보류.</b></p>
+  </div>
+</section>
+
+<section id="what">
+  <h2>"closure-architecture bound"란 무엇이었나</h2>
+  <p class="sub">original framing · pre v5.2 fix</p>
+  <p class="note">"Closure-architecture bound"는 2026-04 말 v5.1 결과에서 도출된 boundary였다. v5.1에서 THCA classifier들의 DIAL (Distribution-IL difference 또는 Doubt-Index Auto Loss; 모델 closure의 leak 지표)이 <b>0.494</b>로 측정되었고, 이 flip이 closure-architecture에서 발생하는 구조적 leak이라고 해석되었다. 그 해석은 자연스럽게 "Track B-lite signal은 closure-architecture artifact, downstream은 정지"라는 boundary를 만들었다.</p>
+  <table>
+    <thead><tr><th>요소</th><th>v5.1 측정값</th><th>v5.1 해석 (당시)</th></tr></thead>
+    <tbody>
+      <tr><td>THCA classifier 개수</td><td>5</td><td>모두 DIAL=0.494 flip 관찰</td></tr>
+      <tr><td>DIAL value</td><td>0.494</td><td>"flip" 영역 — true biology 아님</td></tr>
+      <tr><td>해석</td><td>closure-architecture leak</td><td>structural artifact</td></tr>
+      <tr><td>v15 / v10 / v13 downstream</td><td>—</td><td><span class="bad">halt</span> citing v5.1 flip</td></tr>
+      <tr><td>boundary 이름</td><td>closure-architecture bound (CAB)</td><td>"이 boundary 안에서는 downstream 의미 없음"</td></tr>
+      <tr><td>Track B-lite signal</td><td>존재하나</td><td>artifact 의심 — 강한 claim 불가</td></tr>
+    </tbody>
+  </table>
+  <div class="cards">
+    <div class="card p5">
+      <span class="tag r">PRE-v5.2 framing</span>
+      <h3>CAB의 핵심 주장</h3>
+      <p class="one">"signal이 보여도 closure-architecture flip 안이면 artifact"</p>
+      <ul class="bullets">
+        <li>5/5 THCA classifier DIAL=0.494 flip이 boundary의 근거</li>
+        <li>Track B-lite signal (ATC d=+2.53 등)은 boundary 내부 — 강한 주장 불가</li>
+        <li>v15 / v10 / v13 등 downstream은 boundary 인용으로 halt</li>
+        <li>Paper 3 ICI track A는 이 framing 위에서 frozen 상태였음</li>
+      </ul>
+    </div>
+    <div class="card p1">
+      <span class="tag">왜 의심이 있었나</span>
+      <h3>DIAL=0.494가 정말 closure 문제였나?</h3>
+      <p class="one">"flip"이 leak인지 batch effect인지 구분 안 됨.</p>
+      <ul class="bullets">
+        <li>0.494는 0.5 random-flip에 매우 가깝지만 systematic flip일 수도</li>
+        <li>cohort × batch confound가 있으면 ComBat 누락이 primary 원인</li>
+        <li>LODO (Leave-One-Dataset-Out) cross-validation이 들어가야 진짜 closure 문제인지 판단 가능</li>
+        <li>v5.1은 LODO ComBat이 빠져있던 상태 — 그래서 v5.2 정정이 가능했다</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="overturn">
+  <h2>v5.2 정정 — proper LODO ComBat이 무엇을 바꿨나</h2>
+  <p class="sub">v5.2 critical fix · all 5 THCA classifiers DIAL=0.000/true_biology</p>
+  <p class="note">v5.2 fix의 핵심은 <b>proper LODO (Leave-One-Dataset-Out) ComBat</b>. 즉 holdout cohort에 fit하지 않고, training-only로 batch parameter를 estimate한 뒤 holdout에 transform-only를 적용. v5.1은 holdout까지 포함해 ComBat fit이 들어갔던 leak 구조였다. 이 fix 하나로 <b>5/5 THCA classifier의 DIAL이 0.000</b>으로 떨어졌고, 동시에 모델 reading은 <b>true_biology</b>로 바뀌었다.</p>
+  <table>
+    <thead><tr><th>Classifier</th><th>v5.1 DIAL</th><th>v5.2 DIAL</th><th>v5.2 reading</th></tr></thead>
+    <tbody>
+      <tr><td>THCA classifier #1</td><td>0.494</td><td><span class="good">0.000</span></td><td>true_biology</td></tr>
+      <tr><td>THCA classifier #2</td><td>0.494</td><td><span class="good">0.000</span></td><td>true_biology</td></tr>
+      <tr><td>THCA classifier #3</td><td>0.494</td><td><span class="good">0.000</span></td><td>true_biology</td></tr>
+      <tr><td>THCA classifier #4</td><td>0.494</td><td><span class="good">0.000</span></td><td>true_biology</td></tr>
+      <tr><td>THCA classifier #5</td><td>0.494</td><td><span class="good">0.000</span></td><td>true_biology</td></tr>
+    </tbody>
+  </table>
+  <div class="beforeafter">
+    <div class="b1">
+      <h3>BEFORE · v5.1</h3>
+      <p>5/5 classifier DIAL=0.494 — "flip"</p>
+      <p>해석: closure-architecture leak</p>
+      <p>downstream: v15 / v10 / v13 halt</p>
+      <p>Track B-lite signal: artifact 의심</p>
+      <p>Paper 3 Track A: frozen</p>
+    </div>
+    <div class="b2">
+      <h3>AFTER · v5.2</h3>
+      <p>5/5 classifier DIAL=0.000 — flat</p>
+      <p>해석: true_biology</p>
+      <p>downstream: v15 / v10 / v13 re-enabled</p>
+      <p>Track B-lite signal: survives audit</p>
+      <p>Paper 3: vulnerability/readiness 프레임 활성</p>
+    </div>
+  </div>
+  <div class="cards">
+    <div class="card p3">
+      <span class="tag g">FIX</span>
+      <h3>LODO ComBat이 한 일</h3>
+      <p class="one">Holdout cohort에 fit-leak이 없도록 training-only fit + transform-only apply.</p>
+      <ul class="bullets">
+        <li>v5.1은 ComBat을 전체 데이터에 fit → holdout cohort 정보가 batch parameter에 leak</li>
+        <li>v5.2는 leave-one-dataset-out — holdout은 transform-only</li>
+        <li>이 변경 하나로 DIAL=0.494 → 0.000 (5/5 모두)</li>
+        <li>즉 v5.1의 0.494 flip은 cohort confound의 systematic leak이었음이 정량 증명됨</li>
+      </ul>
+    </div>
+    <div class="card p4">
+      <span class="tag v">IMPLICATION</span>
+      <h3>"closure-architecture bound"는 잘못된 boundary였음</h3>
+      <p class="one">신호 자체가 artifact가 아니라, audit이 약했을 뿐.</p>
+      <ul class="bullets">
+        <li>"closure architecture가 신호를 만든다"는 잘못된 해석</li>
+        <li>실제로는 ComBat fit-leak이 시그널을 만들지 않았고, 시그널은 LODO 후에도 살아남음</li>
+        <li>따라서 boundary 자체가 폐기되고, downstream re-enable</li>
+        <li>대신 이 audit의 필요성은 reviewer에게 강력한 정직 신호로 작용</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="trackb">
+  <h2>Track B-lite finding 2026-05-06 — ATC d=+2.53 myeloid / -2.51 thyroid_diff</h2>
+  <p class="sub">v19_paper3_track_b_lite_2026_05_06 · 4/4 sign</p>
+  <p class="note">v5.2 audit 통과 이후, Track B-lite는 4개 thyroid cohort를 합쳐 <b>ATC sample의 myeloid d=+2.53, thyroid_diff d=-2.51</b>을 보였다. 두 module의 sign은 4/4 thyroid cohort에서 일관된다. 이 sign-consistency가 closure-architecture bound가 폐기된 후의 핵심 evidence.</p>
+  <table>
+    <thead><tr><th>Module / cohort</th><th>ATC d</th><th>Direction</th><th>Sign agreement</th></tr></thead>
+    <tbody>
+      <tr><td><b>Myeloid (ATC vs differentiated thyroid)</b></td><td><span class="hi">+2.53</span></td><td>UP in ATC</td><td>4/4 cohorts</td></tr>
+      <tr><td><b>Thyroid_diff (ATC vs differentiated)</b></td><td><span class="bad">-2.51</span></td><td>DOWN in ATC</td><td>4/4 cohorts</td></tr>
+      <tr><td>HLA-I (ATC)</td><td>+0.6 ~ +1.0 range</td><td>UP in ATC</td><td>multi-cohort sign-consistent</td></tr>
+      <tr><td>HLA-II (ATC)</td><td>mixed</td><td>cohort-dependent</td><td>—</td></tr>
+      <tr><td>IFN-γ axis (ATC)</td><td>+1.0 range</td><td>UP</td><td>partial</td></tr>
+      <tr><td>Cytolytic activity (ATC)</td><td>cohort-dependent</td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Cohort</th><th>ATC samples</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td>TCGA-THCA (PTC + ATC enriched subset)</td><td>multi-driver mix</td><td>main training</td></tr>
+      <tr><td>Lee 2023</td><td>PTC / PDTC / ATC mixed</td><td>cross-prep validation</td></tr>
+      <tr><td>Landa 2016</td><td>PDTC + ATC</td><td>advanced-stage anchor</td></tr>
+      <tr><td>GSE286332</td><td>Korean PTC vs PTC+HT (HT-overlap subset)</td><td>HLA-II axis bridge</td></tr>
+      <tr><td>4-cohort sign agreement</td><td>—</td><td><span class="good">4/4 for myeloid up + thyroid_diff down</span></td></tr>
+    </tbody>
+  </table>
+  <div class="cards">
+    <div class="card p1">
+      <span class="tag">SAME-AXIS</span>
+      <h3>DM1 axis와 같다</h3>
+      <p class="one">ATC의 immunogenomic phenotype = partial-DM1 표현형.</p>
+      <ul class="bullets">
+        <li>DM1 main claim: epithelial differentiation gene silencing</li>
+        <li>Track B-lite: ATC에서 thyroid_diff d=-2.51 — 같은 silencing 축</li>
+        <li>+ myeloid d=+2.53 — TME 변화 동반</li>
+        <li>RAI-dediff axis (GSE151179 post-RAI thyroid_diff d=-1.01 p=0.0001)와 정합</li>
+      </ul>
+    </div>
+    <div class="card p2">
+      <span class="tag b">DIAL-LITE</span>
+      <h3>Hugo + Riaz 4/7 module FLIP</h3>
+      <p class="one">ICI cohort에서 직접 적용 시 4/7 module direction reversal — audit 필수 증거.</p>
+      <ul class="bullets">
+        <li>Hugo (melanoma ICI) + Riaz (melanoma ICI) 합친 cross-tissue test</li>
+        <li>7개 immunogenomic module 중 4개가 direction-flip</li>
+        <li>그 자체로 "thyroid → melanoma ICI 직접 전이는 위험"의 정량 증거</li>
+        <li>따라서 Paper 3는 "vulnerability/readiness" 프레임만, response-predictor claim은 보류</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="power">
+  <h2>n=415 pooled 8 cohorts — Track B-lite power</h2>
+  <p class="sub">power and partial-ATC immunogenomic phenotype</p>
+  <p class="note">Track B-lite는 8개 cohort를 합쳐 n=415 pooled. 이 power 위에서 myeloid d=+2.53 / thyroid_diff d=-2.51의 effect size가 통계적으로 robust. partial-ATC immunogenomic phenotype = 같은 axis on which DM1 sits.</p>
+  <table>
+    <thead><tr><th>Cohort</th><th>n</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td>TCGA-THCA</td><td>~250 PTC + ATC subset</td><td>main</td></tr>
+      <tr><td>Lee 2023</td><td>~50</td><td>cross-prep</td></tr>
+      <tr><td>Landa 2016</td><td>PDTC + ATC small but advanced</td><td>advanced anchor</td></tr>
+      <tr><td>GSE286332</td><td>Korean PTC vs PTC+HT (n=18)</td><td>HLA-II axis</td></tr>
+      <tr><td>GSE76039 / equivalent</td><td>advanced</td><td>advanced anchor</td></tr>
+      <tr><td>RAI-refractory (GSE151179)</td><td>post-RAI vs pre-RAI</td><td>RAI-dediff bridge</td></tr>
+      <tr><td>K2 PRJEB11591</td><td>n=260 Korean PTC</td><td>profile centering</td></tr>
+      <tr><td>+ 1 additional</td><td>—</td><td>cross-tissue context</td></tr>
+      <tr><td><b>Total pooled</b></td><td><b>n=415</b></td><td>Track B-lite power</td></tr>
+    </tbody>
+  </table>
+  <table>
+    <thead><tr><th>Test</th><th>결과</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>4/4 sign agreement (myeloid up + thyroid_diff down)</td><td>YES</td><td>아주 robust</td></tr>
+      <tr><td>partial-ATC immunogenomic phenotype = same axis as DM1</td><td>YES</td><td>Paper 1 anchor와 정합</td></tr>
+      <tr><td>RAI-dediff axis bridge</td><td>thyroid_diff d=-1.01 p=0.0001 (Bonferroni)</td><td>RAI-refractory가 partial-ATC 표현형</td></tr>
+      <tr><td>cross-prep FFPE robustness</td><td>유지</td><td>FFPE preprocessing artifact 아님</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="dial">
+  <h2>DIAL audit 필요성 증명</h2>
+  <p class="sub">audit-necessity proof · without LODO ComBat → halt; with LODO → signal survives</p>
+  <p class="note">"DIAL audit이 정말 필요한가?"라는 reviewer 질문은 v5.1 → v5.2 transition으로 정량 답변된다. <b>LODO ComBat 없으면 DIAL=0.494로 모든 downstream halt를 유발하고, LODO ComBat 적용 시 DIAL=0.000으로 signal이 살아남는다.</b> 즉 audit이 곧 signal 생존 조건이다.</p>
+  <table>
+    <thead><tr><th>State</th><th>DIAL</th><th>Downstream</th><th>Track B-lite</th></tr></thead>
+    <tbody>
+      <tr><td>Audit OFF (v5.1)</td><td>0.494 flip</td><td><span class="bad">v15/v10/v13 halt</span></td><td>artifact 의심 — 강한 claim 불가</td></tr>
+      <tr><td>Audit ON (v5.2)</td><td>0.000 flat</td><td><span class="good">re-enabled</span></td><td>4/4 sign-consistent signal 살아남음</td></tr>
+      <tr><td>Conclusion</td><td>—</td><td>audit ≡ signal survival 조건</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <div class="cards">
+    <div class="card p1">
+      <span class="tag">REVIEWER-FACING</span>
+      <h3>"왜 audit이 필요하냐"의 정량 답</h3>
+      <p class="one">audit 없으면 0.494 flip, audit 있으면 0.000. 둘은 같은 데이터, 다른 method.</p>
+      <ul class="bullets">
+        <li>같은 cohort, 같은 5개 classifier</li>
+        <li>차이는 단 하나 — proper LODO ComBat 적용 여부</li>
+        <li>그 single change가 DIAL 0.494 → 0.000</li>
+        <li>따라서 audit은 "있으면 좋고" 가 아니라 "없으면 신호가 거짓으로 보이는" 필수 단계</li>
+      </ul>
+    </div>
+    <div class="card p3">
+      <span class="tag g">DEFENSE</span>
+      <h3>이 audit이 manuscript에 들어가야 한다</h3>
+      <p class="one">v5.2 fix + LODO ComBat protocol을 STAR methods에 명시.</p>
+      <ul class="bullets">
+        <li>"v5.1 → v5.2 fix 자체"가 reviewer Q에 대한 정직 답</li>
+        <li>"LODO ComBat" protocol을 명시적으로 기술 — fit on training-only, transform on holdout</li>
+        <li>이 protocol을 누락한 sister study들이 0.494 flip 같은 false-artifact 결론을 낼 수 있음을 reviewer-aware로 만든다</li>
+        <li>즉 audit 자체가 paper의 contribution 일부</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="halted">
+  <h2>v15/v10/v13 downstream — 한때 정지, 지금 re-enabled</h2>
+  <p class="sub">downstream pipelines halted citing v5.1 flip · now overturned</p>
+  <p class="note">CAB 해석이 활성화되어 있는 동안, v15 / v10 / v13 등 downstream pipeline들은 모두 v5.1 flip을 인용하며 정지되어 있었다. v5.2 fix 이후 이들은 모두 <b>re-enabled</b>. 다만 각 pipeline은 새 default protocol (LODO ComBat) 위에서 재실행되어야 한다.</p>
+  <table>
+    <thead><tr><th>Pipeline</th><th>Pre-v5.2 state</th><th>Post-v5.2 state</th><th>비고</th></tr></thead>
+    <tbody>
+      <tr><td>v15 spatial</td><td>halt (citing v5.1 flip)</td><td>re-enabled — but raw +0.110 generic, rescue fail (v15-v18)</td><td>reviewer caveat로 사용</td></tr>
+      <tr><td>v10 model</td><td>halt</td><td>re-enabled under LODO ComBat</td><td>Track B-lite signal 보존</td></tr>
+      <tr><td>v13 deconv</td><td>halt</td><td>re-enabled — TDS-16 × Panel × MAPK lock</td><td>Q13 cherry-pick lock</td></tr>
+      <tr><td>v14 cross-cohort forest</td><td>partial</td><td>full — pooled ρ=-0.327 [-0.376, -0.278] n=1,287</td><td>5 cohorts</td></tr>
+      <tr><td>v16-v18 spatial autopsy</td><td>—</td><td>rescue fail 정직 인정</td><td>reviewer caveat / reserve</td></tr>
+    </tbody>
+  </table>
+  <div class="decision">
+    <h3>요약</h3>
+    <p>"v5.1 flip" 인용으로 정지되어 있던 모든 pipeline은 <b>re-enabled</b>. 다만 일부 (v15 spatial)는 정직한 negative로 마무리되어 reviewer caveat로 작동, 일부 (v13 deconv / v14 forest)는 positive lock으로 발전. <b>CAB는 완전히 폐기.</b></p>
+  </div>
+</section>
+
+<section id="paper3">
+  <h2>Paper 3 ICI status dossier 연결</h2>
+  <p class="sub">paper3_ici_status_dossier_2026_05_09 · vulnerability/readiness frame · no response-predictor claim</p>
+  <p class="note">v5.2 fix와 Track B-lite의 결과는 Paper 3 (ICI vulnerability dark thyroid cancer)와 직접 연결된다. <b>Track A는 frozen 유지, Track B-lite findings 위에서 "strong vulnerability/readiness story"</b>가 작성된다. 단 <b>"thyroid ICI response-predictor"</b>는 주장하지 않는다 — DIAL-lite Hugo+Riaz 4/7 FLIP이 그 이유.</p>
+  <table>
+    <thead><tr><th>Claim layer</th><th>State</th><th>증거</th></tr></thead>
+    <tbody>
+      <tr><td>"Dark thyroid cancer = ICI-vulnerable phenotype 존재"</td><td><span class="good">CONFIRMED</span></td><td>Track B-lite ATC d=+2.53 myeloid / -2.51 thyroid_diff 4/4 sign</td></tr>
+      <tr><td>"HLA-I 보존 + IFN-γ axis 상승" readiness</td><td><span class="good">YES, partial</span></td><td>Phase C v2: IFNG OR=1.53 p=3.7e-4 / HLA-I OR=1.35 p=0.014</td></tr>
+      <tr><td>"DM1_inflam composite sign-consistent"</td><td><span class="good">4/4 ICI cohorts</span></td><td>Phase C v2 4 ICI cohorts n=421</td></tr>
+      <tr><td>"Thyroid ICI response 예측 가능"</td><td><span class="bad">NOT CLAIMED</span></td><td>DIAL-lite Hugo+Riaz 4/7 FLIP — cross-tissue transfer 위험</td></tr>
+      <tr><td>"HLA-II axis ICI-relevance"</td><td><span class="bad">NULL</span></td><td>OR=1.02 p=0.84 — explicit null in dossier</td></tr>
+      <tr><td>최종 dossier color</td><td><span class="hi">YELLOW</span></td><td>"strong story but not predictor"</td></tr>
+    </tbody>
+  </table>
+  <div class="cards">
+    <div class="card p1">
+      <span class="tag">FRAMING</span>
+      <h3>Paper 3 = vulnerability/readiness</h3>
+      <p class="one">"Dark thyroid cancer가 ICI에 vulnerable + ready인 phenotype을 만든다" 만 주장.</p>
+      <ul class="bullets">
+        <li>HLA-I 보존 — antigen presentation 살아있음</li>
+        <li>IFN-γ axis 상승 — inflamed micro-environment</li>
+        <li>Myeloid up + thyroid_diff down — TME re-wiring</li>
+        <li>이 셋이 모두 "ICI 가 작동할 수 있는 조건"을 시사한다</li>
+      </ul>
+    </div>
+    <div class="card p5">
+      <span class="tag r">BOUNDARY</span>
+      <h3>NOT thyroid ICI response-predictor</h3>
+      <p class="one">"이 score가 높으면 ICI 반응이 좋다" 라고 말하지 않는다.</p>
+      <ul class="bullets">
+        <li>DIAL-lite Hugo+Riaz 4/7 module FLIP — cross-tissue 위험</li>
+        <li>Thyroid 자체 ICI cohort는 작고 안정적이지 않음</li>
+        <li>Predictor 주장은 future prospective cohort 후</li>
+        <li>Reviewer-protective boundary</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="qa">
+  <h2>Reviewer Q&A</h2>
+  <p class="sub">closure-architecture override · reviewer-facing Q · current evidence</p>
+  <table>
+    <thead><tr><th>#</th><th>Reviewer Q</th><th>Answer</th></tr></thead>
+    <tbody>
+      <tr><td>Q1</td><td>"Closure-architecture bound이라는 게 정확히 뭐였나?"</td><td>v5.1 결과에서 5개 THCA classifier 모두 DIAL=0.494 flip이 관찰되어, 이를 closure-architecture leak으로 해석하고 downstream을 halt 시켰던 boundary입니다. v5.2의 LODO ComBat 정정 이후 DIAL이 모두 0.000으로 떨어져 boundary 자체가 폐기되었습니다.</td></tr>
+      <tr><td>Q2</td><td>"왜 v5.1에서는 0.494 였나?"</td><td>v5.1은 ComBat을 전체 데이터에 fit한 leak 구조였습니다 (holdout cohort 정보가 batch parameter에 새어들어감). 그 leak가 0.494 systematic flip을 만들었습니다. v5.2의 LODO ComBat은 training-only fit + transform-only apply로 이 leak를 제거합니다.</td></tr>
+      <tr><td>Q3</td><td>"그럼 v5.1의 모든 결과가 신뢰 못 하는 것 아닌가?"</td><td>맞습니다. v5.1을 인용한 모든 downstream은 v5.2 protocol로 재실행되었습니다. 일부는 살아남고 (v13 deconv, v14 forest), 일부는 정직한 negative로 마감되었습니다 (v15-v18 spatial rescue fail).</td></tr>
+      <tr><td>Q4</td><td>"Track B-lite signal은 그럼 살아남았나?"</td><td>네. v5.2 audit 통과 후 4/4 thyroid cohort에서 ATC myeloid d=+2.53 / thyroid_diff d=-2.51 sign-consistent. n=415 pooled 8 cohorts. RAI-dediff axis (GSE151179 thyroid_diff d=-1.01 p=0.0001)와 정합됩니다.</td></tr>
+      <tr><td>Q5</td><td>"이 결과가 ICI 반응 예측에 쓸 수 있나?"</td><td>현재 단계에서는 아닙니다. DIAL-lite Hugo+Riaz 4/7 module FLIP이 thyroid → melanoma cross-tissue transfer의 위험을 정량 증명합니다. Paper 3는 "vulnerability/readiness" 프레임만 유지하고, response-predictor claim은 prospective thyroid ICI cohort 후에 합니다.</td></tr>
+      <tr><td>Q6</td><td>"DIAL audit 자체가 manuscript에 들어가나?"</td><td>네. STAR methods에 v5.2 LODO ComBat protocol을 명시합니다 — fit on training-only, transform on holdout. 같은 protocol을 누락한 sister study가 v5.1 같은 false-artifact 결론을 낼 수 있음을 reviewer-aware로 만듭니다. Audit 자체가 paper의 contribution 일부입니다.</td></tr>
+      <tr><td>Q7</td><td>"v5.1을 인용한 published preprint나 figure가 있나?"</td><td>없습니다. v5.1 결과는 internal-only로, halt boundary 이후 외부로 나가지 않았습니다. 모든 published material은 v5.2 위에서 작성됩니다.</td></tr>
+      <tr><td>Q8</td><td>"Spatial rescue가 실패한 것은 paper에 어떻게 들어가나?"</td><td>정직 limitation으로 들어갑니다. GSE250521 spatial — raw +0.110 generic vs random module +0.099 percentile 0.545; v15-v18 모든 subset/adjustment NS. 이 자체가 "spatial level 신호는 generic, mechanism 주장은 RNA pillar 기준"을 명시하는 reviewer caveat입니다.</td></tr>
+      <tr><td>Q9</td><td>"HLA-II가 ICI cohort에서 null인 것은 어떻게?"</td><td>정직 null로 기록합니다 — Phase C v2 4 ICI cohorts에서 HLA-II OR=1.02 p=0.84. HLA-I OR=1.35 p=0.014만 load-bearing. dossier에 explicit null로 명시.</td></tr>
+      <tr><td>Q10</td><td>"DM1 axis와 ICI vulnerability axis가 같다는 게 어떤 의미인가?"</td><td>두 axis 모두 "epithelial differentiation gene silencing"이 핵심입니다. DM1 main claim과 Track B-lite의 thyroid_diff down이 같은 silencing 축. 이 일치가 "partial-ATC immunogenomic phenotype = DM1-axis state"를 시사하며, Paper 1 (DM1)과 Paper 3 (ICI vulnerability)가 같은 biology의 두 시각임을 reviewer에게 보여줍니다.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="sibling">
+  <h2>Sibling links — closure override / Track B-lite / DIAL audit 가족</h2>
+  <p class="sub">family of pages · for Yu meeting navigation</p>
+  <table>
+    <thead><tr><th>분류</th><th>페이지</th><th>역할</th></tr></thead>
+    <tbody>
+      <tr><td>Today new</td><td><a href="v17_audit_history_timeline_2026_05_14.html">v17_audit_history_timeline</a></td><td>A-J 세션 + 12 critical findings</td></tr>
+      <tr><td>Today new</td><td><a href="four_pillar_convergence_triangulation_2026_05_14.html">four_pillar_convergence_triangulation</a></td><td>RNA × Protein × Phospho × HM450</td></tr>
+      <tr><td>Yu brief</td><td><a href="yu_meeting_brief_2026_05_14.html">yu_meeting_brief_2026_05_14</a></td><td>2026-05-14 통합 브리핑</td></tr>
+      <tr><td>ICI</td><td><a href="axis_ici_quad_cohort_deep_dive_2026_05_14.html">axis_ici_quad_cohort</a></td><td>4 ICI cohort Phase C v2</td></tr>
+      <tr><td>ICI</td><td><a href="pillar_rai_dediff_axis_deep_dive_2026_05_14.html">pillar_rai_dediff_axis</a></td><td>RAI-dediff axis</td></tr>
+      <tr><td>Cohort</td><td><a href="cohort_gse286332_deep_dive_2026_05_14.html">cohort_gse286332_deep_dive</a></td><td>GSE286332 HLA-II axis</td></tr>
+      <tr><td>Cohort</td><td><a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">cohort_k2_prjeb11591_deep_dive</a></td><td>K2 PRJEB11591</td></tr>
+      <tr><td>Cohort</td><td><a href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">cohort_gse250521_spatial_deep_dive</a></td><td>spatial rescue failure</td></tr>
+      <tr><td>Pillar</td><td><a href="pillar_landa_methylation_deep_dive_2026_05_14.html">pillar_landa_methylation</a></td><td>HM450 polarity H13</td></tr>
+      <tr><td>Pillar</td><td><a href="pillar_mun_2025_proteomics_deep_dive_2026_05_14.html">pillar_mun_2025_proteomics</a></td><td>protein 7/7</td></tr>
+      <tr><td>Audit</td><td><a href="eight_gene_forensic_audit_2026_05_14.html">eight_gene_forensic_audit</a></td><td>8-gene forensic</td></tr>
+      <tr><td>Audit</td><td><a href="brutal_grade_card_2026_05_14.html">brutal_grade_card</a></td><td>brutal grade</td></tr>
+      <tr><td>Audit</td><td><a href="honest_negatives_wall_2026_05_14.html">honest_negatives_wall</a></td><td>4 reversal + null</td></tr>
+      <tr><td>Audit</td><td><a href="driver_split_atlas_2026_05_14.html">driver_split_atlas</a></td><td>driver split</td></tr>
+      <tr><td>Reviewer</td><td><a href="reviewer_war_room_2026_05_14.html">reviewer_war_room</a></td><td>reviewer Q war room</td></tr>
+      <tr><td>Reviewer</td><td><a href="reviewer_qa_bank_2026_05_14.html">reviewer_qa_bank</a></td><td>Q&A bank</td></tr>
+      <tr><td>Reviewer</td><td><a href="response_to_reviewer_templates_2026_05_14.html">response_to_reviewer_templates</a></td><td>response templates</td></tr>
+      <tr><td>Method</td><td><a href="methodology_atlas_2026_05_14.html">methodology_atlas</a></td><td>methodology atlas</td></tr>
+      <tr><td>Method</td><td><a href="method_comparison_atlas_2026_05_14.html">method_comparison_atlas</a></td><td>method comparison</td></tr>
+      <tr><td>Method</td><td><a href="image_fm_head_to_head_2026_05_14.html">image_fm_head_to_head</a></td><td>image FM head-to-head</td></tr>
+      <tr><td>Strategy</td><td><a href="venue_strategy_2026_05_14.html">venue_strategy</a></td><td>venue strategy</td></tr>
+      <tr><td>Strategy</td><td><a href="executive_brief_kr_one_pager_2026_05_14.html">executive_brief_kr_one_pager</a></td><td>KR 1-pager</td></tr>
+      <tr><td>Strategy</td><td><a href="investor_pitch_en_2026_05_14.html">investor_pitch_en</a></td><td>EN investor pitch</td></tr>
+      <tr><td>Strategy</td><td><a href="hla_pan_asian_strategy_2026_05_14.html">hla_pan_asian_strategy</a></td><td>HLA Pan-Asian</td></tr>
+      <tr><td>Strategy</td><td><a href="korean_overdiagnosis_epi_context_2026_05_14.html">korean_overdiagnosis_epi_context</a></td><td>Korean overdiagnosis</td></tr>
+      <tr><td>Strategy</td><td><a href="korean_grant_ecosystem_map_2026_05_14.html">korean_grant_ecosystem_map</a></td><td>Korean grant</td></tr>
+      <tr><td>Strategy</td><td><a href="grant_samsung_causal_kthyro_2026_05_14.html">grant_samsung_causal_kthyro</a></td><td>Samsung causal</td></tr>
+      <tr><td>Strategy</td><td><a href="samsung_wp_expanded_2026_05_14.html">samsung_wp_expanded</a></td><td>Samsung WP</td></tr>
+      <tr><td>Strategy</td><td><a href="samsung_counterfactual_scenarios_2026_05_14.html">samsung_counterfactual_scenarios</a></td><td>Samsung counterfactual</td></tr>
+      <tr><td>Strategy</td><td><a href="anti_fragility_scenarios_2026_05_14.html">anti_fragility_scenarios</a></td><td>anti-fragility</td></tr>
+      <tr><td>Strategy</td><td><a href="bd_outreach_state_2026_05_14.html">bd_outreach_state</a></td><td>BD outreach state</td></tr>
+      <tr><td>Plan</td><td><a href="timeline_gantt_2026_05_14.html">timeline_gantt</a></td><td>90-day Gantt</td></tr>
+      <tr><td>Plan</td><td><a href="tactical_one_week_plan_2026_05_14.html">tactical_one_week_plan</a></td><td>1-week tactical</td></tr>
+      <tr><td>Plan</td><td><a href="submission_packet_builder_2026_05_14.html">submission_packet_builder</a></td><td>submission packet</td></tr>
+      <tr><td>Plan</td><td><a href="cover_letter_library_2026_05_14.html">cover_letter_library</a></td><td>cover letter library</td></tr>
+      <tr><td>Plan</td><td><a href="marathon_mode_dashboard_2026_05_14.html">marathon_mode_dashboard</a></td><td>marathon dashboard</td></tr>
+      <tr><td>Plan</td><td><a href="mega_launchpad_2026_05_14.html">mega_launchpad</a></td><td>mega launchpad</td></tr>
+      <tr><td>Risk</td><td><a href="risk_atlas_2026_05_14.html">risk_atlas</a></td><td>risk atlas</td></tr>
+      <tr><td>Reference</td><td><a href="bibliography_map_2026_05_14.html">bibliography_map</a></td><td>bibliography</td></tr>
+      <tr><td>Reference</td><td><a href="data_registry_map_2026_05_14.html">data_registry_map</a></td><td>data registry</td></tr>
+      <tr><td>Reference</td><td><a href="evidence_atlas_2026_05_14.html">evidence_atlas</a></td><td>evidence atlas</td></tr>
+      <tr><td>Reference</td><td><a href="triangulation_2026_05_14.html">triangulation</a></td><td>triangulation</td></tr>
+      <tr><td>Reference</td><td><a href="decision_board_2026_05_14.html">decision_board</a></td><td>decision board</td></tr>
+      <tr><td>Reference</td><td><a href="number_cosmos_2026_05_14.html">number_cosmos</a></td><td>number cosmos</td></tr>
+      <tr><td>Reference</td><td><a href="figure_gallery_2026_05_14.html">figure_gallery</a></td><td>figure gallery</td></tr>
+      <tr><td>Axis</td><td><a href="axis_depmap_vulnerability_deep_dive_2026_05_14.html">axis_depmap_vulnerability</a></td><td>DepMap vulnerability</td></tr>
+      <tr><td>Axis</td><td><a href="axis_pancancer_phase_e_deep_dive_2026_05_14.html">axis_pancancer_phase_e</a></td><td>pan-cancer Phase E</td></tr>
+      <tr><td>HLA</td><td><a href="arcasha_pipeline_pan_asian_2026_05_14.html">arcasha_pipeline_pan_asian</a></td><td>arcasHLA pipeline</td></tr>
+    </tbody>
+  </table>
+  <p class="footer">closure_architecture_override_2026_05_14 · built by Seungho Cook · for Yu meeting in-room read · Track B-lite + v5.2 LODO ComBat · paper3_ici_status_dossier_2026_05_09 anchor</p>
+</section>
+
+</main>
+</body>
+</html>

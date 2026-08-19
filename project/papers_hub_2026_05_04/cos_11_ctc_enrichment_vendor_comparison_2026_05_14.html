@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>COS-11 · CTC enrichment vendor comparison · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:60px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:32px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:6px 10px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:32px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+h3{font-family:"Cormorant Garamond",Georgia,serif;font-size:24px;margin:18px 0 8px;color:#fff}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:9px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.label{display:inline-block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:9.5px;font-weight:800;padding:2px 6px;border-radius:3px;letter-spacing:.06em;text-transform:uppercase;margin-right:4px;vertical-align:1px}
+.label.fb{background:rgba(147,226,170,.15);color:var(--green);border:1px solid rgba(147,226,170,.5)}
+.label.lit{background:rgba(139,188,255,.15);color:var(--blue);border:1px solid rgba(139,188,255,.5)}
+.label.ic{background:rgba(255,210,138,.12);color:var(--gold);border:1px solid rgba(255,210,138,.5)}
+.label.hyp{background:rgba(201,167,255,.15);color:var(--violet);border:1px solid rgba(201,167,255,.5)}
+.label.pp{background:rgba(101,220,200,.12);color:var(--teal);border:1px solid rgba(101,220,200,.5)}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:16px 18px}
+.card.top{border-top:5px solid var(--gold)}
+.card h4{margin:0 0 6px;font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;color:#fff}
+.card p{margin:0 0 8px;color:#cbd7df;font-size:13.5px}
+.verdict{border:1px solid var(--gold);border-radius:12px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:18px 22px;margin:8px 0 0}
+.verdict h3{margin-top:0;color:var(--gold)}
+.email{background:#0a141d;border:1px solid var(--line);border-radius:8px;padding:16px 18px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:12.5px;color:#dde6ec;white-space:pre-wrap;line-height:1.55;margin:10px 0}
+.risk{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.risk .r{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px;border-top:4px solid var(--red)}
+.risk .r.med{border-top-color:var(--gold)}.risk .r.low{border-top-color:var(--green)}
+.risk h4{margin:0 0 6px;font-size:16px;color:#fff}.risk p{margin:0;color:#cbd7df;font-size:13.5px}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.rung{border:1px solid var(--line);border-radius:8px;padding:14px;background:#0d1823;min-height:160px}
+.rung b{display:block;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.rung .n{font-family:"Cormorant Garamond",Georgia,serif;font-size:34px;color:var(--gold);font-weight:700;line-height:1;margin-bottom:6px}
+.rung h4{margin:0 0 6px;font-size:16px;color:#fff}
+.rung p{margin:0;color:#cbd7df;font-size:13px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:10px 0 4px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+ul.bullets{margin:8px 0 14px;padding-left:20px;color:#d4dee5;font-size:14px}
+ul.bullets li{margin:4px 0}
+.siblings{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.siblings a{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#0d1823;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:#d3dee5}
+.siblings a:hover{border-color:var(--gold);color:var(--gold)}
+@media(max-width:980px){
+  h1{font-size:40px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .cards{grid-template-columns:1fr}.risk{grid-template-columns:1fr}.ladder{grid-template-columns:1fr 1fr}
+  .siblings{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">COS-11 · Samsung CTC-Spatial supplementary · 2026-05-14 · Seungho Cook</p>
+    <h1>CTC enrichment vendor comparison — 7 vendors × 8 criteria, thyroid wedge.</h1>
+    <p class="lead">
+      Samsung CTC-Spatial Oncology FM 제안서의 <b>Aim 1 (CTC enrichment + EMT phenotyping)</b>는 벤더 선택이 곧 과학적 claim boundary가 된다. EpCAM-only(<b>CELLSEARCH</b>)는 FDA가 인정한 baseline이지만, 갑상선 PTC CTC는 <b>EMT/mesenchymal predominant</b>(Yu 2024 Int J Surg n=62, 87% CTC) 라서 label-free 또는 RNA-ISH multimarker 가 사실상 필수다. 이 페이지는 7개 벤더를 8개 기준으로 비교하고, <b>top 3 outreach 후보</b>와 <b>vendor 질의서 template</b>을 제공한다. 모든 셀에 [literature / file-backed / internal claim / public proxy / hypothesis] 라벨을 붙였다. 내부 우선 선호는 아직 잠그지 않는다.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>7</b><span>vendors compared</span><small>CELLSEARCH · Parsortix · Vortex · CytoTrack · CanPatrol · TUMORFISHER · RareCyte</small></div>
+      <div class="stat"><b>8</b><span>comparison criteria</span><small>principle · FDA · KR · retention · EMT · single-cell · spatial · cost · thyroid pub</small></div>
+      <div class="stat"><b>3</b><span>top outreach targets</span><small>Vortex · CytoTrack · CELLSEARCH</small></div>
+      <div class="stat"><b>87%</b><span>PTC CTC detection</span><small>Yu 2024 Int J Surg n=62 prospective</small></div>
+      <div class="stat"><b>95%</b><span>thyroid CTC positivity</span><small>Li 2022 Mol Clin Oncol n=394 CanPatrol</small></div>
+    </div>
+    <div class="legend" style="margin-top:14px">
+      <span><span class="label fb">file</span> repo data</span>
+      <span><span class="label lit">lit</span> peer-reviewed</span>
+      <span><span class="label ic">ic</span> internal claim</span>
+      <span><span class="label pp">pp</span> public proxy</span>
+      <span><span class="label hyp">hyp</span> hypothesis · ASK vendor</span>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a class="primary" href="#verdict">Verdict</a>
+  <a class="primary" href="#matrix">Vendor matrix</a>
+  <a class="primary" href="#thy">Thyroid CTC lit</a>
+  <a class="primary" href="#emt">EMT criterion</a>
+  <a class="primary" href="#spatial">Spatial-on-pellet</a>
+  <a href="#korea">Korean access</a>
+  <a href="#price">Pricing</a>
+  <a href="#email">Outreach email</a>
+  <a href="#path">Decision pathway</a>
+  <a href="#risk">Risk register</a>
+  <a href="#siblings">Sibling links</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>1 · Verdict — Top 3 outreach targets</h2>
+  <p class="sub">literature-backed only · no internal preference locked yet</p>
+  <p>아래 3개 벤더는 <b>literature 근거 + 기준 적합도</b>만으로 도출한 outreach 후보다. 한국 access·가격·EMT preservation 데이터는 모두 ASK 단계이며, 본 페이지는 vendor 선호를 잠그지 않는다.</p>
+  <div class="cards">
+    <div class="card top">
+      <h4>① Vortex Biosciences VTX-1</h4>
+      <p><span class="label lit">lit</span> label-free vortex microfluidics; preserves morphology + EMT phenotype; 갑상선 CTC 보존에 유리</p>
+      <p><span class="label hyp">hyp</span> Korean distributor TBD; 단가 ~$400/sample 추정</p>
+      <p><span class="label ic">ic</span> EMT-aware Aim 1에 가장 잘 맞는 후보 (mesenchymal 보존)</p>
+    </div>
+    <div class="card top">
+      <h4>② CytoTrack (Denmark)</h4>
+      <p><span class="label lit">lit</span> label-free fluorescence imaging-based; rare event 검출; 한국 academic users 존재</p>
+      <p><span class="label hyp">hyp</span> 분당서울대/Severance access pathway 미확인 — ASK</p>
+      <p><span class="label ic">ic</span> 한국 내 빠른 contracting 가능성 측면에서 우선 후보</p>
+    </div>
+    <div class="card top">
+      <h4>③ Menarini CELLSEARCH</h4>
+      <p><span class="label lit">lit</span> FDA-cleared (breast/prostate/colorectal); EpCAM+ enrichment</p>
+      <p><span class="label lit">lit</span> 갑상선 CTC EMT predominant — EpCAM-only는 mesenchymal CTC drop 위험</p>
+      <p><span class="label ic">ic</span> baseline/positive control용으로만 유지, 메인 enrichment 아님</p>
+    </div>
+  </div>
+  <div class="verdict" style="margin-top:16px">
+    <h3>Why label-free first, EpCAM-only as control only</h3>
+    <p>Yu 2024 Int J Surg PTC n=62 prospective: thyroidectomy 전후 serial blood CTC, 87% detection, <b>EMT/mesenchymal phenotype predominant</b> <span class="label lit">lit</span>. Li 2022 Mol Clin Oncol n=394 CanPatrol: thyroid CTC positivity 95%, mesenchymal CTC가 differentiated thyroid cancer outcome 악화와 연관 <span class="label lit">lit</span>. 따라서 EpCAM-only 시스템은 갑상선 CTC 핵심 phenotype(mesenchymal)을 놓칠 가능성이 크다. <b>Aim 1 enrichment lane = label-free or multimarker</b>, EpCAM은 비교용 control로만 운용하는 것이 reviewer-defensible 하다.</p>
+  </div>
+</section>
+
+<section id="matrix">
+  <h2>2 · Vendor matrix — 7 vendors × 8 criteria</h2>
+  <p class="sub">한 셀에 evidence label 표시 · vendor 측 답변 필요한 셀은 hypothesis</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Vendor</th>
+        <th>Enrichment principle</th>
+        <th>FDA status</th>
+        <th>Korean access</th>
+        <th>CTC retention (lit)</th>
+        <th>EMT preservation</th>
+        <th>Single-cell DNA/RNA downstream</th>
+        <th>Spatial-on-pellet feasibility</th>
+        <th>Cost (est.)</th>
+        <th>Thyroid published?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Menarini CELLSEARCH</b></td>
+        <td>EpCAM+ ferrofluid IMS <span class="label lit">lit</span></td>
+        <td>FDA-cleared: breast 2004, prostate 2008, colorectal 2008 <span class="label lit">lit</span></td>
+        <td>Asan/Severance baseline 사용 <span class="label pp">pp</span></td>
+        <td>EpCAM+ tumors high; EMT loss <span class="label lit">lit</span></td>
+        <td class="bad">Poor (loses mesenchymal) <span class="label lit">lit</span></td>
+        <td>DEPArray downstream possible <span class="label lit">lit</span></td>
+        <td>FFPE-style cell-block — ASK <span class="label hyp">hyp</span></td>
+        <td>~$500/sample <span class="label pp">pp</span></td>
+        <td>Limited (EpCAM+ TgAb 연구 일부) <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>ANGLE Parsortix</b></td>
+        <td>Size + deformability microfluidic step <span class="label lit">lit</span></td>
+        <td>FDA-cleared 2022, metastatic breast <span class="label lit">lit</span></td>
+        <td>Korean distributor TBD <span class="label hyp">hyp</span></td>
+        <td>Size-based; broad including EMT <span class="label lit">lit</span></td>
+        <td class="good">Preserves EMT-CTC <span class="label lit">lit</span></td>
+        <td>Cassette harvest → scRNA-seq; published <span class="label lit">lit</span></td>
+        <td>Harvest → cytospin/cell-block — ASK <span class="label hyp">hyp</span></td>
+        <td>~$500/sample <span class="label pp">pp</span></td>
+        <td>Thyroid not primary — search ongoing <span class="label hyp">hyp</span></td>
+      </tr>
+      <tr>
+        <td><b>Vortex Biosciences VTX-1</b></td>
+        <td>Label-free vortex (inertial microfluidics) <span class="label lit">lit</span></td>
+        <td>Research-use; FDA submission TBD <span class="label hyp">hyp</span></td>
+        <td>Korean distributor TBD <span class="label hyp">hyp</span></td>
+        <td>Label-free; high retention low-rare <span class="label lit">lit</span></td>
+        <td class="good">Preserves morphology + EMT <span class="label lit">lit</span></td>
+        <td>Live cells harvested; sc downstream OK <span class="label lit">lit</span></td>
+        <td>Live → cytospin/cell-block — ASK <span class="label hyp">hyp</span></td>
+        <td>~$400/sample <span class="label pp">pp</span></td>
+        <td>Thyroid not primary; lung/breast main <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>CytoTrack (DK)</b></td>
+        <td>Label-free fluorescence disk imaging <span class="label lit">lit</span></td>
+        <td>CE-IVD; FDA status N/A <span class="label hyp">hyp</span></td>
+        <td>Korean academic users reported <span class="label pp">pp</span></td>
+        <td>Imaging-based; rare event capture <span class="label lit">lit</span></td>
+        <td class="good">Marker-flexible (custom Ab) <span class="label lit">lit</span></td>
+        <td>Spot-pick → low-input NGS — ASK <span class="label hyp">hyp</span></td>
+        <td>Spot retention on disk — ASK <span class="label hyp">hyp</span></td>
+        <td>~$300-450/sample <span class="label pp">pp</span></td>
+        <td>Thyroid pilots reported by academic groups <span class="label hyp">hyp</span></td>
+      </tr>
+      <tr>
+        <td><b>CanPatrol (SurExam, CN)</b></td>
+        <td>RNA-ISH multimarker (E/EMT/M) <span class="label lit">lit</span></td>
+        <td>Research/IVD in China; FDA N/A <span class="label lit">lit</span></td>
+        <td>한국 distributor TBD <span class="label hyp">hyp</span></td>
+        <td>RNA-ISH counts (no live cell) <span class="label lit">lit</span></td>
+        <td class="good">Designed for E/EM/M typing <span class="label lit">lit</span></td>
+        <td class="bad">No live cell — sc NGS not direct <span class="label lit">lit</span></td>
+        <td>Slide-based; spatial overlay possible <span class="label hyp">hyp</span></td>
+        <td>~$300/sample <span class="label pp">pp</span></td>
+        <td><b>Yes</b> — Li 2022 n=394, 95% pos <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>TUMORFISHER (Geneis, CN)</b></td>
+        <td>SE-iFISH chromosome + marker <span class="label lit">lit</span></td>
+        <td>China NMPA; FDA N/A <span class="label hyp">hyp</span></td>
+        <td>한국 distributor TBD <span class="label hyp">hyp</span></td>
+        <td>FISH-based; high sensitivity <span class="label lit">lit</span></td>
+        <td>E/M typing via cocktail <span class="label lit">lit</span></td>
+        <td>Single-cell DEPArray-style add-on <span class="label hyp">hyp</span></td>
+        <td>Slide-based — possible <span class="label hyp">hyp</span></td>
+        <td>~$350/sample <span class="label pp">pp</span></td>
+        <td><b>Yes</b> — PTC 2026 prospective n=210 <span class="label lit">lit</span></td>
+      </tr>
+      <tr>
+        <td><b>RareCyte</b></td>
+        <td>Density + slide-based high-res imaging <span class="label lit">lit</span></td>
+        <td>Research-only <span class="label lit">lit</span></td>
+        <td>Korean access unclear <span class="label hyp">hyp</span></td>
+        <td>Slide-deposit; full smear retained <span class="label lit">lit</span></td>
+        <td>Marker-flexible cocktail <span class="label lit">lit</span></td>
+        <td>CytePicker → sc DNA/RNA OK <span class="label lit">lit</span></td>
+        <td>Slide-native — spatial overlay <span class="label hyp">hyp</span></td>
+        <td>~$450-600/sample <span class="label pp">pp</span></td>
+        <td>Thyroid not primary <span class="label hyp">hyp</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">참고: cost estimates는 모두 <span class="label pp">pp</span> public proxy (vendor 미공시·learning curve). 정확 견적은 §8 outreach email로 받는다.</p>
+</section>
+
+<section id="thy">
+  <h2>3 · Thyroid CTC literature anchor</h2>
+  <p class="sub">갑상선 CTC enrichment 선택을 지지하는 직접 근거</p>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Source</th><th>N</th><th>Platform</th><th>Key finding</th><th>What it supports</th><th>What it does not</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>L1</td>
+        <td>Yu et al., Int J Surg 2024 <span class="label lit">lit</span></td>
+        <td>62 PTC</td>
+        <td>Prospective; serial pre/post thyroidectomy</td>
+        <td>87% CTC detection; <b>EMT/mesenchymal predominant</b>; counts decreased post-surgery</td>
+        <td>EMT-state CTC가 갑상선암에서 실재 + thyroidectomy가 perturbation으로 작동</td>
+        <td>NGS clone map 없음 · 재발 예측 검증 없음</td>
+      </tr>
+      <tr>
+        <td>L2</td>
+        <td>Li et al., Mol Clin Oncol 2022 <span class="label lit">lit</span></td>
+        <td>394 thyroid (270 PTC)</td>
+        <td>CanPatrol RNA-ISH</td>
+        <td>95% positivity; >6 CTC + mesenchymal CTC = poorer DTC outcomes</td>
+        <td>EMT-state CTC가 prognostic signal 보유</td>
+        <td>Mixed histology · observational · no serial NGS</td>
+      </tr>
+      <tr>
+        <td>L3</td>
+        <td>Lin et al., Thyroid 2018 <span class="label lit">lit</span></td>
+        <td>thyroid cancer cohort</td>
+        <td>CEC/CTC marker EpCAM/PDPN/TSHR</td>
+        <td>Markers correlate with remission/survival</td>
+        <td>Thyroid-origin circulating cell의 clinical signal</td>
+        <td>EMT transition 아님 · NGS 없음</td>
+      </tr>
+      <tr>
+        <td>L4</td>
+        <td>TUMORFISHER PTC 2026 prospective <span class="label lit">lit</span></td>
+        <td>210 PTC</td>
+        <td>SE-iFISH</td>
+        <td>Preoperative CTC risk stratification feasible</td>
+        <td>최신 prospective evidence — vendor-specific</td>
+        <td>Serial thyroidectomy transition 아님</td>
+      </tr>
+      <tr>
+        <td>L5</td>
+        <td>Sato et al., Thyroid 2021 <span class="label lit">lit</span></td>
+        <td>22 PTC</td>
+        <td>ddPCR BRAF V600E ctDNA</td>
+        <td>5/16 BRAF+ tumors pre-op ctDNA; 1 post-op ctDNA+ → recurrence</td>
+        <td>Postop blood mutation persistence = residual-risk signal</td>
+        <td>Single mutation, small N, no CTC</td>
+      </tr>
+      <tr>
+        <td>L6</td>
+        <td>Tarasova et al., Thyroid 2024 <span class="label lit">lit</span></td>
+        <td>1094 thyroid samples</td>
+        <td>Guardant360 plasma NGS</td>
+        <td>Cross-subtype actionable alteration detection</td>
+        <td>Plasma NGS feasibility for thyroid</td>
+        <td>Advanced/real-world bias · not early PTC</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note">소스 6개 모두 갑상선 CTC/cfDNA <b>measurable</b>임을 보여주지만, <b>serial CTC-EMT × matched tissue NGS clone map</b>은 아무도 안 했다. 이게 우리 제안서의 gap.</p>
+</section>
+
+<section id="emt">
+  <h2>4 · EMT preservation criterion — why this is load-bearing</h2>
+  <p class="sub">enrichment principle이 곧 phenotype boundary</p>
+  <p>갑상선 PTC CTC는 두 가지 이유로 EpCAM-only 시스템에 불리하다.</p>
+  <ul class="bullets">
+    <li><b>Small size + low EpCAM</b> <span class="label lit">lit</span> — Yu 2024 + Li 2022 모두 mesenchymal predominant phenotype 보고; EMT 진행시 EpCAM down-regulation이 well-documented (생물학 일반 원리)</li>
+    <li><b>State transition이 endpoint</b> <span class="label ic">ic</span> — 우리 Aim 1의 primary endpoint = thyroidectomy 전후 E/EM/M ratio shift. EpCAM-only enrichment는 M-state을 systematic 으로 놓치므로 <b>endpoint를 측정 불가</b></li>
+    <li><b>Hybrid CTC가 가장 정보량 큼</b> <span class="label lit">lit</span> — hybrid E/M state는 metastasis-initiating; CELLSEARCH는 hybrid의 EMT-end를 drop</li>
+  </ul>
+  <table>
+    <thead><tr><th>Enrichment type</th><th>E-state CTC</th><th>Hybrid E/M CTC</th><th>M-state CTC</th><th>Aim 1 fit</th></tr></thead>
+    <tbody>
+      <tr><td>EpCAM IMS (CELLSEARCH)</td><td class="good">High <span class="label lit">lit</span></td><td>Partial <span class="label lit">lit</span></td><td class="bad">Lost <span class="label lit">lit</span></td><td class="bad">Control only</td></tr>
+      <tr><td>Size microfluidic (Parsortix)</td><td class="good">High <span class="label lit">lit</span></td><td class="good">High <span class="label lit">lit</span></td><td class="good">High <span class="label lit">lit</span></td><td class="good">Primary OK</td></tr>
+      <tr><td>Label-free vortex (Vortex)</td><td class="good">High <span class="label lit">lit</span></td><td class="good">High <span class="label lit">lit</span></td><td class="good">High <span class="label lit">lit</span></td><td class="good">Primary OK</td></tr>
+      <tr><td>RNA-ISH multimarker (CanPatrol)</td><td class="good">By design <span class="label lit">lit</span></td><td class="good">By design <span class="label lit">lit</span></td><td class="good">By design <span class="label lit">lit</span></td><td class="good">Counting OK · sc NGS not direct</td></tr>
+      <tr><td>Slide imaging (CytoTrack/RareCyte)</td><td class="good">Marker-flex <span class="label lit">lit</span></td><td class="good">Marker-flex <span class="label lit">lit</span></td><td class="good">Marker-flex <span class="label lit">lit</span></td><td class="good">Primary OK</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="spatial">
+  <h2>5 · Spatial-on-pellet feasibility — hypothesis, ASK each vendor</h2>
+  <p class="sub">CTC pellet → cell-block → IHC + spatial transcriptomics 가능?</p>
+  <p>Aim 2와의 bridge가 되는 핵심 hypothesis. 현재 literature는 <b>clear</b>하지 않다.</p>
+  <table>
+    <thead>
+      <tr><th>Step</th><th>What is needed</th><th>Vendor responsibility</th><th>Evidence</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1. Enrichment → pellet</td>
+        <td>Live or fixed cell pellet (10²-10³ cells)</td>
+        <td>Harvest method (CELLSEARCH harvest, Parsortix cassette harvest, Vortex live-cell out, CytoTrack disk pick)</td>
+        <td><span class="label lit">lit</span> all vendors support harvest</td>
+      </tr>
+      <tr>
+        <td>2. Cell-block formation</td>
+        <td>Plasma + thrombin clot or agarose embedding → FFPE block</td>
+        <td>Standard pathology workflow (vendor 무관)</td>
+        <td><span class="label lit">lit</span> well-established for FNA cytology</td>
+      </tr>
+      <tr>
+        <td>3. IHC on cell-block</td>
+        <td>Standard FFPE IHC (PAX8/TG/EpCAM/VIM/CD45)</td>
+        <td>Vendor 무관 — Hospital path lab</td>
+        <td><span class="label lit">lit</span> standard</td>
+      </tr>
+      <tr>
+        <td>4. Spatial transcriptomics on cell-block</td>
+        <td>Visium FFPE / GeoMx ROI / CosMx on cell-block section</td>
+        <td>Spatial vendor (see COS-12) + CTC vendor cell-block quality</td>
+        <td class="bad"><span class="label hyp">hyp</span> not validated for CTC cell-block — ASK</td>
+      </tr>
+      <tr>
+        <td>5. Per-CTC overlay</td>
+        <td>CTC ID → spatial spot → transcriptome</td>
+        <td>Both vendors + our analysis</td>
+        <td><span class="label hyp">hyp</span> proof-of-concept needed</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note"><b>ASK 우선 순위</b>: ① cell-block 만들 때 cell loss/morphology 손실 정도 ② FFPE spatial 호환 input 요구 ③ 기존 CTC cell-block spatial 사례 데이터.</p>
+</section>
+
+<section id="korea">
+  <h2>6 · Korean availability — access pathway per vendor</h2>
+  <p class="sub">실제 ordering 가능한 경로 확인</p>
+  <table>
+    <thead><tr><th>Vendor</th><th>Korean status</th><th>Likely access pathway</th><th>ASK item</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>CELLSEARCH</td>
+        <td><span class="label pp">pp</span> Asan/Severance baseline 사용 보고됨</td>
+        <td>Hospital collaboration; Menarini Korea (TBD)</td>
+        <td>Distributor 연락처 · sample-in/data-out 단가</td>
+      </tr>
+      <tr>
+        <td>Parsortix</td>
+        <td><span class="label hyp">hyp</span> Korean distributor 확인 필요</td>
+        <td>ANGLE plc direct EU contract; or APAC distributor</td>
+        <td>한국 contract path · Korean publication history</td>
+      </tr>
+      <tr>
+        <td>Vortex VTX-1</td>
+        <td><span class="label hyp">hyp</span> Korean distributor 확인 필요</td>
+        <td>Vortex Biosciences direct (CA, USA)</td>
+        <td>국내 demo unit · Korean academic user 여부</td>
+      </tr>
+      <tr>
+        <td>CytoTrack</td>
+        <td><span class="label pp">pp</span> Danish; Korean academic users reported</td>
+        <td>CytoTrack ApS direct; possible 분당 access</td>
+        <td>분당서울대 access 가능 여부 · 단가</td>
+      </tr>
+      <tr>
+        <td>CanPatrol (SurExam)</td>
+        <td><span class="label hyp">hyp</span> 한국 distributor 미확인</td>
+        <td>SurExam China; potential Chinese CRO 경유</td>
+        <td>Cross-border IRB · Chinese vendor 한국 reg path</td>
+      </tr>
+      <tr>
+        <td>TUMORFISHER (Geneis)</td>
+        <td><span class="label hyp">hyp</span> 한국 distributor 미확인</td>
+        <td>Geneis China direct</td>
+        <td>한국 PTC cohort 처리 가능 여부 · TAT</td>
+      </tr>
+      <tr>
+        <td>RareCyte</td>
+        <td><span class="label hyp">hyp</span> 한국 access 불확실</td>
+        <td>RareCyte direct (Seattle USA); Korean academic users TBD</td>
+        <td>Demo · Korean user · CytePicker downstream lab need</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="price">
+  <h2>7 · Pricing benchmark — literature/web estimates</h2>
+  <p class="sub">vendor 미공시 · 모두 public proxy · 정식 견적은 outreach email로</p>
+  <table>
+    <thead>
+      <tr><th>Vendor</th><th>Per-sample est.</th><th>n=50 patients × 3 timepoints (150 samples)</th><th>n=50 × 4 timepoints (200)</th><th>Source basis</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>CELLSEARCH</td><td>~$500 <span class="label pp">pp</span></td><td>~$75K</td><td>~$100K</td><td>Veridex/Menarini historical service tier</td></tr>
+      <tr><td>Parsortix</td><td>~$500 <span class="label pp">pp</span></td><td>~$75K</td><td>~$100K</td><td>ANGLE published service quotes (academic)</td></tr>
+      <tr><td>Vortex VTX-1</td><td>~$400 <span class="label pp">pp</span></td><td>~$60K</td><td>~$80K</td><td>Microfluidic chip cost + processing labor</td></tr>
+      <tr><td>CytoTrack</td><td>~$300-450 <span class="label pp">pp</span></td><td>~$45-68K</td><td>~$60-90K</td><td>Imaging consumable + disk cost</td></tr>
+      <tr><td>CanPatrol</td><td>~$300 <span class="label pp">pp</span></td><td>~$45K</td><td>~$60K</td><td>China service tier (RNA-ISH)</td></tr>
+      <tr><td>TUMORFISHER</td><td>~$350 <span class="label pp">pp</span></td><td>~$52.5K</td><td>~$70K</td><td>SE-iFISH service tier</td></tr>
+      <tr><td>RareCyte</td><td>~$450-600 <span class="label pp">pp</span></td><td>~$68-90K</td><td>~$90-120K</td><td>Slide imaging + CytePicker downstream</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Samsung 30억 / 3년 budget context 에서 CTC enrichment line은 4.2억 (§7 master pitch pack). 위 표의 어떤 옵션도 fit 가능하나, label-free 옵션이 cost-EMT-preservation trade-off에서 우위.</p>
+</section>
+
+<section id="email">
+  <h2>8 · Vendor outreach email template</h2>
+  <p class="sub">top 3 vendors 동시 발송 · 1주 turnaround 목표</p>
+  <div class="email">Subject: Research collaboration inquiry — serial CTC enrichment + EMT phenotyping for thyroidectomy cohort (PTC, n=50, Korea)
+
+Dear [Vendor Sales / Scientific Contact],
+
+I am a postdoctoral researcher (Seungho Cook) collaborating with Prof. Yu (Seoul National University Bundang Hospital) and preparing a Samsung Future Technology Foundation grant (30억 KRW / 3 years) focused on:
+
+   "Serial Genetic Mapping of CTC-EMT State Transitions After Thyroidectomy in Papillary Thyroid Cancer"
+
+We are evaluating CTC enrichment platforms for our Aim 1 (serial CTC phenotyping). We would appreciate technical answers to the following:
+
+  1. Enrichment principle
+     - Brief technical description; key reference papers if any.
+
+  2. EMT preservation
+     - Does your platform retain mesenchymal/hybrid E-M CTCs?
+     - Quantitative data (e.g., recovery rate by phenotype) if available.
+
+  3. Spatial-on-pellet feasibility
+     - Can CTCs be harvested as cell pellet suitable for FFPE cell-block?
+     - Has anyone applied spatial transcriptomics (10x Visium / NanoString GeoMx /
+       CosMx) to a cell-block of your enriched CTCs?
+
+  4. Korean availability
+     - Korean distributor / scientific contact / nearest demo unit.
+     - Any Korean academic users we may consult.
+
+  5. Serial-sample logistics
+     - Sample tube (CellSave / EDTA / Streck), volume, processing time window,
+       shipping protocol.
+
+  6. Pricing
+     - Approximate per-sample cost for academic research use.
+     - Quote for n=50 patients × 3-4 timepoints (150-200 samples).
+     - Volume discount / multi-year agreement options.
+
+  7. Single-cell DNA/RNA downstream
+     - Compatibility with low-input scWGS, scRNA-seq, DEPArray/CytePicker.
+     - Reported limitations (drop-out, WGA bias, fusion detection).
+
+  8. IP terms
+     - Sample/data ownership.
+     - Publication rights and acknowledgment requirements.
+     - Cross-border data transfer (if Korean samples processed abroad).
+
+We are evaluating 6-7 vendors and would like to schedule a 30-minute technical
+call with the top responders within 2 weeks. Thyroid CTC literature (Yu 2024
+Int J Surg n=62, Li 2022 Mol Clin Oncol n=394 CanPatrol, TUMORFISHER PTC 2026
+n=210) supports the feasibility of our cohort; the open question is matching
+the right enrichment principle to EMT-state thyroid CTCs.
+
+Best regards,
+Seungho Cook, PhD
+Postdoctoral researcher, [affiliation]
+kukshomr@gmail.com</div>
+</section>
+
+<section id="path">
+  <h2>9 · Decision pathway — 4 stages</h2>
+  <p class="sub">vendor lock-in 회피 · stage gate 각 단계마다 GO/NO-GO</p>
+  <div class="ladder">
+    <div class="rung">
+      <b>Stage 1 · 4 weeks</b>
+      <div class="n">1</div>
+      <h4>Outreach top 3</h4>
+      <p>Vortex, CytoTrack, CELLSEARCH 동시 contact. 응답 7-10일. 30분 technical call 3건.</p>
+    </div>
+    <div class="rung">
+      <b>Stage 2 · 8 weeks</b>
+      <div class="n">2</div>
+      <h4>Pilot 5 patients</h4>
+      <p>가장 fit-답 한 1-2개 vendor 와 paid pilot. EMT recovery + cell-block compatibility 검증.</p>
+    </div>
+    <div class="rung">
+      <b>Stage 3 · 6 months</b>
+      <div class="n">3</div>
+      <h4>Scale to n=50</h4>
+      <p>Lock vendor; serial timepoint 시작. n=50 × 3 timepoints = 150 samples. 단가 lock.</p>
+    </div>
+    <div class="rung">
+      <b>Stage 4 · 18 months</b>
+      <div class="n">4</div>
+      <h4>Serial cohort + recurrence link</h4>
+      <p>n=50 × 4 timepoints (T0/T1/T2/T3). 재발 follow-up과 paired CTC-EMT shift 분석.</p>
+    </div>
+  </div>
+  <p class="note">Stage 2 → 3 gate criterion: pilot n=5 에서 EMT-state CTC recovery ≥ 70% &amp; cell-block IHC 가능 confirmed. NO-GO이면 차선 vendor pivot.</p>
+</section>
+
+<section id="risk">
+  <h2>10 · Risk register</h2>
+  <div class="risk">
+    <div class="r">
+      <h4>Vendor lock-in</h4>
+      <p><span class="label ic">ic</span> 단일 벤더 platform-specific phenotype 정의 → cross-vendor 비교 불가. <b>완화</b>: Aim 1 marker panel을 vendor-agnostic (EpCAM/PAX8/TG/CK/VIM/TWIST/CD45)로 prespecify.</p>
+    </div>
+    <div class="r med">
+      <h4>IP / data ownership</h4>
+      <p><span class="label hyp">hyp</span> Chinese vendor 가 raw image/FASTQ 미반환 가능성. <b>완화</b>: contract에 raw data return + Korean storage 요건 명시.</p>
+    </div>
+    <div class="r med">
+      <h4>Technical drift</h4>
+      <p><span class="label ic">ic</span> 3년 cohort 동안 vendor가 protocol/chip 변경. <b>완화</b>: 초기 batch 100 samples 확보 + change-control 조항.</p>
+    </div>
+    <div class="r">
+      <h4>Korean regulatory</h4>
+      <p><span class="label hyp">hyp</span> Chinese vendor 한국 import 인허가 미보유 가능. <b>완화</b>: IVD 인증 없는 vendor는 research-use only로 명시; Bundang IRB 사전 협의.</p>
+    </div>
+    <div class="r low">
+      <h4>EMT preservation underperform</h4>
+      <p><span class="label hyp">hyp</span> Vendor가 marketing claim 대비 실제 EMT recovery 낮을 경우. <b>완화</b>: Stage 2 pilot에서 prespecified EMT recovery threshold(≥70%) 적용.</p>
+    </div>
+    <div class="r med">
+      <h4>Cost overrun</h4>
+      <p><span class="label ic">ic</span> 단가 estimate 모두 public proxy. 실제 가격이 1.5× 이상이면 timepoint 축소.</p>
+    </div>
+  </div>
+</section>
+
+<section id="deep">
+  <h2>12 · Deep-dive — per-vendor reviewer dossier</h2>
+  <p class="sub">각 벤더의 강점/약점/우리 cohort fit 요약</p>
+  <h3>12.1 Menarini CELLSEARCH — FDA baseline, EMT blind</h3>
+  <p><span class="label lit">lit</span> CellSave tube에서 ferrofluid anti-EpCAM IMS, magnetic separation, anti-CK + DAPI + anti-CD45 staining, semi-automated enumeration. Breast/prostate/colorectal에서 ≥5 CTC/7.5mL = poor prognosis로 FDA cleared. <span class="label ic">ic</span> 갑상선 PTC에서는 EpCAM down-regulated EMT-CTC를 systematic 으로 miss. <b>우리 cohort 사용 시</b> = positive control / EpCAM-high baseline lane 으로 제한.</p>
+  <h3>12.2 ANGLE Parsortix — FDA 2022, size-based</h3>
+  <p><span class="label lit">lit</span> Size + deformability 기반 microfluidic separation cassette. Live-cell harvest 후 scRNA-seq, CYTOR1 imaging, IF, FISH 가능. 2022년 FDA-cleared (metastatic breast). <span class="label lit">lit</span> EMT phenotype 보존이 가장 잘 documented (Miller 2018, Lampignano 2017). <b>우리 cohort 사용 시</b> = Aim 1 enrichment primary 후보 — Yu 2024 갑상선 cohort 와 phenotype 호환.</p>
+  <h3>12.3 Vortex Biosciences VTX-1 — label-free, EMT-friendly</h3>
+  <p><span class="label lit">lit</span> Inertial microfluidic vortex chambers; label-free; live-cell harvest. Sollier 2014, Renier 2017 등 다수 비교 paper. <span class="label hyp">hyp</span> 갑상선 cohort 직접 publication 없음 — pilot이 필요. <b>우리 cohort 사용 시</b> = Aim 1 enrichment 후보 — EMT 보존 가장 강력 claim.</p>
+  <h3>12.4 CytoTrack — label-free imaging, Korean academic</h3>
+  <p><span class="label lit">lit</span> 7mL whole blood smear → disk imaging → fluorescence-tagged Ab. Marker cocktail 변경 가능. Hillig 2015. <span class="label pp">pp</span> 한국 academic users 보고됨. <b>우리 cohort 사용 시</b> = Korean contracting fastest, marker-customization 강점.</p>
+  <h3>12.5 CanPatrol (SurExam) — RNA-ISH 4-color, thyroid published</h3>
+  <p><span class="label lit">lit</span> CD45-/EpCAM/CK + VIM/TWIST RNA-ISH 4-color tagging. Slide 기반 counts. Li 2022 Mol Clin Oncol n=394 thyroid 95% positivity로 갑상선에서 가장 큰 published cohort. <span class="label lit">lit</span> No live cell — scNGS 직접 불가. <b>우리 cohort 사용 시</b> = E/EM/M counting backup, thyroid evidence anchor.</p>
+  <h3>12.6 TUMORFISHER (Geneis) — SE-iFISH, PTC 2026 prospective</h3>
+  <p><span class="label lit">lit</span> Subtraction enrichment + immunostaining-FISH. Chromosome 8 centromere + tumor marker cocktail. PTC 2026 prospective n=210 (preprint/early publication). <b>우리 cohort 사용 시</b> = preoperative risk stratification anchor — TUMORFISHER 2026 data 와 직접 비교 가능.</p>
+  <h3>12.7 RareCyte — slide-deposit, downstream-flexible</h3>
+  <p><span class="label lit">lit</span> AccuCyte density-based slide deposit + CyteFinder imaging + CytePicker single-cell retrieval. Multi-marker 6-color cocktail. <span class="label hyp">hyp</span> Korean access 가장 불확실. <b>우리 cohort 사용 시</b> = single-cell DNA/RNA downstream 최고, 단 Korean logistics 부담.</p>
+</section>
+
+<section id="evidence">
+  <h2>13 · Evidence label legend &amp; integrity rules</h2>
+  <p class="sub">모든 셀 라벨링 — 절대 fabricate 금지</p>
+  <table>
+    <thead><tr><th>Label</th><th>의미</th><th>인용 요건</th><th>이 페이지에서의 사용 예</th></tr></thead>
+    <tbody>
+      <tr><td><span class="label fb">file</span></td><td>repo 내 file-backed</td><td>경로 명시</td><td>(이 페이지는 file-backed 없음 — 외부 자료만)</td></tr>
+      <tr><td><span class="label lit">lit</span></td><td>peer-reviewed literature</td><td>저자/연도/저널 또는 DOI</td><td>Yu 2024, Li 2022, FDA clearance, Miller 2018 등</td></tr>
+      <tr><td><span class="label ic">ic</span></td><td>internal claim (Seungho/team의 분석 판단)</td><td>판단 근거 명시</td><td>"label-free first", "EpCAM-only는 control only" 등</td></tr>
+      <tr><td><span class="label pp">pp</span></td><td>public proxy (web/industry 추정)</td><td>"~" 명시 + 출처 source basis</td><td>vendor cost estimates · Korean availability hearsay</td></tr>
+      <tr><td><span class="label hyp">hyp</span></td><td>hypothesis · vendor에게 ASK</td><td>"ASK" 명시 + 검증 단계 명시</td><td>spatial-on-pellet · cell-block compatibility · distributor 등</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="siblings">
+  <h2>11 · Sibling links — Chief-of-Staff family</h2>
+  <p class="sub">cos_ supplementary + chief_of_staff core + yu_meeting + launchpad</p>
+  <div class="siblings">
+    <a href="chief_of_staff_00_package_index_2026_05_14.html">cos-00 · package index</a>
+    <a href="chief_of_staff_01_repo_audit_2026_05_14.html">cos-01 · repo audit</a>
+    <a href="chief_of_staff_04_dm1_dm2_signature_decision_2026_05_14.html">cos-04 · DM1/DM2 signature</a>
+    <a href="chief_of_staff_05_samsung_ctc_spatial_proposal_2026_05_14.html">cos-05 · Samsung proposal</a>
+    <a href="cos_11_ctc_enrichment_vendor_comparison_2026_05_14.html" style="border-color:var(--gold);color:var(--gold)">cos-11 · THIS PAGE</a>
+    <a href="cos_12_spatial_vendor_comparison_2026_05_14.html">cos-12 · Spatial vendor</a>
+    <a href="cos_13_foundation_model_literature_scan_2026_05_14.html">cos-13 · FM lit scan</a>
+    <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a>
+    <a href="rehearsal_script_yu_meeting_2026_05_14.html">Rehearsal script</a>
+    <a href="yu_meeting_minutes_template_2026_05_14.html">Minutes template</a>
+    <a href="mega_launchpad_2026_05_14.html">Mega launchpad</a>
+    <a href="index.html">Hub home</a>
+  </div>
+  <p class="footer">COS-11 · CTC enrichment vendor comparison · seven vendors × eight criteria · thyroid wedge · 2026-05-14 · evidence-labeled · Seungho Cook</p>
+</section>
+
+</main>
+
+</body>
+</html>

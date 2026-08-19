@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BioDarwin Mode Bank Ensemble v4</title>
+<style>
+body { margin:0; background:#101418; color:#e9edf0; font:15px/1.55 system-ui,-apple-system,Segoe UI,sans-serif; }
+header { padding:38px 5vw 26px; background:#0c1115; border-bottom:1px solid #29343c; }
+.kicker { color:#c59b3b; text-transform:uppercase; letter-spacing:.12em; font-weight:700; font-size:12px; }
+h1 { margin:.3rem 0 .65rem; font-size:clamp(28px,4vw,48px); line-height:1.05; }
+.lead { max-width:1040px; color:#d0d8dd; font-size:18px; }
+main { padding:28px 5vw 60px; }
+.note { border-left:3px solid #c59b3b; background:#171f26; padding:10px 14px; color:#dce3e7; }
+table.data { width:100%; border-collapse:collapse; font-size:13px; margin:12px 0 28px; }
+table.data th, table.data td { border-bottom:1px solid #29343c; padding:7px 8px; text-align:left; vertical-align:top; }
+table.data th { color:#f4d891; background:#141b21; }
+img { max-width:100%; border:1px solid #29343c; border-radius:8px; background:#fff; }
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">BioDarwin mode bank · gated ensemble</div>
+  <h1>One cancer-vaccine engine, multiple operating modes</h1>
+  <p class="lead">Full-discovery mode for internal features, public-anchor mode for patents/posters, CD4-helper mode for Class-II/SLP design, and disagreement mode for wetlab plate selection.</p>
+</header>
+<main>
+  <p class="note">The industrial win is diagnostic because public-anchor mode was selected after seeing the 25-row mini-set. Freeze this mode bank before adding new industrial rows or wetlab readout.</p>
+  <img src="assets/biodarwin_mode_bank_ensemble_v4/fig1_mode_bank_metrics.png" alt="mode bank metrics">
+  <h2>Mode Bank</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>mode</th>
+      <th>used_when</th>
+      <th>score</th>
+      <th>role</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>full_discovery</td>
+      <td>internal CROSS/TCR/MD features available</td>
+      <td>BioDarwin_PanVax_v2</td>
+      <td>maximum academic/known-answer discovery power</td>
+    </tr>
+    <tr>
+      <td>public_anchor</td>
+      <td>public patent/poster feature-only setting</td>
+      <td>0.80*public_anchor_v3 + 0.20*BigMHC_IM_norm</td>
+      <td>industrial/patent OOD fallback</td>
+    </tr>
+    <tr>
+      <td>cd4_helper</td>
+      <td>Class-II or SLP design lane</td>
+      <td>BioDarwin CD4 helper axis</td>
+      <td>ranking/design only until labeled Class-II metrics exist</td>
+    </tr>
+    <tr>
+      <td>disagreement</td>
+      <td>96-well plate selection</td>
+      <td>|full_discovery - public_anchor| plus high score controls</td>
+      <td>find cases where wetlab teaches the ensemble</td>
+    </tr>
+  </tbody>
+</table>
+  <h2>Metrics</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>split</th>
+      <th>algorithm</th>
+      <th>claim_status</th>
+      <th>n</th>
+      <th>positives</th>
+      <th>positive_rate</th>
+      <th>AUPRC</th>
+      <th>AUROC</th>
+      <th>top5_precision</th>
+      <th>top5_hits</th>
+      <th>top10_precision</th>
+      <th>top10_hits</th>
+      <th>top24_precision</th>
+      <th>top24_hits</th>
+      <th>top96_precision</th>
+      <th>top96_hits</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>academic_validation_like</td>
+      <td>BigMHC_IM</td>
+      <td>clean_comparator</td>
+      <td>430</td>
+      <td>11</td>
+      <td>0.0256</td>
+      <td>0.3337</td>
+      <td>0.8277</td>
+      <td>0.6000</td>
+      <td>3</td>
+      <td>0.4000</td>
+      <td>4</td>
+      <td>0.2500</td>
+      <td>6</td>
+      <td>0.0938</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>academic_validation_like</td>
+      <td>CROSS_claimsafe</td>
+      <td>clean_comparator</td>
+      <td>430</td>
+      <td>11</td>
+      <td>0.0256</td>
+      <td>0.8465</td>
+      <td>0.9920</td>
+      <td>1.0000</td>
+      <td>5</td>
+      <td>0.8000</td>
+      <td>8</td>
+      <td>0.4167</td>
+      <td>10</td>
+      <td>0.1146</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>academic_validation_like</td>
+      <td>BioDarwin_PanVax_v2</td>
+      <td>clean_prefreeze_model</td>
+      <td>430</td>
+      <td>11</td>
+      <td>0.0256</td>
+      <td>0.8863</td>
+      <td>0.9724</td>
+      <td>1.0000</td>
+      <td>5</td>
+      <td>0.9000</td>
+      <td>9</td>
+      <td>0.4167</td>
+      <td>10</td>
+      <td>0.1042</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>academic_validation_like</td>
+      <td>BioDarwin_mode_bank_v4</td>
+      <td>gated_full_discovery</td>
+      <td>430</td>
+      <td>11</td>
+      <td>0.0256</td>
+      <td>0.8863</td>
+      <td>0.9724</td>
+      <td>1.0000</td>
+      <td>5</td>
+      <td>0.9000</td>
+      <td>9</td>
+      <td>0.4167</td>
+      <td>10</td>
+      <td>0.1042</td>
+      <td>10</td>
+    </tr>
+    <tr>
+      <td>industrial_locked_v0</td>
+      <td>BigMHC_IM</td>
+      <td>clean_comparator</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>0.5781</td>
+      <td>0.6111</td>
+      <td>0.8000</td>
+      <td>4</td>
+      <td>0.4000</td>
+      <td>4</td>
+      <td>0.3750</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>industrial_locked_v0</td>
+      <td>GA_public_feature_adapter</td>
+      <td>clean_comparator</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>0.5154</td>
+      <td>0.5903</td>
+      <td>0.6000</td>
+      <td>3</td>
+      <td>0.4000</td>
+      <td>4</td>
+      <td>0.3750</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>industrial_locked_v0</td>
+      <td>BioDarwin_PanVax_v2</td>
+      <td>clean_prefreeze_model</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>0.4943</td>
+      <td>0.5417</td>
+      <td>0.6000</td>
+      <td>3</td>
+      <td>0.4000</td>
+      <td>4</td>
+      <td>0.3750</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>industrial_locked_v0</td>
+      <td>BioDarwin_public_anchor_v3</td>
+      <td>diagnostic_selected_after_failure</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>0.6280</td>
+      <td>0.6389</td>
+      <td>0.8000</td>
+      <td>4</td>
+      <td>0.5000</td>
+      <td>5</td>
+      <td>0.3750</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>9</td>
+    </tr>
+    <tr>
+      <td>industrial_locked_v0</td>
+      <td>BioDarwin_mode_bank_v4</td>
+      <td>diagnostic_mode_bank</td>
+      <td>25</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>0.6280</td>
+      <td>0.6389</td>
+      <td>0.8000</td>
+      <td>4</td>
+      <td>0.5000</td>
+      <td>5</td>
+      <td>0.3750</td>
+      <td>9</td>
+      <td>0.3600</td>
+      <td>9</td>
+    </tr>
+  </tbody>
+</table>
+  <h2>Industrial Ranking</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>industrial_candidate_id</th>
+      <th>peptide</th>
+      <th>hla_allele</th>
+      <th>label</th>
+      <th>BigMHC_IM</th>
+      <th>biodarwin_mode_bank_v4_score</th>
+      <th>biodarwin_mode_bank_selected_mode</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>INDPUB_0003</td>
+      <td>ATQNQLLFY</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>0.9869</td>
+      <td>1.0000</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0016</td>
+      <td>SESNNYMNY</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>0.9674</td>
+      <td>0.9949</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0019</td>
+      <td>SGIDTIMYY</td>
+      <td>HLA-A*29:02</td>
+      <td>0</td>
+      <td>0.9685</td>
+      <td>0.9906</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0008</td>
+      <td>GSASFGTVY</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>0.9317</td>
+      <td>0.9637</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0021</td>
+      <td>SSTESSPEY</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>0.7248</td>
+      <td>0.7558</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0009</td>
+      <td>IFDVLPNFY</td>
+      <td>HLA-A*29:02</td>
+      <td>0</td>
+      <td>0.6466</td>
+      <td>0.6556</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0014</td>
+      <td>RTIGKLEPY</td>
+      <td>HLA-A*29:02</td>
+      <td>0</td>
+      <td>0.6142</td>
+      <td>0.6502</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0015</td>
+      <td>RVWSEFEMK</td>
+      <td>HLA-A*03:01</td>
+      <td>0</td>
+      <td>0.6011</td>
+      <td>0.6048</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0005</td>
+      <td>CLRSHQGRY</td>
+      <td>HLA-A*29:02</td>
+      <td>0</td>
+      <td>0.5302</td>
+      <td>0.5598</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0002</td>
+      <td>ASPTDQEFY</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>0.4688</td>
+      <td>0.4995</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0004</td>
+      <td>AYYQSADPY</td>
+      <td>HLA-A*29:02</td>
+      <td>0</td>
+      <td>0.4959</td>
+      <td>0.4989</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0006</td>
+      <td>DWFRARYSY</td>
+      <td>HLA-A*29:02</td>
+      <td>0</td>
+      <td>0.4758</td>
+      <td>0.4896</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0010</td>
+      <td>NVTIHFWLK</td>
+      <td>HLA-A*03:01</td>
+      <td>0</td>
+      <td>0.4597</td>
+      <td>0.4849</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0011</td>
+      <td>REEQKELQW</td>
+      <td>HLA-B*44:03</td>
+      <td>0</td>
+      <td>0.4777</td>
+      <td>0.4517</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0022</td>
+      <td>SVSSLLSQF</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>0.4428</td>
+      <td>0.4414</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0020</td>
+      <td>SLNRANFRK</td>
+      <td>HLA-A*03:01</td>
+      <td>0</td>
+      <td>0.2723</td>
+      <td>0.2714</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0017</td>
+      <td>SESNNYMNY</td>
+      <td>HLA-B*44:02</td>
+      <td>1</td>
+      <td>0.1809</td>
+      <td>0.1595</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0012</td>
+      <td>RLQEAGLRR</td>
+      <td>HLA-A*03:01</td>
+      <td>0</td>
+      <td>0.1577</td>
+      <td>0.1451</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0023</td>
+      <td>TEKVFLSTF</td>
+      <td>HLA-B*44:03</td>
+      <td>0</td>
+      <td>0.1101</td>
+      <td>0.0920</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0001</td>
+      <td>AQSGAVVQW</td>
+      <td>HLA-B*44:02</td>
+      <td>0</td>
+      <td>0.1236</td>
+      <td>0.0875</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0025</td>
+      <td>YVDDIRRAF</td>
+      <td>HLA-B*44:02</td>
+      <td>1</td>
+      <td>0.0586</td>
+      <td>0.0517</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0024</td>
+      <td>YVDDIRRAF</td>
+      <td>HLA-A*29:02</td>
+      <td>1</td>
+      <td>0.0670</td>
+      <td>0.0491</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0013</td>
+      <td>RQPAWLQGR</td>
+      <td>HLA-A*03:01</td>
+      <td>0</td>
+      <td>0.0306</td>
+      <td>0.0273</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0007</td>
+      <td>GQYVKFLAH</td>
+      <td>HLA-A*03:01</td>
+      <td>0</td>
+      <td>0.0471</td>
+      <td>0.0207</td>
+      <td>public_anchor</td>
+    </tr>
+    <tr>
+      <td>INDPUB_0018</td>
+      <td>SEVQFSERK</td>
+      <td>HLA-B*44:02</td>
+      <td>0</td>
+      <td>0.0166</td>
+      <td>0.0000</td>
+      <td>public_anchor</td>
+    </tr>
+  </tbody>
+</table>
+  <h2>Class-II Design Lane</h2>
+  <table border="1" class="dataframe data">
+  <thead>
+    <tr style="text-align: right;">
+      <th>classII_candidate_id</th>
+      <th>source_id</th>
+      <th>organization</th>
+      <th>peptide_or_sequence</th>
+      <th>hla_allele</th>
+      <th>biodarwin_mode_bank_v4_score</th>
+      <th>biodarwin_mode_bank_selected_mode</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>INDPUBII_SCOUT_00665</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>QYIKANSKFIGITEL</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>1.0000</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00501</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>VRPAPGKGLEWVAVI</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.8480</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00036</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>QEEMPPRPCGGHTS</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.7361</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00498</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>ITCPASQSINSYLD</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.6621</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00506</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>VANIKQDGSEKYYVDSV</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.6396</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00505</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>SRLEPEDFAVYYCQQYGSLP</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.5432</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00019</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>SDETEVWEQAPHITWVYMWCR</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.5106</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00023</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>EMAGKIDLLRDSYIFQLFWP</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.5097</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00499</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>SGTASVVCLLNNFYPREAKV</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4923</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00546</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>AAGGCAGCTGGTGAR</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4900</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00521</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>MVATVQGQNLKYQGQSLVI</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4511</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00116</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>GCGCCTGATGGTGAR</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4501</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00028</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>MADLDKLNIHSIIQRLLEVRGS</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4494</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00086</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>GGTGAGAAAAGACGA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4394</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00176</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>TAGAAATCGAAAGGG</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4394</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00666</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>AKFVAAWTLKAAA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4381</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00475</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>CGACCACACAGTAGA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4286</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00522</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>CCATCTTGAATAATA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4286</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00551</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>AGAACACTGAACGCC</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4286</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00527</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>AGTGAAAACGGGCCA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4286</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00298</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>GCAAGGAGGTCAACA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4286</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00503</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>VSWMSGALTSGVH</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4271</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00504</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>YLAWYQQKPGQAPRLLIYDAS</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4217</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00014</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>QTFSECLFFHCLKVWNNVKYAKSLK</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4175</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00012</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>AMHYRTDIHGYWIEYRQVDNQMWNT</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4175</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00005</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>GMLSQYELKDCSLGFSWNDPAKYLR</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4174</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00003</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>IEALPYVFLQDQFELRLLKGEQGNN</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4138</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00591</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>GAAAATAAATGATAC</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4115</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00197</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>CAGTTTTTCCAACAA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4097</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00451</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>TACAAAGTGCGCTAC</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4097</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00064</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>GCATGAGGGCCAGAA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4097</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00341</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>GCTTATCCAAAGTCA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4097</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00617</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>TCAAGAAGGTCTCCA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4097</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00065</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>AACTGAAATCTGTGC</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4097</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00034</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>IVGVMFFERAFDEGADAIYDH</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4094</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00032</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>CLSDAGVRKMTAAVRVMKRGLE</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4066</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00013</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>THVNEHQLEAVYRFHQVHCRFPYEN</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4065</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00011</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>KYLKEFTQLLTFVDCYMWITFCGPD</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4056</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00026</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>SPVITAPPSSPVFDTSDIRKEPMNI</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.4054</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+    <tr>
+      <td>INDPUBII_SCOUT_00027</td>
+      <td>GRITSTONE_WO2018208856_ALPHAVIRUS</td>
+      <td>Gritstone Bio</td>
+      <td>PAEVAEQYSEKLVYMPHTFFIGDHA</td>
+      <td>HLA-DRB1*10:01</td>
+      <td>0.3973</td>
+      <td>cd4_helper_design_lane</td>
+    </tr>
+  </tbody>
+</table>
+</main>
+</body>
+</html>

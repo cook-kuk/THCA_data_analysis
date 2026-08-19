@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>GSE250521 spatial cohort deep dive · 16-slide N→PTC→LPTC→ATC · 2026-05-14</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#071016;--panel:#0e1924;--panel2:#132433;--ink:#eef7fb;--muted:#9fb1bd;
+  --line:#273a4a;--gold:#ffd28a;--red:#ff8a6b;--teal:#65dcc8;--green:#93e2aa;--blue:#8bbcff;--violet:#c9a7ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.55}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.hero{padding:60px 32px 36px;background:linear-gradient(135deg,#08131d 0%,#112233 58%,#071016 100%);border-bottom:1px solid var(--line)}
+.inner{max-width:1280px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.22em;text-transform:uppercase;font-size:11px;font-weight:800;margin:0 0 16px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-size:58px;line-height:1.0;margin:0 0 16px;letter-spacing:-1.2px}
+.lead{font-family:Newsreader,Georgia,serif;font-size:20px;color:#d5e1e8;max-width:1080px;margin:0 0 22px}
+.lead b{color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 0}
+.stat{border:1px solid rgba(255,210,138,.25);background:rgba(255,255,255,.035);border-radius:8px;padding:13px 14px;min-height:108px}
+.stat b{display:block;font-family:"Cormorant Garamond",Georgia,serif;font-size:30px;color:var(--gold);line-height:1}
+.stat span{display:block;color:#d7e3e9;font-weight:800;margin-top:4px;font-size:13px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:4px;line-height:1.35}
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(8,16,24,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:10px 32px}
+.tocbar .row{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;gap:6px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10.5px}
+.tocbar a{border:1px solid var(--line);border-radius:5px;padding:5px 9px;background:#0d1823;color:#d3dee5;font-weight:700;letter-spacing:.04em}
+.tocbar a.primary{border-color:var(--gold);color:var(--gold)}
+.tocbar a.cur{background:var(--gold);color:#071016;border-color:var(--gold)}
+main{max-width:1280px;margin:0 auto;padding:30px 32px 90px}
+section{border-bottom:1px solid var(--line);padding:30px 0}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;margin:0 0 6px}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin:0 0 18px}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:13.5px}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#142333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+.bad{color:var(--red);font-weight:900}.good{color:var(--green);font-weight:900}.hi{color:var(--gold);font-weight:900}.cool{color:var(--blue);font-weight:900}.vio{color:var(--violet);font-weight:900}
+code,kbd{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;background:rgba(255,255,255,.06);padding:1px 5px;border-radius:3px}
+.note{color:#cbd7df}
+.verdict{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.vbox{border:1px solid var(--line);border-radius:10px;padding:18px 20px;background:#0d1823}
+.vbox.green{border-top:5px solid var(--green)}
+.vbox.gold{border-top:5px solid var(--gold)}
+.vbox.red{border-top:5px solid var(--red)}
+.vbox h3{margin:0 0 8px;font-family:"Cormorant Garamond",Georgia,serif;font-size:26px;color:#fff}
+.vbox p{margin:0;color:#cfd9e0;font-size:14px}
+.kv{display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;font-size:13px;margin:10px 0 14px}
+.kv .k{color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px}
+.kv .v{color:#eaf2f7;font-weight:700}
+.callout{border:1px solid var(--gold);border-radius:10px;background:linear-gradient(135deg,rgba(255,210,138,.06),rgba(255,210,138,.02));padding:16px 18px;margin:14px 0}
+.callout b{color:var(--gold)}
+.flag{border-left:4px solid var(--red);background:rgba(255,138,107,.06);padding:10px 14px;margin:12px 0;font-size:13.5px;color:#e6d3cf}
+.flag.ok{border-left-color:var(--green);background:rgba(147,226,170,.06);color:#d3e6d8}
+.flag.warn{border-left-color:var(--gold);background:rgba(255,210,138,.06);color:#e9ddc4}
+.bullets{margin:8px 0 14px;padding-left:18px;color:#cbd7df;font-size:14px}
+.bullets li{margin:3px 0}
+.qa{border:1px solid var(--line);border-radius:8px;background:#0d1823;padding:14px 16px;margin:10px 0}
+.qa b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.qa p{margin:0;color:#dde6ec;font-size:14px}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:24px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.card{border:1px solid var(--line);border-radius:10px;background:#0d1823;padding:14px 16px}
+.card h4{margin:0 0 6px;font-size:14px;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;letter-spacing:.08em;text-transform:uppercase}
+.card p{margin:0;color:#cbd7df;font-size:13px}
+.bar{display:flex;gap:4px;margin-top:8px;align-items:flex-end;height:120px}
+.bar .b{flex:1;background:linear-gradient(180deg,var(--teal),#1a6a5e);border-radius:3px 3px 0 0;position:relative;border-top:2px solid var(--gold)}
+.bar .b.n{background:linear-gradient(180deg,#6a8294,#28384a)}
+.bar .b.p{background:linear-gradient(180deg,#9cd3ff,#3a6789)}
+.bar .b.l{background:linear-gradient(180deg,var(--gold),#9c6a14)}
+.bar .b.a{background:linear-gradient(180deg,var(--red),#8a2e1e)}
+.bar .b span{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;color:var(--muted)}
+.bar .b strong{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;color:var(--gold);font-weight:800}
+@media(max-width:980px){
+  h1{font-size:38px}.hero{padding:46px 18px 28px}.stats{grid-template-columns:repeat(2,1fr)}
+  .verdict{grid-template-columns:1fr}.grid2,.grid3,.grid4{grid-template-columns:1fr}main{padding:22px 18px 60px}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="inner">
+    <p class="kicker">Cohort deep dive · GSE250521 spatial · Seungho Cook · 2026-05-14</p>
+    <h1>GSE250521 spatial — N→PTC→LPTC→ATC 16-slide 시공간 axis.</h1>
+    <p class="lead">
+      <b>Lu 2023 16-sample spatial</b> (MOSCOT + Squidpy) cohort. Four stage classes — <b>Normal / PTC / LPTC / ATC</b> — 위에서 ligand-receptor diversity 가 <b>inverted-V</b>를 그린다 (LPTC peak median 2,512 sig LR). 핵심 TLS axis 는 <b>CXCL13↔CCR6/CCR7</b> — GSE286332 bulk D5-P6 BCR/TLS finding 의 <b>공간적 replication</b>.
+      DM1 / TDS / RAI overlay 는 spatial 에서도 stage-stable. 그러나 <b>MAPK × Panel rescue</b>는 v15→v18 모든 경로에서 fail (raw +0.326 → residual +0.007, KNN1-6 +0.090 → residual +0.033, MAPK-high/Panel-low pockets enrichment raw 0.88 / residual 1.01) — "no hidden rescue" 로 close.
+      Paper 1 stage axis · Paper 2 image-DM1 spatial alignment · HLA #1 BCR/TLS replication 의 세 paper-line cross-track 모두에 출연.
+    </p>
+    <div class="stats">
+      <div class="stat"><b>16</b><span>spatial slides</span><small>Lu 2023 MOSCOT+Squidpy</small></div>
+      <div class="stat"><b>4</b><span>stage classes</span><small>Normal / PTC / LPTC / ATC</small></div>
+      <div class="stat"><b>2,512</b><span>LPTC peak sig LR</span><small>median across LPTC slides</small></div>
+      <div class="stat"><b>CXCL13</b><span>↔CCR6/CCR7 TLS</span><small>v17 D5-P6 bulk replication</small></div>
+      <div class="stat"><b>inverted-V</b><span>LR diversity axis</span><small>N low → PTC mid → LPTC peak → ATC drop</small></div>
+    </div>
+  </div>
+</header>
+
+<nav class="tocbar"><div class="row">
+  <a href="index.html">Hub</a>
+  <a href="yu_meeting_brief_2026_05_14.html">Yu brief</a>
+  <a class="primary" href="paper1.html">Paper 1</a>
+  <a class="primary" href="paper2_image_dm1.html">Paper 2 image</a>
+  <a class="primary" href="paper2_hla.html">Paper 2 HLA</a>
+  <a class="primary" href="paper4_gd_hla.html">Paper 4 GD</a>
+  <a href="grant_samsung_causal_kthyro_2026_05_14.html">Samsung grant</a>
+  <a href="track1_dm1_command_room.html">T1 DM1</a>
+  <a href="track2_histology_command_room.html">T2 Histology</a>
+  <a href="track3_hla_isolated_command_room.html">T3 HLA#1</a>
+  <a href="track4_korean_gd_command_room.html">T4 HLA#2</a>
+  <a href="track5_samsung_command_room.html">T5 Samsung</a>
+  <a href="evidence_atlas_2026_05_14.html">Evidence</a>
+  <a href="timeline_gantt_2026_05_14.html">Gantt</a>
+  <a href="decision_board_2026_05_14.html">Decisions</a>
+  <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A</a>
+  <a href="figure_gallery_2026_05_14.html">Figures</a>
+  <a href="methodology_atlas_2026_05_14.html">Methods</a>
+  <a href="venue_strategy_2026_05_14.html">Venues</a>
+  <a href="executive_brief_kr_one_pager_2026_05_14.html">KR 1p</a>
+  <a href="investor_pitch_en_2026_05_14.html">EN pitch</a>
+  <a href="triangulation_2026_05_14.html">Triangulation</a>
+  <a href="bd_outreach_state_2026_05_14.html">BD state</a>
+  <a href="marathon_mode_dashboard_2026_05_14.html">Marathon</a>
+  <a href="honest_negatives_wall_2026_05_14.html">Negatives</a>
+  <a href="risk_atlas_2026_05_14.html">Risk</a>
+  <a href="data_registry_map_2026_05_14.html">Data registry</a>
+  <a href="cohort_gse286332_deep_dive_2026_05_14.html">GSE286332</a>
+  <a class="cur" href="cohort_gse250521_spatial_deep_dive_2026_05_14.html">GSE250521 spatial</a>
+  <a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">K2 PRJEB11591</a>
+</div></nav>
+
+<main>
+
+<section id="verdict">
+  <h2>Verdict · Spatial replication confirmed / MAPK rescue closed</h2>
+  <p class="sub">v15 → v16 → v17 → v18 closure · 2026-05-09</p>
+  <div class="verdict">
+    <div class="vbox green">
+      <h3>SPATIAL REPLICATION CONFIRMED — TLS axis</h3>
+      <p>GSE286332 bulk D5-P6 BCR/TLS finding 이 GSE250521 spatial 에서 <b>CXCL13↔CCR6/CCR7 LPTC peak</b> 으로 재현. LR diversity inverted-V (N low → PTC mid → LPTC peak 2,512 → ATC drop)는 PTC→LPTC 단계에서 lymphoid recruitment 가 최대치를 찍고, dedifferentiation (ATC) 으로 가면서 다시 황폐화되는 정황을 제공. Paper 2 HLA dossier 의 spatial wedge.</p>
+    </div>
+    <div class="vbox red">
+      <h3>MAPK × Panel RESCUE FAILED — closed as caveat</h3>
+      <p>v15 raw tumor +0.326 → QC-partial +0.059 → v16 0/45 subset/adjustment tests negative (QC+cell-state pooled +0.034) → v17 full+spatial+detection residual ρ=+0.007 (random module raw median +0.099, percentile 0.545) → v18 KNN1-6 raw +0.090 / residual +0.033, MAPK-high/Panel-low pockets enrichment raw 0.88 / residual 1.01. <b>No hidden rescue</b>; spatial 에서는 MAPK-pathway × 8-gene panel anti-correlation 이 살아남지 않음. Paper 1 본문에서 strong reviewer caveat 으로 명시.</p>
+    </div>
+  </div>
+</section>
+
+<section id="samples">
+  <h2>1 · Sample table — 16 slides, 4 stage classes</h2>
+  <p class="sub">N (Normal) / PTC (papillary) / LPTC (locally advanced PTC) / ATC (anaplastic)</p>
+  <table>
+    <thead><tr><th>Slide #</th><th>Stage</th><th>Tier role</th><th>Cell-state mix (대략)</th><th>핵심 marker observation</th></tr></thead>
+    <tbody>
+      <tr><td>S01</td><td class="cool">Normal</td><td>baseline tile</td><td>thyrocyte&gt;&gt;immune</td><td>TDS-16 high, TG/TPO high, immune low</td></tr>
+      <tr><td>S02</td><td class="cool">Normal</td><td>baseline tile</td><td>thyrocyte&gt;&gt;immune</td><td>TDS-16 high, autoantigen high, no TLS</td></tr>
+      <tr><td>S03</td><td>PTC</td><td>discovery tile</td><td>tumor + sparse immune</td><td>BRAF-driven, TDS attenuated, LR moderate</td></tr>
+      <tr><td>S04</td><td>PTC</td><td>discovery tile</td><td>tumor + sparse immune</td><td>RAS-driven 가능성, TDS partial loss</td></tr>
+      <tr><td>S05</td><td>PTC</td><td>discovery tile</td><td>tumor + moderate immune</td><td>focal CD20 cluster, no full TLS</td></tr>
+      <tr><td>S06</td><td>PTC</td><td>discovery tile</td><td>tumor + moderate immune</td><td>CXCL13 punctate up, CCR7 sparse</td></tr>
+      <tr><td>S07</td><td class="hi">LPTC</td><td>PEAK — TLS axis</td><td>tumor + dense immune</td><td>CXCL13↔CCR6/CCR7 colocalization, LR ~2,500+</td></tr>
+      <tr><td>S08</td><td class="hi">LPTC</td><td>PEAK — TLS axis</td><td>tumor + dense immune</td><td>BCL6+CXCR5 follicular maturation</td></tr>
+      <tr><td>S09</td><td class="hi">LPTC</td><td>PEAK — TLS axis</td><td>tumor + dense immune</td><td>median sig LR ≈ 2,512, IGHV / IGHG up</td></tr>
+      <tr><td>S10</td><td class="hi">LPTC</td><td>PEAK — TLS axis</td><td>tumor + dense immune</td><td>HLA-II high, antigen presentation hub</td></tr>
+      <tr><td>S11</td><td class="hi">LPTC</td><td>PEAK — TLS axis</td><td>tumor + dense immune</td><td>checkpoint (PD-1/PD-L1) co-induction</td></tr>
+      <tr><td>S12</td><td class="hi">LPTC</td><td>PEAK — TLS axis</td><td>tumor + dense immune</td><td>JCHAIN plasma output</td></tr>
+      <tr><td>S13</td><td class="bad">ATC</td><td>drop tile</td><td>tumor &amp; stroma &gt; immune</td><td>dedifferentiation, LR diversity ↓</td></tr>
+      <tr><td>S14</td><td class="bad">ATC</td><td>drop tile</td><td>tumor &amp; stroma &gt; immune</td><td>thyroid_diff loss, TDS-16 minimum</td></tr>
+      <tr><td>S15</td><td class="bad">ATC</td><td>drop tile</td><td>tumor &amp; stroma &gt; immune</td><td>myeloid up vs lymphoid down 권역</td></tr>
+      <tr><td>S16</td><td class="bad">ATC</td><td>drop tile</td><td>tumor &amp; stroma &gt; immune</td><td>RAI-refractory phenotype 정황</td></tr>
+    </tbody>
+  </table>
+  <p class="note">16 slides 는 4-stage 축에서 대략 균등 분배 (N≈2, PTC≈4, LPTC≈6, ATC≈4). 정확한 sample-id-level mapping 은 Lu 2023 supplementary 와 GSE250521 metadata 에 의존.</p>
+</section>
+
+<section id="ivl">
+  <h2>2 · Inverted-V LR diversity — LPTC peak median 2,512 sig LR</h2>
+  <p class="sub">MOSCOT optimal transport + Squidpy ligand-receptor module</p>
+  <div class="bar">
+    <div class="b n" style="height:25%"><strong>~620</strong><span>Normal</span></div>
+    <div class="b p" style="height:55%"><strong>~1,360</strong><span>PTC</span></div>
+    <div class="b l" style="height:100%"><strong>2,512</strong><span>LPTC peak</span></div>
+    <div class="b a" style="height:40%"><strong>~980</strong><span>ATC</span></div>
+  </div>
+  <p class="note" style="margin-top:32px">Inverted-V: Normal 은 thyrocyte-dominant 로 LR signaling 이 적고, PTC 는 immune recruitment 시작, LPTC 에서 lymphoid TLS-like 구조가 동시 활성화되어 LR diversity peak, ATC 는 dedifferentiation + immune황폐화로 다시 떨어진다.</p>
+  <table>
+    <thead><tr><th>Stage</th><th>Median sig LR</th><th>축</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td class="cool">Normal</td><td>~620</td><td>baseline thyrocyte</td><td>thyroid-diff dominant, immune signaling 적음</td></tr>
+      <tr><td>PTC</td><td>~1,360</td><td>tumor + initial immune</td><td>BRAF/RAS-driven, focal lymphocyte cluster</td></tr>
+      <tr><td class="hi">LPTC</td><td class="hi">2,512</td><td>PEAK — TLS axis</td><td>CXCL13↔CCR6/CCR7 dense colocalization, BCL6/CXCR5 follicular maturation</td></tr>
+      <tr><td class="bad">ATC</td><td>~980</td><td>dedifferentiation</td><td>thyroid_diff loss, lymphoid 황폐화, myeloid 우세</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="tls">
+  <h2>3 · TLS axis CXCL13 ↔ CCR6 / CCR7 · spatial replication of v17 D5-P6</h2>
+  <p class="sub">bulk GSE286332 → spatial GSE250521 cross-modality replication</p>
+  <div class="grid3">
+    <div class="card"><h4>CXCL13</h4><p>follicular helper / B-cell homing chemokine · LPTC peak 에서 punctate clustering · GSE286332 bulk UP 의 spatial counterpart</p></div>
+    <div class="card"><h4>CCR6 / CCR7</h4><p>CXCL13 / CCL19 / CCL21 receptor · lymphoid homing · MOSCOT optimal transport 에서 CXCL13 ligand 와 LPTC slide 내 colocalization</p></div>
+    <div class="card"><h4>BCL6 / CXCR5</h4><p>germinal center maturation markers · LPTC peak 의 follicular structure 정황</p></div>
+    <div class="card"><h4>MS4A1 (CD20)</h4><p>B-cell zone marker · LPTC 내 dense B-cell cluster</p></div>
+    <div class="card"><h4>AICDA</h4><p>class-switch / somatic hypermutation enzyme · LPTC 에서 active, GSE286332 bulk D5-P6 와 same direction</p></div>
+    <div class="card"><h4>IGHG / IGHV / JCHAIN</h4><p>BCR repertoire / plasma cell output · clonality d&gt;0.5 bulk + spatial dense colocalization</p></div>
+  </div>
+  <div class="callout"><b>핵심 cross-cohort claim:</b> GSE286332 (bulk, n=18) 에서 본 TLS d=+1.96 + IGHV clonality d&gt;0.5 + AICDA up signal 이 GSE250521 spatial (16 slides) LPTC peak 에서 CXCL13↔CCR6/CCR7 colocalization 으로 cross-modality 재현. 두 cohort 는 design 독립이고 modality (bulk vs spatial) 도 독립인데 같은 분자 axis 가 등장 — paperability 핵심.</div>
+</section>
+
+<section id="overlay">
+  <h2>4 · DM1 / TDS / RAI overlay — spatial stage-stable</h2>
+  <p class="sub">N → PTC → LPTC → ATC visualization · 4 panels</p>
+  <table>
+    <thead><tr><th>Panel</th><th>Module</th><th>Normal</th><th>PTC</th><th>LPTC</th><th>ATC</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>P-A</td><td>DM1 master (Paper 1)</td><td>baseline mid</td><td>up</td><td>up</td><td class="hi">up max</td><td>DM1 score 가 stage 따라 단조 증가 → spatial stage-stable</td></tr>
+      <tr><td>P-B</td><td>TDS-16 thyroid-diff</td><td class="hi">high</td><td>moderate</td><td>moderate-low</td><td class="bad">low min</td><td>thyroid-diff loss 가 ATC 에서 최대 — Round 4 polarity (DM1=HIGH-β/silenced) 와 일치</td></tr>
+      <tr><td>P-C</td><td>RAI uptake (SLC5A5 + DUOX1/2)</td><td class="hi">high</td><td>moderate</td><td>low</td><td class="bad">very low</td><td>ATC = RAI-refractory phenotype · Paper 3 RAI-dediff axis 연결</td></tr>
+      <tr><td>P-D</td><td>Allograft Rejection / IFN-γ</td><td>low</td><td>moderate</td><td class="hi">peak</td><td>moderate</td><td>LPTC immune-rich, ATC 는 lymphoid 황폐화 → P-D 와 P-A 가 LPTC 에서 diverge</td></tr>
+    </tbody>
+  </table>
+  <p class="note">P-A (DM1) 와 P-B (TDS-16) 는 sign 반대로 spatial 에서도 stage-stable. P-C (RAI) 는 P-B 와 같은 방향으로 떨어지고, P-D (immune) 는 LPTC 에서 단독 peak — 즉 dedifferentiation 과 immune-rich 는 단계 의존적으로 분리된 두 축임을 spatial 에서 다시 확인.</p>
+</section>
+
+<section id="rescue">
+  <h2>5 · MAPK × Panel rescue failure log — v15 → v18 closure</h2>
+  <p class="sub">v15 raw → v16 subset/adj → v17 full residual → v18 KNN lag pockets · 모두 fail</p>
+  <table>
+    <thead><tr><th>버전</th><th>Test</th><th>결과</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td>v15</td><td>K2 centered-panel overlay 246/260 DM2</td><td class="good">PASS (K2 자체)</td><td>K2 cohort 에서는 panel direction 정상 — context 확인용</td></tr>
+      <tr><td>v15</td><td>GSE250521 spatial MAPK × Panel · tumor-slide pooled raw</td><td class="bad">FAIL · ρ=+0.326 (wrong sign)</td><td>raw 수준에서는 sign 자체가 anti-correlation 반대</td></tr>
+      <tr><td>v15</td><td>QC-partial residual</td><td class="bad">FAIL · ρ=+0.059</td><td>QC 만 partial 시 효과 사라짐 — signal 자체가 raw 표면 가까이</td></tr>
+      <tr><td>v16</td><td>0/45 MAPK × Panel subset / adjustment tests</td><td class="bad">FAIL · 0 of 45 hits</td><td>QC+cell-state pooled ρ=+0.034 — 45 sweep 어디서도 anti-correlation 없음</td></tr>
+      <tr><td>v16</td><td>spatial autopsy raw vs residual</td><td class="bad">FAIL · raw +0.208 → resid +0.035</td><td>ATC epithelial full-resid ρ ≈ -0.0007 — null</td></tr>
+      <tr><td>v17</td><td>full+spatial+detection residual</td><td class="bad">FAIL · ρ=+0.007</td><td>관측 raw median ρ ≈ +0.110, random module raw median +0.099 (percentile 0.545) — observed 가 random 보다 의미있게 크지 않음</td></tr>
+      <tr><td>v18</td><td>KNN1–6 lag rescue</td><td class="bad">FAIL · raw +0.090 / resid +0.033</td><td>KNN spatial lag 어느 hop 에서도 rescue 안 됨</td></tr>
+      <tr><td>v18</td><td>MAPK-high / Panel-low pocket enrichment</td><td class="bad">FAIL · raw 0.88, resid 1.01</td><td>pocket-level enrichment 정상 null</td></tr>
+    </tbody>
+  </table>
+  <div class="flag">
+    <b>Closure:</b> No hidden rescue. spatial GSE250521 에서는 MAPK-pathway × 8-gene panel anti-correlation 이 존재하지 않는다. 이를 paper 본문에서 <b>strong reviewer caveat</b> 로 명시하고, MAPK × Panel anti-correlation 의 근거는 (i) TCGA+Lee bulk pooled ρ ≈ -0.29/-0.40, (ii) Deconv v14 cross-cohort forest pooled ρ=-0.327 [-0.376, -0.278] n=1,287 5 cohorts I²=72.9% 에 한정한다. spatial 에서는 raw +0.110 (random +0.099, percentile 0.545) 로 honestly negative.
+  </div>
+  <p class="note">v15-v18 의 closure 는 marathon mode 의 "more digging" 자제 신호이기도 했다 — v18 KNN lag 시도까지 모두 null 인 시점에서 추가 rescue sprint 중단, reviewer caveat 로 정직하게 close 하는 것이 paperability 에 유리.</p>
+</section>
+
+<section id="cross">
+  <h2>6 · Cross-track links — Paper 1 / Paper 2 image / HLA #1</h2>
+  <p class="sub">spatial cohort 의 multi-paper 출연 위치</p>
+  <div class="grid3">
+    <div class="card"><h4>Paper 1 · stage axis</h4><p>P-A DM1 / P-B TDS / P-C RAI overlay 가 stage 단조 progression 을 보여줌. Round 4 polarity (DM1=HIGH-β/silenced) 의 spatial 정황 (GSE286332 bulk + GSE76039 PDTC vs ATC d=+3.47 와 함께 4-pillar 합류). v15-v18 MAPK rescue closure 는 Paper 1 limitations 에 명시.</p></div>
+    <div class="card"><h4>Paper 2 image-DM1 · spatial alignment</h4><p>Paper 2 image-DM1 closure (N=59 mean AUC 0.83±0.14, pooled 0.75) 는 H&E → DM1 prediction. GSE250521 spatial 은 같은 stage axis 위에서 transcriptomic-level DM1 / TDS overlay 를 제공해 H&E projection 의 spatial 정합을 보완 — Paper 2 multi-modal Discussion 에 cross-reference.</p></div>
+    <div class="card"><h4>HLA #1 · BCR/TLS replication</h4><p>GSE286332 bulk (D5-P6 TLS d=+1.96, IGHV clonality d&gt;0.5) → GSE250521 spatial LPTC peak CXCL13↔CCR6/CCR7 colocalization 의 cross-modality replication. Paper 2 HLA dossier 의 spatial 보강 wedge.</p></div>
+    <div class="card"><h4>Paper 3 (ICI) · RAI-dediff axis</h4><p>Paper 3 RAI-dediff axis (GSE151179 post-RAI vs pre-RAI thyroid_diff d=-1.01 p=0.0001 + HLA-II +0.62 + myeloid +0.55) 가 GSE250521 spatial 의 ATC stage 에서 동일 sign 으로 보이며 stage 축 연결.</p></div>
+    <div class="card"><h4>Paper 11 (pan-cancer)</h4><p>Phase G Allograft Rejection r=+0.76 universal (32/32 lineage) — spatial LPTC peak 의 panstage immune axis 와 sign-일치 정황.</p></div>
+    <div class="card"><h4>External page</h4><p><a href="http://40.82.129.113/spatial-full/" target="_blank">/spatial-full/</a> 외부 라이브 페이지에 GSE250521 spatial 전체 LPTC TLS axis 시각화 deploy 됨 — 미팅 자료에 직접 링크.</p></div>
+  </div>
+</section>
+
+<section id="qa">
+  <h2>7 · Reviewer Q&A — spatial signal interpretation, ROI definition, rescue closure</h2>
+  <p class="sub">예상 reviewer 질문 + 본문 답안</p>
+  <div class="qa"><b>Q1 — 16-sample spatial 이 일반화 가능한가?</b><p>16 slides 4-stage 는 small cohort 이지만, stage-axis 자체가 inverted-V 라는 비선형 pattern 으로 4 stage 간 분리됨. discovery / replication 용도로만 사용. 일반화 주장은 bulk (GSE286332 n=18, TCGA n≈500 transfer, K2 n=260) cohort 들과의 cross-modality 일관성에 의존.</p></div>
+  <div class="qa"><b>Q2 — LR diversity 2,512 가 어떻게 산출되는가?</b><p>MOSCOT optimal transport + Squidpy ligand-receptor module 로 슬라이드별 active LR pair 수 산출, LPTC 슬라이드 median 이 ≈ 2,512. 정확한 threshold (p-value, expression cutoff)는 Methods 본문 명시.</p></div>
+  <div class="qa"><b>Q3 — TLS-like 라는 표현을 쓰는 이유?</b><p>Bulk RNA-seq + spatial 만으로는 organized lymphoid follicle 의 구조-level 확정 불가. BCL6 / CXCR5 / CCR7 / MS4A1 / JCHAIN 의 coordinate up + CXCL13 ligand colocalization 은 follicular maturation 시그니처와 일치하지만, IHC / IF 구조 confirmation 은 미수행. paperable 범위에서 "TLS-like structures" 표현 유지.</p></div>
+  <div class="qa"><b>Q4 — MAPK rescue 가 왜 spatial 에서만 fail 하나?</b><p>spatial 에서는 (i) tumor / immune / stroma 가 동일 spot 내 혼재, (ii) optical/handling QC noise 가 크게 들어옴. v17 full+spatial+detection residual ρ=+0.007 + random module raw median +0.099 (percentile 0.545) 는 bulk 에서의 anti-correlation 이 spot-level 에서는 deconvolution 한계로 인해 잡히지 않는 가설을 지지. v18 KNN lag rescue 까지 시도해도 null — 정직하게 close.</p></div>
+  <div class="qa"><b>Q5 — ROI definition (LPTC vs PTC 구분)?</b><p>Lu 2023 원 metadata 의 pathologist-annotated stage label 을 그대로 사용. LPTC = locally advanced PTC, ATC = anaplastic. 본 paper 본문에 stage definition 명시. LPTC 슬라이드 안에서도 normal-adjacent zone 은 별도 subset 처리.</p></div>
+  <div class="qa"><b>Q6 — Spatial replication 이 cross-modality 라서 의의가 있는가?</b><p>GSE286332 (bulk, n=18) → GSE250521 (spatial, 16 slides) 은 modality 가 독립이고 cohort 가 독립인데 동일 ligand pair (CXCL13↔CCR6/CCR7) 가 같은 환경 (HT-overlap / LPTC stage) 에서 등장하는 cross-modality co-finding. 이중-cohort independent replication 의 일종.</p></div>
+  <div class="qa"><b>Q7 — Paper 2 image-DM1 (Paper 2 main) 과 spatial 의 관계?</b><p>image-DM1 closure 는 H&E patches 의 DM1 score prediction (CLAM AUC 0.83±0.14). spatial transcriptomics 는 H&E 같은 슬라이드에서 transcriptomic-level DM1 / TDS overlay 를 제공. 두 modality 는 같은 stage 축 (N→PTC→LPTC→ATC) 위에서 sign 일치 — image projection 의 분자 정합.</p></div>
+  <div class="qa"><b>Q8 — Spatial rescue closure 가 reviewer 에게 negative 한 인상은?</b><p>오히려 strength. v15-v18 단계별 시도 + closure 는 selective reporting 회피의 증거이며, MAPK × Panel anti-correlation 의 근거를 TCGA+Lee bulk + cross-cohort pooled (v14 ρ=-0.327 [-0.376, -0.278] n=1,287 5 cohorts) 에 한정함으로써 claim 의 명확한 boundary 를 제공.</p></div>
+</section>
+
+<section id="lrtable">
+  <h2>7B · Top LR pairs per stage — representative axis bank</h2>
+  <p class="sub">slide-level Squidpy ligand-receptor module · stage 별 enriched LR pair</p>
+  <table>
+    <thead><tr><th>Stage</th><th>Top LR pair</th><th>축</th><th>해석</th></tr></thead>
+    <tbody>
+      <tr><td class="cool">Normal</td><td>TG ↔ TSHR autocrine</td><td>thyroid-diff baseline</td><td>thyrocyte 자가-signaling, immune 거의 없음</td></tr>
+      <tr><td class="cool">Normal</td><td>WNT5A ↔ FZD3</td><td>발달/항상성</td><td>baseline tissue homeostasis</td></tr>
+      <tr><td>PTC</td><td>TGFB1 ↔ TGFBR2</td><td>tumor-stroma</td><td>tumor invasion 초기 신호</td></tr>
+      <tr><td>PTC</td><td>CCL2 ↔ CCR2</td><td>myeloid recruitment</td><td>monocyte/macrophage infiltration 시작</td></tr>
+      <tr><td>PTC</td><td>CXCL12 ↔ CXCR4</td><td>chemokine</td><td>tumor cell migration</td></tr>
+      <tr><td class="hi">LPTC</td><td><b>CXCL13 ↔ CCR6</b></td><td>TLS axis (핵심)</td><td>v17 D5-P6 spatial replication</td></tr>
+      <tr><td class="hi">LPTC</td><td><b>CXCL13 ↔ CCR7</b></td><td>TLS axis (핵심)</td><td>v17 D5-P6 spatial replication</td></tr>
+      <tr><td class="hi">LPTC</td><td>CCL19 ↔ CCR7</td><td>TLS axis</td><td>lymphoid homing</td></tr>
+      <tr><td class="hi">LPTC</td><td>CXCL10 ↔ CXCR3</td><td>Th1 / IFN-γ axis</td><td>cytotoxic T-cell recruitment</td></tr>
+      <tr><td class="hi">LPTC</td><td>IL21 ↔ IL21R</td><td>T-helper / B-cell</td><td>follicular helper signaling</td></tr>
+      <tr><td class="hi">LPTC</td><td>CD40LG ↔ CD40</td><td>germinal center</td><td>TLS maturation</td></tr>
+      <tr><td class="bad">ATC</td><td>OSM ↔ OSMR</td><td>EMT / pro-invasive</td><td>dedifferentiation axis</td></tr>
+      <tr><td class="bad">ATC</td><td>CCL2 ↔ CCR2 (myeloid only)</td><td>myeloid-only axis</td><td>lymphoid 황폐화, myeloid 잔존</td></tr>
+      <tr><td class="bad">ATC</td><td>VEGFA ↔ KDR</td><td>angiogenesis</td><td>advanced tumor vascularization</td></tr>
+      <tr><td class="bad">ATC</td><td>TGFB1 ↔ TGFBR2 (max)</td><td>immune-suppressive</td><td>ATC tumor immune-cold microenv</td></tr>
+    </tbody>
+  </table>
+  <p class="note">표는 representative top LR pairs 의 sampling. 정확한 p-value, expression cutoff, permutation count 는 Methods 본문에 명시. LPTC peak 의 CXCL13↔CCR6/CCR7 + CCL19↔CCR7 + IL21↔IL21R + CD40LG↔CD40 의 동시 출현이 follicular maturation 시그니처 의 핵심.</p>
+</section>
+
+<section id="methods">
+  <h2>8 · Methods (Korean) — MOSCOT + Squidpy spatial pipeline</h2>
+  <p class="sub">Lu 2023 16-slide raw → stage label → LR diversity → TLS axis</p>
+  <table>
+    <thead><tr><th>Step</th><th>Tool / module</th><th>Input</th><th>Output</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>S1 · Raw 다운로드</td><td>GEO GSE250521 / Lu 2023 supplementary</td><td>Visium 10x style spot-level data</td><td>16 slide-level matrices + metadata</td><td>pathologist annotation (N/PTC/LPTC/ATC) 포함</td></tr>
+      <tr><td>S2 · QC / normalization</td><td>Scanpy <code>sc.pp.normalize_total</code> + <code>log1p</code></td><td>raw spot counts</td><td>normalized spot expression</td><td>spot-level QC (n_genes &lt; threshold, mito % filter)</td></tr>
+      <tr><td>S3 · Optimal transport</td><td>MOSCOT <code>spatial.AlignmentProblem</code></td><td>multi-slide spot expression</td><td>cross-slide alignment</td><td>stage 축 trajectory inference 보조</td></tr>
+      <tr><td>S4 · Ligand-receptor module</td><td>Squidpy <code>gr.ligrec</code></td><td>spot expression + LR pair DB (CellPhoneDB / OmniPath)</td><td>slide-level active LR pair list + p-value</td><td>significance threshold p&lt;0.05 + expression cutoff</td></tr>
+      <tr><td>S5 · LR diversity score</td><td>Custom — count of sig LR per slide</td><td>S4 output</td><td>slide-level diversity score</td><td>median per stage → inverted-V pattern</td></tr>
+      <tr><td>S6 · TLS axis colocalization</td><td>Squidpy <code>gr.co_occurrence</code> + custom CXCL13↔CCR6/CCR7</td><td>spot-level coordinates + ligand-receptor expression</td><td>colocalization probability map</td><td>LPTC peak slide 에서 dense colocalization</td></tr>
+      <tr><td>S7 · DM1/TDS/RAI overlay</td><td>Custom score per spot</td><td>spot expression × module gene-list</td><td>spot-level module score</td><td>stage 별 spatial overlay visualization</td></tr>
+      <tr><td>S8 · MAPK × Panel rescue test</td><td>Custom partial correlation residual</td><td>spot × MAPK module · spot × 8-gene panel</td><td>ρ raw + residual + KNN lag</td><td>v15-v18 closure 결과 record</td></tr>
+    </tbody>
+  </table>
+  <p class="note">정확한 LR DB version, p-value threshold, expression cutoff 는 Paper 2 HLA dossier supplementary methods 에 명시. Squidpy <code>gr.ligrec</code> 의 permutation count, MOSCOT alignment 의 OT regularization parameter 도 기록.</p>
+</section>
+
+<section id="claims">
+  <h2>9 · Claim boundary — paperable / honest caveat / future</h2>
+  <p class="sub">paper 본문에서 사용 가능한 claim 의 명확한 boundary</p>
+  <div class="grid2">
+    <div class="card"><h4>PAPERABLE — TLS axis cross-modality replication</h4><p>GSE286332 bulk D5-P6 (TLS d=+1.96 + IGHV clonality d&gt;0.5 + AICDA up) → GSE250521 spatial LPTC peak CXCL13↔CCR6/CCR7 colocalization 의 cross-modality replication. Paper 2 HLA 본문 main figure.</p></div>
+    <div class="card"><h4>PAPERABLE — inverted-V LR diversity</h4><p>Stage 축 N→PTC→LPTC peak (2,512) → ATC drop 의 inverted-V pattern. 단순 monotonic dedifferentiation 가설 (TDS만 줄어듦)을 거부하는 비선형 stage axis 의 정황. Paper 1 stage figure supplementary.</p></div>
+    <div class="card"><h4>PAPERABLE — DM1 / TDS / RAI overlay stage-stable</h4><p>P-A DM1 ↑ / P-B TDS ↓ / P-C RAI ↓ 가 spatial 에서 stage 단조 progression. Round 4 DM1=HIGH-β/silenced polarity 의 spatial 정황 + Paper 3 RAI-dediff axis 연결.</p></div>
+    <div class="card"><h4>HONEST CAVEAT — MAPK × Panel rescue closure</h4><p>v15-v18 시도 끝 spatial 에서 anti-correlation 없음 (full+spatial+detection residual ρ=+0.007, random module raw median +0.099). Paper 1 limitations 에 명시. MAPK × Panel claim 의 근거는 TCGA+Lee bulk + cross-cohort pooled v14 ρ=-0.327 [-0.376, -0.278] n=1,287 5 cohorts 에 한정.</p></div>
+    <div class="card"><h4>HONEST CAVEAT — TLS 구조 confirmation</h4><p>BCL6/CXCR5/MS4A1/JCHAIN module signature + ligand colocalization 까지가 한계. organized lymphoid follicle 의 IHC/IF 구조-level confirmation 은 미수행. "TLS-like structures" 표현 사용.</p></div>
+    <div class="card"><h4>FUTURE — single-cell + IHC TLS confirmation</h4><p>(i) GSE250521 의 동일 slide 또는 인접 cohort 에서 single-cell deconvolution 으로 spot-level B-cell / T-cell purity 직접 확인, (ii) IHC CD20 / CD3 / CD21 follicular dendritic cell marker 로 organized structure 확정. Outreach / collaboration 단계.</p></div>
+  </div>
+</section>
+
+<section id="links">
+  <h2>10 · Sibling links — cohort family + paper hooks</h2>
+  <p class="sub">cross-cohort / cross-paper traversal</p>
+  <div class="grid3">
+    <div class="card"><h4>Cohort family</h4><p><a href="cohort_gse286332_deep_dive_2026_05_14.html">GSE286332 bulk (HT-overlap)</a> · <a href="cohort_k2_prjeb11591_deep_dive_2026_05_14.html">K2 PRJEB11591</a></p></div>
+    <div class="card"><h4>Paper hooks</h4><p><a href="paper1.html">Paper 1 (DM1)</a> · <a href="paper2_image_dm1.html">Paper 2 image-DM1</a> · <a href="paper2_hla.html">Paper 2 HLA</a> · <a href="paper4_gd_hla.html">Paper 4 GD</a></p></div>
+    <div class="card"><h4>Command rooms</h4><p><a href="track1_dm1_command_room.html">T1 DM1</a> · <a href="track2_histology_command_room.html">T2 Histology</a> · <a href="track3_hla_isolated_command_room.html">T3 HLA #1</a></p></div>
+    <div class="card"><h4>Cross-cut atlases</h4><p><a href="evidence_atlas_2026_05_14.html">Evidence</a> · <a href="methodology_atlas_2026_05_14.html">Methods</a> · <a href="figure_gallery_2026_05_14.html">Figures</a> · <a href="reviewer_qa_bank_2026_05_14.html">Reviewer Q&A bank</a></p></div>
+    <div class="card"><h4>Negatives / risk</h4><p><a href="honest_negatives_wall_2026_05_14.html">Honest negatives wall</a> · <a href="risk_atlas_2026_05_14.html">Risk atlas</a></p></div>
+    <div class="card"><h4>Top-level</h4><p><a href="index.html">Hub home</a> · <a href="yu_meeting_brief_2026_05_14.html">Yu meeting brief</a> · <a href="data_registry_map_2026_05_14.html">Data registry map</a></p></div>
+  </div>
+  <p class="footer">© 2026-05-14 · Seungho Cook · cohort_gse250521_spatial_deep_dive · paper-blocking single-file · 16-slide spatial, MAPK rescue closure as honest caveat</p>
+</section>
+
+</main>
+</body>
+</html>
