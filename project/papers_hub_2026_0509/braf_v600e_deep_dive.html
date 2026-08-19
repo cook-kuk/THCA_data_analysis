@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8" /><title>Lumenix · BRAF V600E Deep Dive</title>
+<style>:root{--ink:#0e1828;--muted:#576275;--line:#d6c8b3;--emerald:#1c8e6d;--rose:#7B1F2A;--violet:#4f2db5;--gold:#b58534;--coal:#0c1422}*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fbf5e8 0%,#f1e6d2 100%);color:var(--ink);font-family:"Newsreader","Noto Sans KR",serif;font-size:15px;line-height:1.65}.wrap{max-width:1200px;margin:0 auto;padding:36px 32px 96px}.kicker{font-family:'JetBrains Mono',monospace;color:var(--violet);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}h1{font-family:"Cormorant Garamond",serif;font-size:54px;line-height:1.05;margin:0 0 12px;color:var(--coal);font-weight:700}h2{font-family:"Cormorant Garamond",serif;font-size:30px;color:var(--coal);margin:32px 0 8px;border-bottom:3px solid var(--violet);padding-bottom:5px}.lead{color:var(--muted);font-style:italic;font-size:18px;margin:14px 0 20px;max-width:900px}table{width:100%;border-collapse:collapse;background:#fff;font-size:13.5px;border-radius:10px;overflow:hidden;box-shadow:3px 3px 0 rgba(12,20,34,.06);margin:14px 0}th{background:var(--coal);color:#fff;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase}td{border-bottom:1px solid var(--line);padding:7px 12px}td.mono{font-family:'JetBrains Mono',monospace;color:var(--violet)}.callout{background:#fff;border-left:6px solid var(--violet);padding:14px 20px;border-radius:8px;margin:14px 0;box-shadow:3px 3px 0 rgba(12,20,34,.05)}.callout.warn{border-color:var(--gold);background:#fdf6e7}.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 28px}.kpi div{background:#fff;border:2px solid var(--coal);border-radius:12px;padding:11px 13px;box-shadow:5px 5px 0 rgba(12,20,34,.07)}.kpi b{display:block;font-family:'Cormorant Garamond',serif;font-size:30px;color:var(--violet);line-height:1;font-weight:700}.kpi span{display:block;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--muted);margin-top:5px;text-transform:uppercase}.bad{color:var(--rose);font-weight:700}.good{color:var(--emerald);font-weight:700}ul{padding-left:24px}li{margin:4px 0}.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:18px 0}.flow div{background:#fff;border:2px solid var(--violet);border-radius:8px;padding:10px;text-align:center;font-size:13px;box-shadow:3px 3px 0 rgba(12,20,34,.06)}.flow div b{display:block;color:var(--violet);font-family:'Cormorant Garamond',serif;font-size:15px;margin-bottom:5px}</style></head><body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — Lumenix · BRAF V600E Deep Dive</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>0</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>2</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>7</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>Other</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">0%</span> <span class="renewal0509-metric">100%</span> <span class="renewal0509-metric">60%</span> <span class="renewal0509-metric">50%</span> <span class="renewal0509-metric">3/3</span> <span class="renewal0509-metric">18.5%</span> <span class="renewal0509-metric">n=2</span> <span class="renewal0509-metric">n=0</span> <span class="renewal0509-metric">n=1</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Archive / evidence page</span></div>
+      <div><b>Claim boundary</b><span>No specific current paper family was inferred from filename/title; read this page as supporting archive unless promoted manually.</span></div>
+      <div><b>Next use</b><span>Check the figure/table annex and source links before reusing claims.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">TCGA-THCA</span> <span class="renewal0509-term">K2 / PRJEB11591</span> <span class="renewal0509-term">Hugo/Riaz melanoma ICI pool</span> <span class="renewal0509-term">AFND / Korean HLA references</span> <span class="renewal0509-term">8-gene mini-index</span> <span class="renewal0509-term">RAI_8 / thyroid differentiation score</span> <span class="renewal0509-term">MAPK output score</span> <span class="renewal0509-term">HLA-II / IFN-gamma module</span> <span class="renewal0509-term">Cohen&#x27;s d / Spearman rho / Cox HR</span> <span class="renewal0509-term">PRISM / DepMap</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>TCGA-THCA</td><td>cohort</td><td>TCGA thyroid carcinoma cohort; RNA-seq, clinical, mutation, methylation and cBioPortal-derived mutation/clinical slices depending on page.</td><td>Paper 1 DM1/DM2 derivation, survival, promoter methylation, driver strata, and several downstream reuse pages.</td></tr>
+<tr><td>K2 / PRJEB11591</td><td>cohort</td><td>Korean PTC RNA-seq cohort used as an external Korean replication/calibration anchor.</td><td>Korean portability, mini-index calibration, and NBNR/DM-like comparisons.</td></tr>
+<tr><td>Hugo/Riaz melanoma ICI pool</td><td>cohort</td><td>External melanoma immunotherapy RNA/clinical resources used as ICI-response context, not thyroid predictor proof.</td><td>Paper 3 vulnerability-only evidence and claim-boundary pages.</td></tr>
+<tr><td>AFND / Korean HLA references</td><td>reference</td><td>Allele-frequency and literature-derived HLA reference material; some rows are registry/approval-gated rather than executable analysis inputs.</td><td>Paper 2 HLA and Paper 4 GD/Pan-Asian backlog pages.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>HLA-II / IFN-gamma module</td><td>score</td><td>Inflammation / antigen-presentation module used for HT-overlap and ICI-vulnerability context.</td><td>Paper 2/Paper 3/Paper 4 HLA and immune-context pages.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+<tr><td>PRISM / DepMap</td><td>external screen</td><td>Cancer dependency/drug-screen resources used for vulnerability prioritization and MAPK-inhibitor overlays.</td><td>Paper 1/9/10/11 synthetic-lethality and druggability pages.</td></tr>
+<tr><td>Neoantigen / pMHC / TCR resources</td><td>external resource</td><td>Neoantigen, protein-language-model, structural, TCR and literature-corroboration resources used in the vaccine pages.</td><td>Cancer vaccine, neoantigen, TCR and pMHC pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> BRAF V600E Deep Dive · THCA + Melanoma → 1 · The 3 BRAF V600E records in our master → 2 · BRAF V600E mutation context → 3 · Predicted V600E peptides (class I, from BRAF flanking sequence) → 4 · BRAF V600E + dabrafenib synthetic lethality (THCA framing)</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>BRAF V600E Deep Dive · THCA + Melanoma</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>1 · The 3 BRAF V600E records in our master</span></article>
+<article class="renewal0509-step"><b>03</b><em>H2</em><span>2 · BRAF V600E mutation context</span></article>
+<article class="renewal0509-step"><b>04</b><em>H2</em><span>3 · Predicted V600E peptides (class I, from BRAF flanking sequence)</span></article>
+<article class="renewal0509-step"><b>05</b><em>H2</em><span>4 · BRAF V600E + dabrafenib synthetic lethality (THCA framing)</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>5 · Korean BRAF V600E THCA outlook</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>6 · Honest gap</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div><b>No figure assets detected</b><p>This page has no image tags. Use the table cards and source links below.</p></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="active_learning_browser.html">active_learning_browser</a> <a class="renewal0509-chip" href="cancer_gene_matrix.html">cancer_gene_matrix</a> <a class="renewal0509-chip" href="cv_agent_demo.html">cv_agent_demo</a> <a class="renewal0509-chip" href="hla_atlas.html">hla_atlas</a> <a class="renewal0509-chip" href="hla_class_deep_dive.html">hla_class_deep_dive</a> <a class="renewal0509-chip" href="k2_bd_report.html">k2_bd_report</a> <a class="renewal0509-chip" href="k2_t1_cards.html">k2_t1_cards</a> <a class="renewal0509-chip" href="korean_cohort_prep.html">korean_cohort_prep</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/braf_v600e_deep_dive.html · Renewed page: project/papers_hub_2026_0509/braf_v600e_deep_dive.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+<div class="wrap">
+<div class="kicker">Lumenix · BRAF V600E · 2026-05-08</div>
+<h1>BRAF V600E Deep Dive · THCA + Melanoma</h1>
+<p class="lead">BRAF V600E is the dominant driver in papillary thyroid carcinoma (PTC, ~60%) and melanoma (~50%). It creates a constitutively active MAPK signal that promotes immune-suppressive TME — but also generates a recurrent neoantigen target. Our master corpus has only 3 BRAF V600E records (2 unique peptides), exposing a major data gap.</p>
+
+<div class="kpi">
+<div><b>3</b><span>BRAF V600 records</span></div>
+<div><b>2</b><span>unique peptides</span></div>
+<div><b>~60%</b><span>PTC fraction</span></div>
+<div><b>~50%</b><span>melanoma fraction</span></div>
+<div><b>3/3</b><span>positive (small n!)</span></div>
+</div>
+
+<h2>1 · The 3 BRAF V600E records in our master</h2>
+<table>
+<tr><th>Peptide</th><th>HLA</th><th>Cancer</th><th>Source</th><th>Label</th></tr>
+<tr><td class="mono"><b>EDLTVKIGDFGLATEK</b></td><td class="mono">HLA-DRB1*11:01</td><td>gastric cancer</td><td>NEPdb</td><td class="good">positive</td></tr>
+<tr><td class="mono"><b>EDLTVKIGDFGLATEK</b></td><td class="mono">DQA1:0301/DQB1:0302</td><td>gastric cancer</td><td>NEPdb</td><td class="good">positive</td></tr>
+<tr><td class="mono"><b>GDFGLATEKSRWSGS</b></td><td class="mono">(class II inferred)</td><td>melanoma</td><td>literature</td><td class="good">positive</td></tr>
+</table>
+
+<div class="callout warn">
+<strong>★ The data gap</strong>: only 3 BRAF V600E records, 2 unique peptides, all class II HLA-DR/DQ. <b>No class I HLA-A*02:01 / A*24:02 records for the most-studied driver mutation in PTC and melanoma</b>. This is a corpus deficiency that needs Korean cohort + targeted curation to fill.
+</div>
+
+<h2>2 · BRAF V600E mutation context</h2>
+<p>Wild-type BRAF: ...EDLTVKIG<b>DFG</b>LATVKSRWSGS...</p>
+<p>BRAF V600E: ...EDLTVKIG<b>DFG</b>LAT<b>E</b>KSRWSGS...   (V600 → E)</p>
+<p>The mutation is at position 600 of the BRAF protein, in the activation loop of the kinase domain. The V→E substitution mimics phospho-activation, locking BRAF in active state.</p>
+
+<h2>3 · Predicted V600E peptides (class I, from BRAF flanking sequence)</h2>
+<p>Generated from the BRAF protein sequence around codon 600, all 9-11mers spanning the mutation:</p>
+<table>
+<tr><th>Length</th><th>WT peptide</th><th>MT peptide (V600E)</th><th>Likely HLA</th></tr>
+<tr><td>9</td><td class="mono">DLTVKIGDF</td><td class="mono">DLTVKIGDF</td><td>WT only — V600 not in this 9mer</td></tr>
+<tr><td>9</td><td class="mono">VKIGDFGLA</td><td class="mono">VKIGDFGLA</td><td>WT only — V600 not in this 9mer</td></tr>
+<tr><td>9</td><td class="mono">IGDFGLATV</td><td class="mono">IGDFGLA<b>E</b>K</td><td>HLA-B*51:01? (mutation in P9)</td></tr>
+<tr><td>9</td><td class="mono">GDFGLATVK</td><td class="mono">GDFGLA<b>E</b>KS</td><td>(mutation in P7)</td></tr>
+<tr><td>10</td><td class="mono">DFGLATVKSR</td><td class="mono">DFGLA<b>E</b>KSRW</td><td>HLA-A*03:01? B*27:05?</td></tr>
+<tr><td>10</td><td class="mono">FGLATVKSRW</td><td class="mono">FGLA<b>E</b>KSRWS</td><td>—</td></tr>
+<tr><td>9</td><td class="mono">GLATVKSRW</td><td class="mono">GLA<b>E</b>KSRWS</td><td>HLA-B*27:05?</td></tr>
+</table>
+<p style="font-size:13px;color:var(--muted)">→ These predictions need validation. Notably, the 16-mer EDLTVKIGDFGLATEK from NEPdb is a class II peptide that does include the V600E mutation. Class I predictions for V600E require HLA-A*02:01 or HLA-A*11:01 anchor analysis.</p>
+
+<h2>4 · BRAF V600E + dabrafenib synthetic lethality (THCA framing)</h2>
+<p>The synthetic lethality angle for BRAF V600E + thyroid:</p>
+<div class="flow">
+<div><b>1.</b>BRAF V600E in PTC (~60%)<br>generates neoantigen + MAPK-driven immune suppression</div>
+<div><b>2.</b>Dabrafenib (BRAF inhibitor)<br>relieves MAPK suppression but tumor escapes via other pathways</div>
+<div><b>3.</b>BRAF V600E peptide vaccine<br>primes T-cell response while dabrafenib unmasks tumor</div>
+<div><b>4.</b>Anti-PD-1 ICI<br>maintains T-cell expansion, prevents exhaustion</div>
+</div>
+<p style="font-size:13px;color:var(--muted)">→ This 3-component combination (BRAFi + vaccine + ICI) is being explored in clinical trials (NCT03554083 etc.) for melanoma and is a candidate strategy for PTC.</p>
+
+<h2>5 · Korean BRAF V600E THCA outlook</h2>
+<ul>
+<li>BRAF V600E in Korean PTC: similar prevalence (~60%) to Western cohorts.</li>
+<li>Korean common HLA-A*24:02 (18.5% allele freq) — need to predict V600E peptide presentation on A*24:02 specifically.</li>
+<li>NetMHCpan / MHCflurry on A*24:02 + V600E candidate peptides → action item for Paper 4 (Korean GD HLA backlog).</li>
+<li>Wet-lab pilot: HLA-A*24:02-tg mouse + dabrafenib + V600E peptide vaccine + anti-PD-1.</li>
+</ul>
+
+<h2>6 · Honest gap</h2>
+<p>Our master corpus is severely under-supplied for BRAF V600E neoantigen prediction:</p>
+<ul>
+<li><span class="bad">Only 3 BRAF V600E records in master</span> — barely above noise.</li>
+<li>All 3 are class II HLA-DR / DQ — no class I representation.</li>
+<li>Dominant cancer in our records is gastric (n=2), not thyroid (n=0) or melanoma (n=1) — opposite of clinical relevance.</li>
+<li>This is a top priority for Korean K2/Bundang FFPE cohort acquisition.</li>
+</ul>
+
+<p style="margin-top:30px"><a href="thca_deep_dive.html" style="color:var(--violet);font-weight:700;text-decoration:none">◀ THCA deep dive</a> · <a href="driver_gene_atlas.html" style="color:var(--violet);font-weight:700;text-decoration:none">Driver atlas</a> · <a href="lumenix_cancer_vaccine_index.html" style="color:var(--violet);font-weight:700;text-decoration:none">Master index</a></p>
+</div>
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div><b>No figure assets detected</b><p>This page has no image tags. Use the table cards and source links below.</p></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td colspan='5'>No image tags detected in this page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>BRAF V600E Deep Dive · THCA + Melanoma</td></tr>
+<tr><td>2</td><td>H2</td><td>1 · The 3 BRAF V600E records in our master</td></tr>
+<tr><td>3</td><td>H2</td><td>2 · BRAF V600E mutation context</td></tr>
+<tr><td>4</td><td>H2</td><td>3 · Predicted V600E peptides (class I, from BRAF flanking sequence)</td></tr>
+<tr><td>5</td><td>H2</td><td>4 · BRAF V600E + dabrafenib synthetic lethality (THCA framing)</td></tr>
+<tr><td>6</td><td>H2</td><td>5 · Korean BRAF V600E THCA outlook</td></tr>
+<tr><td>7</td><td>H2</td><td>6 · Honest gap</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>1</td><td>thca_deep_dive.html</td></tr>
+<tr><td>2</td><td>driver_gene_atlas.html</td></tr>
+<tr><td>3</td><td>lumenix_cancer_vaccine_index.html</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="active_learning_browser.html"><b>active_learning_browser</b><span>0 figs · 1 tables</span></a><a class="renewal0509-card" href="cancer_gene_matrix.html"><b>cancer_gene_matrix</b><span>1 figs · 1 tables</span></a><a class="renewal0509-card" href="cv_agent_demo.html"><b>cv_agent_demo</b><span>9 figs · 2 tables</span></a><a class="renewal0509-card" href="hla_atlas.html"><b>hla_atlas</b><span>1 figs · 2 tables</span></a><a class="renewal0509-card" href="hla_class_deep_dive.html"><b>hla_class_deep_dive</b><span>1 figs · 3 tables</span></a><a class="renewal0509-card" href="k2_bd_report.html"><b>k2_bd_report</b><span>0 figs · 4 tables</span></a><a class="renewal0509-card" href="k2_t1_cards.html"><b>k2_t1_cards</b><span>0 figs · 28 tables</span></a><a class="renewal0509-card" href="korean_cohort_prep.html"><b>korean_cohort_prep</b><span>1 figs · 2 tables</span></a><a class="renewal0509-card" href="kthyro_ctc_emt_all_pages_launchpad.html"><b>kthyro_ctc_emt_all_pages_launchpad</b><span>0 figs · 0 tables</span></a><a class="renewal0509-card" href="kthyro_ctc_emt_breakthrough_case.html"><b>kthyro_ctc_emt_breakthrough_case</b><span>6 figs · 2 tables</span></a><a class="renewal0509-card" href="kthyro_ctc_emt_connected_reader.html"><b>kthyro_ctc_emt_connected_reader</b><span>7 figs · 0 tables</span></a><a class="renewal0509-card" href="kthyro_ctc_emt_final_impact_brief.html"><b>kthyro_ctc_emt_final_impact_brief</b><span>2 figs · 2 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body></html>

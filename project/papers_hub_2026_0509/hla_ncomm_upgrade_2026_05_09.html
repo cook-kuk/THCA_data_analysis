@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HLA Two-Paper NComm Upgrade | 2026-05-09</title>
+<style>
+:root{
+  --bg:#071016;--panel:#0d1823;--panel2:#111f2d;--paper:#fbf6ed;--card:#fffaf2;
+  --ink:#edf6fb;--ink2:#d7e4ea;--muted:#9aadb9;--line:#263848;
+  --red:#ff8a6b;--red2:#3a1614;--gold:#ffd28a;--blue:#8bbcff;--green:#93e2aa;
+  --teal:#65dcc8;--lav:#c8b6ff;--coal:#0b121a;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:
+    radial-gradient(circle at 18% 0%,rgba(255,210,138,.16),transparent 28%),
+    linear-gradient(135deg,#071016 0%,#0d1b29 52%,#05090d 100%);
+  color:var(--ink);font-family:Inter,"Noto Sans KR",-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+  line-height:1.58;
+}
+a{color:var(--teal);text-decoration:none}a:hover{text-decoration:underline}
+.shell{max-width:1320px;margin:0 auto;padding:26px 28px 90px}
+.topbar{
+  position:sticky;top:0;z-index:20;margin:-26px -8px 26px;padding:10px 8px;
+  display:flex;gap:10px;align-items:center;justify-content:space-between;
+  background:rgba(7,16,22,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+}
+.home,.nav a{
+  border:1px solid var(--line);background:#0e1a25;color:var(--ink2);border-radius:6px;
+  padding:8px 10px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;font-weight:800;
+}
+.nav{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.hero{
+  min-height:70vh;display:grid;align-content:end;padding:70px 0 34px;border-bottom:1px solid var(--line);
+}
+.kicker{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;font-size:12px;font-weight:900;margin:0 0 16px}
+h1{
+  font-family:Georgia,"Times New Roman","Noto Serif KR",serif;font-size:74px;line-height:.93;margin:0 0 18px;
+  letter-spacing:0;max-width:1160px;color:#fff;
+}
+.lead{font-family:Georgia,"Times New Roman","Noto Serif KR",serif;font-size:24px;color:#dbe7ec;max-width:1100px;margin:0}
+.lead b{color:var(--gold)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.actions a{border:1px solid var(--line);border-radius:6px;background:#0f1c28;color:var(--ink);padding:10px 13px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;font-weight:900}
+.actions a.primary{border-color:var(--gold);color:var(--gold)}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:28px}
+.stat{
+  min-height:118px;border:1px solid rgba(255,210,138,.24);background:rgba(255,255,255,.045);
+  border-radius:8px;padding:14px 13px;
+}
+.stat b{display:block;font-family:Georgia,"Times New Roman",serif;font-size:35px;line-height:1;color:var(--gold)}
+.stat span{display:block;font-weight:900;color:#f4fbff;margin-top:6px}
+.stat small{display:block;color:var(--muted);font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;margin-top:5px}
+.layout{display:grid;grid-template-columns:250px minmax(0,1fr);gap:26px;align-items:start}
+.toc{position:sticky;top:62px;border:1px solid var(--line);background:rgba(13,24,35,.88);border-radius:8px;padding:14px}
+.toc b{display:block;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.toc a{display:block;color:var(--ink2);padding:7px 0;border-top:1px solid rgba(255,255,255,.06);font-size:13px}
+main{min-width:0}
+section{border-bottom:1px solid var(--line);padding:34px 0}
+h2{font-family:Georgia,"Times New Roman","Noto Serif KR",serif;font-size:42px;line-height:1.05;margin:0 0 12px;color:#fff}
+h3{font-size:18px;margin:18px 0 8px;color:var(--gold)}
+.sub{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin:0 0 18px}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.box{border:1px solid var(--line);background:rgba(13,24,35,.92);border-radius:8px;padding:18px}
+.box.gold{border-top:5px solid var(--gold)}.box.green{border-top:5px solid var(--green)}.box.blue{border-top:5px solid var(--blue)}.box.red{border-top:5px solid var(--red)}.box.teal{border-top:5px solid var(--teal)}
+.box p{margin:0;color:var(--ink2)}.box ul{margin:8px 0 0;padding-left:19px}.box li{margin:6px 0;color:var(--ink2)}
+.verdict{
+  border-left:7px solid var(--gold);background:linear-gradient(135deg,rgba(255,210,138,.15),rgba(13,24,35,.92));
+  padding:22px;border-radius:0 8px 8px 0;font-size:19px;color:var(--ink2)
+}
+.verdict b{color:var(--gold)}
+.redbox{border:2px solid var(--red);background:linear-gradient(135deg,rgba(255,138,107,.18),rgba(58,22,20,.48));border-radius:8px;padding:20px;margin:16px 0;color:#ffe5dd}
+.greenbox{border-left:7px solid var(--green);background:rgba(147,226,170,.11);padding:18px;border-radius:0 8px 8px 0;color:#ddffe7}
+table{width:100%;border-collapse:collapse;margin:12px 0 18px;font-size:14px}
+th,td{border:1px solid var(--line);padding:10px 11px;text-align:left;vertical-align:top}
+th{background:#132333;color:var(--gold);font-family:"JetBrains Mono","SF Mono",monospace;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+td{background:rgba(255,255,255,.026);color:var(--ink2)}
+tr.hot td{background:rgba(147,226,170,.08)}tr.caution td{background:rgba(255,210,138,.08)}tr.stop td{background:rgba(255,138,107,.08)}
+.mono{font-family:"JetBrains Mono","SF Mono",monospace;font-size:12px;color:#eaf7ff}
+.tag{display:inline-block;border-radius:999px;padding:3px 8px;font-family:"JetBrains Mono","SF Mono",monospace;font-size:10px;font-weight:900}
+.tag.good{background:rgba(147,226,170,.18);color:var(--green);border:1px solid rgba(147,226,170,.35)}
+.tag.warn{background:rgba(255,210,138,.18);color:var(--gold);border:1px solid rgba(255,210,138,.35)}
+.tag.bad{background:rgba(255,138,107,.18);color:var(--red);border:1px solid rgba(255,138,107,.35)}
+figure{margin:18px 0;background:#fff;border:1px solid #d5e0e6;border-radius:8px;overflow:hidden}
+figure img{width:100%;display:block;background:#fff}
+figcaption{background:#0f1c28;color:#d2e2ea;border-top:1px solid var(--line);padding:12px 14px;font-size:13px}
+figcaption b{color:var(--gold)}
+.figgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.wide{grid-column:1 / -1}
+.footer{font-family:"JetBrains Mono","SF Mono",monospace;color:var(--muted);font-size:11px;margin-top:18px}
+code{font-family:"JetBrains Mono","SF Mono",monospace;color:#eaf7ff}
+@media(max-width:1000px){
+  .shell{padding:18px 16px 70px}.layout{grid-template-columns:1fr}.toc{position:relative;top:auto}
+  h1{font-size:46px}.lead{font-size:20px}.stats{grid-template-columns:repeat(2,1fr)}
+  .g2,.g3,.g4,.figgrid{grid-template-columns:1fr}.topbar{position:relative;margin:0 0 18px;display:block}.nav{margin-top:10px;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — HLA Two-Paper NComm Upgrade | 2026-05-09</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>10</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>4</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>19</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>HLA / Paper 2-4</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">18%</span> <span class="renewal0509-metric">0%</span> <span class="renewal0509-metric">28%</span> <span class="renewal0509-metric">52%</span> <span class="renewal0509-metric">100%</span> <span class="renewal0509-metric">n=632</span> <span class="renewal0509-metric">d=1.39</span> <span class="renewal0509-metric">FDR=4.03e-40</span> <span class="renewal0509-metric">d=1.22</span> <span class="renewal0509-metric">FDR=5.08e-36</span> <span class="renewal0509-metric">d=0.89</span> <span class="renewal0509-metric">FDR=3.85e-21</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Separated HLA queue</span></div>
+      <div><b>Claim boundary</b><span>HT/PTC expression ecology and GD germline HLA genetics must remain separated.</span></div>
+      <div><b>Next use</b><span>Route cancer expression evidence to Paper 2 and GD genetics to Paper 4.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">TCGA-THCA</span> <span class="renewal0509-term">K2 / PRJEB11591</span> <span class="renewal0509-term">GSE213647 / Lee 2024</span> <span class="renewal0509-term">GSE286332</span> <span class="renewal0509-term">GSE250521</span> <span class="renewal0509-term">GSE76039 / Landa advanced thyroid</span> <span class="renewal0509-term">GSE184362 / GSE193581 / GSE241184</span> <span class="renewal0509-term">Hugo/Riaz melanoma ICI pool</span> <span class="renewal0509-term">AFND / Korean HLA references</span> <span class="renewal0509-term">8-gene mini-index</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>TCGA-THCA</td><td>cohort</td><td>TCGA thyroid carcinoma cohort; RNA-seq, clinical, mutation, methylation and cBioPortal-derived mutation/clinical slices depending on page.</td><td>Paper 1 DM1/DM2 derivation, survival, promoter methylation, driver strata, and several downstream reuse pages.</td></tr>
+<tr><td>K2 / PRJEB11591</td><td>cohort</td><td>Korean PTC RNA-seq cohort used as an external Korean replication/calibration anchor.</td><td>Korean portability, mini-index calibration, and NBNR/DM-like comparisons.</td></tr>
+<tr><td>GSE213647 / Lee 2024</td><td>cohort</td><td>Korean PTC RNA-seq cohort used for larger external replication and Hashimoto-like comparison.</td><td>Paper 1 cross-cohort generalization and HLA/deconvolution side pages.</td></tr>
+<tr><td>GSE286332</td><td>cohort</td><td>Small Korean PTC +/- Hashimoto RNA-seq cohort used for HT-isolated signature discovery.</td><td>Paper 2 HT/HLA mechanism pages and TCGA transfer checks.</td></tr>
+<tr><td>GSE250521</td><td>cohort</td><td>Thyroid spatial transcriptomics / Visium resource spanning thyroid progression contexts.</td><td>Spatial validation, spatial failure/rescue, lag pockets, and image-DM1 spatial checks.</td></tr>
+<tr><td>GSE76039 / Landa advanced thyroid</td><td>cohort</td><td>Advanced thyroid cancer expression resource used as a PDTC/ATC lineage-collapse benchmark.</td><td>Mechanism heterogeneity, advanced-disease comparisons, and reverse-causality boundary checks.</td></tr>
+<tr><td>GSE184362 / GSE193581 / GSE241184</td><td>cohort</td><td>Single-cell thyroid resources used for thyrocyte-intrinsic and cross-author validation checks.</td><td>Paper 1 single-cell support, figure sourcing, and cell-state caveats.</td></tr>
+<tr><td>Hugo/Riaz melanoma ICI pool</td><td>cohort</td><td>External melanoma immunotherapy RNA/clinical resources used as ICI-response context, not thyroid predictor proof.</td><td>Paper 3 vulnerability-only evidence and claim-boundary pages.</td></tr>
+<tr><td>AFND / Korean HLA references</td><td>reference</td><td>Allele-frequency and literature-derived HLA reference material; some rows are registry/approval-gated rather than executable analysis inputs.</td><td>Paper 2 HLA and Paper 4 GD/Pan-Asian backlog pages.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>HLA-II / IFN-gamma module</td><td>score</td><td>Inflammation / antigen-presentation module used for HT-overlap and ICI-vulnerability context.</td><td>Paper 2/Paper 3/Paper 4 HLA and immune-context pages.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> HLA는 2개 paper로 간다. Paper 2는 NComm 도전권, Paper 4는 GD-HLA 독립 트랙. → Final Verdict → Paper 2 status → Paper 4 status → 절대 금지</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>HLA는 2개 paper로 간다. Paper 2는 NComm 도전권, Paper 4는 GD-HLA 독립 트랙.</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>Final Verdict</span></article>
+<article class="renewal0509-step"><b>03</b><em>H3</em><span>Paper 2 status</span></article>
+<article class="renewal0509-step"><b>04</b><em>H3</em><span>Paper 4 status</span></article>
+<article class="renewal0509-step"><b>05</b><em>H3</em><span>절대 금지</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>Paper 2: PTC+HT HLA Ecology</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>Paper 4: Graves/GD HLA Genetics</span></article>
+<article class="renewal0509-step"><b>08</b><em>H3</em><span>Core allele story</span></article>
+<article class="renewal0509-step renewal0509-step-more"><b>+11</b><span>More section headings are mapped in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse213647_ptc_effect_sizes.png" alt="Paper 2 main lock. Korean PTC bulk tumor-normal effect sizes: HLA-II/AP and antigen-presentation programs survive with extreme FDR." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Effect-size / forest evidence</div><h4>F02_gse213647_ptc_effect_sizes.png</h4><p>Paper 2 main lock. Korean PTC bulk tumor-normal effect sizes: HLA-II/AP and antigen-presentation programs survive with extreme FDR.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse213647_korean_bulk_validation/figures/F02_gse213647_ptc_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse250521_stage_trend_rho.png" alt="Spatial trend. Thyroid Visium N/PTC/LPTC/ATC trend ranks HLA/AP modules as a spatial trajectory, not a single-cohort artifact." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Effect-size / forest evidence</div><h4>F02_gse250521_stage_trend_rho.png</h4><p>Spatial trend. Thyroid Visium N/PTC/LPTC/ATC trend ranks HLA/AP modules as a spatial trajectory, not a single-cohort artifact.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse250521_thyroid_visium_hla_validation/figures/F02_gse250521_stage_trend_rho.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse250521_spatial_burden_heatmap.png" alt="Spatial burden. Spot-level module burden heatmap gives a visual anchor for HLA/AP immune geography." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Effect-size / forest evidence</div><h4>F03_gse250521_spatial_burden_heatmap.png</h4><p>Spatial burden. Spot-level module burden heatmap gives a visual anchor for HLA/AP immune geography.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse250521_thyroid_visium_hla_validation/figures/F03_gse250521_spatial_burden_heatmap.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse163203_exact_effect_sizes.png" alt="Single-cell support. PTCwithHT vs PTCwithoutHT pseudobulk effect sizes support AP/TLS and B/TLS amplification." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Effect-size / forest evidence</div><h4>F02_gse163203_exact_effect_sizes.png</h4><p>Single-cell support. PTCwithHT vs PTCwithoutHT pseudobulk effect sizes support AP/TLS and B/TLS amplification.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse163203_htptc_scrna_validation/figures/F02_gse163203_exact_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse138198_primary_effect_sizes.png" alt="Clinical HT/PTC bulk. Directional IFN-gamma and HLA-II/AP signal in a directly relevant HT/PTC contrast." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · HLA / allele-frequency evidence</div><h4>F02_gse138198_primary_effect_sizes.png</h4><p>Clinical HT/PTC bulk. Directional IFN-gamma and HLA-II/AP signal in a directly relevant HT/PTC contrast.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read allele resolution, ancestry panel, registry/literature source, and validation gate before using the result.</dd><dt>Boundary</dt><dd>Cancer expression ecology and germline GD genetics must remain separated.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse138198_htptc_bulk_validation/figures/F02_gse138198_primary_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse6004_invasion_effect_sizes.png" alt="Specificity check. Invasion dataset does not reproduce the HLA/AP/TLS pattern, protecting Paper 2 from generic-inflammation criticism." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · HLA / allele-frequency evidence</div><h4>F02_gse6004_invasion_effect_sizes.png</h4><p>Specificity check. Invasion dataset does not reproduce the HLA/AP/TLS pattern, protecting Paper 2 from generic-inflammation criticism.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read allele resolution, ancestry panel, registry/literature source, and validation gate before using the result.</dd><dt>Boundary</dt><dd>Cancer expression ecology and germline GD genetics must remain separated.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse6004_ptc_invasion_array_validation/figures/F02_gse6004_invasion_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse248205_spot_burden_heatmap.png" alt="Paper 4 tissue support. AITD spatial burden shows antigen-presentation/TLS architecture in thyroid autoimmunity tissue." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Effect-size / forest evidence</div><h4>F03_gse248205_spot_burden_heatmap.png</h4><p>Paper 4 tissue support. AITD spatial burden shows antigen-presentation/TLS architecture in thyroid autoimmunity tissue.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse248205_aitd_spatial_validation/figures/F03_gse248205_spot_burden_heatmap.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse29315_ht_effect_sizes.png" alt="AITD array validation. HT array produces very large HLA-II/AP effects, useful as a tissue-biology arm for Paper 4." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Effect-size / forest evidence</div><h4>F02_gse29315_ht_effect_sizes.png</h4><p>AITD array validation. HT array produces very large HLA-II/AP effects, useful as a tissue-biology arm for Paper 4.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse29315_aitd_array_validation/figures/F02_gse29315_ht_effect_sizes.png</dd></dl></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="hla_advisor_packet.html">hla_advisor_packet</a> <a class="renewal0509-chip" href="hla_atlas.html">hla_atlas</a> <a class="renewal0509-chip" href="hla_beta_plan.html">hla_beta_plan</a> <a class="renewal0509-chip" href="hla_class_deep_dive.html">hla_class_deep_dive</a> <a class="renewal0509-chip" href="hla_execution_board_2026_05_09.html">hla_execution_board_2026_05_09</a> <a class="renewal0509-chip" href="hla_situation.html">hla_situation</a> <a class="renewal0509-chip" href="yu_send_package.html">yu_send_package</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/hla_ncomm_upgrade_2026_05_09.html · Renewed page: project/papers_hub_2026_0509/hla_ncomm_upgrade_2026_05_09.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+
+<div class="shell">
+  <nav class="topbar">
+    <a class="home" href="/papers_hub_2026_0509/index.html">Portfolio Hub</a>
+    <div class="nav">
+      <a href="#verdict">Verdict</a>
+      <a href="#paper2">Paper 2</a>
+      <a href="#paper4">Paper 4</a>
+      <a href="#figures">Figures</a>
+      <a href="#matrix">Matrix</a>
+      <a href="#deliverables">Files</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <p class="kicker">HLA 2-paper upgrade · external-data locked · 2026-05-09</p>
+    <h1>HLA는 2개 paper로 간다. Paper 2는 NComm 도전권, Paper 4는 GD-HLA 독립 트랙.</h1>
+    <p class="lead">
+      지금까지의 HLA 결과를 <b>bulk, single-cell, spatial, array, Korean cohort, negative stress-test</b>까지 묶어서
+      Nature Communications급으로 올리는 실행 대시보드다. 핵심은 하나다. Paper 2는 expression ecology,
+      Paper 4는 allele/genotype GD genetics로 절대 섞지 않는다.
+    </p>
+    <div class="actions">
+      <a class="primary" href="#verdict">대박 요약부터 보기</a>
+      <a href="/paper2-hla/">기존 Paper 2 HLA</a>
+      <a href="/paper4-hla/">기존 Paper 4 GD-HLA</a>
+      <a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_TWO_PAPER_NCOMM_SYNTHESIS_KR.md">KR synthesis report</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>2</b><span>논문으로 분리</span><small>PTC+HT expression / GD allele genetics</small></div>
+      <div class="stat"><b>8+</b><span>외부 데이터 축</span><small>bulk, scRNA, spatial, array</small></div>
+      <div class="stat"><b>632</b><span>Korean bulk</span><small>GSE213647 PTC tumor-normal</small></div>
+      <div class="stat"><b>55,873</b><span>Visium spots</span><small>GSE250521 thyroid trajectory</small></div>
+      <div class="stat"><b>0</b><span>bridge audit hits</span><small>new HLA pack clean boundary</small></div>
+      <div class="stat"><b>NComm</b><span>도전권</span><small>Paper 2 strongest; Paper 4 gated</small></div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="toc">
+      <b>HLA upgrade map</b>
+      <a href="#verdict">01. Final verdict</a>
+      <a href="#paper2">02. Paper 2: PTC+HT HLA ecology</a>
+      <a href="#paper4">03. Paper 4: Graves/GD HLA</a>
+      <a href="#boundary">04. Boundary lock</a>
+      <a href="#figures">05. Figure wall</a>
+      <a href="#matrix">06. Hypothesis matrix</a>
+      <a href="#reviewer">07. Reviewer defense</a>
+      <a href="#deliverables">08. Deliverables</a>
+    </aside>
+
+    <main>
+      <section id="verdict">
+        <h2>Final Verdict</h2>
+        <p class="sub">what level is this now?</p>
+        <div class="verdict">
+          <b>결론: 2개 paper가 맞다.</b> Paper 2는 HLA-II/AP, IFN-gamma, B/TLS, spatial burden을 묶은
+          PTC+Hashimoto immune-ecology paper로 Nature Communications 도전권이 생겼다.
+          Paper 4는 Pan-Asian Graves/GD HLA allele paper로 독립성이 충분하지만, Korean adult GD NGS 또는
+          source-level meta extraction이 들어오면 NComm급으로 올라간다.
+        </div>
+        <div class="grid g3" style="margin-top:16px">
+          <div class="box green"><h3>Paper 2 status</h3><p>NComm 도전권. 이미 한국 bulk, HT/PTC bulk, HT/PTC scRNA, thyroid Visium, negative invasion stress-test까지 붙었다.</p></div>
+          <div class="box gold"><h3>Paper 4 status</h3><p>강한 GD-HLA backbone. DPB1*05:01, B*46:01, A*02:07, C*01:02 축이 살아 있고, AITD spatial/array가 tissue biology를 받친다.</p></div>
+          <div class="box red"><h3>절대 금지</h3><p>Paper 2 PTC expression 결과를 allele risk로 말하지 않는다. Paper 4 GD allele 결과를 PTC case-control evidence로 쓰지 않는다.</p></div>
+        </div>
+      </section>
+
+      <section id="paper2">
+        <h2>Paper 2: PTC+HT HLA Ecology</h2>
+        <p class="sub">expression, antigen-presentation, TLS, spatial validation</p>
+        <div class="greenbox">
+          Paper 2의 제목감은 “Hashimoto-overlap PTC에서 HLA-II antigen-presentation/TLS ecology가 반복 검증된다”다.
+          allele association paper가 아니라, tumor-normal, HT/PTC, scRNA, spatial에서 같은 immune program이 반복되는 paper다.
+        </div>
+        <table>
+          <thead><tr><th>External layer</th><th>Main result</th><th>Impact</th><th>Use</th></tr></thead>
+          <tbody>
+            <tr class="hot"><td>GSE213647 Korean bulk, n=632</td><td>PTC tumor vs normal: HLA-II/AP d=1.39, FDR=4.03e-40; HLA-I d=1.22, FDR=5.08e-36; AP/TLS d=0.89, FDR=3.85e-21.</td><td><span class="tag good">Korean lock</span></td><td>Main external Korean validation.</td></tr>
+            <tr class="hot"><td>GSE250521 thyroid Visium, 16 slides / 55,873 spots</td><td>Stage trend: CD74/MIF rho=0.76 q=0.0027; HLA-I rho=0.75 q=0.0027; HLA-II/AP rho=0.61 q=0.018.</td><td><span class="tag good">spatial lock</span></td><td>Main spatial trajectory figure.</td></tr>
+            <tr class="hot"><td>GSE163203 PTC+HT scRNA</td><td>PTCwithHT vs PTCwithoutHT: AP/TLS d=2.78 p=0.035; B/TLS d=2.59 p=0.035; HLA-II/AP d=2.57 p=0.053.</td><td><span class="tag good">cellular lock</span></td><td>Single-cell supportive arm.</td></tr>
+            <tr class="caution"><td>GSE138198 HT/PTC bulk</td><td>PTCwithHT vs PTCwithoutHT: T_IFNG d=1.23 p=0.037; HLA-II/AP d=1.05 p=0.082; AP/TLS d=1.00 p=0.090.</td><td><span class="tag warn">directional</span></td><td>Clinical HT/PTC contrast, underpowered but aligned.</td></tr>
+            <tr class="stop"><td>GSE6004 invasion stress-test</td><td>Invasion vs normal is negative: HLA-II/AP d=-0.42, AP/TLS d=-0.59, FDR=0.829.</td><td><span class="tag bad">specificity</span></td><td>Shows this is not generic PTC invasion noise.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="paper4">
+        <h2>Paper 4: Graves/GD HLA Genetics</h2>
+        <p class="sub">allele/genotype track only, with AITD tissue support</p>
+        <div class="grid g2">
+          <div class="box gold">
+            <h3>Core allele story</h3>
+            <ul>
+              <li>Pan-Asian GD candidates: <code>DPB1*05:01</code>, <code>B*46:01</code>, <code>A*02:07</code>, <code>C*01:02</code>.</li>
+              <li><code>C*01:02</code> looks most GD-specific in the current triangulation.</li>
+              <li><code>DPB1*05:01</code> is likely AITD-broad, so it needs careful disease-specific language.</li>
+            </ul>
+          </div>
+          <div class="box blue">
+            <h3>Tissue biology support</h3>
+            <ul>
+              <li>GSE248205 AITD spatial: CD74/MIF d=3.62, B/TLS d=2.57, AP/TLS d=2.26.</li>
+              <li>GSE29315 HT array: HLA-II/AP d=5.45, exact p=0.0007, FDR=0.0023.</li>
+              <li>These do not prove GD genotype; they support antigen-presentation biology.</li>
+            </ul>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>Paper 4 component</th><th>Current strength</th><th>Gap to NComm</th><th>Decision</th></tr></thead>
+          <tbody>
+            <tr class="hot"><td>Pan-Asian GD allele axis</td><td>Strong hypothesis and source-backed anchor.</td><td>Final source-level extraction and random-effects meta.</td><td>Keep as main Paper 4 spine.</td></tr>
+            <tr class="hot"><td>AITD spatial/array support</td><td>Very strong expression biology.</td><td>Separate GD vs HT interpretation.</td><td>Use as tissue mechanism, not allele proof.</td></tr>
+            <tr class="caution"><td>Korean adult GD validation</td><td>Not yet in hand.</td><td>Best upgrade: Bundang/Korean adult GD HLA NGS or imputed genotype.</td><td>This is the real level-up gate.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="boundary">
+        <h2>Boundary Lock</h2>
+        <p class="sub">this is what keeps the two papers publishable</p>
+        <div class="redbox">
+          <b>심사자 공격 1순위는 disease mixing이다.</b> 그래서 문장을 고정한다:
+          Paper 2 = expression ecology only. Paper 4 = GD/AITD allele-genotype genetics only.
+          Shared HLA names are mechanistic motivation, not cross-paper evidence transfer.
+        </div>
+        <table>
+          <thead><tr><th>Claim type</th><th>Paper 2 allowed?</th><th>Paper 4 allowed?</th><th>Rule</th></tr></thead>
+          <tbody>
+            <tr class="hot"><td>HLA-II/AP expression, IFN-gamma, B/TLS, spatial burden</td><td>Yes</td><td>Supportive only</td><td>Expression biology, not inherited risk.</td></tr>
+            <tr class="caution"><td>DPB1*05:01 / B*46:01 / C*01:02 / A*02:07 GD allele risk</td><td>No</td><td>Yes</td><td>Keep in Graves/GD genetics paper.</td></tr>
+            <tr class="stop"><td>PTC case-control allele association</td><td>No</td><td>No, unless a real PTC genotype cohort exists</td><td>Do not infer from GD controls or expression data.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="figures">
+        <h2>Figure Wall</h2>
+        <p class="sub">the page is figure-heavy because this is how the advisor review should happen</p>
+        <div class="figgrid">
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse213647_ptc_effect_sizes.png" alt="GSE213647 Korean bulk PTC effect sizes" />
+            <figcaption><b>Paper 2 main lock.</b> Korean PTC bulk tumor-normal effect sizes: HLA-II/AP and antigen-presentation programs survive with extreme FDR.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse250521_stage_trend_rho.png" alt="GSE250521 thyroid Visium stage trend" />
+            <figcaption><b>Spatial trend.</b> Thyroid Visium N/PTC/LPTC/ATC trend ranks HLA/AP modules as a spatial trajectory, not a single-cohort artifact.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse250521_spatial_burden_heatmap.png" alt="GSE250521 spatial burden heatmap" />
+            <figcaption><b>Spatial burden.</b> Spot-level module burden heatmap gives a visual anchor for HLA/AP immune geography.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse163203_exact_effect_sizes.png" alt="GSE163203 PTC with HT scRNA effect sizes" />
+            <figcaption><b>Single-cell support.</b> PTCwithHT vs PTCwithoutHT pseudobulk effect sizes support AP/TLS and B/TLS amplification.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse138198_primary_effect_sizes.png" alt="GSE138198 HT PTC bulk effect sizes" />
+            <figcaption><b>Clinical HT/PTC bulk.</b> Directional IFN-gamma and HLA-II/AP signal in a directly relevant HT/PTC contrast.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse6004_invasion_effect_sizes.png" alt="GSE6004 invasion negative stress test" />
+            <figcaption><b>Specificity check.</b> Invasion dataset does not reproduce the HLA/AP/TLS pattern, protecting Paper 2 from generic-inflammation criticism.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse248205_spot_burden_heatmap.png" alt="GSE248205 AITD spatial burden heatmap" />
+            <figcaption><b>Paper 4 tissue support.</b> AITD spatial burden shows antigen-presentation/TLS architecture in thyroid autoimmunity tissue.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse29315_ht_effect_sizes.png" alt="GSE29315 Hashimoto effect sizes" />
+            <figcaption><b>AITD array validation.</b> HT array produces very large HLA-II/AP effects, useful as a tissue-biology arm for Paper 4.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F01_paper4_allele_triangulation_map.png" alt="Paper 4 allele triangulation map" />
+            <figcaption><b>GD-HLA triangulation.</b> The allele map separates GD-specific candidates from broad AITD candidates.</figcaption>
+          </figure>
+          <figure>
+            <img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F06_external_validation_ladder.png" alt="External validation ladder" />
+            <figcaption><b>Upgrade ladder.</b> External-data ladder showing what is already done and what remains as the next escalation.</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="matrix">
+        <h2>Hypothesis Matrix</h2>
+        <p class="sub">many hypotheses, but each one gets data or a gate</p>
+        <table>
+          <thead><tr><th>Hypothesis</th><th>Data already supporting it</th><th>Current grade</th><th>Next gate</th></tr></thead>
+          <tbody>
+            <tr class="hot"><td>PTC+HT has a reproducible HLA-II/AP + TLS ecology.</td><td>GSE138198, GSE163203, GSE213647, GSE250521.</td><td><span class="tag good">main claim ready</span></td><td>Manuscript-level Methods and figure captions.</td></tr>
+            <tr class="hot"><td>The signal is spatially organized, not only bulk mixing.</td><td>GSE250521 and GSE248205 spatial burden heatmaps.</td><td><span class="tag good">strong</span></td><td>Spot-level co-localization statistics.</td></tr>
+            <tr class="caution"><td>GD and HT share antigen-presentation tissue biology but differ genetically.</td><td>GSE29315, GSE248205, Pan-Asian GD allele axis.</td><td><span class="tag warn">promising</span></td><td>GD/HT split with exact source extraction.</td></tr>
+            <tr class="caution"><td>C*01:02 is a GD-specific East-Asian HLA signal.</td><td>Paper 4 triangulation map and Chu/Shin style anchors.</td><td><span class="tag warn">candidate</span></td><td>Final meta-analysis or Korean adult GD genotype data.</td></tr>
+            <tr class="stop"><td>PTC patients carry inherited GD-risk HLA alleles.</td><td>No direct PTC genotype cohort yet.</td><td><span class="tag bad">do not claim</span></td><td>Needs matched PTC/control HLA genotyping.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="reviewer">
+        <h2>Reviewer Defense</h2>
+        <p class="sub">pre-answer the attacks</p>
+        <div class="grid g3">
+          <div class="box red"><h3>Attack: this is just inflammation</h3><p>Answer: GSE6004 invasion stress-test is negative, while HT/PTC, Korean bulk, scRNA, and spatial all align on AP/TLS modules.</p></div>
+          <div class="box red"><h3>Attack: bulk is cell composition</h3><p>Answer: We intentionally make that biology visible with scRNA pseudobulk, B/TLS modules, and spatial spot burden. The claim is ecology, not tumor-cell intrinsic HLA mutation.</p></div>
+          <div class="box red"><h3>Attack: GD alleles do not prove PTC</h3><p>Answer: Correct. That is why Paper 2 and Paper 4 are separated and the boundary audit is clean for the new HLA pack.</p></div>
+        </div>
+      </section>
+
+      <section id="deliverables">
+        <h2>Deliverables</h2>
+        <p class="sub">files deployed with this page</p>
+        <div class="grid g2">
+          <div class="box teal">
+            <h3>Reports</h3>
+            <ul>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_TWO_PAPER_NCOMM_SYNTHESIS_KR.md">Two-paper NComm synthesis KR</a></li>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_DATA_HUNT_WAVE3_KR.md">Wave 3 external data hunt KR</a></li>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_NCOMM_UPGRADE_PACK_KR.md">NComm upgrade pack KR</a></li>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_LEVEL_UP_WAVE2_KR.md">Level-up wave 2 KR</a></li>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_EXTRA_EXTERNAL_VALIDATION_KR.md">Extra external validation KR</a></li>
+            </ul>
+          </div>
+          <div class="box blue">
+            <h3>Tables</h3>
+            <ul>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/hypothesis_validation_matrix.tsv">hypothesis_validation_matrix.tsv</a></li>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/ncomm_readiness_scorecard.tsv">ncomm_readiness_scorecard.tsv</a></li>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/reviewer_attack_response_matrix.tsv">reviewer_attack_response_matrix.tsv</a></li>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/wave3_external_dataset_registry.tsv">wave3_external_dataset_registry.tsv</a></li>
+              <li><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/paper_priority_table.tsv">paper_priority_table.tsv</a></li>
+            </ul>
+          </div>
+        </div>
+        <p class="footer">
+          Source page: <code>project/papers_hub_2026_0509/hla_ncomm_upgrade_2026_05_09.html</code>.
+          Live mirror: <code>/var/www/papers/papers_hub_2026_0509/hla_ncomm_upgrade_2026_05_09.html</code>.
+        </p>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse213647_ptc_effect_sizes.png" alt="Paper 2 main lock. Korean PTC bulk tumor-normal effect sizes: HLA-II/AP and antigen-presentation programs survive with extreme FDR." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Effect-size / forest evidence</div><h4>F02_gse213647_ptc_effect_sizes.png</h4><p>Paper 2 main lock. Korean PTC bulk tumor-normal effect sizes: HLA-II/AP and antigen-presentation programs survive with extreme FDR.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse213647_korean_bulk_validation/figures/F02_gse213647_ptc_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse250521_stage_trend_rho.png" alt="Spatial trend. Thyroid Visium N/PTC/LPTC/ATC trend ranks HLA/AP modules as a spatial trajectory, not a single-cohort artifact." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Effect-size / forest evidence</div><h4>F02_gse250521_stage_trend_rho.png</h4><p>Spatial trend. Thyroid Visium N/PTC/LPTC/ATC trend ranks HLA/AP modules as a spatial trajectory, not a single-cohort artifact.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse250521_thyroid_visium_hla_validation/figures/F02_gse250521_stage_trend_rho.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse250521_spatial_burden_heatmap.png" alt="Spatial burden. Spot-level module burden heatmap gives a visual anchor for HLA/AP immune geography." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Effect-size / forest evidence</div><h4>F03_gse250521_spatial_burden_heatmap.png</h4><p>Spatial burden. Spot-level module burden heatmap gives a visual anchor for HLA/AP immune geography.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse250521_thyroid_visium_hla_validation/figures/F03_gse250521_spatial_burden_heatmap.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse163203_exact_effect_sizes.png" alt="Single-cell support. PTCwithHT vs PTCwithoutHT pseudobulk effect sizes support AP/TLS and B/TLS amplification." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Effect-size / forest evidence</div><h4>F02_gse163203_exact_effect_sizes.png</h4><p>Single-cell support. PTCwithHT vs PTCwithoutHT pseudobulk effect sizes support AP/TLS and B/TLS amplification.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse163203_htptc_scrna_validation/figures/F02_gse163203_exact_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse138198_primary_effect_sizes.png" alt="Clinical HT/PTC bulk. Directional IFN-gamma and HLA-II/AP signal in a directly relevant HT/PTC contrast." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · HLA / allele-frequency evidence</div><h4>F02_gse138198_primary_effect_sizes.png</h4><p>Clinical HT/PTC bulk. Directional IFN-gamma and HLA-II/AP signal in a directly relevant HT/PTC contrast.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read allele resolution, ancestry panel, registry/literature source, and validation gate before using the result.</dd><dt>Boundary</dt><dd>Cancer expression ecology and germline GD genetics must remain separated.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse138198_htptc_bulk_validation/figures/F02_gse138198_primary_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse6004_invasion_effect_sizes.png" alt="Specificity check. Invasion dataset does not reproduce the HLA/AP/TLS pattern, protecting Paper 2 from generic-inflammation criticism." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · HLA / allele-frequency evidence</div><h4>F02_gse6004_invasion_effect_sizes.png</h4><p>Specificity check. Invasion dataset does not reproduce the HLA/AP/TLS pattern, protecting Paper 2 from generic-inflammation criticism.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read allele resolution, ancestry panel, registry/literature source, and validation gate before using the result.</dd><dt>Boundary</dt><dd>Cancer expression ecology and germline GD genetics must remain separated.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse6004_ptc_invasion_array_validation/figures/F02_gse6004_invasion_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse248205_spot_burden_heatmap.png" alt="Paper 4 tissue support. AITD spatial burden shows antigen-presentation/TLS architecture in thyroid autoimmunity tissue." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Effect-size / forest evidence</div><h4>F03_gse248205_spot_burden_heatmap.png</h4><p>Paper 4 tissue support. AITD spatial burden shows antigen-presentation/TLS architecture in thyroid autoimmunity tissue.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse248205_aitd_spatial_validation/figures/F03_gse248205_spot_burden_heatmap.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse29315_ht_effect_sizes.png" alt="AITD array validation. HT array produces very large HLA-II/AP effects, useful as a tissue-biology arm for Paper 4." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Effect-size / forest evidence</div><h4>F02_gse29315_ht_effect_sizes.png</h4><p>AITD array validation. HT array produces very large HLA-II/AP effects, useful as a tissue-biology arm for Paper 4.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/gse29315_aitd_array_validation/figures/F02_gse29315_ht_effect_sizes.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F01_paper4_allele_triangulation_map.png" alt="GD-HLA triangulation. The allele map separates GD-specific candidates from broad AITD candidates." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 09 · HLA / allele-frequency evidence</div><h4>F01_paper4_allele_triangulation_map.png</h4><p>GD-HLA triangulation. The allele map separates GD-specific candidates from broad AITD candidates.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read allele resolution, ancestry panel, registry/literature source, and validation gate before using the result.</dd><dt>Boundary</dt><dd>Cancer expression ecology and germline GD genetics must remain separated.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/level_up_wave2/figures/F01_paper4_allele_triangulation_map.png</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F06_external_validation_ladder.png" alt="Upgrade ladder. External-data ladder showing what is already done and what remains as the next escalation." loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 10 · HLA / allele-frequency evidence</div><h4>F06_external_validation_ladder.png</h4><p>Upgrade ladder. External-data ladder showing what is already done and what remains as the next escalation.</p><dl><dt>Data entered</dt><dd>HLA allele-frequency/literature extraction tables and external GEO validation figures.</dd><dt>How to read</dt><dd>Read allele resolution, ancestry panel, registry/literature source, and validation gate before using the result.</dd><dt>Boundary</dt><dd>Cancer expression ecology and germline GD genetics must remain separated.</dd><dt>Source match</dt><dd>project/results/hla_two_paper_synthesis_2026_05_09/extra_external_validation/figures/F06_external_validation_ladder.png</dd></dl></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td>1</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse213647_ptc_effect_sizes.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse213647_ptc_effect_sizes.png</a></td><td>Paper 2 main lock. Korean PTC bulk tumor-normal effect sizes: HLA-II/AP and antigen-presentation programs survive with extreme FDR.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/gse213647_korean_bulk_validation/figures/F02_gse213647_ptc_effect_sizes.png</td></tr><tr><td>2</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse250521_stage_trend_rho.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse250521_stage_trend_rho.png</a></td><td>Spatial trend. Thyroid Visium N/PTC/LPTC/ATC trend ranks HLA/AP modules as a spatial trajectory, not a single-cohort artifact.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/gse250521_thyroid_visium_hla_validation/figures/F02_gse250521_stage_trend_rho.png</td></tr><tr><td>3</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse250521_spatial_burden_heatmap.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse250521_spatial_burden_heatmap.png</a></td><td>Spatial burden. Spot-level module burden heatmap gives a visual anchor for HLA/AP immune geography.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/gse250521_thyroid_visium_hla_validation/figures/F03_gse250521_spatial_burden_heatmap.png</td></tr><tr><td>4</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse163203_exact_effect_sizes.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse163203_exact_effect_sizes.png</a></td><td>Single-cell support. PTCwithHT vs PTCwithoutHT pseudobulk effect sizes support AP/TLS and B/TLS amplification.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/gse163203_htptc_scrna_validation/figures/F02_gse163203_exact_effect_sizes.png</td></tr><tr><td>5</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse138198_primary_effect_sizes.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse138198_primary_effect_sizes.png</a></td><td>Clinical HT/PTC bulk. Directional IFN-gamma and HLA-II/AP signal in a directly relevant HT/PTC contrast.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/gse138198_htptc_bulk_validation/figures/F02_gse138198_primary_effect_sizes.png</td></tr><tr><td>6</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse6004_invasion_effect_sizes.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse6004_invasion_effect_sizes.png</a></td><td>Specificity check. Invasion dataset does not reproduce the HLA/AP/TLS pattern, protecting Paper 2 from generic-inflammation criticism.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/gse6004_ptc_invasion_array_validation/figures/F02_gse6004_invasion_effect_sizes.png</td></tr><tr><td>7</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse248205_spot_burden_heatmap.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F03_gse248205_spot_burden_heatmap.png</a></td><td>Paper 4 tissue support. AITD spatial burden shows antigen-presentation/TLS architecture in thyroid autoimmunity tissue.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/gse248205_aitd_spatial_validation/figures/F03_gse248205_spot_burden_heatmap.png</td></tr><tr><td>8</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse29315_ht_effect_sizes.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F02_gse29315_ht_effect_sizes.png</a></td><td>AITD array validation. HT array produces very large HLA-II/AP effects, useful as a tissue-biology arm for Paper 4.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/gse29315_aitd_array_validation/figures/F02_gse29315_ht_effect_sizes.png</td></tr><tr><td>9</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F01_paper4_allele_triangulation_map.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F01_paper4_allele_triangulation_map.png</a></td><td>GD-HLA triangulation. The allele map separates GD-specific candidates from broad AITD candidates.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/level_up_wave2/figures/F01_paper4_allele_triangulation_map.png</td></tr><tr><td>10</td><td><a href="/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F06_external_validation_ladder.png">/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/figures/F06_external_validation_ladder.png</a></td><td>Upgrade ladder. External-data ladder showing what is already done and what remains as the next escalation.</td><td>HLA allele-frequency/literature extraction tables and external GEO validation figures.</td><td>project/results/hla_two_paper_synthesis_2026_05_09/extra_external_validation/figures/F06_external_validation_ladder.png</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>3</td><td>Inline HTML table 3</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>4</td><td>Inline HTML table 4</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>HLA는 2개 paper로 간다. Paper 2는 NComm 도전권, Paper 4는 GD-HLA 독립 트랙.</td></tr>
+<tr><td>2</td><td>H2</td><td>Final Verdict</td></tr>
+<tr><td>3</td><td>H3</td><td>Paper 2 status</td></tr>
+<tr><td>4</td><td>H3</td><td>Paper 4 status</td></tr>
+<tr><td>5</td><td>H3</td><td>절대 금지</td></tr>
+<tr><td>6</td><td>H2</td><td>Paper 2: PTC+HT HLA Ecology</td></tr>
+<tr><td>7</td><td>H2</td><td>Paper 4: Graves/GD HLA Genetics</td></tr>
+<tr><td>8</td><td>H3</td><td>Core allele story</td></tr>
+<tr><td>9</td><td>H3</td><td>Tissue biology support</td></tr>
+<tr><td>10</td><td>H2</td><td>Boundary Lock</td></tr>
+<tr><td>11</td><td>H2</td><td>Figure Wall</td></tr>
+<tr><td>12</td><td>H2</td><td>Hypothesis Matrix</td></tr>
+<tr><td>13</td><td>H2</td><td>Reviewer Defense</td></tr>
+<tr><td>14</td><td>H3</td><td>Attack: this is just inflammation</td></tr>
+<tr><td>15</td><td>H3</td><td>Attack: bulk is cell composition</td></tr>
+<tr><td>16</td><td>H3</td><td>Attack: GD alleles do not prove PTC</td></tr>
+<tr><td>17</td><td>H2</td><td>Deliverables</td></tr>
+<tr><td>18</td><td>H3</td><td>Reports</td></tr>
+<tr><td>19</td><td>H3</td><td>Tables</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>1</td><td>/papers_hub_2026_0509/index.html</td></tr>
+<tr><td>2</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_TWO_PAPER_NCOMM_SYNTHESIS_KR.md</td></tr>
+<tr><td>3</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_TWO_PAPER_NCOMM_SYNTHESIS_KR.md</td></tr>
+<tr><td>4</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_DATA_HUNT_WAVE3_KR.md</td></tr>
+<tr><td>5</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_NCOMM_UPGRADE_PACK_KR.md</td></tr>
+<tr><td>6</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_LEVEL_UP_WAVE2_KR.md</td></tr>
+<tr><td>7</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/reports/2026_05_09_HLA_EXTRA_EXTERNAL_VALIDATION_KR.md</td></tr>
+<tr><td>8</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/hypothesis_validation_matrix.tsv</td></tr>
+<tr><td>9</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/ncomm_readiness_scorecard.tsv</td></tr>
+<tr><td>10</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/reviewer_attack_response_matrix.tsv</td></tr>
+<tr><td>11</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/wave3_external_dataset_registry.tsv</td></tr>
+<tr><td>12</td><td>/papers_hub_2026_0509/assets/hla_ncomm_2026_05_09/tables/paper_priority_table.tsv</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="hla_advisor_packet.html"><b>hla_advisor_packet</b><span>0 figs · 8 tables</span></a><a class="renewal0509-card" href="hla_execution_board_2026_05_09.html"><b>hla_execution_board_2026_05_09</b><span>2 figs · 2 tables</span></a><a class="renewal0509-card" href="hla_situation.html"><b>hla_situation</b><span>0 figs · 9 tables</span></a><a class="renewal0509-card" href="yu_send_package.html"><b>yu_send_package</b><span>0 figs · 4 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body>
+</html>

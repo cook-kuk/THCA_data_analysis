@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BAR-Neo-X Interpretability Boost</title>
+  <style>
+    :root { --bg:#0d1117; --panel:#151b23; --panel2:#101820; --ink:#e6edf3; --muted:#9aa7b4; --line:#2a3441; --gold:#e3b341; --cyan:#5eead4; --red:#f87171; --green:#86efac; --violet:#b58cff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; line-height:1.55; }
+    a { color:var(--cyan); text-decoration:none; }
+    .hero { min-height:76vh; display:flex; align-items:flex-end; padding:58px 48px 40px; border-bottom:1px solid var(--line); background:linear-gradient(145deg, rgba(94,234,212,.10), transparent 40%), radial-gradient(circle at 78% 14%, rgba(134,239,172,.14), transparent 30%), #0d1117; }
+    .hero-inner { max-width:1220px; width:100%; }
+    .kicker { color:var(--gold); text-transform:uppercase; letter-spacing:.08em; font-size:13px; font-weight:700; }
+    h1 { font-family:Georgia, "Times New Roman", serif; font-size:clamp(42px, 7vw, 84px); line-height:.97; margin:14px 0 18px; letter-spacing:0; max-width:1080px; }
+    .lead { max-width:1000px; font-size:18px; color:#c8d1dc; }
+    .hero-links { display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
+    .hero-links a { border:1px solid var(--line); padding:8px 11px; background:#101820; color:#d7fff6; }
+    .stats { display:grid; grid-template-columns:repeat(7, minmax(120px,1fr)); gap:12px; margin-top:28px; }
+    .stat { border:1px solid var(--line); background:rgba(21,27,35,.72); padding:14px; min-height:104px; }
+    .stat-value { font-size:24px; color:white; font-weight:800; }
+    .stat-label { color:var(--cyan); font-size:12px; margin-top:4px; }
+    .stat-note { color:var(--muted); font-size:11px; margin-top:8px; }
+    .layout { display:grid; grid-template-columns:260px minmax(0,1fr); gap:30px; max-width:1420px; margin:0 auto; padding:34px 28px 80px; }
+    nav { position:sticky; top:0; align-self:start; max-height:100vh; overflow:auto; padding:18px 0; }
+    nav a { display:block; padding:8px 10px; color:#b9c4d0; border-left:2px solid transparent; font-size:13px; }
+    nav a:hover { border-left-color:var(--cyan); color:white; }
+    section { padding:24px 0 36px; border-bottom:1px solid var(--line); }
+    h2 { font-family:Georgia, "Times New Roman", serif; font-size:34px; margin:0 0 14px; letter-spacing:0; }
+    h3 { font-size:18px; margin:24px 0 10px; color:var(--gold); }
+    .num { color:var(--gold); margin-right:10px; font-size:18px; }
+    .grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; }
+    .cards { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px; }
+    .box,.card { border:1px solid var(--line); background:var(--panel); padding:16px; }
+    .box strong,.card strong { color:white; }
+    .muted { color:var(--muted); }
+    .warn { color:var(--red); font-weight:700; }
+    .ok { color:var(--green); font-weight:700; }
+    .gold { color:var(--gold); font-weight:700; }
+    .cyan { color:var(--cyan); font-weight:700; }
+    .table-wrap { overflow:auto; border:1px solid var(--line); background:var(--panel2); margin:14px 0; }
+    table { width:100%; border-collapse:collapse; font-size:12px; }
+    th, td { padding:9px 10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; white-space:nowrap; }
+    th { color:var(--gold); background:#10151c; position:sticky; top:0; }
+    td { color:#d6dee7; }
+    td.good { color:var(--green); font-weight:700; }
+    td.warn { color:var(--red); font-weight:700; }
+    .figure { border:1px solid var(--line); background:#101820; padding:12px; margin:16px 0; }
+    .figure img { display:block; max-width:100%; height:auto; margin:0 auto; }
+    .path { color:#b9c4d0; font-size:12px; overflow-wrap:anywhere; }
+    .kakao { white-space:pre-wrap; background:#0b1320; border:1px solid var(--line); padding:16px; color:#edf7ff; }
+    @media (max-width: 920px) { .layout { grid-template-columns:1fr; padding:24px 16px 64px; } nav { position:relative; max-height:none; } .stats,.cards,.grid { grid-template-columns:1fr; } .hero { padding:42px 20px 28px; } th,td { white-space:normal; } }
+  </style>
+</head>
+<body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — BAR-Neo-X Interpretability Boost</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>1</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>11</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>19</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>Neoantigen / Vaccine</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">40%</span> <span class="renewal0509-metric">78%</span> <span class="renewal0509-metric">14%</span> <span class="renewal0509-metric">30%</span> <span class="renewal0509-metric">100%</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Dossier ready, proof bounded</span></div>
+      <div><b>Claim boundary</b><span>Neoantigen/pMHC/TCR models support traceable ranking and abstention, not definitive immunogenicity.</span></div>
+      <div><b>Next use</b><span>Frame PAAD vaccine-first only for resected/MRD low-burden contexts; routine THCA vaccine-first is not defensible.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">Hugo/Riaz melanoma ICI pool</span> <span class="renewal0509-term">AFND / Korean HLA references</span> <span class="renewal0509-term">8-gene mini-index</span> <span class="renewal0509-term">RAI_8 / thyroid differentiation score</span> <span class="renewal0509-term">MAPK output score</span> <span class="renewal0509-term">HLA-II / IFN-gamma module</span> <span class="renewal0509-term">Cohen&#x27;s d / Spearman rho / Cox HR</span> <span class="renewal0509-term">Neoantigen / pMHC / TCR resources</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>Hugo/Riaz melanoma ICI pool</td><td>cohort</td><td>External melanoma immunotherapy RNA/clinical resources used as ICI-response context, not thyroid predictor proof.</td><td>Paper 3 vulnerability-only evidence and claim-boundary pages.</td></tr>
+<tr><td>AFND / Korean HLA references</td><td>reference</td><td>Allele-frequency and literature-derived HLA reference material; some rows are registry/approval-gated rather than executable analysis inputs.</td><td>Paper 2 HLA and Paper 4 GD/Pan-Asian backlog pages.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>HLA-II / IFN-gamma module</td><td>score</td><td>Inflammation / antigen-presentation module used for HT-overlap and ICI-vulnerability context.</td><td>Paper 2/Paper 3/Paper 4 HLA and immune-context pages.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+<tr><td>Neoantigen / pMHC / TCR resources</td><td>external resource</td><td>Neoantigen, protein-language-model, structural, TCR and literature-corroboration resources used in the vaccine pages.</td><td>Cancer vaccine, neoantigen, TCR and pMHC pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> BAR-Neo-X Interpretability Boost → 01 TL;DR → 02 Data, Task, Training → 03 Performance Tradeoff → Top-k safety audit</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>BAR-Neo-X Interpretability Boost</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>01 TL;DR</span></article>
+<article class="renewal0509-step"><b>03</b><em>H2</em><span>02 Data, Task, Training</span></article>
+<article class="renewal0509-step"><b>04</b><em>H2</em><span>03 Performance Tradeoff</span></article>
+<article class="renewal0509-step"><b>05</b><em>H3</em><span>Top-k safety audit</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>04 Ablation Audit</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>05 Algorithm</span></article>
+<article class="renewal0509-step"><b>08</b><em>H2</em><span>06 Top Claim-Safe Candidates</span></article>
+<article class="renewal0509-step renewal0509-step-more"><b>+11</b><span>More section headings are mapped in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/barneo_x/barneo_x_tradeoff.png" alt="BAR-Neo-X metric tradeoff plot" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Clinical endpoint evidence</div><h4>barneo_x_tradeoff.png</h4><p>BAR-Neo-X metric tradeoff plot</p><dl><dt>Data entered</dt><dd>Neoantigen/pMHC/TCR/vaccine benchmark resources and derived model outputs.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 06</b><strong>Inline HTML table 6</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard renewal0509-step-more"><b>+5</b><strong>Additional tables</strong><span>Full table inventory appears in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="alphafold_simulation.html">alphafold_simulation</a> <a class="renewal0509-chip" href="anchor_atlas.html">anchor_atlas</a> <a class="renewal0509-chip" href="autoimmunity_browser.html">autoimmunity_browser</a> <a class="renewal0509-chip" href="barneo_high_impact_candidate_pack_2026_05_10.html">barneo_high_impact_candidate_pack_</a> <a class="renewal0509-chip" href="barneo_top_pass_reviewer_evidence_2026_05_10.html">barneo_top_pass_reviewer_evidence_</a> <a class="renewal0509-chip" href="batch30_panel.html">batch30_panel</a> <a class="renewal0509-chip" href="cancer_gene_matrix.html">cancer_gene_matrix</a> <a class="renewal0509-chip" href="cancer_vaccine_agent.html">cancer_vaccine_agent</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/cancer_vaccine_barneo_x_interpretability_2026_05_09.html · Renewed page: project/papers_hub_2026_0509/cancer_vaccine_barneo_x_interpretability_2026_05_09.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="kicker">Cancer vaccine benchmark · claim-safe XAI layer · 2026-05-09</div>
+      <h1>BAR-Neo-X Interpretability Boost</h1>
+      <p class="lead">A post-hoc explanation and claim-safe reranking layer for CLEAN-NeoBench/BAR-Neo. It does not claim public SOTA, clinical vaccine selection, or quantum advantage. Its value is narrower and stronger: keep candidate-level precision while making the top reviewer-facing list low-leakage and explainable.</p>
+      <div class="hero-links">
+        <a href="index.html">Hub index</a>
+        <a href="clean_neobench_barneo_dossier_2026_05_09.html">CLEAN-NeoBench/BAR-Neo dossier</a>
+        <a href="cancer_vaccine_full_dossier.html">Cancer vaccine full dossier</a>
+        <a href="assets/barneo_x/barneo_x_reviewer_packet_2026_05_09.zip">Reviewer packet ZIP</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-value">2,715</div><div class="stat-label">Candidates</div><div class="stat-note">CLEAN-NeoBench rows</div></div>
+        <div class="stat"><div class="stat-value">0.977</div><div class="stat-label">Raw BAR-Neo AUPRC</div><div class="stat-note">apparent candidate-level audit</div></div>
+        <div class="stat"><div class="stat-value">0.821</div><div class="stat-label">X claim-safe AUPRC</div><div class="stat-note">lower by design</div></div>
+        <div class="stat"><div class="stat-value">1.000 -&gt; 0.000</div><div class="stat-label">Top10 high-leakage</div><div class="stat-note">BAR-Neo to BAR-Neo-X claim-safe</div></div>
+        <div class="stat"><div class="stat-value">0.900</div><div class="stat-label">Claim-safe top10 precision</div><div class="stat-note">top20 0.850, top20 leak 0.000</div></div>
+        <div class="stat"><div class="stat-value">2</div><div class="stat-label">Priority rows</div><div class="stat-note">top claim-safe score 0.529</div></div>
+        <div class="stat"><div class="stat-value">2,304</div><div class="stat-label">Hard blocked</div><div class="stat-note">410 metadata-rescuable</div></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav>
+      <a href="#tldr">01 TL;DR</a>
+      <a href="#task">02 Data, task, training</a>
+      <a href="#tradeoff">03 Performance tradeoff</a>
+      <a href="#ablation">04 Ablation audit</a>
+      <a href="#algorithm">05 Algorithm</a>
+      <a href="#candidates">06 Top candidates</a>
+      <a href="#factors">07 Factor audit</a>
+      <a href="#why-not">08 Why-not audit</a>
+      <a href="#decision">09 Decision matrix</a>
+      <a href="#kakao">10 Kakao payload</a>
+      <a href="#paths">11 Sources + paths</a>
+    </nav>
+
+    <main>
+      <section id="tldr">
+        <h2><span class="num">01</span>TL;DR</h2>
+        <div class="grid">
+          <div class="box"><strong>What improved:</strong> top10 high-leakage fraction drops from <span class="warn">1.000</span> to <span class="ok">0.000</span> while claim-safe top10 precision stays <span class="ok">0.900</span>.</div>
+          <div class="box"><strong>What did not improve:</strong> apparent AUPRC is lower than raw BAR-Neo, from <span class="gold">0.977</span> to <span class="gold">0.821</span>, because leakage-heavy rows are deliberately downranked.</div>
+          <div class="box"><strong>What became interpretable:</strong> each candidate receives positive components and negative penalties: BAR-Neo evidence, BMA consensus, internal predictor support, confidence, leakage, overlap, patient gate incompleteness, uncertainty, and disagreement.</div>
+          <div class="box"><strong>Why-not layer:</strong> 2,304 rows are hard claim-blocked, 410 are metadata-rescuable, 23 would cross priority if metadata were complete, and 1 is priority now.</div>
+        </div>
+      </section>
+
+      <section id="task">
+        <h2><span class="num">02</span>Data, Task, Training</h2>
+        <div class="cards">
+          <div class="card"><strong>Data used</strong><br>CLEAN-NeoBench master rows, method scores, BAR-Neo candidate scores, BAR-Neo-BMA scores, and row-level leakage/overlap flags.</div>
+          <div class="card"><strong>Task</strong><br>Candidate-level neoantigen/immunogenicity triage with a separate reviewer-facing clean-claim ranking.</div>
+          <div class="card"><strong>Training</strong><br>No new base predictor is trained in BAR-Neo-X. It is a deterministic post-hoc reranking and explanation layer on existing BAR-Neo/BMA outputs.</div>
+          <div class="card"><strong>Model family</strong><br>Additive component attribution plus leakage-aware claim gate and metadata cap.</div>
+          <div class="card"><strong>Quantum status</strong><br>None. Existing QUBO/QK terms remain bounded heuristics in the broader pipeline, not a quantum advantage claim.</div>
+          <div class="card"><strong>Clinical status</strong><br>Research triage only. Candidate review requires patient metadata, disease context, presentation status, expression, clonality, and wet-lab validation.</div>
+        </div>
+      </section>
+
+      <section id="tradeoff">
+        <h2><span class="num">03</span>Performance Tradeoff</h2>
+        <p class="muted">The right comparison is not raw metric maximization. The reviewer-facing objective is precision under leakage control.</p>
+        <div class="figure"><img src="assets/barneo_x/barneo_x_tradeoff.png" alt="BAR-Neo-X metric tradeoff plot"></div>
+        <div class="table-wrap"><table><thead><tr><th>score</th><th>n</th><th>apparent_auprc</th><th>apparent_auroc</th><th>top10_precision</th><th>top20_precision</th><th>top10_high_leakage_fraction</th></tr></thead><tbody><tr><td>barneo_score</td><td>2715</td><td>0.9772</td><td>0.9797</td><td>1.00</td><td>1.00</td><td>1.00</td></tr><tr><td>barneo_bma_score</td><td>2715</td><td>0.9026</td><td>0.9212</td><td>1.00</td><td>1.00</td><td>1.00</td></tr><tr><td>patient_gated_score</td><td>2715</td><td>0.9766</td><td>0.9795</td><td>1.00</td><td>1.00</td><td>1.00</td></tr><tr><td>patient_gated_bma_score</td><td>2715</td><td>0.8959</td><td>0.9187</td><td>1.00</td><td>0.9000</td><td>1.00</td></tr><tr><td>barneo_x_discovery_score</td><td>2715</td><td>0.9402</td><td>0.9452</td><td>1.00</td><td>0.9500</td><td>0.2000</td></tr><tr><td>barneo_x_claim_safe_score</td><td>2715</td><td>0.8212</td><td>0.9041</td><td>0.9000</td><td>0.8500</td><td>0.0000</td></tr></tbody></table></div>
+        <h3>Top-k safety audit</h3>
+        <div class="table-wrap"><table><thead><tr><th>score</th><th>top_k</th><th>precision</th><th>high_leakage_fraction</th><th>median_claim_safe_score</th><th>priority_review_rows</th></tr></thead><tbody><tr><td>barneo_x_discovery_score</td><td>10</td><td>1.00</td><td>0.2000</td><td>0.4926</td><td>2</td></tr><tr><td>barneo_x_discovery_score</td><td>20</td><td>0.9500</td><td>0.5500</td><td>0.2018</td><td>2</td></tr><tr><td>barneo_x_discovery_score</td><td>50</td><td>0.9800</td><td>0.8200</td><td>0.1905</td><td>2</td></tr><tr><td>barneo_x_discovery_score</td><td>100</td><td>0.9900</td><td>0.8600</td><td>0.1889</td><td>2</td></tr><tr><td>barneo_x_claim_safe_score</td><td>10</td><td>0.9000</td><td>0.0000</td><td>0.4926</td><td>2</td></tr><tr><td>barneo_x_claim_safe_score</td><td>20</td><td>0.8500</td><td>0.0000</td><td>0.4533</td><td>2</td></tr><tr><td>barneo_x_claim_safe_score</td><td>50</td><td>0.6000</td><td>0.0000</td><td>0.3775</td><td>2</td></tr><tr><td>barneo_x_claim_safe_score</td><td>100</td><td>0.5600</td><td>0.2300</td><td>0.2698</td><td>2</td></tr></tbody></table></div>
+      </section>
+
+      <section id="ablation">
+        <h2><span class="num">04</span>Ablation Audit</h2>
+        <p class="muted">This table shows what breaks when penalties, leakage gating, or metadata capping are removed. The goal is to justify the conservative score, not maximize apparent AUPRC.</p>
+        <div class="table-wrap"><table><thead><tr><th>score</th><th>n</th><th>apparent_auprc</th><th>apparent_auroc</th><th>top10_precision</th><th>top20_precision</th><th>top10_high_leakage_fraction</th><th>top20_high_leakage_fraction</th><th>interpretation</th></tr></thead><tbody><tr><td>barneo_score</td><td>2715</td><td>0.9772</td><td>0.9797</td><td>1.00</td><td>1.00</td><td>1.00</td><td>1.00</td><td>raw apparent BAR-Neo score; high label metric but unsafe for clean top-k claims</td></tr><tr><td>barneo_x_positive_only_score</td><td>2715</td><td>0.9669</td><td>0.9714</td><td>1.00</td><td>1.00</td><td>1.00</td><td>1.00</td><td>positive evidence only; exposes why penalties are needed</td></tr><tr><td>barneo_x_no_penalty_score</td><td>2715</td><td>0.8629</td><td>0.9246</td><td>0.9000</td><td>0.8500</td><td>0.0000</td><td>0.0000</td><td>claim gate and metadata cap retained, but component penalties removed</td></tr><tr><td>barneo_x_no_leakage_gate_score</td><td>2715</td><td>0.9402</td><td>0.9452</td><td>1.00</td><td>0.9500</td><td>0.2000</td><td>0.5500</td><td>component penalties retained, but high/medium leakage gate removed</td></tr><tr><td>barneo_x_no_metadata_cap_score</td><td>2715</td><td>0.8212</td><td>0.9041</td><td>0.9000</td><td>0.8500</td><td>0.0000</td><td>0.0000</td><td>component penalties and leakage gate retained, but missing metadata cap removed</td></tr><tr><td>barneo_x_claim_safe_score</td><td>2715</td><td>0.8212</td><td>0.9041</td><td>0.9000</td><td>0.8500</td><td>0.0000</td><td>0.0000</td><td>full BAR-Neo-X reviewer-facing score</td></tr></tbody></table></div>
+      </section>
+
+      <section id="algorithm">
+        <h2><span class="num">05</span>Algorithm</h2>
+        <div class="grid">
+          <div class="box"><strong>Positive evidence:</strong> BAR-Neo model evidence, BMA expert consensus, clean internal predictor support, anchor support, confidence support.</div>
+          <div class="box"><strong>Negative evidence:</strong> posterior disagreement, posterior uncertainty, patient gate incompleteness, high/medium leakage, exact or near peptide overlap, study/patient overlap, public pretrained overlap, low-prevalence source, sparse expert support.</div>
+          <div class="box"><strong>Discovery score:</strong> positive component sum minus a penalty-weighted risk sum. Use for internal hypothesis generation.</div>
+          <div class="box"><strong>Claim-safe score:</strong> discovery score multiplied by leakage gate and metadata cap. Use for reviewer-facing candidate review.</div>
+        </div>
+      </section>
+
+      <section id="candidates">
+        <h2><span class="num">06</span>Top Claim-Safe Candidates</h2>
+        <p class="muted">Rows are sorted by BAR-Neo-X claim-safe rank. Labels are benchmark labels, not clinical validation.</p>
+        <div class="table-wrap"><table><thead><tr><th>candidate_id</th><th>peptide</th><th>hla_allele_4digit</th><th>label</th><th>leakage_risk_level</th><th>barneo_score</th><th>barneo_bma_score</th><th>barneo_x_claim_safe_score</th><th>barneo_x_primary_action</th><th>barneo_x_top_positive_factors</th><th>barneo_x_top_negative_factors</th></tr></thead><tbody><tr><td>CNV0_02407</td><td>KLMNIQQKL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.9019</td><td>0.5128</td><td>0.5287</td><td class="good">priority_review_candidate</td><td>BAR-Neo model evidence=0.379; clean internal predictor support=0.142; BMA expert consensus=0.123; confidence support=0.109</td><td>patient gate incompleteness penalty=-0.084; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02503</td><td>RLSDFSEQL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8938</td><td>0.4623</td><td>0.5076</td><td class="good">priority_review_candidate</td><td>BAR-Neo model evidence=0.375; clean internal predictor support=0.133; BMA expert consensus=0.111; confidence support=0.109</td><td>patient gate incompleteness penalty=-0.084; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02509</td><td>SLLRSLENV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8953</td><td>0.4079</td><td>0.4982</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.376; clean internal predictor support=0.139; confidence support=0.108; BMA expert consensus=0.098</td><td>patient gate incompleteness penalty=-0.087; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02410</td><td>MLGEQLFPL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8797</td><td>0.4079</td><td>0.4949</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.369; clean internal predictor support=0.139; confidence support=0.108; BMA expert consensus=0.098</td><td>patient gate incompleteness penalty=-0.083; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02409</td><td>IILVAVPHV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8998</td><td>0.3933</td><td>0.4939</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.378; clean internal predictor support=0.132; confidence support=0.110; BMA expert consensus=0.094</td><td>patient gate incompleteness penalty=-0.083; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02504</td><td>LLVDLAEEL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8601</td><td>0.3933</td><td>0.4912</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.361; clean internal predictor support=0.149; confidence support=0.106; BMA expert consensus=0.094</td><td>patient gate incompleteness penalty=-0.085; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02452</td><td>LLDGFLATV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.7698</td><td>0.5918</td><td>0.4912</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.323; clean internal predictor support=0.160; BMA expert consensus=0.142; confidence support=0.098</td><td>posterior disagreement penalty=-0.106; patient gate incompleteness penalty=-0.092; posterior uncertainty penalty=-0.035</td></tr><tr><td>CNV0_02420</td><td>KLANPLPYT</td><td>HLA-A*02:01</td><td>0</td><td>low</td><td>0.7613</td><td>0.5128</td><td>0.4800</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.320; clean internal predictor support=0.149; BMA expert consensus=0.123; confidence support=0.098</td><td>patient gate incompleteness penalty=-0.088; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02450</td><td>KELEGILLL</td><td>HLA-B*44:03</td><td>1</td><td>low</td><td>0.7011</td><td>0.4788</td><td>0.4667</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.294; clean internal predictor support=0.160; BMA expert consensus=0.115; confidence support=0.094</td><td>patient gate incompleteness penalty=-0.089; posterior disagreement penalty=-0.035; posterior uncertainty penalty=-0.011</td></tr><tr><td>CNV0_02478</td><td>YVDFREYEYY</td><td>HLA-A*01:01</td><td>1</td><td>low</td><td>0.6078</td><td>0.5399</td><td>0.4568</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.255; clean internal predictor support=0.160; BMA expert consensus=0.130; confidence support=0.088</td><td>patient gate incompleteness penalty=-0.088; posterior disagreement penalty=-0.016; posterior uncertainty penalty=-0.006</td></tr><tr><td>CNV0_02448</td><td>ILDKVLVHL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.6737</td><td>0.4324</td><td>0.4497</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.283; clean internal predictor support=0.160; BMA expert consensus=0.104; confidence support=0.093</td><td>patient gate incompleteness penalty=-0.088; posterior disagreement penalty=-0.030; posterior uncertainty penalty=-0.010</td></tr><tr><td>CNV0_02424</td><td>LADEAEVYL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.5722</td><td>0.6650</td><td>0.4466</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.240; clean internal predictor support=0.160; BMA expert consensus=0.160; confidence support=0.086</td><td>patient gate incompleteness penalty=-0.088; posterior disagreement penalty=-0.083; posterior uncertainty penalty=-0.029</td></tr><tr><td>CNV0_02408</td><td>FLYNLLTRV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8276</td><td>0.2273</td><td>0.4449</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.348; clean internal predictor support=0.157; confidence support=0.102; BMA expert consensus=0.055</td><td>patient gate incompleteness penalty=-0.089; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02400</td><td>ETSKQVTRW</td><td>HLA-A*25:01</td><td>0</td><td>low</td><td>0.7139</td><td>0.4283</td><td>0.4359</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.300; clean internal predictor support=0.160; BMA expert consensus=0.103; confidence support=0.071</td><td>patient gate incompleteness penalty=-0.090; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02508</td><td>YILKYSVFL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.8318</td><td>0.2535</td><td>0.4328</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.349; clean internal predictor support=0.131; confidence support=0.103; BMA expert consensus=0.061</td><td>patient gate incompleteness penalty=-0.089; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02397</td><td>LPIQYEPVL</td><td>HLA-B*35:03</td><td>0</td><td>low</td><td>0.7333</td><td>0.4400</td><td>0.4327</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.308; clean internal predictor support=0.140; BMA expert consensus=0.106; confidence support=0.074</td><td>patient gate incompleteness penalty=-0.086; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02507</td><td>WVLALFDEV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.7921</td><td>0.2603</td><td>0.4228</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.333; clean internal predictor support=0.133; confidence support=0.101; BMA expert consensus=0.062</td><td>patient gate incompleteness penalty=-0.087; sparse expert support penalty=-0.060</td></tr><tr><td>CNV0_02460</td><td>GIVEGLITTV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.5551</td><td>0.4587</td><td>0.4164</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.233; clean internal predictor support=0.160; BMA expert consensus=0.110; confidence support=0.085</td><td>patient gate incompleteness penalty=-0.087; posterior disagreement penalty=-0.026; posterior uncertainty penalty=-0.009</td></tr><tr><td>CNV0_02425</td><td>GIVEGLITT</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.5665</td><td>0.4418</td><td>0.4106</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.238; clean internal predictor support=0.160; BMA expert consensus=0.106; confidence support=0.085</td><td>patient gate incompleteness penalty=-0.090; posterior disagreement penalty=-0.030; posterior uncertainty penalty=-0.011</td></tr><tr><td>CNV0_02709</td><td>ALPVALPSL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.6662</td><td>0.3741</td><td>0.4104</td><td class="good">secondary_review_candidate</td><td>BAR-Neo model evidence=0.280; clean internal predictor support=0.160; confidence support=0.093; BMA expert consensus=0.090</td><td>patient gate incompleteness penalty=-0.086; low-prevalence source penalty=-0.050; posterior disagreement penalty=-0.043; posterior uncertainty penalty=-0.013</td></tr></tbody></table></div>
+      </section>
+
+      <section id="factors">
+        <h2><span class="num">07</span>Factor Audit</h2>
+        <div class="grid">
+          <div>
+            <h3>Top positive factors in claim-safe top50</h3>
+            <div class="table-wrap"><table><thead><tr><th>factor</th><th>n_top50_rows</th></tr></thead><tbody><tr><td>BAR-Neo model evidence</td><td>50</td></tr><tr><td>clean internal predictor support</td><td>50</td></tr><tr><td>confidence support</td><td>50</td></tr><tr><td>BMA expert consensus</td><td>49</td></tr></tbody></table></div>
+          </div>
+          <div>
+            <h3>Top negative factors in claim-safe top50</h3>
+            <div class="table-wrap"><table><thead><tr><th>factor</th><th>n_top50_rows</th></tr></thead><tbody><tr><td>patient gate incompleteness penalty</td><td>50</td></tr><tr><td>posterior disagreement penalty</td><td>36</td></tr><tr><td>posterior uncertainty penalty</td><td>36</td></tr><tr><td>sparse expert support penalty</td><td>14</td></tr><tr><td>low-prevalence source penalty</td><td>6</td></tr><tr><td>medium leakage risk penalty</td><td>4</td></tr><tr><td>near peptide overlap penalty</td><td>4</td></tr></tbody></table></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="why-not">
+        <h2><span class="num">08</span>Why-Not / Rescue Audit</h2>
+        <p class="muted">This layer answers the failure case question directly: whether a row is blocked by leakage/identity overlap, missing patient context, model uncertainty, sparse support, or low-priority benchmark status.</p>
+        <div class="grid">
+          <div class="box"><strong>Hard claim-blocked:</strong> <span class="warn">2,304</span> candidates need a new holdout, row-level overlap audit, or independent external cohort before clean benchmark claims.</div>
+          <div class="box"><strong>Metadata-rescuable:</strong> <span class="gold">410</span> candidates can be reprioritized after cancer type, disease context, stage, expression, VAF/clonality, HLA-LOH/B2M, and immune context are completed.</div>
+          <div class="box"><strong>Priority now:</strong> <span class="ok">1</span> candidate remains reviewer-triage priority under the claim-safe score.</div>
+          <div class="box"><strong>Upside if metadata completes:</strong> <span class="cyan">23</span> candidates would cross the priority threshold without removing the leakage gate.</div>
+        </div>
+        <h3>Primary blocker summary</h3>
+        <div class="table-wrap"><table><thead><tr><th>primary_blocker</th><th>n_candidates</th><th>n_positive_label</th><th>median_claim_safe_score</th><th>n_would_be_priority_if_metadata_complete</th><th>top_rescue_lane</th><th>example_required_next_data</th></tr></thead><tbody><tr><td>claim_blocked_by_leakage_or_identity_overlap</td><td>2304</td><td>1143</td><td>0.0103</td><td>0</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td><td>row-level training-corpus audit, de-duplicated split, independent external cohort</td></tr><tr><td>patient_metadata_incomplete</td><td>410</td><td>35</td><td>0.0947</td><td>22</td><td>rescuable_by_patient_metadata_completion</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>none_priority_candidate</td><td>1</td><td>1</td><td>0.5225</td><td>1</td><td>priority_review_now</td><td>complete patient metadata and independent validation before translational claim</td></tr></tbody></table></div>
+        <h3>Rescue lane summary</h3>
+        <div class="table-wrap"><table><thead><tr><th>rescue_lane</th><th>n_candidates</th><th>n_positive_label</th><th>median_claim_safe_score</th><th>example_required_next_data</th><th>claim_boundary</th></tr></thead><tbody><tr><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td><td>2304</td><td>1143</td><td>0.0103</td><td>row-level training-corpus audit, de-duplicated split, independent external cohort</td><td>do not use as clean top-k benchmark evidence</td></tr><tr><td>rescuable_by_patient_metadata_completion</td><td>410</td><td>35</td><td>0.0947</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td><td>can be review-prioritized after metadata cap is lifted</td></tr><tr><td>priority_review_now</td><td>1</td><td>1</td><td>0.5225</td><td>complete patient metadata and independent validation before translational claim</td><td>reviewer-facing research triage only</td></tr></tbody></table></div>
+        <h3>Top why-not reasons</h3>
+        <div class="table-wrap"><table><thead><tr><th>reason</th><th>n_candidates</th><th>n_positive_label</th><th>median_claim_safe_score</th><th>top_rescue_lane</th></tr></thead><tbody><tr><td>missing_patient_disease_metadata</td><td>2715</td><td>1179</td><td>0.0863</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>model_abstention</td><td>2707</td><td>1179</td><td>0.0862</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>low_claim_safe_score</td><td>2676</td><td>1152</td><td>0.0853</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>high_leakage_claim_blocker</td><td>2304</td><td>1143</td><td>0.0103</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>near_peptide_overlap_caution</td><td>2300</td><td>1122</td><td>0.0101</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>exact_peptide_hla_overlap_claim_blocker</td><td>2274</td><td>1114</td><td>0.0076</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>study_overlap_caution</td><td>2086</td><td>1039</td><td>0.0117</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>benchmark_negative_label</td><td>1536</td><td>0</td><td>0.0000</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>low_prevalence_source</td><td>1035</td><td>48</td><td>0.0000</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>expert_disagreement</td><td>493</td><td>106</td><td>0.0937</td><td>rescuable_by_patient_metadata_completion</td></tr><tr><td>posterior_uncertainty</td><td>317</td><td>72</td><td>0.0940</td><td>rescuable_by_patient_metadata_completion</td></tr><tr><td>public_training_overlap_caveat</td><td>213</td><td>103</td><td>0.0000</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>sparse_expert_support</td><td>200</td><td>87</td><td>0.0000</td><td>clean_claim_not_rescuable_without_new_holdout_or_overlap_audit</td></tr><tr><td>medium_leakage_caution</td><td>23</td><td>5</td><td>0.0423</td><td>rescuable_by_patient_metadata_completion</td></tr><tr><td>underrepresented_hla_or_sparse_allele</td><td>3</td><td>1</td><td>0.4237</td><td>rescuable_by_patient_metadata_completion</td></tr><tr><td>exact_peptide_overlap_claim_caveat</td><td>1</td><td>1</td><td>0.2496</td><td>rescuable_by_patient_metadata_completion</td></tr></tbody></table></div>
+        <h3>Top rows with blockers</h3>
+        <div class="table-wrap"><table><thead><tr><th>candidate_id</th><th>peptide</th><th>hla_allele_4digit</th><th>label</th><th>leakage_risk_level</th><th>barneo_x_claim_safe_score</th><th>primary_blocker</th><th>rescue_lane</th><th>would_be_priority_if_metadata_complete</th><th>required_next_data</th></tr></thead><tbody><tr><td>CNV0_02407</td><td>KLMNIQQKL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.5225</td><td>none_priority_candidate</td><td>priority_review_now</td><td>True</td><td>complete patient metadata and independent validation before translational claim</td></tr><tr><td>CNV0_02503</td><td>RLSDFSEQL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.5000</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02410</td><td>MLGEQLFPL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4972</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02509</td><td>SLLRSLENV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4957</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02409</td><td>IILVAVPHV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4946</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02504</td><td>LLVDLAEEL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4907</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02420</td><td>KLANPLPYT</td><td>HLA-A*02:01</td><td>0</td><td>low</td><td>0.4790</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02450</td><td>KELEGILLL</td><td>HLA-B*44:03</td><td>1</td><td>low</td><td>0.4684</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02424</td><td>LADEAEVYL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4663</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02452</td><td>LLDGFLATV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4579</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02408</td><td>FLYNLLTRV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4517</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02478</td><td>YVDFREYEYY</td><td>HLA-A*01:01</td><td>1</td><td>low</td><td>0.4462</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02448</td><td>ILDKVLVHL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4460</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02508</td><td>YILKYSVFL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4438</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02507</td><td>WVLALFDEV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4426</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02397</td><td>LPIQYEPVL</td><td>HLA-B*35:03</td><td>0</td><td>low</td><td>0.4324</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02400</td><td>ETSKQVTRW</td><td>HLA-A*25:01</td><td>0</td><td>low</td><td>0.4237</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02425</td><td>GIVEGLITT</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4124</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02460</td><td>GIVEGLITTV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.4078</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02480</td><td>ILDTAGKEEY</td><td>HLA-A*01:01</td><td>1</td><td>medium</td><td>0.3905</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02709</td><td>ALPVALPSL</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.3902</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02401</td><td>YIDERFERY</td><td>HLA-A*01:01</td><td>0</td><td>low</td><td>0.3851</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02458</td><td>IIGAGPAEV</td><td>HLA-A*02:01</td><td>0</td><td>low</td><td>0.3798</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>True</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02710</td><td>SLLSGLLRA</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.3732</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>False</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02477</td><td>VVVGAVGVG</td><td>HLA-B*35:01</td><td>1</td><td>low</td><td>0.3639</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>False</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02572</td><td>TTYSPIGEK</td><td>HLA-A*03:01</td><td>0</td><td>low</td><td>0.3587</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>False</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02405</td><td>KMIGNHLWV</td><td>HLA-A*02:01</td><td>1</td><td>low</td><td>0.3568</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>False</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02712</td><td>DKESEEEVS</td><td>HLA-C*12:03</td><td>1</td><td>low</td><td>0.3553</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>False</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02713</td><td>AVCPWTWLR</td><td>HLA-A*11:01</td><td>1</td><td>low</td><td>0.3477</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>False</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr><tr><td>CNV0_02417</td><td>LLSIIFFPA</td><td>HLA-A*02:01</td><td>0</td><td>low</td><td>0.3402</td><td>patient_metadata_incomplete</td><td>rescuable_by_patient_metadata_completion</td><td>False</td><td>cancer type, disease context, tumor stage, expression, VAF/clonality, HLA-LOH, B2M, immune context</td></tr></tbody></table></div>
+      </section>
+
+      <section id="decision">
+        <h2><span class="num">09</span>Decision Matrix</h2>
+        <div class="table-wrap"><table><thead><tr><th>surface</th><th>best use</th><th>evidence</th><th>blocker</th><th>disposition</th></tr></thead><tbody><tr><td>raw BAR-Neo score</td><td>internal discovery signal</td><td>AUPRC 0.977, top10 precision 1.000</td><td>top10 high-leakage 1.000</td><td>do not use as clean reviewer-facing top10</td></tr><tr><td>BAR-Neo-X discovery score</td><td>hypothesis queue before manual audit</td><td>top10 precision 1.000</td><td>top20 high-leakage 0.550</td><td>internal only</td></tr><tr><td>BAR-Neo-X claim-safe score</td><td>reviewer-facing candidate triage</td><td>top10 precision 0.900, top20 precision 0.850</td><td>lower apparent AUPRC by design</td><td>primary dossier ranking</td></tr><tr><td>public SOTA claim</td><td>none in current evidence package</td><td>candidate-level apparent audit only</td><td>overlap and leakage controls dominate the clean claim</td><td>forbidden</td></tr><tr><td>quantum advantage claim</td><td>none</td><td>QUBO/QK pieces are bounded engineering heuristics</td><td>no quantum runtime or advantage test</td><td>forbidden</td></tr></tbody></table></div>
+      </section>
+
+      <section id="kakao">
+        <h2><span class="num">10</span>Kakao Payload</h2>
+        <div class="kakao">Cancer vaccine neoantigen benchmark에서 BAR-Neo 기반 BAR-Neo-X를 만들었고, 후보별 BAR-Neo evidence/BMA consensus/internal predictor/confidence와 leakage-overlap-uncertainty penalty를 분해해 설명 가능하게 만들었습니다. raw BAR-Neo는 apparent AUPRC 0.977지만 top10이 전부 high-leakage라 SOTA 주장엔 위험하고, BAR-Neo-X claim-safe score는 AUPRC 0.821으로 보수화되는 대신 top10 high-leakage를 1.000->0.000로 제거하면서 top10 precision 0.900를 유지합니다. 안 될 때도 이유가 분해됩니다: 2,304개는 leakage/identity overlap 때문에 clean claim 불가, 410개는 patient/disease metadata 보강 시 구제 가능, 23개는 metadata 완성 시 priority threshold 통과 가능, 현재 priority-now는 1개입니다. 즉 무조건 SOTA/clinical/quantum advantage가 아니라, 리뷰어 방어 가능한 해석형-누수차단 neoantigen triage layer입니다.</div>
+      </section>
+
+      <section id="paths">
+        <h2><span class="num">11</span>Sources + Paths</h2>
+        <p class="path">Output root: project/results/clean_neobench_barneo_2026_05_09</p>
+        <p class="path">Metric audit: project/results/clean_neobench_barneo_2026_05_09/barneo_x_metric_audit.tsv</p>
+        <p class="path">Top-k safety audit: project/results/clean_neobench_barneo_2026_05_09/barneo_x_topk_safety_audit.tsv</p>
+        <p class="path">Candidate explanations: project/results/clean_neobench_barneo_2026_05_09/barneo_x_candidate_explanations.tsv</p>
+        <p class="path">Candidate scores: project/results/clean_neobench_barneo_2026_05_09/barneo_x_candidate_scores.tsv</p>
+        <p class="path">Why-not audit: project/results/clean_neobench_barneo_2026_05_09/barneo_x_why_not_audit.tsv</p>
+        <p class="path">Primary blocker summary: project/results/clean_neobench_barneo_2026_05_09/barneo_x_primary_blocker_summary.tsv</p>
+        <p class="path">Summary JSON: project/results/clean_neobench_barneo_2026_05_09/BAR_NEO_X_INTERPRETABILITY_BOOST_SUMMARY.json</p>
+        <p class="path">Reviewer packet ZIP: assets/barneo_x/barneo_x_reviewer_packet_2026_05_09.zip</p>
+        <p class="path">Manifest stage: barneo_x_interpretability_boost</p>
+      </section>
+    </main>
+  </div>
+
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/barneo_x/barneo_x_tradeoff.png" alt="BAR-Neo-X metric tradeoff plot" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Clinical endpoint evidence</div><h4>barneo_x_tradeoff.png</h4><p>BAR-Neo-X metric tradeoff plot</p><dl><dt>Data entered</dt><dd>Neoantigen/pMHC/TCR/vaccine benchmark resources and derived model outputs.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 06</b><strong>Inline HTML table 6</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 07</b><strong>Inline HTML table 7</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 08</b><strong>Inline HTML table 8</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 09</b><strong>Inline HTML table 9</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 10</b><strong>Inline HTML table 10</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 11</b><strong>Inline HTML table 11</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td>1</td><td><a href="assets/barneo_x/barneo_x_tradeoff.png">assets/barneo_x/barneo_x_tradeoff.png</a></td><td>BAR-Neo-X metric tradeoff plot</td><td>Neoantigen/pMHC/TCR/vaccine benchmark resources and derived model outputs.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>3</td><td>Inline HTML table 3</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>4</td><td>Inline HTML table 4</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>5</td><td>Inline HTML table 5</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>6</td><td>Inline HTML table 6</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>7</td><td>Inline HTML table 7</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>8</td><td>Inline HTML table 8</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>9</td><td>Inline HTML table 9</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>10</td><td>Inline HTML table 10</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>11</td><td>Inline HTML table 11</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>BAR-Neo-X Interpretability Boost</td></tr>
+<tr><td>2</td><td>H2</td><td>01 TL;DR</td></tr>
+<tr><td>3</td><td>H2</td><td>02 Data, Task, Training</td></tr>
+<tr><td>4</td><td>H2</td><td>03 Performance Tradeoff</td></tr>
+<tr><td>5</td><td>H3</td><td>Top-k safety audit</td></tr>
+<tr><td>6</td><td>H2</td><td>04 Ablation Audit</td></tr>
+<tr><td>7</td><td>H2</td><td>05 Algorithm</td></tr>
+<tr><td>8</td><td>H2</td><td>06 Top Claim-Safe Candidates</td></tr>
+<tr><td>9</td><td>H2</td><td>07 Factor Audit</td></tr>
+<tr><td>10</td><td>H3</td><td>Top positive factors in claim-safe top50</td></tr>
+<tr><td>11</td><td>H3</td><td>Top negative factors in claim-safe top50</td></tr>
+<tr><td>12</td><td>H2</td><td>08 Why-Not / Rescue Audit</td></tr>
+<tr><td>13</td><td>H3</td><td>Primary blocker summary</td></tr>
+<tr><td>14</td><td>H3</td><td>Rescue lane summary</td></tr>
+<tr><td>15</td><td>H3</td><td>Top why-not reasons</td></tr>
+<tr><td>16</td><td>H3</td><td>Top rows with blockers</td></tr>
+<tr><td>17</td><td>H2</td><td>09 Decision Matrix</td></tr>
+<tr><td>18</td><td>H2</td><td>10 Kakao Payload</td></tr>
+<tr><td>19</td><td>H2</td><td>11 Sources + Paths</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>1</td><td>index.html</td></tr>
+<tr><td>2</td><td>clean_neobench_barneo_dossier_2026_05_09.html</td></tr>
+<tr><td>3</td><td>cancer_vaccine_full_dossier.html</td></tr>
+<tr><td>4</td><td>assets/barneo_x/barneo_x_reviewer_packet_2026_05_09.zip</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="alphafold_simulation.html"><b>alphafold_simulation</b><span>4 figs · 8 tables</span></a><a class="renewal0509-card" href="anchor_atlas.html"><b>anchor_atlas</b><span>0 figs · 1 tables</span></a><a class="renewal0509-card" href="autoimmunity_browser.html"><b>autoimmunity_browser</b><span>0 figs · 1 tables</span></a><a class="renewal0509-card" href="barneo_high_impact_candidate_pack_2026_05_10.html"><b>barneo_high_impact_candidate_pack_2026_05_10</b><span>0 figs · 4 tables</span></a><a class="renewal0509-card" href="barneo_top_pass_reviewer_evidence_2026_05_10.html"><b>barneo_top_pass_reviewer_evidence_2026_05_10</b><span>0 figs · 1 tables</span></a><a class="renewal0509-card" href="batch30_panel.html"><b>batch30_panel</b><span>0 figs · 3 tables</span></a><a class="renewal0509-card" href="cancer_vaccine_agent.html"><b>cancer_vaccine_agent</b><span>5 figs · 5 tables</span></a><a class="renewal0509-card" href="cancer_vaccine_full_dossier.html"><b>cancer_vaccine_full_dossier</b><span>2 figs · 41 tables</span></a><a class="renewal0509-card" href="clean_neobench_barneo_dossier_2026_05_09.html"><b>clean_neobench_barneo_dossier_2026_05_09</b><span>0 figs · 39 tables</span></a><a class="renewal0509-card" href="clean_neobench_challenge_pack_2026_05_10.html"><b>clean_neobench_challenge_pack_2026_05_10</b><span>3 figs · 3 tables</span></a><a class="renewal0509-card" href="clean_neobench_visual_dashboard_2026_05_10.html"><b>clean_neobench_visual_dashboard_2026_05_10</b><span>15 figs · 0 tables</span></a><a class="renewal0509-card" href="conflict_map.html"><b>conflict_map</b><span>0 figs · 2 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body>
+</html>

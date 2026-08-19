@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>K-Thyro CTC-EMT Samsung Science Dossier</title>
+<style>
+:root{
+  --coal:#080d18; --coal2:#0c1422; --panel:#101a2c; --panel2:#121f35;
+  --line:#24334d; --muted:#9aa9bd; --text:#e9f0fb; --hi:#fff8e7;
+  --gold:#ffd28a; --teal:#35d39d; --cyan:#5bdcff; --purple:#b38cff;
+  --orange:#ff9b66; --warn:#ff8066; --good:#64e0aa; --rose:#f18ba3;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--coal);color:var(--text);
+  font-family:Inter,"Noto Sans KR","Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:14px;line-height:1.58;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:var(--teal);text-decoration:none} a:hover{color:var(--gold);text-decoration:underline}
+code,pre,.mono{font-family:"JetBrains Mono","SF Mono",Menlo,monospace}
+h1,h2,h3,h4{font-family:"Cormorant Garamond","Noto Serif KR",serif;color:var(--hi);letter-spacing:-.4px}
+.hero{position:relative;padding:72px 32px 54px;border-bottom:1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 18% 8%,rgba(91,220,255,.20),transparent 34%),
+    radial-gradient(ellipse at 80% 16%,rgba(179,140,255,.16),transparent 34%),
+    linear-gradient(135deg,#0b1020 0%,#10182b 56%,#050811 100%);
+  overflow:hidden}
+.hero:before{content:"";position:absolute;inset:0;opacity:.35;pointer-events:none;
+  background-image:linear-gradient(rgba(255,210,138,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(255,210,138,.07) 1px,transparent 1px);
+  background-size:42px 42px}
+.hero-inner{position:relative;z-index:1;max-width:1340px;margin:0 auto}
+.kicker{font-family:"JetBrains Mono",monospace;color:var(--gold);letter-spacing:.24em;font-size:10px;font-weight:800;text-transform:uppercase;margin:0 0 16px}
+.hero h1{font-size:66px;line-height:.98;margin:0 0 16px;max-width:1160px}
+.hero h1 em{color:var(--gold);font-style:italic}
+.lead{font-family:"Noto Serif KR","Newsreader",serif;font-size:18px;color:#cbd8e8;max-width:1040px;line-height:1.72;margin:0 0 22px}
+.lead b{color:var(--hi)}
+.hero-stats{display:grid;grid-template-columns:repeat(8,1fr);gap:10px;margin:26px 0 0}
+.hs{background:rgba(255,255,255,.045);border:1px solid rgba(255,210,138,.20);border-radius:12px;padding:12px 13px;min-height:82px}
+.hs b{display:block;font-family:"JetBrains Mono",monospace;color:var(--gold);font-size:24px;line-height:1.05;margin-bottom:8px}
+.hs span{display:block;font-family:"JetBrains Mono",monospace;color:var(--muted);font-size:9px;letter-spacing:.07em;text-transform:uppercase}
+.crumbs{margin-top:24px;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--muted)}
+.hero-actions{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:14px;margin:24px 0 2px;max-width:1050px}
+.hero-actions a{display:block;border:1px solid rgba(255,210,138,.42);border-radius:14px;padding:18px 20px;text-decoration:none;background:linear-gradient(180deg,rgba(255,210,138,.12),rgba(91,220,255,.06));box-shadow:0 10px 32px rgba(0,0,0,.22)}
+.hero-actions a.primary{border-color:rgba(91,220,255,.68);background:linear-gradient(135deg,rgba(91,220,255,.22),rgba(255,210,138,.10))}
+.hero-actions a b{display:block;color:var(--hi);font-size:24px;font-family:"Cormorant Garamond","Noto Serif KR",serif;line-height:1.05;margin-bottom:6px}
+.hero-actions a span{display:block;color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;overflow-wrap:anywhere}
+.hero-actions a:hover{border-color:var(--gold);transform:translateY(-1px);text-decoration:none}
+.handoff-url{margin:14px 0 2px;max-width:1050px;border:1px solid rgba(91,220,255,.28);border-left:4px solid var(--cyan);background:rgba(9,18,32,.82);border-radius:0 10px 10px 0;padding:11px 14px;color:#cfe9ff;font-family:"JetBrains Mono",monospace;font-size:12px;overflow-wrap:anywhere}
+.wrap{max-width:1340px;margin:0 auto;padding:0 32px 82px;display:grid;grid-template-columns:250px 1fr;gap:38px}
+.toc{position:sticky;top:0;align-self:start;max-height:100vh;overflow:auto;padding:28px 0;border-right:1px solid var(--line)}
+.toc h4{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin:0 0 12px}
+.toc ol{list-style:none;counter-reset:t;margin:0;padding:0}
+.toc li{counter-increment:t;margin:5px 0;font-size:12px}
+.toc li:before{content:counter(t,decimal-leading-zero) "  ";font-family:"JetBrains Mono",monospace;color:var(--gold);font-size:10px;margin-right:3px}
+.toc a{color:#ccd8e7}
+main{padding-top:24px;min-width:0}
+section{padding:30px 0;border-bottom:1px solid var(--line)}
+section h2{font-size:36px;line-height:1.1;margin:0 0 6px}
+section h2 .num{font-family:"JetBrains Mono",monospace;color:var(--gold);font-size:14px;font-weight:400;letter-spacing:.18em;margin-right:12px;vertical-align:middle}
+.sub{font-family:"JetBrains Mono",monospace;color:var(--muted);font-size:11px;letter-spacing:.09em;text-transform:uppercase;margin:0 0 18px}
+h3{font-size:22px;margin:22px 0 8px;color:#ffe8c8}
+h4{font-family:"JetBrains Mono",monospace;color:var(--gold);font-size:12px;letter-spacing:.11em;text-transform:uppercase;margin:16px 0 7px}
+.grid{display:grid;gap:14px;margin:14px 0} .grid-2{grid-template-columns:1fr 1fr} .grid-3{grid-template-columns:repeat(3,1fr)} .grid-4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.card h4{margin:0 0 7px} .card .big{font-family:"Cormorant Garamond",serif;font-size:33px;color:var(--hi);font-weight:800;line-height:1} .card p{font-size:12.5px;color:#ccd8e7;margin:6px 0 0}
+.box{border:1px solid var(--line);border-left:3px solid var(--gold);background:#0e1728;border-radius:0 8px 8px 0;padding:14px 17px;margin:14px 0}
+.box.warn{border-left-color:var(--warn);background:#1d1410} .box.good{border-left-color:var(--good);background:#0e1d18} .box.cyan{border-left-color:var(--cyan)}
+.tag{display:inline-block;padding:2px 8px;border-radius:99px;font:700 10px/1.5 "JetBrains Mono",monospace;letter-spacing:.06em;text-transform:uppercase;margin:0 4px 4px 0;border:1px solid rgba(255,255,255,.18)}
+.tag.gold{background:rgba(255,210,138,.14);color:var(--gold);border-color:rgba(255,210,138,.35)} .tag.teal{background:rgba(53,211,157,.13);color:var(--teal);border-color:rgba(53,211,157,.32)} .tag.warn{background:rgba(255,128,102,.13);color:var(--warn);border-color:rgba(255,128,102,.35)} .tag.cyan{background:rgba(91,220,255,.12);color:var(--cyan);border-color:rgba(91,220,255,.32)}
+table.t{border-collapse:collapse;width:100%;font-size:12.5px;margin:10px 0 16px}
+.t th,.t td{border:1px solid var(--line);padding:8px 9px;text-align:left;vertical-align:top}
+.t th{background:#16213a;color:var(--gold);font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase}
+.t tr:nth-child(even) td{background:rgba(255,255,255,.025)} .t td.num{font-family:"JetBrains Mono",monospace;text-align:right;color:var(--gold)}
+.figure-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:16px}
+.visual-wall{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:16px}
+.visual-card{background:#0e1728;border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:0 12px 36px rgba(0,0,0,.22)}
+.visual-card img{display:block;width:100%;height:auto;background:#050811;border-bottom:1px solid var(--line)}
+.visual-meta{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:#121f35}
+.visual-meta span{font-family:"JetBrains Mono",monospace;color:var(--gold);font-weight:900;letter-spacing:.12em}
+.visual-meta b{color:var(--hi);font-size:14px}
+.visual-card p{margin:0;padding:12px 14px 14px;color:#d7e1ef;font-size:13px}
+.slide-card{background:#0e1728;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.slide-card img{display:block;width:100%;height:auto;background:#050811;border-bottom:1px solid var(--line)}
+.slide-meta{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line);background:#121f35}
+.slide-meta span{font-family:"JetBrains Mono",monospace;color:var(--gold);font-weight:800;letter-spacing:.12em} .slide-meta b{color:var(--hi)}
+.slide-card p{padding:12px 14px 0;margin:0;color:#d7e1ef}
+.boundary{margin:12px 14px 14px;padding:9px 10px;border:1px solid rgba(255,210,138,.2);background:rgba(255,210,138,.06);border-radius:8px;color:#cbd8e8;font-size:12px}
+.boundary b{color:var(--gold)}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;align-items:stretch;margin:16px 0}
+.flow div{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:11px;text-align:center;font-size:12px;color:#dce7f4}
+.flow b{display:block;color:var(--gold);font-family:"JetBrains Mono",monospace;margin-bottom:4px}
+.related{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+.related a{display:block;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:12px;color:#d5dfec;text-decoration:none;font-size:12px;min-height:76px}
+.related a:hover{border-color:var(--gold);color:var(--hi)} .related a b{display:block;color:var(--gold);font-family:"JetBrains Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:5px}
+.path{font-family:"JetBrains Mono",monospace;background:#0a111d;border:1px solid var(--line);border-radius:4px;padding:2px 6px;color:var(--teal);font-size:11px}
+ul{padding-left:20px} li{margin:4px 0} .tight li{margin:2px 0}
+pre{white-space:pre-wrap;background:#0a111d;border:1px solid var(--line);border-radius:8px;padding:14px 16px;color:#dce7f4;overflow:auto;font-size:12px}
+footer{padding:26px 32px;border-top:1px solid var(--line);background:#070b14;text-align:center;color:var(--muted);font-family:"JetBrains Mono",monospace;font-size:11px}
+@media(max-width:1100px){.hero-stats{grid-template-columns:repeat(4,1fr)}.wrap{grid-template-columns:1fr}.toc{display:none}.figure-grid,.visual-wall{grid-template-columns:1fr}.related{grid-template-columns:1fr 1fr}}
+@media(max-width:1100px){.hero-actions{grid-template-columns:1fr}}
+@media(max-width:700px){.hero{padding:48px 20px}.hero h1{font-size:42px}.hero-stats,.grid-2,.grid-3,.grid-4,.flow{grid-template-columns:1fr}.wrap{padding:0 20px 60px}.related{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<!-- RENEWAL_0509_BLOCK_START -->
+<section class="renewal0509 renewal0509-top" id="renewal-0509-data-definitions">
+  <style>
+    .renewal0509{--ink:#102033;--muted:#52606f;--paper:#f6f0e6;--card:#fffaf1;--line:#d4c6b3;--line2:#eadfcc;--red:#8f2d25;--blue:#244e73;--green:#426b50;--gold:#b58534;--coal:#17212f;font-family:'Newsreader','Noto Sans KR',serif;color:var(--ink);background:linear-gradient(135deg,#fffaf1 0%,#f1e2c9 100%);border:2px solid var(--coal);box-shadow:8px 8px 0 rgba(23,33,47,.14);margin:0 auto 28px;padding:0;line-height:1.6;max-width:1280px}
+    .renewal0509 *{box-sizing:border-box}
+    .renewal0509 a{color:var(--red);text-decoration:none;border-bottom:1px solid rgba(143,45,37,.28)}
+    .renewal0509 .renewal0509-hero{padding:34px 38px 24px;position:relative;overflow:hidden;background:linear-gradient(145deg,#fffaf1 0%,#f0dfc4 100%)}
+    .renewal0509 .renewal0509-hero:after{content:"";position:absolute;right:-72px;top:-72px;width:230px;height:230px;border:32px solid rgba(143,45,37,.10);border-radius:50%;pointer-events:none}
+    .renewal0509 .renewal0509-kicker,.renewal0509 .renewal0509-mini{font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-weight:800}
+    .renewal0509 .renewal0509-kicker{font-size:11px;color:var(--red);margin-bottom:12px}
+    .renewal0509 h2{font-family:'Cormorant Garamond','Newsreader',serif;font-size:44px;line-height:1.05;margin:0 0 10px;color:var(--coal);max-width:1020px}
+    .renewal0509 h3{font-family:'Cormorant Garamond','Newsreader',serif;font-size:30px;line-height:1.1;margin:26px 0 12px;color:var(--red)}
+    .renewal0509 h4{font-family:'Cormorant Garamond','Newsreader',serif;font-size:24px;line-height:1.12;margin:4px 0 8px;color:var(--coal)}
+    .renewal0509 p{margin:7px 0 11px}
+    .renewal0509 .renewal0509-lead{font-size:18px;color:var(--muted);max-width:1040px;font-style:italic}
+    .renewal0509 .renewal0509-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0 0}
+    .renewal0509 .renewal0509-stat{background:#fff;border:1px solid var(--line2);border-radius:10px;padding:12px 14px;box-shadow:0 5px 16px rgba(23,33,47,.05)}
+    .renewal0509 .renewal0509-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:34px;color:var(--red);line-height:1}
+    .renewal0509 .renewal0509-stat span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+    .renewal0509 .renewal0509-body{padding:24px 34px 34px;background:rgba(255,250,241,.82)}
+    .renewal0509 .renewal0509-block{background:rgba(255,255,255,.76);border:1px solid var(--line);border-radius:14px;padding:18px;margin:0 0 18px}
+    .renewal0509 .renewal0509-block-title{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+    .renewal0509 .renewal0509-block-title span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+    .renewal0509 table{width:100%;border-collapse:collapse;background:#fff;font-size:12px;margin:8px 0 12px}
+    .renewal0509 th,.renewal0509 td{border:1px solid var(--line2);padding:8px 9px;vertical-align:top;text-align:left}
+    .renewal0509 th{background:var(--coal);color:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .renewal0509 details{margin-top:8px}
+    .renewal0509 summary{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red);font-weight:800}
+    .renewal0509-chip,.renewal0509-term{display:inline-block;margin:3px 5px 3px 0;padding:5px 8px;border:1px solid var(--line);border-radius:999px;background:#fff;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal)!important}
+    .renewal0509-term{border-radius:6px;border-color:#d9aaa3;background:#f7dedb;color:var(--red)!important;font-weight:800}
+    .renewal0509-metrics{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 0}
+    .renewal0509-metric{display:inline-block;background:#fff;border:1px solid var(--line);border-radius:6px;padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--coal);font-weight:800}
+    .renewal0509-metric.muted{color:var(--muted);font-weight:600}
+    .renewal0509-callout{border-left:5px solid var(--gold);background:#fff8e8;padding:14px 16px;margin:12px 0;border-radius:0 10px 10px 0}
+    .renewal0509-status{display:grid;grid-template-columns:1fr 2fr 2fr;gap:10px;margin:14px 0 0}
+    .renewal0509-status div{background:var(--coal);color:#f7efe0;border-radius:10px;padding:12px 14px}
+    .renewal0509-status b{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#ffd28a;margin-bottom:4px}
+    .renewal0509-status span{display:block;font-size:12px;color:#f3f6fa}
+    .renewal0509-flow{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+    .renewal0509-step{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 14px 14px 58px;min-height:96px;position:relative}
+    .renewal0509-step b{position:absolute;left:14px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--coal);color:#fff;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px}
+    .renewal0509-step em{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--red);letter-spacing:.08em;font-style:normal;font-weight:800;margin-bottom:4px}
+    .renewal0509-step span{display:block;font-size:13px;color:var(--ink)}
+    .renewal0509-figgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+    .renewal0509-figcard{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:0 6px 18px rgba(23,33,47,.06)}
+    .renewal0509-figframe{background:#f4eadb;border-bottom:1px solid var(--line2);aspect-ratio:16/9;display:grid;place-items:center;overflow:hidden}
+    .renewal0509-figframe img{width:100%;height:100%;object-fit:contain;display:block}
+    .renewal0509-figbody{padding:14px}
+    .renewal0509-mini{font-size:10px;color:var(--blue);margin-bottom:4px}
+    .renewal0509-figbody p{font-size:13px;color:var(--muted);line-height:1.45}
+    .renewal0509-figbody dl{display:grid;grid-template-columns:96px 1fr;gap:6px 8px;margin:10px 0 0;font-size:12px}
+    .renewal0509-figbody dt{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--red);text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+    .renewal0509-figbody dd{margin:0;color:var(--ink)}
+    .renewal0509-tablegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+    .renewal0509-tablecard{background:#fff;border:1px solid var(--line2);border-top:4px solid var(--blue);border-radius:10px;padding:12px}
+    .renewal0509-tablecard b{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--blue);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:5px}
+    .renewal0509-tablecard strong{display:block;color:var(--coal);font-size:14px;margin-bottom:5px}
+    .renewal0509-tablecard span{display:block;color:var(--muted);font-size:12px;line-height:1.45}
+    .renewal0509-step-more{border-color:var(--gold);background:#fff8e8}
+    @media(max-width:900px){.renewal0509{margin:0 10px 22px}.renewal0509 .renewal0509-hero,.renewal0509 .renewal0509-body{padding:22px 18px}.renewal0509 .renewal0509-grid{grid-template-columns:1fr 1fr}.renewal0509-status{grid-template-columns:1fr}.renewal0509 h2{font-size:34px}}
+  </style>
+  <div class="renewal0509-hero">
+    <div class="renewal0509-kicker">papers_hub_2026_0509 · paper1-style dossier layer · generated 2026-05-09</div>
+    <h2>데이터 정의서 / Data Definition Sheet — K-Thyro CTC-EMT Samsung Science Dossier</h2>
+    <p class="renewal0509-lead">이 페이지는 원본 내용을 유지하면서, 첫 화면에 분석 데이터 정의서, 현재 claim boundary, 읽는 순서, figure/table 해설을 새로 붙인 2026-05-09 리뉴얼 버전입니다. 모든 그림은 “어떤 데이터가 들어갔는지 / 어떻게 읽는지 / 어디까지 주장 가능한지”를 같이 표시합니다.</p>
+    <div class="renewal0509-grid">
+      <div class="renewal0509-stat"><b>22</b><span>figures / visuals</span></div>
+      <div class="renewal0509-stat"><b>11</b><span>tables explained</span></div>
+      <div class="renewal0509-stat"><b>17</b><span>flow headings</span></div>
+      <div class="renewal0509-stat"><b>Other</b><span>page family</span></div>
+    </div>
+    <div class="renewal0509-metrics"><span class="renewal0509-metric">18%</span> <span class="renewal0509-metric">8%</span> <span class="renewal0509-metric">34%</span> <span class="renewal0509-metric">80%</span> <span class="renewal0509-metric">16%</span> <span class="renewal0509-metric">0%</span> <span class="renewal0509-metric">56%</span> <span class="renewal0509-metric">100%</span> <span class="renewal0509-metric">62 / 87</span> <span class="renewal0509-metric">87%</span> <span class="renewal0509-metric">33.2%</span> <span class="renewal0509-metric">16/16</span></div>
+    <div class="renewal0509-status">
+      <div><b>Current status</b><span>Archive / evidence page</span></div>
+      <div><b>Claim boundary</b><span>No specific current paper family was inferred from filename/title; read this page as supporting archive unless promoted manually.</span></div>
+      <div><b>Next use</b><span>Check the figure/table annex and source links before reusing claims.</span></div>
+    </div>
+  </div>
+  <div class="renewal0509-body">
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>0. Analysis Inputs</h3><span>data dictionary first</span></div>
+      <p><span class="renewal0509-term">TCGA-THCA</span> <span class="renewal0509-term">GSE250521</span> <span class="renewal0509-term">GSE76039 / Landa advanced thyroid</span> <span class="renewal0509-term">Hugo/Riaz melanoma ICI pool</span> <span class="renewal0509-term">8-gene mini-index</span> <span class="renewal0509-term">RAI_8 / thyroid differentiation score</span> <span class="renewal0509-term">MAPK output score</span> <span class="renewal0509-term">Cohen&#x27;s d / Spearman rho / Cox HR</span> <span class="renewal0509-term">PRISM / DepMap</span></p>
+      <table>
+        <tr><th>Term</th><th>Class</th><th>Definition</th><th>Where this page uses it</th></tr>
+        <tr><td>TCGA-THCA</td><td>cohort</td><td>TCGA thyroid carcinoma cohort; RNA-seq, clinical, mutation, methylation and cBioPortal-derived mutation/clinical slices depending on page.</td><td>Paper 1 DM1/DM2 derivation, survival, promoter methylation, driver strata, and several downstream reuse pages.</td></tr>
+<tr><td>GSE250521</td><td>cohort</td><td>Thyroid spatial transcriptomics / Visium resource spanning thyroid progression contexts.</td><td>Spatial validation, spatial failure/rescue, lag pockets, and image-DM1 spatial checks.</td></tr>
+<tr><td>GSE76039 / Landa advanced thyroid</td><td>cohort</td><td>Advanced thyroid cancer expression resource used as a PDTC/ATC lineage-collapse benchmark.</td><td>Mechanism heterogeneity, advanced-disease comparisons, and reverse-causality boundary checks.</td></tr>
+<tr><td>Hugo/Riaz melanoma ICI pool</td><td>cohort</td><td>External melanoma immunotherapy RNA/clinical resources used as ICI-response context, not thyroid predictor proof.</td><td>Paper 3 vulnerability-only evidence and claim-boundary pages.</td></tr>
+<tr><td>8-gene mini-index</td><td>score</td><td>Curated thyroid-lineage/dedifferentiation panel used to split molecular dark-matter states; higher DM1-like score means more dedifferentiated.</td><td>Paper 1 core axis and many downstream transfer/image/vulnerability pages.</td></tr>
+<tr><td>RAI_8 / thyroid differentiation score</td><td>score</td><td>Mean z-score over thyroid differentiation genes; direction is differentiated / RAI-avid unless explicitly negated.</td><td>Lineage preservation/collapse comparisons and treatment-rationale pages.</td></tr>
+<tr><td>MAPK output score</td><td>score</td><td>MAPK pathway output or driver-class proxy used to compare pathway activity against thyroid-lineage scores.</td><td>Paper 1 Fig 8 mechanism extensions v9-v18 and PRISM/DepMap overlays.</td></tr>
+<tr><td>Cohen&#x27;s d / Spearman rho / Cox HR</td><td>statistic</td><td>Effect-size and association statistics reported from local TSV/JSON/HTML tables; direction must be read from each table caption.</td><td>Most dossier and validation pages.</td></tr>
+<tr><td>PRISM / DepMap</td><td>external screen</td><td>Cancer dependency/drug-screen resources used for vulnerability prioritization and MAPK-inhibitor overlays.</td><td>Paper 1/9/10/11 synthetic-lethality and druggability pages.</td></tr>
+      </table>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>1. Reading Flow</h3><span>section logic</span></div>
+      <div class="renewal0509-callout"><b>Flow summary:</b> CTC-EMT thyroidectomy perturbation, not an AI platform . → 01 Visual Wall → 02 TL;DR → 03 Science Decision → 03 Proposal Logic</div>
+      <div class="renewal0509-flow"><article class="renewal0509-step"><b>01</b><em>H1</em><span>CTC-EMT thyroidectomy perturbation, not an AI platform .</span></article>
+<article class="renewal0509-step"><b>02</b><em>H2</em><span>01 Visual Wall</span></article>
+<article class="renewal0509-step"><b>03</b><em>H2</em><span>02 TL;DR</span></article>
+<article class="renewal0509-step"><b>04</b><em>H2</em><span>03 Science Decision</span></article>
+<article class="renewal0509-step"><b>05</b><em>H2</em><span>03 Proposal Logic</span></article>
+<article class="renewal0509-step"><b>06</b><em>H2</em><span>04 Yu 2024 Anchor</span></article>
+<article class="renewal0509-step"><b>07</b><em>H2</em><span>05 Public Pilot Support</span></article>
+<article class="renewal0509-step"><b>08</b><em>H2</em><span>06 12-Slide Figure Atlas</span></article>
+<article class="renewal0509-step renewal0509-step-more"><b>+9</b><span>More section headings are mapped in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>2. Figure Explanations</h3><span>preview; full gallery below</span></div>
+      <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_01_science_not_ict.png" alt="Science, Not ICT visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Clinical endpoint evidence</div><h4>webvisual_01_science_not_ict.png</h4><p>Science, Not ICT visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_02_thyroidectomy_perturbation.png" alt="Perturbation Model visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Clinical endpoint evidence</div><h4>webvisual_02_thyroidectomy_perturbation.png</h4><p>Perturbation Model visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_03_sampling_map.png" alt="Serial Sample Map visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Clinical endpoint evidence</div><h4>webvisual_03_sampling_map.png</h4><p>Serial Sample Map visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_04_ctc_state_ladder.png" alt="CTC State Ladder visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Clinical endpoint evidence</div><h4>webvisual_04_ctc_state_ladder.png</h4><p>CTC State Ladder visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_05_genetic_anchor.png" alt="Genetic Anchor visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · Effect-size / forest evidence</div><h4>webvisual_05_genetic_anchor.png</h4><p>Genetic Anchor visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_06_public_pilot_boundary.png" alt="Pilot Boundary visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · Clinical endpoint evidence</div><h4>webvisual_06_public_pilot_boundary.png</h4><p>Pilot Boundary visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_07_reviewer_attack_map.png" alt="Reviewer Attack Map visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Clinical endpoint evidence</div><h4>webvisual_07_reviewer_attack_map.png</h4><p>Reviewer Attack Map visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_08_budget_roadmap.png" alt="Budget Roadmap visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Clinical endpoint evidence</div><h4>webvisual_08_budget_roadmap.png</h4><p>Budget Roadmap visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>3. Table Explanations</h3><span>embedded data rows</span></div>
+      <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 06</b><strong>Inline HTML table 6</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard renewal0509-step-more"><b>+5</b><strong>Additional tables</strong><span>Full table inventory appears in the bottom annex.</span></article></div>
+    </div>
+    <div class="renewal0509-block">
+      <div class="renewal0509-block-title"><h3>4. Related Renewed Pages</h3><span>same family / same prefix</span></div>
+      <p><a class="renewal0509-chip" href="active_learning_browser.html">active_learning_browser</a> <a class="renewal0509-chip" href="braf_v600e_deep_dive.html">braf_v600e_deep_dive</a> <a class="renewal0509-chip" href="cancer_gene_matrix.html">cancer_gene_matrix</a> <a class="renewal0509-chip" href="cv_agent_demo.html">cv_agent_demo</a> <a class="renewal0509-chip" href="hla_atlas.html">hla_atlas</a> <a class="renewal0509-chip" href="hla_class_deep_dive.html">hla_class_deep_dive</a> <a class="renewal0509-chip" href="k2_bd_report.html">k2_bd_report</a> <a class="renewal0509-chip" href="k2_t1_cards.html">k2_t1_cards</a></p>
+      <p style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#52606f">Current situation: <a href="current_situation_2026_0509.html">current_situation_2026_0509.html</a> · Source page: project/papers_hub_2026_0509/kthyro_ctc_emt_samsung_science_dossier.html · Renewed page: project/papers_hub_2026_0509/kthyro_ctc_emt_samsung_science_dossier.html · Voice-protected manuscript sections were not edited.</p>
+    </div>
+  </div>
+</section>
+<!-- RENEWAL_0509_BLOCK_END -->
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="kicker">K-Thyro · Samsung Future Technology Program · Science Track · 2026-05-09</p>
+    <h1>CTC-EMT thyroidectomy perturbation, <em>not an AI platform</em>.</h1>
+    <p class="lead">
+      최종 제안은 넓은 K-Thyro spatial/drug/ICT 플랫폼이 아니라,
+      <b>갑상선절제술 전후 유두갑상선암 CTC-EMT 상태전이와 유전지도의 연속 해독</b>이다.
+      핵심 실험은 한 질병, 한 perturbation, 한 biological transition, 한 matched NGS anchor로 좁힌다.
+      Public pilot은 marker-selection과 tissue-state heterogeneity 근거로만 쓰고, CTC biology나 recurrence prediction을 과장하지 않는다.
+    </p>
+    <div class="hero-actions">
+      <a class="primary" href="assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx">
+        <b>Download PPTX</b>
+        <span>12-slide Samsung Science pitch deck · v2 reference style</span>
+      </a>
+      <a href="assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_handoff_packet_2026_05_09.zip">
+        <b>Handoff ZIP</b>
+        <span>PPTX + concept note + preliminary + budget + defense + Kakao</span>
+      </a>
+      <a href="#deck">
+        <b>View Figures</b>
+        <span>12-slide atlas with claim boundaries</span>
+      </a>
+    </div>
+    <div class="handoff-url">전달용 PPTX 링크: http://40.82.129.113:8012/papers_hub_2026_0509/assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx</div>
+    <div class="handoff-url">전달용 ZIP 링크: http://40.82.129.113:8012/papers_hub_2026_0509/assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_handoff_packet_2026_05_09.zip</div>
+    <div class="hero-stats">
+      <div class="hs"><b>Science</b><span>final category</span></div>
+      <div class="hs"><b>1</b><span>disease: PTC</span></div>
+      <div class="hs"><b>1</b><span>perturbation: surgery</span></div>
+      <div class="hs"><b>4</b><span>specific aims</span></div>
+      <div class="hs"><b>12</b><span>deck figures</span></div>
+      <div class="hs"><b>30억</b><span>3-year budget</span></div>
+      <div class="hs"><b>62 / 87%</b><span>Yu 2024 anchor</span></div>
+      <div class="hs"><b>505 / 57k</b><span>TCGA + spatial support</span></div>
+    </div>
+    <div class="crumbs">
+      <a href="index.html">Hub index</a> · <a href="paper1_reviewer_defense_dashboard.html">Reviewer dashboard pattern</a> ·
+      <a href="assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx">PPTX v2</a> ·
+      <span>built from <code>kthyro_ctc_emt_samsung_proposal</code></span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+<nav class="toc">
+  <h4>Contents</h4>
+  <ol>
+    <li><a href="#visualwall">Visual wall</a></li>
+    <li><a href="#tldr">TL;DR</a></li>
+    <li><a href="#category">Science decision</a></li>
+    <li><a href="#logic">Proposal logic</a></li>
+    <li><a href="#yu">Yu 2024 anchor</a></li>
+    <li><a href="#pilot">Public pilot support</a></li>
+    <li><a href="#deck">12-slide atlas</a></li>
+    <li><a href="#aims">Specific aims</a></li>
+    <li><a href="#design">Study design</a></li>
+    <li><a href="#endpoints">Endpoints & kill criteria</a></li>
+    <li><a href="#defense">Reviewer defense</a></li>
+    <li><a href="#budget">30억 budget</a></li>
+    <li><a href="#irb">IRB checklist</a></li>
+    <li><a href="#vendor">Inocras questions</a></li>
+    <li><a href="#next">7-day execution</a></li>
+    <li><a href="#paths">Sources + paths</a></li>
+  </ol>
+</nav>
+<main>
+
+<section id="visualwall">
+  <h2><span class="num">01</span>Visual Wall</h2>
+  <p class="sub">Figure-first readout: the proposal logic before the tables</p>
+  <div class="visual-wall">
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>01</span><b>Science, Not ICT</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_01_science_not_ict.png" alt="Science, Not ICT visual" loading="lazy" />
+          <p>category decision을 한 장 그림으로 고정</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>02</span><b>Perturbation Model</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_02_thyroidectomy_perturbation.png" alt="Perturbation Model visual" loading="lazy" />
+          <p>thyroidectomy 전후 signal logic</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>03</span><b>Serial Sample Map</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_03_sampling_map.png" alt="Serial Sample Map visual" loading="lazy" />
+          <p>timepoint별 검체와 readout</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>04</span><b>CTC State Ladder</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_04_ctc_state_ladder.png" alt="CTC State Ladder visual" loading="lazy" />
+          <p>E → E/M → M → thyroid-lineage-low</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>05</span><b>Genetic Anchor</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_05_genetic_anchor.png" alt="Genetic Anchor visual" loading="lazy" />
+          <p>tissue-normal NGS가 blood signal을 anchor</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>06</span><b>Pilot Boundary</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_06_public_pilot_boundary.png" alt="Pilot Boundary visual" loading="lazy" />
+          <p>public pilot은 support, not proof</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>07</span><b>Reviewer Attack Map</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_07_reviewer_attack_map.png" alt="Reviewer Attack Map visual" loading="lazy" />
+          <p>가장 센 공격과 방어 포지션</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>08</span><b>Budget Roadmap</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_08_budget_roadmap.png" alt="Budget Roadmap visual" loading="lazy" />
+          <p>30억/3년 stage-gated 구조</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>09</span><b>IRB Data Flow</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_09_irb_data_flow.png" alt="IRB Data Flow visual" loading="lazy" />
+          <p>patient→sample→de-identified map</p>
+        </article>
+
+
+        <article class="visual-card">
+          <div class="visual-meta"><span>10</span><b>7-Day Execution</b></div>
+          <img src="assets/kthyro_ctc_emt_samsung/webvisual_10_7day_execution.png" alt="7-Day Execution visual" loading="lazy" />
+          <p>삼성 concept lock까지 7일 실행</p>
+        </article>
+
+  </div>
+</section>
+
+<section id="tldr">
+  <h2><span class="num">02</span>TL;DR</h2>
+  <p class="sub">One-page decision block for Samsung reviewers</p>
+  <div class="box good">
+    <h4>Final recommendation</h4>
+    <p><b>Submit as Samsung Science.</b> Technology/ICT로 가면 "병원검체 + 외주 NGS + 분석 플랫폼"으로 보일 위험이 크다. Science로 가야 하는 이유는 갑상선절제술이라는 controlled human perturbation 이후 CTC-EMT state가 어떻게 붕괴, 지속, 전이되는지를 묻는 생물학 질문이기 때문이다.</p>
+  </div>
+  <div class='grid grid-4'><div class='card'><h4>Final title</h4><div class='big'>Serial</div><p>Serial Genetic Mapping of CTC-EMT State Transitions After Thyroidectomy in PTC</p></div><div class='card'><h4>Core endpoint</h4><div class='big'>E/EM/M</div><p>post-thyroidectomy CTC epithelial, hybrid, mesenchymal state transition</p></div><div class='card'><h4>Genetic anchor</h4><div class='big'>NGS</div><p>matched tumor-normal NGS plus serial cfDNA and QC-passing CTC-enriched NGS</p></div><div class='card'><h4>Main boundary</h4><div class='big'>No overclaim</div><p>not a ready diagnostic, not recurrence-prediction proof, not vendor novelty</p></div></div>
+  <table class="t">
+    <thead><tr><th>Decision</th><th>Reviewer-facing answer</th><th>What must be removed</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag gold">Science</span></td><td>one disease, one surgery perturbation, one CTC-EMT transition, one genetic anchor</td><td>broad spatial platform, drug delivery, AI-first identity</td></tr>
+      <tr><td><span class="tag teal">Feasible</span></td><td>Yu 2024 anchors serial CTC detection in 62 PTC patients; public pilot supports marker logic</td><td>claims that public data prove CTC shedding or recurrence</td></tr>
+      <tr><td><span class="tag warn">Risky</span></td><td>CTC low-input NGS/cfDNA may fail in low-shedding early PTC</td><td>universal CTC/cfDNA NGS success claims</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="category">
+  <h2><span class="num">03</span>Science Decision</h2>
+  <p class="sub">Why Science, not Technology/ICT</p>
+  <div class="grid grid-2">
+    <div class="card">
+      <h4>Science identity</h4>
+      <ul class='tight'><li>one disease: PTC</li><li>one perturbation: thyroidectomy</li><li>one transition: CTC epithelial → hybrid E/M → mesenchymal state</li><li>one anchor: matched tumor-normal NGS plus blood genetic signals</li><li>one primary endpoint: postoperative CTC-EMT state transition</li></ul>
+    </div>
+    <div class="card">
+      <h4>Why not ICT</h4>
+      <ul class='tight'><li>no proprietary CTC device</li><li>no validated AI primitive</li><li>no clinical deployment yet</li><li>AI is interpretation infrastructure, not the proposal identity</li><li>vendor sequencing is service, not novelty</li></ul>
+    </div>
+  </div>
+  <div class="box warn">
+    <h4>Ruthless reviewer note</h4>
+    <p>ICT로 제출하면 novelty가 algorithm/device가 아니라는 공격을 바로 맞는다. Science에서는 같은 약점이 오히려 장점이 된다. 질문이 좁고, perturbation이 명확하고, endpoint boundary가 방어 가능하기 때문이다.</p>
+  </div>
+</section>
+
+<section id="logic">
+  <h2><span class="num">03</span>Proposal Logic</h2>
+  <p class="sub">From surgery to state transition to genetic map</p>
+  <div class="box cyan">
+    <h4>One-line hypothesis</h4>
+    <p>Thyroidectomy acts as a controlled human perturbation that should collapse nonspecific tumor shedding, while persistent EMT-state CTCs and matched genetic signals may reveal residual-risk PTC biology.</p>
+  </div>
+  <div class="flow">
+    <div><b>T0</b>pre-op shedding baseline</div>
+    <div><b>Surgery</b>controlled perturbation</div>
+    <div><b>T1/T2</b>expected CTC decline</div>
+    <div><b>Persistence</b>EM/M or cfDNA signal</div>
+    <div><b>Map</b>tissue clone anchored interpretation</div>
+  </div>
+  <table class="t">
+    <thead><tr><th>Layer</th><th>Readout</th><th>Why it matters</th><th>Boundary</th></tr></thead>
+    <tbody>
+      <tr><td>Cell state</td><td>CTC E / E-M / M fraction</td><td>direct postoperative biological transition</td><td>phenotype alone ≠ viable metastasis</td></tr>
+      <tr><td>Genotype</td><td>tumor-normal NGS, cfDNA, CTC-enriched subset</td><td>anchors blood signal to tumor clone</td><td>CTC-NGS is stage-gated</td></tr>
+      <tr><td>Tissue context</td><td>FFPE mIHC/GeoMx/ROI marker logic</td><td>tests where EMT/stress/thyroid-lineage-low signals may originate</td><td>spatial data do not prove CTC shedding</td></tr>
+      <tr><td>Clinical context</td><td>LVI/LNM/ETE/Tg/US/follow-up</td><td>exploratory residual-risk association</td><td>not validated recurrence prediction</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="yu">
+  <h2><span class="num">04</span>Yu 2024 Anchor</h2>
+  <p class="sub">Feasibility anchor, not final answer</p>
+  <div class='grid grid-4'><div class='card'><h4>Cohort</h4><div class='big'>62</div><p>prospective PTC patients</p></div><div class='card'><h4>Timepoints</h4><div class='big'>3</div><p>pre-op, 2 weeks, 3 months</p></div><div class='card'><h4>CTC detection</h4><div class='big'>87%</div><p>serial PTC CTC measurement is feasible</p></div><div class='card'><h4>Observed trend</h4><div class='big'>↓</div><p>CTC counts decreased after thyroidectomy</p></div></div>
+  <div class="box">
+    <h4>What Yu already shows</h4>
+    <p>PTC에서 serial CTC와 EMT/mesenchymal phenotype은 측정 가능하다. 수술 전후 CTC count 감소도 관찰되어 thyroidectomy perturbation 모델의 실험적 출발점이 된다.</p>
+  </div>
+  <div class="box warn">
+    <h4>What Yu does not solve</h4>
+    <p>matched tissue-normal NGS, CTC/cfDNA genetic anchoring, postoperative residual-risk clone interpretation은 아직 빠져 있다. 이 빈칸이 삼성 과제의 핵심 novelty다.</p>
+  </div>
+</section>
+
+<section id="pilot">
+  <h2><span class="num">05</span>Public Pilot Support</h2>
+  <p class="sub">Supportive preliminary evidence only; no CTC overclaim</p>
+  <div class='grid grid-4'><div class='card'><h4>TCGA-THCA</h4><div class='big'>505</div><p>primary tumors used for tissue-state heterogeneity support</p></div><div class='card'><h4>BRAF split</h4><div class='big'>7 labels</div><p>BRAF tumors distribute across all vulnerability labels</p></div><div class='card'><h4>Largest BRAF label</h4><div class='big'>33.2%</div><p>mutation alone does not define state</p></div><div class='card'><h4>Spatial spots</h4><div class='big'>57,144</div><p>GSE250521 tissue-state organization</p></div><div class='card'><h4>Spatial slides</h4><div class='big'>16/16</div><p>same-niche coherence z &gt; 2</p></div><div class='card'><h4>RAI protein loss</h4><div class='big'>d=-1.99</div><p>ATC vs PTC protein directionality</p></div><div class='card'><h4>Myeloid/TGFB gain</h4><div class='big'>d=1.68</div><p>bulk proteomics support for state shift</p></div><div class='card'><h4>Claim use</h4><div class='big'>marker</div><p>marker/ROI logic, not CTC proof</p></div></div>
+  <table class="t">
+    <thead><tr><th>Allowed use</th><th>Forbidden use</th></tr></thead>
+    <tbody>
+      <tr><td>thyroid cancer tissue states vary beyond mutation</td><td>public pilot proves CTC shedding</td></tr>
+      <tr><td>spatial organization supports ROI/marker selection</td><td>spatial data prove recurrence or residual disease</td></tr>
+      <tr><td>phenotype + genotype integration is needed</td><td>public data validate a clinical diagnostic</td></tr>
+      <tr><td>driver mutation alone is insufficient for state biology</td><td>peptide/drug/AI platform claims</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="deck">
+  <h2><span class="num">06</span>12-Slide Figure Atlas</h2>
+  <p class="sub">Deck figures + slide logic + claim boundary in one scan</p>
+  <div class="figure-grid">
+
+            <article class="slide-card" id="slide01">
+              <div class="slide-meta"><span>01</span><b>The Narrow Problem</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide01_problem.png" alt="The Narrow Problem figure" loading="lazy" />
+              <p>PTC는 대개 완치되지만 수술 후 잔존위험 생물학은 Tg/US/pathology만으로는 늦거나 간접적으로 보인다.</p>
+              <div class="boundary"><b>Claim boundary:</b> 문제 정의: 임상적 불확실성. CTC biology 증명 아님.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide02">
+              <div class="slide-meta"><span>02</span><b>Core Hypothesis</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide02_hypothesis.png" alt="Core Hypothesis figure" loading="lazy" />
+              <p>갑상선절제술을 controlled human perturbation으로 보고, expected collapse 이후 persistent EM/M CTC와 genetic signal을 읽는다.</p>
+              <div class="boundary"><b>Claim boundary:</b> 핵심 가설. persistence가 곧 재발이라는 주장은 금지.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide03">
+              <div class="slide-meta"><span>03</span><b>Yu 2024 Anchor</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide03_literature_gap.png" alt="Yu 2024 Anchor figure" loading="lazy" />
+              <p>62명 prospective PTC, pre-op/2주/3개월 blood, CTC 87% 검출, EMT/mesenchymal predominance, 수술 후 count 감소.</p>
+              <div class="boundary"><b>Claim boundary:</b> feasibility anchor. 본 과제의 genotype map은 아직 없음.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide04">
+              <div class="slide-meta"><span>04</span><b>Missing Dataset</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide04_missing_dataset.png" alt="Missing Dataset figure" loading="lazy" />
+              <p>serial blood + CTC EMT + matched tissue-normal NGS + cfDNA/CTC NGS + follow-up을 동시에 가진 공개 dataset은 없다.</p>
+              <div class="boundary"><b>Claim boundary:</b> 부재 자체가 proposal justification.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide05">
+              <div class="slide-meta"><span>05</span><b>Mutation Alone Is Not Enough</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide05_driver_not_enough.png" alt="Mutation Alone Is Not Enough figure" loading="lazy" />
+              <p>TCGA-THCA 505례에서 BRAF 274례가 7개 vulnerability label로 분산; largest label 33.2%.</p>
+              <div class="boundary"><b>Claim boundary:</b> public pilot은 tissue-state/marker logic만 지원.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide06">
+              <div class="slide-meta"><span>06</span><b>Spatial Context</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide06_spatial_context.png" alt="Spatial Context figure" loading="lazy" />
+              <p>GSE250521 16 slides, 57,144 spots; 16/16 same-niche coherence z&gt;2.</p>
+              <div class="boundary"><b>Claim boundary:</b> tissue-state organization 지원. CTC origin 증명 아님.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide07">
+              <div class="slide-meta"><span>07</span><b>CTC-EMT-NGS Panel</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide07_ctc_ngs_panel.png" alt="CTC-EMT-NGS Panel figure" loading="lazy" />
+              <p>epithelial, mesenchymal, thyroid identity, survival/stemness, immune/stress module을 panel로 고정한다.</p>
+              <div class="boundary"><b>Claim boundary:</b> marker selection logic. vendor/assay novelty 아님.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide08">
+              <div class="slide-meta"><span>08</span><b>Prospective Design</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide08_sampling_timeline.png" alt="Prospective Design figure" loading="lazy" />
+              <p>T0 pre-op, T1 2주, T2 3개월, T3 6-12개월/triggered timepoint.</p>
+              <div class="boundary"><b>Claim boundary:</b> serial perturbation experiment. follow-up capture가 핵심.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide09">
+              <div class="slide-meta"><span>09</span><b>NGS Genetic Map</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide09_genetic_map.png" alt="NGS Genetic Map figure" loading="lazy" />
+              <p>matched tissue-normal NGS가 clone anchor, cfDNA가 postoperative persistence, CTC-enriched NGS는 QC-passing subset.</p>
+              <div class="boundary"><b>Claim boundary:</b> CTC low-input NGS는 stage-gated/exploratory.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide10">
+              <div class="slide-meta"><span>10</span><b>Endpoints &amp; Boundaries</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide10_claim_boundary.png" alt="Endpoints &amp; Boundaries figure" loading="lazy" />
+              <p>primary endpoint는 CTC E/EM/M state transition. clinical diagnostic이나 validated recurrence predictor가 아니다.</p>
+              <div class="boundary"><b>Claim boundary:</b> 방어의 중심 슬라이드.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide11">
+              <div class="slide-meta"><span>11</span><b>30억 / 3년 Execution</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide11_budget_roadmap.png" alt="30억 / 3년 Execution figure" loading="lazy" />
+              <p>Year 1 assay/IRB, Year 2 scale-up, Year 3 transition model/genetic map/manuscript/IP.</p>
+              <div class="boundary"><b>Claim boundary:</b> stage-gated budget. 줄이면 GeoMx/fresh/CTC-NGS breadth부터 줄인다.</div>
+            </article>
+
+
+            <article class="slide-card" id="slide12">
+              <div class="slide-meta"><span>12</span><b>Final Ask</b></div>
+              <img src="assets/kthyro_ctc_emt_samsung/slide12_final_ask.png" alt="Final Ask figure" loading="lazy" />
+              <p>갑상선절제술 전후 CTC-EMT 상태전이와 유전지도의 연속 해독으로 PTC 잔존위험 생물학을 시간축에서 읽는다.</p>
+              <div class="boundary"><b>Claim boundary:</b> Science ask. ICT/product pitch로 보이면 실패.</div>
+            </article>
+
+  </div>
+</section>
+
+<section id="aims">
+  <h2><span class="num">07</span>Specific Aims</h2>
+  <p class="sub">Four aims; still one central biology question</p>
+  <table class="t">
+    <thead><tr><th>Aim</th><th>Hypothesis</th><th>Approach</th><th>Boundary</th></tr></thead>
+    <tbody>
+      <tr><td>Aim 1</td><td>Postoperative residual CTCs are enriched for hybrid/mesenchymal, survival, thyroid-lineage-low programs.</td><td>T0/T1/T2/T3 blood; E/EM/M CTC quantification.</td><td>Primary endpoint is state transition.</td></tr>
+      <tr><td>Aim 2</td><td>E/EM/M CTC fractions are connected transition states and persistent blood signals can be genetically anchored.</td><td>Matched tumor-normal NGS, serial cfDNA, QC-passing CTC-enriched NGS subset.</td><td>CTC low-input NGS is exploratory unless QC passes.</td></tr>
+      <tr><td>Aim 3</td><td>Persistent EM/M CTC burden and genetic concordance associate with residual-risk features.</td><td>Integrate pathology, FFPE/mIHC, NGS, Tg/US, RAI, follow-up.</td><td>Association, not validated prediction.</td></tr>
+      <tr><td>Aim 4</td><td>Serial CTC-EMT + matched genetic map defines a research-grade residual-risk state.</td><td>Longitudinal transition model and clone-state interpretation workflow.</td><td>Not a clinical deployment claim.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="design">
+  <h2><span class="num">08</span>Study Design</h2>
+  <p class="sub">Serial blood around thyroidectomy</p>
+  <div class="flow">
+    <div><b>T0</b>수술 전 1-2주</div>
+    <div><b>T1</b>수술 후 약 2주</div>
+    <div><b>T2</b>수술 후 3개월</div>
+    <div><b>T3</b>6-12개월 또는 trigger</div>
+    <div><b>Optional</b>RAI 전후</div>
+  </div>
+  <div class="grid grid-3">
+    <div class="card"><h4>Samples</h4><ul class='tight'><li>CTC blood</li><li>cfDNA blood</li><li>matched normal DNA</li><li>FFPE tumor/H&E</li><li>optional fresh tissue</li></ul></div>
+    <div class="card"><h4>Clinical variables</h4><ul class='tight'><li>LVI/LNM/ETE</li><li>BRAF/TERT/fusion/RAS</li><li>Tg/anti-Tg/TSH</li><li>US/RAI</li><li>recurrence/persistence dates</li></ul></div>
+    <div class="card"><h4>Controls/QC</h4><ul class='tight'><li>benign thyroid surgery</li><li>healthy blood controls</li><li>duplicate imaging subset</li><li>spike-in recovery</li><li>chain-of-custody timestamps</li></ul></div>
+  </div>
+</section>
+
+<section id="endpoints">
+  <h2><span class="num">09</span>Endpoints & Kill Criteria</h2>
+  <p class="sub">Reviewer-safe boundaries</p>
+  <table class="t">
+    <thead><tr><th>Type</th><th>Endpoint</th><th>Interpretation</th></tr></thead>
+    <tbody>
+      <tr><td>Primary</td><td>Change in CTC E/EM/M composition after thyroidectomy</td><td>biological state transition</td></tr>
+      <tr><td>Secondary</td><td>Genotype concordance with resected tumor</td><td>blood signal clone anchoring</td></tr>
+      <tr><td>Secondary</td><td>cfDNA persistence and CTC-enriched NGS feasibility</td><td>stage-gated genetic mapping</td></tr>
+      <tr><td>Exploratory</td><td>Association with LVI/LNM/ETE/Tg/US/recurrence-risk features</td><td>hypothesis-generating residual-risk biology</td></tr>
+    </tbody>
+  </table>
+  <table class='t'><thead><tr><th>Risk</th><th>Kill or narrow criterion</th><th>Action</th></tr></thead><tbody><tr><td>CTC detection/subtyping not reproducible</td><td>control/spike-in/duplicate readout fails</td><td>narrow to count + cfDNA; remove EMT breadth</td></tr><tr><td>tissue-normal NGS success &lt; 85%</td><td>FFPE input or vendor failure</td><td>pause scale-up; fix tissue processing</td></tr><tr><td>cfDNA unusable even in high-risk subset</td><td>low yield or no tumor-informed signal within LOD</td><td>keep cfDNA exploratory; rely on tissue + CTC phenotype</td></tr><tr><td>CTC low-input NGS fails QC</td><td>poor WGA/library/variant quality</td><td>drop CTC NGS from core endpoint</td></tr><tr><td>follow-up data capture &lt; 80%</td><td>Tg/US/pathology incomplete</td><td>reduce clinical association claims</td></tr><tr><td>primary endpoint becomes unclear</td><td>too many platform branches</td><td>remove spatial/drug/AI branches from main proposal</td></tr></tbody></table>
+</section>
+
+<section id="defense">
+  <h2><span class="num">10</span>Reviewer Defense Matrix</h2>
+  <p class="sub">Expected attack, answer, support, claim boundary</p>
+  <table class='t'><thead><tr><th>예상 공격</th><th>답변</th><th>지원 근거</th><th>Claim boundary</th></tr></thead><tbody><tr><td>PTC는 예후가 좋은데 왜 30억인가?</td><td>전체 low-risk PTC가 아니라 surgery 이후 residual-risk biology를 읽는 과제다. LNM/LVI/ETE/aggressive variant/molecular-risk case를 enrich한다.</td><td>Yu 2024, CTC literature, hospital cohort</td><td>3년 내 사망률 개선 주장 없음</td></tr><tr><td>CTC는 이미 PTC에서 보였다. 새로움이 뭔가?</td><td>기존은 count/phenotype 중심이다. 새로움은 thyroidectomy perturbation + serial CTC-EMT + matched NGS clone map이다.</td><td>Aim 1-2</td><td>CTC 검출 자체가 novelty가 아님</td></tr><tr><td>CTC artifact 가능성이 크다.</td><td>CD45-negative, epithelial/EMT/thyroid-lineage criteria, benign/healthy controls, spike-in, duplicate readout, cfDNA/tissue NGS orthogonal support를 둔다.</td><td>IRB/QC checklist</td><td>CTC phenotype이 viable metastasis 증명은 아님</td></tr><tr><td>Post-op CTC 감소는 단순 debulking 아닌가?</td><td>맞다. 그 debulking을 controlled perturbation으로 사용한다. 핵심은 expected collapse 이후 persistence/state shift다.</td><td>serial timeline</td><td>감소 자체를 EMT reversal로 해석하지 않음</td></tr><tr><td>CTC NGS는 low-input 때문에 실패할 수 있다.</td><td>tissue-normal NGS는 core, cfDNA는 serial, CTC-enriched NGS는 CTC-high QC-passing subset stage-gate다.</td><td>kill criteria</td><td>single-cell CTC WGS는 primary endpoint가 아님</td></tr><tr><td>cfDNA는 early PTC에서 낮을 수 있다.</td><td>그래서 CTC phenotype과 tissue NGS를 병행한다. Negative cfDNA도 LOD 안에서만 해석한다.</td><td>Sato 2021, vendor questionnaire</td><td>universal detection 주장 없음</td></tr><tr><td>EMT-state CTC가 재발을 예측한다는 근거가 약하다.</td><td>primary endpoint는 biological transition이다. recurrence/Tg/US는 secondary/exploratory association이다.</td><td>endpoint table</td><td>clinical prediction claim 없음</td></tr><tr><td>public spatial pilot이 CTC를 뒷받침하지 않는다.</td><td>동의한다. spatial data는 marker/ROI/tissue-state logic만 제공한다.</td><td>TCGA/spatial preliminary evidence</td><td>CTC proof로 쓰지 않음</td></tr><tr><td>Technology/ICT로 가야 하는 것 아닌가?</td><td>아니다. 핵심은 one disease, one surgery perturbation, one CTC-EMT transition이다. AI는 해석 인프라다.</td><td>category decision</td><td>ICT product claim 없음</td></tr><tr><td>Inocras 외주 프로젝트 아닌가?</td><td>vendor는 sequencing service다. 과학적 novelty는 serial design, phenotype-genotype integration, state transition interpretation이다.</td><td>vendor questionnaire</td><td>vendor technology를 novelty로 포장하지 않음</td></tr></tbody></table>
+  <div class="box warn">
+    <h4>Most dangerous attack</h4>
+    <p>"CTC/cfDNA signal in early PTC may be noisy, nonspecific, or technically unrecoverable." The answer is not to overpromise. Preserve tissue-normal NGS and CTC phenotype as core; treat cfDNA and CTC-enriched NGS as staged genetic anchoring with explicit failure criteria.</p>
+  </div>
+</section>
+
+<section id="budget">
+  <h2><span class="num">11</span>30억 / 3년 Budget</h2>
+  <p class="sub">Stage-gated, not evenly distributed</p>
+  <table class='t'><thead><tr><th>category</th><th>year1</th><th>year2</th><th>year3</th><th>total</th></tr></thead><tbody><tr><td>Personnel</td><td class='num'>1.5</td><td class='num'>1.8</td><td class='num'>1.8</td><td class='num'>5.1</td></tr><tr><td>Clinical cohort / biobank</td><td class='num'>0.7</td><td class='num'>0.7</td><td class='num'>0.7</td><td class='num'>2.1</td></tr><tr><td>CTC phenotyping</td><td class='num'>1.2</td><td class='num'>1.8</td><td class='num'>1.2</td><td class='num'>4.2</td></tr><tr><td>NGS / vendor</td><td class='num'>1.8</td><td class='num'>3.0</td><td class='num'>1.8</td><td class='num'>6.6</td></tr><tr><td>FFPE mIHC / GeoMx</td><td class='num'>1.4</td><td class='num'>1.5</td><td class='num'>0.7</td><td class='num'>3.6</td></tr><tr><td>Fresh tissue subset</td><td class='num'>0.6</td><td class='num'>1.2</td><td class='num'>0.6</td><td class='num'>2.4</td></tr><tr><td>Data / compute / statistics</td><td class='num'>0.5</td><td class='num'>0.7</td><td class='num'>0.6</td><td class='num'>1.8</td></tr><tr><td>Consumables / QA</td><td class='num'>0.4</td><td class='num'>0.4</td><td class='num'>0.4</td><td class='num'>1.2</td></tr><tr><td>Equipment services</td><td class='num'>0.5</td><td class='num'>0.4</td><td class='num'>0.3</td><td class='num'>1.2</td></tr><tr><td>IP / regulatory / contingency</td><td class='num'>0.4</td><td class='num'>0.6</td><td class='num'>0.8</td><td class='num'>1.8</td></tr></tbody></table>
+  <div class="box">
+    <h4>Cut rule</h4>
+    <p>예산 삭감 시 serial blood, CTC phenotype, matched tissue-normal NGS는 보존한다. 먼저 줄일 항목은 GeoMx breadth, CTC low-input NGS breadth, fresh tissue perturbation breadth다.</p>
+  </div>
+</section>
+
+<section id="irb">
+  <h2><span class="num">12</span>IRB / Data Collection Checklist</h2>
+  <p class="sub">What hospital must lock before Samsung submission</p>
+  <div class="grid grid-3">
+    <div class="card"><h4>Subjects</h4><ul class='tight'><li>adult PTC or suspected PTC</li><li>thyroidectomy planned</li><li>enrich LNM/LVI/ETE/aggressive/molecular-risk</li><li>benign surgery + healthy controls</li></ul></div>
+    <div class="card"><h4>Consent</h4><ul class='tight'><li>serial blood</li><li>FFPE/fresh tissue</li><li>genomic sequencing</li><li>vendor transfer/storage</li><li>research-only reporting boundary</li></ul></div>
+    <div class="card"><h4>Assay definition</h4><ul class='tight'><li>CD45-negative CTC criteria</li><li>E-CTC EpCAM/KRT</li><li>M-CTC VIM/TWIST/ZEB1</li><li>EM-CTC dual marker</li><li>thyroid-lineage support PAX8/TG/TPO/TSHR/SLC5A5</li></ul></div>
+  </div>
+</section>
+
+<section id="vendor">
+  <h2><span class="num">13</span>Inocras Vendor Questionnaire</h2>
+  <p class="sub">Vendor is service/QC; not the scientific novelty</p>
+  <table class="t">
+    <thead><tr><th>Area</th><th>Questions to force in writing</th></tr></thead>
+    <tbody>
+      <tr><td>Scope fit</td><td>matched tumor-normal sequencing; CancerVision/MRDVision/custom research WGS; FASTQ/BAM/VCF/CNV/SV/fusion output; BRAF/TERT/RET/NTRK/ALK/RAS reporting.</td></tr>
+      <tr><td>Sample requirements</td><td>FFPE purity/input, normal input, cfDNA tube/volume/mass/window, CTC-enriched pellet or low-input/single-cell handling.</td></tr>
+      <tr><td>Performance</td><td>LOD, thyroid/PTC validation, early-stage sensitivity limits, TERT/fusion/SV handling, CHIP/germline filtering.</td></tr>
+      <tr><td>Governance</td><td>TAT, cost, failure/rerun policy, data location, overseas transfer, encryption, CAP/CLIA, research-use boundary.</td></tr>
+      <tr><td>Deliverables</td><td>de-identified report example, raw data manifest, genome build, pipeline version, publication policy.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section id="next">
+  <h2><span class="num">14</span>7-Day Execution Plan</h2>
+  <p class="sub">Immediate path to Samsung concept lock</p>
+  <table class='t'><thead><tr><th>Day</th><th>Action</th><th>Output</th><th>Owner</th></tr></thead><tbody><tr><td>1</td><td>Science-track title and one-line hypothesis lock</td><td>final title, 150-word abstract</td><td>PI/Seungho</td></tr><tr><td>2</td><td>Existing Yu CTC data variable inventory</td><td>variable dictionary: timepoints, E/EM/M counts, clinicopathology</td><td>hospital team</td></tr><tr><td>3</td><td>Send Inocras questionnaire</td><td>written vendor response request</td><td>Seungho/PI</td></tr><tr><td>4</td><td>IRB specimen/timepoint draft</td><td>IRB checklist and consent scope</td><td>CRC/PI</td></tr><tr><td>5</td><td>Build 3 preliminary figures</td><td>thyroidectomy perturbation, missing dataset, mutation-not-enough support</td><td>Seungho</td></tr><tr><td>6</td><td>Budget and role lock</td><td>30억/3년 table, sample count assumptions, stage gates</td><td>PI/admin</td></tr><tr><td>7</td><td>Samsung 2-page concept note</td><td>final 2-page blind proposal draft</td><td>Seungho/PI</td></tr></tbody></table>
+  <div class="grid grid-2">
+    <div class="box good">
+      <h4>Prof. Yu immediate ask</h4>
+      <p>serial post-op blood at 2 weeks and 3 months prospectively 가능 여부, archived Yu-style CTC E/EM/M raw table, clinical variable dictionary, FFPE/fresh tissue access를 확인해야 한다.</p>
+    </div>
+    <div class="box">
+      <h4>Inocras immediate ask</h4>
+      <p>PTC FFPE+matched normal NGS, cfDNA/MRD sensitivity, CTC-enriched/low-input feasibility, TERT/fusion/SV/CNV reporting, raw data return, IRB/data transfer 조건, 단가/TAT를 서면으로 받아야 한다.</p>
+    </div>
+  </div>
+</section>
+
+<section id="paths">
+  <h2><span class="num">15</span>Sources + Paths</h2>
+  <p class="sub">Every artifact this dossier points to</p>
+  <div class='related'><a href='assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx'><b>PPTX direct</b><span>kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx</span></a><a href='assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_handoff_packet_2026_05_09.zip'><b>Handoff ZIP</b><span>kthyro_ctc_emt_samsung_handoff_packet_2026_05_09.zip</span></a><a href='assets/kthyro_ctc_emt_samsung/context_digest.md'><b>Context digest</b><span>context_digest.md</span></a><a href='assets/kthyro_ctc_emt_samsung/final_proposal_logic.md'><b>Proposal logic</b><span>final_proposal_logic.md</span></a><a href='assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_preliminary_results_3page_kr.md'><b>3-page preliminary</b><span>samsung_ctc_emt_preliminary_results_3page_kr.md</span></a><a href='assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_concept_note_2page_kr.md'><b>2-page concept</b><span>samsung_ctc_emt_concept_note_2page_kr.md</span></a><a href='assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_specific_aims_kr.md'><b>Specific aims</b><span>samsung_ctc_emt_specific_aims_kr.md</span></a><a href='assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_reviewer_defense_table_kr.md'><b>Reviewer defense</b><span>samsung_ctc_emt_reviewer_defense_table_kr.md</span></a><a href='assets/kthyro_ctc_emt_samsung/budget_30억_3년.tsv'><b>Budget TSV</b><span>budget_30억_3년.tsv</span></a><a href='assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_irb_checklist_kr.md'><b>IRB checklist</b><span>samsung_ctc_emt_irb_checklist_kr.md</span></a><a href='assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_inocras_questionnaire_kr.md'><b>Inocras Q</b><span>samsung_ctc_emt_inocras_questionnaire_kr.md</span></a><a href='assets/kthyro_ctc_emt_samsung/message_to_prof_yu_kakao_kr.md'><b>Kakao</b><span>message_to_prof_yu_kakao_kr.md</span></a><a href='assets/kthyro_ctc_emt_samsung/next_7_day_action_plan_kr.md'><b>7-day plan</b><span>next_7_day_action_plan_kr.md</span></a></div>
+  <table class="t">
+    <thead><tr><th>Artifact</th><th>Local path</th></tr></thead>
+    <tbody>
+      <tr><td>Proposal workspace</td><td><span class="path">/home/seungho/personal/THCA_data_analysis/kthyro_ctc_emt_samsung_proposal</span></td></tr>
+      <tr><td>Web HTML source</td><td><span class="path">/home/seungho/personal/THCA_data_analysis/project/papers_hub_2026_0509/kthyro_ctc_emt_samsung_science_dossier.html</span></td></tr>
+      <tr><td>Live deployed HTML</td><td><span class="path">/var/www/papers/papers_hub_2026_0509/kthyro_ctc_emt_samsung_science_dossier.html</span></td></tr>
+      <tr><td>Live asset directory</td><td><span class="path">/var/www/papers/papers_hub_2026_0509/assets/kthyro_ctc_emt_samsung</span></td></tr>
+      <tr><td>Deck PPTX</td><td><span class="path">/home/seungho/personal/THCA_data_analysis/kthyro_ctc_emt_samsung_proposal/outputs/deck/kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx</span></td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+</div>
+<footer>
+  K-Thyro CTC-EMT Samsung Science Dossier · built 2026-05-09 · claim boundary: proposal framework, not clinical diagnostic
+</footer>
+
+<!-- RENEWAL_0509_ANNEX_START -->
+<section class="renewal0509 renewal0509-annex" id="renewal-0509-figure-table-audit">
+  <div class="renewal0509-kicker">v5 annex · figure/table/source audit</div>
+  <h2>Figure · Table · Source Audit</h2>
+  <p>아래 audit는 이 HTML 안의 모든 <code>img</code>와 <code>table</code>을 스캔해 만든 provenance layer입니다. 각 그림/표가 어떤 데이터 계열을 받았는지, 어떻게 읽어야 하는지, 어떤 로컬 path를 봐야 하는지, 어디까지가 자동 추정인지 분리합니다.</p>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Figure Explanation Cards</h3><span>visual-by-visual reading guide</span></div>
+    <div class="renewal0509-figgrid"><article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_01_science_not_ict.png" alt="Science, Not ICT visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 01 · Clinical endpoint evidence</div><h4>webvisual_01_science_not_ict.png</h4><p>Science, Not ICT visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_02_thyroidectomy_perturbation.png" alt="Perturbation Model visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 02 · Clinical endpoint evidence</div><h4>webvisual_02_thyroidectomy_perturbation.png</h4><p>Perturbation Model visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_03_sampling_map.png" alt="Serial Sample Map visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 03 · Clinical endpoint evidence</div><h4>webvisual_03_sampling_map.png</h4><p>Serial Sample Map visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_04_ctc_state_ladder.png" alt="CTC State Ladder visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 04 · Clinical endpoint evidence</div><h4>webvisual_04_ctc_state_ladder.png</h4><p>CTC State Ladder visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_05_genetic_anchor.png" alt="Genetic Anchor visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 05 · Effect-size / forest evidence</div><h4>webvisual_05_genetic_anchor.png</h4><p>Genetic Anchor visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_06_public_pilot_boundary.png" alt="Pilot Boundary visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 06 · Clinical endpoint evidence</div><h4>webvisual_06_public_pilot_boundary.png</h4><p>Pilot Boundary visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_07_reviewer_attack_map.png" alt="Reviewer Attack Map visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 07 · Clinical endpoint evidence</div><h4>webvisual_07_reviewer_attack_map.png</h4><p>Reviewer Attack Map visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_08_budget_roadmap.png" alt="Budget Roadmap visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 08 · Clinical endpoint evidence</div><h4>webvisual_08_budget_roadmap.png</h4><p>Budget Roadmap visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_09_irb_data_flow.png" alt="IRB Data Flow visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 09 · Clinical endpoint evidence</div><h4>webvisual_09_irb_data_flow.png</h4><p>IRB Data Flow visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/webvisual_10_7day_execution.png" alt="7-Day Execution visual" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 10 · Clinical endpoint evidence</div><h4>webvisual_10_7day_execution.png</h4><p>7-Day Execution visual</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide01_problem.png" alt="The Narrow Problem figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 11 · Clinical endpoint evidence</div><h4>slide01_problem.png</h4><p>The Narrow Problem figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide02_hypothesis.png" alt="Core Hypothesis figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 12 · Effect-size / forest evidence</div><h4>slide02_hypothesis.png</h4><p>Core Hypothesis figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide03_literature_gap.png" alt="Yu 2024 Anchor figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 13 · Effect-size / forest evidence</div><h4>slide03_literature_gap.png</h4><p>Yu 2024 Anchor figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the point estimate, confidence interval, cohort label, and direction together before reusing the claim.</dd><dt>Boundary</dt><dd>A narrow CI supports precision, but cohort definitions and endpoint choice still set the claim boundary.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide04_missing_dataset.png" alt="Missing Dataset figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 14 · Clinical endpoint evidence</div><h4>slide04_missing_dataset.png</h4><p>Missing Dataset figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide05_driver_not_enough.png" alt="Mutation Alone Is Not Enough figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 15 · Clinical endpoint evidence</div><h4>slide05_driver_not_enough.png</h4><p>Mutation Alone Is Not Enough figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide06_spatial_context.png" alt="Spatial Context figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 16 · Spatial / anatomy evidence</div><h4>slide06_spatial_context.png</h4><p>Spatial Context figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Read the tissue region, spot-level module score, and neighborhood definition together.</dd><dt>Boundary</dt><dd>Spatial pages are current as context/caveat support unless explicitly promoted by the current situation matrix.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide07_ctc_ngs_panel.png" alt="CTC-EMT-NGS Panel figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 17 · Clinical endpoint evidence</div><h4>slide07_ctc_ngs_panel.png</h4><p>CTC-EMT-NGS Panel figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide08_sampling_timeline.png" alt="Prospective Design figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 18 · Clinical endpoint evidence</div><h4>slide08_sampling_timeline.png</h4><p>Prospective Design figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide09_genetic_map.png" alt="NGS Genetic Map figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 19 · Clinical endpoint evidence</div><h4>slide09_genetic_map.png</h4><p>NGS Genetic Map figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide10_claim_boundary.png" alt="Endpoints &amp; Boundaries figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 20 · Clinical endpoint evidence</div><h4>slide10_claim_boundary.png</h4><p>Endpoints &amp; Boundaries figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide11_budget_roadmap.png" alt="30억 / 3년 Execution figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 21 · Clinical endpoint evidence</div><h4>slide11_budget_roadmap.png</h4><p>30억 / 3년 Execution figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article>
+<article class="renewal0509-figcard"><div class="renewal0509-figframe"><img src="assets/kthyro_ctc_emt_samsung/slide12_final_ask.png" alt="Final Ask figure" loading="lazy"></div><div class="renewal0509-figbody"><div class="renewal0509-mini">Figure 22 · Clinical endpoint evidence</div><h4>slide12_final_ask.png</h4><p>Final Ask figure</p><dl><dt>Data entered</dt><dd>Inline page visual; source path and caption are the binding provenance row for this audit.</dd><dt>How to read</dt><dd>Check endpoint, risk group definition, censoring context, and whether the page reports Cox or log-rank support.</dd><dt>Boundary</dt><dd>Low-event settings should remain caveated even when the visual separation is strong.</dd><dt>Source match</dt><dd>No same-basename result match listed.</dd></dl></div></article></div>
+  </div>
+  <div class="renewal0509-block">
+    <div class="renewal0509-block-title"><h3>All Table Explanation Cards</h3><span>table-by-table data guide</span></div>
+    <div class="renewal0509-tablegrid"><article class="renewal0509-tablecard"><b>Table 01</b><strong>Inline HTML table 1</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 02</b><strong>Inline HTML table 2</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 03</b><strong>Inline HTML table 3</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 04</b><strong>Inline HTML table 4</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 05</b><strong>Inline HTML table 5</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 06</b><strong>Inline HTML table 6</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 07</b><strong>Inline HTML table 7</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 08</b><strong>Inline HTML table 8</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 09</b><strong>Inline HTML table 9</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 10</b><strong>Inline HTML table 10</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article>
+<article class="renewal0509-tablecard"><b>Table 11</b><strong>Inline HTML table 11</strong><span>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</span></article></div>
+  </div>
+  <details open>
+    <summary>1. 모든 그림 / visual asset audit</summary>
+    <table>
+      <tr><th>#</th><th>Asset path</th><th>Caption / page explanation</th><th>Data entered</th><th>Matched local result/source</th></tr>
+      <tr><td>1</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_01_science_not_ict.png">assets/kthyro_ctc_emt_samsung/webvisual_01_science_not_ict.png</a></td><td>Science, Not ICT visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>2</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_02_thyroidectomy_perturbation.png">assets/kthyro_ctc_emt_samsung/webvisual_02_thyroidectomy_perturbation.png</a></td><td>Perturbation Model visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>3</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_03_sampling_map.png">assets/kthyro_ctc_emt_samsung/webvisual_03_sampling_map.png</a></td><td>Serial Sample Map visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>4</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_04_ctc_state_ladder.png">assets/kthyro_ctc_emt_samsung/webvisual_04_ctc_state_ladder.png</a></td><td>CTC State Ladder visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>5</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_05_genetic_anchor.png">assets/kthyro_ctc_emt_samsung/webvisual_05_genetic_anchor.png</a></td><td>Genetic Anchor visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>6</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_06_public_pilot_boundary.png">assets/kthyro_ctc_emt_samsung/webvisual_06_public_pilot_boundary.png</a></td><td>Pilot Boundary visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>7</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_07_reviewer_attack_map.png">assets/kthyro_ctc_emt_samsung/webvisual_07_reviewer_attack_map.png</a></td><td>Reviewer Attack Map visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>8</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_08_budget_roadmap.png">assets/kthyro_ctc_emt_samsung/webvisual_08_budget_roadmap.png</a></td><td>Budget Roadmap visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>9</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_09_irb_data_flow.png">assets/kthyro_ctc_emt_samsung/webvisual_09_irb_data_flow.png</a></td><td>IRB Data Flow visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>10</td><td><a href="assets/kthyro_ctc_emt_samsung/webvisual_10_7day_execution.png">assets/kthyro_ctc_emt_samsung/webvisual_10_7day_execution.png</a></td><td>7-Day Execution visual</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>11</td><td><a href="assets/kthyro_ctc_emt_samsung/slide01_problem.png">assets/kthyro_ctc_emt_samsung/slide01_problem.png</a></td><td>The Narrow Problem figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>12</td><td><a href="assets/kthyro_ctc_emt_samsung/slide02_hypothesis.png">assets/kthyro_ctc_emt_samsung/slide02_hypothesis.png</a></td><td>Core Hypothesis figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>13</td><td><a href="assets/kthyro_ctc_emt_samsung/slide03_literature_gap.png">assets/kthyro_ctc_emt_samsung/slide03_literature_gap.png</a></td><td>Yu 2024 Anchor figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>14</td><td><a href="assets/kthyro_ctc_emt_samsung/slide04_missing_dataset.png">assets/kthyro_ctc_emt_samsung/slide04_missing_dataset.png</a></td><td>Missing Dataset figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>15</td><td><a href="assets/kthyro_ctc_emt_samsung/slide05_driver_not_enough.png">assets/kthyro_ctc_emt_samsung/slide05_driver_not_enough.png</a></td><td>Mutation Alone Is Not Enough figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>16</td><td><a href="assets/kthyro_ctc_emt_samsung/slide06_spatial_context.png">assets/kthyro_ctc_emt_samsung/slide06_spatial_context.png</a></td><td>Spatial Context figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>17</td><td><a href="assets/kthyro_ctc_emt_samsung/slide07_ctc_ngs_panel.png">assets/kthyro_ctc_emt_samsung/slide07_ctc_ngs_panel.png</a></td><td>CTC-EMT-NGS Panel figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>18</td><td><a href="assets/kthyro_ctc_emt_samsung/slide08_sampling_timeline.png">assets/kthyro_ctc_emt_samsung/slide08_sampling_timeline.png</a></td><td>Prospective Design figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>19</td><td><a href="assets/kthyro_ctc_emt_samsung/slide09_genetic_map.png">assets/kthyro_ctc_emt_samsung/slide09_genetic_map.png</a></td><td>NGS Genetic Map figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>20</td><td><a href="assets/kthyro_ctc_emt_samsung/slide10_claim_boundary.png">assets/kthyro_ctc_emt_samsung/slide10_claim_boundary.png</a></td><td>Endpoints &amp; Boundaries figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>21</td><td><a href="assets/kthyro_ctc_emt_samsung/slide11_budget_roadmap.png">assets/kthyro_ctc_emt_samsung/slide11_budget_roadmap.png</a></td><td>30억 / 3년 Execution figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr><tr><td>22</td><td><a href="assets/kthyro_ctc_emt_samsung/slide12_final_ask.png">assets/kthyro_ctc_emt_samsung/slide12_final_ask.png</a></td><td>Final Ask figure</td><td>Inline page visual; source path and caption are the binding provenance row for this audit.</td><td>No same-basename result file found; use page asset path as provenance.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>2. 모든 표 / table audit</summary>
+    <table>
+      <tr><th>#</th><th>Caption / heading</th><th>Data entered</th></tr>
+      <tr><td>1</td><td>Inline HTML table 1</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>2</td><td>Inline HTML table 2</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>3</td><td>Inline HTML table 3</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>4</td><td>Inline HTML table 4</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>5</td><td>Inline HTML table 5</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>6</td><td>Inline HTML table 6</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>7</td><td>Inline HTML table 7</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>8</td><td>Inline HTML table 8</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>9</td><td>Inline HTML table 9</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>10</td><td>Inline HTML table 10</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr><tr><td>11</td><td>Inline HTML table 11</td><td>Rows are embedded in this HTML file. Treat the table body as the immediate data source; upstream TSV/JSON is listed when linked or named in the page.</td></tr>
+    </table>
+  </details>
+  <details open>
+    <summary>3. 페이지 흐름 / section map</summary>
+    <table>
+      <tr><th>#</th><th>Level</th><th>Heading</th></tr>
+      <tr><td>1</td><td>H1</td><td>CTC-EMT thyroidectomy perturbation, not an AI platform .</td></tr>
+<tr><td>2</td><td>H2</td><td>01 Visual Wall</td></tr>
+<tr><td>3</td><td>H2</td><td>02 TL;DR</td></tr>
+<tr><td>4</td><td>H2</td><td>03 Science Decision</td></tr>
+<tr><td>5</td><td>H2</td><td>03 Proposal Logic</td></tr>
+<tr><td>6</td><td>H2</td><td>04 Yu 2024 Anchor</td></tr>
+<tr><td>7</td><td>H2</td><td>05 Public Pilot Support</td></tr>
+<tr><td>8</td><td>H2</td><td>06 12-Slide Figure Atlas</td></tr>
+<tr><td>9</td><td>H2</td><td>07 Specific Aims</td></tr>
+<tr><td>10</td><td>H2</td><td>08 Study Design</td></tr>
+<tr><td>11</td><td>H2</td><td>09 Endpoints &amp; Kill Criteria</td></tr>
+<tr><td>12</td><td>H2</td><td>10 Reviewer Defense Matrix</td></tr>
+<tr><td>13</td><td>H2</td><td>11 30억 / 3년 Budget</td></tr>
+<tr><td>14</td><td>H2</td><td>12 IRB / Data Collection Checklist</td></tr>
+<tr><td>15</td><td>H2</td><td>13 Inocras Vendor Questionnaire</td></tr>
+<tr><td>16</td><td>H2</td><td>14 7-Day Execution Plan</td></tr>
+<tr><td>17</td><td>H2</td><td>15 Sources + Paths</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>4. 명시 source/result links</summary>
+    <table>
+      <tr><th>#</th><th>Link</th></tr>
+      <tr><td>1</td><td>assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx</td></tr>
+<tr><td>2</td><td>assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_handoff_packet_2026_05_09.zip</td></tr>
+<tr><td>3</td><td>index.html</td></tr>
+<tr><td>4</td><td>paper1_reviewer_defense_dashboard.html</td></tr>
+<tr><td>5</td><td>assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx</td></tr>
+<tr><td>6</td><td>assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_science_pitch_v2_reference_style.pptx</td></tr>
+<tr><td>7</td><td>assets/kthyro_ctc_emt_samsung/kthyro_ctc_emt_samsung_handoff_packet_2026_05_09.zip</td></tr>
+<tr><td>8</td><td>assets/kthyro_ctc_emt_samsung/context_digest.md</td></tr>
+<tr><td>9</td><td>assets/kthyro_ctc_emt_samsung/final_proposal_logic.md</td></tr>
+<tr><td>10</td><td>assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_preliminary_results_3page_kr.md</td></tr>
+<tr><td>11</td><td>assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_concept_note_2page_kr.md</td></tr>
+<tr><td>12</td><td>assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_specific_aims_kr.md</td></tr>
+<tr><td>13</td><td>assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_reviewer_defense_table_kr.md</td></tr>
+<tr><td>14</td><td>assets/kthyro_ctc_emt_samsung/budget_30억_3년.tsv</td></tr>
+<tr><td>15</td><td>assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_irb_checklist_kr.md</td></tr>
+<tr><td>16</td><td>assets/kthyro_ctc_emt_samsung/samsung_ctc_emt_inocras_questionnaire_kr.md</td></tr>
+<tr><td>17</td><td>assets/kthyro_ctc_emt_samsung/message_to_prof_yu_kakao_kr.md</td></tr>
+<tr><td>18</td><td>assets/kthyro_ctc_emt_samsung/next_7_day_action_plan_kr.md</td></tr>
+    </table>
+  </details>
+  <details>
+    <summary>5. Same-family renewed pages</summary>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px">
+      <a class="renewal0509-card" href="active_learning_browser.html"><b>active_learning_browser</b><span>0 figs · 1 tables</span></a><a class="renewal0509-card" href="braf_v600e_deep_dive.html"><b>braf_v600e_deep_dive</b><span>0 figs · 2 tables</span></a><a class="renewal0509-card" href="cancer_gene_matrix.html"><b>cancer_gene_matrix</b><span>1 figs · 1 tables</span></a><a class="renewal0509-card" href="cv_agent_demo.html"><b>cv_agent_demo</b><span>9 figs · 2 tables</span></a><a class="renewal0509-card" href="hla_atlas.html"><b>hla_atlas</b><span>1 figs · 2 tables</span></a><a class="renewal0509-card" href="hla_class_deep_dive.html"><b>hla_class_deep_dive</b><span>1 figs · 3 tables</span></a><a class="renewal0509-card" href="k2_bd_report.html"><b>k2_bd_report</b><span>0 figs · 4 tables</span></a><a class="renewal0509-card" href="k2_t1_cards.html"><b>k2_t1_cards</b><span>0 figs · 28 tables</span></a><a class="renewal0509-card" href="korean_cohort_prep.html"><b>korean_cohort_prep</b><span>1 figs · 2 tables</span></a><a class="renewal0509-card" href="kthyro_ctc_emt_all_pages_launchpad.html"><b>kthyro_ctc_emt_all_pages_launchpad</b><span>0 figs · 0 tables</span></a><a class="renewal0509-card" href="kthyro_ctc_emt_breakthrough_case.html"><b>kthyro_ctc_emt_breakthrough_case</b><span>6 figs · 2 tables</span></a><a class="renewal0509-card" href="kthyro_ctc_emt_connected_reader.html"><b>kthyro_ctc_emt_connected_reader</b><span>7 figs · 0 tables</span></a>
+    </div>
+  </details>
+  <style>
+    .renewal0509-card{display:block;background:#fff;border:1px solid #eadfcc;border-radius:8px;padding:10px 12px;color:#17212f!important;text-decoration:none!important}
+    .renewal0509-card b{display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8f2d25}
+    .renewal0509-card span{display:block;font-size:12px;color:#52606f;margin-top:4px}
+  </style>
+</section>
+<!-- RENEWAL_0509_ANNEX_END -->
+
+</body>
+</html>
